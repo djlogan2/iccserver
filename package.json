@@ -1,0 +1,45 @@
+{
+  "name": "iccserver",
+  "private": true,
+  "scripts": {
+    "start": "meteor run",
+    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
+    "visualize": "meteor --production --extra-packages bundle-visualizer",
+    "lint": "eslint . --ext .jsx --fix"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.1.5",
+    "bcrypt": "^3.0.2",
+    "meteor-node-stubs": "^0.4.1",
+    "npm": "^6.5.0"
+  },
+  "meteor": {
+    "mainModule": {
+      "client": "client/main.js",
+      "server": "server/main.js"
+    },
+    "testModule": {
+      "client": "tests/client.js",
+      "server": "tests/server.js"
+    }
+  },
+  "lint-staged": {
+    "*.js": "eslint --fix",
+    "*.jsx": "eslint --fix"
+  },
+  "pre-commit": {
+    "silent": false
+  },
+  "precommit.silent": false,
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.10.0",
+    "eslint-import-resolver-meteor": "^0.4.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-meteor": "^5.1.0",
+    "eslint-plugin-react": "^7.11.1",
+    "lint-staged": "^8.1.0",
+    "pre-commit": "^1.2.2"
+  }
+}
