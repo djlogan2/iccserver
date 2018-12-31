@@ -1,0 +1,790 @@
+@charset "utf-8";
+/* CSS Document */
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #252b2f;
+    font-family: AvenirLTStd-Medium, Arial, Helvetica, sans-serif;
+}
+
+img {
+    margin: 0;
+    padding: 0;
+    border-top-style: none;
+    border-right-style: none;
+    border-bottom-style: none;
+    border-left-style: none;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    margin: 0;
+    padding: 0;
+}
+
+.clear {
+    clear: both;
+}
+
+.half-width {
+    float: left;
+    width: 50%;
+}
+
+.third-width {
+    float: left;
+    width: 33.33%;
+}
+
+/* TEXT HIGHLIGHTS */
+.bold {
+    font-weight: bold;
+}
+
+.errror-color {
+    color: #be0d0d !important;
+}
+
+.profile-highlight {
+    color: #40bfff;
+}
+
+/*MAIN MENU*/
+.mainmenu {
+    float: left;
+    height: 100vh;
+    width: 148px;
+    padding: 0;
+    background-color: #0d1114;
+    color: #d8e8f0;
+    z-index: 500;
+    position: absolute;
+}
+
+.mainmenu .menu-top {
+    display: block;
+}
+
+.mainmenu .menu-bottom {
+    bottom: 0;
+    position: absolute;
+    left: 0;
+    width: 148px;
+}
+
+
+.mainmenu p {
+    font-size: 14px;
+}
+
+.mainmenu p a {
+    text-decoration: none;
+    color: #d8e8f0;
+    display: block;
+    padding: 12px 12px 12px 26px;
+}
+
+.mainmenu p a:hover {
+    color: #FFFFFF;
+    background-color: #05080a;
+}
+
+.mainmenu .menu-top p a .notifications-count {
+    background-color: #C30;
+    font-size: 9px;
+    padding: 2px 5px 1px 4px;
+    vertical-align: top;
+    display: inline-block;
+    margin-top: 1px;
+    margin-left: 5px;
+}
+
+.mainmenu .logo {
+    text-align: center;
+    width: auto;
+    margin: 16px 15px;
+}
+
+.mainmenu .mobile-button {
+    display: none;
+}
+
+.notifications-count {
+}
+
+/*END MAIN MENU*/
+
+/*SUBMENU*/
+#submenu-home {
+    display: none;
+}
+
+.submenu {
+    float: left;
+    height: 100vh;
+    width: 202px;
+    padding: 0;
+    background-color: #05080a;
+    color: #d8e8f0;
+    z-index: 500;
+    position: absolute;
+    left: 148px;
+    top: 0;
+}
+
+.submenu p {
+    margin-top: 30px;
+    margin-left: 21px;
+    font-size: 14px;
+}
+
+.submenu a {
+    color: #d8e8f0;
+    text-decoration: none;
+    display: block;
+    padding: 0 !important;
+}
+
+.submenu a:hover {
+    color: #38a5dd !important;
+}
+
+.submenu .icon {
+    float: left;
+    margin-right: 8px;
+    margin-top: -8px;
+}
+
+.submenu p a .notifications-count {
+    background-color: #C30;
+    font-size: 9px;
+    padding: 2px 5px 1px 4px;
+    vertical-align: top;
+    display: inline-block;
+    margin-top: 1px;
+    margin-left: 5px;
+    color: #d8e8f0 !important;
+}
+
+/*END SUBMENU*/
+
+/*RIGHT MENU*/
+.rightmenu {
+    float: right;
+    height: 100vh;
+    background-color: #0d1114;
+    /*width:100%;*/
+    width: 20%;
+    max-width: 380px;
+    color: #d8e8f0;
+    padding: 0;
+    position: absolute;
+    right: 0;
+    z-index: 500;
+}
+
+.rightmenu .profile {
+    background-color: #0d1114;
+    padding: 15px 10px 20px;
+}
+
+.half-width {
+    float: left;
+    width: 50%;
+}
+
+.rightmenu .profile .half-width img {
+    float: left;
+    margin-right: 10px;
+}
+
+.rightmenu .profile .half-width p {
+    font-size: 14px;
+}
+
+.profile-text {
+    font-size: 13px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.win-loss-ratio {
+    font-size: 12px !important;
+    color: #b3b3b3;
+}
+
+.rightmenu .clocks {
+    background-color: #f1f1f1;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.rightmenu .clocks p {
+    color: #161a1c;
+    text-align: center;
+    display: block;
+    font-size: 21px;
+    font-family: AvenirLTStd-Book, Arial, Helvetica, sans-serif;
+    padding: 0 15px;
+}
+
+.rightmenu .moves-box {
+    overflow: auto;
+}
+
+.rightmenu .moves-box p {
+    font-size: 13px !important;
+    font-family: AvenirLTStd-Medium, Arial, Helvetica, sans-serif;
+}
+
+.rightmenu .moves-box .number {
+    float: left;
+    width: 18%;
+}
+
+.rightmenu .moves-box .move {
+    float: left;
+    width: 41%;
+}
+
+.rightmenu .moves-box .move2 {
+    float: left;
+    width: 41%;
+}
+
+.rightmenu .moves-box .move2 p {
+    text-align: center !important;
+}
+
+.rightmenu .moves-box .box1 {
+    padding: 9px 24px;
+    display: block;
+    background-color: #161a1c;
+    clear: both;
+}
+
+.rightmenu .moves-box .box2 {
+    padding: 9px 24px;
+    display: block;
+    background-color: #0d1114;
+    clear: both;
+}
+
+.rightmenu .bottom-controls {
+    position: absolute;
+    background-color: #0d1114;
+    bottom: 0;
+    padding: 0 0 10px;
+    margin: 0;
+    right: 0;
+    width: 100%;
+    max-width: 380px;
+}
+
+.rightmenu .bottom-controls p {
+    text-align: center;
+}
+
+.rightmenu .bottom-controls .buttons {
+    width: 15%;
+    opacity: 0.9;
+}
+
+.rightmenu .bottom-controls .buttons:hover {
+    opacity: 1.0;
+}
+
+.rightmenu .bottom-controls .bottom-area {
+    background-color: #161a1c;
+    margin-bottom: 15px;
+}
+
+.rightmenu .bottom-controls .bottom-area .text-area {
+    background-color: #0f1214;
+    margin: 20px;
+    padding: 15px;
+}
+
+.rightmenu .bottom-controls .bottom-area .clear {
+    height: 2px;
+}
+
+.rightmenu .bottom-controls .bottom-area .text-area p {
+    text-align: left;
+    font-size: 13px;
+    font-family: AvenirLTStd-Book, Arial, Helvetica, sans-serif;
+    vertical-align: middle;
+}
+
+.rightmenu .bottom-controls .bottom-area .text-area .icon {
+    float: left;
+    margin-right: 4px;
+    margin-top: -2px;
+}
+
+.rightmenu .bottom-controls .bottom-area .text-area a {
+    color: #03a9f4;
+    text-decoration: none;
+}
+
+.rightmenu .bottom-controls .bottom-area .text-area a:hover {
+    text-decoration: underline;
+}
+
+/*END RIGHT MENU*/
+
+
+.left-side p {
+    text-align: left !important;
+}
+
+.right-side p {
+    text-align: right !important;
+}
+
+.right-side img {
+    float: none !important;
+    margin-right: 0 !important;
+}
+
+@media (min-width: 1151px) and (max-width: 1400px) {
+    /*MAIN MENU*/
+    .mainmenu {
+        float: left;
+        height: 100vh;
+        width: 118px; /* 148 */
+        padding: 0;
+        background-color: #0d1114;
+        color: #d8e8f0;
+        z-index: 500;
+        position: absolute;
+    }
+
+    .mainmenu .menu-top {
+        display: block;
+    }
+
+    .mainmenu .menu-bottom {
+        bottom: 0;
+        position: absolute;
+        left: 0;
+        width: 118px;
+    }
+
+
+    .mainmenu p {
+        font-size: 14px;
+    }
+
+    .mainmenu p a {
+        text-decoration: none;
+        color: #d8e8f0;
+        display: block;
+        padding: 12px 12px 12px 26px;
+    }
+
+    .mainmenu p a:hover {
+        color: #FFFFFF;
+        background-color: #05080a;
+    }
+
+    .mainmenu .menu-top p a .notifications-count {
+        background-color: #C30;
+        font-size: 9px;
+        padding: 2px 5px 1px 4px;
+        vertical-align: top;
+        display: inline-block;
+        margin-top: 1px;
+        margin-left: 5px;
+    }
+
+    .mainmenu .logo {
+        text-align: center;
+        width: auto;
+        margin: 16px 15px;
+        max-width: 85px;
+    }
+
+    .mainmenu .mobile-button {
+        display: none;
+    }
+
+    .notifications-count {
+    }
+
+    /*END MAIN MENU*/
+    /*SUBMENU*/
+    #submenu-home {
+        display: none;
+    }
+
+    .submenu {
+        float: left;
+        height: 100vh;
+        width: 202px;
+        padding: 0;
+        background-color: #05080a;
+        color: #d8e8f0;
+        z-index: 500;
+        position: absolute;
+        left: 118px;
+        top: 0;
+    }
+
+    .submenu p {
+        margin-top: 30px;
+        margin-left: 21px;
+        font-size: 14px;
+    }
+
+    .submenu a {
+        color: #d8e8f0;
+        text-decoration: none;
+        display: block;
+        padding: 0 !important;
+    }
+
+    .submenu a:hover {
+        color: #38a5dd !important;
+    }
+
+    .submenu .icon {
+        float: left;
+        margin-right: 8px;
+        margin-top: -8px;
+    }
+
+    .submenu p a .notifications-count {
+        background-color: #C30;
+        font-size: 9px;
+        padding: 2px 5px 1px 4px;
+        vertical-align: top;
+        display: inline-block;
+        margin-top: 1px;
+        margin-left: 5px;
+        color: #d8e8f0 !important;
+    }
+
+    /*END SUBMENU*/
+    /*RIGHT MENU*/
+    .rightmenu {
+        float: right;
+        height: 100vh;
+        background-color: #0d1114;
+        /*width:100%;*/
+        width: 20%;
+        max-width: 410px;
+        color: #d8e8f0;
+        padding: 0;
+        position: absolute;
+        right: 0;
+        z-index: 500;
+    }
+
+    .rightmenu .profile {
+        background-color: #0d1114;
+        padding: 15px 10px 20px;
+    }
+
+    .half-width {
+        float: left;
+        width: 50%;
+    }
+
+    .rightmenu .profile .half-width img {
+        float: left;
+        margin-right: 10px;
+    }
+
+    .rightmenu .profile .half-width p {
+        font-size: 14px;
+    }
+
+    .profile-text {
+        font-size: 13px;
+        color: #ffffff;
+        font-weight: bold;
+    }
+
+    .win-loss-ratio {
+        font-size: 12px !important;
+        color: #b3b3b3;
+    }
+
+    .rightmenu .clocks {
+        background-color: #f1f1f1;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
+
+    .rightmenu .clocks p {
+        color: #161a1c;
+        text-align: center;
+        display: block;
+        font-size: 21px;
+        font-family: AvenirLTStd-Book, Arial, Helvetica, sans-serif;
+        padding: 0 15px;
+    }
+
+    .rightmenu .moves-box {
+        overflow: hidden auto;
+    }
+
+    .rightmenu .moves-box p {
+        font-size: 13px !important;
+        font-family: AvenirLTStd-Medium, Arial, Helvetica, sans-serif;
+    }
+
+    .rightmenu .moves-box .number {
+        float: left;
+        width: 18%;
+    }
+
+    .rightmenu .moves-box .move {
+        float: left;
+        width: 41%;
+    }
+
+    .rightmenu .moves-box .move2 {
+        float: left;
+        width: 41%;
+    }
+
+    .rightmenu .moves-box .move2 p {
+        text-align: center !important;
+    }
+
+    .rightmenu .moves-box .box1 {
+        padding: 9px 24px;
+        display: block;
+        background-color: #161a1c;
+        clear: both;
+    }
+
+    .rightmenu .moves-box .box2 {
+        padding: 9px 24px;
+        display: block;
+        background-color: #0d1114;
+        clear: both;
+    }
+
+    .rightmenu .bottom-controls {
+        position: absolute;
+        background-color: #0d1114;
+        bottom: 0;
+        padding: 0 0 10px;
+        margin: 0;
+        right: 0;
+        width: 100%;
+        max-width: 380px;
+    }
+
+    .rightmenu .bottom-controls p {
+        text-align: center;
+    }
+
+    .rightmenu .bottom-controls .buttons {
+        width: 15%;
+        margin-right: 1px;
+        margin-left: 1px;
+        opacity: 0.9;
+        max-width: 60px;
+    }
+
+    .rightmenu .bottom-controls .buttons:hover {
+        opacity: 1.0;
+    }
+
+    .rightmenu .bottom-controls .bottom-area {
+        background-color: #161a1c;
+        margin-bottom: 15px;
+    }
+
+    .rightmenu .bottom-controls .bottom-area .text-area {
+        background-color: #0f1214;
+        margin: 20px;
+        padding: 15px;
+    }
+
+    .rightmenu .bottom-controls .bottom-area .clear {
+        height: 2px;
+    }
+
+    .rightmenu .bottom-controls .bottom-area .text-area p {
+        text-align: left;
+        font-size: 13px;
+        font-family: AvenirLTStd-Book, Arial, Helvetica, sans-serif;
+        vertical-align: middle;
+    }
+
+    .rightmenu .bottom-controls .bottom-area .text-area .icon {
+        float: left;
+        margin-right: 4px;
+        margin-top: -2px;
+    }
+
+    .rightmenu .bottom-controls .bottom-area .text-area a {
+        color: #03a9f4;
+        text-decoration: none;
+    }
+
+    .rightmenu .bottom-controls .bottom-area .text-area a:hover {
+        text-decoration: underline;
+    }
+
+    /*END RIGHT MENU*/
+}
+
+@media (min-width: 801px) and (max-width: 1150px) {
+    body {
+        background-color: #0d1114
+    }
+
+    .mainmenu {
+        position: fixed;
+        height: auto;
+        width: 100%;
+        margin-bottom: 20px;
+        background-color: transparent;
+        top: 0;
+    }
+
+    .mainmenu .logo {
+        float: left;
+        max-width: 300px !important;
+    }
+
+    .mainmenu .mobile-button {
+        display: block;
+        float: right;
+        margin: 19px 15px;
+    }
+
+    .mainmenu .menu-top {
+        width: 100%;
+        display: none;
+    }
+
+    .mainmenu .menu-top p {
+        max-width: 118px;
+    }
+
+    .mainmenu .menu-bottom {
+        position: relative;
+        width: 100%;
+        display: none;
+    }
+
+    .mainmenu .menu-bottom p {
+        max-width: 118px;
+    }
+
+    .submenu {
+        float: left;
+        height: auto;
+        width: 202px;
+        background-color: #05080a;
+        color: #d8e8f0;
+        z-index: 500;
+        position: absolute;
+        left: 118px;
+        top: 0;
+        padding: 0 0 24px;
+    }
+
+    .rightmenu {
+        position: relative;
+        max-width: 100%;
+        width: 100%;
+        height: 800px;
+    }
+
+    .rightmenu .bottom-controls {
+        position: relative !important;
+        background-color: #0d1114;
+        bottom: 0;
+        padding: 0 0 10px;
+        margin: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .rightmenu .moves-box {
+        height: auto !important;
+    }
+}
+
+@media all and (max-width: 800px) {
+    .mainmenu {
+        position: fixed;
+        height: auto;
+        width: 100%;
+        margin-bottom: 20px;
+        top: 0;
+    }
+
+    .mainmenu .logo {
+        float: left;
+        max-width: 300px !important;
+    }
+
+    .mainmenu .mobile-button {
+        display: block;
+        float: right;
+        margin: 19px 15px;
+    }
+
+    .mainmenu .menu-top {
+        width: 100%;
+        display: none;
+    }
+
+    .mainmenu .menu-bottom {
+        position: relative;
+        width: 100%;
+        display: none;
+    }
+
+    .submenu {
+        float: left;
+        height: auto;
+        width: 202px;
+        background-color: #05080a;
+        color: #d8e8f0;
+        z-index: 500;
+        position: absolute;
+        left: 118px;
+        top: 0;
+        padding: 0 0 24px;
+    }
+
+    .rightmenu {
+        position: relative;
+        max-width: 100%;
+        width: 100%;
+        height: 800px;
+    }
+
+    .rightmenu .bottom-controls {
+        position: relative !important;
+        background-color: #0d1114;
+        bottom: 0;
+        padding: 0 0 10px;
+        margin: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .rightmenu .moves-box {
+        height: auto !important;
+    }
+}
+
+/* Explorer fix */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    .chess-board-area {
+        max-width: 762px;
+    }
+}

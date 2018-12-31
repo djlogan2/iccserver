@@ -26,42 +26,43 @@ class LegacyUser {
     }
 
     login() {
-        let us = this;
+        let user = this;
 
-        Meteor.publish(us.user.username, function() {
+        Meteor.publish(user.user.username, function() {
             let publish = this;
 
             publish.onStop(() => {
-                us.socket.end();
+                user.socket.end();
             });
 
-            us.socket.connect({
+            user.socket.connect({
                 host: 'chessclub.com',
                 port: 23
             });
 
-            us.socket.setEncoding('utf8');
+            user.socket.setEncoding('utf8');
 
             setTimeout(function(){
+                //TODO: What do we do here?
                 console.log('server/legacyuser: why are we here');
             });
 
-            us.socket.on('data', function(data) {
-                us.databuffer += data;
-                let packets = us.parse();
+            user.socket.on('data', function(data) {
+                user.databuffer += data;
+                let packets = user.parse();
                 if(packets) {
                     if(packets.level2Packets.length && packets.level2Packets[0].packet.indexOf('69 5') === 0) {
-                        us.socket.write(us.user.password + '\n');
+                        user.socket.write(user.user.password + '\n');
                     } else {
                         console.log('Sending: ' + JSON.stringify(packets));
-                        publish.added(us.user.username, (us.packets_sent++).toString(), packets);
+                        publish.added(user.user.username, (user.packets_sent++).toString(), packets);
                         publish.ready();
                     }
                 }
             });
 
-            us.socket.on('error', function(e) {
-                publish.added(us.user.username, (us.packets_sent++).toString(), {error: e.code});
+            user.socket.on('error', function(e) {
+                publish.added(user.user.username, (user.packets_sent++).toString(), {error: e.code});
                 publish.ready();
             });
         });

@@ -1,0 +1,18 @@
+@charset "utf-8";
+/* CSS Document */
+@font-face {
+    font-family: AvenirLTStd-Medium;
+    src: local(AvenirLTStd-Medium), url('AvenirLTStd-Medium.otf') format('opentype');
+}
+@font-face {
+    font-family: AvenirLTStd-Heavy;
+    src: local(AvenirLTStd-Heavy), url('AvenirLTStd-Heavy.otf') format('opentype');
+}
+@font-face {
+    font-family: AvenirLTStd-Light;
+    src: local(AvenirLTStd-Light), url('AvenirLTStd-Light.otf') format('opentype');
+}
+@font-face {
+    font-family: AvenirLTStd-Book;
+    src: local(AvenirLTStd-Book), url('AvenirLTStd-Book.otf') format('opentype');
+}

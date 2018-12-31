@@ -1,25 +1,190 @@
 <head>
-  <title>iccserver</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>ICC Chess Club</title>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="shortcut icon" href="images/favicon.png">
+    <link href="sylesheets/main-style.css" rel="stylesheet" type="text/css" />
+    <link href="stylesheets/fonts.css" rel="stylesheet" type="text/css" />
+    <link href="stylesheets/chess_board_01.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
-
-  {{> hello}}
-  {{> info}}
+{{> chessboard}}
+{{> rightmenu}}
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
+<template name="chessboard">
+    <div class="main-chess-area" id="main-chess-area">
+        <div class="chess-area" id="chess-area">
+            <div class="chess-board-area" id="chess-board-area">
+                <div class="profile-area" id="top_player_info_bar">
+                    <p class="clock-area" id="darkCountdownBoard">{{TopTime}}</p>
+                    {{#with TopPlayer}}
+                    <img src="{{profile_image}}" class="profile-pic"  alt=""/>
+                    <p class="profile-text">{{name}}<span class="profile-highlight">({{rating}})</span>
+                        <img src="{{flag_image}}" width="14"  alt=""/></p>
+                    {{/with}}
+                    <div class="clear"></div>
+                </div>
+                <div class="clear"></div>
+                <!-- BOARD -->
+                <div class="chess-board" id="chess-board">
+                    {{#each Board}}
+                        {{#let row_index=@index}}
+                        <div class="chess-row">
+                            {{#each this}}
+                                <div class="square {{squareColor row_index @index}}"  id="a8"><div class="piece {{this}}"></div></div>
+                            {{/each}}
+                        </div>
+                        {{/let}}
+                    {{/each}}
+                    <div class="clear"></div>
+                </div>
+                <!-- END BOARD -->
+                <div class="profile-area" id="bottom_player_info_bar">
+                    <p class="clock-area error" id="lightCountdownBoard">{{BottomTime}}</p>
+                    {{#with BottomPlayer}}
+                    <img src="{{profile_image}}" class="profile-pic"  alt=""/>
+                    <p class="profile-text">{{name}}<span class="profile-highlight">({{rating}})</span>
+                        <img src="{{flag_image}}" width="14"  alt=""/></p>
+                    {{/with}}
+                    <div class="clear"></div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
 </template>
 
-<template name="info">
-  <h2>Learn Meteor!</h2>
-  <ul>
-    <li><a href="https://www.meteor.com/try" target="_blank">Do the Tutorial</a></li>
-    <li><a href="http://guide.meteor.com" target="_blank">Follow the Guide</a></li>
-    <li><a href="https://docs.meteor.com" target="_blank">Read the Docs</a></li>
-    <li><a href="https://forums.meteor.com" target="_blank">Discussions</a></li>
-  </ul>
+<template name="mainmenu">
+    <div class="mainmenu">
+        <a href="#"><img src="images/icc-logo.png" class="logo" width="100%"  alt=""/></a>
+        <a href="#"><img src="images/buttons/btn-setings.png" class="mobile-button" alt="setings" id="mobile-menu-btn"></a>
+        <div class="clear"></div>
+        <div class="menu-top" id="menu-top">
+            <p><a href="#" id="mm-home">Home <span class="notifications-count">2</span></a> </p>
+            <p><a href="#" id="no-roll">Play  </a></p>
+            <p><a href="#" id="no-roll">Learn</a></p>
+            <p><a href="#" id="no-roll">Share  </a></p>
+            <p><a href="#" id="no-roll">Free Trial  </a></p>
+            <p><a href="#" id="no-roll">ChessTV </a></p>
+            <div class="clear"></div>
+        </div>
+        <div class="menu-bottom" id="menu-bottom">
+            <p><a href="#" id="no-roll">Help </a></p>
+            <p><a href="#" id="no-roll">Old Site </a></p>
+            <p><a href="#" id="no-roll">Top Menu </a></p>
+            <p><a href="#" id="no-roll">Colapse </a></p>
+            <p><a href="#" id="no-roll">Search </a></p>
+            <p><a href="#" id="no-roll">Settings </a></p>
+            <div class="clear"></div>
+        </div>
+        <div class="submenu" id="submenu-home">
+            <p><a href="#"><img src="images/player/player-icon1.jpg" width="32" class="icon" alt=""/> Home </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-message.png" width="32" class="icon" alt=""/> Messages <span class="notifications-count">2</span></a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-stats.png" width="32" class="icon" alt=""/> Stats </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-awards.png" width="32" class="icon" alt=""/> Awards </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-settings.png" width="32" class="icon" alt=""/> Settings </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-theme.png" width="32" class="icon" alt=""/> Theme </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-help.png" width="32" class="icon" alt=""/> Help</a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-membership.png" width="32" class="icon" alt=""/> Membership</a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-profile.png" width="32" class="icon" alt=""/> Profile</a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-logout.png" width="32" class="icon" alt=""/> Log Out</a></p>
+            <div class="clear"></div>
+            <div class="clear"></div>
+        </div>
+    </div>
 </template>
+
+<template name="rightmenu">
+    <!-- Right Menu -->
+    <div class="rightmenu" id="rightmenu">
+        <div class="profile" id="profile">
+            {{#with WhitePlayer}}
+            <div class="half-width left-side">
+                <p class="profile-text">{{name}}<span class="profile-highlight">({{rating}})</span></p>
+                <p class="win-loss-ratio">W {{won}} / D {{draws}} / L {{lost}}</p>
+                <p><img src="{{flag_image}}" width="14"  alt=""/></p>
+            </div>
+            {{/with}}
+            {{#with BlackPlayer}}
+            <div class="half-width right-side">
+                <p class="profile-text">{{name}}<span class="profile-highlight">({{rating}})</span></p>
+                <p class="win-loss-ratio">W {{won}} / D {{draws}} / L {{lost}}</p>
+                <p><img src="{{flag_image}}" width="14"  alt=""/></p>
+            </div>
+            {{/with}}
+            <div class="clear"></div>
+        </div>
+        <div class="clear"></div>
+        <div class="clocks" id="clocks">
+            <div class="half-width left-side">
+                <p class="darkCountdown" id="darkCountdown">{{WhiteTime}}</p>
+            </div>
+            <div class="half-width right-side">
+                <p class="lightCountdown errror-color" id="lightCountdown">{{BlackTime}}</p>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="moves-box" id="moves-box">
+            <div class="box1">
+                <p>{{Opening}}</p>
+                <div class="clear"></div>
+            </div>
+{{#each MoveList}}
+            <div class="box{{this.box}}">
+                <div class="number"><p>{{this.move}}.</p></div>
+                <div class="move"><p>{{this.white}}</p></div>
+                <div class="move2"><p>{{this.black}}</p></div>
+                <div class="clear"></div>
+            </div>
+{{/each}}
+            <div class="clear"></div>
+
+        </div>
+        <div class="clear"></div>
+
+        <div class="bottom-controls" id="bottom-controls">
+            <div class="bottom-area">
+                <div class="clear"></div>
+                <div class="text-area">
+                    <p class="profile-highlight bold">New Game</p>
+                    <p>Steven Hill <span class="profile-highlight bold">(800)</span> vs. Mark Ford <span class="profile-highlight bold">(925)</span></p>
+                    <p>Game Message Example: <span class="errror-color">Game aborted</span></p>
+                    <div class="clear" style="height:10px;"></div>
+                    <p><a href="#"><img src="images/buttons/icon-share.png" class="icon" width="20" height="20"  alt=""/> Share</a></p>
+                    <div class="clear"></div>
+                    <p><a href="#"><img src="images/buttons/icon-add-friend.png" class="icon" width="20" height="20"  alt=""/> Add Friend</a></p>
+                    <div class="clear"></div>
+                    <p><a href="#"><img src="images/buttons/icon-remach.png" class="icon" width="20" height="20"  alt=""/> Rematch</a></p>
+                    <div class="clear"></div>
+                </div>
+                <div class="clear"></div>
+            </div>
+            <p class="command-buttons">
+                <a href="#">
+                    <img src="images/buttons/btn-fb.png" class="buttons" alt="&lt;&lt;" /></a>
+                <a href="#">
+                    <img src="images/buttons/btn-b.png" class="buttons" alt="&lt;" /></a>
+                <a href="#">
+                    <img src="images/buttons/btn-f.png" class="buttons" alt="&gt;" /></a>
+                <a href="#">
+                    <img src="images/buttons/btn-ff.png" class="buttons" alt="&gt;&gt;" /></a>
+                <a href="#">
+                    <img src="images/buttons/btn-restart.png" class="buttons" alt="restart" /></a>
+                <a href="#">
+                    <img src="images/buttons/btn-setings.png" class="buttons" alt="settings" /></a>
+            </p>
+        </div>
+    </div>
+</template>
+
