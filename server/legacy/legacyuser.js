@@ -53,6 +53,7 @@ class LegacyUser {
                     if(packets.level2Packets.length && packets.level2Packets[0].packet.indexOf('69 5') === 0) {
                         us.socket.write(us.user.password + '\n');
                     } else {
+                        console.log('Sending: ' + JSON.stringify(packets));
                         publish.added(us.user.username, (us.packets_sent++).toString(), packets);
                         publish.ready();
                     }
