@@ -1,0 +1,51 @@
+<template name="mainmenu">
+    <div class="mainmenu">
+        <a href="#"><img src="images/icc-logo.png" class="logo" width="100%"  alt=""/></a>
+        <a href="#"><img src="images/buttons/btn-setings.png" class="mobile-button" alt="setings" id="mobile-menu-btn"></a>
+        <div class="clear"></div>
+        <div class="menu-top" id="menu-top">
+            <p><a href="#" id="mm-home">Home <span class="notifications-count">{{MessageCount}}</span></a> </p>
+            <p><a href="#" id="no-roll">Play  </a></p>
+            <p><a href="#" id="no-roll">Learn</a></p>
+            <p><a href="#" id="no-roll">Share  </a></p>
+            <p><a href="#" id="no-roll">Free Trial  </a></p>
+            <p><a href="#" id="no-roll">ChessTV </a></p>
+            <div class="clear"></div>
+        </div>
+        <div class="menu-bottom" id="menu-bottom">
+            <p><a href="#" id="no-roll">Help </a></p>
+            {{#if currentUser.profile.legacy}}
+            <p><a href="#" id="no-roll">Old Site </a></p>
+            {{/if}}
+            <p><a href="#" id="no-roll">Top Menu </a></p>
+            <p><a href="#" id="no-roll">Colapse </a></p>
+            <p><a href="#" id="no-roll">Search </a></p>
+            <p><a href="#" id="no-roll">Settings </a></p>
+            <div class="clear"></div>
+        </div>
+        <div class="submenu" id="submenu-home">
+            <!-- TODO: This looks like it's supposed to be the players profile picture -->
+            <p><a href="#"><img src="images/player/player-icon1.jpg" width="32" class="icon" alt=""/> Home </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-message.png" width="32" class="icon" alt=""/> Messages <span class="notifications-count">{{MessageCount}}</span></a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-stats.png" width="32" class="icon" alt=""/> Stats </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-awards.png" width="32" class="icon" alt=""/> Awards </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-settings.png" width="32" class="icon" alt=""/> Settings </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-theme.png" width="32" class="icon" alt=""/> Theme </a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-help.png" width="32" class="icon" alt=""/> Help</a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-membership.png" width="32" class="icon" alt=""/> Membership</a></p>
+            <div class="clear"></div>
+            <p><a href="#"><img src="images/icons/sub-icon-profile.png" width="32" class="icon" alt=""/> Profile</a></p>
+            <div class="clear"></div>
+            <p><a href="#" id="mm_logout"><img src="images/icons/sub-icon-logout.png" width="32" class="icon" alt=""/> Log Out</a></p>
+            <div class="clear"></div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</template>

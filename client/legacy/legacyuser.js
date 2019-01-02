@@ -1,8 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 
-//import { Tracker } from 'meteor/tracker';
-
 export class LegacyUser {
     constructor(user) {
         this.user = user;
@@ -19,6 +17,15 @@ export class LegacyUser {
             if(err)
                 alert(err);
         });
+    }
+
+    shutdown() {
+    }
+
+    messages() {
+    }
+
+    sendmessage(towhom, themessage) {
     }
 }
 

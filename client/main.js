@@ -3,6 +3,12 @@ import { ReactiveVar } from 'meteor/reactive-var';
 import { LegacyUser } from './legacy/legacyuser';
 import './main.html';
 
+import './views/mainmenu.html';
+import './views/mainmenu';
+
+import './views/login.html';
+import './views/login';
+
 function onResize(){
     var barsOffset  = $("#top_player_info_bar").outerHeight() + $("#bottom_player_info_bar").outerHeight();
     var h = $( window ).height()-barsOffset;
@@ -20,7 +26,6 @@ function onResize(){
 }
 
 Meteor.startup(function(){
-    onResize();
 });
 
 Template.chessboard.onCreated(function chessboardOnCreated() {
@@ -32,6 +37,7 @@ Template.chessboard.onCreated(function chessboardOnCreated() {
 
 Template.chessboard.onRendered(function() {
     $(window).resize(onResize);
+    onResize();
 });
 
 Template.chessboard.helpers({
