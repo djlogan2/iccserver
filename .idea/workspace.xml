@@ -2,47 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f1bb21fa-76c2-484e-bd94-c8afdd893438" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/mongoSettings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/server/cn.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/server/encrypt.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/server/l2.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/LegacyUser.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/RealTime.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.eslintrc.json" beforeDir="false" afterPath="$PROJECT_DIR$/.eslintrc.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/iccserver.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/server.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/jsLinters/jslint.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.meteor/.id" beforeDir="false" afterPath="$PROJECT_DIR$/.meteor/.id" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/Game.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.meteor/packages" beforeDir="false" afterPath="$PROJECT_DIR$/.meteor/packages" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.meteor/versions" beforeDir="false" afterPath="$PROJECT_DIR$/.meteor/versions" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/legacy/legacyuser.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/client/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/nodeuser.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/stylesheets/chess_board_01.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/stylesheets/chess_board_01.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/views/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/views/login.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/views/mainmenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/views/mainmenu.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/imports/legacy/cn.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/imports/legacy/l2.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/imports/legacy/level2packet.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/legacy/legacyuser.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/server/encrypt.js" beforeDir="false" afterPath="$PROJECT_DIR$/lib/server/encrypt.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/LegacyUser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/LegacyUser.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/RealTime.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/RealTime.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/user-presence.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/client.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/integration/legacy/legacyuser.test.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/unit/legacy/legacyuser.test.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/unit/legacy/loggedin.dat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/unit/legacy/loggedin2.dat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/unit/legacy/login.dat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/unit/legacy/password.dat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/unit/legacy/testdata.dat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/server/unit/legacy/testdata2.dat" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -55,11 +23,44 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/client/main.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="15" column="8" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
+            <state relative-caret-position="285">
+              <caret line="19" selection-start-line="19" selection-end-line="19" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/main.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="107">
+              <caret line="72" column="82" selection-start-line="72" selection-start-column="82" selection-end-line="72" selection-end-column="82" />
+              <folding>
+                <element signature="e#0#45#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/client/views/mainmenu.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="480">
+              <caret line="34" column="20" selection-start-line="34" selection-start-column="20" selection-end-line="34" selection-end-column="20" />
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/server/encrypt.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="105">
+              <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -67,8 +68,35 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="960">
-              <caret line="105" selection-start-line="105" selection-end-line="105" />
+            <state relative-caret-position="166">
+              <caret line="82" selection-start-line="82" selection-end-line="82" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/LegacyUser.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1260">
+              <caret line="88" column="56" selection-start-line="88" selection-start-column="56" selection-end-line="88" selection-end-column="56" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/Game.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="435">
+              <caret line="29" column="47" selection-start-line="29" selection-start-column="47" selection-end-line="29" selection-end-column="47" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/server/RealTime.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="141">
+              <caret line="10" selection-start-line="10" selection-end-line="10" />
             </state>
           </provider>
         </entry>
@@ -84,21 +112,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>nodeuser</find>
-      <find>.added</find>
-      <find>realtime_publish_map.delete</find>
-      <find>.delete</find>
-      <find>legacy_login</find>
-      <find>user_record</find>
-      <find>inrole</find>
-      <find>addusers</find>
-      <find>userisinrole</find>
-      <find>adduserstorol</find>
-      <find>addUsersToRol</find>
-      <find>processpa</find>
-      <find>process</find>
-      <find>.length()</find>
-      <find>.add</find>
       <find>.pass</find>
       <find>: null,</find>
       <find>export</find>
@@ -110,11 +123,32 @@
       <find>carg</find>
       <find>69</find>
       <find>incomingm</find>
+      <find>'finger</find>
+      <find>&quot;mess</find>
+      <find>.write(</find>
+      <find>export const</find>
+      <find>WHO</find>
+      <find>realtime</find>
+      <find>who_</find>
+      <find>@return</find>
+      <find>regex</find>
+      <find>Number</find>
+      <find>dec</find>
+      <find>console</find>
+      <find>userisinrole</find>
+      <find>.count()</find>
+      <find>has arrived</find>
+      <find>userdata</find>
+      <find>.delete</find>
+      <find>sort</find>
+      <find>sort:</find>
     </findStrings>
     <replaceStrings>
       <replace>,</replace>
       <replace>export const</replace>
       <replace>000;</replace>
+      <replace>L2.</replace>
+      <replace>SimpleSchema.Integer</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -123,30 +157,64 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/client/views/mainmenu.js" />
         <option value="$PROJECT_DIR$/.eslintrc.json" />
-        <option value="$PROJECT_DIR$/client/main.js" />
-        <option value="$PROJECT_DIR$/server/RealTime.js" />
-        <option value="$PROJECT_DIR$/server/main.js" />
-        <option value="$PROJECT_DIR$/lib/server/encrypt.js" />
         <option value="$PROJECT_DIR$/lib/server/cn.js" />
         <option value="$PROJECT_DIR$/lib/server/l2.js" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.txt" />
+        <option value="$PROJECT_DIR$/server/Game.js" />
+        <option value="$PROJECT_DIR$/lib/server/encrypt.js" />
+        <option value="$PROJECT_DIR$/server/main.js" />
         <option value="$PROJECT_DIR$/server/LegacyUser.js" />
+        <option value="$PROJECT_DIR$/client/views/mainmenu.js" />
+        <option value="$PROJECT_DIR$/client/main.js" />
+        <option value="$PROJECT_DIR$/server/RealTime.js" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="x" value="781" />
+    <option name="y" value="183" />
     <option name="width" value="1680" />
-    <option name="height" value="1050" />
+    <option name="height" value="984" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+              <item name="client" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="Scope" />
-      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -212,11 +280,14 @@
       <updated>1546793272973</updated>
       <workItem from="1546793285716" duration="20500000" />
       <workItem from="1546835162073" duration="247000" />
+      <workItem from="1546836023209" duration="5386000" />
+      <workItem from="1546870629084" duration="3397000" />
+      <workItem from="1546883608963" duration="5707000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20747000" />
+    <option name="totallyTimeSpent" value="35237000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -229,24 +300,23 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
-    <editor active="true" />
     <layout>
-      <window_info id="npm" side_tool="true" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21855922" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Messages" />
+      <window_info id="npm" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.55510205" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.48979592" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.26836735" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.48878923" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32959184" />
       <window_info anchor="bottom" id="Docker" order="7" />
       <window_info anchor="bottom" id="Version Control" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.18367347" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.22309417" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Messages" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -291,33 +361,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/views/mainmenu.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="7" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/client/main.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="26" selection-start-line="26" selection-end-line="26" />
-          <folding>
-            <element signature="e#0#45#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.meteor/packages/alanning_roles/1.2.16/web.browser/roles_common.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="233">
-          <caret line="282" column="2" selection-start-line="282" selection-start-column="2" selection-end-line="282" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.meteor/packages/npm-mongo/.3.1.1.1s4wr2v.l5o9++os+web.browser+web.browser.legacy+web.cordova/npm/node_modules/mongodb-core/lib/connection/pool.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2066">
@@ -339,25 +382,83 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/server/encrypt.js" />
-    <entry file="file://$PROJECT_DIR$/server/RealTime.js" />
     <entry file="file://$PROJECT_DIR$/lib/server/cn.js" />
     <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.txt">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/server/l2.js" />
-    <entry file="file://$PROJECT_DIR$/server/LegacyUser.js" />
+    <entry file="file://$PROJECT_DIR$/lib/server/l2.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="12" column="41" lean-forward="true" selection-start-line="12" selection-start-column="41" selection-end-line="12" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.meteor/packages/alanning_roles/1.2.16/web.browser/roles_common.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="259">
+          <caret line="282" column="2" selection-start-line="282" selection-start-column="2" selection-end-line="282" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/client/main.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="8" selection-start-line="15" selection-start-column="8" selection-end-line="15" selection-end-column="8" />
+        <state relative-caret-position="285">
+          <caret line="19" selection-start-line="19" selection-end-line="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/views/mainmenu.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="34" column="20" selection-start-line="34" selection-start-column="20" selection-end-line="34" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/server/encrypt.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="19" selection-start-line="7" selection-start-column="19" selection-end-line="7" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/LegacyUser.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1260">
+          <caret line="88" column="56" selection-start-line="88" selection-start-column="56" selection-end-line="88" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/Game.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="29" column="47" selection-start-line="29" selection-start-column="47" selection-end-line="29" selection-end-column="47" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/main.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="960">
-          <caret line="105" selection-start-line="105" selection-end-line="105" />
+        <state relative-caret-position="166">
+          <caret line="82" selection-start-line="82" selection-end-line="82" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="107">
+          <caret line="72" column="82" selection-start-line="72" selection-start-column="82" selection-end-line="72" selection-end-column="82" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/RealTime.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="141">
+          <caret line="10" selection-start-line="10" selection-end-line="10" />
         </state>
       </provider>
     </entry>

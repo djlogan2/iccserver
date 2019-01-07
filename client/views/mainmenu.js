@@ -32,7 +32,7 @@ Template.mainmenu.onRendered(function(){
 Template.mainmenu.helpers({
     MessageCount: function() {
         // TODO: Obviously we have to return just the unread count
-        return messages.find().count();
+        return 0; //messages.find().count();
     }
 });
 

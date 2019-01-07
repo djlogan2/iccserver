@@ -49,7 +49,7 @@ Meteor.startup(() => {
                 }
             }
         });
-        Roles.addUsersToRoles(id2, ['administrator','legacy_login'], Roles.GLOBAL_GROUP);
+        Roles.addUsersToRoles(id2, ['administrator','legacy_login', 'developer'], Roles.GLOBAL_GROUP);
         Roles.addUsersToRoles(id2, standard_member_roles, Roles.GLOBAL_GROUP);
     }
 });
@@ -73,9 +73,9 @@ Meteor.publish('userData', function () {
         Roles.addUsersToRoles(user._id, standard_guest_roles, Roles.GLOBAL_GROUP);
 
     console.log(JSON.stringify(user));
-    console.log(Roles.userIsInRole(user._id, 'legacy_login'));
+    console.log(Roles.userIsInRole(user, 'legacy_login'));
 
-    if(Roles.userIsInRole(user._id, 'legacy_login') &&
+    if(Roles.userIsInRole(user, 'legacy_login') &&
         user.profile &&
         user.profile.legacy &&
         user.profile.legacy.username &&

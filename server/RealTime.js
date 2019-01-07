@@ -1,28 +1,48 @@
 const realtime_publish_map = {};
 
-console.log('RealTime published');
-const publish_realtime_messages = Meteor.publish('realtime_messages', function(){
+Meteor.publish('realtime_messages', function(){
     const self = this;
-    console.log('Starting realtime publish for ' + this.userId);
-    realtime_publish_map[this.userId] = this;
+    console.log('publishing realtime_messages for ' + this.userId);
+    realtime_publish_map[this.userId] = {
+        publish: self,
+        prm_id: 0
+    };
     this.onStop(function(){
-        console.log('Stopping publish for ' + self.userId);
+        console.log('ending publication realtime_messages for ' + this.userId);
         delete realtime_publish_map[self.userId];
     });
 });
 
-let prm_id = 0;
+// TODO: Do we have to queue up messages if the user isn't in the list? If he's not in the list, he's not logged on. But it could be because he's temporarily gone
+function send(userId, type, message) {
+    const pub = realtime_publish_map[userId];
+    if(pub) {
+        if(pub.prm_id >= 100)
+            pub.publish.removed('realtime_messages', (pub.prm_id - 100).toString());
+        pub.publish.added('realtime_messages', (pub.prm_id).toString(), {nid: pub.prm_id, type: type, message: message});
+        pub.publish.ready();
+        pub.prm_id++;
+    }
+}
 
 const RealTime = {
-    //startup: function() {
-    //
-    //},
-    send(userId, type, message) {
-        const pub = realtime_publish_map[userId];
-        if(pub) {
-            pub.added('realtime_messages', (prm_id++).toString(), {type: type, message: message});
-            pub.ready();
-        }
+    developer_debug(userId, msg) {
+        send(userId, 'debug', msg);
+    },
+    game_start(userId1, userId2, whitePlayer, whiteRating, blackPlayer, blackRating, whiteTime, blackTime, startingFen) {
+
+    },
+    game_end(userId1, userId2) {
+
+    },
+    game_moveOnBoard(userId, algebraic, smith, time) {
+
+    },
+    game_takeback(userId, count) {
+
+    },
+    send_error(userId, errorValue) {
+
     }
 };
 
