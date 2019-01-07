@@ -15,25 +15,7 @@
 .white-queen {background-image: url(../images/chess-figures/set1-white-queen.png);}
 .white-king {background-image: url(../images/chess-figures/set1-white-king.png);}
 .white-pawn {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-/*
-#ra1 {background-image: url(../images/chess-figures/set1-white-rook.png);}
-#nb1 {background-image: url(../images/chess-figures/set1-white-knight.png);}
-#bc1 {background-image: url(../images/chess-figures/set1-white-bishop.png);}
-#qd1 {background-image: url(../images/chess-figures/set1-white-queen.png);}
-#ke1 {background-image: url(../images/chess-figures/set1-white-king.png);}
-#bf1 {background-image: url(../images/chess-figures/set1-white-bishop.png);}
-#ng1 {background-image: url(../images/chess-figures/set1-white-knight.png);}
-#rh1 {background-image: url(../images/chess-figures/set1-white-rook.png);}
 
-#pa2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-#pb2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-#pc2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-#pd2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-#pe2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-#pf2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-#pg2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-#ph2 {background-image: url(../images/chess-figures/set1-white-pawn.png);}
-*/
 /*CHESS AREA*/
 .piece {width:100%;background-size: contain;cursor: pointer;}
 .main-chess-area {

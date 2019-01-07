@@ -20,12 +20,20 @@ function initializeMenuListeners(){
     });
 }
 
+var messagesCollection = new Mongo.Collection('messages');
+Template.mainmenu.onCreated(function(){
+    this.subscribe('messages');
+});
+
 Template.mainmenu.onRendered(function(){
     initializeMenuListeners();
 });
 
 Template.mainmenu.helpers({
-    MessageCount: function() { return 20; }
+    MessageCount: function() {
+        // TODO: Obviously we have to return just the unread count
+        return messages.find().count();
+    }
 });
 
 Template.mainmenu.events({

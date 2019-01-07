@@ -1,6 +1,5 @@
 import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { LegacyUser } from './legacy/legacyuser';
+
 import './main.html';
 
 import './views/mainmenu.html';
@@ -13,26 +12,18 @@ function onResize(){
     var barsOffset  = $("#top_player_info_bar").outerHeight() + $("#bottom_player_info_bar").outerHeight();
     var h = $( window ).height()-barsOffset;
     $("#chess-board-area").css( "max-width", h );
-    //console.log(barsOffset);
     var movesAreaHeight  = $("#profile").outerHeight() + $("#clocks").outerHeight() + $("#bottom-controls").outerHeight();
     var h2 = $( window ).height() - movesAreaHeight;
     $("#moves-box").css( "height", h2 );
-    //console.log(movesAreaHeight);
     var sq = $('.square');
     var squareHeight = sq.width(); //SQUARES RESIZE Controls
     sq.height(squareHeight);
     $('.piece').height(squareHeight);//CHESS piece Controls
-    //console.log(squareHeight);
 }
 
 Meteor.startup(function(){
-});
-
-Template.chessboard.onCreated(function chessboardOnCreated() {
-    // counter starts at 0
-//    this.counter = new ReactiveVar(0);
-//    console.log('Creating a new LegacyUser');
-//    this.legacy_user = new LegacyUser({username: 'stcbot'});
+    Meteor.subscribe('userData');
+    Meteor.subscribe('realtime_messages');
 });
 
 Template.chessboard.onRendered(function() {
@@ -73,7 +64,7 @@ Template.chessboard.helpers({
         }
     },
     TopTime() {
-        return '3:45';
+        return '2:28'
     },
     BottomTime() {
         return '2:28'
@@ -90,17 +81,14 @@ Template.chessboard.helpers({
             ['white-rook', 'white-knight', 'white-bishop', 'white-king', 'white-queen', 'white-bishop', 'white-knight', 'white-rook']
         ]
     }
-//    counter() {
-//        return Template.instance().counter.get();
-//    },
 });
 
-Template.chessboard.events({
+//Template.chessboard.events({
     //'click button'(event, templateInstance) {
     // increment the counter when button is clicked
         //templateInstance.counter.set(templateInstance.counter.get() + 1);
     //},
-});
+//});
 
 Template.rightmenu.helpers({
     WhitePlayer() {
