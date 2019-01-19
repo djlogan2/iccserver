@@ -1,4 +1,5 @@
 import {Template} from "meteor/templating";
+import {RealTime} from "../../lib/client/RealTime";
 
 import './mainmenu.html';
 
@@ -20,7 +21,8 @@ function initializeMenuListeners(){
     });
 }
 
-var messagesCollection = new Mongo.Collection('messages');
+let messagesCollection = new Mongo.Collection('messages');
+
 Template.mainmenu.onCreated(function(){
     this.subscribe('messages');
 });
@@ -36,9 +38,21 @@ Template.mainmenu.helpers({
     }
 });
 
+let rmi = 0;
 Template.mainmenu.events({
-    "click #mm_logout": function(event){
+    "click #mm_logout": function(event) {
         event.preventDefault();
         Meteor.logout();
+    },
+    "keyup #smithmove": function(event) {
+        if(event.keyCode === 13) {
+            event.preventDefault();
+            let smith_move = $('#smithmove').val();
+            if(smith_move === 'game_start')
+                RealTime.collection.insert({"_id": rmi.toString(),"nid": rmi, "type": "game_start","message": {"white": {"name": "whitePlayer","rating": 1234,"time": 123},"black": {"name": "blackPlayer","rating": 2345,"time": 234}}});
+            else
+                alert(smith_move);
+            $('#smithmove').val('');
+        }
     }
 });

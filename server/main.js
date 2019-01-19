@@ -35,7 +35,7 @@ Meteor.startup(() => {
         Roles.addUsersToRoles(id, ['administrator'], Roles.GLOBAL_GROUP);
         Roles.addUsersToRoles(id, standard_member_roles, Roles.GLOBAL_GROUP);
         //TODO: Remove this too
-        const id2 = Accounts.createUser({
+        const id3 = Accounts.createUser({
             username: 'djlogan',
             email: 'djlogan@chessclub.com',
             password: 'ca014dedjl',
@@ -49,7 +49,20 @@ Meteor.startup(() => {
                 }
             }
         });
-        Roles.addUsersToRoles(id2, ['administrator','legacy_login', 'developer'], Roles.GLOBAL_GROUP);
+
+        Roles.addUsersToRoles(id3, ['administrator','legacy_login', 'developer'], Roles.GLOBAL_GROUP);
+        Roles.addUsersToRoles(id3, standard_member_roles, Roles.GLOBAL_GROUP);
+        //TODO: Remove this too
+        const id2 = Accounts.createUser({
+            username: 'd',
+            email: 'd@c.com',
+            password: 'd',
+            profile: {
+                firstname: 'David',
+                lastname: 'Logan'
+            }
+        });
+        Roles.addUsersToRoles(id2, ['administrator', 'developer'], Roles.GLOBAL_GROUP);
         Roles.addUsersToRoles(id2, standard_member_roles, Roles.GLOBAL_GROUP);
     }
 });
@@ -64,6 +77,7 @@ Meteor.publish('userData', function () {
 
     this.onStop(function(){
         console.log(self.userId + ' has left');
+        LegacyUser.logout(self.userId);
     });
 
     console.log(self.userId + ' has arrived');

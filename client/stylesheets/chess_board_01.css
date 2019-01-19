@@ -2,19 +2,19 @@
 /* CSS Document */
 
 /* Figure Set */
-.black-rook {background-image: url(images/chess-figures/set1-black-rook.png);}
-.black-knight {background-image: url(../images/chess-figures/set1-black-knight.png);}
-.black-bishop {background-image: url(../images/chess-figures/set1-black-bishop.png);}
-.black-queen {background-image: url(../images/chess-figures/set1-black-queen.png);}
-.black-king {background-image: url(../images/chess-figures/set1-black-king.png);}
-.black-pawn {background-image: url(../images/chess-figures/set1-black-pawn.png);}
+.black-rook {background-size: contain; background-image: url(images/chess-figures/set1-black-rook.png);}
+.black-knight {background-size: contain; background-image: url(../images/chess-figures/set1-black-knight.png);}
+.black-bishop {background-size: contain; background-image: url(../images/chess-figures/set1-black-bishop.png);}
+.black-queen {background-size: contain; background-image: url(../images/chess-figures/set1-black-queen.png);}
+.black-king {background-size: contain; background-image: url(../images/chess-figures/set1-black-king.png);}
+.black-pawn {background-size: contain; background-image: url(../images/chess-figures/set1-black-pawn.png);}
 
-.white-rook {background-image: url(../images/chess-figures/set1-white-rook.png);}
-.white-knight {background-image: url(../images/chess-figures/set1-white-knight.png);}
-.white-bishop {background-image: url(../images/chess-figures/set1-white-bishop.png);}
-.white-queen {background-image: url(../images/chess-figures/set1-white-queen.png);}
-.white-king {background-image: url(../images/chess-figures/set1-white-king.png);}
-.white-pawn {background-image: url(../images/chess-figures/set1-white-pawn.png);}
+.white-rook {background-size: contain; background-image: url(../images/chess-figures/set1-white-rook.png);}
+.white-knight {background-size: contain; background-image: url(../images/chess-figures/set1-white-knight.png);}
+.white-bishop {background-size: contain; background-image: url(../images/chess-figures/set1-white-bishop.png);}
+.white-queen {background-size: contain; background-image: url(../images/chess-figures/set1-white-queen.png);}
+.white-king {background-size: contain; background-image: url(../images/chess-figures/set1-white-king.png);}
+.white-pawn {background-size: contain; background-image: url(../images/chess-figures/set1-white-pawn.png);}
 
 /*CHESS AREA*/
 .piece {width:100%;background-size: contain;cursor: pointer;}

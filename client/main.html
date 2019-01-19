@@ -34,11 +34,12 @@
                 <div class="clear"></div>
                 <!-- BOARD -->
                 <div class="chess-board" id="chess-board">
-                    {{#each Board}}
-                        {{#let row_index=@index}}
+                    {{#each row_col}}
+                        {{#let row=this}}
                         <div class="chess-row">
-                            {{#each this}}
-                                <div class="square {{squareColor row_index @index}}"  id="a8"><div class="piece {{this}}"></div></div>
+                            {{#each row_col}}
+                                <div class="square {{squareColor row this}}" row="{{row}}" col="{{this}}">
+                                    <div class="piece"></div></div>
                             {{/each}}
                         </div>
                         {{/let}}

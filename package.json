@@ -10,6 +10,7 @@
   "dependencies": {
     "@babel/runtime": "^7.1.5",
     "bcrypt": "^3.0.3",
+    "chess.js": "git+https://github.com/jhlywa/chess.js.git",
     "meteor-node-stubs": "^0.4.1"
   },
   "meteor": {
