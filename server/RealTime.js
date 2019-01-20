@@ -1,21 +1,27 @@
+import {Logger}     from 'meteor/ostrio:logger';
+import {LoggerFile} from 'meteor/ostrio:loggerfile';
+
 const realtime_publish_map = {};
+
+let log = new Logger();
+(new LoggerFile(log)).enable();
 
 Meteor.publish('realtime_messages', function(){
     const self = this;
-    console.log('publishing realtime_messages for ' + this.userId);
+    log.debug('publishing realtime_messages');
     realtime_publish_map[this.userId] = {
         publish: self,
         prm_id: 0
     };
     this.onStop(function(){
-        console.log('ending publication realtime_messages for ' + this.userId);
+        log.debug('ending publication realtime_messages');
         delete realtime_publish_map[self.userId];
     });
 });
 
 // TODO: Do we have to queue up messages if the user isn't in the list? If he's not in the list, he's not logged on. But it could be because he's temporarily gone
 function send(userId, type, message) {
-    console.log('RealToime::send ' + userId + ', ' + type + ', ' + JSON.stringify(message));
+    log.debug('RealTime::send',{type: type, message: message});
     const pub = realtime_publish_map[userId];
     if(pub) {
         if(pub.prm_id >= 100)

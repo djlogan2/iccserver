@@ -1,6 +1,8 @@
-import { Template } from 'meteor/templating';
-import { RealTime } from "../lib/client/RealTime";
-import { Chess } from "chess.js";
+import {Template} from 'meteor/templating';
+import {RealTime} from "../lib/client/RealTime";
+import {Chess} from "chess.js";
+import {Logger}     from 'meteor/ostrio:logger';
+import {LoggerFile} from 'meteor/ostrio:loggerfile';
 
 import './main.html';
 
@@ -14,6 +16,14 @@ let gameInfo = new ReactiveDict();
 let chess = new Chess();
 let top = 'black';
 let bottom = 'white';
+let log = new Logger();
+(new LoggerFile(log)).enable();
+
+try {
+    log.error('test me');
+}catch(e) {
+    console.log('e=' + e);
+}
 
 gameInfo.set('top_name', 'No game');
 gameInfo.set('bottom_name', 'No game');
@@ -33,6 +43,15 @@ let movelistChanged = new Tracker.Dependency;
 //gameInfo.set('board', Board.startingPosition(top));
 
 //gameInfo.set('move_list', []);
+
+const _GlobalErrorHandler = window.onerror;
+
+window.onerror = (msg, url, line) => {
+    log.error(msg, {file: url, onLine: line});
+    if (_GlobalErrorHandler) {
+        _GlobalErrorHandler.apply(this, arguments);
+    }
+};
 
 function classFromBoard(board) {
     if(!board) return null;
@@ -89,12 +108,12 @@ let rm_index = -1;
 
 Tracker.autorun(function(){
     var records = RealTime.collection.find({nid: {$gt: rm_index}}, {sort: {"nid": 1}}).fetch();
-    console.log('Fetched ' + records.length + ' records from realtime_messages');
+    log.debug('Fetched ' + records.length + ' records from realtime_messages', {records: records});
     if(records.length)
         rm_index = records[records.length - 1].nid;
     records.forEach(rec => {
         if(Roles.userIsInRole(this.userId, 'developer'))
-            console.log('realtime_record: ' + rec);
+            log.debug('realtime_record', rec);
         rm_index = rec.nid;
         switch(rec.type) {
             case 'game_start':
@@ -125,7 +144,7 @@ Tracker.autorun(function(){
                 break;
 
             case 'game_move':
-                console.log('game_move: ' + JSON.stringify(rec));
+                log.debug('game_move', rec);
 
                 if(chess.turn() === 'b') {
                     gameInfo.set('black_time', (rec.message.seconds % 60) + ':' + (rec.message.seconds / 60));
@@ -149,7 +168,7 @@ Tracker.autorun(function(){
 
             case 'error':
             default:
-                console.log('realtime_message record: ' + JSON.stringify(rec));
+                log.error('realtime_message default', rec);
         }
     });
 });

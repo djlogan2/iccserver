@@ -21,3 +21,5 @@ accounts-password@1.5.1
 alanning:roles
 meteortoys:allthings
 reactive-dict@1.2.1
+ostrio:logger
+ostrio:loggerfile

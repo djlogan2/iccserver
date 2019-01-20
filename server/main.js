@@ -1,6 +1,25 @@
 import {Meteor} from 'meteor/meteor';
 import {encrypt} from '../lib/server/encrypt';
 import {LegacyUser} from "./LegacyUser";
+import {Logger}     from 'meteor/ostrio:logger';
+import {LoggerFile} from 'meteor/ostrio:loggerfile';
+
+let log = new Logger();
+(new LoggerFile(log)).enable();
+
+const bound = Meteor.bindEnvironment((callback) => {callback();});
+process.on('uncaughtException', (err) => {
+    bound(() => {
+        log.error("Server Crashed!", err);
+        console.error(err.stack);
+        process.exit(7);
+    });
+});
+
+log.debug('test 1');
+log.debug('test 2', {testme: 'yep'});
+log.error('test 3');
+log.error('test 4', {testme: 'yep'});
 
 const standard_guest_roles = [
     'login'
@@ -76,18 +95,18 @@ Meteor.publish('userData', function () {
     const self = this;
 
     this.onStop(function(){
-        console.log(self.userId + ' has left');
+        log.debug('User left');
         LegacyUser.logout(self.userId);
     });
 
-    console.log(self.userId + ' has arrived');
+    log.debug('User has arrived');
     const user = Meteor.users.findOne({_id: this.userId});
 
     if(!(user.roles))
         Roles.addUsersToRoles(user._id, standard_guest_roles, Roles.GLOBAL_GROUP);
 
-    console.log(JSON.stringify(user));
-    console.log(Roles.userIsInRole(user, 'legacy_login'));
+    log.debug('user record', user);
+    log.debug('User is in leagy_login role', Roles.userIsInRole(user, 'legacy_login'));
 
     if(Roles.userIsInRole(user, 'legacy_login') &&
         user.profile &&

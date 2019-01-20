@@ -2,17 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f1bb21fa-76c2-484e-bd94-c8afdd893438" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/lib/Board.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/client/RealTime.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.meteor/packages" beforeDir="false" afterPath="$PROJECT_DIR$/.meteor/packages" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.meteor/release" beforeDir="false" afterPath="$PROJECT_DIR$/.meteor/release" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/main.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.meteor/versions" beforeDir="false" afterPath="$PROJECT_DIR$/.meteor/versions" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/stylesheets/chess_board_01.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/stylesheets/chess_board_01.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/views/mainmenu.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/views/mainmenu.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/Board.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/server/LegacyUser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/LegacyUser.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/RealTime.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/RealTime.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/main.js" afterDir="false" />
@@ -29,10 +23,22 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/server/LegacyUser.js">
+        <entry file="file://$PROJECT_DIR$/client/main.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="184">
-              <caret line="249" column="45" selection-start-line="249" selection-start-column="45" selection-end-line="249" selection-end-column="45" />
+            <state relative-caret-position="712">
+              <caret line="77" column="63" lean-forward="true" selection-start-line="77" selection-start-column="63" selection-end-line="77" selection-end-column="63" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/main.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="195">
+              <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+              <folding>
+                <element signature="e#0#37#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -40,8 +46,32 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/server/RealTime.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="17" column="92" selection-start-line="17" selection-start-column="92" selection-end-line="17" selection-end-column="92" />
+            <state relative-caret-position="135">
+              <caret line="10" column="11" selection-start-line="10" selection-start-column="11" selection-end-line="10" selection-end-column="11" />
+              <folding>
+                <element signature="e#0#48#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/server/LegacyUser.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="179">
+              <caret line="274" column="45" selection-start-line="274" selection-start-column="45" selection-end-line="274" selection-end-column="45" />
+              <folding>
+                <element signature="e#63#109#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="327">
+              <caret line="2811" column="68" selection-start-line="2811" selection-start-column="68" selection-end-line="2811" selection-end-column="68" />
             </state>
           </provider>
         </entry>
@@ -57,36 +87,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>updateboardwith</find>
-      <find>updateboardwit</find>
-      <find>^.*&quot;smith&quot;:&quot;(.*?)&quot;.*$</find>
-      <find>'</find>
-      <find>e4f3b</find>
-      <find>a2a4</find>
-      <find>e1g1</find>
-      <find>split</find>
-      <find>real</find>
-      <find>realtime</find>
-      <find>board</find>
-      <find>board.</find>
-      <find>ob *</find>
-      <find>&quot;finger&quot;</find>
-      <find>&quot;;finger&quot;</find>
-      <find>movelistchange</find>
-      <find>finger</find>
-      <find>Board</find>
-      <find>movelist</find>
-      <find>chessboards</find>
-      <find>boardch</find>
-      <find>.</find>
-      <find>-rook</find>
-      <find>.piece</find>
-      <find>resize</find>
-      <find>processpackets,</find>
-      <find>send_moves</find>
-      <find>console.log</find>
-      <find>examine</find>
+      <find>static/logs</find>
+      <find>logger_</find>
+      <find>log.</find>
+      <find>_logger_emit_</find>
+      <find>&quot;emi</find>
+      <find>emit_</find>
+      <find>loggerfile</find>
+      <find>LoggerFile(log)</find>
+      <find>leve:</find>
+      <find>{ logger</find>
+      <find>{logger</find>
+      <find>level:</find>
+      <find>.enable</find>
+      <find>isserver</find>
+      <find>fetched</find>
+      <find>d6d5</find>
+      <find>realtime_message record</find>
+      <find>h4d8</find>
+      <find>e2e4</find>
+      <find>:this</find>
+      <find>g1f3</find>
+      <find>currentlevel2</find>
+      <find>&quot;</find>
+      <find>socket.on</find>
+      <find>CTRL</find>
       <find>;fol</find>
+      <find>0019&gt;</find>
+      <find>log.debug</find>
+      <find>game_move</find>
+      <find>//log.debug</find>
     </findStrings>
     <replaceStrings>
       <replace>,</replace>
@@ -96,6 +126,10 @@
       <replace>SimpleSchema.Integer</replace>
       <replace>$1</replace>
       <replace>'</replace>
+      <replace>LoggerFile(log,{leve: 'TRACE'})</replace>
+      <replace>level:</replace>
+      <replace>//log.debug</replace>
+      <replace>log.debug</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -110,24 +144,25 @@
         <option value="$PROJECT_DIR$/server/Game.js" />
         <option value="$PROJECT_DIR$/lib/server/encrypt.js" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.txt" />
-        <option value="$PROJECT_DIR$/lib/Board.js" />
-        <option value="$PROJECT_DIR$/server/main.js" />
-        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.txt" />
         <option value="$PROJECT_DIR$/lib/client/RealTime.js" />
         <option value="$PROJECT_DIR$/client/views/mainmenu.js" />
         <option value="$PROJECT_DIR$/client/views/mainmenu.html" />
         <option value="$PROJECT_DIR$/client/main.html" />
         <option value="$PROJECT_DIR$/client/stylesheets/chess_board_01.css" />
-        <option value="$PROJECT_DIR$/client/main.js" />
+        <option value="$PROJECT_DIR$/lib/Board.js" />
+        <option value="$USER_HOME$/.meteor/packages/ostrio_logger/2.0.7/web.browser/logger.js" />
         <option value="$PROJECT_DIR$/server/RealTime.js" />
+        <option value="$PROJECT_DIR$/server/main.js" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.txt" />
         <option value="$PROJECT_DIR$/server/LegacyUser.js" />
+        <option value="$PROJECT_DIR$/client/main.js" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="390" />
-    <option name="y" value="23" />
-    <option name="width" value="1281" />
+    <option name="x" value="871" />
+    <option name="y" value="54" />
+    <option name="width" value="1680" />
     <option name="height" value="984" />
   </component>
   <component name="ProjectView">
@@ -146,35 +181,89 @@
             <path>
               <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
               <item name="iccserver" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
+              <item name=".meteor" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
               <item name="iccserver" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
-              <item name="stylesheets" type="462c0819:PsiDirectoryNode" />
+              <item name=".meteor" type="462c0819:PsiDirectoryNode" />
+              <item name="local" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
               <item name="iccserver" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name=".meteor" type="462c0819:PsiDirectoryNode" />
+              <item name="local" type="462c0819:PsiDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
               <item name="iccserver" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
-              <item name="client" type="462c0819:PsiDirectoryNode" />
+              <item name=".meteor" type="462c0819:PsiDirectoryNode" />
+              <item name="local" type="462c0819:PsiDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
+              <item name="programs" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
               <item name="iccserver" type="462c0819:PsiDirectoryNode" />
-              <item name="lib" type="462c0819:PsiDirectoryNode" />
+              <item name=".meteor" type="462c0819:PsiDirectoryNode" />
+              <item name="local" type="462c0819:PsiDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
+              <item name="programs" type="462c0819:PsiDirectoryNode" />
               <item name="server" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
               <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+              <item name=".meteor" type="462c0819:PsiDirectoryNode" />
+              <item name="local" type="462c0819:PsiDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
+              <item name="programs" type="462c0819:PsiDirectoryNode" />
               <item name="server" type="462c0819:PsiDirectoryNode" />
+              <item name="static" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+              <item name=".meteor" type="462c0819:PsiDirectoryNode" />
+              <item name="local" type="462c0819:PsiDirectoryNode" />
+              <item name="build" type="462c0819:PsiDirectoryNode" />
+              <item name="programs" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+              <item name="static" type="462c0819:PsiDirectoryNode" />
+              <item name="logs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="iccserver" type="462c0819:PsiDirectoryNode" />
+              <item name="server" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="ostrio:logger" type="20ee2d1f:SyntheticLibraryElementNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="ostrio:logger" type="20ee2d1f:SyntheticLibraryElementNode" />
+              <item name="web.browser" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="ostrio:loggerfile" type="20ee2d1f:SyntheticLibraryElementNode" />
+            </path>
+            <path>
+              <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
+              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
+              <item name="ostrio:loggerfile" type="20ee2d1f:SyntheticLibraryElementNode" />
+              <item name="web.browser" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="iccserver" type="b2602c69:ProjectViewProjectNode" />
@@ -198,6 +287,7 @@
     <property name="js.meteor.library.cached" value="$PROJECT_DIR$/.meteor" />
     <property name="js.meteor.library.was.enabled" value="true" />
     <property name="js.meteor.project" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -236,11 +326,11 @@
     <configuration name="Run Meteor" type="meteor-app-runner" factoryName="Meteor">
       <option name="exePath" value="/usr/local/bin/meteor" />
       <option name="startBrowserSettings">
-        <browser start="true" with-js-debugger="true" url="http://localhost:3000" />
+        <browser name="e5120d43-2c3f-47ef-9f26-65e539e05186" start="true" url="http://localhost:3000" />
       </option>
       <meteor-runner-state>
         <startBrowserSettings>
-          <browser start="true" with-js-debugger="true" url="http://localhost:3000" />
+          <browser name="e5120d43-2c3f-47ef-9f26-65e539e05186" start="true" url="http://localhost:3000" />
         </startBrowserSettings>
       </meteor-runner-state>
       <method v="2" />
@@ -266,7 +356,8 @@
       <workItem from="1546870629084" duration="3397000" />
       <workItem from="1546883608963" duration="18425000" />
       <workItem from="1546968872568" duration="11962000" />
-      <workItem from="1547835998311" duration="4691000" />
+      <workItem from="1547835998311" duration="13642000" />
+      <workItem from="1547962604589" duration="3186000" />
     </task>
     <task id="LOCAL-00001" summary="OK, realtime_messages finally working correctly. We still don't seem to be logging off though">
       <created>1546899314832</created>
@@ -275,11 +366,18 @@
       <option name="project" value="LOCAL" />
       <updated>1546899314832</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="The piece moving is working far better. I'm not sure yet if the internal jquery class changes will conflict with the reactive updates or not. Will have to test. Also, somehow our messages are either getting lost or getting behind. I'm not sure what's going on yet. It's server-side. In some cases, it's sending the last message it got a minute ago when the next message comes in. In some cases it looks like it may not be processing or sending them right at all. Again, not sure yet. But, pieces moves work better, and it's progressing!">
+      <created>1547926118690</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1547926118690</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="64608000" />
+    <option name="totallyTimeSpent" value="76745000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -291,22 +389,23 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="390" y="23" width="1281" height="984" extended-state="0" />
+    <frame x="871" y="54" width="1680" height="984" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2889427" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21855922" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info id="npm" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.2622449" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32399103" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.28850326" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.34192824" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.2877551" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32959184" />
       <window_info anchor="bottom" id="Docker" order="7" />
       <window_info anchor="bottom" id="Version Control" order="8" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.24387754" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.3255102" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Messages" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -323,8 +422,29 @@
     <MESSAGE value="The piece moving is working far better. I'm not sure yet if the internal jquery class changes will conflict with the reactive updates or not. Will have to test. Also, somehow our messages are either getting lost or getting behind. I'm not sure what's going on yet. It's server-side. In some cases, it's sending the last message it got a minute ago when the next message comes in. In some cases it looks like it may not be processing or sending them right at all. Again, not sure yet. But, pieces moves work better, and it's progressing!" />
     <option name="LAST_COMMIT_MESSAGE" value="The piece moving is working far better. I'm not sure yet if the internal jquery class changes will conflict with the reactive updates or not. Will have to test. Also, somehow our messages are either getting lost or getting behind. I'm not sure what's going on yet. It's server-side. In some cases, it's sending the last message it got a minute ago when the next message comes in. In some cases it looks like it may not be processing or sending them right at all. Again, not sure yet. But, pieces moves work better, and it's progressing!" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/server/main.js</url>
+          <line>18</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="meteor-app-runner">
+        <watch expression="this.options.fileNameFormat(time)" language="JavaScript" />
+      </configuration>
+    </watches-manager>
+  </component>
   <component name="debuggerHistoryManager">
     <expressions id="watch">
+      <expression>
+        <expression-string>this.options.fileNameFormat(time)</expression-string>
+        <language-id>JavaScript</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
       <expression>
         <expression-string>user_cursor.fetch()</expression-string>
         <language-id>JavaScript</language-id>
@@ -415,24 +535,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/lib/Board.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="7" selection-start-line="14" selection-start-column="7" selection-end-line="14" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/lib/client/RealTime.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" selection-end-line="1" />
         </state>
       </provider>
     </entry>
@@ -450,13 +556,6 @@
           <folding>
             <element signature="e#0#43#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/main.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="79" column="22" selection-start-line="79" selection-start-column="22" selection-end-line="79" selection-end-column="22" />
         </state>
       </provider>
     </entry>
@@ -486,10 +585,39 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/main.js">
+    <entry file="file://$PROJECT_DIR$/lib/Board.js" />
+    <entry file="http://localhost:3000/packages/meteor.js?hash=33066830ab46d87e2b249d2780805545e40ce9ba">
+      <provider selected="true" editor-type-id="httpFileEditor" />
+    </entry>
+    <entry file="file://$USER_HOME$/.meteor/packages/ostrio_loggerfile/2.0.6/web.browser/server.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="59" column="12" selection-start-line="59" selection-start-column="12" selection-end-line="59" selection-end-column="12" />
+        <state relative-caret-position="1680">
+          <caret line="115" column="90" selection-start-line="115" selection-start-column="90" selection-end-line="115" selection-end-column="90" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.meteor/packages/ostrio_loggerfile/2.0.6/web.browser/loggerfile-tests.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#58#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.meteor/packages/ostrio_logger/2.0.7/web.browser/logger-tests.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2576">
+          <folding>
+            <element signature="e#0#58#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.meteor/packages/ostrio_logger/2.0.7/web.browser/logger.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2895">
+          <caret line="193" column="12" selection-start-line="193" selection-start-column="12" selection-end-line="193" selection-end-column="12" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
           </folding>
@@ -498,15 +626,55 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/server/RealTime.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="17" column="92" selection-start-line="17" selection-start-column="92" selection-end-line="17" selection-end-column="92" />
+        <state relative-caret-position="135">
+          <caret line="10" column="11" selection-start-line="10" selection-start-column="11" selection-end-line="10" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#48#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="327">
+          <caret line="2811" column="68" selection-start-line="2811" selection-start-column="68" selection-end-line="2811" selection-end-column="68" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/server/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="13" column="13" selection-start-line="13" selection-start-column="13" selection-end-line="13" selection-end-column="13" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.meteor/local/build/programs/server/static/logs/19-01-2019.log">
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="-1120" />
+      </provider>
+      <provider selected="true" editor-type-id="LogFileEditorProvider">
+        <state relative-caret-position="-11726">
+          <caret line="39" column="780" selection-start-line="39" selection-start-column="780" selection-end-line="39" selection-end-column="780" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server/LegacyUser.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="184">
-          <caret line="249" column="45" selection-start-line="249" selection-start-column="45" selection-end-line="249" selection-end-column="45" />
+        <state relative-caret-position="179">
+          <caret line="274" column="45" selection-start-line="274" selection-start-column="45" selection-end-line="274" selection-end-column="45" />
+          <folding>
+            <element signature="e#63#109#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="712">
+          <caret line="77" column="63" lean-forward="true" selection-start-line="77" selection-start-column="63" selection-end-line="77" selection-end-column="63" />
         </state>
       </provider>
     </entry>

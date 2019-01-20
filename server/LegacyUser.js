@@ -1,9 +1,16 @@
 //import {AccountsServer as user} from "meteor/accounts-base";
 import {decrypt} from "../lib/server/encrypt";
 import {RealTime} from "./RealTime";
+import {Logger}     from 'meteor/ostrio:logger';
+import {LoggerFile} from 'meteor/ostrio:loggerfile';
+
 import net from 'net';
+
 import * as L2 from '../lib/server/l2';
 import * as CN from '../lib/server/cn';
+
+let log = new Logger();
+(new LoggerFile(log)).enable();
 
 /*
  * The packets the admin user will receive for saving and publishing.
@@ -51,6 +58,12 @@ const legacy_user_map = {};
 
 const LEVEL1EMPTY = -1;
 const LEVEL1ENDED = -2;
+
+const IN_BETWEEN = 0;
+const IN_SIMPLE_PARM = 1;
+const IN_BRACKETS_PARM = 2;
+const IN_CONTROL_BRACKETS_PARM = 3;
+
 const CONTROL_Y = String.fromCharCode(25);
 const CONTROL_Z = String.fromCharCode(26);
 
@@ -81,21 +94,26 @@ export class LegacyUserConnection {
         setTimeout(function(){
             //TODO: What do we do here?
             console.log('server/legacyuser: why are we here');
+            log.error('server/legacyuser: why are we here');
         });
 
         self.socket.on('data', function(data) {
             self.databuffer += data;
-            let packets = self.parse();
-            console.log('LegacyUser::self.socket.on.data, packets=' + JSON.stringify(packets));
-            if(packets) {
-                if(Roles.userIsInRole(self.user, 'developer'))
-                    RealTime.developer_debug(self.user._id, packets);
-                if(packets.level2Packets.length && packets.level2Packets[0].packet.indexOf('69 5') === 0) {
-                    self.socket.write(decrypt(self.user.profile.legacy.password) + '\n');
-                } else {
-                    self.processPackets(packets);
+            log.debug('LegacyUser::(self.socket.on.data)', self);
+            let packets = null;
+            do {
+                packets = self.parse();
+                log.debug('LegacyUser::(self.socket.on.data)', {packets: packets});
+                if(packets) {
+                    if(Roles.userIsInRole(self.user, 'developer'))
+                        RealTime.developer_debug(self.user._id, packets);
+                    if(packets.level2Packets.length && packets.level2Packets[0].packet.indexOf('69 5') === 0) {
+                        self.socket.write(decrypt(self.user.profile.legacy.password) + '\n');
+                    } else {
+                        self.processPackets(packets);
+                    }
                 }
-            }
+            } while(packets);
         });
 
         self.socket.on('error', function(e) {
@@ -104,7 +122,7 @@ export class LegacyUserConnection {
     }
 
     logout() {
-        console.log('LegacyUser::logout');
+        log.debug('LegacyUser::logout');
         this.socket.write('quit\n');
         this.socket.destroy();
     }
@@ -126,10 +144,11 @@ export class LegacyUserConnection {
                 let by = this.databuffer.charAt(bx);
                 // noinspection FallThroughInSwitchStatementJS
                 switch (by) {
-                    case CONTROL_Y: // ^Y
+                    case CONTROL_Y:
                         this.ctrl = true;
                         break;
                     case '[':
+                        // TODO: This isn't exactly right either. We shouldn't be processing any level 1 ever if we are in a level 2. Fix me.
                         if (this.ctrl) {
                             this.ctrl = false;
                             if (this.level1 > LEVEL1EMPTY) {
@@ -160,9 +179,11 @@ export class LegacyUserConnection {
                         this.ctrl = true;
                         this.level1 = LEVEL1EMPTY + 1;
                     case ']':
+                        // TODO: This isn't exactly right either. We shouldn't be processing any level 1 ever if we are in a level 2. Fix me.
                         if (this.ctrl) {
                             this.ctrl = false;
                             if (this.level1 === LEVEL1ENDED) {
+                                log.error('We are in the logout section of having no packets left!!!');
                                 return; // We get here when we close our last packet (i.e. logging/logged off!)
                                 //TODO: We have to figure out how to convey that, then clean up
                             }
@@ -172,6 +193,7 @@ export class LegacyUserConnection {
                                 this.level1Array.push(this.currentLevel1);
                             }
                             if (--this.level1 === LEVEL1EMPTY) {
+                                this.currentLevel1 = '';
                                 this.databuffer = this.databuffer.substr(bx + 1);
                                 let ret = {
                                     level1Packets: this.level1Array,
@@ -180,8 +202,8 @@ export class LegacyUserConnection {
                                 this.level1Array = [];
                                 this.level2Array = [];
                                 return ret;
-                            }
-                            this.currentLevel1 = this.level1Array[this.level1];
+                            } else
+                                this.currentLevel1 = this.level1Array[this.level1];
                         } else if (this.level2) {
                             this.currentLevel2 += ']';
                         } else {
@@ -207,6 +229,7 @@ export class LegacyUserConnection {
                             hdrstr.replace(/([\n\r])+$/, '');
                             let cl1 = hdrstr.split(/(\s+)/);
                             this.level2Array.push({l1key: this.level1, l1index: (cl1.length === 3 ? cl1[2] : null), packet: this.currentLevel2});
+                            this.currentLevel2 = '';
                         } else if (this.level2) {
                             this.currentLevel2 += ')';
                         } else {
@@ -215,6 +238,8 @@ export class LegacyUserConnection {
                         break;
                     default:
                         if (this.ctrl) {
+                            if(by === '>' || by === '<')
+                                continue; // Ignore these CTRL-whatever-they-are's
                             if (this.level2) {
                                 this.currentLevel2 += String.fromCharCode(25);
                             } else {
@@ -232,13 +257,13 @@ export class LegacyUserConnection {
             }
             this.databuffer = '';
         } catch (e) {
-            console.log(e);
+            log.error(e);
             this.processError(e);
         }
     }
 
     processPackets(packets) {
-        console.log('LegacyUser::processPackets, packets=' + JSON.stringify(packets));
+        log.debug('LegacyUser::processPackets', {packets: packets});
         // { level1Packets: [], level2Packets: [] }
         const self = this;
         packets.level2Packets.forEach(function(p){
@@ -308,9 +333,9 @@ export class LegacyUserConnection {
 */
         let ctrl = false;
         let currentparm = "";
-        let state = 0; // 0 = in between, 1 = in simple parm, 2=in {} parms, 3=in ^Y{^Y} parms
+        let state = IN_BETWEEN;
         let parms = [];
-//let bx = 0; bx < this.databuffer.length; bx++
+
         for (let x = 0 ; x < packet.packet.length ; x++) {
             let by = packet.packet.charAt(x);
             switch (by) {
@@ -318,10 +343,10 @@ export class LegacyUserConnection {
                     ctrl = true;
                     break;
                 case '{':
-                    if (ctrl && state === 0) {
-                        state = 3;
-                    } else if (state === 0) {
-                        state = 2;
+                    if (ctrl && state === IN_BETWEEN) {
+                        state = IN_CONTROL_BRACKETS_PARM;
+                    } else if (state === IN_BETWEEN) {
+                        state = IN_BRACKETS_PARM;
                     } else if (ctrl) {
                         currentparm += String.fromCharCode(CONTROL_Y);
                         currentparm += '{';
@@ -331,10 +356,10 @@ export class LegacyUserConnection {
                     ctrl = false;
                     break;
                 case '}':
-                    if ((state === 3 && ctrl) || state === 2) {
+                    if ((state === IN_BRACKETS_PARM && ctrl) || state === IN_SIMPLE_PARM) {
                         parms.push(currentparm);
                         currentparm = "";
-                        state = 0;
+                        state = IN_BETWEEN;
                     } else if (ctrl) {
                         currentparm += String.fromCharCode(CONTROL_Y);
                         currentparm += '}';
@@ -348,12 +373,12 @@ export class LegacyUserConnection {
                         ctrl = false;
                         currentparm += String.fromCharCode(CONTROL_Y);
                     }
-                    if (state > 1) {
+                    if (state > IN_SIMPLE_PARM) {
                         currentparm += ' ';
-                    } else if (state === 1) {
+                    } else if (state === IN_SIMPLE_PARM) {
                         parms.push(currentparm);
                         currentparm = "";
-                        state = 0;
+                        state = IN_BETWEEN;
                     }
                     break;
                 default:
@@ -362,8 +387,8 @@ export class LegacyUserConnection {
                         currentparm += String.fromCharCode(CONTROL_Y);
                     }
                     currentparm += by;
-                    if (state === 0) {
-                        state = 1;
+                    if (state === IN_BETWEEN) {
+                        state = IN_SIMPLE_PARM;
                     }
                     break;
             }
@@ -390,7 +415,7 @@ const LegacyUser = {
             !user.profile.legacy.username ||
             !user.profile.legacy.password ||
             !user.profile.legacy.autologin) {
-            console.log('Not legacy logging in ' + user._id);
+            log.debug('Not legacy logging in', null, user._id);
             throw new Meteor.Error('Unable to login to the legacy server - Insufficient information in user record or user not authorized: ' + user._id);
         }
         legacy_user_map[user._id] = new LegacyUserConnection(user);
