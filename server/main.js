@@ -1,11 +1,9 @@
 import {Meteor} from 'meteor/meteor';
 import {encrypt} from '../lib/server/encrypt';
 import {LegacyUser} from "./LegacyUser";
-import {Logger}     from 'meteor/ostrio:logger';
-import {LoggerFile} from 'meteor/ostrio:loggerfile';
+import {Logger} from '../lib/server/logger';
 
-let log = new Logger();
-(new LoggerFile(log)).enable();
+let log = new Logger('server/main.js');
 
 const bound = Meteor.bindEnvironment((callback) => {callback();});
 process.on('uncaughtException', (err) => {

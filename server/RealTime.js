@@ -1,10 +1,10 @@
-import {Logger}     from 'meteor/ostrio:logger';
-import {LoggerFile} from 'meteor/ostrio:loggerfile';
+import {Logger} from "../lib/server/logger";
 
 const realtime_publish_map = {};
 
-let log = new Logger();
-(new LoggerFile(log)).enable();
+let log = new Logger('server/RealTime.js');
+
+log.debug('test me');
 
 Meteor.publish('realtime_messages', function(){
     const self = this;
@@ -20,6 +20,9 @@ Meteor.publish('realtime_messages', function(){
 });
 
 // TODO: Do we have to queue up messages if the user isn't in the list? If he's not in the list, he's not logged on. But it could be because he's temporarily gone
+// TODO: Keep a timestamp record of when we send a game move for calculating lag
+// TODO: If we aren't sending game moves, send 1s interval pings for calculating lag
+// TODO: Have the client respond to game-moves and pings, for calculating lag
 function send(userId, type, message) {
     log.debug('RealTime::send',{type: type, message: message});
     const pub = realtime_publish_map[userId];

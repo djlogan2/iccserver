@@ -1,0 +1,5 @@
+{
+    "server/RealTime.js": "TRACE",
+    "server/main.js": "TRACE",
+    "server/LegacyUser.js": "TRACE"
+}

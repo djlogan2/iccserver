@@ -1,16 +1,14 @@
 //import {AccountsServer as user} from "meteor/accounts-base";
 import {decrypt} from "../lib/server/encrypt";
 import {RealTime} from "./RealTime";
-import {Logger}     from 'meteor/ostrio:logger';
-import {LoggerFile} from 'meteor/ostrio:loggerfile';
+import {Logger}     from '../lib/server/logger';
 
 import net from 'net';
 
 import * as L2 from '../lib/server/l2';
 import * as CN from '../lib/server/cn';
 
-let log = new Logger();
-(new LoggerFile(log)).enable();
+let log = new Logger('server/LegacyUser.js');
 
 /*
  * The packets the admin user will receive for saving and publishing.
@@ -268,6 +266,7 @@ export class LegacyUserConnection {
         const self = this;
         packets.level2Packets.forEach(function(p){
             const p2 = self.parseLevel2(p);
+            log.debug('processPackets, parsed level 2', {parsed: p2});
             switch(parseInt(p2.shift())) {
                 case L2.WHO_AM_I: /* who_am_i */
                     self.socket.write(';messages\n');
