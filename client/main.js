@@ -1,8 +1,7 @@
 import {Template} from 'meteor/templating';
 import {RealTime} from "../lib/client/RealTime";
 import {Chess} from "chess.js";
-import {Logger}     from 'meteor/ostrio:logger';
-import {LoggerFile} from 'meteor/ostrio:loggerfile';
+import {Logger, SetupLogger} from '../lib/client/Logger';
 
 import './main.html';
 
@@ -16,14 +15,7 @@ let gameInfo = new ReactiveDict();
 let chess = new Chess();
 let top = 'black';
 let bottom = 'white';
-let log = new Logger();
-(new LoggerFile(log)).enable();
-
-try {
-    log.error('test me');
-}catch(e) {
-    console.log('e=' + e);
-}
+let log = new Logger('client/main_js');
 
 gameInfo.set('top_name', 'No game');
 gameInfo.set('bottom_name', 'No game');
@@ -116,6 +108,9 @@ Tracker.autorun(function(){
             log.debug('realtime_record', rec);
         rm_index = rec.nid;
         switch(rec.type) {
+            case 'setup_logger':
+                SetupLogger.addLoggers(rec.message);
+                break;
             case 'game_start':
                 //let top = 'black';
                 //let bottom = 'white';
@@ -159,7 +154,8 @@ Tracker.autorun(function(){
                     else
                         gameInfo.set('bottom_time', gameInfo.get('white_time'));
                 }
-                chess.move(rec.message.algebraic);
+                if(!chess.move(rec.message.algebraic))
+                    log.error('Unable to make illegal move', rec);
 
                 updateBoard();
                 movelistChanged.changed();
@@ -289,9 +285,10 @@ Template.rightmenu.helpers({
                 moveobj.black = move;
                 movelist.push(moveobj);
                 moveobj = null;
+                moveno++;
             } else {
                 moveobj = {
-                    box: 1 + (moveno % 2),
+                    box: moveno,
                     move: moveno,
                     white: move
                 }

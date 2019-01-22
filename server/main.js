@@ -1,9 +1,9 @@
 import {Meteor} from 'meteor/meteor';
 import {encrypt} from '../lib/server/encrypt';
 import {LegacyUser} from "./LegacyUser";
-import {Logger} from '../lib/server/logger';
+import {Logger} from '../lib/server/Logger';
 
-let log = new Logger('server/main.js');
+let log = new Logger('server/main_js');
 
 const bound = Meteor.bindEnvironment((callback) => {callback();});
 process.on('uncaughtException', (err) => {

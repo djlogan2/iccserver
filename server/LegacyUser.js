@@ -1,14 +1,14 @@
 //import {AccountsServer as user} from "meteor/accounts-base";
 import {decrypt} from "../lib/server/encrypt";
 import {RealTime} from "./RealTime";
-import {Logger}     from '../lib/server/logger';
+import {Logger}     from '../lib/server/Logger';
 
 import net from 'net';
 
 import * as L2 from '../lib/server/l2';
 import * as CN from '../lib/server/cn';
 
-let log = new Logger('server/LegacyUser.js');
+let log = new Logger('server/LegacyUser_js');
 
 /*
  * The packets the admin user will receive for saving and publishing.
@@ -103,8 +103,6 @@ export class LegacyUserConnection {
                 packets = self.parse();
                 log.debug('LegacyUser::(self.socket.on.data)', {packets: packets});
                 if(packets) {
-                    if(Roles.userIsInRole(self.user, 'developer'))
-                        RealTime.developer_debug(self.user._id, packets);
                     if(packets.level2Packets.length && packets.level2Packets[0].packet.indexOf('69 5') === 0) {
                         self.socket.write(decrypt(self.user.profile.legacy.password) + '\n');
                     } else {
@@ -355,7 +353,7 @@ export class LegacyUserConnection {
                     ctrl = false;
                     break;
                 case '}':
-                    if ((state === IN_BRACKETS_PARM && ctrl) || state === IN_SIMPLE_PARM) {
+                    if ((state === IN_CONTROL_BRACKETS_PARM && ctrl) || state === IN_BRACKETS_PARM) {
                         parms.push(currentparm);
                         currentparm = "";
                         state = IN_BETWEEN;

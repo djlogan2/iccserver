@@ -1,23 +1,8 @@
-import {Logger} from "../lib/server/logger";
+import {Logger, SetupLogger} from "../lib/server/Logger";
 
 const realtime_publish_map = {};
 
-let log = new Logger('server/RealTime.js');
-
-log.debug('test me');
-
-Meteor.publish('realtime_messages', function(){
-    const self = this;
-    log.debug('publishing realtime_messages');
-    realtime_publish_map[this.userId] = {
-        publish: self,
-        prm_id: 0
-    };
-    this.onStop(function(){
-        log.debug('ending publication realtime_messages');
-        delete realtime_publish_map[self.userId];
-    });
-});
+let log = new Logger('server/RealTime_js');
 
 // TODO: Do we have to queue up messages if the user isn't in the list? If he's not in the list, he's not logged on. But it could be because he's temporarily gone
 // TODO: Keep a timestamp record of when we send a game move for calculating lag
@@ -35,16 +20,22 @@ function send(userId, type, message) {
     }
 }
 
-const RealTime = {
-    /**
-     *
-     * @param userId
-     * @param msg
-     */
-    developer_debug(userId, msg) {
-        send(userId, 'debug', msg);
-    },
+Meteor.publish('realtime_messages', function(){
+    const self = this;
+    log.debug('publishing realtime_messages');
+    realtime_publish_map[this.userId] = {
+        publish: self,
+        prm_id: 0
+    };
+    this.onStop(function(){
+        log.debug('ending publication realtime_messages');
+        delete realtime_publish_map[self.userId];
+    });
 
+    send(self.userId, 'setup_logger', SetupLogger.getAllLoggers());
+});
+
+const RealTime = {
     /**
      *
      * @param {Id} userId1
