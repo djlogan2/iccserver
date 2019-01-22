@@ -288,7 +288,7 @@ Template.rightmenu.helpers({
                 moveno++;
             } else {
                 moveobj = {
-                    box: moveno,
+                    box: ((moveno % 2) + 1),
                     move: moveno,
                     white: move
                 }

@@ -14,11 +14,6 @@ process.on('uncaughtException', (err) => {
     });
 });
 
-log.debug('test 1');
-log.debug('test 2', {testme: 'yep'});
-log.error('test 3');
-log.error('test 4', {testme: 'yep'});
-
 const standard_guest_roles = [
     'login'
 ];
