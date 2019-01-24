@@ -23,7 +23,7 @@
         <div class="chess-area" id="chess-area">
             <div class="chess-board-area" id="chess-board-area">
                 <div class="profile-area" id="top_player_info_bar">
-                    <p class="clock-area" id="darkCountdownBoard">{{TopTime}}</p>
+                    <p class="clock-area top-countdown-board">{{TopTime}}</p>
                     {{#with TopPlayer}}
                     <img src="{{profile_image}}" class="profile-pic"  alt=""/>
                     <p class="profile-text">{{name}}<span class="profile-highlight">({{rating}})</span>
@@ -48,7 +48,7 @@
                 </div>
                 <!-- END BOARD -->
                 <div class="profile-area" id="bottom_player_info_bar">
-                    <p class="clock-area error" id="lightCountdownBoard">{{BottomTime}}</p>
+                    <p class="clock-area bottom-countdown-board">{{BottomTime}}</p>
                     {{#with BottomPlayer}}
                     <img src="{{profile_image}}" class="profile-pic"  alt=""/>
                     <p class="profile-text">{{name}}<span class="profile-highlight">({{rating}})</span>
@@ -85,10 +85,10 @@
         <div class="clear"></div>
         <div class="clocks" id="clocks">
             <div class="half-width left-side">
-                <p class="darkCountdown" id="darkCountdown">{{WhiteTime}}</p>
+                <p class="white-countdown-board">{{WhiteTime}}</p>
             </div>
             <div class="half-width right-side">
-                <p class="lightCountdown errror-color" id="lightCountdown">{{BlackTime}}</p>
+                <p class="black-countdown-board">{{BlackTime}}</p>
             </div>
             <div class="clear"></div>
         </div>
@@ -97,16 +97,15 @@
                 <p>{{Opening}}</p>
                 <div class="clear"></div>
             </div>
-{{#each MoveList}}
-            <div class="box{{this.box}}">
-                <div class="number"><p>{{this.move}}.</p></div>
-                <div class="move"><p>{{this.white}}</p></div>
-                <div class="move2"><p>{{this.black}}</p></div>
-                <div class="clear"></div>
-            </div>
-{{/each}}
+            {{#each MoveList}}
+                <div class="single-move box{{this.box}}">
+                    <div class="number"><p>{{this.move}}.</p></div>
+                    <div class="move"><p>{{this.white}}</p></div>
+                    <div class="move2"><p>{{this.black}}</p></div>
+                    <div class="clear"></div>
+                </div>
+            {{/each}}
             <div class="clear"></div>
-
         </div>
         <div class="clear"></div>
 

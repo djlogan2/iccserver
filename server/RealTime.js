@@ -1,5 +1,6 @@
 import {Logger, SetupLogger} from "../lib/server/Logger";
 
+const CLIENT_REALTIME_RECORDS_TO_KEEP = 1000;
 const realtime_publish_map = {};
 
 let log = new Logger('server/RealTime_js');
@@ -12,8 +13,8 @@ function send(userId, type, message) {
     log.debug('RealTime::send',{type: type, message: message});
     const pub = realtime_publish_map[userId];
     if(pub) {
-        if(pub.prm_id >= 100)
-            pub.publish.removed('realtime_messages', (pub.prm_id - 100).toString());
+        if(pub.prm_id >= CLIENT_REALTIME_RECORDS_TO_KEEP)
+            pub.publish.removed('realtime_messages', (pub.prm_id - CLIENT_REALTIME_RECORDS_TO_KEEP).toString());
         pub.publish.added('realtime_messages', (pub.prm_id).toString(), {nid: pub.prm_id, type: type, message: message});
         pub.publish.ready();
         pub.prm_id++;
@@ -36,8 +37,7 @@ Meteor.publish('realtime_messages', function(){
 });
 
 const RealTime = {
-    /**
-     *
+     /*
      * @param {Id} userId1
      * @param {Id} userId2
      * @param {string} whitePlayer
@@ -48,17 +48,15 @@ const RealTime = {
      * @param {Number} blackTime
      * @param {string} startingFen
      */
-    game_start(userId1, userId2, whitePlayer, whiteRating, blackPlayer, blackRating, whiteTime, blackTime, startingFen) {
+    game_start(userId1, userId2, whitePlayer, whiteRating, blackPlayer, blackRating, startingFen) {
         const msg = {
             white: {
                 name: whitePlayer,
-                rating: whiteRating,
-                time: whiteTime
+                rating: whiteRating
             },
             black: {
                 name: blackPlayer,
-                rating: blackRating,
-                time: blackTime
+                rating: blackRating
             }
         };
         if(startingFen)
@@ -82,10 +80,10 @@ const RealTime = {
      * @param userId
      * @param algebraic
      * @param smith
-     * @param seconds
+     * @param millis
      */
-    game_moveOnBoard(userId, algebraic, smith, time) {
-        send(userId, 'game_move', {algebraic: algebraic, smith: smith, seconds: time});
+    game_moveOnBoard(userId, algebraic) {
+        send(userId, 'game_move', {algebraic: algebraic});
     },
 
     /**
@@ -97,6 +95,15 @@ const RealTime = {
         send(userId, 'game_takeback', count);
     },
 
+    /**
+     *
+     * @param color {String} The color of the side to move. 'w' or 'b'
+     * @param msec {Number} The number of milliseconds on the clock
+     * @param startclock {Boolean} True to start this clock, false to not start this users clock
+     */
+    update_game_clock(userId, color, msec, startclock) {
+        send(userId, 'update_game_clock', {millis: msec, color: color, startclock: startclock});
+    },
     /**
      *
      * @param userId
