@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f1bb21fa-76c2-484e-bd94-c8afdd893438" name="Default Changelist" comment="ok, game moves working, ratings working, disk based logging working, time to check in as a stable version.">
+    <list default="true" id="f1bb21fa-76c2-484e-bd94-c8afdd893438" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/main.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/main.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.meteor/platforms" beforeDir="false" afterPath="$PROJECT_DIR$/.meteor/platforms" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/client/main.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/LegacyUser.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/LegacyUser.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/RealTime.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/RealTime.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -18,29 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/client/main.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="227">
-              <caret line="239" column="21" selection-start-line="239" selection-start-column="12" selection-end-line="239" selection-end-column="21" />
-              <folding>
-                <element signature="e#0#43#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/client/main.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="227">
-              <caret line="90" column="37" selection-start-line="90" selection-start-column="26" selection-end-line="90" selection-end-column="37" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -51,9 +28,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>.parse</find>
-      <find>game_start</find>
-      <find>nc6</find>
       <find>game_move</find>
       <find>update_</find>
       <find>_msec</find>
@@ -81,6 +55,9 @@
       <find>top-count</find>
       <find>bottom-count</find>
       <find>black-count</find>
+      <find>setin</find>
+      <find>MILLISECONDS_BETWEEN_CLOCK_UPDATES_HIGH</find>
+      <find>MILLISECONDS_BETWEEN_CLOCK_UPDATES</find>
     </findStrings>
     <replaceStrings>
       <replace>,</replace>
@@ -137,16 +114,18 @@
         <option value="$PROJECT_DIR$/.meteor/local/build/programs/server/2019-01-23" />
         <option value="$PROJECT_DIR$/private/logger_configuration.json" />
         <option value="$PROJECT_DIR$/server/RealTime.js" />
-        <option value="$PROJECT_DIR$/server/LegacyUser.js" />
         <option value="$PROJECT_DIR$/client/stylesheets/main-style.css" />
-        <option value="$PROJECT_DIR$/client/main.js" />
         <option value="$PROJECT_DIR$/client/main.html" />
+        <option value="$PROJECT_DIR$/client/main.js" />
+        <option value="$PROJECT_DIR$/server/LegacyUser.js" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
-    <option name="width" value="1680" />
-    <option name="height" value="1050" />
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="x" value="577" />
+    <option name="y" value="53" />
+    <option name="width" value="1686" />
+    <option name="height" value="1245" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -297,7 +276,9 @@
       <workItem from="1547962604589" duration="15669000" />
       <workItem from="1548223560618" duration="358000" />
       <workItem from="1548226535441" duration="8225000" />
-      <workItem from="1548274096380" duration="6300000" />
+      <workItem from="1548274096380" duration="7588000" />
+      <workItem from="1548350064077" duration="658000" />
+      <workItem from="1548541437899" duration="1458000" />
     </task>
     <task id="LOCAL-00001" summary="OK, realtime_messages finally working correctly. We still don't seem to be logging off though">
       <created>1546899314832</created>
@@ -327,11 +308,18 @@
       <option name="project" value="LOCAL" />
       <updated>1548129188673</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="ok, everything basically working so far. Clocks in particular. I still have a problem with the sizing of the move list div not being correct or something">
+      <created>1548305211939</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1548305211939</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="130136000" />
+    <option name="totallyTimeSpent" value="133540000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -343,23 +331,22 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
-    <editor active="true" />
+    <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21855922" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21733822" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info id="npm" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.26020408" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3112245" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.34126985" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4293722" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32959184" />
       <window_info anchor="bottom" id="Docker" order="7" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.3295964" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.23991032" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="9" visible="true" weight="0.6204082" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
       <window_info anchor="bottom" id="Messages" order="11" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -398,7 +385,8 @@
     <MESSAGE value="The piece moving is working far better. I'm not sure yet if the internal jquery class changes will conflict with the reactive updates or not. Will have to test. Also, somehow our messages are either getting lost or getting behind. I'm not sure what's going on yet. It's server-side. In some cases, it's sending the last message it got a minute ago when the next message comes in. In some cases it looks like it may not be processing or sending them right at all. Again, not sure yet. But, pieces moves work better, and it's progressing!" />
     <MESSAGE value="Added a disk logger that I found, and fixed the laggy message problem. Now it's back to not updating the board! :)" />
     <MESSAGE value="ok, game moves working, ratings working, disk based logging working, time to check in as a stable version." />
-    <option name="LAST_COMMIT_MESSAGE" value="ok, game moves working, ratings working, disk based logging working, time to check in as a stable version." />
+    <MESSAGE value="ok, everything basically working so far. Clocks in particular. I still have a problem with the sizing of the move list div not being correct or something" />
+    <option name="LAST_COMMIT_MESSAGE" value="ok, everything basically working so far. Clocks in particular. I still have a problem with the sizing of the move list div not being correct or something" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -682,23 +670,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.meteor/local/build/programs/server/2019-01-23">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="399" column="124" selection-start-line="399" selection-start-column="121" selection-end-line="399" selection-end-column="124" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/server/LegacyUser.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="285" column="52" selection-start-line="285" selection-start-column="52" selection-end-line="285" selection-end-column="52" />
-          <folding>
-            <element signature="e#63#109#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/.meteor/local/build/programs/server/2019-01-23" />
     <entry file="file://$PROJECT_DIR$/client/stylesheets/main-style.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3450">
@@ -706,12 +678,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/client/main.js">
+    <entry file="file://$PROJECT_DIR$/server/LegacyUser.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="227">
-          <caret line="239" column="21" selection-start-line="239" selection-start-column="12" selection-end-line="239" selection-end-column="21" />
+        <state relative-caret-position="285">
+          <caret line="248" column="33" selection-start-line="248" selection-start-column="33" selection-end-line="248" selection-end-column="33" />
           <folding>
-            <element signature="e#0#43#0" expanded="true" />
+            <element signature="e#63#109#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -720,6 +692,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="227">
           <caret line="90" column="37" selection-start-line="90" selection-start-column="26" selection-end-line="90" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/client/main.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="127">
+          <caret line="325" selection-start-line="325" selection-end-line="325" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

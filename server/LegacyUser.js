@@ -245,8 +245,8 @@ export class LegacyUserConnection {
                     default:
                         if (this.ctrl) {
                             if(by === '>' || by === '<')
-                                continue; // Ignore these CTRL-whatever-they-are's
-                            if (this.level2) {
+                                ; // Ignore these CTRL-whatever-they-are's
+                            else if (this.level2) {
                                 this.currentLevel2 += String.fromCharCode(25);
                             } else {
                                 this.currentLevel1 += String.fromCharCode(25);

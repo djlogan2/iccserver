@@ -262,19 +262,11 @@ function game_start(rec) {
     gameInfo.set('bottom_name', rec.message[bottom].name);
     gameInfo.set('top_rating', rec.message[top].rating);
     gameInfo.set('bottom_rating', rec.message[bottom].rating);
-//    gameInfo.set('top_time', (rec.message[top].time % 60) + ':' + (rec.message[top].time / 60));
-//    gameInfo.set('bottom_time', (rec.message[bottom].time % 60) + ':' + (rec.message[bottom].time / 60));
     gameInfo.set('white_name', rec.message.white.name);
     gameInfo.set('black_name', rec.message.black.name);
     gameInfo.set('white_rating', rec.message.white.rating);
     gameInfo.set('black_rating', rec.message.black.rating);
-//    gameInfo.set('white_time', (rec.message.white.time % 60) + ':' + (rec.message.white.time / 60));
-//    gameInfo.set('black_time', (rec.message.black.time % 60) + ':' + (rec.message.black.time / 60));
-    //whitemillis = rec.message.white.time * 60 * 1000;
-    //blackmillis = rec.message.black.time * 60 * 1000;
     updateBoard();
-    //updateTime(false);
-    //updateTime(true);
     updateMoversClock();
     movelistChanged.changed();
 
@@ -283,9 +275,6 @@ function game_start(rec) {
         scrollMoveListWaiting = true;
     }
 
-    //if(intervalId)
-    //    clearInterval(intervalId);
-    //intervalId = setInterval(updatePlayerTime, MILLISECONDS_BETWEEN_CLOCK_UPDATES);
 }
 
 //
