@@ -1,6 +1,0 @@
-{
-    "server/RealTime_js": "TRACE",
-    "server/main_js": "TRACE",
-    "server/LegacyUser_js": "TRACE",
-    "client/main_js": "TRACE"
-}
