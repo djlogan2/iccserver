@@ -9,8 +9,9 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.1.5",
-    "bcrypt": "^3.0.3",
+    "bcrypt": "^3.0.6",
     "meteor-node-stubs": "^0.4.1",
+    "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-meteor-data": "^0.2.11",
