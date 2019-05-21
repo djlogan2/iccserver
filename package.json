@@ -10,8 +10,13 @@
   "dependencies": {
     "@babel/runtime": "^7.1.5",
     "bcrypt": "^3.0.3",
-    "chess.js": "git+https://github.com/jhlywa/chess.js.git",
-    "meteor-node-stubs": "^0.4.1"
+    "meteor-node-stubs": "^0.4.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-meteor-data": "^0.2.11",
+    "react-redux": "^6.0.1",
+    "react-router-dom": "^5.0.0",
+    "redux": "^4.0.1"
   },
   "meteor": {
     "mainModule": {
