@@ -32,7 +32,6 @@ const fields_viewable_by_account_owner = {
     'profile.legacy.username': 1
 };
 
-
 Meteor.startup(() => {
     if (Meteor.users.find().count() === 0) {
         const id = Accounts.createUser({
