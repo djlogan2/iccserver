@@ -151,12 +151,12 @@ h3{
   width: 38vw;
 }
 .user-pic {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
 }
 .user-tagline-component {
-  margin-top: 10px;
+  margin-top: 3px;
   margin-left: 10px;
 }
 .user-tagline-username {
@@ -172,7 +172,8 @@ h3{
 .clock-top {
   position: absolute;
   right: 0;
-  height: auto;
+  height: 36px;
+  width: 73px;
   line-height: 23px;
   padding: 6px 20px;
   text-align: right;
@@ -198,7 +199,8 @@ h3{
 .clock-bottom {
   position: absolute;
   right: 0;
-  height: auto;
+  height: 36px;
+  width: 73px;
   line-height: 23px;
   padding: 6px 20px;
   text-align: right;
@@ -470,8 +472,8 @@ h3{
 
 @media (min-width: 768px) and (max-width: 991px){
   .pull-left.image img {
-    max-width: 90px !important;
-    margin-top: 5px;
+    max-width: 70px !important;
+    margin-top: 0px;
 }
 .float-right.menu-close-icon a {
   font-size: 24px !important;
@@ -482,7 +484,7 @@ h3{
   .ribbon-move-list {
     background: #1a1a1a;
     color: #fff;
-    font-size: 14px;
+    font-size: 12px;
     padding: 4px 0;
     margin-top: 0px;
     text-align: left;
@@ -516,13 +518,13 @@ h3{
 .clock-top {
   right: 15px;
   line-height: 23px;
-  padding: 3px 10px;
+  padding: 6px 10px;
   font-size: 21px;
   margin-top: 15px;
 }
 .clock-bottom {
   right: 15px;
-  padding: 3px 10px;
+  padding: 6px 10px;
   text-align: center;
   font-size: 21px;
   top: 15px;
@@ -546,7 +548,7 @@ h3{
   margin-left: 7px;
 }
 .user-pic {
-  margin-top: 10px;
+  margin-top: 5px;
 } 
 .board-section {
     width: 100%;
@@ -570,12 +572,12 @@ h3{
   z-index: 99;
   padding-left: 7px;
   padding-top: 3px;
-  top: 0;
+  top: 3px;
   left: 50px;
 } 
 .sidebar .float-right.menu-close-icon {
   position: fixed;
-  top: 12px;
+  top: 2px;
   right: inherit;
   z-index: 99;
   transition: all 0.5s ease-in-out;
@@ -585,7 +587,7 @@ h3{
   position: fixed;
   margin: 0px;
   float: left !important;
-  top: 12px;
+  top: 2px;
   right: inherit;
   left: 15px;
 }
@@ -597,7 +599,7 @@ h3{
   transition: all 0.5s ease-in-out;
   position: fixed !important;
   left: -170px;
-  top:45px;
+  top:30px;
 }
 .sidebar.left.device-menu.fliph {
   width: 170px;
@@ -606,7 +608,7 @@ h3{
   z-index: 999;
   height: 100vh;
   left: 0px;
-  top:45px;
+  top:30px;
 }
 .navbar-light .navbar-brand {
     margin-left: 40px;
@@ -618,7 +620,7 @@ h3{
   width: 350px;
   height: 40px;
   align-items: center;
-  margin-top: 5px;
+  margin-top: 0px;
 }
 .top-menu-list {
   align-items: center;
@@ -671,9 +673,9 @@ h3{
 }
 .navbar {
   position: relative;
-  min-height: 52px;
+  min-height: 40px;
   margin-bottom: 0px;
-  border: 1px solid transparent;
+  border: 0px solid transparent;
 }
 
 .main {
@@ -830,4 +832,15 @@ h3{
   background: #606060;
 }
 
+}
+
+@media (min-width: 1200px){
+  .clock-top {
+    width: 93.94px;
+    text-align: center;
+  }
+  .clock-bottom {
+    width: 93.94px;
+    text-align: center;
+  }  
 }

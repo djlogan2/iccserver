@@ -12,9 +12,9 @@ import LoginPage from '../../ui/pages/LoginPage.jsx'
 export const renderRoutes = () => (
   <Router>
     <div>
-    <Route path="/signup" component={SignupPage}/>
-      <Route path="/login" component={LoginPage}/>
-     
+      <Route path="/signup" component={SignupPage} />
+      <Route path="/login" component={LoginPage} />
+
       <Route exact={true} path="/" component={AppContainer} />
     </div>
   </Router>

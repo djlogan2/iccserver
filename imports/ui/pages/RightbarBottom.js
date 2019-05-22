@@ -6,7 +6,8 @@ const RightbarBottom = () => (
     <div>
      <Tabs>
     
-        <div label="Chat">
+        <div label="Chat" className="chat">
+        
             <div className="chat-content">
                     <div className="user-1">
                         <h6>NEW GAME</h6>
