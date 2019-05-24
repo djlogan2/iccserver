@@ -71,9 +71,6 @@ export default class MainPage extends TrackerReact(React.Component) {
   }
 
   render() {
-    let currentUser = this.props.currentUser;
-    let userDataAvailable = currentUser !== undefined;
-    let loggedIn = currentUser && userDataAvailable;
     // const gamedata=this.getingData();
     const gameStart = this.gameStartData();
 

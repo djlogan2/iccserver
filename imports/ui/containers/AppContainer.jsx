@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { withHistory } from "react-router-dom";
-
 import MainPage from "./../pages/MainPage";
 
 export default class AppContainer extends Component {

@@ -1,6 +1,6 @@
 import React from 'react';
 import '../css/chessbord';
-import Board from './board.js';
+import ChessBordLayout from '../ChessBordLayout';
 import FallenSoldierBlock from './fallen-soldier-block.js';
 import initialiseChessBoard from '../helpers/board-initialiser.js';
 import PlayerTop from './Players/PlayerTop';
@@ -126,7 +126,9 @@ export default class Game extends React.Component {
         whitePlayer = gamedata[key]['message']['white'];
       }
       if (gamedata[key]['type'] === 'game_move') {
-        gameMove = gamedata[key]['message'];
+        // let chessMove = ["c4", "e5", "e3", "b6", "h3", "d5", "f3", "b5", "Kf2", "Qg5", "f4", "Ke7", "c5", "Qg6", "Nf3", "b4", "Bb5", "a6", "h4", "Ra7", "Be8", "Nd7", "Nd4", "Nxc5", "Nb5", "Na4", "Qf3", "Qd6"];
+        //this.setStat
+        gameMove = gamedata[key]['message']['algebraic'];
       }
       if (gamedata[key]['type'] === 'update_game_clock') {
         gameclock = gamedata[key]['message'];
@@ -134,7 +136,7 @@ export default class Game extends React.Component {
       }
     }
 
-    console.log(gameMove);
+    console.log("GampePage", gameMove);
     /*  console.log("gameClock:",gameclock);
     console.log("balckPlayer:",balckPlayer);
     console.log("whitePlayer:",whitePlayer); */
@@ -145,10 +147,7 @@ export default class Game extends React.Component {
         <div>
           <div className="game">
             <div className="game-board">
-              <Board
-                squares={this.state.squares}
-                onClick={(i) => this.handleClick(i)}
-              />
+              <ChessBordLayout gameMove={gameMove} />
             </div>
             <div className="game-info">
               <h3>Turn</h3>
