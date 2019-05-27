@@ -126,8 +126,6 @@ export default class Game extends React.Component {
         whitePlayer = gamedata[key]['message']['white'];
       }
       if (gamedata[key]['type'] === 'game_move') {
-        // let chessMove = ["c4", "e5", "e3", "b6", "h3", "d5", "f3", "b5", "Kf2", "Qg5", "f4", "Ke7", "c5", "Qg6", "Nf3", "b4", "Bb5", "a6", "h4", "Ra7", "Be8", "Nd7", "Nd4", "Nxc5", "Nb5", "Na4", "Qf3", "Qd6"];
-        //this.setStat
         gameMove = gamedata[key]['message']['algebraic'];
       }
       if (gamedata[key]['type'] === 'update_game_clock') {
@@ -136,10 +134,8 @@ export default class Game extends React.Component {
       }
     }
 
-    console.log("GampePage", gameMove);
-    /*  console.log("gameClock:",gameclock);
-    console.log("balckPlayer:",balckPlayer);
-    console.log("whitePlayer:",whitePlayer); */
+    console.log(gameMove);
+    console.log("gameClock:", gameclock);
 
     return (
       <div>

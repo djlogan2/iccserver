@@ -55,7 +55,8 @@ class Gamebord extends Component {
     //    return this.props.children({ position: fen });
     return (
       <Chessboard
-        width={320}
+
+        width={480}
         position={fen}
         transitionDuration={300}
         boardStyle={{
@@ -69,7 +70,7 @@ class Gamebord extends Component {
 class ChessBordLayout extends Component {
   render() {
     let gameMove = this.props.gameMove;
-    console.log("ChessBordLayout", gameMove);
+
     return (
       <div>
         <Gamebord gameMove={gameMove} />
