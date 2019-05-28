@@ -5,7 +5,9 @@ import {Logger} from '../lib/server/Logger';
 
 let log = new Logger('server/main_js');
 
-const bound = Meteor.bindEnvironment((callback) => {callback();});
+const bound = Meteor.bindEnvironment((callback) => {
+    callback();
+});
 process.on('uncaughtException', (err) => {
     bound(() => {
         log.error("Server Crashed!", err);
@@ -61,7 +63,7 @@ Meteor.startup(() => {
             }
         });
 
-        Roles.addUsersToRoles(id3, ['administrator','legacy_login', 'developer'], Roles.GLOBAL_GROUP);
+        Roles.addUsersToRoles(id3, ['administrator', 'legacy_login', 'developer'], Roles.GLOBAL_GROUP);
         Roles.addUsersToRoles(id3, standard_member_roles, Roles.GLOBAL_GROUP);
         //TODO: Remove this too
         const id2 = Accounts.createUser({
@@ -82,11 +84,11 @@ Meteor.startup(() => {
 // The fields an average user will see of his own record
 //
 Meteor.publish('userData', function () {
-    if(!this.userId) return Meteor.users.find({_id: null});
+    if (!this.userId) return Meteor.users.find({_id: null});
 
     const self = this;
 
-    this.onStop(function(){
+    this.onStop(function () {
         log.debug('User left');
         LegacyUser.logout(self.userId);
     });
@@ -94,13 +96,13 @@ Meteor.publish('userData', function () {
     log.debug('User has arrived');
     const user = Meteor.users.findOne({_id: this.userId});
 
-    if(!(user.roles))
+    if (!(user.roles))
         Roles.addUsersToRoles(user._id, standard_guest_roles, Roles.GLOBAL_GROUP);
 
     log.debug('user record', user);
     log.debug('User is in leagy_login role', Roles.userIsInRole(user, 'legacy_login'));
 
-    if(Roles.userIsInRole(user, 'legacy_login') &&
+    if (Roles.userIsInRole(user, 'legacy_login') &&
         user.profile &&
         user.profile.legacy &&
         user.profile.legacy.username &&
@@ -109,11 +111,11 @@ Meteor.publish('userData', function () {
         LegacyUser.login(user);
     }
 
-    return Meteor.users.find({_id: this.userId},{fields: fields_viewable_by_account_owner});
+    return Meteor.users.find({_id: this.userId}, {fields: fields_viewable_by_account_owner});
 });
 
 Accounts.onCreateUser(function (options, user) {
-    if(options.profile) {
+    if (options.profile) {
         user.profile = {
             firstname: options.profile.firstname || '?',
             lastname: options.profile.lastname || '?'

@@ -22,7 +22,11 @@ const drawOfferedSchema = new SimpleSchema({
     time: {type: SimpleSchema.Integer}
 });
 const GameSchema = new SimpleSchema({
-    startTime: {type: Date, autoValue: function() {return new Date();}},
+    startTime: {
+        type: Date, autoValue: function () {
+            return new Date();
+        }
+    },
     white: [playerSchema],
     black: [playerSchema],
     whiteTime: {type: SimpleSchema.Integer},
@@ -42,9 +46,10 @@ const Game = {
      * @returns {string} gameId
      */
     start(whiteName, whiteRating, blackName, blackRating, whiteTime, blackTime) {
-        return ;
+        return;
     },
-    end() {}
+    end() {
+    }
 };
 
 export {Game};

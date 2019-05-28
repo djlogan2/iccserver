@@ -1,4 +1,4 @@
-accounts-base@1.4.3
+accounts-base@1.4.4
 accounts-password@1.5.1
 alanning:roles@1.2.16
 allow-deny@1.1.0
@@ -22,7 +22,7 @@ ddp-server@2.3.0
 deps@1.0.12
 diff-sequence@1.1.1
 dynamic-import@0.5.1
-ecmascript@0.12.4
+ecmascript@0.12.7
 ecmascript-runtime@0.7.0
 ecmascript-runtime-client@0.8.0
 ecmascript-runtime-server@0.7.1
@@ -107,5 +107,5 @@ tracker@1.2.0
 twbs:bootstrap@3.3.6
 ultimatejs:tracker-react@1.0.5
 underscore@1.0.10
-webapp@1.7.3
+webapp@1.7.4
 webapp-hashing@1.0.9

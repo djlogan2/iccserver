@@ -1,28 +1,31 @@
 .tab-list {
     border-bottom: 1px solid #ccc;
     padding-left: 0;
-  }
-  
-  .tab-list-item {
+}
+
+.tab-list-item {
     display: inline-block;
     list-style: none;
     margin-bottom: -2px !important;
     padding: 1.5rem 1.75rem;
     cursor: pointer;
-  }
-  
-  .tab-list-active {
-    background-color:#efefef;
+}
+
+.tab-list-active {
+    background-color: #efefef;
     border: solid #ccc;
     border-width: 1px 1px 0 1px;
-  }
-  .game-top-header {
+}
+
+.game-top-header {
     background: #efefef;
     padding: 10px 15px;
 }
-.tab-list{
+
+.tab-list {
     margin-bottom: 0px;
 }
+
 .game-buttons-move {
     background: #f1f1f1;
     display: flex;
@@ -34,16 +37,19 @@
     bottom: 350px;
     z-index: 999;
 }
+
 .game-buttons-move a {
     align-items: center;
     text-align: center;
     width: 65px;
     flex: auto;
 }
+
 .game-move-list {
     padding: 10px 15px !important;
     line-height: 21px;
 }
+
 .draw-section {
     background: #fff;
     position: absolute;
@@ -51,6 +57,7 @@
     bottom: 290px;
     z-index: 99;
 }
+
 .draw-section ul {
     margin: 0px;
     padding: 0px;
@@ -59,6 +66,7 @@
     flex-wrap: nowrap;
     text-align: center;
 }
+
 .draw-section ul li {
     width: 25%;
     align-items: center;
@@ -66,25 +74,31 @@
     padding: 8px 0;
     flex: auto;
 }
+
 .draw-section ul li a {
     color: #777777;
 }
+
 .draw-section ul li span {
     display: block;
 }
+
 .game-move-list span {
     font-weight: 700;
 }
+
 .right-top-content {
     height: 55vh;
 }
+
 .right-top-content .tab-list-active {
     background-color: #efefef;
-    border-top:2px solid #1565c0;
-    border-right:0px;
-    border-left:0px;
-    border-bottom:0px;    
+    border-top: 2px solid #1565c0;
+    border-right: 0px;
+    border-left: 0px;
+    border-bottom: 0px;
 }
+
 .right-top-content .tab-list-item {
     font-size: 18px;
     font-weight: 600;
@@ -97,16 +111,19 @@
     padding: .5rem 1rem;
     height: 47px;
 }
+
 .right-top-content .tournament-content {
     max-height: 290px;
     overflow-y: auto;
 }
+
 .right-top-content .challenge-content {
     border-radius: 0 0 3px 3px;
     background: #fff;
     margin-top: 0px;
     padding: 0 15px;
 }
+
 .right-top-content .competitions-list-item-component {
     display: flex;
     justify-content: center;
@@ -115,11 +132,13 @@
     max-height: 40px;
     cursor: pointer;
     border-bottom: 1px solid #e8e7e6;
-    color: #a7a6a2!important;
+    color: #a7a6a2 !important;
 }
+
 .right-top-content i.blitzicon {
     width: 30px;
 }
+
 i.fa.fa-sort-down {
     font-size: 18px;
     color: #666463;
@@ -127,6 +146,7 @@ i.fa.fa-sort-down {
     line-height: 20px;
     vertical-align: top;
 }
+
 .right-top-content .competitions-list-item-component .competitions-list-item-name {
     flex: 3;
     padding-left: 10px;
@@ -136,11 +156,13 @@ i.fa.fa-sort-down {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .right-top-content .competitions-list-item-component .competitions-list-item-status {
     flex: 2;
     color: #a7a6a2;
     padding-right: 5px;
 }
+
 .right-top-content .competitions-list-item-component .competitions-list-item-count {
     width: 30px;
     text-align: right;
@@ -150,28 +172,34 @@ i.fa.fa-sort-down {
 .right-bottom-content {
     height: 45vh;
 }
+
 .right-bottom-content .tab-content {
     padding: 0px;
 }
+
 .right-bottom-content > div {
     height: 100%;
 }
-.right-bottom-content .tabs{
+
+.right-bottom-content .tabs {
     height: 100%;
 }
+
 .right-bottom-content .tab-list {
     background: #1565c0;
     padding-top: 15px;
 }
-.right-bottom-content .tab-list-item{
+
+.right-bottom-content .tab-list-item {
     color: #fff;
     border: solid #ccc;
     border-width: 0px 0px 0px 0px;
     font-size: 16px;
     width: 25%;
     text-align: center;
-    
+
 }
+
 .right-bottom-content .tab-list-active {
     background-color: #efefef;
     border: solid #ccc;
@@ -180,21 +208,25 @@ i.fa.fa-sort-down {
     border-top-right-radius: 10px;
     color: #000;
 }
+
 .right-bottom-content .chat-content {
     padding: 20px 15px 50px 15px;
     max-height: 155px;
     overflow-y: scroll;
     min-height: 100%;
 }
+
 span.sign {
     margin-top: 2px;
     display: inline-block;
     font-size: 16px;
 }
+
 .right-bottom-content .chat-content h6 {
     font-weight: 700;
     font-size: 12px;
 }
+
 .right-bottom-content .chat-input-box {
     position: absolute;
     padding: 0 0px;
@@ -204,6 +236,7 @@ span.sign {
     bottom: 0px;
     background: #fff;
 }
+
 .right-bottom-content .chat-input-box input[type="text"] {
     width: 100%;
     height: 57px;
@@ -213,6 +246,7 @@ span.sign {
     outline: none;
     border: none;
 }
+
 .right-bottom-content .send-btn {
     background: url(../../../../images/send-btn.png) no-repeat center 10px;
     position: absolute;
