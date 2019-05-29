@@ -1,6 +1,6 @@
 {
   "plugins": ["meteor"],
-  "extends": ["plugin:meteor/recommended"],
+  "extends": ["plugin:meteor/recommended", "react-app", "plugin:prettier/recommended"],
   "parserOptions": {
     "ecmaVersion": 6,
     "sourceType": "module",
@@ -8,6 +8,8 @@
       "jsx": true
     },
     "plugins": ["react"],
-    "rules": {}
+    "rules": {
+      "no-console": "warn"
+    }
   }
 }

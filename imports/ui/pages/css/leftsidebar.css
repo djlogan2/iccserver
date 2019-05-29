@@ -27,7 +27,7 @@
 
 .float-right.menu-close-icon {
     position: absolute;
-    top: 22px;
+    top: 19px;
     right: 8px;
     z-index: 99;
     transition: all 0.5s ease-in-out;

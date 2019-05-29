@@ -4,14 +4,14 @@ import '../css/chessbord';
 
 export default function Square(props) {
 
-    return (
+  return (
 
-        <button className={props.shade}
-                onClick={props.onClick}
-                style={props.style}>
-            {props.children}
-        </button>
+    <button className={props.shade}
+      onClick={props.onClick}
+      style={props.style}>
+      {props.children}
+    </button>
 
-    );
+  );
 
 }
