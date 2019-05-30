@@ -119,6 +119,8 @@ export default class Game extends React.Component {
     let blackPlayer = '';
     let whitePlayer = '';
     let gameclock = '';
+    let blackPlayerClock = '';
+    let whitePlayerClock = '';
     for (const key in gamedata) {
 
       if (gamedata[key]['type'] === 'game_start') {
@@ -130,16 +132,23 @@ export default class Game extends React.Component {
       }
       if (gamedata[key]['type'] === 'update_game_clock') {
         gameclock = gamedata[key]['message'];
+        if (gameclock['color'] === 'b') {
+          blackPlayerClock = gamedata[key]['message'];
+        } else {
+          whitePlayerClock = gamedata[key]['message'];
+        }
+        console.log("blackPlayerClock", blackPlayerClock);
 
       }
     }
 
-    console.log(gameMove);
-    console.log("gameClock:", gameclock);
+    /*  console.log("gameClock:",gameclock);
+    console.log("balckPlayer:",balckPlayer);
+    console.log("whitePlayer:",whitePlayer); */
 
     return (
       <div>
-        <PlayerTop playerInfo={blackPlayer} gameClockInfo={gameclock} />
+        <PlayerTop playerInfo={blackPlayer} gameClockInfo={blackPlayerClock} />
         <div>
           <div className="game">
             <div className="game-board">
@@ -160,7 +169,7 @@ export default class Game extends React.Component {
             </div>
           </div>
         </div>
-        <PlayerBottom playerInfo={whitePlayer} gameClockInfo={gameclock} />
+        <PlayerBottom playerInfo={whitePlayer} gameClockInfo={whitePlayerClock} />
       </div>
     );
   }

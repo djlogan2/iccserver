@@ -7,11 +7,11 @@ import Chessboard from "chessboardjsx";
 class Gamebord extends Component {
   static propTypes = { children: PropTypes.func };
 
-  state = { fen: "start", count: 0 };
+  state = { fen: "start", width: 480 };
 
   componentDidMount() {
     this.game = new Chess();
-
+    window.addEventListener("resize", this.updateWindowDimensions);
     console.log("Game Constructer created");
   }
 
@@ -23,11 +23,14 @@ class Gamebord extends Component {
 
       this.makeMove(this.props.gameMove);
     }
+
   }
-  // timer = () => window.setTimeout(this.makeMove, 1000);
+  updateWindowDimensions = () => {
+    this.setState({ width: window.innerWidth });
+  };
 
   makeMove = (moves) => {
-    let possibleMoves = this.game.moves();
+    // let possibleMoves = this.game.moves();
     //  let chessMove = ["c4", "e5", "e3", "b6", "h3", "d5", "f3", "b5", "Kf2", "Qg5", "f4", "Ke7", "c5", "Qg6", "Nf3", "b4", "Bb5", "a6", "h4", "Ra7", "Be8", "Nd7", "Nd4", "Nxc5", "Nb5", "Na4", "Qf3", "Qd6"];
     // exit if the game is over
     if (
@@ -47,7 +50,7 @@ class Gamebord extends Component {
     //this.setState({ count: this.state.count + 1 });
 
 
-    //this.timer();
+
   };
 
   render() {
@@ -56,9 +59,11 @@ class Gamebord extends Component {
     return (
       <Chessboard
 
-        width={480}
+        width={this.state.width}
         position={fen}
         transitionDuration={300}
+        darkSquareStyle={{ backgroundColor: 'rgb(21,101,192)' }}
+        lightSquareStyle={{ backgroundColor: 'rgb(255,255,255)' }}
         boardStyle={{
           borderRadius: "5px",
           boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`

@@ -2,41 +2,57 @@
 import React, { Component } from 'react'
 
 export default class PlayerBottom extends Component {
-	gametimeUpdate(rec) {
+	constructor(props) {
+		super(props);
+		this.state = { whitetime: "" };
+	}
 
-		let themillis = '';
-		if (rec.color === 'w') {
-			themillis = rec.millis;
+	componentDidUpdate(prevProps, prevState) {
 
-			let millis = themillis % 1000;
-			let seconds = parseInt((themillis - millis) / 1000);
-			let minutes = parseInt(seconds / 60);
-			seconds -= (minutes * 60);
-			let hours = parseInt(minutes / 60);
-			minutes -= (hours * 60);
+		if (prevProps.gameClockInfo !== this.props.gameClockInfo) {
+			let recivedProps = this.props.gameClockInfo;
+			let pTime = recivedProps.millis;
 
-			let timestring = '';
-			if (hours) timestring = hours + ':';
-			if (hours || minutes) {
-				if (minutes < 10) timestring += '0';
-				timestring += minutes + ':';
-			} else
-				timestring += '0:';
+			if (recivedProps.color === 'w' && recivedProps.startclock === "true") {
+				setInterval(() => this.gametimeUpdate(pTime - 50), 1000);
+			} else {
+				this.gametimeUpdate(pTime);
+			}
 
-			if (seconds < 10)
-				timestring += '0';
-
-			timestring += seconds;
-			if (seconds < 15 && !minutes && !hours)
-				timestring += '.' + millis.toString().substr(0, 1);
-			return timestring;
 		}
 
 	}
 
+	gametimeUpdate(millisSecond) {
+		let themillis = '';
+		themillis = millisSecond;
+		let millis = millisSecond % 1000;
+		let seconds = parseInt((themillis - millis) / 1000);
+		let minutes = parseInt(seconds / 60);
+		seconds -= (minutes * 60);
+		let hours = parseInt(minutes / 60);
+		minutes -= (hours * 60);
+		let timestring = '';
+
+		if (hours) timestring = hours + ':';
+		if (hours || minutes) {
+			if (minutes < 10) timestring += '0';
+			timestring += minutes + ':';
+		} else
+			timestring += '0:';
+		if (seconds < 10)
+			timestring += '0';
+
+		timestring += seconds;
+		if (seconds < 15 && !minutes && !hours)
+			timestring += '.' + millis.toString().substr(0, 1);
+
+		this.setState({ whitetime: timestring });
+
+	}
+
 	render() {
-		let propsTime = this.props.gameClockInfo;
-		let whiteBlayerTime = this.gametimeUpdate(propsTime);
+
 		return (
 			<div>
 				<div>
@@ -50,7 +66,7 @@ export default class PlayerBottom extends Component {
 								<img src="images/small-picB-1.png" /> <img src="images/small-picB-2.png" />
 							</div>
 							<div className="clock-bottom active">
-								{whiteBlayerTime}
+								{this.state.whitetime}
 							</div>
 						</div>
 					</div>

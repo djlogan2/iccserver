@@ -1,40 +1,57 @@
 import React, { Component } from 'react'
 
 export default class PlayerTop extends Component {
+	constructor(props) {
+		super(props);
+		this.state = { time: "" };
+	}
 
-	gametimeUpdate(rec) {
-		let themillis = '';
-		if (rec.color === 'b') {
-			themillis = rec.millis;
-			let millis = themillis % 1000;
-			let seconds = parseInt((themillis - millis) / 1000);
-			let minutes = parseInt(seconds / 60);
-			seconds -= (minutes * 60);
-			let hours = parseInt(minutes / 60);
-			minutes -= (hours * 60);
-			let timestring = '';
+	componentDidUpdate(prevProps, prevState) {
 
-			if (hours) timestring = hours + ':';
-			if (hours || minutes) {
-				if (minutes < 10) timestring += '0';
-				timestring += minutes + ':';
-			} else
-				timestring += '0:';
-			if (seconds < 10)
-				timestring += '0';
-
-			timestring += seconds;
-			if (seconds < 15 && !minutes && !hours)
-				timestring += '.' + millis.toString().substr(0, 1);
-			return timestring;
+		if (prevProps.gameClockInfo !== this.props.gameClockInfo) {
+			let recivedProps = this.props.gameClockInfo;
+			let pTime = recivedProps.millis;
+			if (recivedProps.color === 'b' && recivedProps.startclock === "true") {
+				setInterval(() => this.gametimeUpdate(pTime - 50), 1000);
+			} else {
+				this.gametimeUpdate(pTime);
+			}
 
 		}
 
 	}
 
+	gametimeUpdate(millisSecond) {
+		let themillis = '';
+		themillis = millisSecond;
+		let millis = millisSecond % 1000;
+		let seconds = parseInt((themillis - millis) / 1000);
+		let minutes = parseInt(seconds / 60);
+		seconds -= (minutes * 60);
+		let hours = parseInt(minutes / 60);
+		minutes -= (hours * 60);
+		let timestring = '';
+
+		if (hours) timestring = hours + ':';
+		if (hours || minutes) {
+			if (minutes < 10) timestring += '0';
+			timestring += minutes + ':';
+		} else
+			timestring += '0:';
+		if (seconds < 10)
+			timestring += '0';
+
+		timestring += seconds;
+		if (seconds < 15 && !minutes && !hours)
+			timestring += '.' + millis.toString().substr(0, 1);
+
+		this.setState({ time: timestring });
+
+	}
+
 	render() {
-		let propsTime = this.props.gameClockInfo;
-		let blackPlayerTime = this.gametimeUpdate(propsTime);
+		//	let propsTime = this.props.gameClockInfo;
+		//	let blackPlayerTime = this.gametimeUpdate(propsTime);
 
 		return (
 			<div>
@@ -55,7 +72,7 @@ export default class PlayerTop extends Component {
 						</div>
 
 						<div className="clock-top">
-							{blackPlayerTime}
+							{this.state.time}
 						</div>
 					</div>
 				</div>
