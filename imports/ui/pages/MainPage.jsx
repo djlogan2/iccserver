@@ -15,6 +15,7 @@ export default class MainPage extends TrackerReact(React.Component) {
     this.state = {
       username: "",
       visible: false,
+      rm_index: 1,
       subscription: {
         tasks: Meteor.subscribe("userData")
       }
@@ -26,56 +27,56 @@ export default class MainPage extends TrackerReact(React.Component) {
     this.setState({ visible: !this.state.visible });
   }
 
-  gameStartData() {
+  /*  gameStartData() {
     let records = RealTime.find().fetch();
     if (records.length) {
       return records;
     }
-  }
+  } */
 
   getingData() {
-    /*   let  gameinfo=[];
-      let rm_index=1;
-      let records = RealTime.find({nid: {$gt: rm_index}}, {sort: {"nid": 1}}).fetch();
+    let gameinfo = [];
+    let rm_index = 1;
+    let records = RealTime.find(
+      { nid: { $gt: rm_index } },
+      { sort: { nid: 1 } }
+    ).fetch();
     //  let records = RealTime.find().fetch();
-    
-      if(records.length)
-       rm_index = [records.length - 1].nid;
-      
+
+    if (records.length)
+      // this.setState({ rm_index: records[records.length - 1].nid });
+
       records.map(rec => {
-    //      log.debug('realtime_record', rec);
-          rm_index = rec.nid;
-            switch(rec.type) {
-              case 'setup_logger':
-                  
-                  gameinfo=rec;
-                  break;
-    
-              case 'game_start':
-                  gameinfo=rec;
-                  break;
-    
-              case 'game_move':
-                  gameinfo=rec;
-                  break;
-    
-              case 'update_game_clock':
-                  gameinfo=rec;
-                  break;
-              default:
-     //             log.error('realtime_message default', rec);
-          }
+        rm_index = rec.nid;
+        switch (rec.type) {
+          case "setup_logger":
+            gameinfo = rec;
+            break;
+
+          case "game_start":
+            gameinfo = rec;
+            break;
+
+          case "game_move":
+            gameinfo = rec;
+            break;
+
+          case "update_game_clock":
+            gameinfo = rec;
+            break;
+          default:
+          //             log.error('realtime_message default', rec);
+        }
       });
-       return gameinfo;
-     */
+    return gameinfo;
   }
 
   render() {
     let currentUser = this.props.currentUser;
     let userDataAvailable = currentUser !== undefined;
     let loggedIn = currentUser && userDataAvailable;
-    // const gamedata=this.getingData();
-    const gameStart = this.gameStartData();
+    const gameStart = this.getingData();
+    //  const gameStart = this.gameStartData();
 
     return (
       <div className="main">
@@ -120,7 +121,7 @@ export default class MainPage extends TrackerReact(React.Component) {
             </aside>
           </div>
           <div className="col-sm-5 col-md-8 col-lg-5 board-section">
-            <Game gameStart={gameStart} />
+            <Game gameStart={gameStart} gamebordWidth={this.state.width} />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             <Rightsidebar />

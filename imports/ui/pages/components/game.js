@@ -16,7 +16,11 @@ export default class Game extends React.Component {
       player: 1,
       sourceSelection: -1,
       status: '',
-      turn: 'white'
+      turn: 'white',
+      blackPlayer: '',
+      whitePlayer: '',
+      bordwidth: ''
+
     }
   }
 
@@ -110,10 +114,25 @@ export default class Game extends React.Component {
     }
     return isLegal;
   }
+  componentDidMount() {
+    const width = this.divElement.clientWidth;
+    this.setState({ bordwidth: width });
 
+  }
+  componentDidUpdate(prevProps, prevState) {
+
+
+    if (prevProps.gameStart !== this.props.gameStart && this.props.gameStart['type'] === 'game_start') {
+      this.setState({ blackPlayer: this.props.gameStart['message']['black'], whitePlayer: this.props.gameStart['message']['white'] });
+
+    }
+
+
+  }
 
   render() {
     let gamedata = this.props.gameStart;
+    // let bordwidth = this.props.gamebordWidth;
     let gameMove = '';
     let gameStart = '';
     let blackPlayer = '';
@@ -121,6 +140,22 @@ export default class Game extends React.Component {
     let gameclock = '';
     let blackPlayerClock = '';
     let whitePlayerClock = '';
+
+    if (gamedata['type'] === 'game_move') {
+      gameMove = gamedata['message']['algebraic'];
+    }
+    if (gamedata['type'] === 'update_game_clock') {
+      gameclock = gamedata['message'];
+      if (gameclock['color'] === 'b') {
+        blackPlayerClock = gamedata['message'];
+      } else {
+        whitePlayerClock = gamedata['message'];
+      }
+      //console.log("blackPlayerClock", blackPlayerClock);
+
+    }
+    console.log(gamedata);
+    /*
     for (const key in gamedata) {
 
       if (gamedata[key]['type'] === 'game_start') {
@@ -140,7 +175,7 @@ export default class Game extends React.Component {
         console.log("blackPlayerClock", blackPlayerClock);
 
       }
-    }
+    } */
 
     /*  console.log("gameClock:",gameclock);
     console.log("balckPlayer:",balckPlayer);
@@ -148,11 +183,11 @@ export default class Game extends React.Component {
 
     return (
       <div>
-        <PlayerTop playerInfo={blackPlayer} gameClockInfo={blackPlayerClock} />
+        <PlayerTop playerInfo={this.state.blackPlayer} gameClockInfo={blackPlayerClock} />
         <div>
           <div className="game">
-            <div className="game-board">
-              <ChessBordLayout gameMove={gameMove} />
+            <div className="game-board" ref={divElement => (this.divElement = divElement)}>
+              <ChessBordLayout bordwidth={this.state.bordwidth} gameMove={gameMove} />
             </div>
             <div className="game-info">
               <h3>Turn</h3>
@@ -169,7 +204,7 @@ export default class Game extends React.Component {
             </div>
           </div>
         </div>
-        <PlayerBottom playerInfo={whitePlayer} gameClockInfo={whitePlayerClock} />
+        <PlayerBottom playerInfo={this.state.whitePlayer} gameClockInfo={whitePlayerClock} />
       </div>
     );
   }

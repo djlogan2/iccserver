@@ -18,7 +18,10 @@ export default class PlayerTop extends Component {
 			}
 
 		}
+		if (prevProps.playerInfo !== this.props.playerInfo && this.props.playerInfo != '') {
+			console.log("this.props.playerInfo:", this.props.playerInfo);
 
+		}
 	}
 
 	gametimeUpdate(millisSecond) {
@@ -67,9 +70,9 @@ export default class PlayerTop extends Component {
 							<a href="#" target="_blank" className="user-tagline-username">{this.props.playerInfo['name']} ({this.props.playerInfo['rating']})</a>
 							<i><img src="../../../../../images/user-flag.png" alt="" /></i>
 						</div>
-						<div className="captured-pieces">
+						{/* <div className="captured-pieces">
 							<img src="images/small-picW-1.png" /> <img src="images/small-picW-2.png" />
-						</div>
+						</div> */}
 
 						<div className="clock-top">
 							{this.state.time}

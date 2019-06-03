@@ -62,9 +62,9 @@ export default class PlayerBottom extends Component {
 							<div className="user-tagline-component">
 								<a href="#" target="_blank" className="user-tagline-username">{this.props.playerInfo['name']} ({this.props.playerInfo['rating']})</a> <i><img src="../../../images/user-flag.png" alt="" /></i>
 							</div>
-							<div className="captured-pieces">
+							{/* <div className="captured-pieces">
 								<img src="images/small-picB-1.png" /> <img src="images/small-picB-2.png" />
-							</div>
+							</div> */}
 							<div className="clock-bottom active">
 								{this.state.whitetime}
 							</div>
