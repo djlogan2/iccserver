@@ -7,4 +7,5 @@ const MainContainer = createContainer(({params}) => {
         currentUser,
     };
 }, MainPage);
+
 export default MainContainer;
