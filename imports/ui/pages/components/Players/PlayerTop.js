@@ -19,7 +19,7 @@ export default class PlayerTop extends Component {
 
 		}
 		if (prevProps.playerInfo !== this.props.playerInfo && this.props.playerInfo != '') {
-			console.log("this.props.playerInfo:", this.props.playerInfo);
+			//	console.log("this.props.playerInfo:", this.props.playerInfo);
 
 		}
 	}

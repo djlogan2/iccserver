@@ -13,7 +13,7 @@ class Gamebord extends Component {
 
     this.game = new Chess();
     let width = this.props.bordwidth;
-    console.log("Gamebord", width);
+
     this.setState({ width: width });
     this.makeMove(this.props.gameMove);
 
@@ -25,13 +25,12 @@ class Gamebord extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.gameMove !== this.props.gameMove) {
       //  this.updateWindowDimensions();
-      let width = this.props.bordwidth;
-      console.log("Gamebord", width);
-      this.setState({ width: width });
+      console.log("GameLayout", this.props.gameMove);
       this.makeMove(this.props.gameMove);
 
     }
-
+    if (this.state.width != this.props.bordwidth)
+      this.setState({ width: this.props.bordwidth })
   }
   /*
   updateWindowDimensions = () => {
@@ -88,8 +87,7 @@ class Gamebord extends Component {
     //    return this.props.children({ position: fen });
     return (
       <Chessboard
-
-        width={this.state.width}
+        width={this.props.bordwidth ? this.props.bordwidth : 580}
         position={fen}
         transitionDuration={300}
         darkSquareStyle={{ backgroundColor: 'rgb(21,101,192)' }}
@@ -98,6 +96,7 @@ class Gamebord extends Component {
           borderRadius: "5px",
           boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
         }}
+
       />);
   }
 }
@@ -106,7 +105,7 @@ class ChessBordLayout extends Component {
   render() {
     let gameMove = this.props.gameMove;
     let bordwidth = this.props.bordwidth;
-    console.log("ChessBordLayout", bordwidth);
+
     return (
       <div>
         <Gamebord gameMove={gameMove} bordwidth={bordwidth} />

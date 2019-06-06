@@ -15,7 +15,6 @@ export default class MainPage extends TrackerReact(React.Component) {
     this.state = {
       username: "",
       visible: false,
-      rm_index: 1,
       subscription: {
         tasks: Meteor.subscribe("userData")
       }
@@ -54,6 +53,7 @@ export default class MainPage extends TrackerReact(React.Component) {
             break;
 
           case "game_start":
+            this.setState();
             gameinfo = rec;
             break;
 
@@ -68,6 +68,7 @@ export default class MainPage extends TrackerReact(React.Component) {
           //             log.error('realtime_message default', rec);
         }
       });
+
     return gameinfo;
   }
 
@@ -121,7 +122,7 @@ export default class MainPage extends TrackerReact(React.Component) {
             </aside>
           </div>
           <div className="col-sm-5 col-md-8 col-lg-5 board-section">
-            <Game gameStart={gameStart} gamebordWidth={this.state.width} />
+            <Game gameStart={gameStart} />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             <Rightsidebar />

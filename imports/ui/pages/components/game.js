@@ -19,7 +19,7 @@ export default class Game extends React.Component {
       turn: 'white',
       blackPlayer: '',
       whitePlayer: '',
-      bordwidth: ''
+      width: 560
 
     }
   }
@@ -115,12 +115,26 @@ export default class Game extends React.Component {
     return isLegal;
   }
   componentDidMount() {
-    const width = this.divElement.clientWidth;
-    this.setState({ bordwidth: width });
+    this.updateHeight();
+    window.addEventListener("resize", this.updateHeight);
 
   }
-  componentDidUpdate(prevProps, prevState) {
 
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateHeight);
+  }
+  updateHeight() {
+
+    if (this.state.width != this.div.clientWidth) {
+      this.setState({ width: this.div.clientWidth })
+    }
+
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    this.updateHeight();
+    console.log("Height", this.state.width);
 
     if (prevProps.gameStart !== this.props.gameStart && this.props.gameStart['type'] === 'game_start') {
       this.setState({ blackPlayer: this.props.gameStart['message']['black'], whitePlayer: this.props.gameStart['message']['white'] });
@@ -146,15 +160,16 @@ export default class Game extends React.Component {
     }
     if (gamedata['type'] === 'update_game_clock') {
       gameclock = gamedata['message'];
+
       if (gameclock['color'] === 'b') {
         blackPlayerClock = gamedata['message'];
       } else {
         whitePlayerClock = gamedata['message'];
       }
-      //console.log("blackPlayerClock", blackPlayerClock);
+      // console.log("blackPlayerClock", blackPlayerClock);
 
     }
-    console.log(gamedata);
+    //console.log(gamedata);
     /*
     for (const key in gamedata) {
 
@@ -185,9 +200,9 @@ export default class Game extends React.Component {
       <div>
         <PlayerTop playerInfo={this.state.blackPlayer} gameClockInfo={blackPlayerClock} />
         <div>
-          <div className="game">
-            <div className="game-board" ref={divElement => (this.divElement = divElement)}>
-              <ChessBordLayout bordwidth={this.state.bordwidth} gameMove={gameMove} />
+          <div className="game" ref={div => { this.div = div; }}>
+            <div className="game-board" >
+              <ChessBordLayout bordwidth={this.state.width} gameMove={gameMove} />
             </div>
             <div className="game-info">
               <h3>Turn</h3>
