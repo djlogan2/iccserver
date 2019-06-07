@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Leftsidebar from "./Leftsidebar";
 import Rightsidebar from "./Rightsidebar";
@@ -8,10 +8,12 @@ import "./css/rightsidebar";
 import Game from "../pages/components/game";
 import RealTime from "../../../lib/client/RealTime";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
+import { Meteor } from "meteor/meteor";
 
 export default class MainPage extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
+    this._game = React.createRef();
     this.state = {
       username: "",
       visible: false,
@@ -26,7 +28,7 @@ export default class MainPage extends TrackerReact(React.Component) {
     this.setState({ visible: !this.state.visible });
   }
 
-  gameStartData() {
+  static gameStartData() {
     let records = RealTime.find().fetch();
     if (records.length) {
       return records;
@@ -73,9 +75,8 @@ export default class MainPage extends TrackerReact(React.Component) {
   render() {
     let currentUser = this.props.currentUser;
     let userDataAvailable = currentUser !== undefined;
-    let loggedIn = currentUser && userDataAvailable;
     // const gamedata=this.getingData();
-    const gameStart = this.gameStartData();
+    const gameStart = MainPage.gameStartData();
 
     return (
       <div className="main">
@@ -108,7 +109,7 @@ export default class MainPage extends TrackerReact(React.Component) {
                 }
               >
                 <div className="pull-left image">
-                  <img src="../../../images/logo-white-lg.png" />
+                  <img src="images/logo-white-lg.png" />
                 </div>
                 <div className="float-right menu-close-icon">
                   <a onClick={this.toggleMenu} href="#" className="button-left">
@@ -120,7 +121,7 @@ export default class MainPage extends TrackerReact(React.Component) {
             </aside>
           </div>
           <div className="col-sm-5 col-md-8 col-lg-5 board-section">
-            <Game gameStart={gameStart} />
+            <Game gameStart={gameStart} ref={this._game} />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             <Rightsidebar />

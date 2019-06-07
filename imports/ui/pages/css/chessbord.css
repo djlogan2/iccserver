@@ -1,5 +1,5 @@
 body {
-   margin: 0px;
+   margin: 0;
   background-color: #ECECEA;
 }
 
@@ -101,7 +101,7 @@ h3{
 }
 
 
-.blue {
+.ptb-b {
   background-color: #fff;
   height: 12.5%;
   width: 12.5%;
@@ -115,7 +115,7 @@ h3{
   outline: none;
 }
 
-.white {
+.ptb-w {
   background-color: #1565c0;
   height: 12.5%;
   width: 12.5%;
@@ -128,14 +128,14 @@ h3{
   outline: none;
   background-repeat: no-repeat;
 }
+
 .dropout button{
   width: 30px;
   height: 30px;
-  background: #c5c5c5;
   outline: none;
   border: none;
   background-size: 26px auto;
-  background-position: center center;
+  background: #c5c5c5 center center;
 }
 
 /*user profile component*/
@@ -236,11 +236,10 @@ h3{
     background: #1a1a1a;
     color: #fff;
     font-size: 14px;
-    padding: 4px 0;
-    margin-top: 0px;
+    margin-top: 0;
     text-align: left;
-    padding-left: 15px;
-}
+    padding: 4px 0 4px 15px;
+  }
   .board-player-top {
     position: relative;
     display: flex;
@@ -248,12 +247,9 @@ h3{
     flex-direction: row;
     height: 20px;
     min-height: 20px;
-    padding-top: 2px;
-    padding-bottom: 3px;
     width: 100%;
-    padding-left: 15px;
-    padding-right: 15px;
-} 
+    padding: 2px 15px 3px;
+  }
   .board-player-bottom {
     position: relative;
     display: flex;
@@ -284,7 +280,7 @@ h3{
 .move-list-buttons {
   background: #000;
   position: fixed;
-  bottom: 0px;
+  bottom: 0;
   width: 100%;
   height: 40px;
   color: #828282;
@@ -336,7 +332,7 @@ h3{
 }
 .sidebar.fliph .float-right.menu-close-icon {
   position: fixed;
-  margin: 0px;
+  margin: 0;
   float: left !important;
   top: 12px;
   right: inherit;
@@ -358,7 +354,7 @@ h3{
   overflow: hidden;
   z-index: 999;
   height: 100vh;
-  left: 0px;
+  left: 0;
   top:45px;
 }
 .navbar-light .navbar-brand {
@@ -381,7 +377,7 @@ h3{
   float: right;
 }
 .sidebar.left.device-menu ul li span {
-  padding-left: 0px;
+  padding-left: 0;
   display: inline-block;
   line-height: 22px;
 }
@@ -392,19 +388,19 @@ h3{
 }
 .sidebar.fliph ul {
   list-style: none;
-  margin: 0px;
+  margin: 0;
   padding: 20px 0 0 0 !important;
 }
 .sidebar ul {
   list-style: none;
-  margin: 0px;
+  margin: 0;
   padding: 20px 0 0 0 !important;
 }
 .sidebar li a, .sidebar li a.collapsed.active {
   display: block;
   padding: 8px 12px;
   color: #fff;
-  border-left: 0px solid #dedede;
+  border-left: 0 solid #dedede;
   text-align: left !important;
   text-decoration: none;
 }
@@ -413,7 +409,7 @@ h3{
   margin-right: 15px;
 }
 .left-col {
-  padding-left: 0px;
+  padding-left: 0;
   position: fixed;
   z-index: 999;
 }
@@ -425,7 +421,7 @@ h3{
 .navbar {
   position: relative;
   min-height: 52px;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   border: 1px solid transparent;
 }
 
@@ -465,7 +461,7 @@ h3{
   .board-player-bottom .board-player-userTagline .user-tagline-component i img{ display:none;}
   .board-player-bottom .board-player-userTagline .user-tagline-component{ display:inline-block; margin-top:3px;}
   .board-player-bottom .board-player-userTagline .captured-pieces{ display:inline-block;}
-  .clock-top {margin-top: 0px;}
+  .clock-top {margin-top: 0;}
   .clock-bottom {top: 5px;}
 }
 
@@ -473,7 +469,7 @@ h3{
 @media (min-width: 768px) and (max-width: 991px){
   .pull-left.image img {
     max-width: 70px !important;
-    margin-top: 0px;
+    margin-top: 0;
 }
 .float-right.menu-close-icon a {
   font-size: 24px !important;
@@ -485,11 +481,10 @@ h3{
     background: #1a1a1a;
     color: #fff;
     font-size: 12px;
-    padding: 4px 0;
-    margin-top: 0px;
+    margin-top: 0;
     text-align: left;
-    padding-left: 15px;
-}
+    padding: 4px 0 4px 15px;
+  }
   .board-player-top {
     position: relative;
     display: flex;
@@ -497,12 +492,9 @@ h3{
     flex-direction: row;
     height: 45px;
     min-height: 45px;
-    padding-top: 2px;
-    padding-bottom: 3px;
     width: 100%;
-    padding-left: 15px;
-    padding-right: 15px;
-} 
+    padding: 2px 15px 3px;
+  }
   .board-player-bottom {
     position: relative;
     display: flex;
@@ -533,7 +525,7 @@ h3{
 .move-list-buttons {
   background: #000;
   position: fixed;
-  bottom: 0px;
+  bottom: 0;
   width: 100%;
   height: 44px;
   color: #828282;
@@ -585,7 +577,7 @@ h3{
 }
 .sidebar.fliph .float-right.menu-close-icon {
   position: fixed;
-  margin: 0px;
+  margin: 0;
   float: left !important;
   top: 2px;
   right: inherit;
@@ -607,7 +599,7 @@ h3{
   overflow: hidden;
   z-index: 999;
   height: 100vh;
-  left: 0px;
+  left: 0;
   top:30px;
 }
 .navbar-light .navbar-brand {
@@ -620,7 +612,7 @@ h3{
   width: 350px;
   height: 40px;
   align-items: center;
-  margin-top: 0px;
+  margin-top: 0;
 }
 .top-menu-list {
   align-items: center;
@@ -630,7 +622,7 @@ h3{
   float: right;
 }
 .sidebar.left.device-menu ul li span {
-  padding-left: 0px;
+  padding-left: 0;
   display: inline-block;
   line-height: 22px;
 }
@@ -641,19 +633,19 @@ h3{
 }
 .sidebar.fliph ul {
   list-style: none;
-  margin: 0px;
+  margin: 0;
   padding: 20px 0 0 0 !important;
 }
 .sidebar ul {
   list-style: none;
-  margin: 0px;
+  margin: 0;
   padding: 20px 0 0 0 !important;
 }
 .sidebar li a, .sidebar li a.collapsed.active {
   display: block;
   padding: 8px 12px;
   color: #fff;
-  border-left: 0px solid #dedede;
+  border-left: 0 solid #dedede;
   text-align: left !important;
   text-decoration: none;
 }
@@ -662,7 +654,7 @@ h3{
   margin-right: 15px;
 }
 .left-col {
-  padding-left: 0px;
+  padding-left: 0;
   position: fixed;
   z-index: 999;
 }
@@ -674,8 +666,8 @@ h3{
 .navbar {
   position: relative;
   min-height: 40px;
-  margin-bottom: 0px;
-  border: 0px solid transparent;
+  margin-bottom: 0;
+  border: 0 solid transparent;
 }
 
 .main {
@@ -731,7 +723,7 @@ h3{
 }
 .sidebar.fliph .float-right.menu-close-icon {
   position: fixed;
-  margin: 0px;
+  margin: 0;
   float: left !important;
   top: 17px;
   right: inherit;
@@ -753,7 +745,7 @@ h3{
   overflow: hidden;
   z-index: 999;
   height: 100vh;
-  left: 0px;
+  left: 0;
   top:45px;
 }
 .navbar-light .navbar-brand {
@@ -776,7 +768,7 @@ h3{
   float: right;
 }
 .sidebar.left.device-menu ul li span {
-  padding-left: 0px;
+  padding-left: 0;
   display: inline-block;
   line-height: 22px;
 }
@@ -787,19 +779,19 @@ h3{
 }
 .sidebar.fliph ul {
   list-style: none;
-  margin: 0px;
+  margin: 0;
   padding: 20px 0 0 0 !important;
 }
 .sidebar ul {
   list-style: none;
-  margin: 0px;
+  margin: 0;
   padding: 20px 0 0 0 !important;
 }
 .sidebar li a, .sidebar li a.collapsed.active {
   display: block;
   padding: 8px 12px;
   color: #fff;
-  border-left: 0px solid #dedede;
+  border-left: 0 solid #dedede;
   text-align: left !important;
   text-decoration: none;
 }
@@ -808,7 +800,7 @@ h3{
   margin-right: 15px;
 }
 .left-col {
-  padding-left: 0px;
+  padding-left: 0;
   position: fixed;
   z-index: 999;
 }
@@ -820,7 +812,7 @@ h3{
 .navbar {
   position: relative;
   min-height: 52px;
-  margin-bottom: 0px;
+  margin-bottom: 0;
   border: 1px solid transparent;
 }
 .clock-bottom {
@@ -836,11 +828,11 @@ h3{
 
 @media (min-width: 1200px){
   .clock-top {
-    width: 93.94px;
+    width: 94px;
     text-align: center;
   }
   .clock-bottom {
-    width: 93.94px;
+    width: 94px;
     text-align: center;
   }  
 }

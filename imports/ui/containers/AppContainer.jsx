@@ -1,16 +1,19 @@
 import React, { Component } from "react";
-import { withHistory } from "react-router-dom";
+import { Meteor } from "meteor/meteor";
+import { Logger } from "../../../lib/client/Logger";
 
 import MainPage from "./../pages/MainPage";
+
+const log = new Logger("containers/AppContainer_js");
 
 export default class AppContainer extends Component {
   constructor(props) {
     super(props);
-    this.state = this.getMeteorData();
+    this.state = AppContainer.getMeteorData();
     this.logout = this.logout.bind(this);
   }
 
-  getMeteorData() {
+  static getMeteorData() {
     return { isAuthenticated: Meteor.userId() !== null };
   }
 
@@ -30,7 +33,7 @@ export default class AppContainer extends Component {
     e.preventDefault();
     Meteor.logout(err => {
       if (err) {
-        console.log(err.reason);
+        log.error(err.reason);
       } else {
         this.props.history.push("/login");
       }

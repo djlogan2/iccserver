@@ -1,0 +1,127 @@
+.developmentboard-wr-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wb-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wn-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wq-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wk-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wp-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-br-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bb-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bn-dark {
+     background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bq-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bk-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bp-dark {
+    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wr-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wb-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wn-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wq-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wk-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-wp-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-br-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bb-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bn-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bq-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bk-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-bp-light {
+    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg) no-repeat;
+    background-size: 100%;
+}
+
+.developmentboard-dark {
+    background-color: #1565c0;
+}
+
+.developmentboard-light {
+    background-color: #fff;
+}
