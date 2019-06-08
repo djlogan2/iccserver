@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/chessbord";
+import newid from "../../../../lib/client/newid";
 
 /**
  * @param props React properties
@@ -12,33 +13,68 @@ import "../css/chessbord";
  * @param props.onMouseDown The method to call if we push the mouse
  * @param props.onMouseUp The method to call if we release the mouse
  * @param props.side The number of pixels on a side
- * @param props.circle The color of the circle, or null
+ * @param props.circle null, or an object: {color: "#112233", lineWidth: 99}
  */
-export default function Square(props) {
-  let _class = props.board_class + "-";
-  let _text = props.board_class + "-squaretext";
+export default class Square extends React.Component {
+  constructor(props) {
+    super(props);
 
-  if (props.piece) _class += props.color + props.piece + "-";
+    this._class = this.props.board_class + "-";
+    if (this.props.piece)
+      this._class += this.props.color + this.props.piece + "-";
+    this._class +=
+      (this.props.rank & 1) === (this.props.file & 1) ? "dark" : "light";
+    this._class += " square-normal";
 
-  _class += (props.rank & 1) === (props.file & 1) ? "dark" : "light";
+    this._text = this.props.board_class + "-squaretext";
+    this._canvasid = newid();
 
-  const style_obj = {
-    width: props.side + "px",
-    height: props.side + "px"
-  };
+    this._style_obj = {
+      width: this.props.side + "px",
+      height: this.props.side + "px"
+    };
+  }
 
-  //
-  // TODO: Figure out how to get the square text (i.e. 'a4') in one of the corners with a good fond and color. This is controlled by the "draw_rank_and_file" boolean
-  // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
-  // TODO: This guy probably should draw his own circles, yes?
-  // TODO: Do the circle
-  //
-  return (
-    <button
-      style={style_obj}
-      className={_class}
-      onMouseDown={props.onMouseDown}
-      onMouseUp={props.onMouseUp}
-    />
-  );
+  componentDidMount() {
+    this.componentDidUpdate();
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.circle) {
+      const c = document.getElementById(this._canvasid);
+      const h = c.clientHeight;
+      const w = c.clientWidth;
+      const r = ((h < w ? h : w) / 2) - (this.props.circle.lineWidth / 2);
+      const ctx = c.getContext("2d");
+
+      ctx.strokeStyle = this.props.circle.color;
+      ctx.lineWidth = this.props.circle.lineWidth;
+
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, r, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
+  }
+
+  render() {
+    //
+    // TODO: Figure out how to get the square text (i.e. 'a4') in one of the corners with a good fond and color. This is controlled by the "draw_rank_and_file" boolean
+    // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
+    //
+    return (
+      <div
+        className={"square-div"}
+        onMouseDown={this.props.onMouseDown}
+        onMouseUp={this.props.onMouseUp}
+      >
+        <div style={this._style_obj} className={this._class} />
+        <canvas
+          className={"square-canvas"}
+          width={this._style_obj.width}
+          height={this._style_obj.height}
+          id={this._canvasid}
+        />
+      </div>
+    );
+  }
 }

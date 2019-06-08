@@ -125,3 +125,19 @@
 .developmentboard-light {
     background-color: #fff;
 }
+
+.square-div {
+    position: relative;
+}
+
+.square-normal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.square-canvas {
+    position: relative;
+    z-index: 2;
+}

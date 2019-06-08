@@ -47,6 +47,7 @@ class TestContainer extends Component {
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
           side={100}
+          circle={{ color: "red", lineWidth: 5 }}
         />
         <Square
           board_class={"developmentboard"}
@@ -57,6 +58,7 @@ class TestContainer extends Component {
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
           side={100}
+          circle={{ color: "green", lineWidth: 10 }}
         />
         <Square
           board_class={"developmentboard"}
@@ -73,6 +75,7 @@ class TestContainer extends Component {
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
           side={100}
+          circle={{ color: "yellow", lineWidth: 20 }}
         />
       </div>
     );
