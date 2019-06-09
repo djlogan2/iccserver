@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import Square from "../pages/components/Square";
+import PieceSquare from "../pages/components/PieceSquare";
+import RankSquare from "../pages/components/RankSquare";
+import FileSquare from "../pages/components/FileSquare";
 import Board from "../pages/components/Board";
 import "../pages/css/developmentboard.css";
 import "../pages/css/developmentboard.css";
@@ -11,7 +13,7 @@ class TestContainer extends Component {
       case "square":
         return this.renderSquare();
       case "board":
-        return this.renderBoard();
+        return TestContainer.renderBoard();
       default:
         return TestContainer.renderUnknown(this.props.match.params.what);
     }
@@ -21,16 +23,17 @@ class TestContainer extends Component {
     return <div>{what} is unknown</div>;
   }
 
-  renderBoard() {
+  static renderBoard() {
     let chess = new Chess.Chess();
 
     return (
       <Board
         board_class={"developmentboard"}
         board={chess.board()}
-        show_rank={false}
-        show_file={false}
-        side={100}
+        show_rank={true}
+        show_file={true}
+        side={800}
+        top={"w"}
       />
     );
   }
@@ -38,7 +41,7 @@ class TestContainer extends Component {
   renderSquare() {
     return (
       <div>
-        <Square
+        <PieceSquare
           board_class={"developmentboard"}
           rank={0}
           file={0}
@@ -47,9 +50,10 @@ class TestContainer extends Component {
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
           side={100}
+          draw_rank_and_file={"tl"}
           circle={{ color: "red", lineWidth: 5 }}
         />
-        <Square
+        <PieceSquare
           board_class={"developmentboard"}
           rank={0}
           file={1}
@@ -58,24 +62,39 @@ class TestContainer extends Component {
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
           side={100}
+          draw_rank_and_file={"bl"}
           circle={{ color: "green", lineWidth: 10 }}
         />
-        <Square
+        <PieceSquare
           board_class={"developmentboard"}
           rank={0}
           file={2}
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
+          draw_rank_and_file={"tr"}
           side={100}
         />
-        <Square
+        <PieceSquare
           board_class={"developmentboard"}
           rank={0}
           file={3}
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
           side={100}
+          draw_rank_and_file={"br"}
           circle={{ color: "yellow", lineWidth: 20 }}
+        />
+        <RankSquare
+          board_class={"developmentboard"}
+          rank={0}
+          file={3}
+          side={100}
+        />
+        <FileSquare
+          board_class={"developmentboard"}
+          rank={0}
+          file={3}
+          side={100}
         />
       </div>
     );

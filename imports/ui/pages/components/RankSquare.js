@@ -1,5 +1,6 @@
 import React from "react";
 import "../css/chessbord";
+import Square from "./Square";
 
 /**
  * @param props React properties
@@ -13,18 +14,8 @@ import "../css/chessbord";
  * @param props.onMouseUp The method to call if we release the mouse
  * @param props.side The number of pixels on a side
  */
-export default class Square extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this._style_obj = {
-      width: this.props.side + "px",
-      height: this.props.side + "px",
-      float: "right"
-    };
-
-    this._raf =
-      String.fromCharCode("a".charCodeAt(0) + this.props.file) +
-      (this.props.rank + 1);
+export default class RankSquare extends Square {
+  render() {
+    return <div style={this._style_obj}>{this._raf.charAt(1)}</div>;
   }
 }

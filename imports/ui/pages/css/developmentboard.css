@@ -141,3 +141,75 @@
     position: relative;
     z-index: 2;
 }
+
+.square-text-bl-light {
+    color: red;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 3;
+}
+
+.square-text-bl-dark {
+    color: white;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 3;
+}
+
+.square-text-tl-light {
+    color: red;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+}
+
+.square-text-tl-dark {
+    color: white;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+}
+
+.square-text-br-light {
+    color: red;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+}
+
+.square-text-br-dark {
+    color: white;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+}
+
+.square-text-tr-light {
+    color: red;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 3;
+}
+
+.square-text-tr-dark {
+    color: white;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 3;
+}
+
+.chessboard-row {
+
+}
+
+.chessboard-square {
+    float: right;
+}

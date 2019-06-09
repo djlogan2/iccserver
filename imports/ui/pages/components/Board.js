@@ -1,6 +1,8 @@
 import React from "react";
 import "../css/chessbord";
-import Square from "./Square.js";
+import PieceSquare from "./PieceSquare.js";
+import RankSquare from "./RankSquare.js";
+import FileSquare from "./FileSquare.js";
 
 /**
  * @param props React properties
@@ -9,13 +11,52 @@ import Square from "./Square.js";
  * types: rbnqkp, color: bw
  * @param circles An array of ??? TODO: Define how to keep track of which squares have circles and what colors they are
  * @param arrows An array of ??? TODO: Define how to keep track of arrows and colors
- * @param props.show_rank null, left, right
- * @param props.show_file null, top, bottom
+ * @param props.draw_rank_and_file null, or 'tl', 'tr', 'bl', 'br', 'stl', 'str', 'sbl', 'sbr'
+ * s = "in square". Without s means to the left, top, right, or bottom of the board itself.
  * @param props.side = Size of side of board in pixels
  * @param props.top = The color at the 'top' of the chessboard
  */
 export default class Board extends React.Component {
-  renderSquare(rank, file, side) {
+  constructor(props) {
+    super(props);
+
+    if (props.draw_rank_and_file) {
+      if (props.draw_rank_and_file.charAt(0) === "s") {
+        this._frInSquare = props.draw_rank_and_file.substr(1);
+      } else {
+        if (props.draw_rank_and_file.charAt(0) === "t") this._fileline = "t";
+        else if (props.draw_rank_and_file.charAt(0) === "b")
+          this._fileline = "b";
+        else this._fileline = "";
+
+        if (props.draw_rank_and_file.charAt(1) === "l") this._rankline = "l";
+        else if (props.draw_rank_and_file.charAt(1) === "r")
+          this._rankline = "r";
+        else this._rankline = "";
+      }
+    }
+
+    const rank_squares =
+      this._fileline === "t" || this._fileline === "b" ? 9 : 8;
+    const file_squares =
+      this._rankline === "l" || this._rankline === "r" ? 9 : 8;
+    const h = props.side / file_squares;
+    const w = props.side / rank_squares;
+    this._square_side = h < w ? h : w;
+  }
+
+  renderFileRow(blackontop) {
+    return "";
+  }
+
+  renderRankSquare() {
+    const style = {
+      width: this.props.side
+    };
+    return "";
+  }
+
+  renderSquare(rank, file) {
     let color;
     let piece;
 
@@ -23,42 +64,79 @@ export default class Board extends React.Component {
       color = this.props.board[rank][file].color;
       piece = this.props.board[rank][file].type;
     }
+
+    if(this.props.top === "W") {
+      file = 7 - file;
+    } else {
+      rank = 7 - rank;
+    }
+
     return (
-      <Square
+      <PieceSquare
         board_class={this.props.board_class}
         rank={rank}
         file={file}
+        key={rank * 10 + file}
         color={color}
         piece={piece}
-        draw_rank_and_file={false}
+        draw_rank_and_file="bl"
         onMouseUp={() => {}}
         onMouseDown={() => {}}
-        side={side}
+        side={this._square_side}
       />
     );
   }
 
-  render() {
-    const ranks = 8 + !!this.props.show_file;
-    const files = 8 + !!this.props.show_rank;
-    const rank_side = this.props.side / ranks;
-    const file_side = this.props.side / files;
-    const side = rank_side < file_side ? rank_side : file_side;
-    let board = [];
+  renderRankRow(rank) {
+    let rankrow = [];
 
-    if (this.props.top === "b") {
-      for (let file = 7; file >= 0; file--) {
-        for (let rank = 0; rank < 8; rank++) {
-          board.push(this.renderSquare(rank, file, side));
-        }
+    if (this._rankline === "l") rankrow.push(this.renderRankSquare(rank));
+
+    if (this.props.top === "w") {
+      for (let file = 0; file < 8; file++) {
+        rankrow.push(this.renderSquare(rank, file));
       }
     } else {
-      for (let file = 0; file < 8; file++) {
-        for (let rank = 0; rank < 8; rank++) {
-          board.push(this.renderSquare(rank, file, side));
-        }
+      for (let file = 7; file >= 0; file--) {
+        rankrow.push(this.renderSquare(rank, file));
       }
     }
-    return <div className="main-square">{board}</div>;
+
+    if (this._rankline === "r") rankrow.push(this.renderRankSquare(rank));
+
+    return (
+      <div className={"chessboard-row"} key={"rank-" + rank}>
+        {rankrow}
+      </div>
+    );
+  }
+
+  render() {
+    let board = [];
+
+    if (this._fileline === "t")
+      board.push(this.renderFileRow(this.props.top === "b"));
+
+    if (this.props.top === "w") {
+      for (let rank = 7; rank >= 0; rank--) {
+        board.push(this.renderRankRow(rank));
+      }
+    } else {
+      for (let rank = 0; rank < 8; rank++) {
+        board.push(this.renderRankRow(rank));
+      }
+    }
+
+    if (this._fileline === "b")
+      board.push(this.renderFileRow(this.props.top === "b"));
+
+    return (
+      <div
+        style={{ width: this.props.side, height: this.props.side }}
+        className="chessboard"
+      >
+        {board}
+      </div>
+    );
   }
 }
