@@ -1,6 +1,6 @@
 import React from "react";
 import "../css/chessbord";
-import Board from "./Board.js";
+import Board from "./Board/Board.js";
 import Chess from "chess.js";
 import FallenSoldierBlock from "./fallen-soldier-block.js";
 import PlayerTop from "./Players/PlayerTop";

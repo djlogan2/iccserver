@@ -1,7 +1,7 @@
 import React from "react";
 import "../css/chessbord";
 
-import Square from "./Square.js";
+import Square from "./Board/Square.js";
 
 export default class FallenSoldierBlock extends React.Component {
   static renderSquare(square, i) {

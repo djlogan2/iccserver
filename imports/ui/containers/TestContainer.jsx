@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import PieceSquare from "../pages/components/PieceSquare";
-import RankSquare from "../pages/components/RankSquare";
-import FileSquare from "../pages/components/FileSquare";
-import Board from "../pages/components/Board";
+import PieceSquare from "../pages/components/Board/PieceSquare";
+import RankSquare from "../pages/components/Board/RankSquare";
+import FileSquare from "../pages/components/Board/FileSquare";
+import Board from "../pages/components/Board/Board";
 import "../pages/css/developmentboard.css";
 import "../pages/css/developmentboard.css";
 import Chess from "chess.js";
