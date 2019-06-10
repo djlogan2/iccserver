@@ -1,5 +1,4 @@
 import React from "react";
-import "../css/chessbord";
 import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
 

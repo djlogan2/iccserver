@@ -4,7 +4,6 @@ import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
 import Board from "../pages/components/Board/Board";
 import "../pages/css/developmentboard.css";
-import "../pages/css/developmentboard.css";
 import Chess from "chess.js";
 
 class TestContainer extends Component {
@@ -32,6 +31,7 @@ class TestContainer extends Component {
         board={chess.board()}
         show_rank={true}
         show_file={true}
+        draw_rank_and_file={"br"}
         side={800}
         top={"w"}
       />
