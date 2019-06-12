@@ -17,7 +17,7 @@ import Square from "./Square";
 export default class PieceSquare extends Square {
   constructor(props) {
     super(props);
-
+    console.log(props);
     this._class = this.props.board_class + "-";
     if (this.props.piece)
       this._class += this.props.color + this.props.piece + "-";
