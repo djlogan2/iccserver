@@ -17,7 +17,7 @@ import Square from "./Square";
 export default class PieceSquare extends Square {
   constructor(props) {
     super(props);
-    console.log(props);
+    this.state = { canvasIds: [] };
     this._class = this.props.board_class + "-";
     if (this.props.piece)
       this._class += this.props.color + this.props.piece + "-";
@@ -48,6 +48,33 @@ export default class PieceSquare extends Square {
       ctx.stroke();
     }
   }
+  drawCircle = (event) => {
+    if (event.nativeEvent.which === 3) {
+      let lineWidth = 5;
+      let color = "red";
+      let canvasid = this._canvasid;
+      const c = document.getElementById(this._canvasid);
+
+      const h = c.clientHeight;
+      const w = c.clientWidth;
+      const r = (h < w ? h : w) / 2 - lineWidth / 2;
+      const ctx = c.getContext("2d");
+      ctx.strokeStyle = color;
+      ctx.lineWidth = lineWidth;
+      ctx.beginPath();
+      ctx.arc(w / 2, h / 2, r, 0, 2 * Math.PI);
+      ctx.stroke();
+    } else if (event.nativeEvent.which === 1) {
+
+      let c = document.getElementById(this._canvasid);
+      let ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+
+
+
+    }
+    this.props.onMouseDown
+  }
 
   renderRankAndFile() {
     if (this.props.draw_rank_and_file) {
@@ -70,9 +97,11 @@ export default class PieceSquare extends Square {
     return (
       <div
         className={"square-div"}
-        onMouseDown={this.props.onMouseDown}
+        onMouseDown={this.drawCircle.bind(this)}
         onMouseUp={this.props.onMouseUp}
+        onContextMenu={(e) => { e.preventDefault(); return false; }}
         style={this._style_obj}
+      //      onClick={this.drawCircle.bind(this)}
       >
         <div style={this._style_obj} className={this._class} />
         <canvas
@@ -82,7 +111,7 @@ export default class PieceSquare extends Square {
           id={this._canvasid}
         />
         {this.renderRankAndFile()}
-      </div>
+      </div >
     );
   }
 }

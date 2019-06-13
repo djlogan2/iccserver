@@ -108,8 +108,8 @@ export default class Board extends React.Component {
         color={color}
         piece={piece}
         draw_rank_and_file={this._frInSquare}
-        onMouseUp={() => {}}
-        onMouseDown={() => {}}
+        onMouseUp={() => { }}
+        onMouseDown={() => { }}
         side={this._square_side}
       />
     );
