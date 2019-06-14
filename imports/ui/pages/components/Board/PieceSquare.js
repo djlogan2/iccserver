@@ -14,10 +14,13 @@ import Square from "./Square";
  * @param props.onMouseUp The method to call if we release the mouse
  * @param props.side The number of pixels on a side
  */
+
+/*Keeping this as an array to keep track of all canvases (one per piece), when user does mousedown we need to clear all canvases hence using this array to keep track of canvas for each piece */
+let canvasIds = [];
 export default class PieceSquare extends Square {
   constructor(props) {
     super(props);
-    this.state = { canvasIds: [] };
+
     this._class = this.props.board_class + "-";
     if (this.props.piece)
       this._class += this.props.color + this.props.piece + "-";
@@ -26,6 +29,7 @@ export default class PieceSquare extends Square {
     this._class += " square-normal";
 
     this._canvasid = newid();
+
   }
 
   componentDidMount() {
@@ -50,11 +54,11 @@ export default class PieceSquare extends Square {
   }
   drawCircle = (event) => {
     if (event.nativeEvent.which === 3) {
+      canvasIds.push(this._canvasid);
+
       let lineWidth = 5;
       let color = "red";
-      let canvasid = this._canvasid;
       const c = document.getElementById(this._canvasid);
-
       const h = c.clientHeight;
       const w = c.clientWidth;
       const r = (h < w ? h : w) / 2 - lineWidth / 2;
@@ -64,14 +68,18 @@ export default class PieceSquare extends Square {
       ctx.beginPath();
       ctx.arc(w / 2, h / 2, r, 0, 2 * Math.PI);
       ctx.stroke();
+
+
     } else if (event.nativeEvent.which === 1) {
 
-      let c = document.getElementById(this._canvasid);
-      let ctx = c.getContext("2d");
-      ctx.clearRect(0, 0, c.width, c.height);
-
-
-
+      if (canvasIds.length) {
+        canvasIds.map((canvasid, key) => {
+          let c = document.getElementById(canvasid);
+          let ctx = c.getContext("2d");
+          ctx.clearRect(0, 0, c.width, c.height);
+        });
+        canvasIds = [];
+      }
     }
     this.props.onMouseDown
   }
