@@ -4,6 +4,7 @@ import ChessBordLayout from '../ChessBordLayout';
 import FallenSoldierBlock from './fallen-soldier-block.js';
 import initialiseChessBoard from '../helpers/board-initialiser.js';
 import PlayerTop from './Players/PlayerTop';
+import Clock from './Players/ClockComponent';
 import PlayerBottom from './Players/PlayerBottom';
 
 export default class Game extends React.Component {
@@ -18,7 +19,9 @@ export default class Game extends React.Component {
       status: '',
       turn: 'white',
       blackPlayer: '',
+      blackPlayerClock: '',
       whitePlayer: '',
+      whitePlayerClock: '',
       width: 560
 
     }
@@ -115,14 +118,14 @@ export default class Game extends React.Component {
     return isLegal;
   }
   componentDidMount() {
-    this.updateHeight();
-    window.addEventListener("resize", this.updateHeight);
+    // this.updateHeight();
+    // window.addEventListener("resize", this.updateHeight);
 
   }
 
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateHeight);
+    //window.removeEventListener("resize", this.updateHeight);
   }
   updateHeight() {
 
@@ -133,12 +136,11 @@ export default class Game extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    this.updateHeight();
-    console.log("Height", this.state.width);
+    // this.updateHeight();
+
 
     if (prevProps.gameStart !== this.props.gameStart && this.props.gameStart['type'] === 'game_start') {
       this.setState({ blackPlayer: this.props.gameStart['message']['black'], whitePlayer: this.props.gameStart['message']['white'] });
-
     }
 
 
@@ -169,7 +171,8 @@ export default class Game extends React.Component {
       // console.log("blackPlayerClock", blackPlayerClock);
 
     }
-    //console.log(gamedata);
+
+    //  console.log(blackPlayerClock);
     /*
     for (const key in gamedata) {
 
@@ -198,9 +201,25 @@ export default class Game extends React.Component {
 
     return (
       <div>
-        <PlayerTop playerInfo={this.state.blackPlayer} gameClockInfo={blackPlayerClock} />
+
+
+        {/* <div className="ribbon-move-list">
+  <span>1.</span> e4 d5    <span>2.</span> exd5 b5     <span>3.</span> c3 c6     <span>4.</span> dxc6    b4
+</div> */}
+
+        <div className="board-player-top">
+          <img className="user-pic" src="../../../../../images/player-img-top.png" alt="" title="" />
+          <div className="board-player-userTagline">
+            <PlayerTop playerInfo={this.state.blackPlayer} />
+            <div className="clock-top">
+              {/* Here is time comes from live server response and bind in props component   */}
+              <Clock time={1500} />
+            </div>
+          </div>
+        </div>
+
         <div>
-          <div className="game" ref={div => { this.div = div; }}>
+          <div className="game" >
             <div className="game-board" >
               <ChessBordLayout bordwidth={this.state.width} gameMove={gameMove} />
             </div>
@@ -219,7 +238,17 @@ export default class Game extends React.Component {
             </div>
           </div>
         </div>
-        <PlayerBottom playerInfo={this.state.whitePlayer} gameClockInfo={whitePlayerClock} />
+        <div className="board-player-bottom">
+          <img className="user-pic" src="../../../images/player-img-bottom.png" alt="" title="" />
+          <div className="board-player-userTagline">
+            <PlayerTop playerInfo={this.state.whitePlayer} />
+            <div className="clock-bottom active">
+              {/* Here is time comes from live server response and bind in props component   */}
+              <Clock time={25000} />
+            </div>
+          </div>
+        </div>
+
       </div>
     );
   }

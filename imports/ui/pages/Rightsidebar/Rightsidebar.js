@@ -5,7 +5,7 @@ class Rightsidebar extends Component {
 	render() {
 		return (
 			<div>
-				<div className="ipad-right-section">
+				{/* 	<div className="ipad-right-section">
 					<div className="board-player-top">
 						<img className="user-pic" src="images/player-img-top.png" alt="" title="" />
 						<div className="board-player-userTagline">
@@ -84,7 +84,7 @@ class Rightsidebar extends Component {
 						</div>
 					</div>
 
-				</div>
+				</div> */}
 
 				<div className="right-content-desktop">
 					<div className="setting-icon"><a href="#"><img src="images/full-screen-icon.png" /></a></div>

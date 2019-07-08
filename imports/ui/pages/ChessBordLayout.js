@@ -25,7 +25,7 @@ class Gamebord extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.gameMove !== this.props.gameMove) {
       //  this.updateWindowDimensions();
-      console.log("GameLayout", this.props.gameMove);
+      //  console.log("GameLayout", this.props.gameMove);
       this.makeMove(this.props.gameMove);
 
     }
@@ -73,6 +73,8 @@ class Gamebord extends Component {
     //console.log("State Value", this.state.count);
 
     this.game.move(moves);
+
+    console.log(this.game.history());
 
     //  console.log();
     this.setState({ fen: this.game.fen() });

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import Leftsidebar from "./Leftsidebar";
-import Rightsidebar from "./Rightsidebar";
+import Leftsidebar from "./Leftsidebar/Leftsidebar";
+import Rightsidebar from "./Rightsidebar/Rightsidebar";
 import "./css/chessbord";
 import "./css/leftsidebar";
 import "./css/rightsidebar";
