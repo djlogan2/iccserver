@@ -5,25 +5,58 @@ import FileSquare from "../pages/components/Board/FileSquare";
 import Board from "../pages/components/Board/Board";
 import "../pages/css/developmentboard.css";
 import Chess from "chess.js";
+import CssManager from "../pages/components/Css/CssManager";
+
+const css = new CssManager("developmentcss");
 
 class TestContainer extends Component {
-  constructor() {
-    super();
-    var canvas = "";
-    var context;
-    var dragging = false;
-    var dragStartLocation;
-    var snapshot;
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      draw_rank_and_file: "tl",
+      top: "b",
+      what: this.props.match.params.what
+    };
+  }
+
+  /**
+   * Calculate & Update state of new dimensions
+   */
+  updateDimensions() {
+    console.log(
+      "window.innerWidth=" +
+        window.innerWidth +
+        ", innerHeight=" +
+        window.innerHeight
+    );
+    this.setState({ width: window.innerWidth, height: window.innerHeight });
+  }
+
+  /**
+   * Add event listener
+   */
+  componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
+  }
+
+  /**
+   * Remove event listener
+   */
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
   }
 
   render() {
-    switch (this.props.match.params.what) {
+    console.log("render, state=" + JSON.stringify(this.state));
+    switch (this.state.what) {
       case "square":
         return this.renderSquare();
       case "board":
-        return TestContainer.renderBoard();
+        return this.renderBoard();
       default:
-        return TestContainer.renderUnknown(this.props.match.params.what);
+        return TestContainer.renderUnknown(this.state.what);
     }
   }
 
@@ -31,141 +64,65 @@ class TestContainer extends Component {
     return <div>{what} is unknown</div>;
   }
 
-  getCanvasCoordinates(event) {
-    var x = event.clientX - this.canvas.getBoundingClientRect().left;
-    var y = event.clientY - this.canvas.getBoundingClientRect().top;
-
-    return { x: x, y: y };
-  }
-
-  takeSnapshot() {
-    this.snapshot = this.context.getImageData(
-      0,
-      0,
-      this.canvas.width,
-      this.canvas.height
-    );
-    console.log(this.snapshot);
-  }
-
-  restoreSnapshot() {
-    this.context.putImageData(this.snapshot, 0, 0);
-  }
-  drawLine(position) {
-    var headlen = 10;
-    var angle = Math.atan2(
-      position.y - this.dragStartLocation.y,
-      position.x - this.dragStartLocation.x
-    );
-
-    this.context.beginPath();
-    this.context.moveTo(this.dragStartLocation.x, this.dragStartLocation.y);
-    this.context.lineTo(position.x, position.y);
-    this.context.stroke();
-    //starting a new path from the head of the arrow to one of the sides of the point
-    this.context.beginPath();
-    this.context.lineTo(position.x, position.y);
-    this.context.lineTo(
-      position.x - headlen * Math.cos(angle - Math.PI / 7),
-      position.y - headlen * Math.sin(angle - Math.PI / 7)
-    );
-
-    //path from the side point of the arrow, to the other side point
-    this.context.lineTo(
-      position.x - headlen * Math.cos(angle + Math.PI / 7),
-      position.y - headlen * Math.sin(angle + Math.PI / 7)
-    );
-
-    //path from the side point back to the tip of the arrow, and then again to the opposite side point
-    this.context.lineTo(position.x, position.y);
-    this.context.lineTo(
-      position.x - headlen * Math.cos(angle - Math.PI / 7),
-      position.y - headlen * Math.sin(angle - Math.PI / 7)
-    );
-
-    this.context.strokeStyle = "#cc0000";
-    this.context.lineWidth = 22;
-    this.context.stroke();
-    this.context.fillStyle = "#cc0000";
-    this.context.fill();
-  }
-
-  drawCircle(position) {
-    //var radius = Math.sqrt(Math.pow((dragStartLocation.x - position.x), 2) + Math.pow((dragStartLocation.y - position.y), 2));
-    radius = 25;
-    context.beginPath();
-    context.arc(
-      dragStartLocation.x,
-      dragStartLocation.y,
-      radius,
-      0,
-      2 * Math.PI,
-      false
-    );
-    context.lineWidth = 22;
-    context.stroke();
-  }
-
-  dragStart = event => {
-    if (event.shiftKey) {
-      this.dragging = true;
-      this.dragStartLocation = this.getCanvasCoordinates(event);
-
-      this.takeSnapshot();
-    }
+  switchSides = event => {
+    const newtop = this.state.top === "w" ? "b" : "w";
+    this.setState({ top: newtop });
   };
 
-  drag = event => {
-    var position;
-    if (event.shiftKey) {
-      if (this.dragging === true) {
-        this.restoreSnapshot();
-        position = this.getCanvasCoordinates(event);
-        //  drawCircle(position);
-
-        this.drawLine(position);
-      }
-    }
+  switchRAF = event => {
+    this.setState({ draw_rank_and_file: this.nextRAF()[0] });
   };
 
-  dragStop = event => {
-    if (event.shiftKey) {
-      this.dragging = false;
-      this.restoreSnapshot();
-      var position = this.getCanvasCoordinates(event);
-      //   drawCircle(position);
-      this.drawLine(position);
-    }
-  };
+  nextRAF() {
+    const values = ["tl", "tr", "bl", "br", "stl", "str", "sbl", "sbr"];
+    const texts = [
+      "Top left",
+      "Top right",
+      "Bottom left",
+      "Bottom right",
+      "External top left",
+      "External top right",
+      "External bottom left",
+      "External bottom right"
+    ];
 
-  init() {
-    this.canvas = document.getElementById("demoCanvas");
-    if (this.canvas != null) {
-      this.context = this.canvas.getContext("2d");
-      this.canvas.addEventListener("mousedown", this.dragStart, false);
-      this.canvas.addEventListener("mousemove", this.drag, false);
-      this.canvas.addEventListener("mouseup", this.dragStop, false);
-    }
+    if (!this.state.draw_rank_and_file) return [values[0], texts[0]];
+    let i = values.indexOf(this.state.draw_rank_and_file);
+    i++;
+    if (i === values.length) return [null, "No rank and file"];
+    else return [values[i], texts[i]];
   }
 
-  componentDidMount() {
-    this.init();
-    //  this.drawCircleOnSquare();
-  }
-  static renderBoard() {
+  renderBoard() {
     let chess = new Chess.Chess();
+    let w = this.state.width;
+    let h = this.state.height;
+
+    if (!w) w = window.innerWidth;
+    if (!h) h = window.innerHeight;
+
+    w /= 2;
+
+    const size = w < h ? w : h;
+
+    const newcolor = this.state.top === "w" ? "Black" : "White";
+    const raf = this.nextRAF()[1];
 
     return (
-      <div>
-        <Board
-          board_class={"developmentboard"}
-          board={chess.board()}
-          show_rank={true}
-          show_file={true}
-          side={800}
-          top={"w"}
-        />
-        <canvas id="demoCanvas" height="500" width="500" />
+      <div style={{ width: "100%" }}>
+        <div style={{ id: "board-left", float: "left", width: w, height: h }}>
+          <Board
+            cssmanager={css}
+            board={chess.board()}
+            draw_rank_and_file={this.state.draw_rank_and_file}
+            side={size}
+            top={this.state.top}
+          />
+        </div>
+        <div style={{ id: "board-right", float: "left", width: w, height: h }}>
+          <button onClick={this.switchSides}>{newcolor} on top</button>
+          <button onClick={this.switchRAF}>{raf}</button>
+        </div>
       </div>
     );
   }
@@ -174,7 +131,7 @@ class TestContainer extends Component {
     return (
       <div>
         <PieceSquare
-          board_class={"developmentboard"}
+          cssmanager={css}
           rank={0}
           file={0}
           color={"b"}
@@ -186,7 +143,7 @@ class TestContainer extends Component {
           circle={{ color: "red", lineWidth: 5 }}
         />
         <PieceSquare
-          board_class={"developmentboard"}
+          cssmanager={css}
           rank={0}
           file={1}
           color={"w"}
@@ -198,7 +155,7 @@ class TestContainer extends Component {
           circle={{ color: "green", lineWidth: 10 }}
         />
         <PieceSquare
-          board_class={"developmentboard"}
+          cssmanager={css}
           rank={0}
           file={2}
           onMouseDown={() => console.log("here")}
@@ -207,7 +164,7 @@ class TestContainer extends Component {
           side={100}
         />
         <PieceSquare
-          board_class={"developmentboard"}
+          cssmanager={css}
           rank={0}
           file={3}
           onMouseDown={() => console.log("here")}
@@ -216,18 +173,8 @@ class TestContainer extends Component {
           draw_rank_and_file={"br"}
           circle={{ color: "yellow", lineWidth: 20 }}
         />
-        <RankSquare
-          board_class={"developmentboard"}
-          rank={0}
-          file={3}
-          side={100}
-        />
-        <FileSquare
-          board_class={"developmentboard"}
-          rank={0}
-          file={3}
-          side={100}
-        />
+        <RankSquare cssmanager={css} rank={0} file={3} side={100} />
+        <FileSquare cssmanager={css} rank={0} file={3} side={100} />
       </div>
     );
   }

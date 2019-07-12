@@ -8,6 +8,6 @@ import Square from "./Square";
  */
 export default class FileSquare extends Square {
   render() {
-    return <div style={this._style_obj}>{this._raf.charAt(0)}</div>;
+    return <div style={this.props.cssmanager.externalRankAndFileStyle(this.props.side)}>{this._raf.charAt(0)}</div>;
   }
 }

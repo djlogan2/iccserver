@@ -4,7 +4,7 @@ import Square from "./Square";
 
 /**
  * @param props React properties
- * @param props.board_class classname of the board square css entry, without the light or dark designation
+ * @param props.cssmanager {CssManager} The CssManager
  * @param props.rank The rank of the square being drawn
  * @param props.file The file of the square being drawn
  * @param props.color The color of the piece or null if no piece
@@ -13,23 +13,15 @@ import Square from "./Square";
  * @param props.onMouseDown The method to call if we push the mouse
  * @param props.onMouseUp The method to call if we release the mouse
  * @param props.side The number of pixels on a side
+ * @param props.circle styling of the circle if one is being drawn
+ * @param props.circle.color the color of the circle
+ * @param props.circle.lineWidth the line with of the circle
  */
 
-/*Keeping this as an array to keep track of all canvases (one per piece), when user does mousedown we need to clear all canvases hence using this array to keep track of canvas for each piece */
-let canvasIds = [];
 export default class PieceSquare extends Square {
   constructor(props) {
     super(props);
-
-    this._class = this.props.board_class + "-";
-    if (this.props.piece)
-      this._class += this.props.color + this.props.piece + "-";
-    this._class +=
-      (this.props.rank & 1) === (this.props.file & 1) ? "dark" : "light";
-    this._class += " square-normal";
-
     this._canvasid = newid();
-
   }
 
   componentDidMount() {
@@ -39,60 +31,31 @@ export default class PieceSquare extends Square {
   componentDidUpdate(prevProps, prevState, snapshot) {
     if (this.props.circle) {
       const c = document.getElementById(this._canvasid);
-      const h = c.clientHeight;
-      const w = c.clientWidth;
-      const r = (h < w ? h : w) / 2 - this.props.circle.lineWidth / 2;
+      const h = c.clientHeight - 2 * this.props.circle.lineWidth;
+      const w = c.clientWidth - 2 * this.props.circle.lineWidth;
+      const t = h / 2 + this.props.circle.lineWidth;
+      const l = w / 2 + this.props.circle.lineWidth;
+      const r = 50 - this.props.circle.lineWidth / 2; //(h < w ? h : w) / 2;
       const ctx = c.getContext("2d");
 
       ctx.strokeStyle = this.props.circle.color;
       ctx.lineWidth = this.props.circle.lineWidth;
 
       ctx.beginPath();
-      ctx.arc(w / 2, h / 2, r, 0, 2 * Math.PI);
+      //ctx.rect(5, 5, w - 10, h - 10);
+      ctx.arc(l, t, r, 0, 2 * Math.PI);
       ctx.stroke();
     }
-  }
-  drawCircle = (event) => {
-    if (event.nativeEvent.which === 3) {
-      canvasIds.push(this._canvasid);
-
-      let lineWidth = 5;
-      let color = "red";
-      const c = document.getElementById(this._canvasid);
-      const h = c.clientHeight;
-      const w = c.clientWidth;
-      const r = (h < w ? h : w) / 2 - lineWidth / 2;
-      const ctx = c.getContext("2d");
-      ctx.strokeStyle = color;
-      ctx.lineWidth = lineWidth;
-      ctx.beginPath();
-      ctx.arc(w / 2, h / 2, r, 0, 2 * Math.PI);
-      ctx.stroke();
-
-
-    } else if (event.nativeEvent.which === 1) {
-
-      if (canvasIds.length) {
-        canvasIds.map((canvasid, key) => {
-          let c = document.getElementById(canvasid);
-          let ctx = c.getContext("2d");
-          ctx.clearRect(0, 0, c.width, c.height);
-        });
-        canvasIds = [];
-      }
-    }
-    this.props.onMouseDown
   }
 
   renderRankAndFile() {
+    const rafStyle = this.props.cssmanager.internalRankAndFileStyle(
+      this.props.draw_rank_and_file,
+      this._squarecolor,
+      this.props.side
+    );
     if (this.props.draw_rank_and_file) {
-      const _text_class =
-        "square-text-" +
-        this.props.draw_rank_and_file +
-        "-" +
-        ((this.props.rank & 1) === (this.props.file & 1) ? "dark" : "light");
-
-      return <div className={_text_class}>{this._raf}</div>;
+      return <div style={rafStyle}>{this._raf}</div>;
     } else {
       return "";
     }
@@ -102,24 +65,38 @@ export default class PieceSquare extends Square {
     //
     // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
     //
+
+    const squareStyle = this.props.cssmanager.squareStyle(
+      this._squarecolor,
+      this.props.piece,
+      this.props.color,
+      this.props.side
+    );
+
+    let canvasStyle;
+    if (this.props.circle)
+      canvasStyle = this.props.cssmanager.squareCanvasStyle(this.props.side);
+
     return (
       <div
-        className={"square-div"}
-        onMouseDown={this.drawCircle.bind(this)}
+        style={{
+          width: this.props.side,
+          height: this.props.side,
+          position: "relative",
+          float: "left"
+        }}
+        onMouseDown={this.props.onMouseDown}
         onMouseUp={this.props.onMouseUp}
-        onContextMenu={(e) => { e.preventDefault(); return false; }}
-        style={this._style_obj}
-      //      onClick={this.drawCircle.bind(this)}
       >
-        <div style={this._style_obj} className={this._class} />
+        <div style={squareStyle} />
         <canvas
-          className={"square-canvas"}
-          width={this._style_obj.width}
-          height={this._style_obj.height}
+          style={canvasStyle}
           id={this._canvasid}
+          width={this.props.side}
+          height={this.props.side}
         />
         {this.renderRankAndFile()}
-      </div >
+      </div>
     );
   }
 }
