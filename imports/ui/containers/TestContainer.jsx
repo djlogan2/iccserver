@@ -24,12 +24,6 @@ class TestContainer extends Component {
    * Calculate & Update state of new dimensions
    */
   updateDimensions() {
-    console.log(
-      "window.innerWidth=" +
-        window.innerWidth +
-        ", innerHeight=" +
-        window.innerHeight
-    );
     this.setState({ width: window.innerWidth, height: window.innerHeight });
   }
 
@@ -49,7 +43,6 @@ class TestContainer extends Component {
   }
 
   render() {
-    console.log("render, state=" + JSON.stringify(this.state));
     switch (this.state.what) {
       case "square":
         return this.renderSquare();
@@ -64,12 +57,12 @@ class TestContainer extends Component {
     return <div>{what} is unknown</div>;
   }
 
-  switchSides = event => {
+  switchSides = () => {
     const newtop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newtop });
   };
 
-  switchRAF = event => {
+  switchRAF = () => {
     this.setState({ draw_rank_and_file: this.nextRAF()[0] });
   };
 
@@ -94,7 +87,9 @@ class TestContainer extends Component {
   }
 
   renderBoard() {
-    let chess = new Chess.Chess();
+    let chess = new Chess.Chess(
+      "r1br1k2/pp1p1p2/2n1pp1p/2P5/2P5/2P1PN2/P4PPP/2KR1B1R b - - 2 1"
+    );
     let w = this.state.width;
     let h = this.state.height;
 

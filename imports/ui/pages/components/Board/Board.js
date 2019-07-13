@@ -67,7 +67,7 @@ export default class Board extends React.Component {
 
     if (this._rankline === "l") filerow.push(this.renderEmptySquare());
 
-    if (this.props.top === "w") {
+    if (this.props.top === "b") {
       for (let file = 0; file < 8; file++) {
         filerow.push(this.renderFileSquare(file));
       }
@@ -157,7 +157,14 @@ export default class Board extends React.Component {
 
     if (this._rankline === "r") rankrow.push(this.renderRankSquare(rank));
 
-    return <div style={{width: this.props.side, height: this._square_side}} key={"rank-" + rank}>{rankrow}</div>;
+    return (
+      <div
+        style={{ width: this.props.side, height: this._square_side }}
+        key={"rank-" + rank}
+      >
+        {rankrow}
+      </div>
+    );
   }
 
   render() {
