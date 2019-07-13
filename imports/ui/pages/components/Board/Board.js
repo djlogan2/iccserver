@@ -20,17 +20,26 @@ export default class Board extends React.Component {
     if (this.props.draw_rank_and_file) {
       if (this.props.draw_rank_and_file.charAt(0) === "s") {
         this._frInSquare = this.props.draw_rank_and_file.substr(1);
+        this._rankline = "";
+        this._fileline = "";
       } else {
-        if (this.props.draw_rank_and_file.charAt(0) === "t") this._fileline = "t";
+        this._frInSquare = "";
+        if (this.props.draw_rank_and_file.charAt(0) === "t")
+          this._fileline = "t";
         else if (this.props.draw_rank_and_file.charAt(0) === "b")
           this._fileline = "b";
         else this._fileline = "";
 
-        if (this.props.draw_rank_and_file.charAt(1) === "l") this._rankline = "l";
+        if (this.props.draw_rank_and_file.charAt(1) === "l")
+          this._rankline = "l";
         else if (this.props.draw_rank_and_file.charAt(1) === "r")
           this._rankline = "r";
         else this._rankline = "";
       }
+    } else {
+      this._rankline = "";
+      this._fileline = "";
+      this._frInSquare = "";
     }
 
     const rank_squares =
@@ -55,6 +64,8 @@ export default class Board extends React.Component {
 
   renderFileRow() {
     let filerow = [];
+
+    if (this._rankline === "l") filerow.push(this.renderEmptySquare());
 
     if (this.props.top === "w") {
       for (let file = 0; file < 8; file++) {
@@ -86,6 +97,16 @@ export default class Board extends React.Component {
         key={"ranksquare-" + rank}
       />
     );
+  }
+
+  renderEmptySquare() {
+    const style = {
+      width: this._square_side,
+      height: this._square_side,
+      position: "relative",
+      float: "left"
+    };
+    return <div style={style} />;
   }
 
   renderSquare(rank, file) {
@@ -122,7 +143,7 @@ export default class Board extends React.Component {
   renderRankRow(rank) {
     let rankrow = [];
 
-    if (this._rankline === "r") rankrow.push(this.renderRankSquare(rank));
+    if (this._rankline === "l") rankrow.push(this.renderRankSquare(rank));
 
     if (this.props.top === "w") {
       for (let file = 7; file >= 0; file--) {
@@ -134,9 +155,9 @@ export default class Board extends React.Component {
       }
     }
 
-    if (this._rankline === "l") rankrow.push(this.renderRankSquare(rank));
+    if (this._rankline === "r") rankrow.push(this.renderRankSquare(rank));
 
-    return <div key={"rank-" + rank}>{rankrow}</div>;
+    return <div style={{width: this.props.side, height: this._square_side}} key={"rank-" + rank}>{rankrow}</div>;
   }
 
   render() {
@@ -162,7 +183,7 @@ export default class Board extends React.Component {
     return (
       <div
         style={{
-          position: "relative",
+          //position: "relative",
           width: this.props.side,
           height: this.props.side
         }}

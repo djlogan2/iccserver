@@ -49,7 +49,7 @@ export default class CssManager {
    * @param color Color of the square
    */
   internalRankAndFileStyle(which, color, side) {
-    const style = { width: side, height: side };
+    const style = {}; // width: side, height: side };
 
     if (this._styleObject.internal_rank_and_file.all)
       Object.assign(style, this._styleObject.internal_rank_and_file.all);
@@ -117,7 +117,8 @@ const developmentcss = {
       },
       tr: {
         top: 0,
-        right: 0
+        right: 0,
+        textAlign: "right"
       },
       bl: {
         bottom: 0,
@@ -125,7 +126,8 @@ const developmentcss = {
       },
       br: {
         bottom: 0,
-        right: 0
+        right: 0,
+        textAlign: "right"
       }
     }
   },

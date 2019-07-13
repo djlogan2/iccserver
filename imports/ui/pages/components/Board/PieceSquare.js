@@ -49,12 +49,12 @@ export default class PieceSquare extends Square {
   }
 
   renderRankAndFile() {
-    const rafStyle = this.props.cssmanager.internalRankAndFileStyle(
-      this.props.draw_rank_and_file,
-      this._squarecolor,
-      this.props.side
-    );
     if (this.props.draw_rank_and_file) {
+      const rafStyle = this.props.cssmanager.internalRankAndFileStyle(
+        this.props.draw_rank_and_file,
+        this._squarecolor,
+        this.props.side
+      );
       return <div style={rafStyle}>{this._raf}</div>;
     } else {
       return "";

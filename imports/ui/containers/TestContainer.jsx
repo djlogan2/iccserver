@@ -122,6 +122,8 @@ class TestContainer extends Component {
         <div style={{ id: "board-right", float: "left", width: w, height: h }}>
           <button onClick={this.switchSides}>{newcolor} on top</button>
           <button onClick={this.switchRAF}>{raf}</button>
+          <p>Color on top: {this.state.top}</p>
+          <p>Rank and file: {this.state.draw_rank_and_file}</p>
         </div>
       </div>
     );
