@@ -13,6 +13,8 @@ class TestContainer extends Component {
   constructor(props) {
     super(props);
 
+    this._circle = { lineWidth: 2, color: "red" };
+
     this.state = {
       draw_rank_and_file: "tl",
       top: "b",
@@ -66,6 +68,22 @@ class TestContainer extends Component {
     this.setState({ draw_rank_and_file: this.nextRAF()[0] });
   };
 
+  circleLineWidthChange = event => {
+    this._circle.lineWidth = event.target.value;
+    this.refs.board.setCircleParameters(
+      this._circle.lineWidth,
+      this._circle.color
+    );
+  };
+
+  circleColorChange = event => {
+    this._circle.color = event.target.value;
+    this.refs.board.setCircleParameters(
+      this._circle.lineWidth,
+      this._circle.color
+    );
+  };
+
   nextRAF() {
     const values = ["tl", "tr", "bl", "br", "stl", "str", "sbl", "sbr"];
     const texts = [
@@ -112,6 +130,8 @@ class TestContainer extends Component {
             draw_rank_and_file={this.state.draw_rank_and_file}
             side={size}
             top={this.state.top}
+            circle={{ lineWidth: 2, color: "red" }}
+            ref="board"
           />
         </div>
         <div style={{ id: "board-right", float: "left", width: w, height: h }}>
@@ -119,6 +139,24 @@ class TestContainer extends Component {
           <button onClick={this.switchRAF}>{raf}</button>
           <p>Color on top: {this.state.top}</p>
           <p>Rank and file: {this.state.draw_rank_and_file}</p>
+          <p>
+            Circle width:{" "}
+            <input
+              id="circlewidth"
+              type="number"
+              name="quantity"
+              min="1"
+              max="50"
+              onChange={this.circleLineWidthChange}
+            />
+          </p>
+          <p>
+            Circle color:{" "}
+            <select id="circlecolor" onChange={this.circleColorChange}>
+              <option value="red">Red</option>
+              <option value="green">Green</option>
+            </select>
+          </p>
         </div>
       </div>
     );

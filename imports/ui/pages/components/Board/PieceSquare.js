@@ -29,14 +29,16 @@ export default class PieceSquare extends Square {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    const c = document.getElementById(this._canvasid);
+    const ctx = c.getContext("2d");
+    const h = c.clientHeight;
+    const w = c.clientWidth;
+    ctx.clearRect(0, 0, w, h);
+
     if (this.props.circle) {
-      const c = document.getElementById(this._canvasid);
-      const h = c.clientHeight - 2 * this.props.circle.lineWidth;
-      const w = c.clientWidth - 2 * this.props.circle.lineWidth;
       const t = h / 2 + this.props.circle.lineWidth;
       const l = w / 2 + this.props.circle.lineWidth;
-      const r = 50 - this.props.circle.lineWidth / 2; //(h < w ? h : w) / 2;
-      const ctx = c.getContext("2d");
+      const r = (w < h ? w : h) / 2 - this.props.circle.lineWidth / 2;
 
       ctx.strokeStyle = this.props.circle.color;
       ctx.lineWidth = this.props.circle.lineWidth;
@@ -60,6 +62,14 @@ export default class PieceSquare extends Square {
       return "";
     }
   }
+
+  mouseDown = () => {
+    this.props.onMouseDown({ rank: this.props.rank, file: this.props.file });
+  };
+
+  mouseUp = () => {
+    this.props.onMouseUp({ rank: this.props.rank, file: this.props.file });
+  };
 
   render() {
     //
@@ -85,8 +95,8 @@ export default class PieceSquare extends Square {
           position: "relative",
           float: "left"
         }}
-        onMouseDown={this.props.onMouseDown}
-        onMouseUp={this.props.onMouseUp}
+        onMouseDown={this.mouseDown}
+        onMouseUp={this.mouseUp}
       >
         <div style={squareStyle} />
         <canvas

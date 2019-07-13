@@ -6,6 +6,8 @@ import FileSquare from "./FileSquare.js";
 /**
  * @param props React properties
  * @param props.cssmanager {CssManager} The CSS Manager
+ * @param props.circle.lineWidth the line width for the circle
+ * @param props.circle.color the line color for the circle
  * @param props.board The chessboard in an 8x8 array of objects with {type: 'x', color: 'x'} or null
  * types: rbnqkp, color: bw
  * @param circles An array of ??? TODO: Define how to keep track of which squares have circles and what colors they are
@@ -16,7 +18,13 @@ import FileSquare from "./FileSquare.js";
  * @param props.top = The color at the 'top' of the chessboard
  */
 export default class Board extends React.Component {
-  setup() {
+  constructor(props) {
+    super(props);
+    this.state = { circles: [] };
+    this._circle = this.props.circle;
+  }
+
+  _setup() {
     if (this.props.draw_rank_and_file) {
       if (this.props.draw_rank_and_file.charAt(0) === "s") {
         this._frInSquare = this.props.draw_rank_and_file.substr(1);
@@ -51,29 +59,106 @@ export default class Board extends React.Component {
     this._square_side = h < w ? h : w;
   }
 
-  renderFileSquare(file) {
+  _circleObject(rank, file) {
+    const circleobj = this.state.circles.filter(obj => {
+      return obj.rank === rank && obj.file === file;
+    });
+    if (circleobj && circleobj.length !== 0)
+      return { lineWidth: circleobj[0].lineWidth, color: circleobj[0].color };
+  }
+
+  /**
+   *
+   * @param rank The rank for where to add a circle
+   * @param file The file for where to add a circle
+   */
+  addCircle(rank, file) {
+    const have = this._circleObject(rank, file);
+    if (have) {
+      if (
+        have.lineWidth === this._circle.lineWidth &&
+        have.color === this._circle.color
+      )
+        return;
+      this.removeCircle(rank, file);
+    }
+    const c = { rank: rank, file: file };
+    Object.assign(c, this._circle);
+    let newarray = this.state.circles.splice(0);
+    newarray.push(c);
+    this.setState({ circles: newarray });
+  }
+
+  /**
+   *
+   * @param rank The rank of the circle to remove
+   * @param file The file of the circle to remove
+   */
+  removeCircle(rank, file) {
+    let newarray = this.state.circles.splice(0).filter(raf => {
+      return raf.rank !== rank || raf.file !== file;
+    });
+    this.setState({ circles: newarray });
+  }
+
+  /**
+   *
+   * @param lineWidth the width of lines of future circles
+   * @param color the color of future circles
+   */
+  setCircleParameters(lineWidth, color) {
+    this._circle = { lineWidth: lineWidth, color: color };
+  }
+
+  _fileSquareClick = () => {
+    console.log("fileSquareclick");
+  };
+
+  _rankSquareClick = () => {
+    console.log("fileSquareclick");
+  };
+
+  _pieceSquareMouseDown = raf => {
+    this.mousedown = raf;
+  };
+
+  _pieceSquareMouseUp = raf => {
+    if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
+      const obj = this._circleObject(raf.rank, raf.file);
+      if (obj) {
+        this.removeCircle(raf.rank, raf.file);
+      } else {
+        this.addCircle(raf.rank, raf.file);
+      }
+    } else {
+      // The arrows
+    }
+  };
+
+  _renderFileSquare(file) {
     return (
       <FileSquare
         cssmanager={this.props.cssmanager}
         file={file}
         side={this._square_side}
         key={"filesquare-" + file}
+        onClick={this._fileSquareClick}
       />
     );
   }
 
-  renderFileRow() {
+  _renderFileRow() {
     let filerow = [];
 
-    if (this._rankline === "l") filerow.push(this.renderEmptySquare());
+    if (this._rankline === "l") filerow.push(this._renderEmptySquare());
 
     if (this.props.top === "b") {
       for (let file = 0; file < 8; file++) {
-        filerow.push(this.renderFileSquare(file));
+        filerow.push(this._renderFileSquare(file));
       }
     } else {
       for (let file = 7; file >= 0; file--) {
-        filerow.push(this.renderFileSquare(file));
+        filerow.push(this._renderFileSquare(file));
       }
     }
 
@@ -84,7 +169,7 @@ export default class Board extends React.Component {
     );
   }
 
-  renderRankSquare(rank) {
+  _renderRankSquare(rank) {
     if (this.props.top !== "W") {
       rank = 7 - rank;
     }
@@ -95,11 +180,12 @@ export default class Board extends React.Component {
         rank={rank}
         side={this._square_side}
         key={"ranksquare-" + rank}
+        onClick={this._rankSquareClick}
       />
     );
   }
 
-  renderEmptySquare() {
+  _renderEmptySquare() {
     const style = {
       width: this._square_side,
       height: this._square_side,
@@ -109,7 +195,7 @@ export default class Board extends React.Component {
     return <div style={style} />;
   }
 
-  renderSquare(rank, file) {
+  _renderSquare(rank, file) {
     let color;
     let piece;
 
@@ -124,6 +210,8 @@ export default class Board extends React.Component {
       rank = 7 - rank;
     }
 
+    const circle = this._circleObject(rank, file);
+
     return (
       <PieceSquare
         cssmanager={this.props.cssmanager}
@@ -133,29 +221,30 @@ export default class Board extends React.Component {
         color={color}
         piece={piece}
         draw_rank_and_file={this._frInSquare}
-        onMouseUp={() => {}}
-        onMouseDown={() => {}}
+        onMouseUp={this._pieceSquareMouseUp}
+        onMouseDown={this._pieceSquareMouseDown}
         side={this._square_side}
+        circle={circle}
       />
     );
   }
 
-  renderRankRow(rank) {
+  _renderRankRow(rank) {
     let rankrow = [];
 
-    if (this._rankline === "l") rankrow.push(this.renderRankSquare(rank));
+    if (this._rankline === "l") rankrow.push(this._renderRankSquare(rank));
 
     if (this.props.top === "w") {
       for (let file = 7; file >= 0; file--) {
-        rankrow.push(this.renderSquare(rank, file));
+        rankrow.push(this._renderSquare(rank, file));
       }
     } else {
       for (let file = 0; file < 8; file++) {
-        rankrow.push(this.renderSquare(rank, file));
+        rankrow.push(this._renderSquare(rank, file));
       }
     }
 
-    if (this._rankline === "r") rankrow.push(this.renderRankSquare(rank));
+    if (this._rankline === "r") rankrow.push(this._renderRankSquare(rank));
 
     return (
       <div
@@ -168,24 +257,24 @@ export default class Board extends React.Component {
   }
 
   render() {
-    this.setup();
+    this._setup();
     let board = [];
 
     if (this._fileline === "t")
-      board.push(this.renderFileRow(this.props.top === "b"));
+      board.push(this._renderFileRow(this.props.top === "b"));
 
     if (this.props.top === "w") {
       for (let rank = 7; rank >= 0; rank--) {
-        board.push(this.renderRankRow(rank));
+        board.push(this._renderRankRow(rank));
       }
     } else {
       for (let rank = 0; rank < 8; rank++) {
-        board.push(this.renderRankRow(rank));
+        board.push(this._renderRankRow(rank));
       }
     }
 
     if (this._fileline === "b")
-      board.push(this.renderFileRow(this.props.top === "b"));
+      board.push(this._renderFileRow(this.props.top === "b"));
 
     return (
       <div
