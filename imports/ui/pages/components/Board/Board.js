@@ -200,16 +200,13 @@ export default class Board extends React.Component {
     let y = rank * this._square_side + this._square_side / 2;
 
     if (this.props.top === "b") {
-      //y = this.props.side - y;
+      y = this.props.side - y;
     } else {
       x = this.props.side - x;
     }
 
-    //if (this._rankline === "l") y += this._square_side;
-    //if (this._fileline === "t") y += this._square_side;
-
     console.log(
-      "squareToCoordinate, rank=" +
+      "squareToCoordinate, top=" + this.props.top + ", rank=" +
         rank +
         ", file=" +
         file +

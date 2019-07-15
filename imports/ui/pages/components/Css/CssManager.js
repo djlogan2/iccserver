@@ -87,10 +87,10 @@ const developmentcss = {
   square: {
     all: {},
     w: {
-      backgroundColor: "#fff"
+      backgroundColor: "green"
     },
     b: {
-      backgroundColor: "#1565c0"
+      backgroundColor: "yellow"
     }
   },
   external_rank_and_file: {
