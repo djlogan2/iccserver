@@ -62,6 +62,7 @@ class Gamebord extends Component {
     // let possibleMoves = this.game.moves();
     //  let chessMove = ["c4", "e5", "e3", "b6", "h3", "d5", "f3", "b5", "Kf2", "Qg5", "f4", "Ke7", "c5", "Qg6", "Nf3", "b4", "Bb5", "a6", "h4", "Ra7", "Be8", "Nd7", "Nd4", "Nxc5", "Nb5", "Na4", "Qf3", "Qd6"];
     // exit if the game is over
+    console.log(moves);
     if (
       this.game.game_over() === true ||
       this.game.in_draw() === true
@@ -74,7 +75,7 @@ class Gamebord extends Component {
 
     this.game.move(moves);
 
-    console.log(this.game.history());
+
 
     //  console.log();
     this.setState({ fen: this.game.fen() });

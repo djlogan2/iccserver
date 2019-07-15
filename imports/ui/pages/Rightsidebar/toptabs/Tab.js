@@ -5,7 +5,7 @@ class Tab extends Component {
   static propTypes = {
     activeTab: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-
+    src: PropTypes.any,
     onClick: PropTypes.func.isRequired,
   };
 
@@ -20,7 +20,7 @@ class Tab extends Component {
       props: {
         activeTab,
         label,
-
+        src
       },
     } = this;
     let className = 'tab-list-item';
@@ -33,6 +33,7 @@ class Tab extends Component {
         className={className}
         onClick={onClick}
       >
+        <img src={src} alt="" />
         {label}
       </li>
     );
