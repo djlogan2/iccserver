@@ -116,7 +116,7 @@ class TestContainer extends Component {
 
     w /= 2;
 
-    const size = w < h ? w : h;
+    const size = Math.min(h, w);
 
     const newcolor = this.state.top === "w" ? "Black" : "White";
     const raf = this.nextRAF()[1];
@@ -131,6 +131,7 @@ class TestContainer extends Component {
             side={size}
             top={this.state.top}
             circle={{ lineWidth: 2, color: "red" }}
+            arrow={{ lineWidth: 2, color: "blue" }}
             ref="board"
           />
         </div>

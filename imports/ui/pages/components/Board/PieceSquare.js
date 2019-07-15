@@ -12,6 +12,7 @@ import Square from "./Square";
  * @param props.draw_rank_and_file null won't write the square name, else use 'tl', 'tr', 'bl', or 'br'
  * @param props.onMouseDown The method to call if we push the mouse
  * @param props.onMouseUp The method to call if we release the mouse
+ * @param props.onSquareIn The method to call when our mouse enters a square
  * @param props.side The number of pixels on a side
  * @param props.circle styling of the circle if one is being drawn
  * @param props.circle.color the color of the circle
@@ -38,7 +39,7 @@ export default class PieceSquare extends Square {
     if (this.props.circle) {
       const t = h / 2 + this.props.circle.lineWidth;
       const l = w / 2 + this.props.circle.lineWidth;
-      const r = (w < h ? w : h) / 2 - this.props.circle.lineWidth / 2;
+      const r = Math.min(h, w) / 2 - this.props.circle.lineWidth / 2;
 
       ctx.strokeStyle = this.props.circle.color;
       ctx.lineWidth = this.props.circle.lineWidth;

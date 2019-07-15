@@ -35,6 +35,9 @@ export default class CssManager {
     return style;
   }
 
+  //
+  // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
+  //
   squareCanvasStyle(side) {
     return {
       position: "absolute",
