@@ -120,6 +120,7 @@ export default class Board extends React.Component {
     super(props);
     this.state = { circles: [], arrows: [], currentarrow: null };
     this._circle = this.props.circle;
+    this._setup();
   }
   /****************************************************************************
    * private methods                                                          *
