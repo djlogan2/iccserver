@@ -93,6 +93,14 @@ export default class Board extends React.Component {
     if (this.state.currentarrow)
       arrows.push(this._renderArrow(this.state.currentarrow));
 
+    arrows.push(
+      this._renderArrow({
+        from: { rank: 1, file: 1 },
+        to: { rank: 6, file: 6 },
+        lineWidth: 5,
+        color: "red"
+      })
+    );
     return (
       <div>
         <div
@@ -178,16 +186,9 @@ export default class Board extends React.Component {
       return;
     this.mousein = raf;
 
-    const from = this._squareToCoordinate(
-      this.mousedown.rank,
-      this.mousedown.file
-    );
-
-    const to = this._squareToCoordinate(this.mousein.rank, this.mousein.file);
-
     const currentarrow = {
-      from: from,
-      to: to,
+      from: this.mousedown,
+      to: raf,
       lineWidth: this.props.arrow.lineWidth,
       color: this.props.arrow.color
     };
@@ -196,6 +197,9 @@ export default class Board extends React.Component {
   };
 
   _squareToCoordinate(rank, file) {
+    if (this._rankline === "l") file++;
+    if (this._fileline === "t") rank++;
+
     let x = file * this._square_side + this._square_side / 2;
     let y = rank * this._square_side + this._square_side / 2;
 
@@ -205,23 +209,10 @@ export default class Board extends React.Component {
       x = this.props.side - x;
     }
 
-    console.log(
-      "squareToCoordinate, top=" + this.props.top + ", rank=" +
-        rank +
-        ", file=" +
-        file +
-        " returns {x=" +
-        x +
-        ", y=" +
-        y +
-        "}"
-    );
     return { x: x, y: y };
   }
 
   _pieceSquareMouseUp = raf => {
-    console.log("pieceSquareMouseUp(" + JSON.stringify(raf) + ")");
-    console.log("   mousedown=" + JSON.stringify(this.mousedown));
     if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
       const obj = this._circleObject(raf.rank, raf.file);
       if (obj) {
@@ -232,14 +223,9 @@ export default class Board extends React.Component {
     } else {
       // The arrows
       const newarrows = this.state.arrows.splice(0);
-      const from = this._squareToCoordinate(
-        this.mousedown.rank,
-        this.mousedown.file
-      );
-      const to = this._squareToCoordinate(raf.rank, raf.file);
       newarrows.push({
-        from: from,
-        to: to,
+        from: this.mousedown,
+        to: raf,
         lineWidth: this.props.arrow.lineWidth,
         color: this.props.arrow.color
       });
@@ -350,12 +336,15 @@ export default class Board extends React.Component {
   }
 
   _renderArrow(arrow) {
-    console.log("_renderArrow(" + JSON.stringify(arrow) + ")");
+    const from = this._squareToCoordinate(arrow.from.rank, arrow.from.file);
+
+    const to = this._squareToCoordinate(arrow.to.rank, arrow.to.file);
+
     return (
       <BoardArrow
         size={this.props.side}
-        from={{ x: arrow.from.x, y: arrow.from.y }}
-        to={{ x: arrow.to.x, y: arrow.to.y }}
+        from={{ x: from.x, y: from.y }}
+        to={{ x: to.x, y: to.y }}
         arrow={{ lineWidth: arrow.lineWidth, color: arrow.color }}
       />
     );
