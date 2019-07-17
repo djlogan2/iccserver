@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Chess } from "chess.js";// import Chess from  "chess.js"(default) if recieving an error about new Chess not being a constructor
-
+import Chess from "chess.js";                                  // import Chess from  "chess.js"(default) if recieving an error about new Chess not being a constructor
 import Chessboard from "chessboardjsx";
 
 class Gamebord extends Component {
@@ -11,7 +10,7 @@ class Gamebord extends Component {
 
   componentDidMount() {
 
-    this.game = new Chess();
+    this.game = new Chess.Chess();
     let width = this.props.bordwidth;
 
     this.setState({ width: width });
@@ -59,17 +58,15 @@ class Gamebord extends Component {
 */
 
   makeMove = (moves) => {
-    // let possibleMoves = this.game.moves();
-    //  let chessMove = ["c4", "e5", "e3", "b6", "h3", "d5", "f3", "b5", "Kf2", "Qg5", "f4", "Ke7", "c5", "Qg6", "Nf3", "b4", "Bb5", "a6", "h4", "Ra7", "Be8", "Nd7", "Nd4", "Nxc5", "Nb5", "Na4", "Qf3", "Qd6"];
-    // exit if the game is over
-    console.log(moves);
-    if (
-      this.game.game_over() === true ||
-      this.game.in_draw() === true
-    )
-      return;
+    let possibleMoves = this.game.moves();
 
-    //let randomIndex = Math.floor(Math.random() * possibleMoves.length);
+    // exit if the game is over
+    /* if (this.game.game_over() === true ||
+      this.game.in_draw() === true ||
+      possibleMoves.length === 0) */
+    return;
+
+    // let randomIndex = Math.floor(Math.random() * possibleMoves.length);
     //this.game.move(chessMove[this.state.count]);
     //console.log("State Value", this.state.count);
 

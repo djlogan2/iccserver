@@ -1,6 +1,12 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Gamename from '../Rightsidebar/GamenameComponent';
+import Takeback from '../Rightsidebar/TakebackComponent';
+import Draw from '../Rightsidebar/DrawComponent';
+import Resign from '../Rightsidebar/ResignComponent';
+import Abort from '../Rightsidebar/AbortComponent';
+
+
 import './toptabs/styles';
 export default class GameComponent extends Component {
 
@@ -92,10 +98,10 @@ export default class GameComponent extends Component {
                 </div>
                 <div className="draw-section">
                     <ul>
-                        <li><a href="#" title="Takeback"><span><img src="images/take-forward-icon.png" /></span>Takeback</a></li>
-                        <li><a href="#" title="Draw"><span><img src="images/draw-icon.png" /></span>Draw</a></li>
-                        <li><a href="#" title="Resign"><span><img src="images/resign-icon.png" /></span>Resign</a></li>
-                        <li><a href="#" title="Abort"><span><img src="images/abort-icon.png" /></span>Abort</a></li>
+                        <Takeback />
+                        <Draw />
+                        <Resign />
+                        <Abort />
                     </ul>
                 </div>
             </div>

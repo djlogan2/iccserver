@@ -1,17 +1,19 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Leftsidebar from "./Leftsidebar/Leftsidebar";
 import Rightsidebar from "./Rightsidebar/Rightsidebar";
-import "./css/chessbord";
+import "./css/chessbord1";
 import "./css/leftsidebar";
 import "./css/rightsidebar";
 import Game from "../pages/components/game";
 import RealTime from "../../../lib/client/RealTime";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
+import { Meteor } from "meteor/meteor";
 
 export default class MainPage extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
+    this._game = React.createRef();
     this.state = {
       username: "",
       visible: false,
@@ -26,12 +28,12 @@ export default class MainPage extends TrackerReact(React.Component) {
     this.setState({ visible: !this.state.visible });
   }
 
-  /*  gameStartData() {
+  static gameStartData() {
     let records = RealTime.find().fetch();
     if (records.length) {
       return records;
     }
-  } */
+  }
 
   getingData() {
     let gameinfo = [];
@@ -75,13 +77,12 @@ export default class MainPage extends TrackerReact(React.Component) {
   render() {
     let currentUser = this.props.currentUser;
     let userDataAvailable = currentUser !== undefined;
-    let loggedIn = currentUser && userDataAvailable;
-    const gameStart = this.getingData();
-    //  const gameStart = this.gameStartData();
+    // const gamedata=this.getingData();
+    const gameStart = MainPage.gameStartData();
 
     return (
       <div className="main">
-        <header className="header chess-header">
+        {/*     <header className="header chess-header">
           <nav className="navbar navbar-toggleable-md navbar-light pt-0 pb-0 ">
             <div className="pull-right top-right-menu-icons-group">
               <div className="top-menu-list">
@@ -99,6 +100,7 @@ export default class MainPage extends TrackerReact(React.Component) {
             </div>
           </nav>
         </header>
+     */}
         <div className="row">
           <div className="col-sm-2 left-col">
             <aside>
@@ -110,7 +112,7 @@ export default class MainPage extends TrackerReact(React.Component) {
                 }
               >
                 <div className="pull-left image">
-                  <img src="../../../images/logo-white-lg.png" />
+                  <img src="images/logo-white-lg.png" />
                 </div>
                 <div className="float-right menu-close-icon">
                   <a onClick={this.toggleMenu} href="#" className="button-left">
@@ -122,7 +124,7 @@ export default class MainPage extends TrackerReact(React.Component) {
             </aside>
           </div>
           <div className="col-sm-5 col-md-8 col-lg-5 board-section">
-            <Game gameStart={gameStart} />
+            <Game gameStart={gameStart} ref={this._game} />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             <Rightsidebar />
