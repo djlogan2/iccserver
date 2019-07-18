@@ -25,7 +25,7 @@ const drawOfferedSchema = new SimpleSchema({
 const GameSchema = new SimpleSchema({
   startTime: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
     }
   },
@@ -50,7 +50,7 @@ const Game = {
   start(whiteName, whiteRating, blackName, blackRating, whiteTime, blackTime) {
     return;
   },
-  end() {}
+  end() { }
 };
 
 export { Game };

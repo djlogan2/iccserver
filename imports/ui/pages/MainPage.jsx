@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import Leftsidebar from "./Leftsidebar";
-import Rightsidebar from "./Rightsidebar";
-import "./css/chessbord";
+import Leftsidebar from "./Leftsidebar/Leftsidebar";
+import Rightsidebar from "./Rightsidebar/Rightsidebar";
+import "./css/chessbord1";
 import "./css/leftsidebar";
 import "./css/rightsidebar";
-import Game from "./components/Game";
+import Game from "../pages/components/Game";
 import RealTime from "../../../lib/client/RealTime";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Meteor } from "meteor/meteor";
@@ -36,40 +36,42 @@ export default class MainPage extends TrackerReact(React.Component) {
   }
 
   getingData() {
-    /*   let  gameinfo=[];
-      let rm_index=1;
-      let records = RealTime.find({nid: {$gt: rm_index}}, {sort: {"nid": 1}}).fetch();
+    let gameinfo = [];
+    let rm_index = 1;
+    let records = RealTime.find(
+      { nid: { $gt: rm_index } },
+      { sort: { nid: 1 } }
+    ).fetch();
     //  let records = RealTime.find().fetch();
-    
-      if(records.length)
-       rm_index = [records.length - 1].nid;
-      
+
+    if (records.length)
+      // this.setState({ rm_index: records[records.length - 1].nid });
+
       records.map(rec => {
-    //      log.debug('realtime_record', rec);
-          rm_index = rec.nid;
-            switch(rec.type) {
-              case 'setup_logger':
-                  
-                  gameinfo=rec;
-                  break;
-    
-              case 'game_start':
-                  gameinfo=rec;
-                  break;
-    
-              case 'game_move':
-                  gameinfo=rec;
-                  break;
-    
-              case 'update_game_clock':
-                  gameinfo=rec;
-                  break;
-              default:
-     //             log.error('realtime_message default', rec);
-          }
+        rm_index = rec.nid;
+        switch (rec.type) {
+          case "setup_logger":
+            gameinfo = rec;
+            break;
+
+          case "game_start":
+            this.setState();
+            gameinfo = rec;
+            break;
+
+          case "game_move":
+            gameinfo = rec;
+            break;
+
+          case "update_game_clock":
+            gameinfo = rec;
+            break;
+          default:
+          //             log.error('realtime_message default', rec);
+        }
       });
-       return gameinfo;
-     */
+
+    return gameinfo;
   }
 
   render() {
@@ -80,7 +82,7 @@ export default class MainPage extends TrackerReact(React.Component) {
 
     return (
       <div className="main">
-        <header className="header chess-header">
+        {/*     <header className="header chess-header">
           <nav className="navbar navbar-toggleable-md navbar-light pt-0 pb-0 ">
             <div className="pull-right top-right-menu-icons-group">
               <div className="top-menu-list">
@@ -98,6 +100,7 @@ export default class MainPage extends TrackerReact(React.Component) {
             </div>
           </nav>
         </header>
+     */}
         <div className="row">
           <div className="col-sm-2 left-col">
             <aside>

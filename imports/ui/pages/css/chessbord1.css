@@ -1,5 +1,5 @@
 body {
-  margin: 0;
+  margin: 0px;
   background-color: #ECECEA;
 }
 
@@ -112,7 +112,7 @@ h3 {
 }
 
 
-.ptb-b {
+.blue {
   background-color: #fff;
   height: 12.5%;
   width: 12.5%;
@@ -126,7 +126,7 @@ h3 {
   outline: none;
 }
 
-.ptb-w {
+.white {
   background-color: #1565c0;
   height: 12.5%;
   width: 12.5%;
@@ -140,9 +140,14 @@ h3 {
   background-repeat: no-repeat;
 }
 
-outline: none;
-background-size: 26px auto;
-background: #c5c5c5 center center;
+.dropout button {
+  width: 30px;
+  height: 30px;
+  background: #c5c5c5;
+  outline: none;
+  border: none;
+  background-size: 26px auto;
+  background-position: center center;
 }
 
 /*user profile component*/
@@ -268,9 +273,10 @@ background: #c5c5c5 center center;
     background: #1a1a1a;
     color: #fff;
     font-size: 14px;
-    margin-top: 0;
+    padding: 4px 0;
+    margin-top: 0px;
     text-align: left;
-    padding: 4px 0 4px 15px;
+    padding-left: 15px;
   }
 
   .board-player-top {
@@ -278,10 +284,13 @@ background: #c5c5c5 center center;
     display: flex;
     flex: 0 0 40px;
     flex-direction: row;
-    height: 20px;
-    min-height: 20px;
+    height: 90px;
+    min-height: 90px;
+    padding-top: 33px;
+    padding-bottom: 3px;
     width: 100%;
-    padding: 2px 15px 3px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
 
   .board-player-bottom {
@@ -300,24 +309,28 @@ background: #c5c5c5 center center;
   .clock-top {
     right: 15px;
     line-height: 23px;
-    padding: 3px 10px;
+    padding: 7px 10px;
     font-size: 21px;
-    margin-top: 5px;
+    margin-top: 45px;
+    width: 90px;
+    text-align: center;
   }
 
   .clock-bottom {
     right: 15px;
-    padding: 3px 10px;
+    line-height: 23px;
+    padding: 7px 10px;
     text-align: center;
     font-size: 21px;
-    top: 7px;
+    top: 10px;
     background: #606060;
+    width: 90px;
   }
 
   .move-list-buttons {
     background: #000;
     position: fixed;
-    bottom: 0;
+    bottom: 0px;
     width: 100%;
     height: 40px;
     color: #828282;
@@ -332,6 +345,7 @@ background: #c5c5c5 center center;
 
   .captured-pieces {
     margin-left: 7px;
+
   }
 
   .user-pic {
@@ -378,7 +392,7 @@ background: #c5c5c5 center center;
 
   .sidebar.fliph .float-right.menu-close-icon {
     position: fixed;
-    margin: 0;
+    margin: 0px;
     float: left !important;
     top: 12px;
     right: inherit;
@@ -402,7 +416,7 @@ background: #c5c5c5 center center;
     overflow: hidden;
     z-index: 999;
     height: 100vh;
-    left: 0;
+    left: 0px;
     top: 45px;
   }
 
@@ -418,72 +432,6 @@ background: #c5c5c5 center center;
     height: 40px;
     align-items: center;
     margin-top: 5px;
-  }
-
-  .top-menu-list {
-    align-items: center;
-    flex: auto;
-  }
-
-  .top-menu-list img {
-    float: right;
-  }
-
-  .sidebar.left.device-menu ul li span {
-    padding-left: 0;
-    display: inline-block;
-    line-height: 22px;
-  }
-
-  .sidebar.left.device-menu.fliph li a span {
-    display: inline-block;
-    opacity: 1;
-    transition: all 0.5s ease-in-out;
-  }
-
-  .sidebar.fliph ul {
-    list-style: none;
-    margin: 0;
-    padding: 20px 0 0 0 !important;
-  }
-
-  .sidebar ul {
-    list-style: none;
-    margin: 0;
-    padding: 20px 0 0 0 !important;
-  }
-
-  .sidebar li a,
-  .sidebar li a.collapsed.active {
-    display: block;
-    padding: 8px 12px;
-    color: #fff;
-    border-left: 0 solid #dedede;
-    text-align: left !important;
-    text-decoration: none;
-  }
-
-  .sidebar ul li img {
-    max-width: 24px;
-    margin-right: 15px;
-  }
-
-  .left-col {
-    padding-left: 0;
-    position: fixed;
-    z-index: 999;
-  }
-
-  .main-square {
-    width: 100vw;
-    height: 100vw;
-  }
-
-  .navbar {
-    position: relative;
-    min-height: 52px;
-    margin-bottom: 0;
-    border: 1px solid transparent;
   }
 
   .top-menu-list {
@@ -595,11 +543,11 @@ background: #c5c5c5 center center;
 
   .board-player-top .board-player-userTagline .user-tagline-component {
     display: inline-block;
-    margin-top: 3px;
+
   }
 
   .board-player-top .user-pic {
-    display: none;
+    display: block;
   }
 
   .board-player-top .board-player-userTagline .captured-pieces {
@@ -607,7 +555,7 @@ background: #c5c5c5 center center;
   }
 
   .board-player-bottom .user-pic {
-    display: none;
+    display: block;
   }
 
   .board-player-bottom .board-player-userTagline .user-tagline-component i img {
@@ -616,27 +564,22 @@ background: #c5c5c5 center center;
 
   .board-player-bottom .board-player-userTagline .user-tagline-component {
     display: inline-block;
-    margin-top: 3px;
+
   }
 
   .board-player-bottom .board-player-userTagline .captured-pieces {
     display: inline-block;
   }
 
-  .clock-top {
-    margin-top: 0;
-  }
 
-  .clock-bottom {
-    top: 5px;
-  }
+
 }
 
 
 @media (min-width: 768px) and (max-width: 991px) {
   .pull-left.image img {
     max-width: 70px !important;
-    margin-top: 0;
+    margin-top: 0px;
   }
 
   .float-right.menu-close-icon a {
@@ -651,9 +594,10 @@ background: #c5c5c5 center center;
     background: #1a1a1a;
     color: #fff;
     font-size: 12px;
-    margin-top: 0;
+    padding: 4px 0;
+    margin-top: 0px;
     text-align: left;
-    padding: 4px 0 4px 15px;
+    padding-left: 15px;
   }
 
   .board-player-top {
@@ -663,8 +607,11 @@ background: #c5c5c5 center center;
     flex-direction: row;
     height: 45px;
     min-height: 45px;
+    padding-top: 2px;
+    padding-bottom: 3px;
     width: 100%;
-    padding: 2px 15px 3px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
 
   .board-player-bottom {
@@ -686,6 +633,7 @@ background: #c5c5c5 center center;
     padding: 6px 10px;
     font-size: 21px;
     margin-top: 15px;
+    width: auto;
   }
 
   .clock-bottom {
@@ -695,12 +643,13 @@ background: #c5c5c5 center center;
     font-size: 21px;
     top: 15px;
     background: #606060;
+    width: auto;
   }
 
   .move-list-buttons {
     background: #000;
     position: fixed;
-    bottom: 0;
+    bottom: 0px;
     width: 100%;
     height: 44px;
     color: #828282;
@@ -737,10 +686,228 @@ background: #c5c5c5 center center;
     margin-left: -15px;
     margin-right: -15px;
     padding: 0 15px;
+  }
+
+  .sidebar .pull-left.image {
+    float: left;
+    width: 220px;
+    position: fixed;
+    z-index: 99;
+    padding-left: 7px;
+    padding-top: 3px;
+    top: 3px;
+    left: 50px;
+  }
+
+  .sidebar .float-right.menu-close-icon {
+    position: fixed;
+    top: 2px;
+    right: inherit;
+    z-index: 99;
+    transition: all 0.5s ease-in-out;
+    left: 15px;
+  }
+
+  .sidebar.fliph .float-right.menu-close-icon {
+    position: fixed;
+    margin: 0px;
+    float: left !important;
+    top: 2px;
+    right: inherit;
+    left: 15px;
+  }
+
+  .sidebar {
+    width: 170px;
+    z-index: 999;
+    height: 100vh;
+    background-color: #1565c0;
+    transition: all 0.5s ease-in-out;
+    position: fixed !important;
+    left: -170px;
+    top: 30px;
+  }
+
+  .sidebar.left.device-menu.fliph {
+    width: 170px;
+    transition: all 0.5s ease-in-out;
     overflow: hidden;
     z-index: 999;
     height: 100vh;
-    left: 0;
+    left: 0px;
+    top: 30px;
+  }
+
+  .navbar-light .navbar-brand {
+    margin-left: 40px;
+  }
+
+  .pull-right.top-right-menu-icons-group {
+    position: relative;
+    z-index: 99999;
+    display: flex;
+    width: 350px;
+    height: 40px;
+    align-items: center;
+    margin-top: 0px;
+  }
+
+  .top-menu-list {
+    align-items: center;
+    flex: auto;
+  }
+
+  .top-menu-list img {
+    float: right;
+  }
+
+  .sidebar.left.device-menu ul li span {
+    padding-left: 0px;
+    display: inline-block;
+    line-height: 22px;
+  }
+
+  .sidebar.left.device-menu.fliph li a span {
+    display: inline-block;
+    opacity: 1;
+    transition: all 0.5s ease-in-out;
+  }
+
+  .sidebar.fliph ul {
+    list-style: none;
+    margin: 0px;
+    padding: 20px 0 0 0 !important;
+  }
+
+  .sidebar ul {
+    list-style: none;
+    margin: 0px;
+    padding: 20px 0 0 0 !important;
+  }
+
+  .sidebar li a,
+  .sidebar li a.collapsed.active {
+    display: block;
+    padding: 8px 12px;
+    color: #fff;
+    border-left: 0px solid #dedede;
+    text-align: left !important;
+    text-decoration: none;
+  }
+
+  .sidebar ul li img {
+    max-width: 24px;
+    margin-right: 15px;
+  }
+
+  .left-col {
+    padding-left: 0px;
+    position: fixed;
+    z-index: 999;
+  }
+
+  .main-square {
+    width: 100vw;
+    height: 100vw;
+  }
+
+  .navbar {
+    position: relative;
+    min-height: 40px;
+    margin-bottom: 0px;
+    border: 0px solid transparent;
+  }
+
+  .main {
+    background: #000;
+    height: 100vh;
+    padding: 0 15px;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .white span.notation-322f9.numeric-fc462,
+  .blue .alpha-d2270 {
+    color: #fff;
+  }
+
+  .blue span.notation-322f9.numeric-fc462,
+  .blue .alpha-d2270 {
+    color: #1565c0
+  }
+
+  .numeric-fc462 {
+    top: 4px;
+    left: 5px;
+    font-weight: bold;
+  }
+
+  .alpha-d2270 {
+    bottom: 4px;
+    right: 6px;
+    font-weight: bold;
+  }
+
+
+}
+
+/*End this code*/
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .header {
+    background-color: #1565c0;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding: 0 15px;
+  }
+
+  .sidebar .pull-left.image {
+    float: left;
+    width: 220px;
+    position: fixed;
+    z-index: 99;
+    padding-left: 7px;
+    padding-top: 3px;
+    top: 0;
+    left: 50px;
+  }
+
+  .sidebar .float-right.menu-close-icon {
+    position: fixed;
+    top: 17px;
+    right: inherit;
+    z-index: 99;
+    transition: all 0.5s ease-in-out;
+    left: 15px;
+  }
+
+  .sidebar.fliph .float-right.menu-close-icon {
+    position: fixed;
+    margin: 0px;
+    float: left !important;
+    top: 17px;
+    right: inherit;
+    left: 15px;
+  }
+
+  .sidebar {
+    width: 170px;
+    z-index: 999;
+    height: 100vh;
+    background-color: #1565c0;
+    transition: all 0.5s ease-in-out;
+    position: fixed !important;
+    left: -170px;
+    top: 45px;
+  }
+
+  .sidebar.left.device-menu.fliph {
+    width: 170px;
+    transition: all 0.5s ease-in-out;
+    overflow: hidden;
+    z-index: 999;
+    height: 100vh;
+    left: 0px;
     top: 45px;
   }
 
@@ -768,7 +935,7 @@ background: #c5c5c5 center center;
   }
 
   .sidebar.left.device-menu ul li span {
-    padding-left: 0;
+    padding-left: 0px;
     display: inline-block;
     line-height: 22px;
   }
@@ -781,13 +948,13 @@ background: #c5c5c5 center center;
 
   .sidebar.fliph ul {
     list-style: none;
-    margin: 0;
+    margin: 0px;
     padding: 20px 0 0 0 !important;
   }
 
   .sidebar ul {
     list-style: none;
-    margin: 0;
+    margin: 0px;
     padding: 20px 0 0 0 !important;
   }
 
@@ -796,7 +963,7 @@ background: #c5c5c5 center center;
     display: block;
     padding: 8px 12px;
     color: #fff;
-    border-left: 0 solid #dedede;
+    border-left: 0px solid #dedede;
     text-align: left !important;
     text-decoration: none;
   }
@@ -807,7 +974,7 @@ background: #c5c5c5 center center;
   }
 
   .left-col {
-    padding-left: 0;
+    padding-left: 0px;
     position: fixed;
     z-index: 999;
   }
@@ -820,7 +987,7 @@ background: #c5c5c5 center center;
   .navbar {
     position: relative;
     min-height: 52px;
-    margin-bottom: 0;
+    margin-bottom: 0px;
     border: 1px solid transparent;
   }
 
@@ -837,12 +1004,12 @@ background: #c5c5c5 center center;
 
 @media (min-width: 1200px) {
   .clock-top {
-    width: 94px;
+    width: 93.94px;
     text-align: center;
   }
 
   .clock-bottom {
-    width: 94px;
+    width: 93.94px;
     text-align: center;
   }
 }

@@ -32,7 +32,7 @@
     box-shadow: 0 0 0 #000;
 }
 
-.right-section .panel-default > .panel-heading {
+.right-section .panel-default>.panel-heading {
     color: #333;
     background-color: transparent;
     border-color: transparent;
@@ -43,7 +43,7 @@
     box-shadow: 0 0 0 #000;
 }
 
-.right-section .panel-default > .panel-heading + .panel-collapse > .panel-body {
+.right-section .panel-default>.panel-heading+.panel-collapse>.panel-body {
     border-top-color: #ddd;
     border: none;
     padding-top: 0;
@@ -89,7 +89,7 @@
     background: #fff;
 }
 
-.tab-content nav > .nav.nav-tabs {
+.tab-content nav>.nav.nav-tabs {
     text-align: center;
 }
 
@@ -101,7 +101,7 @@
     /* position: relative; */
 }
 
-.tab-content nav > .nav.nav-tabs {
+.tab-content nav>.nav.nav-tabs {
 
     border: none;
     color: #fff;
@@ -109,13 +109,13 @@
 
 }
 
-.tab-content nav > div ul {
+.tab-content nav>div ul {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 
-.tab-content nav > div li {
+.tab-content nav>div li {
     width: 50% !important;
     text-align: center;
     margin-top: 15px;
@@ -124,19 +124,19 @@
     vertical-align: top;
 }
 
-.tab-content nav > div li span {
+.tab-content nav>div li span {
     float: left;
     width: 70px;
     height: 40px;
     line-height: 40px;
 }
 
-.tab-content nav > div a.nav-item.nav-link.active {
+.tab-content nav>div a.nav-item.nav-link.active {
     background: #d9d9d9;
     border-color: rgba(222, 226, 230, 0) rgba(222, 226, 230, 0) rgba(255, 255, 255, 0);
 }
 
-.tab-content nav > div ul li a {
+.tab-content nav>div ul li a {
     width: 120px;
     background: #efefef;
     border-radius: 0;
@@ -159,8 +159,8 @@
 
 }
 
-.tab-content nav > div a.nav-item.nav-link:hover,
-.tab-content nav > div a.nav-item.nav-link:focus {
+.tab-content nav>div a.nav-item.nav-link:hover,
+.tab-content nav>div a.nav-item.nav-link:focus {
     border: none;
     background: #d9d9d9;
     color: #191919;
@@ -356,11 +356,13 @@
         width: 100%;
     }
 
-    .white span.notation-322f9.numeric-fc462, .blue .alpha-d2270 {
+    .white span.notation-322f9.numeric-fc462,
+    .blue .alpha-d2270 {
         color: #fff;
     }
 
-    .blue span.notation-322f9.numeric-fc462, .blue .alpha-d2270 {
+    .blue span.notation-322f9.numeric-fc462,
+    .blue .alpha-d2270 {
         color: #1565c0
     }
 
@@ -431,7 +433,7 @@
     }
 
     .board-section {
-        width: 45%;
+        width: 44%;
         height: 100%;
         padding-left: 5%;
     }
@@ -442,16 +444,16 @@
     }
 
     .board-player-top {
-        width: 36vw;
+        width: 38vw;
         height: 60px;
     }
 
     .board-player-bottom {
-        width: 36vw;
+        width: 38vw;
     }
 
     .clock-top {
-        top: 15px;
+        top: 22px;
     }
 
 
