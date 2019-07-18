@@ -3,6 +3,7 @@ import PieceSquare from "../pages/components/Board/PieceSquare";
 import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
 import Board from "../pages/components/Board/Board";
+import Game from "../pages/components/Game";
 import "../pages/css/developmentboard.css";
 import Chess from "chess.js";
 import CssManager from "../pages/components/Css/CssManager";
@@ -50,6 +51,8 @@ class TestContainer extends Component {
         return this.renderSquare();
       case "board":
         return this.renderBoard();
+      case "game":
+        return this.renderGame();
       default:
         return TestContainer.renderUnknown(this.state.what);
     }
@@ -104,6 +107,11 @@ class TestContainer extends Component {
     else return [values[i], texts[i]];
   }
 
+  renderGame() {
+    return (
+        <Game/>
+    );
+  }
   renderBoard() {
     let chess = new Chess.Chess(
       "r1br1k2/pp1p1p2/2n1pp1p/2P5/2P5/2P1PN2/P4PPP/2KR1B1R b - - 2 1"

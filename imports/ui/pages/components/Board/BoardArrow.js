@@ -39,11 +39,11 @@ export default class BoardArrow extends React.Component {
     var angle = Math.atan2(toy - fromy, tox - fromx);
 
     //starting a new path from the head of the arrow to one of the sides of the point
-    ctx.beginPath();
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 5;
-    ctx.rect(0, 0, c.clientWidth, c.clientHeight);
-    ctx.stroke();
+    //ctx.beginPath();
+    //ctx.strokeStyle = "red";
+    //ctx.lineWidth = 5;
+    //ctx.rect(0, 0, c.clientWidth, c.clientHeight);
+    //ctx.stroke();
 
     //starting path of the arrow from the start square to the end square and drawing the stroke
     ctx.beginPath();

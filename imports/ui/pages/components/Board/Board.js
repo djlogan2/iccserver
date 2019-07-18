@@ -93,14 +93,6 @@ export default class Board extends React.Component {
     if (this.state.currentarrow)
       arrows.push(this._renderArrow(this.state.currentarrow));
 
-    arrows.push(
-      this._renderArrow({
-        from: { rank: 1, file: 1 },
-        to: { rank: 6, file: 6 },
-        lineWidth: 5,
-        color: "red"
-      })
-    );
     return (
       <div>
         <div

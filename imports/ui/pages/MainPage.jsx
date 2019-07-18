@@ -5,7 +5,7 @@ import Rightsidebar from "./Rightsidebar";
 import "./css/chessbord";
 import "./css/leftsidebar";
 import "./css/rightsidebar";
-import Game from "../pages/components/game";
+import Game from "./components/Game";
 import RealTime from "../../../lib/client/RealTime";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Meteor } from "meteor/meteor";
