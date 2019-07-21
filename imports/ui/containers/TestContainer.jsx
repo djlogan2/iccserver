@@ -7,6 +7,7 @@ import Game from "../pages/components/Game";
 import "../pages/css/developmentboard.css";
 import Chess from "chess.js";
 import CssManager from "../pages/components/Css/CssManager";
+import PlayerTop from "../pages/components/Players/PlayerTop";
 
 const css = new CssManager("developmentcss");
 
@@ -53,6 +54,8 @@ class TestContainer extends Component {
         return this.renderBoard();
       case "game":
         return this.renderGame();
+      case "playertop":
+        return TestContainer.renderPlayerTop();
       default:
         return TestContainer.renderUnknown(this.state.what);
     }
@@ -107,11 +110,19 @@ class TestContainer extends Component {
     else return [values[i], texts[i]];
   }
 
-  renderGame() {
+  static renderPlayerTop() {
     return (
-        <Game/>
+      <PlayerTop
+        playerInfo={{ White: "Morphy", Black: "Anderssen", Date: "2019-07-21" }}
+        gameClockInfo={1000}
+      />
     );
   }
+
+  renderGame() {
+    return <Game />;
+  }
+
   renderBoard() {
     let chess = new Chess.Chess(
       "r1br1k2/pp1p1p2/2n1pp1p/2P5/2P5/2P1PN2/P4PPP/2KR1B1R b - - 2 1"
