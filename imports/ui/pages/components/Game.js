@@ -6,7 +6,10 @@ import FallenSoldierBlock from "./fallen-soldier-block.js";
 import PlayerTop from "./Players/PlayerTop";
 import PlayerBottom from "./Players/PlayerBottom";
 import { Logger } from "../../../../lib/client/Logger";
+import CssManager from "../../pages/components/Css/CssManager";
+
 const log = new Logger("ui/pages/components/game_js");
+const css = new CssManager("developmentcss");
 
 export default class Game extends React.Component {
   constructor(props) {
@@ -198,8 +201,13 @@ export default class Game extends React.Component {
           <div className="game">
             <div className="game- ">
               <Board
-                board={this.state.board}
-                onClick={i => this.handleClick(i)}
+                  cssmanager={css}
+                  circle={{lineWidth: 1, color: "red"}}
+                  arrow={{lineWidth: 1, color: "red"}}
+                  board={this.state.board}
+                  draw_rank_and_file={null}
+                  side={10}
+                  top={"b"}
               />
             </div>
             <div className="game-info">

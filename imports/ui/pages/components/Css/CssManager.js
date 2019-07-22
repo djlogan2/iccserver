@@ -46,6 +46,10 @@ export default class CssManager {
       zIndex: 2
     };
   }
+
+  ribbonMoveList() {
+    return {};
+  }
   /**
    *
    * @param which Position of the text

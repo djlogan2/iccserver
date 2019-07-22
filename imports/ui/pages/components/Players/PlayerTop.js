@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 
+/**
+ * @param props.cssmanager The {CssManager} class that keeps the styles
+ */
 export default class PlayerTop extends Component {
   static gametimeUpdate(rec) {
     let themillis = "";
@@ -33,7 +36,7 @@ export default class PlayerTop extends Component {
 
     return (
       <div>
-        <div className="ribbon-move-list">
+        <div style={this.props.cssmanager.ribbonMoveList()}>
           <span>1.</span> e4 d5 <span>2.</span> exd5 b5 <span>3.</span> c3 c6{" "}
           <span>4.</span> dxc6 b4
         </div>
