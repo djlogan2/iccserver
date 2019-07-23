@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
+import { withHistory, Link } from 'react-router-dom';
 import { Accounts } from 'meteor/accounts-base';
-import { Link } from 'react-router-dom';
 
-export default class SignupPage extends Component {
+export default class SignUpPage extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -12,6 +12,7 @@ export default class SignupPage extends Component {
 	}
 
 	handleSubmit(e) {
+		alert('called');
 		e.preventDefault();
 		let name = document.getElementById('signup-name').value;
 		let email = document.getElementById('signup-email').value;
