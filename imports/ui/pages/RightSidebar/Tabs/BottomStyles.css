@@ -1,0 +1,73 @@
+.tab-list {
+	border-bottom: 1px solid #ccc;
+	padding-left: 0;
+}
+
+.tab-list-item {
+	display: inline-block;
+	list-style: none;
+	margin-bottom: -1px;
+	padding: 1.5rem 1.75rem;
+}
+
+.tab-list-active {
+	background-color: #efefef;
+	border: solid #ccc;
+	border-width: 1px 1px 0 1px;
+}
+.game-top-header {
+	background: #efefef;
+	padding: 10px 15px;
+}
+.tab-list {
+	margin-bottom: 0px;
+}
+.game-buttons-move {
+	background: #f1f1f1;
+	display: flex;
+	flex-wrap: nowrap;
+	text-align: center;
+	padding: 8px 0;
+	position: absolute;
+	width: 100%;
+	bottom: 350px;
+	z-index: 999;
+}
+.game-buttons-move a {
+	align-items: center;
+	text-align: center;
+	width: 65px;
+	flex: auto;
+}
+.game-move-list {
+	padding: 15px;
+	line-height: 24px;
+}
+.draw-section {
+	background: #fff;
+	position: absolute;
+	width: 100%;
+	bottom: 290px;
+	z-index: 99;
+}
+.draw-section ul {
+	margin: 0px;
+	padding: 0px;
+	list-style: none;
+	display: flex;
+	flex-wrap: nowrap;
+	text-align: center;
+}
+.draw-section ul li {
+	width: 25%;
+	align-items: center;
+	text-align: center;
+	padding: 8px 0;
+	flex: auto;
+}
+.draw-section ul li a {
+	color: #777777;
+}
+.draw-section ul li span {
+	display: block;
+}
