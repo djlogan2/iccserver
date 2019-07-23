@@ -1,5 +1,5 @@
-import React from "react";
-import Square from "./Square";
+import React from 'react';
+import Square from './Square';
 
 /**
  * @param props React properties
@@ -7,7 +7,7 @@ import Square from "./Square";
  * @param props.file The file of the square being drawn
  */
 export default class FileSquare extends Square {
-  render() {
-    return <div style={this.props.cssmanager.externalRankAndFileStyle(this.props.side)}>{this._raf.charAt(0)}</div>;
-  }
+	render() {
+		return <div style={this.props.cssmanager.externalRankAndFileStyle(this.props.side)}>{this._raf.charAt(0)}</div>;
+	}
 }

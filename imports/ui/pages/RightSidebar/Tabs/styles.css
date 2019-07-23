@@ -1,0 +1,226 @@
+.tab-list {
+    border-bottom: 1px solid #ccc;
+    padding-left: 0;
+  }
+  
+  .tab-list-item {
+    display: inline-block;
+    list-style: none;
+    margin-bottom: -2px !important;
+    padding: 1.5rem 1.75rem;
+    cursor: pointer;
+  }
+  
+  .tab-list-active {
+    background-color:#efefef;
+    border: solid #ccc;
+    border-width: 1px 1px 0 1px;
+  }
+  .game-top-header {
+    background: #efefef;
+    padding: 10px 15px;
+}
+.tab-list{
+    margin-bottom: 0px;
+}
+.game-buttons-move {
+    background: #f1f1f1;
+    display: flex;
+    flex-wrap: nowrap;
+    text-align: center;
+    padding: 8px 0;
+    position: absolute;
+    width: 100%;
+    bottom: 350px;
+    z-index: 999;
+}
+.game-buttons-move a {
+    align-items: center;
+    text-align: center;
+    width: 65px;
+    flex: auto;
+}
+.game-move-list {
+    padding: 10px 15px !important;
+    line-height: 21px;
+}
+.draw-section {
+    background: #fff;
+    position: absolute;
+    width: 100%;
+    bottom: 290px;
+    z-index: 99;
+}
+.draw-section ul {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+    display: flex;
+    flex-wrap: nowrap;
+    text-align: center;
+}
+.draw-section ul li {
+    width: 25%;
+    align-items: center;
+    text-align: center;
+    padding: 8px 0;
+    flex: auto;
+}
+.draw-section ul li a {
+    color: #777777;
+}
+.draw-section ul li span {
+    display: block;
+}
+.game-move-list span {
+    font-weight: 700;
+}
+.right-top-content {
+    height: 55vh;
+}
+.right-top-content .tab-list-active {
+    background-color: #efefef;
+    border-top:2px solid #1565c0;
+    border-right:0px;
+    border-left:0px;
+    border-bottom:0px;    
+}
+.right-top-content .tab-list-item {
+    font-size: 18px;
+    font-weight: 600;
+    color: #232323;
+    width: 33.3%;
+    border-right: 0px;
+    border-left: 0px;
+    border-bottom: 0px;
+    text-align: center;
+    padding: .5rem 1rem;
+    height: 47px;
+}
+.right-top-content .tournament-content {
+    max-height: 290px;
+    overflow-y: auto;
+}
+.right-top-content .challenge-content {
+    border-radius: 0 0 3px 3px;
+    background: #fff;
+    margin-top: 0px;
+    padding: 0 15px;
+}
+.right-top-content .competitions-list-item-component {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 40px;
+    max-height: 40px;
+    cursor: pointer;
+    border-bottom: 1px solid #e8e7e6;
+    color: #a7a6a2!important;
+}
+.right-top-content i.blitzicon {
+    width: 30px;
+}
+i.fa.fa-sort-down {
+    font-size: 18px;
+    color: #666463;
+    margin-left: 10px;
+    line-height: 20px;
+    vertical-align: top;
+}
+.right-top-content .competitions-list-item-component .competitions-list-item-name {
+    flex: 3;
+    padding-left: 10px;
+    overflow: hidden;
+    font-weight: 600;
+    color: #312e2b;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.right-top-content .competitions-list-item-component .competitions-list-item-status {
+    flex: 2;
+    color: #a7a6a2;
+    padding-right: 5px;
+}
+.right-top-content .competitions-list-item-component .competitions-list-item-count {
+    width: 30px;
+    text-align: right;
+    margin-right: 15px;
+}
+
+.right-bottom-content {
+    height: 45vh;
+}
+.right-bottom-content .tab-content {
+    padding: 0px;
+}
+.right-bottom-content > div {
+    height: 100%;
+}
+.right-bottom-content .tabs{
+    height: 100%;
+}
+.right-bottom-content .tab-list {
+    background: #1565c0;
+    padding-top: 15px;
+}
+.right-bottom-content .tab-list-item{
+    color: #fff;
+    border: solid #ccc;
+    border-width: 0px 0px 0px 0px;
+    font-size: 16px;
+    width: 25%;
+    text-align: center;
+    
+}
+.right-bottom-content .tab-list-active {
+    background-color: #efefef;
+    border: solid #ccc;
+    border-width: 0px 0px 0 0px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    color: #000;
+}
+.right-bottom-content .chat-content {
+    padding: 20px 15px 50px 15px;
+    max-height: 155px;
+    overflow-y: scroll;
+    min-height: 100%;
+}
+span.sign {
+    margin-top: 2px;
+    display: inline-block;
+    font-size: 16px;
+}
+.right-bottom-content .chat-content h6 {
+    font-weight: 700;
+    font-size: 12px;
+}
+.right-bottom-content .chat-input-box {
+    position: absolute;
+    padding: 0 0px;
+    border-top: #ccc solid 1px !important;
+    max-width: 100%;
+    width: 100%;
+    bottom: 0px;
+    background: #fff;
+}
+.right-bottom-content .chat-input-box input[type="text"] {
+    width: 100%;
+    height: 57px;
+    border: none;
+    background: url(../../../../images/smile-icon.png) no-repeat 15px 15px;
+    padding-left: 55px;
+    outline: none;
+    border: none;
+}
+.right-bottom-content .send-btn {
+    background: url(../../../../images/send-btn.png) no-repeat center 10px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 50px;
+    height: 50px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}

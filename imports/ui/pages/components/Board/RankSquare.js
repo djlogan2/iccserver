@@ -1,5 +1,5 @@
-import React from "react";
-import Square from "./Square";
+import React from 'react';
+import Square from './Square';
 
 /**
  * @param props React properties
@@ -8,11 +8,7 @@ import Square from "./Square";
  * @param props.side The number of pixels on a side
  */
 export default class RankSquare extends Square {
-  render() {
-    return (
-      <div style={this.props.cssmanager.externalRankAndFileStyle(this.props.side)}>
-        {this._raf.charAt(1)}
-      </div>
-    );
-  }
+	render() {
+		return <div style={this.props.cssmanager.externalRankAndFileStyle(this.props.side)}>{this._raf.charAt(1)}</div>;
+	}
 }
