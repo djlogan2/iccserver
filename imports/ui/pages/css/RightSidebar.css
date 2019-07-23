@@ -2,7 +2,7 @@
 	background: white;
 	height: 100vh;
 	float: right !important;
-	padding: 0px !important;
+	padding: 0 !important;
 }
 
 .game-info {
@@ -11,7 +11,7 @@
 
 .right-section .panel-title a.minus.collapsed {
 	position: relative;
-	background: url('../../../../images/pluse-icon.png') no-repeat left center;
+	background: url('images/pluse-icon.png') no-repeat left center;
 	width: 24px;
 	display: inline-block;
 	vertical-align: top;
@@ -19,7 +19,7 @@
 
 .right-section .panel-title a {
 	position: relative;
-	background: url(../../../../images/minus-icon.png) no-repeat left center;
+	background: url(images/minus-icon.png) no-repeat left center;
 	width: 23px;
 	display: inline-block;
 	vertical-align: top;
@@ -46,7 +46,7 @@
 .right-section .panel-default > .panel-heading + .panel-collapse > .panel-body {
 	border-top-color: #ddd;
 	border: none;
-	padding-top: 0px;
+	padding-top: 0;
 }
 
 .right-section .panel-heading {
@@ -77,11 +77,11 @@
 }
 
 .tab-list {
-	border: 0px;
+	border: 0;
 }
 
 .right-bottom-content .tab-content {
-	padding: 0px;
+	padding: 0;
 	background: #fff;
 }
 
@@ -109,8 +109,8 @@
 
 .tab-content nav > div ul {
 	list-style: none;
-	margin: 0px;
-	padding: 0px;
+	margin: 0;
+	padding: 0;
 }
 
 .tab-content nav > div li {
@@ -137,7 +137,7 @@
 .tab-content nav > div ul li a {
 	width: 120px;
 	background: #efefef;
-	border-radius: 0px;
+	border-radius: 0;
 	box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.32);
 	padding: 8px 0;
 	height: 40px;
@@ -245,9 +245,9 @@
 		flex-direction: row;
 		height: 90px;
 		min-height: 90px;
-		padding-top: 0px;
+		padding-top: 0;
 		padding-bottom: 3px;
-		padding-left: 0px;
+		padding-left: 0;
 		line-height: 68px;
 		align-items: center;
 		width: 100%;
@@ -260,7 +260,7 @@
 	}
 
 	.user-tagline-component {
-		margin-top: 0px;
+		margin-top: 0;
 		margin-left: 10px;
 	}
 
@@ -297,7 +297,7 @@
 		flex-direction: row;
 		height: 90px;
 		min-height: 90px;
-		padding: 0px 0 0 0;
+		padding: 0 0 0 0;
 		bottom: 50px;
 		width: 100%;
 		background: #000;
@@ -326,7 +326,7 @@
 		flex: inherit !important;
 		padding-left: 15px;
 		height: 100%;
-		padding-right: 0px;
+		padding-right: 0;
 		margin-top: 13px;
 	}
 
@@ -336,7 +336,7 @@
 		flex: inherit;
 		margin-left: 0%;
 		background: #fff;
-		padding: 0px;
+		padding: 0;
 		margin-top: 1px;
 		height: 93vh;
 	}
@@ -482,7 +482,7 @@
 	}
 
 	.left-col {
-		padding-left: 0px;
+		padding-left: 0;
 		position: fixed;
 		width: 16.66666667%;
 	}
@@ -490,7 +490,6 @@
 	.board-section {
 		width: 44%;
 		margin-left: 15.666667%;
-		margin-top: 40px;
 	}
 
 	.board-player-top {

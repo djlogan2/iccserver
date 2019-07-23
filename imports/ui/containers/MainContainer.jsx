@@ -1,9 +1,12 @@
 import { createContainer } from 'meteor/react-meteor-data';
-import MainPage from '../pages/MainPage.jsx'
+import MainPage from '../pages/MainPage.jsx';
+import Meteor from 'meteor/meteor';
 
-export default MainContainer = createContainer(({params}) => {
-  const currentUser = Meteor.user();
-  return {
-    currentUser,
-  };
+const MainContainer = createContainer(({ params }) => {
+	const currentUser = Meteor.user();
+	return {
+		currentUser
+	};
 }, MainPage);
+
+export default MainContainer;

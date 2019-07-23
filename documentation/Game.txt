@@ -1,0 +1,61 @@
+Properties:
+
+Internal data:
+  (chess.js) - An object that holds official board state, and manages rules regarding legal moves
+
+State data:
+  [most information is kept in the chess object]
+  Taken pieces (which isn't in the chess object we have, although we could calculate it, or perhaps extend off of it)
+  White and black clock
+  Which player is top/bottom (i.e. flip value)
+  Source square clicked (for drag or click/click)
+  Game type (normal, atomic, etc.)
+
+Subcomponents:
+  Board
+
+Authorities and roles:
+
+  Private examining: allow_private_examine
+  Examine at all: examine_games
+  Adding/removing examiners: override_examiners
+
+  Change game data (i.e. names, elos) - change_(gametype)_game_data
+  Change clocks
+     - Outright resetting: change_(gametype)_clocks
+     - More time:  moretime_(gametype)
+
+  Make normal legal forward moves on the board
+    - In a game, the players
+    - Examine
+        -   "General" examine
+        -   Lessons
+        -   Broadcasts
+
+  Clear board, set pieces
+  "Examine" type moves - forward, backward, revert, etc. (override_examine_moves)
+
+  One would also assume that there are classes of games (i.e. played, tournament, lessons, general examine)
+  Aborting (override_game_abort, override_examine_abort)
+           allow_(gametype)_abort
+
+Legacy messages (and probably also meteor reactive messages too)
+  game start and end
+  moves, draw offers, abort offers, resigns
+  clock updates
+  users observing start/end
+  kibitzes and whispers
+
+Descriptions and expectations:
+  Drag vs click/click?
+  Premove?
+  We will have to figure out how to write new versions of the chess.js above over time in order to support various
+       other types of chess
+  User setting to require opponents to request more time
+  Engine use - Think about "feature" roles, or authorities on a game basis or whatever
+
+Things to keep in mind:
+  Think about X number of draws per...
+  Think about allowing the "local" drawing on a board with the opportunity to save those as part of the game data during game play
+  Local vs server drawing
+  How to change board/pieces
