@@ -26,7 +26,7 @@ export default class ClockComponent extends Component {
 
 
     }
-    componentWillUnmount() {
+    componentWillUnMount() {
         clearInterval(this.intervalId);
     }
 

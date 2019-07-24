@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import '../css/ChessBoard';
-import Players from '../components/Players/Players';
-import Clock from '../components/Players/ClockComponent';
+import Players from './Players';
+import Clock from './ClockComponent';
 import PieceSquare from '../components/Board/PieceSquare';
 import RankSquare from '../components/Board/RankSquare';
 import FileSquare from '../components/Board/FileSquare';
@@ -42,7 +42,7 @@ export default class MiddleBoard extends Component {
 	/**
    * Remove event listener
    */
-	componentWillUnmount() {
+	componentWillUnMount() {
 		window.removeEventListener('resize', this.updateDimensions.bind(this));
 	}
 
@@ -51,8 +51,8 @@ export default class MiddleBoard extends Component {
 	}
 
 	switchSides = () => {
-		const newtop = this.state.top === 'w' ? 'b' : 'w';
-		this.setState({ top: newtop });
+		const newTop = this.state.top === 'w' ? 'b' : 'w';
+		this.setState({ top: newTop });
 	};
 
 	switchRAF = () => {
@@ -101,7 +101,7 @@ export default class MiddleBoard extends Component {
 
 		const size = Math.min(h, w);
 
-		const newcolor = this.state.top === 'w' ? 'Black' : 'White';
+		const newColor = this.state.top === 'w' ? 'Black' : 'White';
 		const raf = this.nextRAF()[1];
 
 		return (
@@ -130,7 +130,7 @@ export default class MiddleBoard extends Component {
 						/>
 					</div>
 					<div style={{ id: 'board-right', float: 'left', width: w, height: h }}>
-						<button onClick={this.switchSides}>{newcolor} on top</button>
+						<button onClick={this.switchSides}>{newColor} on top</button>
 						<button onClick={this.switchRAF}>{raf}</button>
 						<p>Color on top: {this.state.top}</p>
 						<p>Rank and file: {this.state.draw_rank_and_file}</p>

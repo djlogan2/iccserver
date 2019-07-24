@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import AppContainer from '../../ui/containers/AppContainer.jsx';
 import TestContainer from '../../ui/containers/TestContainer.jsx';
 // pages
-import SignUpPage from '../../ui/pages/SignUpPage';
+import SignUpPage from '../../ui/pages/SignupPage';
 import LoginPage from '../../ui/pages/LoginPage.jsx';
 
 export const renderRoutes = () => (
