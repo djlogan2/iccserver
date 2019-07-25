@@ -105,66 +105,82 @@ export default class MiddleBoard extends Component {
 		const raf = this.nextRAF()[1];
 
 		return (
-			<div>
-				<div className="board-player-top">
-					<img className="user-pic" src="../../../../../images/player-img-top.png" alt="" title="" />
-					<div className="board-player-userTagline">
-						<Players playerInfo={'John smith'} rating={'1550'} />
-						<div className="clock-top">
-							{/* Here is time comes from live server response and bind in props component   */}
-							<Clock time={1500} />
-						</div>
-					</div>
-				</div>
-				<div style={{ width: '100%' }}>
-					<div style={{ id: 'board-left', float: 'left', width: w, height: h }}>
-						<Board
-							cssmanager={css}
-							board={chess.board()}
-							draw_rank_and_file={this.state.draw_rank_and_file}
-							side={size}
-							top={this.state.top}
-							circle={{ lineWidth: 2, color: 'red' }}
-							arrow={{ lineWidth: 2, color: 'blue' }}
-							ref="board"
-						/>
-					</div>
-					<div style={{ id: 'board-right', float: 'left', width: w, height: h }}>
-						<button onClick={this.switchSides}>{newColor} on top</button>
-						<button onClick={this.switchRAF}>{raf}</button>
-						<p>Color on top: {this.state.top}</p>
-						<p>Rank and file: {this.state.draw_rank_and_file}</p>
-						<p>
-							Circle width:{' '}
-							<input
-								id="circlewidth"
-								type="number"
-								name="quantity"
-								min="1"
-								max="50"
-								onChange={this.circleLineWidthChange}
-							/>
-						</p>
-						<p>
-							Circle color:{' '}
-							<select id="circlecolor" onChange={this.circleColorChange}>
-								<option value="red">Red</option>
-								<option value="green">Green</option>
-							</select>
-						</p>
-					</div>
-				</div>
-				<div className="board-player-bottom">
-					<img className="user-pic" src="../../../images/player-img-bottom.png" alt="" title="" />
-					<div className="board-player-userTagline">
-						<Players playerInfo={'Morris'} rating={'750'} />
-						<div className="clock-bottom active">
-							{/* Here is time comes from live server response and bind in props component   */}
-							<Clock time={25000} />
-						</div>
-					</div>
-				</div>
-			</div>
-		);
+      <div>
+        <div className="board-player-top">
+          <img
+            className="user-pic"
+            src="../../../../../images/player-img-top.png"
+            alt=""
+            title=""
+          />
+          <div className="board-player-userTagline">
+            <Players
+              CssManager={css}
+              playerInfo={"John smith"}
+              rating={"1550"}
+            />
+            <div className="clock-top">
+              {/* Here is time comes from live server response and bind in props component   */}
+              <Clock time={1500} />
+            </div>
+          </div>
+        </div>
+        <div style={{ width: "100%" }}>
+          <div style={{ id: "board-left", float: "left", width: w, height: h }}>
+            <Board
+              cssmanager={css}
+              board={chess.board()}
+              draw_rank_and_file={this.state.draw_rank_and_file}
+              side={size}
+              top={this.state.top}
+              circle={{ lineWidth: 2, color: "red" }}
+              arrow={{ lineWidth: 2, color: "blue" }}
+              ref="board"
+            />
+          </div>
+          <div
+            style={{ id: "board-right", float: "left", width: w, height: h }}
+          >
+            <button onClick={this.switchSides}>{newColor} on top</button>
+            <button onClick={this.switchRAF}>{raf}</button>
+            <p>Color on top: {this.state.top}</p>
+            <p>Rank and file: {this.state.draw_rank_and_file}</p>
+            <p>
+              Circle width:{" "}
+              <input
+                id="circlewidth"
+                type="number"
+                name="quantity"
+                min="1"
+                max="50"
+                onChange={this.circleLineWidthChange}
+              />
+            </p>
+            <p>
+              Circle color:{" "}
+              <select id="circlecolor" onChange={this.circleColorChange}>
+                <option value="red">Red</option>
+                <option value="green">Green</option>
+              </select>
+            </p>
+          </div>
+        </div>
+        <div className="board-player-bottom">
+          <img
+            className="user-pic"
+            src="../../../images/player-img-bottom.png"
+            alt=""
+            title=""
+          />
+          <div className="board-player-userTagline">
+            <Players playerInfo={"Morris"} rating={"750"} />
+            <div className="clock-bottom active">
+              {/* Here is time comes from live server response and bind in props component   */}
+              <Clock time={25000} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 	}
 }

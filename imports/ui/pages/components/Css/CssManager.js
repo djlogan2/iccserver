@@ -33,6 +33,11 @@ export default class CssManager {
 		return style;
 	}
 
+	flags(country){
+		if (this._styleObject.flags.all)
+		  	Object.assign(style, this._styleObject.flags.all);
+		
+	}
 	//
 	// TODO: There is no point in having canvas as a database item. Just put it directly into the component.
 	//
@@ -81,103 +86,114 @@ export default class CssManager {
 }
 
 const developmentcss = {
-	name: 'developmentcss',
-	type: 'board',
-	square: {
-		all: {},
-		w: {
-			backgroundColor: 'green'
-		},
-		b: {
-			backgroundColor: 'yellow'
-		}
-	},
-	external_rank_and_file: {
-		all: {
-			float: 'left',
-			position: 'relative',
-			color: 'black'
-		}
-	},
-	internal_rank_and_file: {
-		all: {
-			position: 'absolute',
-			zIndex: 3
-		},
-		color: {
-			w: {
-				color: 'red'
-			},
-			b: {
-				color: 'white'
-			}
-		},
-		position: {
-			tl: {
-				top: 0,
-				left: 0
-			},
-			tr: {
-				top: 0,
-				right: 0,
-				textAlign: 'right'
-			},
-			bl: {
-				bottom: 0,
-				left: 0
-			},
-			br: {
-				bottom: 0,
-				right: 0,
-				textAlign: 'right'
-			}
-		}
-	},
-	pieces: {
-		all: {
-			backgroundRepeat: 'no-repeat',
-			backgroundSize: '100%',
-			backgroundPosition: 'center'
-		},
-		w: {
-			r: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg)`
-			},
-			b: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg)`
-			},
-			n: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg)`
-			},
-			q: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg)`
-			},
-			k: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg)`
-			},
-			p: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg)`
-			}
-		},
-		b: {
-			r: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg)`
-			},
-			b: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg)`
-			},
-			n: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg)`
-			},
-			q: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg)`
-			},
-			k: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg)`
-			},
-			p: {
-				backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg)`
-			}
-		}
-	}
+  name: "developmentcss",
+  type: "board",
+  flags: {
+    all: {
+      backgrounImage: "../../../../../images/user-flag.png"
+    },
+    in: {
+      backgroundImage: "india.png"
+    },
+    us: {
+      backgroundImage: "../../../../../images/user-flag.png"
+    }
+  },
+  square: {
+    all: {},
+    w: {
+      backgroundColor: "green"
+    },
+    b: {
+      backgroundColor: "yellow"
+    }
+  },
+  external_rank_and_file: {
+    all: {
+      float: "left",
+      position: "relative",
+      color: "black"
+    }
+  },
+  internal_rank_and_file: {
+    all: {
+      position: "absolute",
+      zIndex: 3
+    },
+    color: {
+      w: {
+        color: "red"
+      },
+      b: {
+        color: "white"
+      }
+    },
+    position: {
+      tl: {
+        top: 0,
+        left: 0
+      },
+      tr: {
+        top: 0,
+        right: 0,
+        textAlign: "right"
+      },
+      bl: {
+        bottom: 0,
+        left: 0
+      },
+      br: {
+        bottom: 0,
+        right: 0,
+        textAlign: "right"
+      }
+    }
+  },
+  pieces: {
+    all: {
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "100%",
+      backgroundPosition: "center"
+    },
+    w: {
+      r: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg)`
+      },
+      b: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg)`
+      },
+      n: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg)`
+      },
+      q: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg)`
+      },
+      k: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg)`
+      },
+      p: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg)`
+      }
+    },
+    b: {
+      r: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg)`
+      },
+      b: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg)`
+      },
+      n: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg)`
+      },
+      q: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg)`
+      },
+      k: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg)`
+      },
+      p: {
+        backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg)`
+      }
+    }
+  }
 };

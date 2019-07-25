@@ -1,0 +1,12 @@
+{
+    "_locale": "en-US",
+    "_namespace": "common",
+	"loginform": {
+        "Login": "Log In",
+        "Email": "Email Address",
+        "Password": "Password",
+        "hello_world": "HELLO WORLD",
+        "ForgotPassword": "Forgot Password?"
+    }
+    
+}

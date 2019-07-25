@@ -12,7 +12,7 @@ export default class SignUpPage extends Component {
 	}
 
 	handleSubmit(e) {
-		alert('called');
+		
 		e.preventDefault();
 		let name = document.getElementById('signup-name').value;
 		let email = document.getElementById('signup-email').value;

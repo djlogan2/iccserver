@@ -1,0 +1,12 @@
+{
+    "_locale": "de-DE",
+    "_namespace": "Common",
+    "loginForm": {
+        "Login": "Einloggen",
+        "Email": "E-Maildde-Addresse",
+        "Password": "Passfdwort",
+        "hello_world": "HELLO WORLD SPANISH",
+        "ForgotPassword": "Passwort vergessen?"
+    }
+   
+}
