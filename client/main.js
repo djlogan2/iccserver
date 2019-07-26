@@ -4,48 +4,61 @@ import { render } from 'react-dom';
 import { renderRoutes } from '../imports/startup/client/routes.jsx';
 import i18n from "meteor/universe:i18n";
 
-Meteor.startup(() => {
-                       /* i18n.addTranslations("en-US", {
+Meteor.startup(() => { 
+  i18n.addTranslations("en-US", {
     Common: {
-      welcome: "Welcome user!",
-      Login: "Log In",
-      Email: "Email Address",
-      Password: "Password",
-      hello_world: "HELLO WORLD",
-      ForgotPassword: "Forgot Password?"
+      loginform: {
+        login: "Login",
+        email: "email",
+        password: "password",
+        submit: "submit"
+      },
+      signupform: {
+        signup: "Sign Up",
+        name: "Name",
+        email: "Email Address",
+        password: "Password",
+        submit: "Submit"
+      }
     }
   });
-  i18n.addTranslations("de-DE", {
-    Common: {
-      welcome: "Welcosame tso the Shsaop Fu!",
-      Login: "Einloggen",
-      Email: "E-Maildde-Addresse",
-      Password: "Passfdwort",
-      hello_world: "HELLO WORLD SPANISH",
-      ForgotPassword: "Passwort vergessen?"
-    }
-  });
-  i18n.addTranslations("ja", {
-    Common: {
-      welcome: "ログインログインログイン電子メールアドレスログインログイン",
-      Login: "ログイン",
-      Email: "電子メールアドレス",
-      Password: "パスワード",
-      hello_world: "HELLO WORLD Japanes",
-      ForgotPassword: "パスワードをお忘れですか"
-    }
-  });
-  */
-                       function getLang() {
-                         return (navigator.browserLanguage || "en-US"
-                         );
-                       }
-                       console.log("Meteor started", getLang());
-
-                       i18n.setLocale(getLang());
-
-                       render(
-                         renderRoutes(),
-                         document.getElementById("target")
-                       );
-                     });
+    i18n.addTranslations("ru-RU", {
+      Common: {
+        loginform: {
+          login: "Добро пожаловать в пожа пожаxc ловатьлов ать !",
+          email: "пожаловать",
+          password: "passwпожаxc",
+          submit: "ать"
+        },
+        signupform: {
+          signup: "пожа пожаxc",
+          name: "по жаxc",
+          email: "пожаловать",
+          password: "passwпожаxc",
+          submit: "ать"
+        }
+      }
+    });
+    i18n.addTranslations("ja", {
+      Common: {
+        loginform: {
+          login: "お忘れでですか",
+          email: "パスワードをお忘れですか",
+          password: "パ-ードをお忘",
+          submit: "忘れです忘れです"
+        },
+        signupform: {
+          signup: "お忘れでですか",
+          name: "ードをお忘",
+          email: "をお忘 ドをお忘",
+          password: "をお忘 ドを",
+          submit: "忘 ドを"
+        }
+      }
+    });
+ 
+    i18n.setOptions({
+         defaultLocale: "en-US"
+    });
+	render(renderRoutes(), document.getElementById('target'));
+});

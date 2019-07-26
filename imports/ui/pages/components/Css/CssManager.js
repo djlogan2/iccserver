@@ -36,9 +36,21 @@ export default class CssManager {
 	flags(country){
 		if (this._styleObject.flags.all)
 		  	Object.assign(style, this._styleObject.flags.all);
-		
+	    	Object.assign(style, this._styleObject.flags[country]);
+  }
+  
+  tagline(){
+				  	Object.assign(style, this._styleObject.tagline.all);
 	}
-	//
+  username(){
+				  	Object.assign(style, this._styleObject.username.all);
+  }
+  
+  clock(){
+				  	Object.assign(style, this._styleObject.clock.all);
+	}
+
+  //
 	// TODO: There is no point in having canvas as a database item. Just put it directly into the component.
 	//
 	squareCanvasStyle(side) {
@@ -88,6 +100,42 @@ export default class CssManager {
 const developmentcss = {
   name: "developmentcss",
   type: "board",
+
+  tagline: {
+    all: {
+      marginTop: "10px",
+      marginLeft: "10px"
+      
+    }
+  },
+
+  username: {
+    all: {
+      color: "#fff",
+      fontSize: "18px",
+      fontWeight: "600",
+      marginRight: "15px"
+
+      
+    }
+  },
+  clock: {
+    all: {
+      position: "absolute",
+      right: "0",
+      height: "auto",
+      lineHeight: "30px",
+      padding: "6px 20px",
+      textAlign: "right",
+      borderRadius: "3px",
+      fontSize: "19px",
+      color: "#fff",
+      top: "5px",
+      background: "#333333",
+      fontWeight: "700"
+    }
+  },
+
   flags: {
     all: {
       backgrounImage: "../../../../../images/user-flag.png"

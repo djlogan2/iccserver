@@ -8,20 +8,17 @@ export default class Players extends Component {
                  
                  render() {
                    return (
-                     <div className="user-tagline-component">
+                      <div
+                       style={this.props.CssManager.tagline()}
+                      >
                        <a
                          href="#"
                          target="_blank"
-                         className="user-tagline-username"
+                         style={this.props.CssManager.username()}
                        >
                          {this.props.playerInfo} ({this.props.rating})
                        </a>
-                       <i style={this.props.CssManager.flags("us")}>
-                         <img
-                           src="../../../../../images/user-flag.png"
-                           alt=""
-                         />
-                       </i>
+                       <i style={this.props.CssManager.flags("us")} />
                      </div>
                    );
                  }

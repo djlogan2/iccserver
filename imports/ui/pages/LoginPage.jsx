@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
-const T = i18n.createComponent("Common");
+
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
@@ -26,7 +26,7 @@ export default class LoginPage extends Component {
       }
     });
   }
-  /* 
+
  getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -35,13 +35,16 @@ export default class LoginPage extends Component {
       navigator.userLanguage ||
       "en-US"
     );
-  }; */
+  };
+
+
+render() {
+     
+//i18n.setLocale(getLang());
+let translator = i18n.createTranslator("Common.signupform", this.getLang()); 
+
 
   
-  render() {
-    /* console.log(this.getLang());
-    i18n.setLocale(this.getLang());
-     */
     const error = this.state.error;
     return (
       <div className="modal show">
@@ -49,7 +52,7 @@ export default class LoginPage extends Component {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="text-center">
-                <div>{i18n.__("Common", "welcome")}</div>
+                <div>{translator("login")}</div>
               </h1>
             </div>
             <div className="modal-body">
@@ -68,7 +71,7 @@ export default class LoginPage extends Component {
                     type="email"
                     id="login-email"
                     className="form-control input-lg"
-                    placeholder="email"
+                    placeholder={translator("email")}
                   />
                 </div>
                 <div className="form-group">
@@ -76,7 +79,7 @@ export default class LoginPage extends Component {
                     type="password"
                     id="login-password"
                     className="form-control input-lg"
-                    placeholder="password"
+                    placeholder={translator("password")}
                   />
                 </div>
                 <div className="form-group text-center">
@@ -84,7 +87,7 @@ export default class LoginPage extends Component {
                     type="submit"
                     id="login-button"
                     className="btn btn-primary btn-lg btn-block"
-                    value="Login"
+                    value={translator("submit")}
                   />
                 </div>
                 <div className="form-group text-center">

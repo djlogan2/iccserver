@@ -168,24 +168,25 @@ h3 {
   height: 50px;
   border-radius: 50%;
 }
-
+/* 
 .user-tagline-component {
   margin-top: 10px;
   margin-left: 10px;
-}
-
+} */
+/* 
 .user-tagline-username {
   color: #fff;
   font-size: 18px;
   font-weight: 600;
   margin-right: 15px;
-}
+} 
 
 .user-tagline-username:hover {
   color: #fff;
   text-decoration: none;
 }
-
+*/
+/*
 .clock-top {
   position: absolute;
   right: 0;
@@ -203,7 +204,7 @@ h3 {
   background: #333333;
   font-weight: 700;
 }
-
+*/
 .board-player-bottom {
   position: relative;
   display: flex;
@@ -252,11 +253,11 @@ h3 {
     margin-top: 5px;
   }
 
-  .user-tagline-component {
+  /* .user-tagline-component {
     margin-top: 15px;
-  }
+  } */
 
-  .board-player-bottom .board-player-userTagline .user-tagline-component {
+  .board-player-bottom .board-player-userTagline {
     display: inline-block;
     margin-top: 15px;
   }
@@ -305,7 +306,7 @@ h3 {
     padding-left: 15px;
     padding-right: 15px;
   }
-
+/*
   .clock-top {
     right: 15px;
     line-height: 23px;
@@ -315,7 +316,7 @@ h3 {
     width: 90px;
     text-align: center;
   }
-
+*/
   .clock-bottom {
     right: 15px;
     line-height: 23px;
@@ -537,11 +538,11 @@ h3 {
     display: none;
   }
 
-  .board-player-top .board-player-userTagline .user-tagline-component i img {
+  .board-player-top .board-player-userTagline i img {
     display: none;
   }
 
-  .board-player-top .board-player-userTagline .user-tagline-component {
+  .board-player-top .board-player-userTagline {
     display: inline-block;
 
   }
@@ -558,11 +559,11 @@ h3 {
     display: block;
   }
 
-  .board-player-bottom .board-player-userTagline .user-tagline-component i img {
+  .board-player-bottom .board-player-userTagline  i img {
     display: none;
   }
 
-  .board-player-bottom .board-player-userTagline .user-tagline-component {
+  .board-player-bottom .board-player-userTagline {
     display: inline-block;
 
   }
@@ -626,7 +627,7 @@ h3 {
     padding-left: 15px;
     padding-right: 15px;
   }
-
+/* 
   .clock-top {
     right: 15px;
     line-height: 23px;
@@ -635,7 +636,7 @@ h3 {
     margin-top: 15px;
     width: auto;
   }
-
+ */
   .clock-bottom {
     right: 15px;
     padding: 6px 10px;
@@ -1003,10 +1004,10 @@ h3 {
 }
 
 @media (min-width: 1200px) {
-  .clock-top {
+/*   .clock-top {
     width: 93.94px;
     text-align: center;
-  }
+  } */
 
   .clock-bottom {
     width: 93.94px;

@@ -52,10 +52,9 @@ export default class ClockComponent extends Component {
         }
 
         return (
-
-            <div className="clock-top">
-                {minutes}:{seconds}
-            </div>
-        )
+          <div style={this.props.CssManager.clock()}>
+            {minutes}:{seconds}
+          </div>
+        );
     }
 }
