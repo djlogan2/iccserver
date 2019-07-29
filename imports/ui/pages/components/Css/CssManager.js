@@ -1,100 +1,103 @@
-import { Meteor } from 'meteor/meteor';
-import { Logger } from '../../../../../lib/client/Logger';
-const log = new Logger('Css/CssManager_js');
+import { Meteor } from "meteor/meteor";
+import { Logger } from "../../../../../lib/client/Logger";
+const log = new Logger("Css/CssManager_js");
 /**
  * CssManager
  */
 export default class CssManager {
-	constructor(css) {
-		const us = this;
-		this._styleObject = developmentcss; // Default when nothing is loaded
-		Meteor.call('getcss', css, function(error, result) {
-			if (error) log.error(error);
-			us._styleObject = result;
-		});
-	}
+  constructor(css) {
+    const us = this;
+    this._styleObject = developmentcss; // Default when nothing is loaded
+    Meteor.call("getcss", css, function(error, result) {
+      if (error) log.error(error);
+      us._styleObject = result;
+    });
+  }
 
-	/**
+  /**
    *
    * @param squareColor 'b' or 'w' for the color of the square
    * @param piece null, or the piece that's on the square
    * @param color null, or the color of the piece that's on the square
+   * @param side The width/height of a square side, in pixels
    */
-	squareStyle(squareColor, piece, color, side) {
-		var style = { width: side, height: side };
-		if (this._styleObject.square.all) Object.assign(style, this._styleObject.square.all);
-		Object.assign(style, this._styleObject.square[squareColor]);
+  squareStyle(squareColor, piece, color, side) {
+    var style = { width: side, height: side };
+    if (this._styleObject.square.all)
+      Object.assign(style, this._styleObject.square.all);
+    Object.assign(style, this._styleObject.square[squareColor]);
 
-		if (!!piece && !!color) {
-			if (this._styleObject.pieces.all) Object.assign(style, this._styleObject.pieces.all);
-			Object.assign(style, this._styleObject.pieces[color][piece]);
-		}
+    if (!!piece && !!color) {
+      if (this._styleObject.pieces.all)
+        Object.assign(style, this._styleObject.pieces.all);
+      Object.assign(style, this._styleObject.pieces[color][piece]);
+    }
 
-		return style;
-	}
-
-	flags(country){
-		if (this._styleObject.flags.all)
-		  	Object.assign(style, this._styleObject.flags.all);
-	    	Object.assign(style, this._styleObject.flags[country]);
+    return style;
   }
-  
-  tagline(){
-				  	Object.assign(style, this._styleObject.tagline.all);
-	}
-  username(){
-				  	Object.assign(style, this._styleObject.username.all);
+
+  flags(country) {
+    if (this._styleObject.flags.all)
+      Object.assign(style, this._styleObject.flags.all);
+    Object.assign(style, this._styleObject.flags[country]);
   }
-  
-  clock(){
-				  	Object.assign(style, this._styleObject.clock.all);
-	}
+
+  tagline() {
+    Object.assign(style, this._styleObject.tagline.all);
+  }
+  username() {
+    Object.assign(style, this._styleObject.username.all);
+  }
+
+  clock() {
+    Object.assign(style, this._styleObject.clock.all);
+  }
 
   //
-	// TODO: There is no point in having canvas as a database item. Just put it directly into the component.
-	//
-	squareCanvasStyle(side) {
-		return {
-			position: 'absolute',
-			top: 0,
-			left: 0,
-			zIndex: 2
-		};
-	}
+  // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
+  //
+  static squareCanvasStyle(side) {
+    return {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      zIndex: 2
+    };
+  }
 
-	ribbonMoveList() {
-		return {};
-	}
-	/**
+  /**
    *
    * @param which Position of the text
    * @param color Color of the square
+   * @param side The width/height of a square side, in pixels
    */
-	internalRankAndFileStyle(which, color, side) {
-		const style = {}; // width: side, height: side };
+  internalRankAndFileStyle(which, color, side) {
+    const style = {}; // width: side, height: side };
 
-		if (this._styleObject.internal_rank_and_file.all)
-			Object.assign(style, this._styleObject.internal_rank_and_file.all);
+    if (this._styleObject.internal_rank_and_file.all)
+      Object.assign(style, this._styleObject.internal_rank_and_file.all);
 
-		Object.assign(style, this._styleObject.internal_rank_and_file.color[color]);
-		Object.assign(style, this._styleObject.internal_rank_and_file.position[which]);
+    Object.assign(style, this._styleObject.internal_rank_and_file.color[color]);
+    Object.assign(
+      style,
+      this._styleObject.internal_rank_and_file.position[which]
+    );
 
-		return style;
-	}
+    return style;
+  }
 
-	/**
+  /**
    *
-   * @param which Position of the text
-   * @param color Color of the square
+   * @param side The width/height of a square side, in pixels
    */
-	externalRankAndFileStyle(side) {
-		const style = { width: side, height: side };
+  externalRankAndFileStyle(side) {
+    const style = { width: side, height: side };
 
-		if (this._styleObject.external_rank_and_file.all)
-			Object.assign(style, this._styleObject.external_rank_and_file.all);
+    if (this._styleObject.external_rank_and_file.all)
+      Object.assign(style, this._styleObject.external_rank_and_file.all);
 
-		return style;
-	}
+    return style;
+  }
 }
 
 const developmentcss = {
@@ -105,7 +108,6 @@ const developmentcss = {
     all: {
       marginTop: "10px",
       marginLeft: "10px"
-      
     }
   },
 
@@ -115,8 +117,6 @@ const developmentcss = {
       fontSize: "18px",
       fontWeight: "600",
       marginRight: "15px"
-
-      
     }
   },
   clock: {

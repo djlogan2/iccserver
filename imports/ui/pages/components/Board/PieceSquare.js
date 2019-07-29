@@ -86,7 +86,7 @@ export default class PieceSquare extends Square {
 
     let canvasStyle;
     if (this.props.circle)
-      canvasStyle = this.props.cssmanager.squareCanvasStyle(this.props.side);
+      canvasStyle = CssManager.squareCanvasStyle(this.props.side);
 
     return (
       <div
