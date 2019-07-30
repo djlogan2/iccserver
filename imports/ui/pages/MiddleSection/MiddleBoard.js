@@ -126,14 +126,14 @@ export default class MiddleBoard extends Component {
             />
             <div className="clock-top">
               {/* Here is time comes from live server response and bind in props component   */}
-              <Clock time={1500} />
+              <Clock CssManager={css} time={1500} />
             </div>
           </div>
         </div>
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
-              cssmanager={css}
+              CssManager={css}
               board={chess.board()}
               draw_rank_and_file={this.state.draw_rank_and_file}
               side={size}
@@ -178,10 +178,10 @@ export default class MiddleBoard extends Component {
             title=""
           />
           <div className="board-player-userTagline">
-            <Players playerInfo={"Morris"} rating={"750"} />
+            <Players CssManager={css} playerInfo={"Morris"} rating={"750"} />
             <div className="clock-bottom active">
               {/* Here is time comes from live server response and bind in props component   */}
-              <Clock time={25000} />
+              <Clock CssManager={css} time={25000} />
             </div>
           </div>
         </div>

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import { withHistory, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
+import { Meteor } from "meteor/meteor";
+import i18n from "meteor/universe:i18n";
 
 export default class SignUpPage extends Component {
   constructor(props) {

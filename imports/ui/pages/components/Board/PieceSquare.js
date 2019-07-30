@@ -53,7 +53,7 @@ export default class PieceSquare extends Square {
 
   renderRankAndFile() {
     if (this.props.draw_rank_and_file) {
-      const rafStyle = this.props.cssmanager.internalRankAndFileStyle(
+      const rafStyle = this.props.CssManager.internalRankAndFileStyle(
         this.props.draw_rank_and_file,
         this._squarecolor,
         this.props.side
@@ -77,7 +77,7 @@ export default class PieceSquare extends Square {
     // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
     //
 
-    const squareStyle = this.props.cssmanager.squareStyle(
+    const squareStyle = this.props.CssManager.squareStyle(
       this._squarecolor,
       this.props.piece,
       this.props.color,
@@ -86,7 +86,7 @@ export default class PieceSquare extends Square {
 
     let canvasStyle;
     if (this.props.circle)
-      canvasStyle = CssManager.squareCanvasStyle(this.props.side);
+      canvasStyle = this.props.CssManager.squareCanvasStyle(this.props.side);
 
     return (
       <div

@@ -1,36 +1,40 @@
-import React, { Component } from 'react';
-import { withHistory, Link } from 'react-router-dom';
-import { Accounts } from 'meteor/accounts-base';
+import React, { Component } from "react";
+import { Link } from "react-router-dom";
+import { Accounts } from "meteor/accounts-base";
+import { Meteor } from "meteor/meteor";
+import i18n from "meteor/universe:i18n";
 
 export default class SignUpPage extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			error: ''
-		};
-		this.handleSubmit = this.handleSubmit.bind(this);
-	}
+  constructor(props) {
+    super(props);
+    this.state = {
+      error: ""
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
 
-	handleSubmit(e) {
-		
-		e.preventDefault();
-		let name = document.getElementById('signup-name').value;
-		let email = document.getElementById('signup-email').value;
-		let password = document.getElementById('signup-password').value;
+  handleSubmit(e) {
+    e.preventDefault();
+    let name = document.getElementById("signup-name").value;
+    let email = document.getElementById("signup-email").value;
+    let password = document.getElementById("signup-password").value;
 
-		// this.setState({error: ""});
-		Accounts.createUser({ email: email, username: name, password: password }, err => {
-			if (err) {
-				this.setState({
-					error: err.reason
-				});
-			} else {
-				this.props.history.push('/login');
-			}
-		});
-	}
+    // this.setState({error: ""});
+    Accounts.createUser(
+      { email: email, username: name, password: password },
+      err => {
+        if (err) {
+          this.setState({
+            error: err.reason
+          });
+        } else {
+          this.props.history.push("/login");
+        }
+      }
+    );
+  }
 
- getLang() {
+  getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
       navigator.language ||
@@ -38,16 +42,14 @@ export default class SignUpPage extends Component {
       navigator.userLanguage ||
       "en-US"
     );
-  };
+  }
 
+  render() {
+    //i18n.setLocale(getLang());
+    let translator = i18n.createTranslator("Common.signupform", this.getLang());
 
-render() {
-     
-//i18n.setLocale(getLang());
-let translator = i18n.createTranslator("Common.signupform", this.getLang()); 
-	
-		const error = this.state.error;
-		return (
+    const error = this.state.error;
+    return (
       <div className="modal show">
         <div className="modal-dialog">
           <div className="modal-content">
@@ -109,5 +111,5 @@ let translator = i18n.createTranslator("Common.signupform", this.getLang());
         </div>
       </div>
     );
-	}
+  }
 }

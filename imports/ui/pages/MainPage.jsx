@@ -1,9 +1,10 @@
+/* eslint-disable no-undef */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import LeftSidebar from "./LeftSidebar/LeftSidebar";
-import RightSidebar from "./RightSidebar/RightSidebar";
+import LeftSidebar from "./LeftSidebar/Leftsidebar";
+import RightSidebar from "./RightSidebar/Rightsidebar";
 import "./css/ChessBoard";
-import "./css/LeftSidebar";
+import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import RealTime from "../../../lib/client/RealTime";
