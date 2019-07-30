@@ -1,57 +1,66 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-const ActionComponent = () => (
-	<div className="draw-section">
-		<ul>
-			{/* 
-							Take back request Component
-							Player can request to take back the last move to the
-							opponent Player. 
-							*/}
-			<li>
-				<a href="#" title="TakeBack">
-					<span>
-						<img src="images/take-forward-icon.png" />
-					</span>TakeBack
-				</a>
-			</li>
-			{/* 
-							Draw request Component
-							Player can draw arrow and circle on the board.
-							
-							*/}
-
-			<li>
-				<a href="#" title="Draw">
-					<span>
-						<img src="images/draw-icon.png" />
-					</span>Draw
-				</a>
-			</li>
-			{/*
+class ActionComponent extends Component {
+  render() {
+    return (
+      <div className="draw-section">
+        <ul>
+          {/* 
+		Take back request Component
+		Player can request to take back the last move to the
+		opponent Player. 
+		*/}
+          <li>
+            <button
+              title="TakeBack"
+              style={this.props.CssManager.actionButtonImage("takeback")}
+            >
+              <img src="images/fast-forward-prev.png" alt="fast-forward" />
+              TakeBack
+            </button>
+          </li>
+          {/* 
+		Draw request Component
+		Player can draw arrow and circle on the board.
+		*/}
+          <li>
+            <button
+              title="Draw"
+              style={this.props.CssManager.actionButtonImage("draw")}
+            >
+              <img src="images/draw-icon.png" alt="draw" />
+              Draw
+            </button>
+          </li>
+          {/*
 							Resign Component
 							Players can resign the game.
 							*/}
 
-			<li>
-				<a href="#" title="Resign">
-					<span>
-						<img src="images/resign-icon.png" />
-					</span>Resign
-				</a>
-			</li>
-			{/* 
+          <li>
+            <button
+              title="Resign"
+              style={this.props.CssManager.actionButtonImage("resign")}
+            >
+              <img src="images/resign-icon.png" alt="resign" />
+              Resign
+            </button>
+          </li>
+          {/* 
 						Game abort Component
 						Players can abort the game. */}
-
-			<li>
-				<a href="#" title="Abort">
-					<span>
-						<img src="images/abort-icon.png" />
-					</span>Abort
-				</a>
-			</li>
-		</ul>
-	</div>
-);
+          <li>
+            <button
+              title="Abort"
+              style={this.props.CssManager.actionButtonImage("abort")}
+            >
+              <img src="images/abort-icon.png" alt="abort" />
+              Abort
+            </button>
+          </li>
+        </ul>
+      </div>
+    );
+  }
+}
 export default ActionComponent;

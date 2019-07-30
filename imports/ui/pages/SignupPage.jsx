@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
-import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 
 export default class SignUpPage extends Component {
@@ -45,9 +44,7 @@ export default class SignUpPage extends Component {
   }
 
   render() {
-    //i18n.setLocale(getLang());
-    let translator = i18n.createTranslator("Common.signupform", this.getLang());
-
+    let translator = i18n.createTranslator("Common.signupForm", this.getLang());
     const error = this.state.error;
     return (
       <div className="modal show">

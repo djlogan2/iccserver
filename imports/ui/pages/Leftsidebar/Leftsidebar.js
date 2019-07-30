@@ -1,10 +1,7 @@
-/* eslint-disable no-useless-constructor */
 import React, { Component } from "react";
 import MenuLinks from "./MenuLinks";
+
 class LeftSidebar extends Component {
-  constructor(props) {
-    super(props);
-  }
   render() {
     let links = [
       {

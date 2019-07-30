@@ -1,6 +1,7 @@
-/* eslint-disable no-undef */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { Meteor } from "meteor/meteor";
+import TrackerReact from "meteor/ultimatejs:tracker-react";
 import LeftSidebar from "./LeftSidebar/Leftsidebar";
 import RightSidebar from "./RightSidebar/Rightsidebar";
 import "./css/ChessBoard";
@@ -8,9 +9,7 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import RealTime from "../../../lib/client/RealTime";
-import TrackerReact from "meteor/ultimatejs:tracker-react";
-
-export default class MainPage extends TrackerReact(React.Component) {
+export default class MainPage extends TrackerReact(Component) {
   constructor(props) {
     super(props);
     this.state = {
@@ -67,11 +66,11 @@ export default class MainPage extends TrackerReact(React.Component) {
   }
 
   render() {
-    let currentUser = this.props.currentUser;
+    /* let currentUser = this.props.currentUser;
     let userDataAvailable = currentUser !== undefined;
     let loggedIn = currentUser && userDataAvailable;
     const gameStart = this.getingData();
-    //  const gameStart = this.gameStartData();
+     */
 
     return (
       <div className="main">
@@ -86,12 +85,12 @@ export default class MainPage extends TrackerReact(React.Component) {
                 }
               >
                 <div className="pull-left image">
-                  <img src="../../../images/logo-white-lg.png" />
+                  <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
                 <div className="float-right menu-close-icon">
-                  <a onClick={this.toggleMenu} href="#" className="button-left">
+                  <button onClick={this.toggleMenu}  className="button-left">
                     <span className="fa fa-fw fa-bars " />
-                  </a>
+                  </button>
                 </div>
                 <LeftSidebar />
               </div>

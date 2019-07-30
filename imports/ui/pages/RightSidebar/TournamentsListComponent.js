@@ -1,8 +1,4 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable no-useless-constructor */
-/* eslint-disable jsx-a11y/alt-text */
 import React, { Component } from "react";
-
 export default class TournamentsListComponent extends Component {
   /**
      * 
@@ -71,16 +67,13 @@ export default class TournamentsListComponent extends Component {
 }
 
 class Tournaments extends Component {
-  constructor() {
-    super();
-  }
   render() {
     let listItem = this.props.lists.map((list, index) => {
       return (
         <div className="challenge-content" key={index}>
           <a herf="#" className="competitions-list-item-component">
             <i className="blitzicon">
-              <img src={list.src} />
+              <img src={list.src} alt="" />
             </i>
             <span className="competitions-list-item-name">{list.name}</span>
             <span className="competitions-list-item-status">{list.status}</span>

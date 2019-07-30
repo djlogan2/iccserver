@@ -1,16 +1,12 @@
 import React, { Component } from "react";
 import Tabs from "./Tabs/Tabs";
 import GameHistory from "./GameComponent";
-import CreateGame from "./CreategameComponent";
+import CreateGame from "./CreateGameComponent";
 import TournamentsList from "./TournamentsListComponent";
 import i18n from "meteor/universe:i18n";
 import "./Tabs/styles";
 
 export default class RightBarTop extends Component {
-  constructor(props) {
-    super(props);
-  }
-
   getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -21,9 +17,8 @@ export default class RightBarTop extends Component {
     );
   }
   render() {
-    //i18n.setLocale(getLang());
     let translator = i18n.createTranslator(
-      "Common.RightBarTop",
+      "Common.rightBarTop",
       this.getLang()
     );
 
@@ -34,12 +29,12 @@ export default class RightBarTop extends Component {
 		  	starts the game.
 		  	also these component with 
 	    	*/}
-        <div label={translator("Game")} imgsrc="images/game-icon-gray.png">
+        <div label={translator("game")} imgsrc="images/game-icon-gray.png">
           <GameHistory CssManager={this.props.CssManager} />
         </div>
 
         <div
-          label={translator("Play")}
+          label={translator("play")}
           imgsrc="images/play-icon-gray.png"
           className="play"
         >
@@ -50,7 +45,7 @@ export default class RightBarTop extends Component {
 			   List of all tournaments will be displayed here.
 		   */}
         <div
-          label={translator("Tournaments")}
+          label={translator("tournaments")}
           imgsrc="images/tournament-icon-gray.png"
           className="tournament"
         >

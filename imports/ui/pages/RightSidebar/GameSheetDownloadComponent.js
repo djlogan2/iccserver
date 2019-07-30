@@ -1,8 +1,10 @@
 import React, { Component } from "react";
-const GameSheetDownloadComponent = () => (
-  <a href="#">
-    <img src="images/download-icon-gray.png" alt="" />
-  </a>
-);
-
-export default GameSheetDownloadComponent;
+export default class GameSheetDownloadComponent extends Component {
+  render() {
+    return (
+      <button style={this.props.CssManager.gameShareIcon()}>
+        <img src="images/download-icon-gray.png" alt="" />
+      </button>
+    );
+  }
+}

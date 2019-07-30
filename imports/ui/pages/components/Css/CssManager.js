@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../../lib/client/Logger";
 
@@ -11,8 +10,8 @@ export default class CssManager {
     const us = this;
     //this._styleObject = developmentcss; // Default when nothing is loaded
     this._boardStyle = this.search("board", developmentcss);
-    this._playerStyle = this.search("player", developmentcss);
-    this._rightBarStyle = this.search("rightBar", developmentcss);
+    this._systemStyle = this.search("system", developmentcss);
+
     Meteor.call("getcss", css, function(error, result) {
       if (error) log.error(error);
       us._boardStyle = result;
@@ -47,43 +46,43 @@ export default class CssManager {
   }
   flags(country) {
     var style = {};
-    if (this._playerStyle.flags.all)
-      Object.assign(style, this._playerStyle.flags.all);
-    Object.assign(style, this._playerStyle.flags[country]);
+    if (this._boardStyle.flags.all)
+      Object.assign(style, this._boardStyle.flags.all);
+    Object.assign(style, this._boardStyle.flags[country]);
 
     return style;
   }
 
   tagLine() {
     var style = {};
-    Object.assign(style, this._playerStyle.tagLine.all);
+    Object.assign(style, this._boardStyle.tagLine.all);
     return style;
   }
   userName() {
     var style = {};
-    Object.assign(style, this._playerStyle.userName.all);
+    Object.assign(style, this._boardStyle.userName.all);
     return style;
   }
 
   clock() {
     var style = {};
-    Object.assign(style, this._playerStyle.clock.all);
+    Object.assign(style, this._boardStyle.clock.all);
     return style;
   }
   //This css code for Right sidebar
   settingIcon() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.settingIcon.all);
+    Object.assign(style, this._systemStyle.settingIcon.all);
     return style;
   }
   rightTopContent() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.rightTopContent.all);
+    Object.assign(style, this._systemStyle.rightTopContent.all);
     return style;
   }
   rightBottomContent() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.rightBottomContent.all);
+    Object.assign(style, this._systemStyle.rightBottomContent.all);
     return style;
   }
   actionButtonImage(imageName) {
@@ -91,37 +90,52 @@ export default class CssManager {
     /*	if (this._rightBarStyle.actionButtonImage.all)
       Object.assign(style, this._rightBarStyle.actionButtonImage.all);
     */
-    Object.assign(style, this._rightBarStyle.actionButtonImage[imageName]);
+    Object.assign(style, this._systemStyle.actionButtonImage[imageName]);
     return style;
   }
   gameAnalysisIcon() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.gameAnalysisIcon.all);
+    Object.assign(style, this._systemStyle.gameAnalysisIcon.all);
     return style;
   }
   gameSheetDownloadIcon() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.gameSheetDownloadIcon.all);
+    Object.assign(style, this._systemStyle.gameSheetDownloadIcon.all);
     return style;
   }
   gameShareIcon() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.gameShareIcon.all);
+    Object.assign(style, this._systemStyle.gameShareIcon.all);
     return style;
   }
   chatContent() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.chatContent.all);
+    Object.assign(style, this._systemStyle.chatContent.all);
     return style;
   }
   chatInputBox() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.chatInputBox.all);
+    Object.assign(style, this._systemStyle.chatInputBox.all);
     return style;
   }
   chatSendButton() {
     var style = {};
-    Object.assign(style, this._rightBarStyle.chatSendButton.all);
+    Object.assign(style, this._systemStyle.chatSendButton.all);
+    return style;
+  }
+  gameMoveList() {
+    var style = {};
+    Object.assign(style, this._systemStyle.gameMoveList.all);
+    return style;
+  }
+  gameButtonMove() {
+    var style = {};
+    Object.assign(style, this._systemStyle.gameButtonMove.all);
+    return style;
+  }
+  gameTopHeader() {
+    var style = {};
+    Object.assign(style, this._systemStyle.gameTopHeader.all);
     return style;
   }
 
@@ -178,7 +192,7 @@ export default class CssManager {
 const developmentcss = [
   {
     name: "developmentcss",
-    type: "rightBar",
+    type: "system",
     settingIcon: {
       all: {
         position: "absolute",
@@ -197,8 +211,8 @@ const developmentcss = [
       }
     },
     actionButtonImage: {
-      takeback: {
-        backgroundImage:"../../../../../public/images/take-forward-icon.png"
+      takeBack: {
+        backgroundImage: "../../../../../public/images/take-forward-icon.png"
       },
       draw: {
         backgroundImage: "../../../../../public/images/draw-icon.png"
@@ -223,7 +237,6 @@ const developmentcss = [
     gameShareIcon: {
       all: {
         backgroundImage: "../../../../../public/images/share-icon-gray.png"
-        
       }
     },
     chatContent: {
@@ -258,19 +271,44 @@ const developmentcss = [
         outline: "none",
         cursor: "pointer"
       }
+    },
+    gameMoveList: {
+      all: {
+        background: "#fff",
+        padding: "10px 15px",
+        color: "#808080",
+        overflowY: "auto",
+        maxHeight: "185px"
+      }
+    },
+    gameButtonMove: {
+      all: {
+        background: "#f1f1f1",
+        display: "flex",
+        flexWrap: "nowrap",
+        textAlign: "center",
+        padding: "8px 0",
+        position: "absolute",
+        width: "100%",
+        bottom: "350px",
+        zIndex: "999"
+      }
+    },
+    gameTopHeader: {
+      all: {
+        marginLeft: "5px"
+      }
     }
   },
   {
     name: "developmentcss",
-    type: "player",
-
+    type: "board",
     tagLine: {
       all: {
         marginTop: "10px",
         marginLeft: "10px"
       }
     },
-
     userName: {
       all: {
         color: "#fff",
@@ -305,12 +343,7 @@ const developmentcss = [
         background: "#333333",
         fontWeight: "700"
       }
-    }
-  },
-  {
-    name: "developmentcss",
-    type: "board",
-
+    },
     square: {
       all: {},
       w: {

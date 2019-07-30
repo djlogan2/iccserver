@@ -12,7 +12,7 @@ export default class NameComponent extends Component {
 
   render() {
     return (
-      <div className="game-top-header">
+      <div style={this.props.CssManager.gameTopHeader()}>
         <img src="images/circle-compass-icon.png" alt="" />
         <span>1/2 - 1/2 US-ch Open 2019</span>
         <div className="pull-right">
@@ -26,13 +26,13 @@ export default class NameComponent extends Component {
 					 Game sheet download document Component
 					 Player can download PGN and FEN string for further uses . */}
 
-          <GameSheetDownloadComponent />
+          <GameSheetDownloadComponent CssManager={this.props.CssManager} />
 
           {/* 
 				    Game Analysis Component
 					Player can analysis there game. */}
 
-          <GameAnalysisComponent />
+          <GameAnalysisComponent CssManager={this.props.CssManager} />
         </div>
       </div>
     );

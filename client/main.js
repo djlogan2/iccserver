@@ -7,35 +7,35 @@ import i18n from "meteor/universe:i18n";
 Meteor.startup(() => {
   i18n.addTranslations("en-US", {
     Common: {
-      loginform: {
+      loginForm: {
         login: "Login",
         email: "email",
         password: "password",
         submit: "submit"
       },
-      signupform: {
+      signupForm: {
         signup: "Sign Up",
         name: "Name",
         email: "Email Address",
         password: "Password",
         submit: "Submit"
       },
-      RightBarTop: {
-        Game: "Game",
-        Play: "Play",
-        Tournaments: "Tournaments"
+      rightBarTop: {
+        game: "Game",
+        play: "Play",
+        tournaments: "Tournaments"
       }
     }
   });
   i18n.addTranslations("ru-RU", {
     Common: {
-      loginform: {
+      loginForm: {
         login: "Добро пожаловать в пожа пожаxc ловатьлов ать !",
         email: "пожаловать",
         password: "passwпожаxc",
         submit: "ать"
       },
-      signupform: {
+      signupForm: {
         signup: "пожа пожаxc",
         name: "по жаxc",
         email: "пожаловать",
@@ -46,23 +46,23 @@ Meteor.startup(() => {
   });
   i18n.addTranslations("ja", {
     Common: {
-      loginform: {
+      loginForm: {
         login: "お忘れでですか",
         email: "パスワードをお忘れですか",
         password: "パ-ードをお忘",
         submit: "忘れです忘れです"
       },
-      signupform: {
+      signupForm: {
         signup: "お忘れでですか",
         name: "ードをお忘",
         email: "をお忘 ドをお忘",
         password: "をお忘 ドを",
         submit: "忘 ドを"
       },
-      RightBarTop: {
-        Game: "ドを",
-        Play: "ドをay",
-        Tournaments: "ドをドを"
+      rightBarTop: {
+        game: "ドを",
+        play: "ドをay",
+        tournaments: "ドをドを"
       }
     }
   });
