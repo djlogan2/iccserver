@@ -11,7 +11,7 @@ export default class Friends extends Component {
       <div>
         <h3>Friends</h3>
         <p>
-          orem ipsum dolor sit amet, consectetur adipisicing elit. Eius quos
+          Lorem ipsum dolor sit amet, conssectetur adipisicing elit. Eius quos
           aliquam consequuntur, esse provident impedit minima porro!
         </p>
       </div>

@@ -9,6 +9,8 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import RealTime from "../../../lib/client/RealTime";
+import CssManager from "../pages/components/Css/CssManager";
+const css = new CssManager("developmentcss");
 export default class MainPage extends TrackerReact(Component) {
   constructor(props) {
     super(props);
@@ -103,7 +105,7 @@ export default class MainPage extends TrackerReact(Component) {
           <br />
           <br />
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
-            <RightSidebar />
+            <RightSidebar CssManager={css}  />
           </div>
         </div>
       </div>
