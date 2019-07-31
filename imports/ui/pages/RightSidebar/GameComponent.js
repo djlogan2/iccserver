@@ -4,10 +4,6 @@ import MoveList from "./MoveListComponent";
 import Action from "./ActionComponent";
 import "./Tabs/styles";
 export default class GameComponent extends Component {
-  constructor(props) {
-	super(props);
-	
-  }
   render() {
     return (
       <div>

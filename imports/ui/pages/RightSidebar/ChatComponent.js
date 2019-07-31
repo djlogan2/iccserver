@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-
 export default class ChatComponent extends Component {
   render() {
     return (
       <div>
-        <div className="chat-content">
+        <div style={this.props.CssManager.chatContent()}>
           <div className="user-1">
             <h6>NEW GAME</h6>
             <p>
@@ -21,9 +20,9 @@ export default class ChatComponent extends Component {
             </p>
           </div>
         </div>
-        <div className="chat-input-box">
+        <div style={this.props.CssManager.chatInputBox()}>
           <input type="text" placeholder="Message..." />
-          <button className="send-btn" type="send" />
+          <button style={this.props.CssManager.chatSendButton()} type="send" />
         </div>
       </div>
     );
