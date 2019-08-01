@@ -75,11 +75,11 @@
 	display: inline-block;
 	vertical-align: top;
 }
-
+/*
 .tab-list {
 	border: 0;
 }
-
+*/
 .right-bottom-content .tab-content {
 	padding: 0;
 	background: #fff;
@@ -93,14 +93,15 @@
 	text-align: center;
 }
 
+/* 
 .play-tab-content {
 	background: #efefef;
 	height: 100vh;
-	/* float: left; */
-	width: 100%;
-	/* position: relative; */
+	// float: left; 
+		width: 100%;
+	//position: relative; 
 }
-
+ */
 .tab-content nav > .nav.nav-tabs {
 	border: none;
 	color: #fff;

@@ -51,14 +51,14 @@ export default class AppContainer extends Component {
           <nav className="navbar navbar-default navbar-static-top">
             <div className="container">
               <div className="navbar-header">
-                <a className="navbar-brand" href="#">
+                <a className="navbar-brand" href="#/">
                   Chess App
                 </a>
               </div>
               <div className="navbar-collapse">
                 <ul className="nav navbar-nav navbar-right">
                   <li>
-                    <a href="#" onClick={this.logout}>
+                    <a href="#/" onClick={this.logout}>
                       Logout
                     </a>
                   </li>

@@ -5,49 +5,49 @@ class LeftSidebar extends Component {
   render() {
     let links = [
       {
-        label: "Play",
+        label: "play",
         link: "#home",
         src: "../../../images/play-icon-white.png",
         active: true
       },
       {
-        label: "Learn",
+        label: "learn",
         link: "#learn",
         src: "../../../images/learning-icon-white.png"
       },
       {
-        label: "Connect",
+        label: "connect",
         link: "#connect",
         src: "../../../images/connect-icon-white.png"
       },
       {
-        label: "Examine",
+        label: "examine",
         link: "#examine",
         src: "../../../images/examine-icon-white.png"
       },
       {
-        label: "Top Players",
+        label: "topPlayers",
         link: "#top-players",
         src: "../../../images/top-player-icon-white.png"
       },
       {
-        label: "Log in",
+        label: "logIn",
         link: "#log-in",
         src: "../../../images/login-icon-white.png"
       },
       {
-        label: "Sign up",
+        label: "singUp",
         link: "#sign-up",
         src: "../../../images/signup-icon-white.png"
       },
       {
-        label: "Help",
+        label: "help",
         link: "#help",
         src: "../../../images/help-icon-white.png"
       }
     ];
 
-    return <MenuLinks links={links} />;
+    return <MenuLinks links={links} CssManager={this.props.CssManager} />;
   }
 }
 export default LeftSidebar;

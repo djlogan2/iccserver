@@ -24,6 +24,28 @@ Meteor.startup(() => {
         game: "Game",
         play: "Play",
         tournaments: "Tournaments"
+      },
+      menuLinkLabel: {
+        play: "Play",
+        learn: "Learn",
+        connect: "Connect",
+        examine: "Examine",
+        topPlayers: "Top Players",
+        logIn: "Log in",
+        singUp: "Sign up",
+        help: "Help"
+      },
+      actionButtonLabel: {
+        takeBack: "Take Back",
+        draw: "Draw",
+        resign: "Resign",
+        abort: "Abort"
+      },
+      rightBarBottom: {
+        chat: "Chat",
+        events: "Events",
+        friends: "Friends",
+        history: "History"
       }
     }
   });
@@ -63,6 +85,28 @@ Meteor.startup(() => {
         game: "ドを",
         play: "ドをay",
         tournaments: "ドをドを"
+      },
+      rightBarBottom: {
+        chat: "ドを",
+        events: "ドをay",
+        friends: "ドをドを",
+        history: "ドをドを"
+      },
+      menuLinkLabel: {
+        play: "ドを",
+        learn: "ドをaドをr",
+        connect: "ドを",
+        examine: "ドを",
+        topPlayers: "とあ事片そ",
+        logIn: "ドを ドをドを",
+        singUp: "とあ事片そ",
+        help: "ドを"
+      },
+      actionButtonLabel: {
+        takeBack: "とあ事片",
+        draw: "とあ片そ",
+        resign: "とあ事",
+        abort: "とあ片そ"
       }
     }
   });

@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
-import LeftSidebar from "./LeftSidebar/Leftsidebar";
-import RightSidebar from "./RightSidebar/Rightsidebar";
+import LeftSidebar from "./LeftSidebar/LeftSidebar";
+import RightSidebar from "./RightSidebar/RightSidebar";
 import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
@@ -11,6 +11,7 @@ import MiddleBoard from "./MiddleSection/MiddleBoard";
 import RealTime from "../../../lib/client/RealTime";
 import CssManager from "../pages/components/Css/CssManager";
 const css = new CssManager("developmentcss");
+
 export default class MainPage extends TrackerReact(Component) {
   constructor(props) {
     super(props);
@@ -90,11 +91,11 @@ export default class MainPage extends TrackerReact(Component) {
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
                 <div className="float-right menu-close-icon">
-                  <button onClick={this.toggleMenu}  className="button-left">
+                  <button onClick={this.toggleMenu} className="button-left">
                     <span className="fa fa-fw fa-bars " />
                   </button>
                 </div>
-                <LeftSidebar />
+                <LeftSidebar CssManager={css} />
               </div>
             </aside>
           </div>
@@ -105,7 +106,7 @@ export default class MainPage extends TrackerReact(Component) {
           <br />
           <br />
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
-            <RightSidebar CssManager={css}  />
+            <RightSidebar />
           </div>
         </div>
       </div>

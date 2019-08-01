@@ -1,6 +1,8 @@
 import React, { Component } from "react";
-import RightBarTop from "./RightbarTop";
-import RightBarBottom from "./RightbarBottom";
+import RightBarTop from "./RightBarTop";
+import RightBarBottom from "./RightBarBottom";
+import CssManager from "../components/Css/CssManager";
+const css = new CssManager("developmentcss");
 class RightSidebar extends Component {
   constructor(props) {
     super(props);
@@ -12,17 +14,17 @@ class RightSidebar extends Component {
   render() {
     return (
       <div className="right-content-desktop">
-        <div style={this.props.CssManager.settingIcon()}>
+        <div style={css.settingIcon()}>
           <button onClick={this.handleFullScreenMode}>
             <img src="images/full-screen-icon.png" alt="" />
           </button>
         </div>
 
-        <div style={this.props.CssManager.rightTopContent()}>
-          <RightBarTop CssManager={this.props.CssManager} />
+        <div style={css.rightTopContent()}>
+          <RightBarTop CssManager={css} />
         </div>
-        <div style={this.props.CssManager.rightBottomContent()}>
-          <RightBarBottom CssManager={this.props.CssManager} />
+        <div style={css.rightBottomContent()}>
+          <RightBarBottom CssManager={css} />
         </div>
       </div>
     );

@@ -23,7 +23,7 @@ export default class RightBarTop extends Component {
     );
 
     return (
-      <Tabs>
+      <Tabs CssManager={this.props.CssManager}>
         {/* 
 		    GameHistory is the dynamic component and loads as Player
 		  	starts the game.

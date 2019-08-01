@@ -6,28 +6,45 @@ import Friends from "./FriendsComponent";
 import History from "./HistoryComponent";
 import "./Tabs/BottomStyles";
 class RightBarBottom extends Component {
-  render() {
+  getLang() {
     return (
-      <Tabs>
-        <div label="Chat" imgsrc="images/chat-icon-blue.png" className="chat">
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
+  render() {
+    let translator = i18n.createTranslator(
+      "Common.rightBarBottom",
+      this.getLang()
+    );
+    return (
+      <Tabs CssManager={this.props.CssManager}>
+        <div
+          label={translator("chat")}
+          imgsrc="images/chat-icon-blue.png"
+          className="chat"
+        >
           <Chat CssManager={this.props.CssManager} />
         </div>
         <div
-          label="Events"
+          label={translator("events")}
           imgsrc="images/event-icon-blue.png"
           className="play"
         >
           <Events />
         </div>
         <div
-          label="Friends"
+          label={translator("friends")}
           imgsrc="images/friend-icon-white.png"
           className="tournament"
         >
           <Friends />
         </div>
         <div
-          label="History"
+          label={translator("history")}
           imgsrc="images/history-icon-white.png"
           className="tournament"
         >

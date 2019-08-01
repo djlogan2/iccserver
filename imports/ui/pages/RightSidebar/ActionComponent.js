@@ -1,7 +1,21 @@
 import React, { Component } from "react";
-
+import i18n from "meteor/universe:i18n";
 class ActionComponent extends Component {
+  getLang() {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
   render() {
+    let translator = i18n.createTranslator(
+      "Common.actionButtonLabel",
+      this.getLang()
+    );
+
     return (
       <div className="draw-section">
         <ul>
@@ -16,7 +30,7 @@ class ActionComponent extends Component {
               style={this.props.CssManager.actionButtonImage("takeback")}
             >
               <img src="images/fast-forward-prev.png" alt="fast-forward" />
-              TakeBack
+              {translator("takeBack")}
             </button>
           </li>
           {/* 
@@ -29,7 +43,7 @@ class ActionComponent extends Component {
               style={this.props.CssManager.actionButtonImage("draw")}
             >
               <img src="images/draw-icon.png" alt="draw" />
-              Draw
+              {translator("draw")}
             </button>
           </li>
           {/*
@@ -43,7 +57,7 @@ class ActionComponent extends Component {
               style={this.props.CssManager.actionButtonImage("resign")}
             >
               <img src="images/resign-icon.png" alt="resign" />
-              Resign
+              {translator("resign")}
             </button>
           </li>
           {/* 
@@ -55,7 +69,7 @@ class ActionComponent extends Component {
               style={this.props.CssManager.actionButtonImage("abort")}
             >
               <img src="images/abort-icon.png" alt="abort" />
-              Abort
+              {translator("abort")}
             </button>
           </li>
         </ul>

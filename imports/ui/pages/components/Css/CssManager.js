@@ -138,6 +138,27 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.gameTopHeader.all);
     return style;
   }
+  //LeftSideBarComponent MenuLink li
+  showLg() {
+    var style = {};
+    Object.assign(style, this._systemStyle.showLg.all);
+    return style;
+  }
+  tab() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tab.all);
+    return style;
+  }
+  tabList() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tabList.all);
+    return style;
+  }
+  tabContent() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tabContent.all);
+    return style;
+  }
 
   //
   // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
@@ -298,6 +319,25 @@ const developmentcss = [
       all: {
         marginLeft: "5px"
       }
+    },
+    showLg: {
+      all: {
+        display: "block"
+      }
+    },
+    tab: {
+      all: {}
+    },
+    tabList: {
+      all: {
+        display: "inline-block",
+        listStyle: "none",
+        marginBottom: "-1px",
+        padding: "1.5rem 1.75rem"
+      }
+    },
+    tabContent: {
+      all: {}
     }
   },
   {

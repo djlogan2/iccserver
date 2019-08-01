@@ -148,15 +148,18 @@
 	.show-sm {
 		display: block;
 	}
+	/*
 	.show-lg {
 		display: none;
 	}
+	*/
 }
 @media (min-width: 1200px) {
 	.show-sm {
 		display: none;
 	}
+	/*
 	.show-lg {
 		display: block;
-	}
+	}*/
 }

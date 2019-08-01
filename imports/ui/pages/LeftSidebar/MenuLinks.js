@@ -1,20 +1,34 @@
 import React, { Component } from "react";
+import i18n from "meteor/universe:i18n";
 
 class MenuLinks extends Component {
+  getLang() {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
   render() {
+    let translator = i18n.createTranslator(
+      "Common.menuLinkLabel",
+      this.getLang()
+    );
     let linksMarkup = this.props.links.map((link, index) => {
       let linkMarkup = link.active ? (
         <a href={link.link} className="active">
-          <img src={link.src} alt="" /> <span>{link.label}</span>
+          <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
         </a>
       ) : (
         <a href={link.link}>
-          <img src={link.src} alt="" /> <span>{link.label}</span>
+          <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
         </a>
       );
 
       return (
-        <li key={index} className="show-lg">
+        <li key={index} style={this.props.CssManager.showLg()}>
           {linkMarkup}
         </li>
       );
