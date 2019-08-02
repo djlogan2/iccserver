@@ -11,86 +11,7 @@ import MiddleBoard from "./MiddleSection/MiddleBoard";
 import RealTime from "../../../lib/client/RealTime";
 import CssManager from "../pages/components/Css/CssManager";
 const css = new CssManager("developmentcss");
-/*
-let component_props = [
-      {
-        name: "LeftSidebar",
-        props: { rating: 12, test: 123 }
-      },
-      {
-        name: "MiddleBoard",
-        props: [
-          {
-            name: "Clock",
-            props: { clockTIme: 1500, timerSecond: 1500 }
-          },
-          {
-            name: "Player",
-            props: { pro2: 123 }
-          }
-        ]
-      },
-      {
-        name: "RightSidebar",
-        props: { pro1: 234, prop2: 23 }
-      }
-    ];
-    let _leftSidebar = this.search("LeftSidebar", component_props);
-    let _middleBoard = this.search("MiddleBoard", component_props);
-    let _rightSidebar = this.search("RightSidebar", component_props);
 
-    
-  search(typeKey, myArray) {
-    for (var i = 0; i < myArray.length; i++) {
-      if (myArray[i].type === typeKey) {
-        return myArray[i];
-      }
-    }
-  };
-*/
-let links = [
-  {
-    label: "play",
-    link: "#home",
-    src: "../../../images/play-icon-white.png",
-    active: true
-  },
-  {
-    label: "learn",
-    link: "#learn",
-    src: "../../../images/learning-icon-white.png"
-  },
-  {
-    label: "connect",
-    link: "#connect",
-    src: "../../../images/connect-icon-white.png"
-  },
-  {
-    label: "examine",
-    link: "#examine",
-    src: "../../../images/examine-icon-white.png"
-  },
-  {
-    label: "topPlayers",
-    link: "#top-players",
-    src: "../../../images/top-player-icon-white.png"
-  },
-  {
-    label: "logIn",
-    link: "#log-in",
-    src: "../../../images/login-icon-white.png"
-  },
-  {
-    label: "singUp",
-    link: "#sign-up",
-    src: "../../../images/signup-icon-white.png"
-  },
-  {
-    label: "help",
-    link: "#help",
-    src: "../../../images/help-icon-white.png"
-  }
-];
 export default class MainPage extends TrackerReact(Component) {
   constructor(props) {
     super(props);
@@ -102,8 +23,6 @@ export default class MainPage extends TrackerReact(Component) {
       }
     };
     this.toggleMenu = this.toggleMenu.bind(this);
-
-    // eslint-disable-next-line no-unused-vars
     this.Main = {
       LeftSection: {
         MenuLinks: links
@@ -123,7 +42,12 @@ export default class MainPage extends TrackerReact(Component) {
           Timer: 1500
         }
       },
-      RightSection: {}
+      RightSection: {
+        MoveList: {
+          GameMove:
+            "1. e4 d5 2. exd5 b5 3. c3 c6 4. dxc6 b4 5. ce2 a6 6. d4 a77. c3 b7 8. cxb7 xb7 9. f4 xd4 10. xd4 e5 11. xe512...bxa3 13.Qxa3 Qb814. Rfd1 Ra7 15. b3 Rb716. Rab1 Nd4 17. Nxd4"
+        }
+      }
     };
   }
 
@@ -180,3 +104,47 @@ export default class MainPage extends TrackerReact(Component) {
 MainPage.propTypes = {
   username: PropTypes.string
 };
+
+let links = [
+  {
+    label: "play",
+    link: "#home",
+    src: "../../../images/play-icon-white.png",
+    active: true
+  },
+  {
+    label: "learn",
+    link: "#learn",
+    src: "../../../images/learning-icon-white.png"
+  },
+  {
+    label: "connect",
+    link: "#connect",
+    src: "../../../images/connect-icon-white.png"
+  },
+  {
+    label: "examine",
+    link: "#examine",
+    src: "../../../images/examine-icon-white.png"
+  },
+  {
+    label: "topPlayers",
+    link: "#top-players",
+    src: "../../../images/top-player-icon-white.png"
+  },
+  {
+    label: "logIn",
+    link: "#log-in",
+    src: "../../../images/login-icon-white.png"
+  },
+  {
+    label: "singUp",
+    link: "#sign-up",
+    src: "../../../images/signup-icon-white.png"
+  },
+  {
+    label: "help",
+    link: "#help",
+    src: "../../../images/help-icon-white.png"
+  }
+];

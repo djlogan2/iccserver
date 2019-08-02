@@ -30,7 +30,10 @@ export default class RightBarTop extends Component {
 		  	also these component with 
 	    	*/}
         <div label={translator("game")} imgsrc="images/game-icon-gray.png">
-          <GameHistory CssManager={this.props.CssManager} />
+          <GameHistory
+            CssManager={this.props.CssManager}
+            MoveHistory={this.props.RightBarTop.MoveList.GameMove}
+          />
         </div>
 
         <div

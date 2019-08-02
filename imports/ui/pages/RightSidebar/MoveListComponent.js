@@ -4,13 +4,7 @@ export default class MoveListComponent extends Component {
     return (
       <div>
         <div style={this.props.CssManager.gameMoveList()}>
-          <span>1.</span> e4 d5 <span>2.</span> exd5 b5 <span>3.</span> c3 c6{" "}
-          <span>4.</span> dxc6 b4 <span>5.</span> ce2 a6 <span>6.</span> d4 a7
-          <span>7.</span> c3 b7 <span>8.</span> cxb7 xb7 <span>9.</span> f4 xd4{" "}
-          <span>10.</span> xd4 e5 <span>11.</span> xe5
-          <span>12</span>...bxa3 <span>13.</span>Qxa3 Qb8
-          <span>14.</span> Rfd1 Ra7 <span>15.</span> b3 Rb7
-          <span>16.</span> Rab1 Nd4 <span>17.</span> Nxd4
+          {this.props.Move}
         </div>
 
         <div style={this.props.CssManager.gameButtonMove()}>
