@@ -5,9 +5,6 @@ import Clock from "./ClockComponent";
 import Board from "../components/Board/Board";
 import "../css/developmentboard.css";
 import Chess from "chess.js";
-import CssManager from "../components/Css/CssManager";
-
-const css = new CssManager("developmentcss");
 
 export default class MiddleBoard extends Component {
   constructor(props) {
@@ -108,7 +105,6 @@ export default class MiddleBoard extends Component {
 
     const newColor = this.state.top === "w" ? "Black" : "White";
     const raf = this.nextRAF()[1];
-
     return (
       <div>
         <div className="board-player-top">
@@ -120,20 +116,24 @@ export default class MiddleBoard extends Component {
           />
           <div className="board-player-userTagline">
             <Players
-              CssManager={css}
+              CssManager={this.props.CssManager}
               playerInfo={"John smith"}
               rating={"1550"}
+              flag={this.props.MiddleProp.TopPlayer.Flag}
             />
             <div className="clock-top">
               {/* Here is time comes from live server response and bind in props component   */}
-              <Clock CssManager={css} time={1500} />
+              <Clock
+                CssManager={this.props.CssManager}
+                time={this.props.MiddleProp.Clock.Timer}
+              />
             </div>
           </div>
         </div>
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
-              CssManager={css}
+              CssManager={this.props.CssManager}
               board={chess.board()}
               draw_rank_and_file={this.state.draw_rank_and_file}
               side={size}
@@ -178,10 +178,18 @@ export default class MiddleBoard extends Component {
             title=""
           />
           <div className="board-player-userTagline">
-            <Players CssManager={css} playerInfo={"Morris"} rating={"750"} />
+            <Players
+              CssManager={this.props.CssManager}
+              playerInfo={"Morris"}
+              rating={"750"}
+              flag={this.props.MiddleProp.BottomPlayer.Flag}
+            />
             <div className="clock-bottom active">
               {/* Here is time comes from live server response and bind in props component   */}
-              <Clock CssManager={css} time={25000} />
+              <Clock
+                CssManager={this.props.CssManager}
+                time={this.props.MiddleProp.Clock.Timer}
+              />
             </div>
           </div>
         </div>

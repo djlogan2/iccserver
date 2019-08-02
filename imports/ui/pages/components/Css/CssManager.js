@@ -159,7 +159,19 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.tabContent.all);
     return style;
   }
-
+  /*
+  tabListItem() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tabListItem.all);
+    return style;
+  }
+ 
+  tabListActive() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tabListActive.all);
+    return style;
+  }
+  */
   //
   // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
   //
@@ -326,7 +338,9 @@ const developmentcss = [
       }
     },
     tab: {
-      all: {}
+      all: {
+        height: "100%"
+      }
     },
     tabList: {
       all: {
@@ -337,8 +351,32 @@ const developmentcss = [
       }
     },
     tabContent: {
-      all: {}
+      all: {
+        padding: "0px"
+      }
     }
+    /*
+    tabListItem: {
+      all: {
+        color: "#fff",
+        border: "solid #ccc",
+        borderWidth: "0px 0px 0px 0px",
+        fontSize: "16px",
+        width: "25%",
+        textAlign: "center"
+      }
+    }
+    ,
+    tabListActive: {
+      all: {
+        backgroundColor: "#efefef",
+        border: "solid #ccc",
+        borderWidth: "0px 0px 0 0px",
+        borderTopLeftRadius: "10px",
+        borderTopRightRadius: "10px",
+        color: "#000"
+      }
+    }*/
   },
   {
     name: "developmentcss",

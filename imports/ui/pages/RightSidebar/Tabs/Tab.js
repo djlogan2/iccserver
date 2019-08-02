@@ -19,6 +19,13 @@ class Tab extends Component {
       onClick,
       props: { activeTab, label, src }
     } = this;
+/*
+    let style = this.props.CssManager.tabListItem();
+  
+   if (activeTab === label) {
+      style = this.props.CssManager.tabListActive();
+    }
+    */
     let className = "tab-list-item";
     if (activeTab === label) {
       className += " tab-list-active";

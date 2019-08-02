@@ -1,8 +1,9 @@
+/*
 .tab-list {
     border-bottom: 1px solid #ccc;
     padding-left: 0;
   }
-  
+  */
   .tab-list-item {
     display: inline-block;
     list-style: none;
@@ -20,9 +21,11 @@
     background: #efefef;
     padding: 10px 15px;
 }
+/*
 .tab-list{
     margin-bottom: 0px;
 }
+*/
 .game-buttons-move {
     background: #f1f1f1;
     display: flex;
@@ -150,19 +153,24 @@ i.fa.fa-sort-down {
 .right-bottom-content {
     height: 45vh;
 }
+/*
 .right-bottom-content .tab-content {
     padding: 0px;
 }
+*/
 .right-bottom-content > div {
     height: 100%;
 }
+/*
 .right-bottom-content .tabs{
     height: 100%;
 }
+*/
 .right-bottom-content .tab-list {
     background: #1565c0;
     padding-top: 15px;
 }
+
 .right-bottom-content .tab-list-item{
     color: #fff;
     border: solid #ccc;
@@ -180,12 +188,14 @@ i.fa.fa-sort-down {
     border-top-right-radius: 10px;
     color: #000;
 }
+/*
 .right-bottom-content .chat-content {
     padding: 20px 15px 50px 15px;
     max-height: 155px;
     overflow-y: scroll;
     min-height: 100%;
 }
+*/
 span.sign {
     margin-top: 2px;
     display: inline-block;
@@ -195,6 +205,7 @@ span.sign {
     font-weight: 700;
     font-size: 12px;
 }
+/*
 .right-bottom-content .chat-input-box {
     position: absolute;
     padding: 0 0px;
@@ -224,3 +235,4 @@ span.sign {
     outline: none;
     cursor: pointer;
 }
+*/

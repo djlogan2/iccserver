@@ -31,6 +31,7 @@ class Tabs extends Component {
 
             return (
               <Tab
+                CssManager={this.props.CssManager}
                 activeTab={activeTab}
                 key={label}
                 label={label}
@@ -40,7 +41,7 @@ class Tabs extends Component {
             );
           })}
         </ol>
-        <div className="tab-content" style={this.props.CssManager.tabContent()}>
+        <div style={this.props.CssManager.tabContent()}>
           {children.map(child => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;
