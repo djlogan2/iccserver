@@ -4,7 +4,7 @@ export default class MoveListComponent extends Component {
     return (
       <div>
         <div style={this.props.CssManager.gameMoveList()}>
-          {this.props.Move}
+          {this.props.Moves}
         </div>
 
         <div style={this.props.CssManager.gameButtonMove()}>
