@@ -78,7 +78,7 @@ export default class MainPage extends TrackerReact(Component) {
                 </div>
                 <LeftSidebar
                   CssManager={css}
-                  LeftProp={this.Main.LeftSection}
+                  LefSideBoarData={this.Main.LeftSection}
                 />
               </div>
             </aside>
@@ -86,14 +86,17 @@ export default class MainPage extends TrackerReact(Component) {
           <div className="col-sm-5 col-md-8 col-lg-5 ">
             <MiddleBoard
               CssManager={css}
-              MiddleProp={this.Main.MiddleSection}
+              MiddleBoardData={this.Main.MiddleSection}
             />
           </div>
           <br />
           <br />
           <br />
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
-            <RightSidebar CssManager={css} RightProp={this.Main.RightSection} />
+            <RightSidebar
+              CssManager={css}
+              RightSidebarData={this.Main.RightSection}
+            />
           </div>
         </div>
       </div>

@@ -21,7 +21,10 @@ class RightSidebar extends Component {
         </div>
 
         <div style={css.rightTopContent()}>
-          <RightBarTop CssManager={css} RightBarTop={this.props.RightProp} />
+          <RightBarTop
+            CssManager={css}
+            RightBarTopData={this.props.RightSidebarData}
+          />
         </div>
         <div style={css.rightBottomContent()}>
           <RightBarBottom CssManager={css} />

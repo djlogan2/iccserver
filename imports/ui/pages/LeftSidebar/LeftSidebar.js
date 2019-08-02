@@ -5,7 +5,7 @@ class LeftSidebar extends Component {
   render() {
     return (
       <MenuLinks
-        links={this.props.LeftProp.MenuLinks}
+        links={this.props.LefSideBoarData.MenuLinks}
         CssManager={this.props.CssManager}
       />
     );

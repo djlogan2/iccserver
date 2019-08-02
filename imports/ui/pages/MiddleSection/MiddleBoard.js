@@ -119,13 +119,13 @@ export default class MiddleBoard extends Component {
               CssManager={this.props.CssManager}
               playerInfo={"John smith"}
               rating={"1550"}
-              flag={this.props.MiddleProp.TopPlayer.Flag}
+              flag={this.props.MiddleBoardData.TopPlayer.Flag}
             />
             <div className="clock-top">
               {/* Here is time comes from live server response and bind in props component   */}
               <Clock
                 CssManager={this.props.CssManager}
-                time={this.props.MiddleProp.Clock.Timer}
+                time={this.props.MiddleBoardData.Clock.Timer}
               />
             </div>
           </div>
@@ -182,13 +182,13 @@ export default class MiddleBoard extends Component {
               CssManager={this.props.CssManager}
               playerInfo={"Morris"}
               rating={"750"}
-              flag={this.props.MiddleProp.BottomPlayer.Flag}
+              flag={this.props.MiddleBoardData.BottomPlayer.Flag}
             />
             <div className="clock-bottom active">
               {/* Here is time comes from live server response and bind in props component   */}
               <Clock
                 CssManager={this.props.CssManager}
-                time={this.props.MiddleProp.Clock.Timer}
+                time={this.props.MiddleBoardData.Clock.Timer}
               />
             </div>
           </div>
