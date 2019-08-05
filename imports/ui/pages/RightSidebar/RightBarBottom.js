@@ -22,31 +22,21 @@ class RightBarBottom extends Component {
     );
     return (
       <Tabs CssManager={this.props.CssManager}>
-        <div
-          label={translator("chat")}
-          imgsrc="images/chat-icon-blue.png"
-          className="chat"
-        >
+        <div label={translator("chat")} imgsrc="images/chat-icon-blue.png">
           <Chat CssManager={this.props.CssManager} />
         </div>
-        <div
-          label={translator("events")}
-          imgsrc="images/event-icon-blue.png"
-          className="play"
-        >
+        <div label={translator("events")} imgsrc="images/event-icon-blue.png">
           <Events />
         </div>
         <div
           label={translator("friends")}
           imgsrc="images/friend-icon-white.png"
-          className="tournament"
         >
           <Friends />
         </div>
         <div
           label={translator("history")}
           imgsrc="images/history-icon-white.png"
-          className="tournament"
         >
           <History />
         </div>

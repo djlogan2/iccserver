@@ -36,12 +36,8 @@ export default class RightBarTop extends Component {
           />
         </div>
 
-        <div
-          label={translator("play")}
-          imgsrc="images/play-icon-gray.png"
-          className="play"
-        >
-          <CreateGame />
+        <div label={translator("play")} imgsrc="images/play-icon-gray.png">
+          <CreateGame CssManager={this.props.CssManager} />
         </div>
 
         {/*  Tournament list
@@ -50,9 +46,13 @@ export default class RightBarTop extends Component {
         <div
           label={translator("tournaments")}
           imgsrc="images/tournament-icon-gray.png"
-          className="tournament"
         >
-          <TournamentsList />
+          <TournamentsList
+            CssManager={this.props.CssManager}
+            TournamentsList={
+              this.props.RightBarTopData.TournamentList.Tournaments
+            }
+          />
         </div>
       </Tabs>
     );

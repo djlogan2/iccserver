@@ -43,6 +43,9 @@ export default class MainPage extends TrackerReact(Component) {
         }
       },
       RightSection: {
+        TournamentList: {
+          Tournaments: Tournament
+        },
         MoveList: {
           GameMove:
             "1. e4 d5 2. exd5 b5 3. c3 c6 4. dxc6 b4 5. ce2 a6 6. d4 a77. c3 b7 8. cxb7 xb7 9. f4 xd4 10. xd4 e5 11. xe512...bxa3 13.Qxa3 Qb814. Rfd1 Ra7 15. b3 Rb716. Rab1 Nd4 17. Nxd4"
@@ -89,9 +92,6 @@ export default class MainPage extends TrackerReact(Component) {
               MiddleBoardData={this.Main.MiddleSection}
             />
           </div>
-          <br />
-          <br />
-          <br />
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             <RightSidebar
               CssManager={css}
@@ -150,4 +150,56 @@ let links = [
     link: "#help",
     src: "../../../images/help-icon-white.png"
   }
+];
+let Tournament = [
+  {
+    name: "3|2 Blitz Arena",
+    status: "Round 1 of 5",
+    count: "15",
+    src: "images/blitz-icon.png"
+  },
+  {
+    name: "1|0 Bullet Arena",
+    status: "in 4 min",
+    count: "40 ",
+    src: "images/rapid-icon.png"
+  },
+  {
+    name: "15|10 Rapid Swiss ",
+    status: "Round 1 of 5",
+    count: "54",
+    src: "images/bullet-icon.png"
+  },
+  {
+    name: "1|0 Bullet Arena",
+    status: "Round 1 of 5",
+    count: "35",
+    src: "images/blitz-icon.png"
+  },
+  {
+    name: "3|2 Blitz Arena",
+    status: "Round 1 of 7",
+    count: "49",
+    src: "images/rapid-icon.png"
+  }
+  /*,
+  {
+    name: "1|0 Bullet Arena",
+    status: "in 8 min",
+    count: "55",
+    src: "images/bullet-icon.png"
+  },
+  {
+    name: "15|10 Rapid Swiss",
+    status: "Round 1 of 3",
+    count: "25",
+    src: "images/blitz-icon.png"
+  },
+  {
+    name: "15|10 Rapid Swiss ",
+    status: "Round 1 of 5",
+    count: "15",
+    src: "images/rapid-icon.png"
+  }
+  */
 ];

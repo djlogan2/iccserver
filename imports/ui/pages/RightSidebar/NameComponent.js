@@ -15,7 +15,7 @@ export default class NameComponent extends Component {
       <div style={this.props.CssManager.gameTopHeader()}>
         <img src="images/circle-compass-icon.png" alt="" />
         <span>1/2 - 1/2 US-ch Open 2019</span>
-        <div className="pull-right">
+        <div style={this.props.CssManager.pullRight()}>
           {/* 
 					 Game Share Component
 					 Player can share the game to invite new players. 

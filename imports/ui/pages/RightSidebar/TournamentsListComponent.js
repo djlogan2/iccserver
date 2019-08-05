@@ -11,58 +11,12 @@ export default class TournamentsListComponent extends Component {
      */
 
   render() {
-    let lists = [
-      {
-        name: "3|2 Blitz Arena",
-        status: "Round 1 of 5",
-        count: "15",
-        src: "images/blitz-icon.png"
-      },
-      {
-        name: "1|0 Bullet Arena",
-        status: "in 4 min",
-        count: "40 ",
-        src: "images/rapid-icon.png"
-      },
-      {
-        name: "15|10 Rapid Swiss ",
-        status: "Round 1 of 5",
-        count: "54",
-        src: "images/bullet-icon.png"
-      },
-      {
-        name: "1|0 Bullet Arena",
-        status: "Round 1 of 5",
-        count: "35",
-        src: "images/blitz-icon.png"
-      },
-      {
-        name: "3|2 Blitz Arena",
-        status: "Round 1 of 7",
-        count: "49",
-        src: "images/rapid-icon.png"
-      },
-      {
-        name: "1|0 Bullet Arena",
-        status: "in 8 min",
-        count: "55",
-        src: "images/bullet-icon.png"
-      },
-      {
-        name: "15|10 Rapid Swiss",
-        status: "Round 1 of 3",
-        count: "25",
-        src: "images/blitz-icon.png"
-      },
-      {
-        name: "15|10 Rapid Swiss ",
-        status: "Round 1 of 5",
-        count: "15",
-        src: "images/rapid-icon.png"
-      }
-    ];
-
-    return <Tournaments lists={lists} />;
+    return (
+      <Tournaments
+        lists={this.props.TournamentsList}
+        CssManager={this.props.CssManager}
+      />
+    );
   }
 }
 
@@ -70,20 +24,21 @@ class Tournaments extends Component {
   render() {
     let listItem = this.props.lists.map((list, index) => {
       return (
-        <div className="challenge-content" key={index}>
-          <a herf="#" className="competitions-list-item-component">
-            <i className="blitzicon">
+        <div key={index} style={this.props.CssManager.challengeContent()}>
+          <a herf="#/" style={this.props.CssManager.competitionsListItem()}>
+            <i style={this.props.CssManager.blitzIcon()}>
               <img src={list.src} alt="" />
             </i>
-            <span className="competitions-list-item-name">{list.name}</span>
-            <span className="competitions-list-item-status">{list.status}</span>
-            <span className="competitions-list-item-count">{list.count} </span>
-            <i className="fa fa-user" aria-hidden="true" />
+            <span>{list.name}</span>
+            <span>{list.status}</span>
+            <span>{list.count} </span>
           </a>
         </div>
       );
     });
 
-    return <div className="tournament-content">{listItem}</div>;
+    return (
+      <div style={this.props.CssManager.tournamentContent()}>{listItem}</div>
+    );
   }
 }

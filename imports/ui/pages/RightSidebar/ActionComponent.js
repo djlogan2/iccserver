@@ -17,14 +17,14 @@ class ActionComponent extends Component {
     );
 
     return (
-      <div className="draw-section">
+      <div style={this.props.CssManager.drawSection()}>
         <ul>
           {/* 
 		Take back request Component
 		Player can request to take back the last move to the
 		opponent Player. 
 		*/}
-          <li>
+          <li style={this.props.CssManager.drawSectionList()}>
             <button
               title="TakeBack"
               style={this.props.CssManager.actionButtonImage("takeback")}
@@ -37,7 +37,7 @@ class ActionComponent extends Component {
 		Draw request Component
 		Player can draw arrow and circle on the board.
 		*/}
-          <li>
+          <li style={this.props.CssManager.drawSectionList()}>
             <button
               title="Draw"
               style={this.props.CssManager.actionButtonImage("draw")}
@@ -51,7 +51,7 @@ class ActionComponent extends Component {
 							Players can resign the game.
 							*/}
 
-          <li>
+          <li style={this.props.CssManager.drawSectionList()}>
             <button
               title="Resign"
               style={this.props.CssManager.actionButtonImage("resign")}
@@ -63,7 +63,7 @@ class ActionComponent extends Component {
           {/* 
 						Game abort Component
 						Players can abort the game. */}
-          <li>
+          <li style={this.props.CssManager.drawSectionList()}>
             <button
               title="Abort"
               style={this.props.CssManager.actionButtonImage("abort")}

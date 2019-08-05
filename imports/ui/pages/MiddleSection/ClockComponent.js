@@ -4,7 +4,7 @@ const TOTAL_MINUTES = 60;
 export default class ClockComponent extends Component {
   constructor(props) {
     super(props);
-     this.state = {
+    this.state = {
       time: props.time
     };
   }

@@ -85,6 +85,7 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.rightBottomContent.all);
     return style;
   }
+
   actionButtonImage(imageName) {
     var style = {};
     /*	if (this._rightBarStyle.actionButtonImage.all)
@@ -144,6 +145,21 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.showLg.all);
     return style;
   }
+  pullRight() {
+    var style = {};
+    Object.assign(style, this._systemStyle.pullRight.all);
+    return style;
+  }
+  drawSection() {
+    var style = {};
+    Object.assign(style, this._systemStyle.drawSection.all);
+    return style;
+  }
+  drawSectionList() {
+    var style = {};
+    Object.assign(style, this._systemStyle.drawSectionList.all);
+    return style;
+  }
   tab() {
     var style = {};
     Object.assign(style, this._systemStyle.tab.all);
@@ -172,6 +188,27 @@ export default class CssManager {
     return style;
   }
   */
+  blitzIcon() {
+    var style = {};
+    Object.assign(style, this._systemStyle.blitzIcon.all);
+    return style;
+  }
+  challengeContent() {
+    var style = {};
+    Object.assign(style, this._systemStyle.challengeContent.all);
+    return style;
+  }
+  competitionsListItem() {
+    var style = {};
+    Object.assign(style, this._systemStyle.competitionsListItem.all);
+    return style;
+  }
+  tournamentContent() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tournamentContent.all);
+    return style;
+  }
+
   //
   // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
   //
@@ -321,7 +358,7 @@ const developmentcss = [
         flexWrap: "nowrap",
         textAlign: "center",
         padding: "8px 0",
-        position: "absolute",
+        // position: "absolute",
         width: "100%",
         bottom: "350px",
         zIndex: "999"
@@ -350,9 +387,67 @@ const developmentcss = [
         padding: "1.5rem 1.75rem"
       }
     },
+
+    blitzIcon: {
+      all: {
+        width: "30px"
+      }
+    },
     tabContent: {
       all: {
         padding: "0px"
+      }
+    },
+    challengeContent: {
+      all: {
+        borderRadius: " 0 0 3px 3px",
+        background: "#fff",
+        marginTop: "0px",
+        padding: "0 15px"
+      }
+    },
+    competitionsListItem: {
+      all: {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "40px",
+        maxHeight: "40px",
+        cursor: "pointer",
+        borderBottom: "1px solid #e8e7e6",
+        color: "#a7a6a2!important"
+      }
+    },
+    tournamentContent: {
+      all: {
+        maxHeight: "290px",
+        overflowY: "auto"
+      }
+    },
+    pullRight: {
+      all: {
+        position: "relative",
+        zIndex: "99999",
+        display: "inline-block",
+        width: "auto",
+        height: "40px",
+        alignItems: "center",
+        marginTop: "5px"
+      }
+    },
+    drawSection: {
+      all: {
+        width: "auto",
+        textAlign: "left",
+        padding: "8px 0",
+        flex: "auto"
+      }
+    },
+    drawSectionList: {
+      all: {
+        display: "inline-block",
+        listStyle: "none",
+        marginRight: "5px"
       }
     }
     /*
