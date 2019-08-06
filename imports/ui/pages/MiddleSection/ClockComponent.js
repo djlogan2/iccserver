@@ -5,28 +5,29 @@ export default class ClockComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: props.time
+      time: props.ClockData.time,
+      isActive: props.ClockData.isActive
     };
   }
 
   componentDidMount() {
-    this.intervalId = setInterval(() => {
-      const { time } = this.state;
-      if (time > 0) {
-        this.setState({
-          time: time - 1
-        });
-      }
-    }, 1000);
+    const { isActive } = this.state;
+    if (isActive === true) {
+      this.intervalId = setInterval(() => {
+        const { time } = this.state;
+        if (time > 0) {
+          this.setState({
+            time: time - 1
+          });
+        }
+      }, 1000);
+    }
   }
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
-
   render() {
-    //	let propsTime = this.props.gameClockInfo;
-    //	let blackPlayerTime = this.gametimeUpdate(propsTime);
-    //const { enabled } = this.props;
+    let clockStyle = this.props.CssManager.clock();
     const { time } = this.state;
 
     let minutes =
@@ -43,10 +44,11 @@ export default class ClockComponent extends Component {
     if (seconds.length === 1) {
       seconds = `0${seconds}`;
     }
-
     return (
-      <div style={this.props.CssManager.clock()}>
-        {minutes}:{seconds}
+      <div className="clock-top">
+        <div style={clockStyle}>
+          {minutes}:{seconds}
+        </div>
       </div>
     );
   }

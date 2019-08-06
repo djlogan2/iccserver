@@ -18,6 +18,7 @@ export default class MainPage extends TrackerReact(Component) {
     this.state = {
       username: "",
       visible: false,
+      isActive: true,
       subscription: {
         tasks: Meteor.subscribe("userData")
       }
@@ -28,18 +29,21 @@ export default class MainPage extends TrackerReact(Component) {
         MenuLinks: links
       },
       MiddleSection: {
-        TopPlayer: {
+        BlackPlayer: {
           Rating: "2250",
           Name: "Mac",
-          Flag: "us"
+          Flag: "us",
+          Timer: 123,
+          UserPicture: "player-img-top.png",
+          IsActive: true
         },
-        BottomPlayer: {
+        WhitePlayer: {
           Rating: "1525",
           Name: "Max",
-          Flag: "us"
-        },
-        Clock: {
-          Timer: 1500
+          Flag: "us",
+          Timer: 15,
+          UserPicture: "player-img-bottom.png",
+          IsActive: false
         }
       },
       RightSection: {
