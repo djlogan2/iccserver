@@ -64,9 +64,10 @@ export default class CssManager {
     return style;
   }
 
-  clock() {
+  clock(time) {
     var style = {};
     Object.assign(style, this._boardStyle.clock.all);
+    if (time <= 10) Object.assign(style, this._boardStyle.clock.alert);
     return style;
   }
   //This css code for Right sidebar
@@ -87,11 +88,8 @@ export default class CssManager {
   }
 
   actionButtonImage(imageName) {
-    var style = {};
-    /*	if (this._rightBarStyle.actionButtonImage.all)
-      Object.assign(style, this._rightBarStyle.actionButtonImage.all);
-    */
-    Object.assign(style, this._systemStyle.actionButtonImage[imageName]);
+    var style = this._systemStyle.actionButtonImage[imageName];
+    // Object.assign(style, this._systemStyle.actionButtonImage[imageName]);
     return style;
   }
   gameAnalysisIcon() {
@@ -281,18 +279,10 @@ const developmentcss = [
       }
     },
     actionButtonImage: {
-      takeBack: {
-        backgroundImage: "../../../../../public/images/take-forward-icon.png"
-      },
-      draw: {
-        backgroundImage: "../../../../../public/images/draw-icon.png"
-      },
-      resign: {
-        backgroundImage: "../../../../../public/images/resign-icon.png"
-      },
-      abort: {
-        backgroundImage: "../../../../../public/images/abort-icon.png"
-      }
+      takeBack: "images/take-forward-icon.png",
+      draw: "images/draw-icon.png",
+      resign: "images/resign-icon.png",
+      abort: "images/abort-icon.png"
     },
     gameAnalysisIcon: {
       all: {
@@ -492,13 +482,13 @@ const developmentcss = [
     },
     flags: {
       all: {
-        backgroundImage: "../../../../../public/images/user-flag.png"
+        backgroundImage: "images/user-flag.png"
       },
       in: {
         backgroundImage: "india.png"
       },
       us: {
-        backgroundImage: "../../../../../public/images/user-flag.png"
+        backgroundImage: "images/user-flag.png"
       }
     },
     clock: {
@@ -515,6 +505,9 @@ const developmentcss = [
         top: "5px",
         background: "#333333",
         fontWeight: "700"
+      },
+      alert: {
+        color: "red"
       }
     },
     square: {

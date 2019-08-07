@@ -1,11 +1,18 @@
 import React, { Component } from "react";
 export default class MoveListComponent extends Component {
+  constructor(props) {
+    super(props);
+
+    this.Moves = [];
+  }
+  componentWillReceiveProps(nextProps) {
+    let move = nextProps.Moves;
+    this.Moves.push(move);
+  }
   render() {
     return (
       <div>
-        <div style={this.props.CssManager.gameMoveList()}>
-          {this.props.Moves}
-        </div>
+        <div style={this.props.CssManager.gameMoveList()}>{this.Moves}</div>
 
         <div style={this.props.CssManager.gameButtonMove()}>
           {/* 

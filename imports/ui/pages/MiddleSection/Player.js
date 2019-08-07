@@ -3,6 +3,7 @@ import Clock from "./ClockComponent";
 export default class Player extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       time: props.PlayerData.Timer,
       isActive: props.PlayerData.IsActive

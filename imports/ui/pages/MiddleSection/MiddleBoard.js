@@ -103,15 +103,24 @@ export default class MiddleBoard extends Component {
     const size = Math.min(h, w);
 
     const newColor = this.state.top === "w" ? "Black" : "White";
+
+    let topPlayer;
+    let bottomPlayer;
+    topPlayer =
+      this.state.top === "w"
+        ? this.props.MiddleBoardData.WhitePlayer
+        : this.props.MiddleBoardData.BlackPlayer;
+    bottomPlayer =
+      this.state.top === "w"
+        ? this.props.MiddleBoardData.BlackPlayer
+        : this.props.MiddleBoardData.WhitePlayer;
     const raf = this.nextRAF()[1];
 
     return (
       <div>
-        <Player
-          CssManager={this.props.CssManager}
-          PlayerData={this.props.MiddleBoardData.BlackPlayer}
-        />
-
+        <Player CssManager={this.props.CssManager} PlayerData={topPlayer} />
+        <Player CssManager={this.props.CssManager} PlayerData={bottomPlayer} />
+        <button onClick={this.switchSides}>{newColor} on top</button>
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
@@ -152,10 +161,6 @@ export default class MiddleBoard extends Component {
             </p>
           </div>
         </div>
-        <Player
-          CssManager={this.props.CssManager}
-          PlayerData={this.props.MiddleBoardData.WhitePlayer}
-        />
       </div>
     );
   }

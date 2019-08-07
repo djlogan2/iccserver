@@ -18,7 +18,9 @@ export default class MainPage extends TrackerReact(Component) {
     this.state = {
       username: "",
       visible: false,
-      isActive: true,
+      IsBlackActive: true,
+      IsWhiteActive: false,
+      move: null,
       subscription: {
         tasks: Meteor.subscribe("userData")
       }
@@ -33,17 +35,17 @@ export default class MainPage extends TrackerReact(Component) {
           Rating: "2250",
           Name: "Mac",
           Flag: "us",
-          Timer: 123,
+          Timer: 1000,
           UserPicture: "player-img-top.png",
-          IsActive: true
+          IsActive: false
         },
         WhitePlayer: {
           Rating: "1525",
           Name: "Max",
           Flag: "us",
-          Timer: 15,
+          Timer: 1100,
           UserPicture: "player-img-bottom.png",
-          IsActive: false
+          IsActive: true
         }
       },
       RightSection: {
@@ -51,11 +53,32 @@ export default class MainPage extends TrackerReact(Component) {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove:
-            "1. e4 d5 2. exd5 b5 3. c3 c6 4. dxc6 b4 5. ce2 a6 6. d4 a77. c3 b7 8. cxb7 xb7 9. f4 xd4 10. xd4 e5 11. xe512...bxa3 13.Qxa3 Qb814. Rfd1 Ra7 15. b3 Rb716. Rab1 Nd4 17. Nxd4"
+          GameMove: null
         }
       }
     };
+  }
+  componentDidMount() {
+    this.intervalId = setInterval(() => {
+      this.randomMoveObject();
+    }, 5000);
+  }
+  randomMoveObject() {
+    let moveList = [
+      "e4 d5",
+      "exd5 b5",
+      "c3 c6 ",
+      "dxc6 b4",
+      "ce2 a6",
+      "d4 a7",
+      "c3 b7",
+      "xb7 f4"
+    ];
+    let move = moveList[Math.floor(Math.random() * moveList.length)];
+
+    this.setState({
+      move: move
+    });
   }
 
   toggleMenu() {
@@ -63,6 +86,7 @@ export default class MainPage extends TrackerReact(Component) {
   }
 
   render() {
+    this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
     return (
       <div className="main">
         <div className="row">

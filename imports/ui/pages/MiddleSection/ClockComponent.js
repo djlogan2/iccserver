@@ -26,8 +26,8 @@ export default class ClockComponent extends Component {
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
+
   render() {
-    let clockStyle = this.props.CssManager.clock();
     const { time } = this.state;
 
     let minutes =
@@ -46,7 +46,7 @@ export default class ClockComponent extends Component {
     }
     return (
       <div className="clock-top">
-        <div style={clockStyle}>
+        <div style={this.props.CssManager.clock(time)}>
           {minutes}:{seconds}
         </div>
       </div>
