@@ -13,7 +13,12 @@ export default class NameComponent extends Component {
   render() {
     return (
       <div style={this.props.CssManager.gameTopHeader()}>
-        <img src="images/circle-compass-icon.png" alt="" />
+        <button style={this.props.CssManager.buttonStyle()}>
+          <img
+            src={this.props.CssManager.buttonBackgroundImage("circleCompass")}
+            alt="Circle Compass"
+          />
+        </button>
         <span>1/2 - 1/2 US-ch Open 2019</span>
         <div style={this.props.CssManager.pullRight()}>
           {/* 

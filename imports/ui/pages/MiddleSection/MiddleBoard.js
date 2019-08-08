@@ -119,8 +119,6 @@ export default class MiddleBoard extends Component {
     return (
       <div>
         <Player CssManager={this.props.CssManager} PlayerData={topPlayer} />
-        <Player CssManager={this.props.CssManager} PlayerData={bottomPlayer} />
-        <button onClick={this.switchSides}>{newColor} on top</button>
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
@@ -137,6 +135,7 @@ export default class MiddleBoard extends Component {
           <div
             style={{ id: "board-right", float: "left", width: w, height: h }}
           >
+            <button onClick={this.switchSides}>{newColor} on top</button>
             <button onClick={this.switchSides}>{newColor} on top</button>
             <button onClick={this.switchRAF}>{raf}</button>
             <p>Color on top: {this.state.top}</p>
@@ -161,6 +160,7 @@ export default class MiddleBoard extends Component {
             </p>
           </div>
         </div>
+        <Player CssManager={this.props.CssManager} PlayerData={bottomPlayer} />
       </div>
     );
   }

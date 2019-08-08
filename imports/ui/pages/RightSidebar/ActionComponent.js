@@ -15,9 +15,8 @@ class ActionComponent extends Component {
       "Common.actionButtonLabel",
       this.getLang()
     );
-
     return (
-      <div class="draw-section">
+      <div className="draw-section">
         <ul>
           {/* 
 		Take back request Component
@@ -25,59 +24,52 @@ class ActionComponent extends Component {
 		opponent Player. 
 		*/}
           <li style={this.props.CssManager.drawSectionList()}>
-            <a href="#/" title={translator("takeBack")}>
-              <span>
-                <img
-                  src={this.props.CssManager.actionButtonImage("takeBack")}
-                  alt="TakeBack"
-                />
-              </span>
+            <button style={this.props.CssManager.buttonStyle()}>
+              <img
+                src={this.props.CssManager.buttonBackgroundImage("takeBack")}
+                alt="TakeBack"
+              />
               {translator("takeBack")}
-            </a>
+            </button>
           </li>
           {/* 
 		Draw request Component
 		Player can draw arrow and circle on the board.
 		*/}
           <li style={this.props.CssManager.drawSectionList()}>
-            <a href="#/" title={translator("resign")}>
-              <span>
-                <img
-                  src={this.props.CssManager.actionButtonImage("draw")}
-                  alt="Draw"
-                />
-              </span>
+            <button style={this.props.CssManager.buttonStyle()}>
+              <img
+                src={this.props.CssManager.buttonBackgroundImage("draw")}
+                alt="Draw"
+              />
               {translator("draw")}
-            </a>
+            </button>
           </li>
           {/*
 							Resign Component
 							Players can resign the game.
 							*/}
           <li style={this.props.CssManager.drawSectionList()}>
-            <a href="#/" title={translator("resign")}>
-              <span>
-                <img
-                  src={this.props.CssManager.actionButtonImage("resign")}
-                  alt="Resign"
-                />
-              </span>
+            <button style={this.props.CssManager.buttonStyle()}>
+              <img
+                src={this.props.CssManager.buttonBackgroundImage("resign")}
+                alt="Resign"
+              />
               {translator("resign")}
-            </a>
+            </button>
           </li>
           {/* 
 						Game abort Component
             Players can abort the game. */}
           <li style={this.props.CssManager.drawSectionList()}>
-            <a href="#/" title={translator("abort")}>
-              <span>
-                <img
-                  src={this.props.CssManager.actionButtonImage("abort")}
-                  alt="Abort"
-                />
-              </span>
+            <button style={this.props.CssManager.buttonStyle()}>
+              <img
+                src={this.props.CssManager.buttonBackgroundImage("abort")}
+                alt="Abort"
+              />
+
               {translator("abort")}
-            </a>
+            </button>
           </li>
         </ul>
       </div>

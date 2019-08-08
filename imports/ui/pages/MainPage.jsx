@@ -53,14 +53,15 @@ export default class MainPage extends TrackerReact(Component) {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove: null
+          GameMove:
+            "ce2 a6, dxc6 b4, c3 c6 , e4 d5, c3 b7, ce2 a6, c3 c6 , d4 a7, e4 d5, c3 c6 , c3 b7, c3 b7, e4 d5, e4 d5, dxc6 b4, exd5 b5,"
         }
       }
     };
   }
   componentDidMount() {
     this.intervalId = setInterval(() => {
-      this.randomMoveObject();
+      // this.randomMoveObject();
     }, 5000);
   }
   randomMoveObject() {
@@ -86,7 +87,7 @@ export default class MainPage extends TrackerReact(Component) {
   }
 
   render() {
-    this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
+    // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
     return (
       <div className="main">
         <div className="row">
@@ -103,8 +104,11 @@ export default class MainPage extends TrackerReact(Component) {
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
                 <div className="float-right menu-close-icon">
-                  <button onClick={this.toggleMenu} className="button-left">
-                    <span className="fa fa-fw fa-bars " />
+                  <button onClick={this.toggleMenu} style={css.buttonStyle()}>
+                    <img
+                      src={css.buttonBackgroundImage("fullScreen")}
+                      alt="fast-forward"
+                    />
                   </button>
                 </div>
                 <LeftSidebar
@@ -115,6 +119,12 @@ export default class MainPage extends TrackerReact(Component) {
             </aside>
           </div>
           <div className="col-sm-5 col-md-8 col-lg-5 ">
+            <button style={css.buttonStyle()}>
+              <img
+                src={css.buttonBackgroundImage("fullScreen")}
+                alt="full-screen"
+              />
+            </button>
             <MiddleBoard
               CssManager={css}
               MiddleBoardData={this.Main.MiddleSection}

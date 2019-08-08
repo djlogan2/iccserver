@@ -14,12 +14,6 @@ class RightSidebar extends Component {
   render() {
     return (
       <div className="right-content-desktop">
-        <div style={css.settingIcon()}>
-          <button onClick={this.handleFullScreenMode}>
-            <img src="images/full-screen-icon.png" alt="" />
-          </button>
-        </div>
-
         <div style={css.rightTopContent()}>
           <RightBarTop
             CssManager={css}

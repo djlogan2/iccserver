@@ -87,26 +87,20 @@ export default class CssManager {
     return style;
   }
 
-  actionButtonImage(imageName) {
-    var style = this._systemStyle.actionButtonImage[imageName];
-    // Object.assign(style, this._systemStyle.actionButtonImage[imageName]);
+  buttonBackgroundImage(imageName) {
+    // Object.assign(style, this._systemStyle.actionButtonImage.imageName);
+    var style = this._systemStyle.buttonBackgroundImage[imageName];
     return style;
   }
-  gameAnalysisIcon() {
+
+  buttonStyle(buttonName) {
     var style = {};
-    Object.assign(style, this._systemStyle.gameAnalysisIcon.all);
+    if (this._systemStyle.button.all)
+      Object.assign(style, this._systemStyle.button.all);
+    Object.assign(style, this._systemStyle.button[buttonName]);
     return style;
   }
-  gameSheetDownloadIcon() {
-    var style = {};
-    Object.assign(style, this._systemStyle.gameSheetDownloadIcon.all);
-    return style;
-  }
-  gameShareIcon() {
-    var style = {};
-    Object.assign(style, this._systemStyle.gameShareIcon.all);
-    return style;
-  }
+
   chatContent() {
     var style = {};
     Object.assign(style, this._systemStyle.chatContent.all);
@@ -173,19 +167,18 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.tabContent.all);
     return style;
   }
-  /*
-  tabListItem() {
+
+  tabListItem(tabActive) {
     var style = {};
     Object.assign(style, this._systemStyle.tabListItem.all);
+    if (tabActive) Object.assign(style, this._systemStyle.tabListItem.active);
     return style;
   }
- 
-  tabListActive() {
+  TabIcon() {
     var style = {};
-    Object.assign(style, this._systemStyle.tabListActive.all);
+    Object.assign(style, this._systemStyle.TabIcon.all);
     return style;
   }
-  */
   blitzIcon() {
     var style = {};
     Object.assign(style, this._systemStyle.blitzIcon.all);
@@ -278,25 +271,36 @@ const developmentcss = [
         height: "45vh"
       }
     },
-    actionButtonImage: {
+    buttonBackgroundImage: {
       takeBack: "images/take-forward-icon.png",
       draw: "images/draw-icon.png",
       resign: "images/resign-icon.png",
-      abort: "images/abort-icon.png"
+      abort: "images/abort-icon.png",
+      gameShare: "images/share-icon-gray.png",
+      gameDownload: "images/download-icon-gray.png",
+      gameAnalysis: "images/live-analisys-icon.png",
+      circleCompass: "images/circle-compass-icon.png",
+      fastForward: "images/fast-forward-prev.png",
+      prevIconGray: "images/prev-icon-gray.png",
+      nextIconGray: "images/next-icon-gray.png",
+      fastForwardNext: "images/fast-forward-next.png",
+      nextIconSingle: "images/next-icon-single.png",
+      flipIconGray: "images/flip-icon-gray.png",
+      settingIcon: "images/setting-icon.png",
+      fullScreen: "images/full-screen-icon.png"
     },
-    gameAnalysisIcon: {
+
+    button: {
       all: {
-        backgroundImage: "../../../../../public/images/live-analisys-icon.png"
-      }
-    },
-    gameSheetDownloadIcon: {
-      all: {
-        backgroundImage: "../../../../../public/images/download-icon-gray.png"
-      }
-    },
-    gameShareIcon: {
-      all: {
-        backgroundImage: "../../../../../public/images/share-icon-gray.png"
+        background: "none",
+        border: "none",
+        outline: "none",
+        WebkitFlex: "1",
+        MsFlex: "1",
+        flex: "1"
+      },
+      w: {
+        backgroundColor: "green"
       }
     },
     chatContent: {
@@ -344,19 +348,22 @@ const developmentcss = [
     gameButtonMove: {
       all: {
         background: "#f1f1f1",
-        display: "flex",
-        flexWrap: "nowrap",
         textAlign: "center",
         padding: "8px 0",
-        // position: "absolute",
         width: "100%",
         bottom: "350px",
-        zIndex: "999"
+        zIndex: "999",
+        display: "flex",
+        flexWrap: "nowrap",
+        alignItems: "center"
       }
     },
     gameTopHeader: {
       all: {
-        marginLeft: "5px"
+        backgroundColor: "#efefef",
+        display: "inline-block",
+        width: "100%",
+        padding: "5px 5px"
       }
     },
     showLg: {
@@ -371,21 +378,45 @@ const developmentcss = [
     },
     tabList: {
       all: {
-        display: "inline-block",
         listStyle: "none",
         marginBottom: "-1px",
-        padding: "1.5rem 1.75rem"
+        padding: "0rem 0rem",
+        width: "100%",
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center"
       }
     },
 
-    blitzIcon: {
+    tabListItem: {
       all: {
-        width: "30px"
+        color: "#495057",
+        border: "solid #ccc",
+        borderWidth: "0px 0px 0px 0px",
+        fontSize: "16px",
+        textAlign: "center",
+        WebkitFlex: "1",
+        padding: "14px 0",
+        flex: "1"
+      },
+      active: {
+        backgroundColor: "#efefef",
+        borderTop: "2px #1565c0 solid"
       }
     },
     tabContent: {
       all: {
         padding: "0px"
+      }
+    },
+    TabIcon: {
+      all: {
+        marginRight: "10px"
+      }
+    },
+    blitzIcon: {
+      all: {
+        width: "30px"
       }
     },
     challengeContent: {
@@ -416,13 +447,7 @@ const developmentcss = [
     },
     pullRight: {
       all: {
-        position: "relative",
-        zIndex: "99999",
-        display: "inline-block",
-        width: "auto",
-        height: "40px",
-        alignItems: "center",
-        marginTop: "5px"
+        float: "right"
       }
     },
     drawSection: {
@@ -440,28 +465,6 @@ const developmentcss = [
         marginRight: "5px"
       }
     }
-    /*
-    tabListItem: {
-      all: {
-        color: "#fff",
-        border: "solid #ccc",
-        borderWidth: "0px 0px 0px 0px",
-        fontSize: "16px",
-        width: "25%",
-        textAlign: "center"
-      }
-    }
-    ,
-    tabListActive: {
-      all: {
-        backgroundColor: "#efefef",
-        border: "solid #ccc",
-        borderWidth: "0px 0px 0 0px",
-        borderTopLeftRadius: "10px",
-        borderTopRightRadius: "10px",
-        color: "#000"
-      }
-    }*/
   },
   {
     name: "developmentcss",

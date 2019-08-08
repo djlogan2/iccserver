@@ -3,6 +3,7 @@ export default class ChatComponent extends Component {
   render() {
     return (
       <div>
+        <h3>Chat</h3>
         <div style={this.props.CssManager.chatContent()}>
           <div className="user-1">
             <h6>NEW GAME</h6>
