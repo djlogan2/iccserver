@@ -126,11 +126,13 @@ const developmentcss = {
   }
 };
 
-Meteor.startup(() => {
+function firstRunCSS() {
   if (mongoCss.find().count() === 0) {
     mongoCss.insert(developmentcss);
   }
- 
+}
+
+function firstRunUsers() {
   if (Meteor.users.find().count() === 0) {
     const id = Accounts.createUser({
       username: "admin",
@@ -182,6 +184,11 @@ Meteor.startup(() => {
     );
     Roles.addUsersToRoles(id2, standard_member_roles, Roles.GLOBAL_GROUP);
   }
+}
+
+Meteor.startup(() => {
+  firstRunCSS();
+  firstRunUsers();
 });
 
 Meteor.methods({
