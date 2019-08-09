@@ -9,7 +9,7 @@ import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
-import RealTime from "../../../lib/client/RealTime";
+import { RealTime } from "../../../lib/client/RealTime";
 import CssManager from "../pages/components/Css/CssManager";
 import { Logger, SetupLogger } from "../../../lib/client/Logger";
 
