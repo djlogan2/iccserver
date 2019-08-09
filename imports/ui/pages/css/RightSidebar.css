@@ -106,15 +106,19 @@
 	border: none;
 	color: #fff;
 	border-radius: 0;
+	
 }
 
-.tab-content nav > div ul {
+.tab-content nav ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
+.play-tab-content nav{
+background: #efefef;
+}
 
-.tab-content nav > div li {
+.play-tab-content nav li {
 	width: 50% !important;
 	text-align: center;
 	margin-top: 15px;
@@ -123,19 +127,19 @@
 	vertical-align: top;
 }
 
-.tab-content nav > div li span {
+.play-tab-content nav li span {
 	float: left;
 	width: 70px;
 	height: 40px;
 	line-height: 40px;
 }
 
-.tab-content nav > div a.nav-item.nav-link.active {
+.play-tab-content nav li a.active {
 	background: #d9d9d9;
 	border-color: rgba(222, 226, 230, 0) rgba(222, 226, 230, 0) rgba(255, 255, 255, 0);
 }
 
-.tab-content nav > div ul li a {
+.play-tab-content nav ul li a {
 	width: 120px;
 	background: #efefef;
 	border-radius: 0;
@@ -156,8 +160,8 @@
 	background: #efefef;
 }
 
-.tab-content nav > div a.nav-item.nav-link:hover,
-.tab-content nav > div a.nav-item.nav-link:focus {
+.tab-content nav li a.nav-item.nav-link:hover,
+.tab-content nav li a.nav-item.nav-link:focus {
 	border: none;
 	background: #d9d9d9;
 	color: #191919;

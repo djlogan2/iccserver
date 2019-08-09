@@ -24,7 +24,12 @@ export default class MainPage extends TrackerReact(Component) {
     this.state = {
       username: "",
       visible: false,
-      isActive: true
+      IsBlackActive: true,
+      IsWhiteActive: false,
+      move: null,
+      subscription: {
+        tasks: Meteor.subscribe("userData")
+      }
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.Main = {
@@ -36,17 +41,17 @@ export default class MainPage extends TrackerReact(Component) {
           Rating: "2250",
           Name: "Mac",
           Flag: "us",
-          Timer: 123,
+          Timer: 1000,
           UserPicture: "player-img-top.png",
-          IsActive: true
+          IsActive: false
         },
         WhitePlayer: {
           Rating: "1525",
           Name: "Max",
           Flag: "us",
-          Timer: 15,
+          Timer: 1100,
           UserPicture: "player-img-bottom.png",
-          IsActive: false
+          IsActive: true
         }
       },
       RightSection: {
@@ -54,10 +59,33 @@ export default class MainPage extends TrackerReact(Component) {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove: ""
+          GameMove:
+            "ce2 a6, dxc6 b4, c3 c6 , e4 d5, c3 b7, ce2 a6, c3 c6 , d4 a7, e4 d5, c3 c6 , c3 b7, c3 b7, e4 d5, e4 d5, dxc6 b4, exd5 b5,"
         }
       }
     };
+  }
+  componentDidMount() {
+    this.intervalId = setInterval(() => {
+      // this.randomMoveObject();
+    }, 5000);
+  }
+  randomMoveObject() {
+    let moveList = [
+      "e4 d5",
+      "exd5 b5",
+      "c3 c6 ",
+      "dxc6 b4",
+      "ce2 a6",
+      "d4 a7",
+      "c3 b7",
+      "xb7 f4"
+    ];
+    let move = moveList[Math.floor(Math.random() * moveList.length)];
+
+    this.setState({
+      move: move
+    });
   }
 
   toggleMenu() {
@@ -65,6 +93,7 @@ export default class MainPage extends TrackerReact(Component) {
   }
 
   render() {
+    // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
     return (
       <div className="main">
         <div className="row">
@@ -81,8 +110,11 @@ export default class MainPage extends TrackerReact(Component) {
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
                 <div className="float-right menu-close-icon">
-                  <button onClick={this.toggleMenu} className="button-left">
-                    <span className="fa fa-fw fa-bars " />
+                  <button onClick={this.toggleMenu} style={css.buttonStyle()}>
+                    <img
+                      src={css.buttonBackgroundImage("fullScreen")}
+                      alt="fast-forward"
+                    />
                   </button>
                 </div>
                 <LeftSidebar
@@ -93,6 +125,12 @@ export default class MainPage extends TrackerReact(Component) {
             </aside>
           </div>
           <div className="col-sm-5 col-md-8 col-lg-5 ">
+            <button style={css.buttonStyle()}>
+              <img
+                src={css.buttonBackgroundImage("fullScreen")}
+                alt="full-screen"
+              />
+            </button>
             <MiddleBoard
               CssManager={css}
               MiddleBoardData={this.Main.MiddleSection}

@@ -103,15 +103,22 @@ export default class MiddleBoard extends Component {
     const size = Math.min(h, w);
 
     const newColor = this.state.top === "w" ? "Black" : "White";
+
+    let topPlayer;
+    let bottomPlayer;
+    topPlayer =
+      this.state.top === "w"
+        ? this.props.MiddleBoardData.WhitePlayer
+        : this.props.MiddleBoardData.BlackPlayer;
+    bottomPlayer =
+      this.state.top === "w"
+        ? this.props.MiddleBoardData.BlackPlayer
+        : this.props.MiddleBoardData.WhitePlayer;
     const raf = this.nextRAF()[1];
 
     return (
       <div>
-        <Player
-          CssManager={this.props.CssManager}
-          PlayerData={this.props.MiddleBoardData.BlackPlayer}
-        />
-
+        <Player CssManager={this.props.CssManager} PlayerData={topPlayer} />
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
@@ -128,6 +135,7 @@ export default class MiddleBoard extends Component {
           <div
             style={{ id: "board-right", float: "left", width: w, height: h }}
           >
+            <button onClick={this.switchSides}>{newColor} on top</button>
             <button onClick={this.switchSides}>{newColor} on top</button>
             <button onClick={this.switchRAF}>{raf}</button>
             <p>Color on top: {this.state.top}</p>
@@ -152,10 +160,7 @@ export default class MiddleBoard extends Component {
             </p>
           </div>
         </div>
-        <Player
-          CssManager={this.props.CssManager}
-          PlayerData={this.props.MiddleBoardData.WhitePlayer}
-        />
+        <Player CssManager={this.props.CssManager} PlayerData={bottomPlayer} />
       </div>
     );
   }

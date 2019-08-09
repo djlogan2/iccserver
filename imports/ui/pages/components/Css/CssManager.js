@@ -67,9 +67,10 @@ export default class CssManager {
     return style;
   }
 
-  clock() {
+  clock(time) {
     var style = {};
     Object.assign(style, this._boardStyle.clock.all);
+    if (time <= 10) Object.assign(style, this._boardStyle.clock.alert);
     return style;
   }
   //This css code for Right sidebar
@@ -89,29 +90,20 @@ export default class CssManager {
     return style;
   }
 
-  actionButtonImage(imageName) {
-    var style = {};
-    /*	if (this._rightBarStyle.actionButtonImage.all)
-      Object.assign(style, this._rightBarStyle.actionButtonImage.all);
-    */
-    Object.assign(style, this._systemStyle.actionButtonImage[imageName]);
+  buttonBackgroundImage(imageName) {
+    // Object.assign(style, this._systemStyle.actionButtonImage.imageName);
+    var style = this._systemStyle.buttonBackgroundImage[imageName];
     return style;
   }
-  gameAnalysisIcon() {
+
+  buttonStyle(buttonName) {
     var style = {};
-    Object.assign(style, this._systemStyle.gameAnalysisIcon.all);
+    if (this._systemStyle.button.all)
+      Object.assign(style, this._systemStyle.button.all);
+    Object.assign(style, this._systemStyle.button[buttonName]);
     return style;
   }
-  gameSheetDownloadIcon() {
-    var style = {};
-    Object.assign(style, this._systemStyle.gameSheetDownloadIcon.all);
-    return style;
-  }
-  gameShareIcon() {
-    var style = {};
-    Object.assign(style, this._systemStyle.gameShareIcon.all);
-    return style;
-  }
+
   chatContent() {
     var style = {};
     Object.assign(style, this._systemStyle.chatContent.all);
@@ -178,19 +170,18 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.tabContent.all);
     return style;
   }
-  /*
-  tabListItem() {
+
+  tabListItem(tabActive) {
     var style = {};
     Object.assign(style, this._systemStyle.tabListItem.all);
+    if (tabActive) Object.assign(style, this._systemStyle.tabListItem.active);
     return style;
   }
- 
-  tabListActive() {
+  TabIcon() {
     var style = {};
-    Object.assign(style, this._systemStyle.tabListActive.all);
+    Object.assign(style, this._systemStyle.TabIcon.all);
     return style;
   }
-  */
   blitzIcon() {
     var style = {};
     Object.assign(style, this._systemStyle.blitzIcon.all);
