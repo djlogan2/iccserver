@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Tracker } from "meteor/tracker";
 import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
@@ -10,7 +11,12 @@ import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import RealTime from "../../../lib/client/RealTime";
 import CssManager from "../pages/components/Css/CssManager";
+import { Logger, SetupLogger } from "../../../lib/client/Logger";
+
 const css = new CssManager("developmentcss");
+const log = new Logger("client/MainPage");
+
+Meteor.subscribe("userData");
 
 export default class MainPage extends TrackerReact(Component) {
   constructor(props) {
@@ -234,3 +240,60 @@ let Tournament = [
   }
   */
 ];
+
+//
+// Our reactive autorun. At this point, it's sole purpose is to retrieve the realtime records being sent
+// from the server, which facilitates game play, time synchronization (lag measurement), that sort of thing.
+//
+// In the future, we could use realtime messages for more, but in general, I want to restrict it primarily to
+// game play and lag measurements...things that REQUIRE the most accurate timing, and don't really fit the
+// "write to mongo, server notices, sends updates to clients" model (like, say, messages.)
+//
+let rm_index = 0;
+
+function game_start() {
+    console.log('game_start');
+}
+
+function game_move() {
+    console.log('game_start');
+}
+
+function update_game_clock() {
+    console.log('game_start');
+}
+
+Tracker.autorun(function() {
+  var records = RealTime.collection
+    .find({ nid: { $gt: rm_index } }, { sort: { nid: 1 } })
+    .fetch();
+  log.debug("Fetched " + records.length + " records from realtime_messages", {
+    records: records
+  });
+  if (records.length) rm_index = records[records.length - 1].nid;
+  records.forEach(rec => {
+    log.debug("realtime_record", rec);
+    rm_index = rec.nid;
+    switch (rec.type) {
+      case "setup_logger":
+        SetupLogger.addLoggers(rec.message);
+        break;
+
+      case "game_start":
+        game_start(rec);
+        break;
+
+      case "game_move":
+        game_move(rec);
+        break;
+
+      case "update_game_clock":
+        update_game_clock(rec);
+        break;
+
+      case "error":
+      default:
+        log.error("realtime_message default", rec);
+    }
+  });
+});
