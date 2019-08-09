@@ -21,7 +21,7 @@ class RightBarBottom extends Component {
       this.getLang()
     );
     return (
-      <Tabs CssManager={this.props.CssManager}>
+      <Tabs CssManager={this.props.CssManager} tabName="bottom">
         <div label={translator("chat")} imgsrc="images/chat-icon-blue.png">
           <Chat CssManager={this.props.CssManager} />
         </div>

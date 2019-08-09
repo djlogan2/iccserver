@@ -118,6 +118,12 @@ export default class MiddleBoard extends Component {
 
     return (
       <div>
+        <button style={this.props.CssManager.buttonStyle("middleBoard")}>
+          <img
+            src={this.props.CssManager.buttonBackgroundImage("fullScreen")}
+            alt="full-screen"
+          />
+        </button>
         <Player CssManager={this.props.CssManager} PlayerData={topPlayer} />
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>

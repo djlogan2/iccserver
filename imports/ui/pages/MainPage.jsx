@@ -88,6 +88,12 @@ export default class MainPage extends TrackerReact(Component) {
 
   render() {
     // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
+    let w = this.state.width;
+    let h = this.state.height;
+
+    if (!w) w = window.innerWidth;
+    if (!h) h = window.innerHeight;
+    w /= 2;
     return (
       <div className="main">
         <div className="row">
@@ -103,14 +109,6 @@ export default class MainPage extends TrackerReact(Component) {
                 <div className="pull-left image">
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
-                <div className="float-right menu-close-icon">
-                  <button onClick={this.toggleMenu} style={css.buttonStyle()}>
-                    <img
-                      src={css.buttonBackgroundImage("fullScreen")}
-                      alt="fast-forward"
-                    />
-                  </button>
-                </div>
                 <LeftSidebar
                   CssManager={css}
                   LefSideBoarData={this.Main.LeftSection}
@@ -118,13 +116,8 @@ export default class MainPage extends TrackerReact(Component) {
               </div>
             </aside>
           </div>
-          <div className="col-sm-5 col-md-8 col-lg-5 ">
-            <button style={css.buttonStyle()}>
-              <img
-                src={css.buttonBackgroundImage("fullScreen")}
-                alt="full-screen"
-              />
-            </button>
+          {/* <div className="col-sm-5 col-md-8 col-lg-5 "> */}
+          <div style={{ float: "left", width: w, height: h }}>
             <MiddleBoard
               CssManager={css}
               MiddleBoardData={this.Main.MiddleSection}

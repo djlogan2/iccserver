@@ -17,7 +17,7 @@ class Tab extends Component {
   render() {
     const {
       onClick,
-      props: { activeTab, label, src }
+      props: { activeTab, label, src, tabListName }
     } = this;
 
     let tabName;
@@ -28,7 +28,11 @@ class Tab extends Component {
 
     return (
       <li style={this.props.CssManager.tabListItem(tabName)} onClick={onClick}>
-        <img src={src} alt="" style={this.props.CssManager.TabIcon()} />
+        <img
+          src={src}
+          alt=""
+          style={this.props.CssManager.TabIcon(tabListName)}
+        />
         {label}
       </li>
     );

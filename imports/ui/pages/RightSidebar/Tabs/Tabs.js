@@ -22,15 +22,16 @@ class Tabs extends Component {
       props: { children },
       state: { activeTab }
     } = this;
-
+    let tabName = this.props.tabName;
     return (
       <div style={this.props.CssManager.tab()}>
-        <ol style={this.props.CssManager.tabList()}>
+        <ol style={this.props.CssManager.tabList(tabName)}>
           {children.map(child => {
             const { label, imgsrc } = child.props;
 
             return (
               <Tab
+                tabListName={tabName}
                 CssManager={this.props.CssManager}
                 activeTab={activeTab}
                 key={label}

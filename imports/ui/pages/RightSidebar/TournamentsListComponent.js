@@ -25,14 +25,26 @@ class Tournaments extends Component {
     let listItem = this.props.lists.map((list, index) => {
       return (
         <div key={index} style={this.props.CssManager.challengeContent()}>
-          <a herf="#/" style={this.props.CssManager.competitionsListItem()}>
-            <i style={this.props.CssManager.blitzIcon()}>
+          <button style={this.props.CssManager.buttonStyle("tournamentButton")}>
+            <span style={this.props.CssManager.spanStyle()}>
               <img src={list.src} alt="" />
-            </i>
-            <span>{list.name}</span>
-            <span>{list.status}</span>
-            <span>{list.count} </span>
-          </a>
+            </span>
+            <span style={this.props.CssManager.spanStyle("name")}>
+              {list.name}
+            </span>
+            <span style={this.props.CssManager.spanStyle("status")}>
+              {list.status}
+            </span>
+            <span style={this.props.CssManager.spanStyle()}>
+              {list.count}
+              <img
+                src={this.props.CssManager.buttonBackgroundImage(
+                  "tournamentUserIcon"
+                )}
+                alt="user-icon"
+              />
+            </span>
+          </button>
         </div>
       );
     });

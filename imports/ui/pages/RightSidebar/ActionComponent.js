@@ -28,6 +28,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.CssManager.buttonBackgroundImage("takeBack")}
                 alt="TakeBack"
+                style={{ margin: "0 auto", display: "block" }}
               />
               {translator("takeBack")}
             </button>
@@ -41,6 +42,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.CssManager.buttonBackgroundImage("draw")}
                 alt="Draw"
+                style={{ margin: "0 auto", display: "block" }}
               />
               {translator("draw")}
             </button>
@@ -54,6 +56,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.CssManager.buttonBackgroundImage("resign")}
                 alt="Resign"
+                style={{ margin: "0 auto", display: "block" }}
               />
               {translator("resign")}
             </button>
@@ -66,6 +69,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.CssManager.buttonBackgroundImage("abort")}
                 alt="Abort"
+                style={{ margin: "0 auto", display: "block" }}
               />
 
               {translator("abort")}

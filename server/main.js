@@ -32,7 +32,7 @@ const fields_viewable_by_account_owner = {
   "profile.legacy.username": 1
 };
 const mongoCss = new Mongo.Collection("css");
-/*
+
 const developmentcss = {
   name: "developmentcss",
   type: "board",
@@ -125,13 +125,13 @@ const developmentcss = {
     }
   }
 };
-*/
+
 Meteor.startup(() => {
-  /*
+
   if (mongoCss.find().count() === 0) {
     mongoCss.insert(developmentcss);
   }
-  */
+
  
   if (Meteor.users.find().count() === 0) {
     const id = Accounts.createUser({
