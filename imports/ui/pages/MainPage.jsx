@@ -64,12 +64,15 @@ export default class MainPage extends TrackerReact(Component) {
         }
       }
     };
+    this.mainMeteorLoop();
   }
+
   componentDidMount() {
     this.intervalId = setInterval(() => {
       // this.randomMoveObject();
     }, 5000);
   }
+
   randomMoveObject() {
     let moveList = [
       "e4 d5",
@@ -90,6 +93,72 @@ export default class MainPage extends TrackerReact(Component) {
 
   toggleMenu() {
     this.setState({ visible: !this.state.visible });
+  }
+
+  //
+  // Our reactive autorun. At this point, it's sole purpose is to retrieve the realtime records being sent
+  // from the server, which facilitates game play, time synchronization (lag measurement), that sort of thing.
+  //
+  // In the future, we could use realtime messages for more, but in general, I want to restrict it primarily to
+  // game play and lag measurements...things that REQUIRE the most accurate timing, and don't really fit the
+  // "write to mongo, server notices, sends updates to clients" model (like, say, messages.)
+  //
+
+  game_start(msg) {
+    this.refs.middleBoard.startGame(msg);
+    // {"white":{"name":"F44","rating":2172},"black":{"name":"Huba","rating":2252}}
+
+    console.log("game_start");
+  }
+
+  game_move() {
+    console.log("game_start");
+  }
+
+  update_game_clock() {
+    console.log("game_start");
+  }
+
+  mainMeteorLoop() {
+    this.rm_index = 0;
+    const us = this;
+    Tracker.autorun(function() {
+      var records = RealTime.collection
+        .find({ nid: { $gt: us.rm_index } }, { sort: { nid: 1 } })
+        .fetch();
+      log.debug(
+        "Fetched " + records.length + " records from realtime_messages",
+        {
+          records: records
+        }
+      );
+      if (records.length) us.rm_index = records[records.length - 1].nid;
+      records.forEach(rec => {
+        log.debug("realtime_record", rec);
+        us.rm_index = rec.nid;
+        switch (rec.type) {
+          case "setup_logger":
+            SetupLogger.addLoggers(rec.message);
+            break;
+
+          case "game_start":
+            us.game_start(rec);
+            break;
+
+          case "game_move":
+            us.game_move(rec);
+            break;
+
+          case "update_game_clock":
+            us.update_game_clock(rec);
+            break;
+
+          case "error":
+          default:
+            log.error("realtime_message default", rec);
+        }
+      });
+    });
   }
 
   render() {
@@ -127,6 +196,7 @@ export default class MainPage extends TrackerReact(Component) {
             <MiddleBoard
               CssManager={css}
               MiddleBoardData={this.Main.MiddleSection}
+              ref="middleBoard"
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
@@ -220,80 +290,23 @@ let Tournament = [
     src: "images/rapid-icon.png"
   }
   /*,
-  {
-    name: "1|0 Bullet Arena",
-    status: "in 8 min",
-    count: "55",
-    src: "images/bullet-icon.png"
-  },
-  {
-    name: "15|10 Rapid Swiss",
-    status: "Round 1 of 3",
-    count: "25",
-    src: "images/blitz-icon.png"
-  },
-  {
-    name: "15|10 Rapid Swiss ",
-    status: "Round 1 of 5",
-    count: "15",
-    src: "images/rapid-icon.png"
-  }
-  */
-];
-
-//
-// Our reactive autorun. At this point, it's sole purpose is to retrieve the realtime records being sent
-// from the server, which facilitates game play, time synchronization (lag measurement), that sort of thing.
-//
-// In the future, we could use realtime messages for more, but in general, I want to restrict it primarily to
-// game play and lag measurements...things that REQUIRE the most accurate timing, and don't really fit the
-// "write to mongo, server notices, sends updates to clients" model (like, say, messages.)
-//
-let rm_index = 0;
-
-function game_start() {
-    console.log('game_start');
-}
-
-function game_move() {
-    console.log('game_start');
-}
-
-function update_game_clock() {
-    console.log('game_start');
-}
-
-Tracker.autorun(function() {
-  var records = RealTime.collection
-    .find({ nid: { $gt: rm_index } }, { sort: { nid: 1 } })
-    .fetch();
-  log.debug("Fetched " + records.length + " records from realtime_messages", {
-    records: records
-  });
-  if (records.length) rm_index = records[records.length - 1].nid;
-  records.forEach(rec => {
-    log.debug("realtime_record", rec);
-    rm_index = rec.nid;
-    switch (rec.type) {
-      case "setup_logger":
-        SetupLogger.addLoggers(rec.message);
-        break;
-
-      case "game_start":
-        game_start(rec);
-        break;
-
-      case "game_move":
-        game_move(rec);
-        break;
-
-      case "update_game_clock":
-        update_game_clock(rec);
-        break;
-
-      case "error":
-      default:
-        log.error("realtime_message default", rec);
+    {
+      name: "1|0 Bullet Arena",
+      status: "in 8 min",
+      count: "55",
+      src: "images/bullet-icon.png"
+    },
+    {
+      name: "15|10 Rapid Swiss",
+      status: "Round 1 of 3",
+      count: "25",
+      src: "images/blitz-icon.png"
+    },
+    {
+      name: "15|10 Rapid Swiss ",
+      status: "Round 1 of 5",
+      count: "15",
+      src: "images/rapid-icon.png"
     }
-  });
-});
+    */
+];

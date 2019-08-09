@@ -11,12 +11,43 @@ export default class MiddleBoard extends Component {
 
     this._circle = { lineWidth: 2, color: "red" };
 
+    const player = {
+      Rating: 1600,
+      Name: "none",
+      Flag: "us",
+      Timer: 1000,
+      UserPicture: "player-img-top.png",
+      IsActive: false
+    };
+
     this.state = {
       draw_rank_and_file: "tl",
-      top: "b"
+      top: "b",
+      whitePlayer: player,
+      blackPlayer: player
     };
   }
 
+  startGame(msg) {
+    const whitePlayer = {
+      Rating: msg.white.rating,
+      Name: msg.white.name,
+      Flag: "us",
+      Timer: 1000,
+      UserPicture: "player-img-top.png",
+      IsActive: true
+    };
+    const blackPlayer = {
+      Rating: msg.black.rating,
+      Name: msg.black.name,
+      Flag: "us",
+      Timer: 1000,
+      UserPicture: "player-img-top.png",
+      IsActive: false
+    };
+
+    this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
+  }
   /**
    * Calculate & Update state of new dimensions
    */
@@ -104,17 +135,12 @@ export default class MiddleBoard extends Component {
 
     const newColor = this.state.top === "w" ? "Black" : "White";
 
-    let topPlayer;
-    let bottomPlayer;
-    topPlayer =
-      this.state.top === "w"
-        ? this.props.MiddleBoardData.WhitePlayer
-        : this.props.MiddleBoardData.BlackPlayer;
-    bottomPlayer =
-      this.state.top === "w"
-        ? this.props.MiddleBoardData.BlackPlayer
-        : this.props.MiddleBoardData.WhitePlayer;
     const raf = this.nextRAF()[1];
+
+    const topPlayer =
+      this.state.top === "w" ? this.state.whitePlayer : this.state.blackPlayer;
+    const bottomPlayer =
+      this.state.top === "b" ? this.state.whitePlayer : this.state.blackPlayer;
 
     return (
       <div>
