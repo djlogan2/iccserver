@@ -17,33 +17,36 @@ const systemcss = {
       height: "45vh"
     }
   },
-  actionButtonImage: {
-    takeBack: {
-      backgroundImage: "../../../../../public/images/take-forward-icon.png"
-    },
-    draw: {
-      backgroundImage: "../../../../../public/images/draw-icon.png"
-    },
-    resign: {
-      backgroundImage: "../../../../../public/images/resign-icon.png"
-    },
-    abort: {
-      backgroundImage: "../../../../../public/images/abort-icon.png"
-    }
+  buttonBackgroundImage: {
+    takeBack: "images/take-forward-icon.png",
+    draw: "images/draw-icon.png",
+    resign: "images/resign-icon.png",
+    abort: "images/abort-icon.png",
+    gameShare: "images/share-icon-gray.png",
+    gameDownload: "images/download-icon-gray.png",
+    gameAnalysis: "images/live-analisys-icon.png",
+    circleCompass: "images/circle-compass-icon.png",
+    fastForward: "images/fast-forward-prev.png",
+    prevIconGray: "images/prev-icon-gray.png",
+    nextIconGray: "images/next-icon-gray.png",
+    fastForwardNext: "images/fast-forward-next.png",
+    nextIconSingle: "images/next-icon-single.png",
+    flipIconGray: "images/flip-icon-gray.png",
+    settingIcon: "images/setting-icon.png",
+    fullScreen: "images/full-screen-icon.png"
   },
-  gameAnalysisIcon: {
+
+  button: {
     all: {
-      backgroundImage: "../../../../../public/images/live-analisys-icon.png"
-    }
-  },
-  gameSheetDownloadIcon: {
-    all: {
-      backgroundImage: "../../../../../public/images/download-icon-gray.png"
-    }
-  },
-  gameShareIcon: {
-    all: {
-      backgroundImage: "../../../../../public/images/share-icon-gray.png"
+      background: "none",
+      border: "none",
+      outline: "none",
+      WebkitFlex: "1",
+      MsFlex: "1",
+      flex: "1"
+    },
+    w: {
+      backgroundColor: "green"
     }
   },
   chatContent: {
@@ -91,19 +94,22 @@ const systemcss = {
   gameButtonMove: {
     all: {
       background: "#f1f1f1",
-      display: "flex",
-      flexWrap: "nowrap",
       textAlign: "center",
       padding: "8px 0",
-      // position: "absolute",
       width: "100%",
       bottom: "350px",
-      zIndex: "999"
+      zIndex: "999",
+      display: "flex",
+      flexWrap: "nowrap",
+      alignItems: "center"
     }
   },
   gameTopHeader: {
     all: {
-      marginLeft: "5px"
+      backgroundColor: "#efefef",
+      display: "inline-block",
+      width: "100%",
+      padding: "5px 5px"
     }
   },
   showLg: {
@@ -118,21 +124,45 @@ const systemcss = {
   },
   tabList: {
     all: {
-      display: "inline-block",
       listStyle: "none",
       marginBottom: "-1px",
-      padding: "1.5rem 1.75rem"
+      padding: "0rem 0rem",
+      width: "100%",
+      display: "flex",
+      flexWrap: "wrap",
+      alignItems: "center"
     }
   },
 
-  blitzIcon: {
+  tabListItem: {
     all: {
-      width: "30px"
+      color: "#495057",
+      border: "solid #ccc",
+      borderWidth: "0px 0px 0px 0px",
+      fontSize: "16px",
+      textAlign: "center",
+      WebkitFlex: "1",
+      padding: "14px 0",
+      flex: "1"
+    },
+    active: {
+      backgroundColor: "#efefef",
+      borderTop: "2px #1565c0 solid"
     }
   },
   tabContent: {
     all: {
       padding: "0px"
+    }
+  },
+  TabIcon: {
+    all: {
+      marginRight: "10px"
+    }
+  },
+  blitzIcon: {
+    all: {
+      width: "30px"
     }
   },
   challengeContent: {
@@ -163,13 +193,7 @@ const systemcss = {
   },
   pullRight: {
     all: {
-      position: "relative",
-      zIndex: "99999",
-      display: "inline-block",
-      width: "auto",
-      height: "40px",
-      alignItems: "center",
-      marginTop: "5px"
+      float: "right"
     }
   },
   drawSection: {
@@ -187,28 +211,6 @@ const systemcss = {
       marginRight: "5px"
     }
   }
-  /*
-        tabListItem: {
-          all: {
-            color: "#fff",
-            border: "solid #ccc",
-            borderWidth: "0px 0px 0px 0px",
-            fontSize: "16px",
-            width: "25%",
-            textAlign: "center"
-          }
-        }
-        ,
-        tabListActive: {
-          all: {
-            backgroundColor: "#efefef",
-            border: "solid #ccc",
-            borderWidth: "0px 0px 0 0px",
-            borderTopLeftRadius: "10px",
-            borderTopRightRadius: "10px",
-            color: "#000"
-          }
-        }*/
 };
 
 const usercss = {
@@ -230,13 +232,13 @@ const usercss = {
   },
   flags: {
     all: {
-      backgroundImage: "../../../../../public/images/user-flag.png"
+      backgroundImage: "images/user-flag.png"
     },
     in: {
       backgroundImage: "india.png"
     },
     us: {
-      backgroundImage: "../../../../../public/images/user-flag.png"
+      backgroundImage: "images/user-flag.png"
     }
   },
   clock: {
@@ -253,6 +255,9 @@ const usercss = {
       top: "5px",
       background: "#333333",
       fontWeight: "700"
+    },
+    alert: {
+      color: "red"
     }
   },
   square: {
