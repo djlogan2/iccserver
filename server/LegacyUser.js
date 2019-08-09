@@ -68,7 +68,7 @@ const IN_CONTROL_BRACKETS_PARM = 3;
 const CONTROL_Y = String.fromCharCode(25);
 const CONTROL_Z = String.fromCharCode(26);
 
-export class LegacyUser {
+class LegacyUserConnection {
   constructor(user) {
     this.user = user;
     this.state = "login";
