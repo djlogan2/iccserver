@@ -13,10 +13,10 @@ export default class CssManager {
   constructor(css) {
     const us = this;
 
-    Meteor.call("userCss", css, function(error, result) {
-      if (error) log.error(error);
-      //us.css = result || developmentcss;
-    });
+    // Meteor.call("userCss", css, function(error, result) {
+    //   if (error) log.error(error);
+    //   //us.css = result || developmentcss;
+    // });
 
     Tracker.autorun(function() {
       Meteor.subscribe("css");
