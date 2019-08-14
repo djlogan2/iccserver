@@ -33,7 +33,9 @@ const systemcss = {
     nextIconSingle: "images/next-icon-single.png",
     flipIconGray: "images/flip-icon-gray.png",
     settingIcon: "images/setting-icon.png",
-    fullScreen: "images/full-screen-icon.png"
+    fullScreen: "images/full-screen-icon.png",
+    tournamentUserIcon: "images/user-icon.png",
+    chatSendButton: "images/send-btn.png"
   },
 
   button: {
@@ -44,6 +46,22 @@ const systemcss = {
       WebkitFlex: "1",
       MsFlex: "1",
       flex: "1"
+    },
+    tournamentButton: {
+      borderBottom: "1px solid #e8e7e6",
+      display: "flex",
+      flexWrap: "nowrap",
+      alignItems: "center",
+      justifyContent: "left",
+      minHeight: "40px",
+      maxHeight: "40px",
+      cursor: "pointer",
+      width: "100%",
+      borderBottom: "1px solid #e8e7e6",
+      color: "#a7a6a2 !important"
+    },
+    middleBoard: {
+      float: "right"
     },
     w: {
       backgroundColor: "green"
@@ -58,8 +76,9 @@ const systemcss = {
     }
   },
 
-  chatInputBox: {
-    all: {
+  InputBox: {
+    all: {},
+    chat: {
       position: "absolute",
       padding: "0 0px",
       borderTop: "#ccc solid 1px !important",
@@ -67,19 +86,6 @@ const systemcss = {
       width: "100%",
       bottom: "0px",
       background: "#fff"
-    }
-  },
-  chatSendButton: {
-    all: {
-      background: "../../../../../public/images/send-btn.png",
-      position: "absolute",
-      right: "0",
-      top: "0",
-      width: "50px",
-      height: "50px",
-      border: "none",
-      outline: "none",
-      cursor: "pointer"
     }
   },
   gameMoveList: {
@@ -131,23 +137,32 @@ const systemcss = {
       display: "flex",
       flexWrap: "wrap",
       alignItems: "center"
+    },
+
+    bottom: {
+      background: "#1565c0",
+      paddingTop: "8px",
+      color: "#fff",
+      alignItems: "flex-end"
     }
   },
 
   tabListItem: {
     all: {
-      color: "#495057",
       border: "solid #ccc",
       borderWidth: "0px 0px 0px 0px",
       fontSize: "16px",
       textAlign: "center",
       WebkitFlex: "1",
-      padding: "14px 0",
-      flex: "1"
+      flex: "1",
+      padding: "7px 0"
     },
     active: {
-      backgroundColor: "#efefef",
-      borderTop: "2px #1565c0 solid"
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
     }
   },
   tabContent: {
@@ -158,11 +173,26 @@ const systemcss = {
   TabIcon: {
     all: {
       marginRight: "10px"
+    },
+    bottom: {
+      margin: "0 auto",
+      display: "block"
     }
   },
-  blitzIcon: {
+  span: {
     all: {
-      width: "30px"
+      WebkitFlex: "1",
+      flex: "1",
+      textAlign: "left"
+    },
+    name: { flex: "3" },
+    status: {
+      flex: "2"
+    },
+    count: {
+      width: "30px",
+      textAlign: "right",
+      marginRight: "15px"
     }
   },
   challengeContent: {
@@ -170,6 +200,7 @@ const systemcss = {
       borderRadius: " 0 0 3px 3px",
       background: "#fff",
       marginTop: "0px",
+
       padding: "0 15px"
     }
   },
@@ -182,7 +213,8 @@ const systemcss = {
       maxHeight: "40px",
       cursor: "pointer",
       borderBottom: "1px solid #e8e7e6",
-      color: "#a7a6a2!important"
+      color: "#a7a6a2!important",
+      width: "100%"
     }
   },
   tournamentContent: {

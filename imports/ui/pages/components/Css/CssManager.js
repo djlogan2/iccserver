@@ -1,4 +1,6 @@
+import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../../lib/client/Logger";
+import { Tracker } from "meteor/tracker";
 import { Mongo } from "meteor/mongo";
 
 const log = new Logger("Css/CssManager_js");
@@ -8,19 +10,22 @@ const mongoCss = new Mongo.Collection("css");
  */
 
 export default class CssManager {
-  static _getBoardStyle() {
-    log.debug("_getBoardStyle, records="); // + mongoCss.find().fetch());
-    return (
-      mongoCss.findOne({
-        type: "board",
-        name: "default-user"
-      }) || {}
-    );
+  constructor(css) {
+    const us = this;
+
+    // Meteor.call("userCss", css, function(error, result) {
+    //   if (error) log.error(error);
+    //   //us.css = result || developmentcss;
+    // });
+
+    Tracker.autorun(function() {
+      Meteor.subscribe("css");
+    });
+
+    us._boardStyle = mongoCss.findOne("user");
+    us._systemStyle = mongoCss.findOne("system");
   }
-  static _getSystemStyle() {
-    log.debug("_getSystemStyle, records="); // + mongoCss.find().fetch());
-    return mongoCss.findOne({ type: "system" }) || {};
-  }
+
   /**
    *
    * @param squareColor 'b' or 'w' for the color of the square
@@ -28,200 +33,190 @@ export default class CssManager {
    * @param color null, or the color of the piece that's on the square
    * @param side The number of pixels on the side of a square
    */
-  static squareStyle(squareColor, piece, color, side) {
+  squareStyle(squareColor, piece, color, side) {
     var style = { width: side, height: side };
-    if (CssManager._getBoardStyle().square.all)
-      Object.assign(style, CssManager._getBoardStyle().square.all);
-    Object.assign(style, CssManager._getBoardStyle().square[squareColor]);
+    if (this._boardStyle.square.all)
+      Object.assign(style, this._boardStyle.square.all);
+    Object.assign(style, this._boardStyle.square[squareColor]);
 
     if (!!piece && !!color) {
-      if (CssManager._getBoardStyle().pieces.all)
-        Object.assign(style, CssManager._getBoardStyle().pieces.all);
-      Object.assign(style, CssManager._getBoardStyle().pieces[color][piece]);
+      if (this._boardStyle.pieces.all)
+        Object.assign(style, this._boardStyle.pieces.all);
+      Object.assign(style, this._boardStyle.pieces[color][piece]);
     }
 
     return style;
   }
 
-  static flags(country) {
+  flags(country) {
     var style = {};
-    if (CssManager.flags.all) Object.assign(style, CssManager.flags.all);
-    Object.assign(style, CssManager.flags[country]);
+    if (this._boardStyle.flags.all)
+      Object.assign(style, this._boardStyle.flags.all);
+    Object.assign(style, this._boardStyle.flags[country]);
 
     return style;
   }
 
-  static tagLine() {
+  tagLine() {
     var style = {};
-    Object.assign(style, CssManager.tagLine.all);
+    Object.assign(style, this._boardStyle.tagLine.all);
+    return style;
+  }
+  userName() {
+    var style = {};
+    Object.assign(style, this._boardStyle.userName.all);
     return style;
   }
 
-  static userName() {
+  clock(time) {
     var style = {};
-    Object.assign(style, CssManager.userName.all);
+    Object.assign(style, this._boardStyle.clock.all);
+    if (time <= 10) Object.assign(style, this._boardStyle.clock.alert);
     return style;
   }
-
-  static clock(time) {
-    var style = {};
-    Object.assign(style, CssManager.clock.all);
-    if (time <= 10) Object.assign(style, CssManager.clock.alert);
-    return style;
-  }
-
   //This css code for Right sidebar
-  static settingIcon() {
+  settingIcon() {
     var style = {};
-    Object.assign(style, CssManager.settingIcon.all);
+    Object.assign(style, this._systemStyle.settingIcon.all);
+    return style;
+  }
+  rightTopContent() {
+    var style = {};
+    Object.assign(style, this._systemStyle.rightTopContent.all);
+    return style;
+  }
+  rightBottomContent() {
+    var style = {};
+    Object.assign(style, this._systemStyle.rightBottomContent.all);
     return style;
   }
 
-  static rightTopContent() {
-    var style = {};
-    Object.assign(style, CssManager.rightTopContent.all);
+  buttonBackgroundImage(imageName) {
+    // Object.assign(style, this._systemStyle.actionButtonImage.imageName);
+    var style = this._systemStyle.buttonBackgroundImage[imageName];
     return style;
   }
 
-  static rightBottomContent() {
+  buttonStyle(buttonName) {
     var style = {};
-    Object.assign(style, CssManager.rightBottomContent.all);
+    if (this._systemStyle.button.all)
+      Object.assign(style, this._systemStyle.button.all);
+    Object.assign(style, this._systemStyle.button[buttonName]);
     return style;
   }
 
-  static buttonBackgroundImage(imageName) {
-    // Object.assign(style, this._getSystemStyle().actionButtonImage.imageName);
-    return CssManager.buttonBackgroundImage[imageName];
-  }
-
-  static buttonStyle(buttonName) {
-    log.debug("Are we here?");
+  chatContent() {
     var style = {};
-    if (CssManager._getSystemStyle().button.all)
-      Object.assign(style, CssManager._getSystemStyle().button.all);
-    Object.assign(style, CssManager._getSystemStyle().button[buttonName]);
+    Object.assign(style, this._systemStyle.chatContent.all);
     return style;
   }
-
-  static chatContent() {
+  inputBoxStyle(inputBoxName) {
     var style = {};
-    Object.assign(style, CssManager.chatContent.all);
+    if (this._systemStyle.InputBox.all)
+      Object.assign(style, this._systemStyle.InputBox.all);
+    Object.assign(style, this._systemStyle.InputBox[inputBoxName]);
     return style;
   }
-
-  static chatInputBox() {
+  chatSendButton() {
     var style = {};
-    Object.assign(style, CssManager.chatInputBox.all);
+    Object.assign(style, this._systemStyle.chatSendButton.all);
     return style;
   }
-
-  static chatSendButton() {
+  gameMoveList() {
     var style = {};
-    Object.assign(style, CssManager.chatSendButton.all);
+    Object.assign(style, this._systemStyle.gameMoveList.all);
     return style;
   }
-
-  static gameMoveList() {
+  gameButtonMove() {
     var style = {};
-    Object.assign(style, CssManager.gameMoveList.all);
+    Object.assign(style, this._systemStyle.gameButtonMove.all);
     return style;
   }
-
-  static gameButtonMove() {
+  gameTopHeader() {
     var style = {};
-    Object.assign(style, CssManager.gameButtonMove.all);
+    Object.assign(style, this._systemStyle.gameTopHeader.all);
     return style;
   }
-
-  static gameTopHeader() {
-    var style = {};
-    Object.assign(style, CssManager.gameTopHeader.all);
-    return style;
-  }
-
   //LeftSideBarComponent MenuLink li
-  static showLg() {
+  showLg() {
     var style = {};
-    Object.assign(style, CssManager.showLg.all);
+    Object.assign(style, this._systemStyle.showLg.all);
+    return style;
+  }
+  pullRight() {
+    var style = {};
+    Object.assign(style, this._systemStyle.pullRight.all);
+    return style;
+  }
+  drawSection() {
+    var style = {};
+    Object.assign(style, this._systemStyle.drawSection.all);
+    return style;
+  }
+  drawSectionList() {
+    var style = {};
+    Object.assign(style, this._systemStyle.drawSectionList.all);
+    return style;
+  }
+  tab() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tab.all);
+    return style;
+  }
+  tabList(tabName) {
+    var style = {};
+    if (this._systemStyle.tab.all)
+      Object.assign(style, this._systemStyle.tabList.all);
+    Object.assign(style, this._systemStyle.tabList[tabName]);
+    return style;
+  }
+  tabContent() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tabContent.all);
     return style;
   }
 
-  static pullRight() {
+  tabListItem(tabActive, hover) {
     var style = {};
-    Object.assign(style, CssManager.pullRight.all);
+    Object.assign(style, this._systemStyle.tabListItem.all);
+    if (tabActive || hover)
+      Object.assign(style, this._systemStyle.tabListItem.active);
+    if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
     return style;
   }
-
-  static drawSection() {
+  TabIcon(tabName) {
     var style = {};
-    Object.assign(style, CssManager.drawSection.all);
+    if (this._systemStyle.TabIcon.all)
+      Object.assign(style, this._systemStyle.TabIcon.all);
+    Object.assign(style, this._systemStyle.TabIcon[tabName]);
     return style;
   }
-
-  static drawSectionList() {
+  spanStyle(spanName) {
     var style = {};
-    Object.assign(style, CssManager.drawSectionList.all);
+    if (this._systemStyle.span.all)
+      Object.assign(style, this._systemStyle.span.all);
+    Object.assign(style, this._systemStyle.span[spanName]);
     return style;
   }
-
-  static tab() {
+  challengeContent() {
     var style = {};
-    Object.assign(style, CssManager.tab.all);
+    Object.assign(style, this._systemStyle.challengeContent.all);
     return style;
   }
-
-  static tabList(tabName) {
+  competitionsListItem() {
     var style = {};
-    if (CssManager.tab.all) Object.assign(style, CssManager.tabList.all);
-    Object.assign(style, CssManager.tabList[tabName]);
+    Object.assign(style, this._systemStyle.competitionsListItem.all);
     return style;
   }
-
-  static tabContent() {
+  tournamentContent() {
     var style = {};
-    Object.assign(style, CssManager.tabContent.all);
+    Object.assign(style, this._systemStyle.tournamentContent.all);
     return style;
   }
-
-  static tabListItem(tabActive) {
-    var style = {};
-    Object.assign(style, CssManager.tabListItem.all);
-    if (tabActive) Object.assign(style, CssManager.tabListItem.active);
-    return style;
-  }
-  static TabIcon(tabName) {
-    var style = {};
-    if (CssManager.TabIcon.all) Object.assign(style, CssManager.TabIcon.all);
-    Object.assign(style, CssManager.TabIcon[tabName]);
-    return style;
-  }
-  static spanStyle(spanName) {
-    var style = {};
-    if (CssManager._getSystemStyle().span.all)
-      Object.assign(style, CssManager._getSystemStyle().span.all);
-    Object.assign(style, CssManager._getSystemStyle().span[spanName]);
-    return style;
-  }
-  static challengeContent() {
-    var style = {};
-    Object.assign(style, CssManager.challengeContent.all);
-    return style;
-  }
-  static competitionsListItem() {
-    var style = {};
-    Object.assign(style, CssManager.competitionsListItem.all);
-    return style;
-  }
-  static tournamentContent() {
-    var style = {};
-    Object.assign(style, CssManager.tournamentContent.all);
-    return style;
-  }
-
   //
   // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
   //
-  static squareCanvasStyle(side) {
+  squareCanvasStyle(side) {
     return {
       position: "absolute",
       top: 0,
@@ -235,22 +230,16 @@ export default class CssManager {
    * @param which Position of the text
    * @param color Color of the square
    */
-  static internalRankAndFileStyle(which, color) {
+  internalRankAndFileStyle(which, color) {
     const style = {}; // width: side, height: side };
 
-    if (CssManager._getBoardStyle().internal_rank_and_file.all)
-      Object.assign(
-        style,
-        CssManager._getBoardStyle().internal_rank_and_file.all
-      );
+    if (this._boardStyle.internal_rank_and_file.all)
+      Object.assign(style, this._boardStyle.internal_rank_and_file.all);
 
+    Object.assign(style, this._boardStyle.internal_rank_and_file.color[color]);
     Object.assign(
       style,
-      CssManager._getBoardStyle().internal_rank_and_file.color[color]
-    );
-    Object.assign(
-      style,
-      CssManager._getBoardStyle().internal_rank_and_file.position[which]
+      this._boardStyle.internal_rank_and_file.position[which]
     );
 
     return style;
@@ -260,14 +249,11 @@ export default class CssManager {
    *
    * @param side The number of pixels on the side of a square
    */
-  static externalRankAndFileStyle(side) {
+  externalRankAndFileStyle(side) {
     const style = { width: side, height: side };
 
-    if (CssManager._getBoardStyle().external_rank_and_file.all)
-      Object.assign(
-        style,
-        CssManager._getBoardStyle().external_rank_and_file.all
-      );
+    if (this._boardStyle.external_rank_and_file.all)
+      Object.assign(style, this._boardStyle.external_rank_and_file.all);
 
     return style;
   }
