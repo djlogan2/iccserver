@@ -6,28 +6,49 @@ class Tab extends Component {
     activeTab: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
     src: PropTypes.any,
-    onClick: PropTypes.func.isRequired
+    onClick: PropTypes.func.isRequired,
+    onMouseEnter: PropTypes.func.isRequired,
+    onMouseLeave: PropTypes.func.isRequired
   };
 
   onClick = () => {
     const { label, onClick } = this.props;
     onClick(label);
   };
-
+  onMouseEnter = () => {
+    const { label, onMouseEnter } = this.props;
+    onMouseEnter(label);
+  };
+  onMouseLeave = () => {
+    const { label, onMouseLeave } = this.props;
+    onMouseLeave(label);
+  };
   render() {
     const {
       onClick,
-      props: { activeTab, label, src, tabListName }
+      onMouseEnter,
+      onMouseLeave,
+      props: { activeTab, label, onHover, hoverOut, src, tabListName }
     } = this;
 
-    let tabName;
-
+    let activeTabName;
+    let hover;
     if (activeTab === label) {
-      tabName = activeTab;
+      activeTabName = label;
     }
-
+    if (onHover === label) {
+      hover = label;
+    }
+    if (hoverOut === label) {
+      hover = "";
+    }
     return (
-      <li style={this.props.CssManager.tabListItem(tabName)} onClick={onClick}>
+      <li
+        style={this.props.CssManager.tabListItem(activeTabName, hover)}
+        onClick={onClick}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
         <img
           src={src}
           alt=""

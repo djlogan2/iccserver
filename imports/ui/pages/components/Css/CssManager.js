@@ -47,6 +47,7 @@ export default class CssManager {
 
     return style;
   }
+
   flags(country) {
     var style = {};
     if (this._boardStyle.flags.all)
@@ -109,9 +110,11 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.chatContent.all);
     return style;
   }
-  chatInputBox() {
+  inputBoxStyle(inputBoxName) {
     var style = {};
-    Object.assign(style, this._systemStyle.chatInputBox.all);
+    if (this._systemStyle.InputBox.all)
+      Object.assign(style, this._systemStyle.InputBox.all);
+    Object.assign(style, this._systemStyle.InputBox[inputBoxName]);
     return style;
   }
   chatSendButton() {
@@ -173,10 +176,12 @@ export default class CssManager {
     return style;
   }
 
-  tabListItem(tabActive) {
+  tabListItem(tabActive, hover) {
     var style = {};
     Object.assign(style, this._systemStyle.tabListItem.all);
-    if (tabActive) Object.assign(style, this._systemStyle.tabListItem.active);
+    if (tabActive || hover)
+      Object.assign(style, this._systemStyle.tabListItem.active);
+    if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
     return style;
   }
   TabIcon(tabName) {
@@ -208,7 +213,6 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.tournamentContent.all);
     return style;
   }
-
   //
   // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
   //

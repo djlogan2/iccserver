@@ -21,9 +21,16 @@ export default class ChatComponent extends Component {
             </p>
           </div>
         </div>
-        <div style={this.props.CssManager.chatInputBox()}>
+        <div style={this.props.CssManager.inputBoxStyle("chat")}>
           <input type="text" placeholder="Message..." />
-          <button style={this.props.CssManager.chatSendButton()} type="send" />
+          <button style={this.props.CssManager.buttonStyle()} type="send">
+            <img
+              src={this.props.CssManager.buttonBackgroundImage(
+                "chatSendButton"
+              )}
+              alt="Send"
+            />
+          </button>
         </div>
       </div>
     );
