@@ -1,10 +1,12 @@
 import React, { Component } from "react";
+import CssManager from "../../pages/components/Css/CssManager";
+
 export default class ChatComponent extends Component {
   render() {
     return (
       <div>
         <h3>Chat</h3>
-        <div style={this.props.CssManager.chatContent()}>
+        <div style={CssManager.chatContent()}>
           <div className="user-1">
             <h6>NEW GAME</h6>
             <p>
@@ -21,9 +23,9 @@ export default class ChatComponent extends Component {
             </p>
           </div>
         </div>
-        <div style={this.props.CssManager.chatInputBox()}>
+        <div style={CssManager.chatInputBox()}>
           <input type="text" placeholder="Message..." />
-          <button style={this.props.CssManager.chatSendButton()} type="send" />
+          <button style={CssManager.chatSendButton()} type="send" />
         </div>
       </div>
     );

@@ -6,7 +6,6 @@ class LeftSidebar extends Component {
     return (
       <MenuLinks
         links={this.props.LefSideBoarData.MenuLinks}
-        CssManager={this.props.CssManager}
       />
     );
   }

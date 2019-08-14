@@ -1,5 +1,6 @@
 import React from "react";
 import Square from "./Square";
+import CssManager from "../../../pages/components/Css/CssManager";
 
 /**
  * @param props React properties
@@ -11,7 +12,7 @@ export default class RankSquare extends Square {
   render() {
     return (
       <div
-        style={this.props.CssManager.externalRankAndFileStyle(this.props.side)}
+        style={CssManager.externalRankAndFileStyle(this.props.side)}
       >
         {this._raf.charAt(1)}
       </div>

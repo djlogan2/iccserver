@@ -34,11 +34,13 @@ const fields_viewable_by_account_owner = {
   "profile.legacy.username": 1
 };
 const mongoCss = new Mongo.Collection("css");
+const djlTest = new Mongo.Collection("djl");
 
 function firstRunCSS() {
   if (mongoCss.find().count() === 0) {
     mongoCss.insert(systemcss);
     mongoCss.insert(usercss);
+    djlTest.insert({ djltest: "This is a test from mongo" });
   }
 }
 
@@ -102,14 +104,7 @@ Meteor.startup(() => {
 });
 
 Meteor.publish("css", function() {
-  const user = this.userId || "default-user";
-  // TODO: Find system CSS and if the user is logged in, the users personal css, and if the user isn't logged in, a default user css
-  return mongoCss.find({
-    $or: [
-      { type: "system" },
-      { type: "board", name: { $in: [user, "default-user"] } }
-    ]
-  });
+  return mongoCss.find({ type: { $in: ["system", "board"] } });
 });
 //
 // The fields an average user will see of his own record

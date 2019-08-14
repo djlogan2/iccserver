@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
+import CssManager from "../../pages/components/Css/CssManager";
+
 class ActionComponent extends Component {
-  getLang() {
+  static getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
       navigator.language ||
@@ -13,7 +15,7 @@ class ActionComponent extends Component {
   render() {
     let translator = i18n.createTranslator(
       "Common.actionButtonLabel",
-      this.getLang()
+      ActionComponent.getLang()
     );
     return (
       <div className="draw-section">
@@ -23,10 +25,10 @@ class ActionComponent extends Component {
 		Player can request to take back the last move to the
 		opponent Player. 
 		*/}
-          <li style={this.props.CssManager.drawSectionList()}>
-            <button style={this.props.CssManager.buttonStyle()}>
+          <li style={CssManager.drawSectionList()}>
+            <button style={CssManager.buttonStyle()}>
               <img
-                src={this.props.CssManager.buttonBackgroundImage("takeBack")}
+                src={CssManager.buttonBackgroundImage("takeBack")}
                 alt="TakeBack"
                 style={{ margin: "0 auto", display: "block" }}
               />
@@ -37,10 +39,10 @@ class ActionComponent extends Component {
 		Draw request Component
 		Player can draw arrow and circle on the board.
 		*/}
-          <li style={this.props.CssManager.drawSectionList()}>
-            <button style={this.props.CssManager.buttonStyle()}>
+          <li style={CssManager.drawSectionList()}>
+            <button style={CssManager.buttonStyle()}>
               <img
-                src={this.props.CssManager.buttonBackgroundImage("draw")}
+                src={CssManager.buttonBackgroundImage("draw")}
                 alt="Draw"
                 style={{ margin: "0 auto", display: "block" }}
               />
@@ -51,10 +53,10 @@ class ActionComponent extends Component {
 							Resign Component
 							Players can resign the game.
 							*/}
-          <li style={this.props.CssManager.drawSectionList()}>
-            <button style={this.props.CssManager.buttonStyle()}>
+          <li style={CssManager.drawSectionList()}>
+            <button style={CssManager.buttonStyle()}>
               <img
-                src={this.props.CssManager.buttonBackgroundImage("resign")}
+                src={CssManager.buttonBackgroundImage("resign")}
                 alt="Resign"
                 style={{ margin: "0 auto", display: "block" }}
               />
@@ -64,10 +66,10 @@ class ActionComponent extends Component {
           {/* 
 						Game abort Component
             Players can abort the game. */}
-          <li style={this.props.CssManager.drawSectionList()}>
-            <button style={this.props.CssManager.buttonStyle()}>
+          <li style={CssManager.drawSectionList()}>
+            <button style={CssManager.buttonStyle()}>
               <img
-                src={this.props.CssManager.buttonBackgroundImage("abort")}
+                src={CssManager.buttonBackgroundImage("abort")}
                 alt="Abort"
                 style={{ margin: "0 auto", display: "block" }}
               />

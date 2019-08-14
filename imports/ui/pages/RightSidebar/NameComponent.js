@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import GameShareComponent from "./GameShareComponent";
 import GameSheetDownloadComponent from "./GameSheetDownloadComponent";
 import GameAnalysisComponent from "./GameAnalysisComponent";
+import CssManager from "../../pages/components/Css/CssManager";
+
 export default class NameComponent extends Component {
   /*
         This Component display tournaments Name using Props 
@@ -12,32 +14,32 @@ export default class NameComponent extends Component {
 
   render() {
     return (
-      <div style={this.props.CssManager.gameTopHeader()}>
-        <button style={this.props.CssManager.buttonStyle()}>
+      <div style={CssManager.gameTopHeader()}>
+        <button style={CssManager.buttonStyle()}>
           <img
-            src={this.props.CssManager.buttonBackgroundImage("circleCompass")}
+            src={CssManager.buttonBackgroundImage("circleCompass")}
             alt="Circle Compass"
           />
         </button>
         <span>1/2 - 1/2 US-ch Open 2019</span>
-        <div style={this.props.CssManager.pullRight()}>
+        <div style={CssManager.pullRight()}>
           {/* 
 					 Game Share Component
 					 Player can share the game to invite new players. 
 					*/}
 
-          <GameShareComponent CssManager={this.props.CssManager} />
+          <GameShareComponent />
           {/* 
 					 Game sheet download document Component
 					 Player can download PGN and FEN string for further uses . */}
 
-          <GameSheetDownloadComponent CssManager={this.props.CssManager} />
+          <GameSheetDownloadComponent />
 
           {/* 
 				    Game Analysis Component
 					Player can analysis there game. */}
 
-          <GameAnalysisComponent CssManager={this.props.CssManager} />
+          <GameAnalysisComponent />
         </div>
       </div>
     );

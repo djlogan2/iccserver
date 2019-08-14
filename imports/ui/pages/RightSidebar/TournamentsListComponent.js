@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import CssManager from "../../pages/components/Css/CssManager";
+
 export default class TournamentsListComponent extends Component {
   /**
      * 
@@ -14,7 +16,6 @@ export default class TournamentsListComponent extends Component {
     return (
       <Tournaments
         lists={this.props.TournamentsList}
-        CssManager={this.props.CssManager}
       />
     );
   }
@@ -24,21 +25,21 @@ class Tournaments extends Component {
   render() {
     let listItem = this.props.lists.map((list, index) => {
       return (
-        <div key={index} style={this.props.CssManager.challengeContent()}>
-          <button style={this.props.CssManager.buttonStyle("tournamentButton")}>
-            <span style={this.props.CssManager.spanStyle()}>
+        <div key={index} style={CssManager.challengeContent()}>
+          <button style={CssManager.buttonStyle("tournamentButton")}>
+            <span style={CssManager.spanStyle()}>
               <img src={list.src} alt="" />
             </span>
-            <span style={this.props.CssManager.spanStyle("name")}>
+            <span style={CssManager.spanStyle("name")}>
               {list.name}
             </span>
-            <span style={this.props.CssManager.spanStyle("status")}>
+            <span style={CssManager.spanStyle("status")}>
               {list.status}
             </span>
-            <span style={this.props.CssManager.spanStyle()}>
+            <span style={CssManager.spanStyle()}>
               {list.count}
               <img
-                src={this.props.CssManager.buttonBackgroundImage(
+                src={CssManager.buttonBackgroundImage(
                   "tournamentUserIcon"
                 )}
                 alt="user-icon"
@@ -50,7 +51,7 @@ class Tournaments extends Component {
     });
 
     return (
-      <div style={this.props.CssManager.tournamentContent()}>{listItem}</div>
+      <div style={CssManager.tournamentContent()}>{listItem}</div>
     );
   }
 }

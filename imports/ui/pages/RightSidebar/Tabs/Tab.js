@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import CssManager from "../../../pages/components/Css/CssManager";
 
 class Tab extends Component {
   static propTypes = {
@@ -27,11 +28,11 @@ class Tab extends Component {
     }
 
     return (
-      <li style={this.props.CssManager.tabListItem(tabName)} onClick={onClick}>
+      <li style={CssManager.tabListItem(tabName)} onClick={onClick}>
         <img
           src={src}
           alt=""
-          style={this.props.CssManager.TabIcon(tabListName)}
+          style={CssManager.TabIcon(tabListName)}
         />
         {label}
       </li>

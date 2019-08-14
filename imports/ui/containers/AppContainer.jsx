@@ -1,15 +1,27 @@
 import React, { Component } from "react";
-import { withHistory } from "react-router-dom";
 import MainPage from "./../pages/MainPage";
 import { Meteor } from "meteor/meteor";
-export default class AppContainer extends Component {
+import { Mongo } from "meteor/mongo";
+import { Logger } from "../../../lib/client/Logger";
+import { withTracker } from "meteor/react-meteor-data";
+
+const log = new Logger("client/AppContainerDJL");
+
+class AppContainerComponent extends Component {
   constructor(props) {
     super(props);
-    this.state = this.getMeteorData();
+    //--
+    console.log("css=" + props.css);
+    console.log("user=" + props.user);
+    console.log("loading=" + props.loading);
+    console.log("cssExists=" + props.cssExists);
+    console.log("userExists=" + props.userExists);
+    //--
+    this.state = AppContainer.getMeteorData();
     this.logout = this.logout.bind(this);
   }
 
-  getMeteorData() {
+  static getMeteorData() {
     return { isAuthenticated: Meteor.userId() !== null };
   }
 
@@ -70,3 +82,31 @@ export default class AppContainer extends Component {
       );
   }
 }
+
+AppContainerComponent.propTypes = {
+  css: React.PropTypes.object,
+  user: React.PropTypes.object,
+  loading: React.PropTypes.bool,
+  cssExists: React.PropTypes.bool,
+  userExists: React.PropTypes.bool
+};
+
+const mongoCss = Mongo.Collection("css");
+const mongoUser = Mongo.Collection("userData");
+
+const AppContainer = withTracker(() => {
+  const cssHandle = Meteor.subscribe("css");
+  const udHandle = Meteor.subscribe("userData");
+  const loading = !cssHandle.ready() || !udHandle.ready();
+  const css = mongoCss.find();
+  const user = mongoUser.find();
+  return {
+    loading: loading,
+    css: css,
+    user: user,
+    cssExists: !loading && !!css,
+    userExists: !loading && !!user
+  };
+})(AppContainerComponent);
+
+export default AppContainer;

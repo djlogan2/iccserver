@@ -7,12 +7,9 @@ export default class GameComponent extends Component {
   render() {
     return (
       <div>
-        <Name CssManager={this.props.CssManager} />
-        <MoveList
-          CssManager={this.props.CssManager}
-          Moves={this.props.MoveHistory}
-        />
-        <Action CssManager={this.props.CssManager} />
+        <Name />
+        <MoveList Moves={this.props.MoveHistory} />
+        <Action />
       </div>
     );
   }

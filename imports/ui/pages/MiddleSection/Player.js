@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import Clock from "./ClockComponent";
+import CssManager from "../../pages/components/Css/CssManager";
+
 export default class Player extends Component {
   constructor(props) {
     super(props);
@@ -19,13 +21,13 @@ export default class Player extends Component {
           alt=""
           title=""
         />
-        <div style={this.props.CssManager.tagLine()}>
-          <a href="#/" target="_blank" style={this.props.CssManager.userName()}>
+        <div style={CssManager.tagLine()}>
+          <a href="#/" target="_blank" style={CssManager.userName()}>
             {this.props.PlayerData.Name}({this.props.PlayerData.Rating})
           </a>
-          <i style={this.props.CssManager.flags(this.props.PlayerData.Flag)} />
+          <i style={CssManager.flags(this.props.PlayerData.Flag)} />
         </div>
-        <Clock CssManager={this.props.CssManager} ClockData={this.state} />
+        <Clock ClockData={this.state} />
       </div>
     );
   }

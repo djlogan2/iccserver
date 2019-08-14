@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Tab from "./Tab";
+import CssManager from "../../../pages/components/Css/CssManager";
 
 class Tabs extends Component {
   static propTypes = {
@@ -24,15 +25,14 @@ class Tabs extends Component {
     } = this;
     let tabName = this.props.tabName;
     return (
-      <div style={this.props.CssManager.tab()}>
-        <ol style={this.props.CssManager.tabList(tabName)}>
+      <div style={CssManager.tab()}>
+        <ol style={CssManager.tabList(tabName)}>
           {children.map(child => {
             const { label, imgsrc } = child.props;
 
             return (
               <Tab
                 tabListName={tabName}
-                CssManager={this.props.CssManager}
                 activeTab={activeTab}
                 key={label}
                 label={label}
@@ -42,7 +42,7 @@ class Tabs extends Component {
             );
           })}
         </ol>
-        <div style={this.props.CssManager.tabContent()}>
+        <div style={CssManager.tabContent()}>
           {children.map(child => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;

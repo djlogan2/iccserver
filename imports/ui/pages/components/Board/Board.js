@@ -6,7 +6,6 @@ import FileSquare from "./FileSquare.js";
 
 /**
  * @param props React properties
- * @param props.CssManager {CssManager} The CSS Manager
  * @param props.circle.lineWidth the line width for the circle
  * @param props.circle.color the line color for the circle
  * @param props.arrow.lineWidth the line width for the arrow
@@ -233,7 +232,6 @@ export default class Board extends React.Component {
   _renderFileSquare(file) {
     return (
       <FileSquare
-        CssManager={this.props.CssManager}
         file={file}
         side={this._square_side}
         key={"filesquare-" + file}
@@ -276,7 +274,6 @@ export default class Board extends React.Component {
 
     return (
       <RankSquare
-        CssManager={this.props.CssManager}
         rank={rank}
         side={this._square_side}
         key={"ranksquare-" + rank}
@@ -314,7 +311,6 @@ export default class Board extends React.Component {
 
     return (
       <PieceSquare
-        CssManager={this.props.CssManager}
         rank={rank}
         file={file}
         key={"piece-" + file + rank}

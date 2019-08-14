@@ -23,7 +23,7 @@ export default class RightBarTop extends Component {
     );
 
     return (
-      <Tabs CssManager={this.props.CssManager}>
+      <Tabs >
         {/* 
 		    GameHistory is the dynamic component and loads as Player
 		  	starts the game.
@@ -31,13 +31,12 @@ export default class RightBarTop extends Component {
 	    	*/}
         <div label={translator("game")} imgsrc="images/game-icon-gray.png">
           <GameHistory
-            CssManager={this.props.CssManager}
             MoveHistory={this.props.RightBarTopData.MoveList.GameMove}
           />
         </div>
 
         <div label={translator("play")} imgsrc="images/play-icon-gray.png">
-          <CreateGame CssManager={this.props.CssManager} />
+          <CreateGame />
         </div>
 
         {/*  Tournament list
@@ -48,7 +47,6 @@ export default class RightBarTop extends Component {
           imgsrc="images/tournament-icon-gray.png"
         >
           <TournamentsList
-            CssManager={this.props.CssManager}
             TournamentsList={
               this.props.RightBarTopData.TournamentList.Tournaments
             }

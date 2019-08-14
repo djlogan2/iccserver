@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
+import CssManager from "../../pages/components/Css/CssManager";
 
 class MenuLinks extends Component {
-  getLang() {
+  static getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
       navigator.language ||
@@ -14,7 +15,7 @@ class MenuLinks extends Component {
   render() {
     let translator = i18n.createTranslator(
       "Common.menuLinkLabel",
-      this.getLang()
+      MenuLinks.getLang()
     );
     let linksMarkup = this.props.links.map((link, index) => {
       let linkMarkup = link.active ? (
@@ -28,7 +29,7 @@ class MenuLinks extends Component {
       );
 
       return (
-        <li key={index} style={this.props.CssManager.showLg()}>
+        <li key={index} style={CssManager.showLg()}>
           {linkMarkup}
         </li>
       );

@@ -5,10 +5,7 @@ import FileSquare from "../pages/components/Board/FileSquare";
 import Board from "../pages/components/Board/Board";
 import "../pages/css/developmentboard.css";
 import Chess from "chess.js";
-import CssManager from "../pages/components/Css/CssManager";
 import MoveListComponent from "../pages/RightSidebar/MoveListComponent";
-
-const css = new CssManager("developmentcss");
 
 class TestContainer extends Component {
   constructor(props) {
@@ -114,7 +111,7 @@ class TestContainer extends Component {
       "c4",
       ["b6", ["f5", ["f4", ["e3", "g5", "f3"]]]]
     ];
-    return <MoveListComponent CssManager={css} moves={moveList} />;
+    return <MoveListComponent moves={moveList} />;
   }
 
   renderBoard() {
@@ -138,7 +135,6 @@ class TestContainer extends Component {
       <div style={{ width: "100%" }}>
         <div style={{ id: "board-left", float: "left", width: w, height: h }}>
           <Board
-            CssManager={css}
             board={chess.board()}
             draw_rank_and_file={this.state.draw_rank_and_file}
             side={size}
@@ -180,7 +176,6 @@ class TestContainer extends Component {
     return (
       <div>
         <PieceSquare
-          CssManager={css}
           rank={0}
           file={0}
           color={"b"}
@@ -192,7 +187,6 @@ class TestContainer extends Component {
           circle={{ color: "red", lineWidth: 5 }}
         />
         <PieceSquare
-          CssManager={css}
           rank={0}
           file={1}
           color={"w"}
@@ -204,7 +198,6 @@ class TestContainer extends Component {
           circle={{ color: "green", lineWidth: 10 }}
         />
         <PieceSquare
-          CssManager={css}
           rank={0}
           file={2}
           onMouseDown={() => console.log("here")}
@@ -213,7 +206,6 @@ class TestContainer extends Component {
           side={100}
         />
         <PieceSquare
-          CssManager={css}
           rank={0}
           file={3}
           onMouseDown={() => console.log("here")}
@@ -222,8 +214,8 @@ class TestContainer extends Component {
           draw_rank_and_file={"br"}
           circle={{ color: "yellow", lineWidth: 20 }}
         />
-        <RankSquare CssManager={css} rank={0} file={3} side={100} />
-        <FileSquare CssManager={css} rank={0} file={3} side={100} />
+        <RankSquare rank={0} file={3} side={100} />
+        <FileSquare rank={0} file={3} side={100} />
       </div>
     );
   }

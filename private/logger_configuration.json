@@ -1,6 +1,9 @@
 {
-    "server/RealTime_js": "TRACE",
-    "server/main_js": "TRACE",
-    "server/LegacyUser_js": "TRACE",
-    "client/main_js": "TRACE"
+    "client/MainPage": "TRACE",
+    "Css/CssManager_js": "TRACE",
+    "client/AppContainerDJL": "TRACE",
+
+    "server/LegacyUser_js": "ERROR",
+    "server/main_js": "ERROR",
+    "server/RealTime_js": "ERROR"
 }

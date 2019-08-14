@@ -10,13 +10,9 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { RealTime } from "../../../lib/client/RealTime";
-import CssManager from "../pages/components/Css/CssManager";
 import { Logger, SetupLogger } from "../../../lib/client/Logger";
 
-const css = new CssManager("developmentcss");
 const log = new Logger("client/MainPage");
-
-Meteor.subscribe("userData");
 
 export default class MainPage extends TrackerReact(Component) {
   constructor(props) {
@@ -126,6 +122,12 @@ export default class MainPage extends TrackerReact(Component) {
       var records = RealTime.collection
         .find({ nid: { $gt: us.rm_index } }, { sort: { nid: 1 } })
         .fetch();
+      console.log(
+        "Fetched " + records.length + " records from realtime_messages",
+        {
+          records: records
+        }
+      );
       log.debug(
         "Fetched " + records.length + " records from realtime_messages",
         {
@@ -159,6 +161,12 @@ export default class MainPage extends TrackerReact(Component) {
         }
       });
     });
+
+    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+      log.error(errorMsg + "::" + url + "::" + lineNumber);
+      //alert("Error occured: " + errorMsg);//or any message
+      return false;
+    }
   }
 
   render() {
@@ -185,7 +193,6 @@ export default class MainPage extends TrackerReact(Component) {
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
                 <LeftSidebar
-                  CssManager={css}
                   LefSideBoarData={this.Main.LeftSection}
                 />
               </div>
@@ -194,14 +201,12 @@ export default class MainPage extends TrackerReact(Component) {
           {/* <div className="col-sm-5 col-md-8 col-lg-5 "> */}
           <div style={{ float: "left", width: w, height: h }}>
             <MiddleBoard
-              CssManager={css}
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             <RightSidebar
-              CssManager={css}
               RightSidebarData={this.Main.RightSection}
             />
           </div>
