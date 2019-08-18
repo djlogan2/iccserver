@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import { Tracker } from "meteor/tracker";
 import PropTypes from "prop-types";
-import { Meteor } from "meteor/meteor";
-import TrackerReact from "meteor/ultimatejs:tracker-react";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
 import "./css/ChessBoard";
@@ -14,18 +12,16 @@ import { Logger, SetupLogger } from "../../../lib/client/Logger";
 
 const log = new Logger("client/MainPage");
 
-export default class MainPage extends TrackerReact(Component) {
+export default class MainPage extends Component {
   constructor(props) {
     super(props);
+    console.log("MainPage, cssmanager=" + props.cssmanager);
     this.state = {
       username: "",
       visible: false,
       IsBlackActive: true,
       IsWhiteActive: false,
-      move: null,
-      subscription: {
-        tasks: Meteor.subscribe("userData")
-      }
+      move: null
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.Main = {
@@ -166,11 +162,12 @@ export default class MainPage extends TrackerReact(Component) {
       log.error(errorMsg + "::" + url + "::" + lineNumber);
       //alert("Error occured: " + errorMsg);//or any message
       return false;
-    }
+    };
   }
 
   render() {
     // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
+    console.log("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
 
@@ -193,6 +190,7 @@ export default class MainPage extends TrackerReact(Component) {
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
                 <LeftSidebar
+                  cssmanager={this.props.cssmanager}
                   LefSideBoarData={this.Main.LeftSection}
                 />
               </div>
@@ -201,12 +199,14 @@ export default class MainPage extends TrackerReact(Component) {
           {/* <div className="col-sm-5 col-md-8 col-lg-5 "> */}
           <div style={{ float: "left", width: w, height: h }}>
             <MiddleBoard
+              cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             <RightSidebar
+              cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
             />
           </div>

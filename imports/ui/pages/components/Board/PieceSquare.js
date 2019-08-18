@@ -1,7 +1,6 @@
 import React from "react";
 import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
-import CssManager from "../../../pages/components/Css/CssManager";
 
 /**
  * @param props React properties
@@ -53,7 +52,7 @@ export default class PieceSquare extends Square {
 
   renderRankAndFile() {
     if (this.props.draw_rank_and_file) {
-      const rafStyle = CssManager.internalRankAndFileStyle(
+      const rafStyle = this.props.cssmanager.internalRankAndFileStyle(
         this.props.draw_rank_and_file,
         this._squarecolor,
         this.props.side
@@ -77,7 +76,7 @@ export default class PieceSquare extends Square {
     // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
     //
 
-    const squareStyle = CssManager.squareStyle(
+    const squareStyle = this.props.cssmanager.squareStyle(
       this._squarecolor,
       this.props.piece,
       this.props.color,
@@ -86,7 +85,7 @@ export default class PieceSquare extends Square {
 
     let canvasStyle;
     if (this.props.circle)
-      canvasStyle = CssManager.squareCanvasStyle(this.props.side);
+      canvasStyle = this.props.cssmanager.squareCanvasStyle(this.props.side);
 
     return (
       <div

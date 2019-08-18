@@ -1,31 +1,14 @@
-import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../../lib/client/Logger";
-import { Tracker } from "meteor/tracker";
-import { Mongo } from "meteor/mongo";
-
 const log = new Logger("Css/CssManager_js");
-const mongoCss = new Mongo.Collection("css");
 /**
  * CssManager
  */
 
 export default class CssManager {
-  constructor(css) {
-    const us = this;
-
-    // Meteor.call("userCss", css, function(error, result) {
-    //   if (error) log.error(error);
-    //   //us.css = result || developmentcss;
-    // });
-
-    Tracker.autorun(function() {
-      Meteor.subscribe("css");
-    });
-
-    us._boardStyle = mongoCss.findOne("user");
-    us._systemStyle = mongoCss.findOne("system");
+  constructor(systemStyle, boardStyle) {
+    this._systemStyle = systemStyle;
+    this._boardStyle = boardStyle;
   }
-
   /**
    *
    * @param squareColor 'b' or 'w' for the color of the square

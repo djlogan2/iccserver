@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
-import CssManager from "../../pages/components/Css/CssManager";
 
 class ActionComponent extends Component {
   static getLang() {
@@ -25,10 +24,10 @@ class ActionComponent extends Component {
 		Player can request to take back the last move to the
 		opponent Player. 
 		*/}
-          <li style={CssManager.drawSectionList()}>
-            <button style={CssManager.buttonStyle()}>
+          <li style={this.props.cssmanager.drawSectionList()}>
+            <button style={this.props.cssmanager.buttonStyle()}>
               <img
-                src={CssManager.buttonBackgroundImage("takeBack")}
+                src={this.props.cssmanager.buttonBackgroundImage("takeBack")}
                 alt="TakeBack"
                 style={{ margin: "0 auto", display: "block" }}
               />
@@ -39,10 +38,10 @@ class ActionComponent extends Component {
 		Draw request Component
 		Player can draw arrow and circle on the board.
 		*/}
-          <li style={CssManager.drawSectionList()}>
-            <button style={CssManager.buttonStyle()}>
+          <li style={this.props.cssmanager.drawSectionList()}>
+            <button style={this.props.cssmanager.buttonStyle()}>
               <img
-                src={CssManager.buttonBackgroundImage("draw")}
+                src={this.props.cssmanager.buttonBackgroundImage("draw")}
                 alt="Draw"
                 style={{ margin: "0 auto", display: "block" }}
               />
@@ -53,10 +52,10 @@ class ActionComponent extends Component {
 							Resign Component
 							Players can resign the game.
 							*/}
-          <li style={CssManager.drawSectionList()}>
-            <button style={CssManager.buttonStyle()}>
+          <li style={this.props.cssmanager.drawSectionList()}>
+            <button style={this.props.cssmanager.buttonStyle()}>
               <img
-                src={CssManager.buttonBackgroundImage("resign")}
+                src={this.props.cssmanager.buttonBackgroundImage("resign")}
                 alt="Resign"
                 style={{ margin: "0 auto", display: "block" }}
               />
@@ -66,10 +65,10 @@ class ActionComponent extends Component {
           {/* 
 						Game abort Component
             Players can abort the game. */}
-          <li style={CssManager.drawSectionList()}>
-            <button style={CssManager.buttonStyle()}>
+          <li style={this.props.cssmanager.drawSectionList()}>
+            <button style={this.props.cssmanager.buttonStyle()}>
               <img
-                src={CssManager.buttonBackgroundImage("abort")}
+                src={this.props.cssmanager.buttonBackgroundImage("abort")}
                 alt="Abort"
                 style={{ margin: "0 auto", display: "block" }}
               />

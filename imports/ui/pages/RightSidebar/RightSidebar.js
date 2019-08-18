@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import RightBarTop from "./RightBarTop";
 import RightBarBottom from "./RightBarBottom";
-import CssManager from "../components/Css/CssManager";
+
 class RightSidebar extends Component {
   constructor(props) {
     super(props);
@@ -13,11 +13,14 @@ class RightSidebar extends Component {
   render() {
     return (
       <div className="right-content-desktop">
-        <div style={CssManager.rightTopContent()}>
-          <RightBarTop RightBarTopData={this.props.RightSidebarData} />
+        <div style={this.props.cssmanager.rightTopContent()}>
+          <RightBarTop
+            RightBarTopData={this.props.RightSidebarData}
+            cssmanager={this.props.cssmanager}
+          />
         </div>
-        <div style={CssManager.rightBottomContent()}>
-          <RightBarBottom />
+        <div style={this.props.cssmanager.rightBottomContent()}>
+          <RightBarBottom cssmanager={this.props.cssmanager} />
         </div>
       </div>
     );

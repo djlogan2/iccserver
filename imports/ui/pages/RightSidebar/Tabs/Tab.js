@@ -44,7 +44,7 @@ class Tab extends Component {
     }
     return (
       <li
-        style={this.props.CssManager.tabListItem(activeTabName, hover)}
+        style={this.props.cssmanager.tabListItem(activeTabName, hover)}
         onClick={onClick}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
@@ -52,7 +52,7 @@ class Tab extends Component {
         <img
           src={src}
           alt=""
-          style={this.props.CssManager.TabIcon(tabListName)}
+          style={this.props.cssmanager.TabIcon(tabListName)}
         />
         {label}
       </li>

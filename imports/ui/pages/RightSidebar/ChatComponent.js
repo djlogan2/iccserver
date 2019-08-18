@@ -4,7 +4,7 @@ export default class ChatComponent extends Component {
     return (
       <div>
         <h3>Chat</h3>
-        <div style={this.props.CssManager.chatContent()}>
+        <div style={this.props.cssmanager.chatContent()}>
           <div className="user-1">
             <h6>NEW GAME</h6>
             <p>
@@ -21,11 +21,11 @@ export default class ChatComponent extends Component {
             </p>
           </div>
         </div>
-        <div style={this.props.CssManager.inputBoxStyle("chat")}>
+        <div style={this.props.cssmanager.inputBoxStyle("chat")}>
           <input type="text" placeholder="Message..." />
-          <button style={this.props.CssManager.buttonStyle()} type="send">
+          <button style={this.props.cssmanager.buttonStyle()} type="send">
             <img
-              src={this.props.CssManager.buttonBackgroundImage(
+              src={this.props.cssmanager.buttonBackgroundImage(
                 "chatSendButton"
               )}
               alt="Send"

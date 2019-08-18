@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
-import CssManager from "../../pages/components/Css/CssManager";
 
 class MenuLinks extends Component {
   static getLang() {
@@ -29,7 +28,7 @@ class MenuLinks extends Component {
       );
 
       return (
-        <li key={index} style={CssManager.showLg()}>
+        <li key={index} style={this.props.cssmanager.showLg()}>
           {linkMarkup}
         </li>
       );

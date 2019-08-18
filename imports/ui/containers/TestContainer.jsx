@@ -135,6 +135,7 @@ class TestContainer extends Component {
       <div style={{ width: "100%" }}>
         <div style={{ id: "board-left", float: "left", width: w, height: h }}>
           <Board
+            cssmanager={this.props.cssmanager}
             board={chess.board()}
             draw_rank_and_file={this.state.draw_rank_and_file}
             side={size}
@@ -214,8 +215,18 @@ class TestContainer extends Component {
           draw_rank_and_file={"br"}
           circle={{ color: "yellow", lineWidth: 20 }}
         />
-        <RankSquare rank={0} file={3} side={100} />
-        <FileSquare rank={0} file={3} side={100} />
+        <RankSquare
+          cssmanager={this.props.cssmanager}
+          rank={0}
+          file={3}
+          side={100}
+        />
+        <FileSquare
+          cssmanager={this.props.cssmanager}
+          rank={0}
+          file={3}
+          side={100}
+        />
       </div>
     );
   }

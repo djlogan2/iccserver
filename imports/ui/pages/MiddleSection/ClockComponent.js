@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import CssManager from "../../pages/components/Css/CssManager";
 
 const TOTAL_MINUTES = 60;
 export default class ClockComponent extends Component {
@@ -47,7 +46,7 @@ export default class ClockComponent extends Component {
     }
     return (
       <div className="clock-top">
-        <div style={CssManager.clock(time)}>
+        <div style={this.props.cssmanager.clock(time)}>
           {minutes}:{seconds}
         </div>
       </div>

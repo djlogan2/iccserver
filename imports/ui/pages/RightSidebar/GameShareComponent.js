@@ -1,12 +1,11 @@
 import React, { Component } from "react";
-import CssManager from "../../pages/components/Css/CssManager";
 
 export default class GameShareComponent extends Component {
   render() {
     return (
-      <button style={CssManager.buttonStyle()}>
+      <button style={this.props.cssmanager.buttonStyle()}>
         <img
-          src={CssManager.buttonBackgroundImage("gameShare")}
+          src={this.props.cssmanager.buttonBackgroundImage("gameShare")}
           alt="Game Share"
         />
       </button>

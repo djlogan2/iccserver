@@ -4,7 +4,6 @@ import Player from "./Player";
 import Board from "../components/Board/Board";
 import "../css/developmentboard.css";
 import Chess from "chess.js";
-import CssManager from "../../pages/components/Css/CssManager";
 
 export default class MiddleBoard extends Component {
   constructor(props) {
@@ -145,16 +144,17 @@ export default class MiddleBoard extends Component {
 
     return (
       <div>
-        <button style={CssManager.buttonStyle("middleBoard")}>
+        <button style={this.props.cssmanager.buttonStyle("middleBoard")}>
           <img
-            src={CssManager.buttonBackgroundImage("fullScreen")}
+            src={this.props.cssmanager.buttonBackgroundImage("fullScreen")}
             alt="full-screen"
           />
         </button>
-        <Player PlayerData={topPlayer} />
+        <Player PlayerData={topPlayer} cssmanager={this.props.cssmanager} />
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
+              cssmanager={this.props.cssmanager}
               board={chess.board()}
               draw_rank_and_file={this.state.draw_rank_and_file}
               side={size}
@@ -192,7 +192,7 @@ export default class MiddleBoard extends Component {
             </p>
           </div>
         </div>
-        <Player PlayerData={bottomPlayer} />
+        <Player PlayerData={bottomPlayer} cssmanager={this.props.cssmanager} />
       </div>
     );
   }

@@ -1,12 +1,11 @@
 import React, { Component } from "react";
-import CssManager from "../../pages/components/Css/CssManager";
 
 export default class GameSheetDownloadComponent extends Component {
   render() {
     return (
-      <button style={CssManager.buttonStyle()}>
+      <button style={this.props.cssmanager.buttonStyle()}>
         <img
-          src={CssManager.buttonBackgroundImage("gameDownload")}
+          src={this.props.cssmanager.buttonBackgroundImage("gameDownload")}
           alt="Game Download"
         />
       </button>
