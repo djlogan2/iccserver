@@ -61,7 +61,7 @@ export default class MainPage extends Component {
 
   componentDidMount() {
     this.intervalId = setInterval(() => {
-      // this.randomMoveObject();
+      this.randomMoveObject();
     }, 5000);
   }
 
@@ -166,7 +166,13 @@ export default class MainPage extends Component {
   }
 
   render() {
-    // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
+    this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
+    let buttonStyle;
+    if (this.state.visible === true) {
+      buttonStyle = "toggleClose";
+    } else {
+      buttonStyle = "toggleOpen";
+    }
     console.log("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
@@ -189,6 +195,18 @@ export default class MainPage extends Component {
                 <div className="pull-left image">
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
+                <button
+                  style={this.props.cssmanager.buttonStyle(buttonStyle)}
+                  onClick={this.toggleMenu}
+                >
+                  <img
+                    src={this.props.cssmanager.buttonBackgroundImage(
+                      "toggleMenu"
+                    )}
+                    style={{ height: "30px" }}
+                    alt="toggle menu"
+                  />
+                </button>
                 <LeftSidebar
                   cssmanager={this.props.cssmanager}
                   LefSideBoarData={this.Main.LeftSection}

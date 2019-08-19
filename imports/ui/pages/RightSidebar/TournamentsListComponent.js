@@ -15,6 +15,7 @@ export default class TournamentsListComponent extends Component {
     return (
       <Tournaments
         lists={this.props.TournamentsList}
+        cssmanager={this.props.cssmanager}
       />
     );
   }

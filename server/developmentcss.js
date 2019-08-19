@@ -35,7 +35,8 @@ const systemcss = {
     settingIcon: "images/setting-icon.png",
     fullScreen: "images/full-screen-icon.png",
     tournamentUserIcon: "images/user-icon.png",
-    chatSendButton: "images/send-btn.png"
+    chatSendButton: "images/send-btn.png",
+    toggleMenu: "images/menu-button-of-three-lines.svg"
   },
 
   button: {
@@ -57,14 +58,30 @@ const systemcss = {
       maxHeight: "40px",
       cursor: "pointer",
       width: "100%",
-      borderBottom: "1px solid #e8e7e6",
       color: "#a7a6a2 !important"
     },
-    middleBoard: {
-      float: "right"
+    toggleOpen: {
+      textAlign: "center",
+      position: "absolute",
+      left: "130px",
+      top: "16px",
+      width: "26px",
+      overflow: "hidden",
+      zIndex: "99"
     },
-    w: {
-      backgroundColor: "green"
+    toggleClose: {
+      textAlign: "center",
+      position: "absolute",
+      left: "10px",
+      top: "56px",
+      width: "26px",
+      overflow: "hidden",
+      zIndex: "99"
+    },
+    middleBoard: {
+      textAlign: "center",
+      float: "right",
+      margin: "10px 5px 0 0"
     }
   },
   chatContent: {
@@ -263,15 +280,9 @@ const usercss = {
     }
   },
   flags: {
-    all: {
-      backgroundImage: "images/user-flag.png"
-    },
-    in: {
-      backgroundImage: "india.png"
-    },
-    us: {
-      backgroundImage: "images/user-flag.png"
-    }
+    all: "images/user-flag.png",
+    in: "images/india.png",
+    us: "images/user-flag.png"
   },
   clock: {
     all: {
@@ -292,20 +303,36 @@ const usercss = {
       color: "red"
     }
   },
+  boardPlayer: {
+    all: {
+      position: "relative",
+      display: "flex",
+      flex: "0 0 40px",
+      flexDirection: "row",
+      height: "90px",
+      minHeight: "90px",
+      paddingTop: "0",
+      paddingBottom: "3px",
+      paddingLeft: "0",
+      lineHeight: "68px",
+      alignItems: "center",
+      width: "100%"
+    }
+  },
   square: {
     all: {},
     w: {
-      backgroundColor: "green"
+      backgroundColor: "#1565c0"
     },
     b: {
-      backgroundColor: "yellow"
+      backgroundColor: "#fff"
     }
   },
   external_rank_and_file: {
     all: {
       float: "left",
       position: "relative",
-      color: "black"
+      color: "white"
     }
   },
   internal_rank_and_file: {

@@ -21,10 +21,12 @@ export default class MiddleBoard extends Component {
     };
 
     this.state = {
-      draw_rank_and_file: "tl",
+      draw_rank_and_file: "br",
       top: "b",
       whitePlayer: player,
-      blackPlayer: player
+      blackPlayer: player,
+      height: 500,
+      width: 1000
     };
   }
 
@@ -164,7 +166,7 @@ export default class MiddleBoard extends Component {
               ref="board"
             />
           </div>
-          <div
+          {/* <div
             style={{ id: "board-right", float: "left", width: w, height: h }}
           >
             <button onClick={this.switchSides}>{newColor} on top</button>
@@ -190,7 +192,7 @@ export default class MiddleBoard extends Component {
                 <option value="green">Green</option>
               </select>
             </p>
-          </div>
+          </div> */}
         </div>
         <Player PlayerData={bottomPlayer} cssmanager={this.props.cssmanager} />
       </div>

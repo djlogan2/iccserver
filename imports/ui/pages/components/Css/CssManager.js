@@ -32,11 +32,9 @@ export default class CssManager {
   }
 
   flags(country) {
-    var style = {};
-    if (this._boardStyle.flags.all)
-      Object.assign(style, this._boardStyle.flags.all);
-    Object.assign(style, this._boardStyle.flags[country]);
-
+    var style;
+    if (this._boardStyle.flags.all) style = this._boardStyle.flags.all;
+    style = this._boardStyle.flags[country];
     return style;
   }
 
@@ -55,6 +53,11 @@ export default class CssManager {
     var style = {};
     Object.assign(style, this._boardStyle.clock.all);
     if (time <= 10) Object.assign(style, this._boardStyle.clock.alert);
+    return style;
+  }
+  boardPlayer() {
+    var style = {};
+    Object.assign(style, this._boardStyle.boardPlayer.all);
     return style;
   }
   //This css code for Right sidebar
@@ -207,7 +210,9 @@ export default class CssManager {
       zIndex: 2
     };
   }
-
+  ribbonMoveList() {
+    return {};
+  }
   /**
    *
    * @param which Position of the text

@@ -24,7 +24,10 @@ export default class Player extends Component {
           <a href="#/" target="_blank" style={this.props.cssmanager.userName()}>
             {this.props.PlayerData.Name}({this.props.PlayerData.Rating})
           </a>
-          <i style={this.props.cssmanager.flags(this.props.PlayerData.Flag)} />
+          <img
+            src={this.props.cssmanager.flags(this.props.PlayerData.Flag)}
+            alt={this.props.PlayerData.Flag}
+          />
         </div>
         <Clock cssmanager={this.props.cssmanager} ClockData={this.state} />
       </div>

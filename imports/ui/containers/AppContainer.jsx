@@ -40,6 +40,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
     return mongoUser.find().fetch();
   }
 
+  // loginUserRecord() {
+  //   console.log("Login user Records");
+  //   return mongoLoginUser.find().fetch();
+  // }
+
   isAuthenticated() {
     console.log("isAuthenticated");
     return Meteor.userId() !== null;
@@ -87,7 +92,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
       return <div>Loading...</div>;
 
     const css = new CssManager(this.systemCSS(), this.boardCSS());
-
+    //console.log(this.loginUserRecord());
+    //const user = this.loginUserRecord();
     //
     return (
       <div>

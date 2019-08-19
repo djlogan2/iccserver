@@ -9,7 +9,7 @@ export default class GameComponent extends Component {
       <div>
         <Name cssmanager={this.props.cssmanager} />
         <MoveList
-          cssmanager={this.props.cssmanager}
+          CssManager={this.props.cssmanager}
           Moves={this.props.MoveHistory}
         />
         <Action cssmanager={this.props.cssmanager} />
