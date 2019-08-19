@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Tracker } from "meteor/tracker";
 import PropTypes from "prop-types";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
@@ -7,15 +6,13 @@ import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
-import { RealTime } from "../../../lib/client/RealTime";
-import { Logger, SetupLogger } from "../../../lib/client/Logger";
+import { Logger } from "../../../lib/client/Logger";
 
 const log = new Logger("client/MainPage");
 
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
-    console.log("MainPage, cssmanager=" + props.cssmanager);
     this.state = {
       username: "",
       visible: false,
@@ -56,7 +53,6 @@ export default class MainPage extends Component {
         }
       }
     };
-    this.mainMeteorLoop();
   }
 
   componentDidMount() {
@@ -85,84 +81,6 @@ export default class MainPage extends Component {
 
   toggleMenu() {
     this.setState({ visible: !this.state.visible });
-  }
-
-  //
-  // Our reactive autorun. At this point, it's sole purpose is to retrieve the realtime records being sent
-  // from the server, which facilitates game play, time synchronization (lag measurement), that sort of thing.
-  //
-  // In the future, we could use realtime messages for more, but in general, I want to restrict it primarily to
-  // game play and lag measurements...things that REQUIRE the most accurate timing, and don't really fit the
-  // "write to mongo, server notices, sends updates to clients" model (like, say, messages.)
-  //
-
-  game_start(msg) {
-    this.refs.middleBoard.startGame(msg);
-    // {"white":{"name":"F44","rating":2172},"black":{"name":"Huba","rating":2252}}
-
-    console.log("game_start");
-  }
-
-  game_move() {
-    console.log("game_start");
-  }
-
-  update_game_clock() {
-    console.log("game_start");
-  }
-
-  mainMeteorLoop() {
-    this.rm_index = 0;
-    const us = this;
-    Tracker.autorun(function() {
-      var records = RealTime.collection
-        .find({ nid: { $gt: us.rm_index } }, { sort: { nid: 1 } })
-        .fetch();
-      console.log(
-        "Fetched " + records.length + " records from realtime_messages",
-        {
-          records: records
-        }
-      );
-      log.debug(
-        "Fetched " + records.length + " records from realtime_messages",
-        {
-          records: records
-        }
-      );
-      if (records.length) us.rm_index = records[records.length - 1].nid;
-      records.forEach(rec => {
-        log.debug("realtime_record", rec);
-        us.rm_index = rec.nid;
-        switch (rec.type) {
-          case "setup_logger":
-            SetupLogger.addLoggers(rec.message);
-            break;
-
-          case "game_start":
-            us.game_start(rec);
-            break;
-
-          case "game_move":
-            us.game_move(rec);
-            break;
-
-          case "update_game_clock":
-            us.update_game_clock(rec);
-            break;
-
-          case "error":
-          default:
-            log.error("realtime_message default", rec);
-        }
-      });
-    });
-
-    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-      log.error(errorMsg + "::" + url + "::" + lineNumber);
-      //alert("Error occured: " + errorMsg);//or any message
-      return false;
-    };
   }
 
   render() {
@@ -202,6 +120,7 @@ export default class MainPage extends Component {
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
+              board={this.props.board}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">

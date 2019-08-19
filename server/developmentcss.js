@@ -48,7 +48,6 @@ const systemcss = {
       flex: "1"
     },
     tournamentButton: {
-      borderBottom: "1px solid #e8e7e6",
       display: "flex",
       flexWrap: "nowrap",
       alignItems: "center",

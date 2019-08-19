@@ -1,53 +1,70 @@
-import React, { Component } from "react";
+import React from "react";
 import MainPage from "./../pages/MainPage";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-import { Logger } from "../../../lib/client/Logger";
+import { Logger, SetupLogger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
+import Chess from "chess.js";
 
 const log = new Logger("client/AppContainerDJL");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
+const realtime_messages = new Mongo.Collection("realtime_messages");
+
+window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+  log.error(errorMsg + "::" + url + "::" + lineNumber);
+  return false;
+};
 
 export default class AppContainer extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
+    this._rm_index = 0;
     this.state = {
       subscription: {
         css: Meteor.subscribe("css"),
-        user: Meteor.subscribe("userData")
+        user: Meteor.subscribe("userData"),
+        realtime: Meteor.subscribe("realtime_messages")
       },
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
   }
 
-  systemCSS() {
-    console.log("systemCSS");
+  _systemCSS() {
+    console.log("_systemCSS");
     return mongoCss.findOne({ type: "system" });
   }
 
-  boardCSS() {
-    console.log("boardCSS");
+  _boardCSS() {
     return mongoCss.findOne({
       $and: [{ type: "board" }, { name: "default-user" }]
     });
   }
 
   userRecord() {
-    console.log("userRecord");
     return mongoUser.find().fetch();
   }
 
   isAuthenticated() {
-    console.log("isAuthenticated");
     return Meteor.userId() !== null;
+  }
+
+  _legacyMessages() {
+    const records = realtime_messages
+      .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
+      .fetch();
+    log.debug("Fetched " + records.length + " records from realtime_messages", {
+      records: records
+    });
+    return records;
   }
 
   componentWillUnmount() {
     this.state.subscription.css.stop();
     this.state.subscription.user.stop();
+    this.state.subscription.realtime.stop();
   }
 
   componentWillMount() {
@@ -74,9 +91,40 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.props.history.push("/login");
   }
 
+  _boardFromMessages(legacymessages) {
+    if (legacymessages.length)
+      this._rm_index = legacymessages[legacymessages.length - 1].nid;
+    legacymessages.forEach(rec => {
+      log.debug("realtime_record", rec);
+      this._rm_index = rec.nid;
+      switch (rec.type) {
+        case "setup_logger":
+          SetupLogger.addLoggers(rec.message);
+          break;
+
+        case "game_start":
+          this._board = new Chess.Chess();
+          break;
+
+        case "game_move":
+          if (!this._board) this._board = new Chess.Chess();
+          this._board.move(rec.message.algebraic);
+          break;
+
+        case "update_game_clock":
+          console.log("How to updaate the game clock");
+          break;
+
+        case "error":
+        default:
+          log.error("realtime_message default", rec);
+      }
+    });
+  }
+
   render() {
-    const systemCSS = this.systemCSS();
-    const boardCSS = this.boardCSS();
+    const systemCSS = this._systemCSS();
+    const boardCSS = this._boardCSS();
 
     if (
       systemCSS === undefined ||
@@ -86,12 +134,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
     )
       return <div>Loading...</div>;
 
-    const css = new CssManager(this.systemCSS(), this.boardCSS());
-
+    const css = new CssManager(this._systemCSS(), this._boardCSS());
+    this._boardFromMessages(this._legacyMessages());
     //
     return (
       <div>
-        <MainPage cssmanager={css} />
+        <MainPage cssmanager={css} board={this._board} />
       </div>
     );
   }

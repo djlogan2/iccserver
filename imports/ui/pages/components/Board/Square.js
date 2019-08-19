@@ -12,6 +12,6 @@ export default class Square extends React.Component {
     const rank = this.props.rank || 0;
 
     this._raf = String.fromCharCode("a".charCodeAt(0) + file) + (rank + 1);
-    this._squarecolor = (rank % 2 === file % 2) ? "b" : "w";
+    this._squarecolor = rank % 2 === file % 2 ? "b" : "w";
   }
 }

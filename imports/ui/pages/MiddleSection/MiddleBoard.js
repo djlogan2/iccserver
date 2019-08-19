@@ -120,9 +120,6 @@ export default class MiddleBoard extends Component {
   }
 
   render() {
-    let chess = new Chess.Chess(
-      "r1br1k2/pp1p1p2/2n1pp1p/2P5/2P5/2P1PN2/P4PPP/2KR1B1R b - - 2 1"
-    );
     let w = this.state.width;
     let h = this.state.height;
 
@@ -142,6 +139,8 @@ export default class MiddleBoard extends Component {
     const bottomPlayer =
       this.state.top === "b" ? this.state.whitePlayer : this.state.blackPlayer;
 
+    const board = this.props.board || new Chess.Chess();
+
     return (
       <div>
         <button style={this.props.cssmanager.buttonStyle("middleBoard")}>
@@ -155,7 +154,7 @@ export default class MiddleBoard extends Component {
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
               cssmanager={this.props.cssmanager}
-              board={chess.board()}
+              board={board.board()}
               draw_rank_and_file={this.state.draw_rank_and_file}
               side={size}
               top={this.state.top}
