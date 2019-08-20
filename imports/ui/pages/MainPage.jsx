@@ -85,7 +85,7 @@ export default class MainPage extends Component {
 
   render() {
     // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
-    console.log("MainPage render, cssmanager=" + this.props.cssmanager);
+    log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
 

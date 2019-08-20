@@ -33,7 +33,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _systemCSS() {
-    console.log("_systemCSS");
     return mongoCss.findOne({ type: "system" });
   }
 
@@ -112,7 +111,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           break;
 
         case "update_game_clock":
-          console.log("How to updaate the game clock");
+          log.error("How to updaate the game clock");
           break;
 
         case "error":
