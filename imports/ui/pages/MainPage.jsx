@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { Tracker } from "meteor/tracker";
 import PropTypes from "prop-types";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
@@ -7,15 +6,13 @@ import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
-import { RealTime } from "../../../lib/client/RealTime";
-import { Logger, SetupLogger } from "../../../lib/client/Logger";
+import { Logger } from "../../../lib/client/Logger";
 
 const log = new Logger("client/MainPage");
 
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
-    console.log("MainPage, cssmanager=" + props.cssmanager);
     this.state = {
       username: "",
       visible: false,
@@ -23,6 +20,7 @@ export default class MainPage extends Component {
       IsWhiteActive: false,
       move: null
     };
+    console.log("main page white--" + props.player.White.name);
     this.toggleMenu = this.toggleMenu.bind(this);
     this.Main = {
       LeftSection: {
@@ -30,16 +28,16 @@ export default class MainPage extends Component {
       },
       MiddleSection: {
         BlackPlayer: {
-          Rating: "2250",
-          Name: "Mac",
+          Rating: props.player.Black.rating,
+          Name: props.player.Black.name,
           Flag: "us",
           Timer: 1000,
           UserPicture: "player-img-top.png",
           IsActive: false
         },
         WhitePlayer: {
-          Rating: "1525",
-          Name: "Max",
+          Rating: props.player.White.rating,
+          Name: props.player.White.name,
           Flag: "us",
           Timer: 1100,
           UserPicture: "player-img-bottom.png",
@@ -51,33 +49,19 @@ export default class MainPage extends Component {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove:
-            "ce2 a6, dxc6 b4, c3 c6 , e4 d5, c3 b7, ce2 a6, c3 c6 , d4 a7, e4 d5, c3 c6 , c3 b7, c3 b7, e4 d5, e4 d5, dxc6 b4, exd5 b5,"
+          GameMove: ""
         }
       }
     };
-    this.mainMeteorLoop();
   }
 
-  componentDidMount() {
-    this.intervalId = setInterval(() => {
-      this.randomMoveObject();
-    }, 5000);
-  }
+  // componentDidMount() {
+  //   this.randomMoveObject();
+  // }
 
   randomMoveObject() {
-    let moveList = [
-      "e4 d5",
-      "exd5 b5",
-      "c3 c6 ",
-      "dxc6 b4",
-      "ce2 a6",
-      "d4 a7",
-      "c3 b7",
-      "xb7 f4"
-    ];
-    let move = moveList[Math.floor(Math.random() * moveList.length)];
-
+    let move = this.props.move; //moveList[Math.floor(Math.random() * moveList.length)];
+    console.log("move from MainPage: " + move);
     this.setState({
       move: move
     });
@@ -87,93 +71,37 @@ export default class MainPage extends Component {
     this.setState({ visible: !this.state.visible });
   }
 
-  //
-  // Our reactive autorun. At this point, it's sole purpose is to retrieve the realtime records being sent
-  // from the server, which facilitates game play, time synchronization (lag measurement), that sort of thing.
-  //
-  // In the future, we could use realtime messages for more, but in general, I want to restrict it primarily to
-  // game play and lag measurements...things that REQUIRE the most accurate timing, and don't really fit the
-  // "write to mongo, server notices, sends updates to clients" model (like, say, messages.)
-  //
-
-  game_start(msg) {
-    this.refs.middleBoard.startGame(msg);
-    // {"white":{"name":"F44","rating":2172},"black":{"name":"Huba","rating":2252}}
-
-    console.log("game_start");
-  }
-
-  game_move() {
-    console.log("game_start");
-  }
-
-  update_game_clock() {
-    console.log("game_start");
-  }
-
-  mainMeteorLoop() {
-    this.rm_index = 0;
-    const us = this;
-    Tracker.autorun(function() {
-      var records = RealTime.collection
-        .find({ nid: { $gt: us.rm_index } }, { sort: { nid: 1 } })
-        .fetch();
-      console.log(
-        "Fetched " + records.length + " records from realtime_messages",
-        {
-          records: records
-        }
-      );
-      log.debug(
-        "Fetched " + records.length + " records from realtime_messages",
-        {
-          records: records
-        }
-      );
-      if (records.length) us.rm_index = records[records.length - 1].nid;
-      records.forEach(rec => {
-        log.debug("realtime_record", rec);
-        us.rm_index = rec.nid;
-        switch (rec.type) {
-          case "setup_logger":
-            SetupLogger.addLoggers(rec.message);
-            break;
-
-          case "game_start":
-            us.game_start(rec);
-            break;
-
-          case "game_move":
-            us.game_move(rec);
-            break;
-
-          case "update_game_clock":
-            us.update_game_clock(rec);
-            break;
-
-          case "error":
-          default:
-            log.error("realtime_message default", rec);
-        }
-      });
-    });
-
-    window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-      log.error(errorMsg + "::" + url + "::" + lineNumber);
-      //alert("Error occured: " + errorMsg);//or any message
-      return false;
-    };
-  }
-
   render() {
-    this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
+    console.log(
+      "Move from MainPage: " +
+        this.props.move +
+        " AND Gamemve Prop: " +
+        this.Main.RightSection.MoveList.GameMove
+    );
+    if (
+      this.props.move !== this.Main.RightSection.MoveList.GameMove &&
+      this.props.move !== ""
+    ) {
+      this.Main.RightSection.MoveList.GameMove = "";
+      this.Main.RightSection.MoveList.GameMove = this.props.move + ",";
+    }
+    this.Main.MiddleSection.BlackPlayer.Name = this.props.player.Black.name;
+    this.Main.MiddleSection.BlackPlayer.Rating = this.props.player.Black.rating;
+    this.Main.MiddleSection.WhitePlayer.Name = this.props.player.White.name;
+    this.Main.MiddleSection.WhitePlayer.Rating = this.props.player.White.rating;
+    console.log(
+      "MainPage White : " +
+        this.props.player.White.name +
+        " AND MainPage White: " +
+        this.props.player.Black.name
+    );
     let buttonStyle;
     if (this.state.visible === true) {
       buttonStyle = "toggleClose";
     } else {
       buttonStyle = "toggleOpen";
     }
-    console.log("MainPage render, cssmanager=" + this.props.cssmanager);
+    //console.log("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
 
@@ -220,6 +148,7 @@ export default class MainPage extends Component {
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
+              board={this.props.board}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">

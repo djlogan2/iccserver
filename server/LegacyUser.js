@@ -1,4 +1,3 @@
-//import {AccountsServer as user} from "meteor/accounts-base";
 import { decrypt } from "../lib/server/encrypt";
 import { RealTime } from "./RealTime";
 import { Logger } from "../lib/server/Logger";

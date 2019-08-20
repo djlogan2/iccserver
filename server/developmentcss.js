@@ -174,12 +174,51 @@ const systemcss = {
       flex: "1",
       padding: "7px 0"
     },
-    active: {
+    Chat: {
       backgroundColor: "#fff",
       borderTop: "0px #1565c0 solid",
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
       color: "#1565c0"
+    },
+    Events: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    Friends: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    History: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    Game: {
+      color: " #495057",
+      backgroundColor: "#efefef !important",
+      borderColor: " #1565c0",
+      borderTop: " 2px #1565c0 solid"
+    },
+    Play: {
+      color: " #495057",
+      backgroundColor: "#efefef !important",
+      borderColor: " #1565c0",
+      borderTop: " 2px #1565c0 solid"
+    },
+    Tournaments: {
+      color: " #495057",
+      backgroundColor: "#efefef !important",
+      borderColor: " #1565c0",
+      borderTop: " 2px #1565c0 solid"
     }
   },
   tabContent: {
@@ -267,6 +306,7 @@ const usercss = {
   type: "board",
   tagLine: {
     all: {
+      display: "inline-block",
       marginTop: "10px",
       marginLeft: "10px"
     }
@@ -286,7 +326,6 @@ const usercss = {
   },
   clock: {
     all: {
-      position: "absolute",
       right: "0",
       height: "auto",
       lineHeight: "30px",
@@ -303,21 +342,17 @@ const usercss = {
       color: "red"
     }
   },
-  boardPlayer: {
+  userFlag: {
+    all: {}
+  },
+  userPicture: {
     all: {
-      position: "relative",
-      display: "flex",
-      flex: "0 0 40px",
-      flexDirection: "row",
-      height: "90px",
-      minHeight: "90px",
-      paddingTop: "0",
-      paddingBottom: "3px",
-      paddingLeft: "0",
-      lineHeight: "68px",
-      alignItems: "center",
-      width: "100%"
+      display: "inline-block",
+      borderRadius: "50%"
     }
+  },
+  clockMain: {
+    all: {}
   },
   square: {
     all: {},
