@@ -1,7 +1,7 @@
 {
     "client/MainPage": "TRACE",
     "Css/CssManager_js": "TRACE",
-    "client/AppContainerDJL": "TRACE",
+    "client/AppContainer": "TRACE",
 
     "server/LegacyUser_js": "ERROR",
     "server/main_js": "ERROR",
