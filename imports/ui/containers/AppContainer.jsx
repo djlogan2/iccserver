@@ -7,7 +7,7 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
 
-const log = new Logger("client/AppContainerDJL");
+const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const realtime_messages = new Mongo.Collection("realtime_messages");
@@ -42,7 +42,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _systemCSS() {
-    console.log("_systemCSS");
     return mongoCss.findOne({ type: "system" });
   }
 
@@ -157,7 +156,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           break;
 
         case "update_game_clock":
-          console.log("How to updaate the game clock");
+          log.error("How to updaate the game clock");
           break;
 
         case "error":

@@ -34,14 +34,11 @@ const fields_viewable_by_account_owner = {
   "profile.legacy.username": 1
 };
 const mongoCss = new Mongo.Collection("css");
-//const mongoUsers = new Mongo.Collection("userData");
-const djlTest = new Mongo.Collection("djl");
 
 function firstRunCSS() {
   if (mongoCss.find().count() === 0) {
     mongoCss.insert(systemcss);
     mongoCss.insert(usercss);
-    djlTest.insert({ djltest: "This is a test from mongo" });
   }
 }
 

@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Tab from "./Tab";
+import { Logger } from "../../../../../lib/client/Logger";
+
+const log = new Logger("Tabs/Tabs_js");
 
 class Tabs extends Component {
   static propTypes = {
@@ -24,6 +27,7 @@ class Tabs extends Component {
   };
 
   mouseOut = label => {
+    log.debug("hoverOut: " + label);
     this.setState({ hoverOut: label });
   };
   render() {
