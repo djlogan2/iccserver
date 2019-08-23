@@ -19,12 +19,12 @@ export default class MiddleBoard extends Component {
       UserPicture: "player-img-top.png",
       IsActive: false
     };
-
+    //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       draw_rank_and_file: "br",
       top: "b",
-      whitePlayer: player,
-      blackPlayer: player,
+      whitePlayer: props.MiddleBoardData.WhitePlayer,
+      blackPlayer: props.MiddleBoardData.BlackPlayer,
       height: 500,
       width: 1000
     };
@@ -48,7 +48,7 @@ export default class MiddleBoard extends Component {
       IsActive: false
     };
 
-    this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
+    //  this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
   }
   /**
    * Calculate & Update state of new dimensions

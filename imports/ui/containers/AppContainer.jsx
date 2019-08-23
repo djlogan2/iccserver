@@ -11,6 +11,7 @@ const log = new Logger("client/AppContainerDJL");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const realtime_messages = new Mongo.Collection("realtime_messages");
+const game_messages = new Mongo.Collection("game-messages");
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   log.error(errorMsg + "::" + url + "::" + lineNumber);
@@ -29,7 +30,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
       subscription: {
         css: Meteor.subscribe("css"),
         user: Meteor.subscribe("userData"),
-        realtime: Meteor.subscribe("realtime_messages")
+        realtime: Meteor.subscribe("realtime_messages"),
+        registerUser: Meteor.subscribe("registerUser"),
+        gameMessages: Meteor.subscribe("game-messages")
       },
       move: "",
       player: {
@@ -40,9 +43,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
     };
     this.logout = this.logout.bind(this);
   }
-
+  renderGameMessages() {
+    const game = game_messages.find({}, { sort: { createdAt: -1 } }).fetch();
+    return game;
+  }
   _systemCSS() {
-    console.log("_systemCSS");
     return mongoCss.findOne({ type: "system" });
   }
 
@@ -74,6 +79,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.css.stop();
     this.state.subscription.user.stop();
     this.state.subscription.realtime.stop();
+    this.state.subscription.registerUser.stop();
+    this.state.subscription.gameMessages.stop();
   }
 
   componentWillMount() {
@@ -115,24 +122,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           this._board = new Chess.Chess();
           this.player.Black = rec.message.black;
           this.player.White = rec.message.white;
-          console.log(
-            "game start: white-" +
-              rec.message.black.name +
-              " black-" +
-              rec.message.white.name
-          );
-          // this.setState(prevState => {
-          //   let player = Object.assign({}, prevState.player);
-          //   player.White = rec.message.white;
-          //   player.Black = rec.message.black;
-          //   return { player };
-          // });
-          // console.log(
-          //   "After game start: white-" +
-          //     this.state.player.White.name +
-          //     " black-" +
-          //     rec.message.white.name
-          // );
+
           break;
 
         case "game_move":
@@ -147,17 +137,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
             player.Black = this.player.Black;
             return { player };
           });
-          console.log(
-            "game move: white-" +
-              this.state.player.White.name +
-              " black-" +
-              this.state.player.Black.name
-          );
-          console.log("move " + this.state.move);
+
           break;
 
         case "update_game_clock":
-          console.log("How to updaate the game clock");
           break;
 
         case "error":
@@ -170,7 +153,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   render() {
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
-
+    const players = this.renderGameMessages()[0];
     if (
       systemCSS === undefined ||
       boardCSS === undefined ||
@@ -178,17 +161,20 @@ export default class AppContainer extends TrackerReact(React.Component) {
       boardCSS.length === 0
     )
       return <div>Loading...</div>;
-
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     this._boardFromMessages(this._legacyMessages());
-    //
+    let popup = false;
+    if (players != undefined && players.black === Meteor.user().username) {
+      popup = true;
+    }
+
     return (
       <div>
         <MainPage
           cssmanager={css}
           board={this._board}
           move={this.state.move}
-          player={this.state.player}
+          player={players}
         />
       </div>
     );

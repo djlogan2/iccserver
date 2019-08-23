@@ -7,9 +7,8 @@ import { Roles } from "meteor/alanning:roles";
 import { Mongo } from "meteor/mongo";
 import { check, Match } from "meteor/check";
 import { systemcss, usercss } from "./developmentcss";
-
 let log = new Logger("server/main_js");
-
+export const myData = new Mongo.Collection("data");
 const bound = Meteor.bindEnvironment(callback => {
   callback();
 });
@@ -34,8 +33,36 @@ const fields_viewable_by_account_owner = {
   "profile.legacy.username": 1
 };
 const mongoCss = new Mongo.Collection("css");
-//const mongoUsers = new Mongo.Collection("userData");
+const GameMessages = new Mongo.Collection("game-messages");
 const djlTest = new Mongo.Collection("djl");
+
+Meteor.publish("game-messages", function tasksPublication() {
+  return GameMessages.find({
+    $or: [{ black: Meteor.user().username }, { white: Meteor.user().username }]
+  });
+});
+if (Meteor.isServer) {
+  // This code only runs on the server
+
+  Meteor.methods({
+    "game-messages.insert"(label, black) {
+      check(label, String);
+      check(black, String);
+      // Make sure the user is logged in before inserting a task
+      if (!Meteor.userId()) {
+        throw new Meteor.Error("not-authorized");
+      }
+
+      GameMessages.insert({
+        userId: Meteor.userId(),
+        label: label,
+        white: Meteor.user().username,
+        black: black,
+        createdAt: new Date()
+      });
+    }
+  });
+}
 
 function firstRunCSS() {
   if (mongoCss.find().count() === 0) {
@@ -106,6 +133,10 @@ Meteor.startup(() => {
 
 Meteor.publish("css", function() {
   return mongoCss.find({ type: { $in: ["system", "board"] } });
+});
+
+Meteor.publish("registerUser", function() {
+  return Meteor.users.find({});
 });
 //
 // The fields an average user will see of his own record
