@@ -10,7 +10,7 @@ export default class ChatComponent extends Component {
     };
   }
 
-  getRegisteUsers() {
+  getRegisteredUsers() {
     return Meteor.users
       .find(
         { _id: { $ne: Meteor.userId() } },
@@ -18,12 +18,12 @@ export default class ChatComponent extends Component {
       )
       .fetch();
   }
-  InsertMessage(user) {
+   gameStart(user) {
     Meteor.call("game-messages.insert", "Game started", user.username);
     //  Meteor.call("game-messages.setPrivate", true);
   }
   render() {
-    const userList = this.getRegisteUsers();
+    const userList = this.getRegisteredUsers();
 
     return (
       <div>
@@ -47,7 +47,7 @@ export default class ChatComponent extends Component {
               </div>
               <div style={{ width: "48%", display: "inline-block" }}>
                 <button
-                  onClick={this.InsertMessage.bind(this, user)}
+                  onClick={this.gameStart.bind(this, user)}
                   style={{
                     backgroundColor: "#1565c0",
                     border: "none",
