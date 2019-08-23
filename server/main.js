@@ -34,8 +34,6 @@ const fields_viewable_by_account_owner = {
 };
 const mongoCss = new Mongo.Collection("css");
 const GameMessages = new Mongo.Collection("game-messages");
-const djlTest = new Mongo.Collection("djl");
-
 Meteor.publish("game-messages", function tasksPublication() {
   return GameMessages.find({
     $or: [{ black: Meteor.user().username }, { white: Meteor.user().username }]
@@ -68,7 +66,6 @@ function firstRunCSS() {
   if (mongoCss.find().count() === 0) {
     mongoCss.insert(systemcss);
     mongoCss.insert(usercss);
-    djlTest.insert({ djltest: "This is a test from mongo" });
   }
 }
 

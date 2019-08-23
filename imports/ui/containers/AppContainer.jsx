@@ -7,7 +7,7 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
 
-const log = new Logger("client/AppContainerDJL");
+const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const realtime_messages = new Mongo.Collection("realtime_messages");
