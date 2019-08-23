@@ -163,11 +163,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     this._boardFromMessages(this._legacyMessages());
-    let popup = false;
-    if (players != undefined && players.black === Meteor.user().username) {
-      popup = true;
-    }
-
     return (
       <div>
         <MainPage
