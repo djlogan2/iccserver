@@ -19,12 +19,14 @@ export default class MiddleBoard extends Component {
       UserPicture: "player-img-top.png",
       IsActive: false
     };
-
+    //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
-      draw_rank_and_file: "tl",
+      draw_rank_and_file: "br",
       top: "b",
-      whitePlayer: player,
-      blackPlayer: player
+      whitePlayer: props.MiddleBoardData.WhitePlayer,
+      blackPlayer: props.MiddleBoardData.BlackPlayer,
+      height: 500,
+      width: 1000
     };
   }
 
@@ -46,7 +48,7 @@ export default class MiddleBoard extends Component {
       IsActive: false
     };
 
-    this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
+    //  this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
   }
   /**
    * Calculate & Update state of new dimensions
@@ -68,10 +70,6 @@ export default class MiddleBoard extends Component {
    */
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
-  }
-
-  static renderUnknown(what) {
-    return <div>{what} is unknown</div>;
   }
 
   switchSides = () => {
@@ -118,16 +116,22 @@ export default class MiddleBoard extends Component {
     if (i === values.length) return [null, "No rank and file"];
     else return [values[i], texts[i]];
   }
-
+  _pieceSquareDragStop = raf => {
+    this.props.onDrop({
+      from: raf.from,
+      to: raf.to
+    });
+  };
   render() {
     let w = this.state.width;
     let h = this.state.height;
-
+    let d;
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
 
-    w /= 2;
-
+    d = h;
+    w /= 2; // 1366/2
+    h -= d / 6;
     const size = Math.min(h, w);
 
     const newColor = this.state.top === "w" ? "Black" : "White";
@@ -149,7 +153,11 @@ export default class MiddleBoard extends Component {
             alt="full-screen"
           />
         </button>
-        <Player PlayerData={topPlayer} cssmanager={this.props.cssmanager} />
+        <Player
+          PlayerData={topPlayer}
+          cssmanager={this.props.cssmanager}
+          side={size}
+        />
         <div style={{ width: "100%" }}>
           <div style={{ id: "board-left", float: "left", width: w, height: h }}>
             <Board
@@ -161,9 +169,10 @@ export default class MiddleBoard extends Component {
               circle={{ lineWidth: 2, color: "red" }}
               arrow={{ lineWidth: 2, color: "blue" }}
               ref="board"
+              onDrop={this._pieceSquareDragStop}
             />
           </div>
-          <div
+          {/* <div
             style={{ id: "board-right", float: "left", width: w, height: h }}
           >
             <button onClick={this.switchSides}>{newColor} on top</button>
@@ -189,9 +198,13 @@ export default class MiddleBoard extends Component {
                 <option value="green">Green</option>
               </select>
             </p>
-          </div>
+          </div> */}
         </div>
-        <Player PlayerData={bottomPlayer} cssmanager={this.props.cssmanager} />
+        <Player
+          PlayerData={bottomPlayer}
+          cssmanager={this.props.cssmanager}
+          side={size}
+        />
       </div>
     );
   }

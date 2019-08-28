@@ -12,7 +12,12 @@ export default class TournamentsListComponent extends Component {
      */
 
   render() {
-    return <Tournaments lists={this.props.TournamentsList} />;
+    return (
+      <Tournaments
+        lists={this.props.TournamentsList}
+        cssmanager={this.props.cssmanager}
+      />
+    );
   }
 }
 

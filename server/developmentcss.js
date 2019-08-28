@@ -35,7 +35,8 @@ const systemcss = {
     settingIcon: "images/setting-icon.png",
     fullScreen: "images/full-screen-icon.png",
     tournamentUserIcon: "images/user-icon.png",
-    chatSendButton: "images/send-btn.png"
+    chatSendButton: "images/send-btn.png",
+    toggleMenu: "images/menu-button-of-three-lines.svg"
   },
 
   button: {
@@ -48,6 +49,7 @@ const systemcss = {
       flex: "1"
     },
     tournamentButton: {
+      borderBottom: "1px solid #e8e7e6",
       display: "flex",
       flexWrap: "nowrap",
       alignItems: "center",
@@ -56,14 +58,30 @@ const systemcss = {
       maxHeight: "40px",
       cursor: "pointer",
       width: "100%",
-      borderBottom: "1px solid #e8e7e6",
       color: "#a7a6a2 !important"
     },
-    middleBoard: {
-      float: "right"
+    toggleOpen: {
+      textAlign: "center",
+      position: "absolute",
+      left: "130px",
+      top: "16px",
+      width: "26px",
+      overflow: "hidden",
+      zIndex: "99"
     },
-    w: {
-      backgroundColor: "green"
+    toggleClose: {
+      textAlign: "center",
+      position: "absolute",
+      left: "10px",
+      top: "56px",
+      width: "26px",
+      overflow: "hidden",
+      zIndex: "99"
+    },
+    middleBoard: {
+      textAlign: "center",
+      float: "right",
+      margin: "10px 5px 0 0"
     }
   },
   chatContent: {
@@ -156,12 +174,51 @@ const systemcss = {
       flex: "1",
       padding: "7px 0"
     },
-    active: {
+    Chat: {
       backgroundColor: "#fff",
       borderTop: "0px #1565c0 solid",
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
       color: "#1565c0"
+    },
+    Events: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    Friends: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    History: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    Game: {
+      color: " #495057",
+      backgroundColor: "#efefef !important",
+      borderColor: " #1565c0",
+      borderTop: " 2px #1565c0 solid"
+    },
+    Play: {
+      color: " #495057",
+      backgroundColor: "#efefef !important",
+      borderColor: " #1565c0",
+      borderTop: " 2px #1565c0 solid"
+    },
+    Tournaments: {
+      color: " #495057",
+      backgroundColor: "#efefef !important",
+      borderColor: " #1565c0",
+      borderTop: " 2px #1565c0 solid"
     }
   },
   tabContent: {
@@ -249,6 +306,7 @@ const usercss = {
   type: "board",
   tagLine: {
     all: {
+      display: "inline-block",
       marginTop: "10px",
       marginLeft: "10px"
     }
@@ -262,19 +320,12 @@ const usercss = {
     }
   },
   flags: {
-    all: {
-      backgroundImage: "images/user-flag.png"
-    },
-    in: {
-      backgroundImage: "india.png"
-    },
-    us: {
-      backgroundImage: "images/user-flag.png"
-    }
+    all: "images/user-flag.png",
+    in: "images/india.png",
+    us: "images/user-flag.png"
   },
   clock: {
     all: {
-      position: "absolute",
       right: "0",
       height: "auto",
       lineHeight: "30px",
@@ -291,20 +342,32 @@ const usercss = {
       color: "red"
     }
   },
+  userFlag: {
+    all: {}
+  },
+  userPicture: {
+    all: {
+      display: "inline-block",
+      borderRadius: "50%"
+    }
+  },
+  clockMain: {
+    all: {}
+  },
   square: {
     all: {},
     w: {
-      backgroundColor: "green"
+      backgroundColor: "#1565c0"
     },
     b: {
-      backgroundColor: "yellow"
+      backgroundColor: "#fff"
     }
   },
   external_rank_and_file: {
     all: {
       float: "left",
       position: "relative",
-      color: "black"
+      color: "white"
     }
   },
   internal_rank_and_file: {

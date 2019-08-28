@@ -30,13 +30,16 @@ export default class CssManager {
 
     return style;
   }
-
   flags(country) {
+    /*
     var style = {};
     if (this._boardStyle.flags.all)
       Object.assign(style, this._boardStyle.flags.all);
     Object.assign(style, this._boardStyle.flags[country]);
-
+    return style;*/
+    var style;
+    if (this._boardStyle.flags.all) style = this._boardStyle.flags.all;
+    style = this._boardStyle.flags[country];
     return style;
   }
 
@@ -45,6 +48,7 @@ export default class CssManager {
     Object.assign(style, this._boardStyle.tagLine.all);
     return style;
   }
+
   userName() {
     var style = {};
     Object.assign(style, this._boardStyle.userName.all);
@@ -57,6 +61,22 @@ export default class CssManager {
     if (time <= 10) Object.assign(style, this._boardStyle.clock.alert);
     return style;
   }
+  userFlag(side) {
+    var style = { maxWidth: side, height: "auto" };
+    Object.assign(style, this._boardStyle.userFlag.all);
+    return style;
+  }
+  userPicture(side) {
+    var style = { width: side, height: side };
+    Object.assign(style, this._boardStyle.userPicture.all);
+    return style;
+  }
+  clockMain(side) {
+    var style = { width: side, height: side };
+    Object.assign(style, this._boardStyle.clockMain.all);
+    return style;
+  }
+
   //This css code for Right sidebar
   settingIcon() {
     var style = {};
@@ -75,7 +95,6 @@ export default class CssManager {
   }
 
   buttonBackgroundImage(imageName) {
-    // Object.assign(style, this._systemStyle.actionButtonImage.imageName);
     var style = this._systemStyle.buttonBackgroundImage[imageName];
     return style;
   }
@@ -158,12 +177,16 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.tabContent.all);
     return style;
   }
-
   tabListItem(tabActive, hover) {
     var style = {};
     Object.assign(style, this._systemStyle.tabListItem.all);
-    if (tabActive || hover)
-      Object.assign(style, this._systemStyle.tabListItem.active);
+    if (tabActive) {
+      Object.assign(style, this._systemStyle.tabListItem[tabActive]);
+      //  Object.assign(style, this._systemStyle.tabListItem.active);
+    }
+    if (hover) {
+      Object.assign(style, this._systemStyle.tabListItem[hover]);
+    }
     if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
     return style;
   }

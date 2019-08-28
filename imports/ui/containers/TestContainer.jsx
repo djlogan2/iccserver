@@ -3,20 +3,22 @@ import PieceSquare from "../pages/components/Board/PieceSquare";
 import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
 import Board from "../pages/components/Board/Board";
-import "../pages/css/developmentboard.css";
+import CssManager from "../pages/components/Css/TestContainerCssManager";
 import Chess from "chess.js";
 import MoveListComponent from "../pages/RightSidebar/MoveListComponent";
-
+const css = new CssManager("developmentcss");
 class TestContainer extends Component {
   constructor(props) {
     super(props);
-
+    this.chess = new Chess.Chess();
     this._circle = { lineWidth: 2, color: "red" };
 
     this.state = {
       draw_rank_and_file: "tl",
       top: "b",
-      what: this.props.match.params.what
+      what: this.props.match.params.what,
+      from: null,
+      to: null
     };
   }
 
@@ -113,11 +115,14 @@ class TestContainer extends Component {
     ];
     return <MoveListComponent moves={moveList} />;
   }
-
+  _pieceSquareDragStop = raf => {
+    console.log("RAF", raf);
+    this.setState({ from: raf.from, to: raf.to });
+  };
   renderBoard() {
-    let chess = new Chess.Chess(
-      "r1br1k2/pp1p1p2/2n1pp1p/2P5/2P5/2P1PN2/P4PPP/2KR1B1R b - - 2 1"
-    );
+    if (this.state.from != null && this.state.to != null) {
+      this.chess.move({ from: this.state.from, to: this.state.to });
+    }
     let w = this.state.width;
     let h = this.state.height;
 
@@ -133,16 +138,18 @@ class TestContainer extends Component {
 
     return (
       <div style={{ width: "100%" }}>
+        <div>{this.state.draw_rank_and_file}</div>
         <div style={{ id: "board-left", float: "left", width: w, height: h }}>
           <Board
-            cssmanager={this.props.cssmanager}
-            board={chess.board()}
+            cssmanager={css}
+            board={this.chess.board()}
             draw_rank_and_file={this.state.draw_rank_and_file}
             side={size}
             top={this.state.top}
             circle={{ lineWidth: 2, color: "red" }}
             arrow={{ lineWidth: 2, color: "blue" }}
             ref="board"
+            onDrop={this._pieceSquareDragStop}
           />
         </div>
         <div style={{ id: "board-right", float: "left", width: w, height: h }}>

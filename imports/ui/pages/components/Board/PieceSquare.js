@@ -64,11 +64,32 @@ export default class PieceSquare extends Square {
   }
 
   mouseDown = () => {
-    this.props.onMouseDown({ rank: this.props.rank, file: this.props.file });
+    this.props.onMouseDown({
+      rank: this.props.rank,
+      file: this.props.file
+    });
   };
 
   mouseUp = () => {
-    this.props.onMouseUp({ rank: this.props.rank, file: this.props.file });
+    this.props.onMouseUp({
+      rank: this.props.rank,
+      file: this.props.file
+    });
+  };
+
+  dragStart = event => {
+    this.props.onDragStart({
+      rank: this.props.rank,
+      file: this.props.file,
+      piece: this.props.piece
+    });
+  };
+
+  dragStop = event => {
+    this.props.onDrop({
+      rank: this.props.rank,
+      file: this.props.file
+    });
   };
 
   render() {
@@ -97,15 +118,21 @@ export default class PieceSquare extends Square {
         }}
         onMouseDown={this.mouseDown}
         onMouseUp={this.mouseUp}
+        onDragStart={this.dragStart}
+        onDrop={this.dragStop}
       >
-        <div style={squareStyle} />
+        <div
+          draggable="true"
+          onDrop={this.drop}
+          onDragOver={event => event.preventDefault()}
+          style={squareStyle}
+        />
         <canvas
           style={canvasStyle}
           id={this._canvasid}
           width={this.props.side}
           height={this.props.side}
         />
-        {this.renderRankAndFile()}
       </div>
     );
   }

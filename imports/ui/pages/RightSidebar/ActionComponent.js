@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 
 class ActionComponent extends Component {
@@ -12,12 +13,25 @@ class ActionComponent extends Component {
     );
   }
   render() {
+    let username = Meteor.user().username;
     let translator = i18n.createTranslator(
       "Common.actionButtonLabel",
       ActionComponent.getLang()
     );
     return (
       <div className="draw-section">
+        <div
+          style={{
+            height: "auto",
+            width: "auto",
+            alignItems: "center",
+            backgroundColor: "#00BFFF",
+            fontSize: "25px",
+            color: "white"
+          }}
+        >
+          Current User : {username}
+        </div>
         <ul>
           {/* 
 		Take back request Component

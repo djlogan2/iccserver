@@ -44,8 +44,14 @@ export default class ClockComponent extends Component {
     if (seconds.length === 1) {
       seconds = `0${seconds}`;
     }
+    let width = this.props.side / 5;
     return (
-      <div className="clock-top">
+      <div
+        style={{
+          width: width,
+          float: "right"
+        }}
+      >
         <div style={this.props.cssmanager.clock(time)}>
           {minutes}:{seconds}
         </div>

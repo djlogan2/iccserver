@@ -7,9 +7,8 @@ import { Roles } from "meteor/alanning:roles";
 import { Mongo } from "meteor/mongo";
 import { check, Match } from "meteor/check";
 import { systemcss, usercss } from "./developmentcss";
-
 let log = new Logger("server/main_js");
-
+export const myData = new Mongo.Collection("data");
 const bound = Meteor.bindEnvironment(callback => {
   callback();
 });
@@ -34,6 +33,52 @@ const fields_viewable_by_account_owner = {
   "profile.legacy.username": 1
 };
 const mongoCss = new Mongo.Collection("css");
+const Game = new Mongo.Collection("game-messages");
+
+Meteor.publish("game", function tasksPublication() {
+  return Game.find({
+    $or: [
+      { "black.name": Meteor.user().username },
+      { "white.name": Meteor.user().username }
+    ]
+  });
+});
+
+if (Meteor.isServer) {
+  // This code only runs on the server
+
+  Meteor.methods({
+    "game-messages.insert"(label, black) {
+      check(label, String);
+      check(black, String);
+      // Make sure the user is logged in before inserting a task
+      if (!Meteor.userId()) {
+        throw new Meteor.Error("not-authorized");
+      }
+
+      let game = {
+        status: "scratch-game",
+        owner: "djlogan",
+        white: { name: Meteor.user().username, rating: "2800" },
+        black: { name: black, rating: "1400" },
+        moves: []
+      };
+      Game.insert(game);
+    },
+    "game-move.insert"(move, Id) {
+      console.log(move);
+      check(move, String);
+      check(Id, String);
+      Game.update(
+        { _id: Id },
+        {
+          $push: { moves: move }
+        }
+      );
+      // GameMessages.update( { _id: Id }, { $push: { moves: move } });
+    }
+  });
+}
 
 function firstRunCSS() {
   if (mongoCss.find().count() === 0) {
@@ -103,6 +148,10 @@ Meteor.startup(() => {
 
 Meteor.publish("css", function() {
   return mongoCss.find({ type: { $in: ["system", "board"] } });
+});
+
+Meteor.publish("loggedOnUsers", function() {
+  return Meteor.users.find({});
 });
 //
 // The fields an average user will see of his own record

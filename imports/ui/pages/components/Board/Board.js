@@ -112,6 +112,11 @@ export default class Board extends React.Component {
     this.state = { circles: [], arrows: [], currentarrow: null };
     this._circle = this.props.circle;
     this._setup();
+    (this.rankFrom = null),
+      (this.rankTo = null),
+      (this.piece = null),
+      (this.fileFrom = null),
+      (this.fileTo = null);
   }
   /****************************************************************************
    * private methods                                                          *
@@ -156,7 +161,10 @@ export default class Board extends React.Component {
       return obj.rank === rank && obj.file === file;
     });
     if (circleobj && circleobj.length !== 0)
-      return { lineWidth: circleobj[0].lineWidth, color: circleobj[0].color };
+      return {
+        lineWidth: circleobj[0].lineWidth,
+        color: circleobj[0].color
+      };
   }
 
   _fileSquareClick = () => {
@@ -205,6 +213,59 @@ export default class Board extends React.Component {
 
     return { x: x, y: y };
   }
+
+  _pieceSquareDragStart = raf => {
+    this.fileFrom = raf.file;
+    this.rankFrom = raf.rank + 1;
+    this.piece = raf.piece;
+  };
+  _pieceSquareDragStop = raf => {
+    this.rankTo = raf.rank + 1;
+    this.fileTo = raf.file;
+
+    if (this.fileFrom === 0) {
+      this.fileFrom = "a";
+    } else if (this.fileFrom === 1) {
+      this.fileFrom = "b";
+    } else if (this.fileFrom === 2) {
+      this.fileFrom = "c";
+    } else if (this.fileFrom === 3) {
+      this.fileFrom = "d";
+    } else if (this.fileFrom === 4) {
+      this.fileFrom = "e";
+    } else if (this.fileFrom === 5) {
+      this.fileFrom = "f";
+    } else if (this.fileFrom === 6) {
+      this.fileFrom = "g";
+    } else {
+      this.fileFrom = "h";
+    }
+    if (this.fileTo === 0) {
+      this.fileTo = "a";
+    } else if (this.fileTo === 1) {
+      this.fileTo = "b";
+    } else if (this.fileTo === 2) {
+      this.fileTo = "c";
+    } else if (this.fileTo === 3) {
+      this.fileTo = "d";
+    } else if (this.fileTo === 4) {
+      this.fileTo = "e";
+    } else if (this.fileTo === 5) {
+      this.fileTo = "f";
+    } else if (this.fileTo === 6) {
+      this.fileTo = "g";
+    } else {
+      this.fileTo = "h";
+    }
+
+    let moveFrom = this.fileFrom + this.rankFrom;
+    let moveTo = this.fileTo + this.rankTo;
+    this.props.onDrop({
+      from: moveFrom,
+      to: moveTo,
+      p: this.piece
+    });
+  };
 
   _pieceSquareMouseUp = raf => {
     if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
@@ -325,6 +386,8 @@ export default class Board extends React.Component {
         onSquareIn={this._pieceSquareIn}
         side={this._square_side}
         circle={circle}
+        onDragStart={this._pieceSquareDragStart}
+        onDrop={this._pieceSquareDragStop}
       />
     );
   }
@@ -340,7 +403,10 @@ export default class Board extends React.Component {
         size={this.props.side}
         from={{ x: from.x, y: from.y }}
         to={{ x: to.x, y: to.y }}
-        arrow={{ lineWidth: arrow.lineWidth, color: arrow.color }}
+        arrow={{
+          lineWidth: arrow.lineWidth,
+          color: arrow.color
+        }}
       />
     );
   }
@@ -364,7 +430,10 @@ export default class Board extends React.Component {
 
     return (
       <div
-        style={{ width: this.props.side, height: this._square_side }}
+        style={{
+          width: this.props.side,
+          height: this._square_side
+        }}
         key={"rank-" + rank}
       >
         {rankrow}

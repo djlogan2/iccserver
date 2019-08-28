@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
@@ -7,7 +8,6 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
-
 const log = new Logger("client/MainPage");
 
 export default class MainPage extends Component {
@@ -16,10 +16,12 @@ export default class MainPage extends Component {
     this.state = {
       username: "",
       visible: false,
+      popup: false,
       IsBlackActive: true,
       IsWhiteActive: false,
       move: null
     };
+
     this.toggleMenu = this.toggleMenu.bind(this);
     this.Main = {
       LeftSection: {
@@ -27,20 +29,20 @@ export default class MainPage extends Component {
       },
       MiddleSection: {
         BlackPlayer: {
-          Rating: "2250",
-          Name: "Mac",
+          Rating: "1400",
+          Name: "John",
           Flag: "us",
           Timer: 1000,
           UserPicture: "player-img-top.png",
-          IsActive: false
+          IsActive: true
         },
         WhitePlayer: {
-          Rating: "1525",
-          Name: "Max",
+          Rating: "1200",
+          Name: "Json",
           Flag: "us",
           Timer: 1100,
           UserPicture: "player-img-bottom.png",
-          IsActive: true
+          IsActive: false
         }
       },
       RightSection: {
@@ -48,31 +50,24 @@ export default class MainPage extends Component {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove:
-            "ce2 a6, dxc6 b4, c3 c6 , e4 d5, c3 b7, ce2 a6, c3 c6 , d4 a7, e4 d5, c3 c6 , c3 b7, c3 b7, e4 d5, e4 d5, dxc6 b4, exd5 b5,"
+          GameMove: ""
         }
       }
     };
   }
 
-  componentDidMount() {
-    this.intervalId = setInterval(() => {
-      // this.randomMoveObject();
-    }, 5000);
-  }
+  // componentDidMount() {
+  //   this.randomMoveObject();
+  // }
+  _pieceSquareDragStop = raf => {
+    this.props.onDrop({
+      from: raf.from,
+      to: raf.to
+    });
+  };
 
   randomMoveObject() {
-    let moveList = [
-      "e4 d5",
-      "exd5 b5",
-      "c3 c6 ",
-      "dxc6 b4",
-      "ce2 a6",
-      "d4 a7",
-      "c3 b7",
-      "xb7 f4"
-    ];
-    let move = moveList[Math.floor(Math.random() * moveList.length)];
+    let move = this.props.move; //moveList[Math.floor(Math.random() * moveList.length)];
 
     this.setState({
       move: move
@@ -82,16 +77,48 @@ export default class MainPage extends Component {
   toggleMenu() {
     this.setState({ visible: !this.state.visible });
   }
-
+  hidePopup() {
+    this.setState({ popup: !this.state.popup });
+  }
   render() {
-    // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
-    console.log("MainPage render, cssmanager=" + this.props.cssmanager);
+    if (
+      this.props.move !== this.Main.RightSection.MoveList.GameMove &&
+      this.props.move !== ""
+    ) {
+      this.Main.RightSection.MoveList.GameMove = "";
+      this.Main.RightSection.MoveList.GameMove = this.props.move + ",";
+    }
+    if (this.props.player != undefined) {
+      this.Main.MiddleSection.BlackPlayer.Name = this.props.player.black.name;
+
+      //this.Main.MiddleSection.BlackPlayer.Rating = this.props.player.Black.rating;
+      this.Main.MiddleSection.WhitePlayer.Name = this.props.player.white.name;
+      this.Main.RightSection.MoveList.GameMove = this.props.player;
+
+      // this.Main.MiddleSection.WhitePlayer.Rating = this.props.player.White.rating;
+    }
+
+    let buttonStyle;
+    if (this.state.visible === true) {
+      buttonStyle = "toggleClose";
+    } else {
+      buttonStyle = "toggleOpen";
+    }
+    //console.log("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
 
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
     w /= 2;
+    let popup = false;
+    if (
+      this.props.player != undefined &&
+      this.state.popup === false &&
+      this.props.player.black.name === Meteor.user().username
+    ) {
+      popup = true;
+    }
     return (
       <div className="main">
         <div className="row">
@@ -107,6 +134,18 @@ export default class MainPage extends Component {
                 <div className="pull-left image">
                   <img src="../../../images/logo-white-lg.png" alt="" />
                 </div>
+                <button
+                  style={this.props.cssmanager.buttonStyle(buttonStyle)}
+                  onClick={this.toggleMenu}
+                >
+                  <img
+                    src={this.props.cssmanager.buttonBackgroundImage(
+                      "toggleMenu"
+                    )}
+                    style={{ height: "30px" }}
+                    alt="toggle menu"
+                  />
+                </button>
                 <LeftSidebar
                   cssmanager={this.props.cssmanager}
                   LefSideBoarData={this.Main.LeftSection}
@@ -116,11 +155,43 @@ export default class MainPage extends Component {
           </div>
           {/* <div className="col-sm-5 col-md-8 col-lg-5 "> */}
           <div style={{ float: "left", width: w, height: h }}>
+            {popup ? (
+              <div
+                style={{
+                  width: "300px",
+                  height: "100px",
+                  margin: "Auto",
+                  borderRadius: "5px",
+                  background: "white"
+                }}
+              >
+                <div className="popup_inner">
+                  <h3>Your game started</h3>
+                  <button
+                    onClick={this.hidePopup.bind(this)}
+                    style={{
+                      backgroundColor: "#1565c0",
+                      border: "none",
+                      color: "white",
+                      padding: "5px 10px",
+                      textAign: "center",
+                      textDecoration: "none",
+                      display: "inline-block",
+                      fontSize: "12px",
+                      borderRadius: "5px"
+                    }}
+                  >
+                    close me
+                  </button>
+                </div>
+              </div>
+            ) : null}
             <MiddleBoard
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
               board={this.props.board}
+              onDrop={this._pieceSquareDragStop}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">

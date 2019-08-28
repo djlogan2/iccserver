@@ -1,36 +1,71 @@
 import React, { Component } from "react";
+import { Meteor } from "meteor/meteor";
 export default class ChatComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      error: null
+    };
+  }
+
+  getRegisteredUsers() {
+    //this.setState({ error: null });
+    return Meteor.users
+      .find(
+        { _id: { $ne: Meteor.userId() } },
+        { sort: { "profile.firstname": 1 } }
+      )
+      .fetch();
+  }
+  gameStart(user) {
+    Meteor.call("game-messages.insert", "Game started", user.username);
+    //  Meteor.call("game-messages.setPrivate", true);
+  }
+
   render() {
+    const userList = this.getRegisteredUsers();
+
     return (
       <div>
-        <h3>Chat</h3>
-        <div style={this.props.cssmanager.chatContent()}>
-          <div className="user-1">
-            <h6>NEW GAME</h6>
-            <p>
-              <a href="#/">jack833</a> (639) vs. <a href="#/">York-Duvenhage</a>
-              (657) (10 min) win +85 / draw +4 / lose -77
-              <a href="#/">Try Focus Mode</a>
-            </p>
-          </div>
-          <div className="user-2">
-            <h6>GAME ABORTED</h6>
-            <p>
-              <a href="#/">jack833</a> (639) vs. <a href="#/">York-Duvenhage</a>
-              (657) (10 min rated) Game has been aborted by the server
-            </p>
-          </div>
-        </div>
-        <div style={this.props.cssmanager.inputBoxStyle("chat")}>
-          <input type="text" placeholder="Message..." />
-          <button style={this.props.cssmanager.buttonStyle()} type="send">
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage(
-                "chatSendButton"
-              )}
-              alt="Send"
-            />
-          </button>
+        <div>
+          {userList
+            ? userList.map((user, index) => (
+                <div style={{ margin: "5px" }} key={index}>
+                  <div
+                    style={{
+                      backgroundColor: "#00BFFF",
+                      width: "50px",
+                      display: "inline-block",
+                      height: "auto",
+                      margin: "5px",
+                      borderRadius: "2px",
+                      color: "white",
+                      textAlign: "center"
+                    }}
+                  >
+                    {user.username}
+                  </div>
+                  <div style={{ width: "48%", display: "inline-block" }}>
+                    <button
+                      onClick={this.gameStart.bind(this, user)}
+                      style={{
+                        backgroundColor: "#1565c0",
+                        border: "none",
+                        color: "white",
+                        padding: "5px 10px",
+                        textAign: "center",
+                        textDecoration: "none",
+                        display: "inline-block",
+                        fontSize: "12px",
+                        borderRadius: "5px"
+                      }}
+                    >
+                      Start Game
+                    </button>
+                  </div>
+                </div>
+              ))
+            : null}
         </div>
       </div>
     );

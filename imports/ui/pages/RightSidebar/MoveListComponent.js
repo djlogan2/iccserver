@@ -1,24 +1,72 @@
 import React, { Component } from "react";
-
+import { Meteor } from "meteor/meteor";
 export default class MoveListComponent extends Component {
   constructor(props) {
     super(props);
-
+    this.state = {
+      // moves: props.Moves
+      selectedButton: null,
+      moves: [
+        "e4",
+        "e6",
+        "d4",
+        "d5",
+        "Nd2",
+        "c5",
+        "exd5",
+        "Qxd5",
+        "Ngf3",
+        "cxd4",
+        "Bc4",
+        "Qd6"
+      ]
+    };
+    //this.state.moves = props.Moves;
     this.Moves = [];
   }
   componentWillReceiveProps(nextProps) {
-    let move = nextProps.Moves;
-    this.Moves.push(move);
+    // let move = nextProps.Moves;
+    //console.log("moves called ");
+    /*  this.setState({
+      moves: move
+    }); */
+    // this.Moves.push(move);
+  }
+  gameMove(move, gameId) {
+    Meteor.call("game-move.insert", move, gameId);
   }
   render() {
+    let gameId = this.props.Moves._id;
     return (
       <div>
+        {/* <div style={this.props.cssmanager.gameMoveList()}>{this.Moves}</div> */}
         <div style={this.props.cssmanager.gameMoveList()}>
-          {this.Moves}
-          1. e4 d5 2. exd5 b5 3. c3 c6 4. dxc6 b4 5. ce2 a6 6. d4 a7 7. c3 b7 8.
-          cxb7 xb7 9. f4 xd4 10. xd4 e5 11. xe5 12. e4 d5 13. exd5 b5 14. c3 c6
-          15. dxc6 b4 5. ce2 a6 6. d4 a7 7. c3 b7 8. cxb7 xb7 9. f4 xd4 10. xd4
-          e5 11. xe5
+          {this.state.moves
+            ? this.state.moves.map((move, index) => (
+                <div
+                  style={{
+                    backgroundColor: "#00BFFF",
+                    margin: "5px",
+                    height: "auto",
+                    width: "50px",
+                    display: "inline-block"
+                  }}
+                  key={index}
+                >
+                  <div
+                    style={{
+                      margin: "5px",
+                      borderRadius: "2px",
+                      color: "white",
+                      textAlign: "center"
+                    }}
+                    onClick={this.gameMove.bind(this, move, gameId)}
+                  >
+                    {move}
+                  </div>
+                </div>
+              ))
+            : null}
         </div>
 
         <div style={this.props.cssmanager.gameButtonMove()}>
