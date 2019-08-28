@@ -219,6 +219,7 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.tournamentContent.all);
     return style;
   }
+
   //
   // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
   //
@@ -231,12 +232,15 @@ export default class CssManager {
     };
   }
 
+  ribbonMoveList() {
+    return {};
+  }
   /**
    *
    * @param which Position of the text
    * @param color Color of the square
    */
-  internalRankAndFileStyle(which, color) {
+  internalRankAndFileStyle(which, color, side) {
     const style = {}; // width: side, height: side };
 
     if (this._boardStyle.internal_rank_and_file.all)
@@ -253,7 +257,8 @@ export default class CssManager {
 
   /**
    *
-   * @param side The number of pixels on the side of a square
+   * @param which Position of the text
+   * @param color Color of the square
    */
   externalRankAndFileStyle(side) {
     const style = { width: side, height: side };

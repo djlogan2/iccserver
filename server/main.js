@@ -33,7 +33,7 @@ const fields_viewable_by_account_owner = {
   "profile.legacy.username": 1
 };
 const mongoCss = new Mongo.Collection("css");
-const Game = new Mongo.Collection("game-messages");
+const Game = new Mongo.Collection("game");
 
 Meteor.publish("game", function tasksPublication() {
   return Game.find({

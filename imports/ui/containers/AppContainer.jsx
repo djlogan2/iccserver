@@ -10,7 +10,7 @@ const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const realtime_messages = new Mongo.Collection("realtime_messages");
-const Game = new Mongo.Collection("game-messages");
+const Game = new Mongo.Collection("game");
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   log.error(errorMsg + "::" + url + "::" + lineNumber);
   return false;
@@ -33,7 +33,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         css: Meteor.subscribe("css"),
         realtime: Meteor.subscribe("realtime_messages"),
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        gameMessages: Meteor.subscribe("game")
+        game: Meteor.subscribe("game")
       },
       move: "",
       player: {
@@ -79,7 +79,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.css.stop();
     this.state.subscription.realtime.stop();
     this.state.subscription.loggedOnUsers.stop();
-    this.state.subscription.gameMessages.stop();
+    this.state.subscription.game.stop();
   }
 
   componentWillMount() {
@@ -175,7 +175,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         if (move !== mongoMove) {
           Meteor.call("game-move.insert", move, this.gameId);
         }
-      //  this._boardFromMongoMessages(players.moves);
+        //  this._boardFromMongoMessages(players.moves);
       }
     }
     const systemCSS = this._systemCSS();
@@ -189,9 +189,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
     )
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
-     if (players != undefined) {
-     this._boardFromMongoMessages(players.moves);
-     }
+    if (players != undefined) {
+      this._boardFromMongoMessages(players.moves);
+    }
 
     return (
       <div>

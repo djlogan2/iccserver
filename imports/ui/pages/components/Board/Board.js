@@ -3,7 +3,6 @@ import BoardArrow from "./BoardArrow.js";
 import PieceSquare from "./PieceSquare.js";
 import RankSquare from "./RankSquare.js";
 import FileSquare from "./FileSquare.js";
-
 /**
  * @param props React properties
  * @param props.circle.lineWidth the line width for the circle
@@ -168,11 +167,11 @@ export default class Board extends React.Component {
   }
 
   _fileSquareClick = () => {
-    console.log("fileSquareclick");
+    //log.error("fileSquareclick");
   };
 
   _rankSquareClick = () => {
-    console.log("rankSquareclick");
+   // log.error("rankSquareclick");
   };
 
   _pieceSquareMouseDown = raf => {
