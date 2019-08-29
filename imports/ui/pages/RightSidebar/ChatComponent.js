@@ -4,18 +4,25 @@ export default class ChatComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: null
+      error: null,
+      userList: null,
+      trial: 0
     };
   }
 
   getRegisteredUsers() {
-    //this.setState({ error: null });
-    return Meteor.users
-      .find(
-        { _id: { $ne: Meteor.userId() } },
-        { sort: { "profile.firstname": 1 } }
-      )
-      .fetch();
+    setTimeout(() => {
+      let users = Meteor.users
+        .find(
+          { _id: { $ne: Meteor.userId() }, "status.online": true },
+          { sort: { "profile.firstname": 1 } },
+          { username: 1 }
+        )
+        .fetch();
+      this.setState({ userList: users });
+      var trial = this.state.trial + 1;
+      this.setState({ trial: trial });
+    }, 500);
   }
   gameStart(user) {
     Meteor.call("game-messages.insert", "Game started", user.username);
@@ -23,13 +30,19 @@ export default class ChatComponent extends Component {
   }
 
   render() {
-    const userList = this.getRegisteredUsers();
+    if (
+      this.state.trial <= 3 &&
+      (this.state.userList === null || this.state.userList.length === 0)
+    ) {
+      this.getRegisteredUsers();
+      return <div>loading...</div>;
+    }
 
     return (
       <div>
         <div>
-          {userList
-            ? userList.map((user, index) => (
+          {this.state.userList
+            ? this.state.userList.map((user, index) => (
                 <div style={{ margin: "5px" }} key={index}>
                   <div
                     style={{

@@ -6,63 +6,43 @@ export default class MoveListComponent extends Component {
     this.state = {
       // moves: props.Moves
       selectedButton: null,
-      moves: [
-        "e4",
-        "e6",
-        "d4",
-        "d5",
-        "Nd2",
-        "c5",
-        "exd5",
-        "Qxd5",
-        "Ngf3",
-        "cxd4",
-        "Bc4",
-        "Qd6"
-      ]
+      moves: null
     };
     //this.state.moves = props.Moves;
     this.Moves = [];
   }
-  componentWillReceiveProps(nextProps) {
-    // let move = nextProps.Moves;
-    //console.log("moves called ");
-    /*  this.setState({
-      moves: move
-    }); */
-    // this.Moves.push(move);
-  }
   gameMove(move, gameId) {
-    Meteor.call("game-move.insert", move, gameId);
+    //Meteor.call("game-move.insert", move, gameId);
   }
   render() {
     let gameId = this.props.Moves._id;
+    var moves = this.props.Moves.moves;
+    var movesString = [];
+    let count = 1;
+    if (moves != null || moves !== undefined) {
+      for (let i = 0; i < moves.length; ) {
+        if (i + 1 < moves.length) {
+          movesString.push("" + count + ". " + moves[i] + " " + moves[i + 1]);
+        } else {
+          movesString.push("" + count + ". " + moves[i]);
+        }
+        count = count + 1;
+        i = i + 2;
+      }
+    }
+
     return (
       <div>
         {/* <div style={this.props.cssmanager.gameMoveList()}>{this.Moves}</div> */}
         <div style={this.props.cssmanager.gameMoveList()}>
-          {this.state.moves
-            ? this.state.moves.map((move, index) => (
-                <div
-                  style={{
-                    backgroundColor: "#00BFFF",
-                    margin: "5px",
-                    height: "auto",
-                    width: "50px",
-                    display: "inline-block"
-                  }}
-                  key={index}
-                >
+          {movesString
+            ? movesString.map((move, index) => (
+                <div style={this.props.cssmanager.moveListParent()} key={index}>
                   <div
-                    style={{
-                      margin: "5px",
-                      borderRadius: "2px",
-                      color: "white",
-                      textAlign: "center"
-                    }}
+                    style={this.props.cssmanager.gameMoveStyle()}
                     onClick={this.gameMove.bind(this, move, gameId)}
                   >
-                    {move}
+                    <span>{move}</span>
                   </div>
                 </div>
               ))

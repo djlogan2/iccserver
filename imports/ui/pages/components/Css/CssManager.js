@@ -16,6 +16,51 @@ export default class CssManager {
    * @param color null, or the color of the piece that's on the square
    * @param side The number of pixels on the side of a square
    */
+  parentPopup(height, width) {
+    var style = { width: width, height: height };
+    Object.assign(style, this._systemStyle.parentDivPopupMainPage);
+    return style;
+  }
+  outerPopupMain() {
+    var style = {};
+    Object.assign(style, this._systemStyle.outerPopupMainPage);
+    return style;
+  }
+  fullWidth() {
+    var style = {};
+    Object.assign(style, this._systemStyle.fullWidth);
+    return style;
+  }
+  drawActionSection() {
+    var style = {};
+    Object.assign(style, this._systemStyle.drawActionSection);
+    return style;
+  }
+  drawSectionButton() {
+    var style = {};
+    Object.assign(style, this._systemStyle.drawSectionButton);
+    return style;
+  }
+  moveListParent() {
+    var style = {};
+    Object.assign(style, this._systemStyle.moveListParent);
+    return style;
+  }
+  gameMoveStyle() {
+    var style = {};
+    Object.assign(style, this._systemStyle.gameMoveStyle);
+    return style;
+  }
+  toggleMenuHeight() {
+    var style = {};
+    Object.assign(style, this._systemStyle.toggleMenuHeight);
+    return style;
+  }
+  innerPopupMain() {
+    var style = {};
+    Object.assign(style, this._systemStyle.innerPopupMainPage);
+    return style;
+  }
   squareStyle(squareColor, piece, color, side) {
     var style = { width: side, height: side };
     if (this._boardStyle.square.all)

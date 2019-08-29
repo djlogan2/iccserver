@@ -10,15 +10,6 @@ export default class MiddleBoard extends Component {
     super(props);
 
     this._circle = { lineWidth: 2, color: "red" };
-
-    const player = {
-      Rating: 1600,
-      Name: "none",
-      Flag: "us",
-      Timer: 1000,
-      UserPicture: "player-img-top.png",
-      IsActive: false
-    };
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       draw_rank_and_file: "br",
@@ -30,26 +21,26 @@ export default class MiddleBoard extends Component {
     };
   }
 
-  startGame(msg) {
-    const whitePlayer = {
-      Rating: msg.white.rating,
-      Name: msg.white.name,
-      Flag: "us",
-      Timer: 1000,
-      UserPicture: "player-img-top.png",
-      IsActive: true
-    };
-    const blackPlayer = {
-      Rating: msg.black.rating,
-      Name: msg.black.name,
-      Flag: "us",
-      Timer: 1000,
-      UserPicture: "player-img-top.png",
-      IsActive: false
-    };
+  // startGame(msg) {
+  //   const whitePlayer = {
+  //     Rating: msg.white.rating,
+  //     Name: msg.white.name,
+  //     Flag: "us",
+  //     Timer: 1000,
+  //     UserPicture: "player-img-top.png",
+  //     IsActive: true
+  //   };
+  //   const blackPlayer = {
+  //     Rating: msg.black.rating,
+  //     Name: msg.black.name,
+  //     Flag: "us",
+  //     Timer: 1000,
+  //     UserPicture: "player-img-top.png",
+  //     IsActive: false
+  //   };
 
-    //  this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
-  }
+  //   //  this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
+  // }
   /**
    * Calculate & Update state of new dimensions
    */
@@ -158,8 +149,8 @@ export default class MiddleBoard extends Component {
           cssmanager={this.props.cssmanager}
           side={size}
         />
-        <div style={{ width: "100%" }}>
-          <div style={{ id: "board-left", float: "left", width: w, height: h }}>
+        <div style={this.props.cssmanager.fullWidth()}>
+          <div style={this.props.cssmanager.parentPopup(h, w)}>
             <Board
               cssmanager={this.props.cssmanager}
               board={board.board()}

@@ -17,6 +17,58 @@ const systemcss = {
       height: "45vh"
     }
   },
+  fullWidth: {
+    width: "100%"
+  },
+  drawActionSection: {
+    height: "auto",
+    width: "auto",
+    alignItems: "center",
+    backgroundColor: "#00BFFF",
+    fontSize: "25px",
+    color: "white"
+  },
+  drawSectionButton: {
+    margin: "0 auto",
+    display: "block"
+  },
+  moveListParent: {
+    backgroundColor: "#00BFFF",
+    margin: "5px",
+    height: "auto",
+    width: "50px",
+    display: "inline-block"
+  },
+  gameMoveStyle: {
+    margin: "5px",
+    borderRadius: "2px",
+    color: "white",
+    textAlign: "center"
+  },
+  toggleMenuHeight: {
+    height: "30px"
+  },
+  parentDivPopupMainPage: {
+    float: "left"
+  },
+  outerPopupMainPage: {
+    width: "300px",
+    height: "100px",
+    margin: "Auto",
+    borderRadius: "5px",
+    background: "white"
+  },
+  innerPopupMainPage: {
+    backgroundColor: "#1565c0",
+    border: "none",
+    color: "white",
+    padding: "5px 10px",
+    textAign: "center",
+    textDecoration: "none",
+    display: "inline-block",
+    fontSize: "12px",
+    borderRadius: "5px"
+  },
   buttonBackgroundImage: {
     takeBack: "images/take-forward-icon.png",
     draw: "images/draw-icon.png",

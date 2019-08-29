@@ -105,10 +105,41 @@ export default class AppContainer extends TrackerReact(React.Component) {
     });
     this.props.history.push("/login");
   }
+  // _pieceSquareDragStop = raf => {
+  //   const game = this.renderGameMessages();
+  //   let result = this._board.move({ from: raf.from, to: raf.to });
+  //   if (result !== null) {
+  //     let history = this._board.history();
+  //     if (game !== undefined) {
+  //       this.gameId = game._id;
+  //       let move = history[history.length - 1];
+  //       let mongoMove = game.moves[game.moves.length - 1];
+  //       if (move !== mongoMove) {
+  //         Meteor.call("game-move.insert", move, this.gameId);
+  //       }
+  //     }
+  //   }
+  // };
   _pieceSquareDragStop = raf => {
-    //console.log(raf);
-    //  Meteor.call("game-move.insert", raf.to, this.gameId);
-    this.setState({ from: raf.from, to: raf.to });
+    const game = this.renderGameMessages();
+
+    let result;
+    let gameTurn = this._board.turn();
+
+    if (game.white.name === Meteor.user().username && gameTurn === "w") {
+      result = this._board.move({ from: raf.from, to: raf.to });
+    } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
+      result = this._board.move({ from: raf.from, to: raf.to });
+    }
+    if (game !== undefined && result !== null) {
+      let history = this._board.history();
+      this.gameId = game._id;
+      let move = history[history.length - 1];
+      let mongoMove = game.moves[game.moves.length - 1];
+      if (move !== mongoMove) {
+        Meteor.call("game-move.insert", move, this.gameId);
+      }
+    }
   };
   _boardFromMessages(legacymessages) {
     if (legacymessages.length)
@@ -154,7 +185,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _boardFromMongoMessages(moves) {
-    if (moves != undefined) {
+    if (moves !== undefined) {
       let move = moves[moves.length - 1];
       console.log("Move", move);
       if (!this._board) this._board = new Chess.Chess();
@@ -163,21 +194,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   render() {
-    const players = this.renderGameMessages();
-    if (this.state.from != null && this.state.to != null) {
-      this._board.move({ from: this.state.from, to: this.state.to });
-      console.log("test", this._board.history());
-      let history = this._board.history();
-      if (players != undefined) {
-        this.gameId = players._id;
-        let move = history[history.length - 1];
-        let mongoMove = players.moves[players.moves.length - 1];
-        if (move !== mongoMove) {
-          Meteor.call("game-move.insert", move, this.gameId);
-        }
-        //  this._boardFromMongoMessages(players.moves);
-      }
-    }
+    const game = this.renderGameMessages();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
 
@@ -189,8 +206,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
     )
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
-    if (players != undefined) {
-      this._boardFromMongoMessages(players.moves);
+    if (game !== undefined) {
+      this._boardFromMongoMessages(game.moves);
     }
 
     return (
@@ -199,7 +216,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           cssmanager={css}
           board={this._board}
           move={this.state.move}
-          player={players}
+          player={game}
           onDrop={this._pieceSquareDragStop}
         />
       </div>

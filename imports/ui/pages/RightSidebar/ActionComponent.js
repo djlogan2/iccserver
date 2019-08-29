@@ -20,16 +20,7 @@ class ActionComponent extends Component {
     );
     return (
       <div className="draw-section">
-        <div
-          style={{
-            height: "auto",
-            width: "auto",
-            alignItems: "center",
-            backgroundColor: "#00BFFF",
-            fontSize: "25px",
-            color: "white"
-          }}
-        >
+        <div style={this.props.cssmanager.drawActionSection()}>
           Current User : {username}
         </div>
         <ul>
@@ -43,7 +34,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("takeBack")}
                 alt="TakeBack"
-                style={{ margin: "0 auto", display: "block" }}
+                style={this.props.cssmanager.drawSectionButton()}
               />
               {translator("takeBack")}
             </button>
@@ -57,7 +48,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("draw")}
                 alt="Draw"
-                style={{ margin: "0 auto", display: "block" }}
+                style={this.props.cssmanager.drawSectionButton()}
               />
               {translator("draw")}
             </button>
@@ -71,7 +62,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("resign")}
                 alt="Resign"
-                style={{ margin: "0 auto", display: "block" }}
+                style={this.props.cssmanager.drawSectionButton()}
               />
               {translator("resign")}
             </button>
@@ -84,7 +75,7 @@ class ActionComponent extends Component {
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("abort")}
                 alt="Abort"
-                style={{ margin: "0 auto", display: "block" }}
+                style={this.props.cssmanager.drawSectionButton()}
               />
 
               {translator("abort")}

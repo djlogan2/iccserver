@@ -88,7 +88,7 @@ export default class MainPage extends Component {
       this.Main.RightSection.MoveList.GameMove = "";
       this.Main.RightSection.MoveList.GameMove = this.props.move + ",";
     }
-    if (this.props.player != undefined) {
+    if (this.props.player !== undefined) {
       this.Main.MiddleSection.BlackPlayer.Name = this.props.player.black.name;
 
       //this.Main.MiddleSection.BlackPlayer.Rating = this.props.player.Black.rating;
@@ -113,7 +113,7 @@ export default class MainPage extends Component {
     w /= 2;
     let popup = false;
     if (
-      this.props.player != undefined &&
+      this.props.player !== undefined &&
       this.state.popup === false &&
       this.props.player.black.name === Meteor.user().username
     ) {
@@ -142,7 +142,7 @@ export default class MainPage extends Component {
                     src={this.props.cssmanager.buttonBackgroundImage(
                       "toggleMenu"
                     )}
-                    style={{ height: "30px" }}
+                    style={this.props.cssmanager.toggleMenuHeight()}
                     alt="toggle menu"
                   />
                 </button>
@@ -154,32 +154,17 @@ export default class MainPage extends Component {
             </aside>
           </div>
           {/* <div className="col-sm-5 col-md-8 col-lg-5 "> */}
-          <div style={{ float: "left", width: w, height: h }}>
+          <div
+            className="col-sm-6 col-md-6"
+            style={this.props.cssmanager.parentPopup(h, w)}
+          >
             {popup ? (
-              <div
-                style={{
-                  width: "300px",
-                  height: "100px",
-                  margin: "Auto",
-                  borderRadius: "5px",
-                  background: "white"
-                }}
-              >
+              <div style={this.props.cssmanager.outerPopupMain()}>
                 <div className="popup_inner">
                   <h3>Your game started</h3>
                   <button
                     onClick={this.hidePopup.bind(this)}
-                    style={{
-                      backgroundColor: "#1565c0",
-                      border: "none",
-                      color: "white",
-                      padding: "5px 10px",
-                      textAign: "center",
-                      textDecoration: "none",
-                      display: "inline-block",
-                      fontSize: "12px",
-                      borderRadius: "5px"
-                    }}
+                    style={this.props.cssmanager.innerPopupMain()}
                   >
                     close me
                   </button>
