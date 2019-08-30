@@ -486,11 +486,11 @@ background: #efefef;
 		height: 42vw;
 	}
 
-	.left-col {
+	/*.left-col {
 		padding-left: 0;
 		position: fixed;
 		width: 16.66666667%;
-	}
+	}*/
 
 	.board-section {
 		width: 44%;

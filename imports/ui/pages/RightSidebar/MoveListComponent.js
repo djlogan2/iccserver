@@ -3,17 +3,11 @@ import { Meteor } from "meteor/meteor";
 export default class MoveListComponent extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      // moves: props.Moves
-      selectedButton: null,
-      moves: null
-    };
     //this.state.moves = props.Moves;
+
     this.Moves = [];
   }
-  gameMove(move, gameId) {
-    //Meteor.call("game-move.insert", move, gameId);
-  }
+
   render() {
     let gameId = this.props.Moves._id;
     var moves = this.props.Moves.moves;
@@ -22,9 +16,9 @@ export default class MoveListComponent extends Component {
     if (moves != null || moves !== undefined) {
       for (let i = 0; i < moves.length; ) {
         if (i + 1 < moves.length) {
-          movesString.push("" + count + ". " + moves[i] + " " + moves[i + 1]);
+          movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
         } else {
-          movesString.push("" + count + ". " + moves[i]);
+          movesString.push(" " + moves[i] + " ");
         }
         count = count + 1;
         i = i + 2;
@@ -33,18 +27,15 @@ export default class MoveListComponent extends Component {
 
     return (
       <div>
-        {/* <div style={this.props.cssmanager.gameMoveList()}>{this.Moves}</div> */}
         <div style={this.props.cssmanager.gameMoveList()}>
           {movesString
             ? movesString.map((move, index) => (
-                <div style={this.props.cssmanager.moveListParent()} key={index}>
-                  <div
-                    style={this.props.cssmanager.gameMoveStyle()}
-                    onClick={this.gameMove.bind(this, move, gameId)}
-                  >
-                    <span>{move}</span>
-                  </div>
-                </div>
+                <span key={index}>
+                  <b>{index + 1}.</b>
+                  <span style={this.props.cssmanager.gameMoveStyle()}>
+                    {move}
+                  </span>
+                </span>
               ))
             : null}
         </div>

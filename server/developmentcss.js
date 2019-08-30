@@ -40,10 +40,8 @@ const systemcss = {
     display: "inline-block"
   },
   gameMoveStyle: {
-    margin: "5px",
-    borderRadius: "2px",
-    color: "white",
-    textAlign: "center"
+    color: "#808080",
+    fontWeight: "450"
   },
   toggleMenuHeight: {
     height: "30px"
@@ -159,11 +157,9 @@ const systemcss = {
   },
   gameMoveList: {
     all: {
-      background: "#fff",
-      padding: "10px 15px",
-      color: "#808080",
-      overflowY: "auto",
-      maxHeight: "185px"
+      display: "inline-block",
+      width: "100%",
+      padding: "5px"
     }
   },
   gameButtonMove: {
@@ -408,11 +404,17 @@ const usercss = {
   },
   square: {
     all: {},
+    // w: {
+    //   backgroundColor: "#1565c0"
+    // },
+    // b: {
+    //   backgroundColor: "#fff"
+    // }
     w: {
-      backgroundColor: "#1565c0"
+      backgroundColor: "#fff"
     },
     b: {
-      backgroundColor: "#fff"
+      backgroundColor: "#1565c0"
     }
   },
   external_rank_and_file: {

@@ -483,11 +483,11 @@ h3 {
     margin-right: 15px;
   }
 
-  .left-col {
+  /* .left-col {
     padding-left: 0px;
     position: fixed;
     z-index: 999;
-  }
+  } */
 
   .main-square {
     width: 100vw;
@@ -801,11 +801,11 @@ h3 {
     margin-right: 15px;
   }
 
-  .left-col {
+  /*.left-col {
     padding-left: 0px;
     position: fixed;
     z-index: 999;
-  }
+  }*/
 
   .main-square {
     width: 100vw;
@@ -974,11 +974,11 @@ h3 {
     margin-right: 15px;
   }
 
-  .left-col {
+  /*.left-col {
     padding-left: 0px;
     position: fixed;
     z-index: 999;
-  }
+  }*/
 
   .main-square {
     width: 67vw;
