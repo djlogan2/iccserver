@@ -4,7 +4,8 @@ import Player from "./Player";
 import Board from "../components/Board/Board";
 import "../css/developmentboard.css";
 import Chess from "chess.js";
-
+import BlackPlayerClock from "./BlackPlayerClock";
+import WhitePlayerClock from "./WhitePlayerClock";
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
@@ -21,29 +22,6 @@ export default class MiddleBoard extends Component {
     };
   }
 
-  // startGame(msg) {
-  //   const whitePlayer = {
-  //     Rating: msg.white.rating,
-  //     Name: msg.white.name,
-  //     Flag: "us",
-  //     Timer: 1000,
-  //     UserPicture: "player-img-top.png",
-  //     IsActive: true
-  //   };
-  //   const blackPlayer = {
-  //     Rating: msg.black.rating,
-  //     Name: msg.black.name,
-  //     Flag: "us",
-  //     Timer: 1000,
-  //     UserPicture: "player-img-top.png",
-  //     IsActive: false
-  //   };
-
-  //   //  this.setState({ whitePlayer: whitePlayer, blackPlayer: blackPlayer });
-  // }
-  /**
-   * Calculate & Update state of new dimensions
-   */
   updateDimensions() {
     this.setState({ width: window.innerWidth, height: window.innerHeight });
   }
@@ -124,7 +102,6 @@ export default class MiddleBoard extends Component {
     w /= 2; // 1366/2
     h -= d / 6;
     const size = Math.min(h, w);
-
     const newColor = this.state.top === "w" ? "Black" : "White";
 
     const raf = this.nextRAF()[1];
@@ -144,11 +121,19 @@ export default class MiddleBoard extends Component {
             alt="full-screen"
           />
         </button>
-        <Player
-          PlayerData={topPlayer}
-          cssmanager={this.props.cssmanager}
-          side={size}
-        />
+
+        <div style={{ width: size }}>
+          <Player
+            PlayerData={topPlayer}
+            cssmanager={this.props.cssmanager}
+            side={size}
+          />
+          <BlackPlayerClock
+            cssmanager={this.props.cssmanager}
+            ClockData1={topPlayer}
+            side={this.props.side}
+          />
+        </div>
         <div style={this.props.cssmanager.fullWidth()}>
           <div style={this.props.cssmanager.parentPopup(h, w)}>
             <Board
@@ -163,39 +148,19 @@ export default class MiddleBoard extends Component {
               onDrop={this._pieceSquareDragStop}
             />
           </div>
-          {/* <div
-            style={{ id: "board-right", float: "left", width: w, height: h }}
-          >
-            <button onClick={this.switchSides}>{newColor} on top</button>
-            <button onClick={this.switchSides}>{newColor} on top</button>
-            <button onClick={this.switchRAF}>{raf}</button>
-            <p>Color on top: {this.state.top}</p>
-            <p>Rank and file: {this.state.draw_rank_and_file}</p>
-            <p>
-              Circle width:{" "}
-              <input
-                id="circlewidth"
-                type="number"
-                name="quantity"
-                min="1"
-                max="50"
-                onChange={this.circleLineWidthChange}
-              />
-            </p>
-            <p>
-              Circle color:{" "}
-              <select id="circlecolor" onChange={this.circleColorChange}>
-                <option value="red">Red</option>
-                <option value="green">Green</option>
-              </select>
-            </p>
-          </div> */}
         </div>
-        <Player
-          PlayerData={bottomPlayer}
-          cssmanager={this.props.cssmanager}
-          side={size}
-        />
+        <div style={{ width: size }}>
+          <Player
+            PlayerData={bottomPlayer}
+            cssmanager={this.props.cssmanager}
+            side={size}
+          />
+          <WhitePlayerClock
+            cssmanager={this.props.cssmanager}
+            ClockData2={bottomPlayer}
+            side={this.props.side}
+          />
+        </div>
       </div>
     );
   }

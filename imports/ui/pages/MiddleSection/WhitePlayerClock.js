@@ -1,18 +1,16 @@
 import React, { Component } from "react";
-
 const TOTAL_MINUTES = 60;
-export default class ClockComponent extends Component {
+export default class WhitePlayerClock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: props.ClockData.time,
-      isActive: props.ClockData.isActive
+      time: props.ClockData2.Timer,
+      isActive: props.ClockData2.IsActive
     };
   }
-
-  componentDidMount() {
-    const { isActive } = this.state;
-    if (isActive === true) {
+  componentWillReceiveProps(prevProps, prevState) {
+    if (this.props.ClockData2.IsActive === true) {
+      clearInterval(this.intervalId);
       this.intervalId = setInterval(() => {
         const { time } = this.state;
         if (time > 0) {
@@ -21,12 +19,10 @@ export default class ClockComponent extends Component {
           });
         }
       }, 1000);
+    } else {
+      clearInterval(this.intervalId);
     }
   }
-  componentWillUnmount() {
-    clearInterval(this.intervalId);
-  }
-
   render() {
     const { time } = this.state;
 
@@ -44,13 +40,10 @@ export default class ClockComponent extends Component {
     if (seconds.length === 1) {
       seconds = `0${seconds}`;
     }
-    let width = this.props.side / 5;
+    let cv = this.props.side / 9;
     return (
       <div
-        style={{
-          width: width,
-          float: "right"
-        }}
+        style={{ width: cv * 2, display: "inline-block", verticalAlign: "top" }}
       >
         <div style={this.props.cssmanager.clock(time)}>
           {minutes}:{seconds}

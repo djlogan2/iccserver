@@ -88,6 +88,14 @@ export default class MainPage extends Component {
       this.Main.RightSection.MoveList.GameMove = "";
       this.Main.RightSection.MoveList.GameMove = this.props.move + ",";
     }
+    console.log("turn: " + this.props.board.turn());
+    if (this.props.board.turn() === "w") {
+      this.Main.MiddleSection.BlackPlayer.IsActive = false;
+      this.Main.MiddleSection.WhitePlayer.IsActive = true;
+    } else {
+      this.Main.MiddleSection.BlackPlayer.IsActive = true;
+      this.Main.MiddleSection.WhitePlayer.IsActive = false;
+    }
     if (this.props.player !== undefined) {
       this.Main.MiddleSection.BlackPlayer.Name = this.props.player.black.name;
 

@@ -105,21 +105,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
     });
     this.props.history.push("/login");
   }
-  // _pieceSquareDragStop = raf => {
-  //   const game = this.renderGameMessages();
-  //   let result = this._board.move({ from: raf.from, to: raf.to });
-  //   if (result !== null) {
-  //     let history = this._board.history();
-  //     if (game !== undefined) {
-  //       this.gameId = game._id;
-  //       let move = history[history.length - 1];
-  //       let mongoMove = game.moves[game.moves.length - 1];
-  //       if (move !== mongoMove) {
-  //         Meteor.call("game-move.insert", move, this.gameId);
-  //       }
-  //     }
-  //   }
-  // };
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
 
@@ -194,6 +179,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   render() {
+    console.log(this.state.subscription.game);
     const game = this.renderGameMessages();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
