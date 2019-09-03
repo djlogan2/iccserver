@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
-
+import { Logger } from "../../../lib/client/Logger";
+const log = new Logger("LoginPage/LoginPage_js");
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
@@ -18,6 +19,7 @@ export default class LoginPage extends Component {
     let password = document.getElementById("login-password").value;
     Meteor.loginWithPassword(email, password, err => {
       if (err) {
+        log.error("Error occurs on Login: " + err);
         this.setState({
           error: "Email and Password not match"
         });

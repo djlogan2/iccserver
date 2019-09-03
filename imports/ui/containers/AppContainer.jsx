@@ -47,6 +47,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   renderGameMessages() {
     const game = Game.findOne({}, { _id: { $slice: -1 } });
+    log.debug("Game Collection  find", game);
     return game;
   }
   _systemCSS() {
@@ -105,25 +106,28 @@ export default class AppContainer extends TrackerReact(React.Component) {
     });
     this.props.history.push("/login");
   }
+
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
-
-    let result;
+    let result = null;
     let gameTurn = this._board.turn();
-
+    if (this._board.game_over() === true) {
+      return false;
+    }
     if (game.white.name === Meteor.user().username && gameTurn === "w") {
       result = this._board.move({ from: raf.from, to: raf.to });
     } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
       result = this._board.move({ from: raf.from, to: raf.to });
     }
+    log.debug(
+      "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
+    );
     if (game !== undefined && result !== null) {
       let history = this._board.history();
       this.gameId = game._id;
       let move = history[history.length - 1];
-      let mongoMove = game.moves[game.moves.length - 1];
-      if (move !== mongoMove) {
-        Meteor.call("game-move.insert", move, this.gameId);
-      }
+      Meteor.call("game-move.insert", move, this.gameId);
+      log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
     }
   };
   _boardFromMessages(legacymessages) {
@@ -160,6 +164,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           break;
 
         case "update_game_clock":
+          log.error("How to updaate the game clock");
           break;
 
         case "error":
@@ -170,16 +175,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _boardFromMongoMessages(moves) {
+    this._board = new Chess.Chess();
     if (moves !== undefined) {
-      let move = moves[moves.length - 1];
-      console.log("Move", move);
-      if (!this._board) this._board = new Chess.Chess();
-      this._board.move(move);
+      // this._board.clear();
+      for (let i = 0; i < moves.length; i++) {
+        this._board.move(moves[i]);
+      }
     }
   }
 
   render() {
-    console.log(this.state.subscription.game);
     const game = this.renderGameMessages();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();

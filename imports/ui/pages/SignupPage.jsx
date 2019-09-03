@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
 import i18n from "meteor/universe:i18n";
-
+import { Logger } from "../../../lib/client/Logger";
+const log = new Logger("SignUpPage/SignUpPage_js");
 export default class SignUpPage extends Component {
   constructor(props) {
     super(props);
@@ -23,6 +24,7 @@ export default class SignUpPage extends Component {
       { email: email, username: name, password: password },
       err => {
         if (err) {
+          log.error("Error occurs on Sign up: " + err);
           this.setState({
             error: err.reason
           });

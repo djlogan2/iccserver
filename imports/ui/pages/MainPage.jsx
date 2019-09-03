@@ -88,7 +88,9 @@ export default class MainPage extends Component {
       this.Main.RightSection.MoveList.GameMove = "";
       this.Main.RightSection.MoveList.GameMove = this.props.move + ",";
     }
-    console.log("turn: " + this.props.board.turn());
+    if (this.props.loggedUsers !== undefined) {
+      this.Main.RightSection.loggedUsers = this.props.loggedUsers;
+    }
     if (this.props.board.turn() === "w") {
       this.Main.MiddleSection.BlackPlayer.IsActive = false;
       this.Main.MiddleSection.WhitePlayer.IsActive = true;
@@ -112,7 +114,9 @@ export default class MainPage extends Component {
     } else {
       buttonStyle = "toggleOpen";
     }
-    //console.log("MainPage render, cssmanager=" + this.props.cssmanager);
+
+    // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
+    log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
 
@@ -125,7 +129,9 @@ export default class MainPage extends Component {
       this.state.popup === false &&
       this.props.player.black.name === Meteor.user().username
     ) {
-      popup = true;
+      if (this.props.player.moves.length === 0) {
+        popup = true;
+      }
     }
     return (
       <div className="main">
@@ -161,7 +167,7 @@ export default class MainPage extends Component {
               </div>
             </aside>
           </div>
-          {/* <div className="col-sm-5 col-md-8 col-lg-5 "> */}
+
           <div
             className="col-sm-6 col-md-6"
             style={this.props.cssmanager.parentPopup(h, w)}

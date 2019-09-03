@@ -1,7 +1,11 @@
 {
     "client/MainPage": "TRACE",
     "Css/CssManager_js": "TRACE",
+    "SignUpPage/SignUpPage_js": "TRACE",
+    "LoginPage/LoginPage_js": "TRACE",
     "client/AppContainer": "TRACE",
+    "Board/Board_js": "TRACE",
+    "Tabs/Tabs_js": "TRACE",
     "server/LegacyUser_js": "ERROR",
     "server/main_js": "ERROR",
     "server/RealTime_js": "ERROR"
