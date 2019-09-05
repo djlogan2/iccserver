@@ -65,7 +65,9 @@ export default class MainPage extends Component {
       to: raf.to
     });
   };
-
+  _flipboard = () => {
+    this.refs.middleBoard._flipboard();
+  };
   randomMoveObject() {
     let move = this.props.move; //moveList[Math.floor(Math.random() * moveList.length)];
 
@@ -189,6 +191,7 @@ export default class MainPage extends Component {
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
+              capture={this.props.capture}
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
             />
@@ -197,6 +200,7 @@ export default class MainPage extends Component {
             <RightSidebar
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
+              flip={this._flipboard}
             />
           </div>
         </div>

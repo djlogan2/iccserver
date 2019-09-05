@@ -107,17 +107,51 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.props.history.push("/login");
   }
 
+  _fallenSoldier() {
+    let history = this._board.history({ verbose: true });
+    let position = {
+      // w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
+      // b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
+      w: [],
+      b: []
+    };
+
+    let capturedSoldiers = history.reduce((accumulator, move) => {
+      if ("captured" in move) {
+        let piece = move.captured;
+        let color = move.color === "w" ? "b" : "w";
+        //accumulator[color][piece] += 1;
+        accumulator[color].push(piece);
+        return accumulator;
+      } else {
+        return accumulator;
+      }
+    }, position);
+
+    return capturedSoldiers;
+  }
+
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
     let result = null;
     let gameTurn = this._board.turn();
     if (this._board.game_over() === true) {
+      alert("Game over");
       return false;
     }
+
     if (game.white.name === Meteor.user().username && gameTurn === "w") {
       result = this._board.move({ from: raf.from, to: raf.to });
     } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
       result = this._board.move({ from: raf.from, to: raf.to });
+    }
+    var moveColor = "White";
+    if (this._board.turn() === "b") {
+      moveColor = "Black";
+    }
+    if (this._board.in_checkmate()) {
+      let status = "Game over, " + moveColor + " is in checkmate.";
+      alert(status);
     }
     log.debug(
       "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
@@ -200,6 +234,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
     if (game !== undefined) {
       this._boardFromMongoMessages(game.moves);
     }
+    const capture = this._fallenSoldier();
+    log.debug(capture);
+    log.trace(capture);
+    log.info(capture);
 
     return (
       <div>
@@ -207,6 +245,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           cssmanager={css}
           board={this._board}
           move={this.state.move}
+          capture={capture}
           player={game}
           onDrop={this._pieceSquareDragStop}
         />

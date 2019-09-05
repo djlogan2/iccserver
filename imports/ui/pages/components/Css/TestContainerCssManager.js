@@ -1,6 +1,4 @@
-import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../../lib/client/Logger";
-
 const log = new Logger("Css/CssManager_js");
 /**
  * CssManager
@@ -35,6 +33,19 @@ export default class CssManager {
       if (this._boardStyle.pieces.all)
         Object.assign(style, this._boardStyle.pieces.all);
       Object.assign(style, this._boardStyle.pieces[color][piece]);
+    }
+
+    return style;
+  }
+  fSquareStyle(squareColor, piece, side) {
+    var style = { width: side, height: side };
+    if (this._boardStyle.square.all)
+      Object.assign(style, this._boardStyle.fsquare.all);
+    Object.assign(style, this._boardStyle.fsquare[squareColor]);
+    if (!!piece && !!squareColor) {
+      if (this._boardStyle.pieces.all)
+        Object.assign(style, this._boardStyle.fallendpieces.all);
+      Object.assign(style, this._boardStyle.fallendpieces[squareColor][piece]);
     }
 
     return style;
@@ -434,6 +445,65 @@ const developmentcss = [
         backgroundRepeat: "no-repeat",
         backgroundSize: "100%",
         backgroundPosition: "center"
+      },
+      w: {
+        r: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg)`
+        },
+        b: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg)`
+        },
+        n: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg)`
+        },
+        q: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg)`
+        },
+        k: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg)`
+        },
+        p: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg)`
+        }
+      },
+      b: {
+        r: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg)`
+        },
+        b: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg)`
+        },
+        n: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg)`
+        },
+        q: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg)`
+        },
+        k: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg)`
+        },
+        p: {
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg)`
+        }
+      }
+    },
+    fsquare: {
+      all: {},
+      w: {
+        backgroundColor: "blue"
+      },
+      b: {
+        backgroundColor: "blue"
+      }
+    },
+    fallendpieces: {
+      all: {
+        margin: "2px",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "100%",
+        backgroundPosition: "center",
+        display: "inline-block",
+        borderRadius: "3px"
       },
       w: {
         r: {

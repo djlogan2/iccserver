@@ -88,7 +88,10 @@ export default class MoveListComponent extends Component {
 					 Player can change the game board colour, peace.
 					 this along with GameComponent
  					*/}
-          <button style={this.props.cssmanager.buttonStyle()}>
+          <button
+            style={this.props.cssmanager.buttonStyle()}
+            onClick={this.props.flip}
+          >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")}
               alt="Flip"

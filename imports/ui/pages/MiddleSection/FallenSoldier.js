@@ -1,27 +1,42 @@
+/* eslint-disable react/style-prop-object */
 import React from "react";
-import "../css/ChessBoard";
-
-import Square from "../components/Board/Square.js";
-
+import CssManager from "../components/Css/TestContainerCssManager";
+const css = new CssManager("developmentcss");
 export default class FallenSoldier extends React.Component {
-  static renderSquare(square, i) {
-    return <Square key={i} piece={square} style={square.style} />;
-  }
-
   render() {
-    return (
-      <div>
-        <div className="board-row dropout">
-          {this.props.whiteFallenSoldiers.map((ws, index) =>
-            FallenSoldier.renderSquare(ws, index)
-          )}
-        </div>
-        <div className="board-row dropout">
-          {this.props.blackFallenSoldiers.map((bs, index) =>
-            FallenSoldier.renderSquare(bs, index)
-          )}
-        </div>
-      </div>
+    let soldiers = this.props.FallenSoldiers;
+
+    let wSoldiers = soldiers
+      ? soldiers.map((wSoldier, index) => {
+          return (
+            <FallenSoldierSquare
+              key={index}
+              piece={wSoldier}
+              color={this.props.color}
+              cssmanager={css}
+              side={this.props.side}
+            />
+          );
+        })
+      : null;
+
+    return <div>{wSoldiers}</div>;
+  }
+}
+
+class FallenSoldierSquare extends React.Component {
+  render() {
+    console.log("this.props.color", this.props.color);
+    const h = this.props.side / 20;
+    const w = this.props.side / 20;
+
+    this._square_side = Math.min(h, w);
+    const squareStyle = this.props.cssmanager.fSquareStyle(
+      this.props.color,
+      this.props.piece,
+      this._square_side
     );
+
+    return <div style={squareStyle} />;
   }
 }

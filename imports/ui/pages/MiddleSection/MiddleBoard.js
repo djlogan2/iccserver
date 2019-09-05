@@ -6,6 +6,7 @@ import "../css/developmentboard.css";
 import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
 import WhitePlayerClock from "./WhitePlayerClock";
+import FallenSoldier from "./FallenSoldier";
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
@@ -21,9 +22,14 @@ export default class MiddleBoard extends Component {
       width: 1000
     };
   }
-
+  _flipboard() {
+    this.switchSides();
+  }
   updateDimensions() {
-    this.setState({ width: window.innerWidth, height: window.innerHeight });
+    this.setState({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
   }
 
   /**
@@ -110,12 +116,20 @@ export default class MiddleBoard extends Component {
       this.state.top === "w" ? this.state.whitePlayer : this.state.blackPlayer;
     const bottomPlayer =
       this.state.top === "b" ? this.state.whitePlayer : this.state.blackPlayer;
-
+    const topPlayerFallenSoldier =
+      this.state.top === "w" ? this.props.capture.b : this.props.capture.w;
+    const bottomPlayerFallenSoldier =
+      this.state.top === "b" ? this.props.capture.b : this.props.capture.w;
+    const tc = this.state.top === "w" ? "b" : "w";
+    const bc = this.state.top === "b" ? "b" : "w";
     const board = this.props.board || new Chess.Chess();
 
     return (
       <div>
-        <button style={this.props.cssmanager.buttonStyle("middleBoard")}>
+        <button
+          onClick={this.switchSides.bind(this)}
+          style={this.props.cssmanager.buttonStyle("middleBoard")}
+        >
           <img
             src={this.props.cssmanager.buttonBackgroundImage("fullScreen")}
             alt="full-screen"
@@ -131,10 +145,15 @@ export default class MiddleBoard extends Component {
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
             ClockData1={topPlayer}
-            side={this.props.side}
+            side={size}
           />
         </div>
         <div style={this.props.cssmanager.fullWidth()}>
+          <FallenSoldier
+            side={size}
+            color={tc}
+            FallenSoldiers={topPlayerFallenSoldier}
+          />
           <div style={this.props.cssmanager.parentPopup(h, w)}>
             <Board
               cssmanager={this.props.cssmanager}
@@ -148,6 +167,11 @@ export default class MiddleBoard extends Component {
               onDrop={this._pieceSquareDragStop}
             />
           </div>
+          <FallenSoldier
+            side={size}
+            color={bc}
+            FallenSoldiers={bottomPlayerFallenSoldier}
+          />
         </div>
         <div style={{ width: size }}>
           <Player
@@ -158,7 +182,7 @@ export default class MiddleBoard extends Component {
           <WhitePlayerClock
             cssmanager={this.props.cssmanager}
             ClockData2={bottomPlayer}
-            side={this.props.side}
+            side={size}
           />
         </div>
       </div>

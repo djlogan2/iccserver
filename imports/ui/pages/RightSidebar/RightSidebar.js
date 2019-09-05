@@ -10,6 +10,7 @@ class RightSidebar extends Component {
           <RightBarTop
             RightBarTopData={this.props.RightSidebarData}
             cssmanager={this.props.cssmanager}
+            flip={this.props.flip}
           />
         </div>
         <div style={this.props.cssmanager.rightBottomContent()}>
