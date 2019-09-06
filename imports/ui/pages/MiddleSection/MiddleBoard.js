@@ -7,6 +7,7 @@ import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
 import WhitePlayerClock from "./WhitePlayerClock";
 import FallenSoldier from "./FallenSoldier";
+
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);

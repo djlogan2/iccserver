@@ -13,7 +13,10 @@ export default class GameComponent extends Component {
           Moves={this.props.MoveHistory}
           flip={this.props.flip}
         />
-        <Action cssmanager={this.props.cssmanager} />
+        <Action
+          cssmanager={this.props.cssmanager}
+          takeBack={this.props.takeBack}
+        />
       </div>
     );
   }

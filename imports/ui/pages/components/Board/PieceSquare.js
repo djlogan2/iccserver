@@ -78,8 +78,6 @@ export default class PieceSquare extends Square {
   };
 
   dragStart = event => {
-    event.target.style.backgroundColor = "none";
-    console.log(event.target.style.backgroundColor);
     this.props.onDragStart({
       rank: this.props.rank,
       file: this.props.file,

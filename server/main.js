@@ -65,20 +65,53 @@ Meteor.methods({
     };
     Game.insert(game);
   },
-  "game-move.insert"(move, Id) {
-    console.log(move);
-    check(move, String);
+  "game-move.insert"(Id, move) {
     check(Id, String);
+    check(move, String);
+
     Game.update(
       { _id: Id },
       {
         $push: { moves: move }
       }
     );
-    // GameMessages.update( { _id: Id }, { $push: { moves: move } });
+    Game.update(
+      { _id: Id },
+      {
+        $push: { actions: { moves: move } }
+      }
+    );
+  },
+
+  "execute-game-action"(Id, action, responType) {
+    check(action, String);
+    check(Id, String);
+    check(responType, String);
+    if (action === "accept") {
+      Game.update({ _id: Id }, { $pop: { moves: 1 } });
+      Game.update(
+        { _id: Id },
+        {
+          $push: { actions: { accept: responType } }
+        }
+      );
+    } else if (action === "request") {
+      Game.update(
+        { _id: Id },
+        {
+          $push: { actions: { request: responType } }
+        }
+      );
+    } else {
+      Game.update(
+        { _id: Id },
+        {
+          $push: { actions: { rejected: responType } }
+        }
+      );
+    }
   }
 });
-//}
 
 function firstRunCSS() {
   if (mongoCss.find().count() === 0) {

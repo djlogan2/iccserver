@@ -12,6 +12,9 @@ class ActionComponent extends Component {
       "en-US"
     );
   }
+  _takeBackAction = (actionType, action) => {
+    this.props.takeBack(actionType, action);
+  };
   render() {
     let username = Meteor.user().username;
     let translator = i18n.createTranslator(
@@ -30,7 +33,10 @@ class ActionComponent extends Component {
 		opponent Player. 
 		*/}
           <li style={this.props.cssmanager.drawSectionList()}>
-            <button style={this.props.cssmanager.buttonStyle()}>
+            <button
+              style={this.props.cssmanager.buttonStyle()}
+              onClick={this._takeBackAction.bind(this, "request", "tackBack")}
+            >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("takeBack")}
                 alt="TakeBack"

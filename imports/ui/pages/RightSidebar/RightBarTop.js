@@ -34,6 +34,7 @@ export default class RightBarTop extends Component {
             cssmanager={this.props.cssmanager}
             MoveHistory={this.props.RightBarTopData.MoveList.GameMove}
             flip={this.props.flip}
+            takeBack={this.props.takeBack}
           />
         </div>
 

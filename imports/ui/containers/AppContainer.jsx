@@ -110,8 +110,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _fallenSoldier() {
     let history = this._board.history({ verbose: true });
     let position = {
-      // w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-      // b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       w: [],
       b: []
     };
@@ -120,7 +118,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
-        //accumulator[color][piece] += 1;
         accumulator[color].push(piece);
         return accumulator;
       } else {
@@ -160,7 +157,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
       let history = this._board.history();
       this.gameId = game._id;
       let move = history[history.length - 1];
-      Meteor.call("game-move.insert", move, this.gameId);
+      Meteor.call("game-move.insert", this.gameId, move);
+    //  Meteor.call("execute-game-action", this.gameId, "moves", move);
       log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
     }
   };

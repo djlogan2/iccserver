@@ -13,14 +13,16 @@ const log = new Logger("client/MainPage");
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      username: "",
-      visible: false,
-      popup: false,
-      IsBlackActive: true,
-      IsWhiteActive: false,
-      move: null
-    };
+    (this.gameId = null),
+      (this.state = {
+        username: "",
+        visible: false,
+        popup: false,
+        takeBack: false,
+        IsBlackActive: true,
+        IsWhiteActive: false,
+        move: null
+      });
 
     this.toggleMenu = this.toggleMenu.bind(this);
     this.Main = {
@@ -56,9 +58,6 @@ export default class MainPage extends Component {
     };
   }
 
-  // componentDidMount() {
-  //   this.randomMoveObject();
-  // }
   _pieceSquareDragStop = raf => {
     this.props.onDrop({
       from: raf.from,
@@ -68,6 +67,9 @@ export default class MainPage extends Component {
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
+  _takeBack = (actionType, action) => {
+    Meteor.call("execute-game-action", this.gameId, actionType, action);
+  };
   randomMoveObject() {
     let move = this.props.move; //moveList[Math.floor(Math.random() * moveList.length)];
 
@@ -75,14 +77,27 @@ export default class MainPage extends Component {
       move: move
     });
   }
+  requestTackBack = () => {
+    Meteor.call("execute-game-action", this.gameId, "request", "takeback");
+  };
+  acceptTackBack = () => {
+    Meteor.call("execute-game-action", this.gameId, "accept", "takeback");
+  };
+  rejectTakeBack = () => {
+    Meteor.call("execute-game-action", this.gameId, "reject", "takeback");
+  };
 
   toggleMenu() {
     this.setState({ visible: !this.state.visible });
   }
   hidePopup() {
-    this.setState({ popup: !this.state.popup });
+    this.setState({ popup: !this.state.popup, takeBack: true });
   }
   render() {
+    let gameTurn = this.props.board.turn();
+    let popup = false;
+    let takeback = false;
+
     if (
       this.props.move !== this.Main.RightSection.MoveList.GameMove &&
       this.props.move !== ""
@@ -93,7 +108,7 @@ export default class MainPage extends Component {
     if (this.props.loggedUsers !== undefined) {
       this.Main.RightSection.loggedUsers = this.props.loggedUsers;
     }
-    if (this.props.board.turn() === "w") {
+    if (gameTurn === "w") {
       this.Main.MiddleSection.BlackPlayer.IsActive = false;
       this.Main.MiddleSection.WhitePlayer.IsActive = true;
     } else {
@@ -101,13 +116,23 @@ export default class MainPage extends Component {
       this.Main.MiddleSection.WhitePlayer.IsActive = false;
     }
     if (this.props.player !== undefined) {
+      this.gameId = this.props.player._id;
       this.Main.MiddleSection.BlackPlayer.Name = this.props.player.black.name;
-
-      //this.Main.MiddleSection.BlackPlayer.Rating = this.props.player.Black.rating;
       this.Main.MiddleSection.WhitePlayer.Name = this.props.player.white.name;
       this.Main.RightSection.MoveList.GameMove = this.props.player;
 
-      // this.Main.MiddleSection.WhitePlayer.Rating = this.props.player.White.rating;
+      let actions = this.props.player.actions;
+      if (actions !== undefined && actions.length !== 0) {
+        let action = actions[actions.length - 1];
+
+        if (action["request"] === "takeback") {
+          if (gameTurn === "w") {
+            takeback = "w";
+          } else {
+            takeback = "b";
+          }
+        }
+      }
     }
 
     let buttonStyle;
@@ -125,7 +150,7 @@ export default class MainPage extends Component {
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
     w /= 2;
-    let popup = false;
+
     if (
       this.props.player !== undefined &&
       this.state.popup === false &&
@@ -187,6 +212,49 @@ export default class MainPage extends Component {
                 </div>
               </div>
             ) : null}
+            {(() => {
+              if (takeback === "w") {
+                return (
+                  <div style={this.props.cssmanager.outerPopupMain()}>
+                    <div className="popup_inner">
+                      <h3>Take Back request</h3>
+                      <button
+                        onClick={this.acceptTackBack.bind(this)}
+                        style={this.props.cssmanager.innerPopupMain()}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={this.rejectTakeBack.bind(this)}
+                        style={this.props.cssmanager.innerPopupMain()}
+                      >
+                        cancel
+                      </button>
+                    </div>
+                  </div>
+                );
+              } else if (takeback === "b") {
+                return (
+                  <div style={this.props.cssmanager.outerPopupMain()}>
+                    <div className="popup_inner">
+                      <h3>Take Back request</h3>
+                      <button
+                        onClick={this.acceptTackBack.bind(this)}
+                        style={this.props.cssmanager.innerPopupMain()}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={this.hidePopup.bind(this)}
+                        style={this.props.cssmanager.innerPopupMain()}
+                      >
+                        cancel
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+            })()}
             <MiddleBoard
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
@@ -201,6 +269,7 @@ export default class MainPage extends Component {
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
               flip={this._flipboard}
+              takeBack={this.requestTackBack}
             />
           </div>
         </div>
