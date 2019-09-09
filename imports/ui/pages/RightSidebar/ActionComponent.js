@@ -3,6 +3,14 @@ import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 
 class ActionComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.username='';
+    this.gameId='';
+    this.gameTurn='';
+    this.whitePlayer='';
+    this.blackPlayer='';
+  }
   static getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -13,29 +21,60 @@ class ActionComponent extends Component {
     );
   }
   _takeBackAction = (actionType, action) => {
-    this.props.takeBack(actionType, action);
+    if(this.gameTurn ==="b" && this.whitePlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }else if(this.gameTurn ==="w" && this.blackPlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }
+    return;  
+  };
+  
+  _drawAction = (actionType, action) => {
+    if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }else if(this.gameTurn ==="b" && this.blackPlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }
+    return;  
+  };
+  _resignAction = (actionType, action) => {
+    if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }else if(this.gameTurn ==="b" && this.blackPlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }
+    return;  
+  };
+  _abortAction = (actionType, action) => {
+    if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }else if(this.gameTurn ==="b" && this.blackPlayer===this.username ){
+          this.props.performAction(actionType, action);
+    }
+    return;  
   };
   render() {
-    let username = Meteor.user().username;
+    this.username = this.props.actionData.user;
+    this.gameId = this.props.actionData.gameId;
+    this.gameTurn = this.props.actionData.gameTurn;
+    this.whitePlayer = this.props.actionData.whitePlayer;
+    this.blackPlayer = this.props.actionData.blackPlayer;
     let translator = i18n.createTranslator(
       "Common.actionButtonLabel",
       ActionComponent.getLang()
     );
+    
     return (
       <div className="draw-section">
         <div style={this.props.cssmanager.drawActionSection()}>
-          Current User : {username}
+          Current User : {this.username}
         </div>
         <ul>
-          {/* 
-		Take back request Component
-		Player can request to take back the last move to the
-		opponent Player. 
-		*/}
+          
           <li style={this.props.cssmanager.drawSectionList()}>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this._takeBackAction.bind(this, "request", "tackBack")}
+              onClick={this._takeBackAction.bind(this, "request", "takeBack")}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("takeBack")}
@@ -45,12 +84,11 @@ class ActionComponent extends Component {
               {translator("takeBack")}
             </button>
           </li>
-          {/* 
-		Draw request Component
-		Player can draw arrow and circle on the board.
-		*/}
+         
           <li style={this.props.cssmanager.drawSectionList()}>
-            <button style={this.props.cssmanager.buttonStyle()}>
+            <button style={this.props.cssmanager.buttonStyle()}
+                onClick={this._drawAction.bind(this, "request", "draw")}
+            >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("draw")}
                 alt="Draw"
@@ -59,12 +97,11 @@ class ActionComponent extends Component {
               {translator("draw")}
             </button>
           </li>
-          {/*
-							Resign Component
-							Players can resign the game.
-							*/}
+        
           <li style={this.props.cssmanager.drawSectionList()}>
-            <button style={this.props.cssmanager.buttonStyle()}>
+            <button style={this.props.cssmanager.buttonStyle()}
+             onClick={this._resignAction.bind(this, "request", "resign")}
+            >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("resign")}
                 alt="Resign"
@@ -73,11 +110,11 @@ class ActionComponent extends Component {
               {translator("resign")}
             </button>
           </li>
-          {/* 
-						Game abort Component
-            Players can abort the game. */}
-          <li style={this.props.cssmanager.drawSectionList()}>
-            <button style={this.props.cssmanager.buttonStyle()}>
+          
+          <li style={this.props.cssmanager.drawSectionList()}>  
+            <button style={this.props.cssmanager.buttonStyle()}
+             onClick={this._abortAction.bind(this, "request", "abort")}
+            >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("abort")}
                 alt="Abort"

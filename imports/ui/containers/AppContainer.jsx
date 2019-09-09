@@ -206,14 +206,24 @@ export default class AppContainer extends TrackerReact(React.Component) {
     });
   }
 
-  _boardFromMongoMessages(moves) {
+  _boardFromMongoMessages(game) {
+  
     this._board = new Chess.Chess();
+    let moves=game.moves;
+    let actions=game.actions;
     if (moves !== undefined) {
       // this._board.clear();
       for (let i = 0; i < moves.length; i++) {
         this._board.move(moves[i]);
       }
     }
+     if(actions!=undefined && actions.length != null && actions.length > 0){
+      let action = actions[actions.length - 1];
+      if(action["accepted"] === "draw" || action["accepted"] === "resign" || action["accepted"] === "abort"){
+        this._board = new Chess.Chess();
+      }
+    }
+ 
   }
 
   render() {
@@ -230,7 +240,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (game !== undefined) {
-      this._boardFromMongoMessages(game.moves);
+      this._boardFromMongoMessages(game);
     }
     const capture = this._fallenSoldier();
     log.debug(capture);

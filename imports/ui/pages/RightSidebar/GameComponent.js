@@ -15,7 +15,8 @@ export default class GameComponent extends Component {
         />
         <Action
           cssmanager={this.props.cssmanager}
-          takeBack={this.props.takeBack}
+          performAction={this.props.performAction}
+          actionData={this.props.actionData}
         />
       </div>
     );

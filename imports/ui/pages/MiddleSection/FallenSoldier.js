@@ -26,7 +26,6 @@ export default class FallenSoldier extends React.Component {
 
 class FallenSoldierSquare extends React.Component {
   render() {
-    console.log("this.props.color", this.props.color);
     const h = this.props.side / 20;
     const w = this.props.side / 20;
 

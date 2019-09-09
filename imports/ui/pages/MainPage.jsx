@@ -53,11 +53,50 @@ export default class MainPage extends Component {
         },
         MoveList: {
           GameMove: ""
-        }
+        },
+        Action:{}
       }
     };
   }
+  getInformativePopup=(title)=>{
 
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        <div className="popup_inner">
+          <h3>{title}</h3>
+          <button
+            onClick={this.hidePopup.bind(this)}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            close me
+          </button>
+        </div>
+      </div>
+    )
+  }
+  actionPopup=(title, action)=>{
+    if(action==="abort" || action==="resign"){}
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        <div className="popup_inner">
+          <h3>{title}</h3>
+          
+          <button
+            onClick={this._performAction.bind(this,"accept",action)}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            Accept
+          </button>
+          <button
+            onClick={this._performAction.bind(this,"reject",action)}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
   _pieceSquareDragStop = raf => {
     this.props.onDrop({
       from: raf.from,
@@ -67,9 +106,10 @@ export default class MainPage extends Component {
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
-  _takeBack = (actionType, action) => {
-    Meteor.call("execute-game-action", this.gameId, actionType, action);
-  };
+  _performAction = (actionType, action) => {
+    
+      Meteor.call("execute-game-action", this.gameId, actionType, action);    
+  };  
   randomMoveObject() {
     let move = this.props.move; //moveList[Math.floor(Math.random() * moveList.length)];
 
@@ -77,16 +117,6 @@ export default class MainPage extends Component {
       move: move
     });
   }
-  requestTackBack = () => {
-    Meteor.call("execute-game-action", this.gameId, "request", "takeback");
-  };
-  acceptTackBack = () => {
-    Meteor.call("execute-game-action", this.gameId, "accept", "takeback");
-  };
-  rejectTakeBack = () => {
-    Meteor.call("execute-game-action", this.gameId, "reject", "takeback");
-  };
-
   toggleMenu() {
     this.setState({ visible: !this.state.visible });
   }
@@ -96,8 +126,8 @@ export default class MainPage extends Component {
   render() {
     let gameTurn = this.props.board.turn();
     let popup = false;
-    let takeback = false;
-
+    let informativePopup = null;
+    let actionPopup=null;
     if (
       this.props.move !== this.Main.RightSection.MoveList.GameMove &&
       this.props.move !== ""
@@ -120,18 +150,42 @@ export default class MainPage extends Component {
       this.Main.MiddleSection.BlackPlayer.Name = this.props.player.black.name;
       this.Main.MiddleSection.WhitePlayer.Name = this.props.player.white.name;
       this.Main.RightSection.MoveList.GameMove = this.props.player;
+      this.Main.RightSection.Action.user = Meteor.user().username;
+      this.Main.RightSection.Action.gameTurn = gameTurn;
+      this.Main.RightSection.Action.whitePlayer=this.props.player.white.name;
+      this.Main.RightSection.Action.blackPlayer=this.props.player.black.name;
+      this.Main.RightSection.Action.gameId=this.gameId;
 
       let actions = this.props.player.actions;
       if (actions !== undefined && actions.length !== 0) {
         let action = actions[actions.length - 1];
-
-        if (action["request"] === "takeback") {
-          if (gameTurn === "w") {
-            takeback = "w";
-          } else {
-            takeback = "b";
+        
+        if (action["request"] === "takeBack") {
+          if (gameTurn === "w" && this.props.player.white.name===Meteor.user().username) {
+              actionPopup=this.actionPopup("Request Take back","takeBack");
+          } else if(gameTurn==="b" && this.props.player.black.name===Meteor.user().username){
+            actionPopup=this.actionPopup("Request Take back","takeBack");
+           }
+        }else if(action["request"] === "draw"){
+          if (gameTurn === "b" && this.props.player.white.name===Meteor.user().username) {
+            actionPopup=this.actionPopup("Request for draw","draw");
+        } else if(gameTurn==="w" && this.props.player.black.name===Meteor.user().username){
+          actionPopup=this.actionPopup("Request for draw","draw");
+         }
+        }else if(action["request"] === "resign"){
+          if (gameTurn === "b" && this.props.player.white.name===Meteor.user().username && this.state.popup === false) {
+              informativePopup=this.getInformativePopup("Game resign by "+this.props.player.black.name);
+          }else if(gameTurn==="w" && this.props.player.black.name===Meteor.user().username && this.state.popup === false){
+             informativePopup=this.getInformativePopup("Game resign by "+this.props.player.white.name);
           }
+        }else if(action["request"] === "abort"){
+        if (gameTurn === "b" && this.props.player.white.name===Meteor.user().username && this.state.popup === false) {
+            informativePopup=this.getInformativePopup("Game abort by "+this.props.player.black.name);
+        }else if(gameTurn==="w" && this.props.player.black.name===Meteor.user().username && this.state.popup === false){
+           informativePopup=this.getInformativePopup("Game abort by "+this.props.player.white.name);
         }
+      }
+
       }
     }
 
@@ -157,7 +211,7 @@ export default class MainPage extends Component {
       this.props.player.black.name === Meteor.user().username
     ) {
       if (this.props.player.moves.length === 0) {
-        popup = true;
+          informativePopup=this.getInformativePopup("Your Game started");
       }
     }
     return (
@@ -199,62 +253,8 @@ export default class MainPage extends Component {
             className="col-sm-6 col-md-6"
             style={this.props.cssmanager.parentPopup(h, w)}
           >
-            {popup ? (
-              <div style={this.props.cssmanager.outerPopupMain()}>
-                <div className="popup_inner">
-                  <h3>Your game started</h3>
-                  <button
-                    onClick={this.hidePopup.bind(this)}
-                    style={this.props.cssmanager.innerPopupMain()}
-                  >
-                    close me
-                  </button>
-                </div>
-              </div>
-            ) : null}
-            {(() => {
-              if (takeback === "w") {
-                return (
-                  <div style={this.props.cssmanager.outerPopupMain()}>
-                    <div className="popup_inner">
-                      <h3>Take Back request</h3>
-                      <button
-                        onClick={this.acceptTackBack.bind(this)}
-                        style={this.props.cssmanager.innerPopupMain()}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        onClick={this.rejectTakeBack.bind(this)}
-                        style={this.props.cssmanager.innerPopupMain()}
-                      >
-                        cancel
-                      </button>
-                    </div>
-                  </div>
-                );
-              } else if (takeback === "b") {
-                return (
-                  <div style={this.props.cssmanager.outerPopupMain()}>
-                    <div className="popup_inner">
-                      <h3>Take Back request</h3>
-                      <button
-                        onClick={this.acceptTackBack.bind(this)}
-                        style={this.props.cssmanager.innerPopupMain()}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        onClick={this.hidePopup.bind(this)}
-                        style={this.props.cssmanager.innerPopupMain()}
-                      >
-                        cancel
-                      </button>
-                    </div>
-                  </div>
-                );
-              }
-            })()}
+            {informativePopup}
+            {actionPopup}
             <MiddleBoard
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
@@ -269,7 +269,8 @@ export default class MainPage extends Component {
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
               flip={this._flipboard}
-              takeBack={this.requestTackBack}
+              performAction={this._performAction}
+              actionData={this.Main.RightSection.Action}
             />
           </div>
         </div>

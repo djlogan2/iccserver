@@ -83,33 +83,80 @@ Meteor.methods({
     );
   },
 
-  "execute-game-action"(Id, action, responType) {
+  "execute-game-action"(Id, actionType, action) {    
     check(action, String);
     check(Id, String);
-    check(responType, String);
-    if (action === "accept") {
-      Game.update({ _id: Id }, { $pop: { moves: 1 } });
-      Game.update(
+    check(actionType, String);
+    if(action === "takeBack")
+    {
+      if (actionType === "accept") {
+        Game.update({ _id: Id }, { $pop: { moves: 1 } });
+        Game.update(
+          { _id: Id },
+          {
+            $push: { actions: { accepted: action } }
+          }
+        );
+      } else if (actionType === "request") {        
+        Game.update(
+          { _id: Id },
+          {
+            $push: { actions: { request: action } }
+          }
+        );
+      } else {
+        Game.update(
+          { _id: Id },
+          {
+            $push: { actions: { rejected: action } }
+          }
+        );
+      }
+    }
+    else if(action === "draw")
+    {
+      if (actionType === "accept") {
+       Game.update(
         { _id: Id },
         {
-          $push: { actions: { accept: responType } }
+          $push: { actions: { accepted: action } }
         }
       );
-    } else if (action === "request") {
+    } else if (actionType === "request") {        
       Game.update(
         { _id: Id },
         {
-          $push: { actions: { request: responType } }
+          $push: { actions: { request: action } }
         }
       );
     } else {
       Game.update(
         { _id: Id },
         {
-          $push: { actions: { rejected: responType } }
+          $push: { actions: { rejected: action } }
         }
       );
     }
+      
+    }else if(action === "resign"){
+      if (actionType === "request") {        
+       Game.update(
+         { _id: Id },
+         {
+           $push: { actions: { request: action } }
+         }
+       );
+     }  
+    }else if(action === "abort"){
+      if (actionType === "request"){        
+       Game.update(
+         { _id: Id },
+         {
+           $push: { actions: { request: action } }
+         }
+       );
+     }  
+    }  
   }
 });
 
