@@ -91,19 +91,22 @@ export default class PieceSquare extends Square {
       file: this.props.file
     });
   };
-
+  dragStartImage=(event)=>{
+    console.log(event);
+  }
   render() {
     //
     // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
     //
-
+   
     const squareStyle = this.props.cssmanager.squareStyle(
       this._squarecolor,
-      this.props.piece,
-      this.props.color,
       this.props.side
     );
-
+    const peiceImage=this.props.cssmanager.imagePeice(
+      this.props.piece,
+      this.props.color
+    );  
     let canvasStyle;
     if (this.props.circle)
       canvasStyle = this.props.cssmanager.squareCanvasStyle(this.props.side);
@@ -126,7 +129,13 @@ export default class PieceSquare extends Square {
           onDrop={this.drop}
           onDragOver={event => event.preventDefault()}
           style={squareStyle}
-        />
+       >
+         <img src={peiceImage} style={{
+          width: "100%",
+          height: "100%" }}
+          />
+
+         </div>
         <canvas
           style={canvasStyle}
           id={this._canvasid}

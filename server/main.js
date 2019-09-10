@@ -7,6 +7,7 @@ import { Roles } from "meteor/alanning:roles";
 import { Mongo } from "meteor/mongo";
 import { check, Match } from "meteor/check";
 import { systemcss, usercss } from "./developmentcss";
+import "./Game";
 let log = new Logger("server/main_js");
 
 const bound = Meteor.bindEnvironment(callback => {
@@ -33,133 +34,6 @@ const fields_viewable_by_account_owner = {
   "profile.legacy.username": 1
 };
 const mongoCss = new Mongo.Collection("css");
-const Game = new Mongo.Collection("game");
-
-Meteor.publish("game", function tasksPublication() {
-  return Game.find({
-    $or: [
-      { "black.name": Meteor.user().username },
-      { "white.name": Meteor.user().username }
-    ]
-  });
-});
-
-//if (Meteor.isServer) {
-// This code only runs on the server
-
-Meteor.methods({
-  "game-messages.insert"(label, black) {
-    check(label, String);
-    check(black, String);
-    // Make sure the user is logged in before inserting a task
-    if (!Meteor.userId()) {
-      throw new Meteor.Error("not-authorized");
-    }
-
-    let game = {
-      status: "scratch-game",
-      owner: "djlogan",
-      white: { name: Meteor.user().username, rating: "2800" },
-      black: { name: black, rating: "1400" },
-      moves: []
-    };
-    Game.insert(game);
-  },
-  "game-move.insert"(Id, move) {
-    check(Id, String);
-    check(move, String);
-
-    Game.update(
-      { _id: Id },
-      {
-        $push: { moves: move }
-      }
-    );
-    Game.update(
-      { _id: Id },
-      {
-        $push: { actions: { moves: move } }
-      }
-    );
-  },
-
-  "execute-game-action"(Id, actionType, action) {    
-    check(action, String);
-    check(Id, String);
-    check(actionType, String);
-    if(action === "takeBack")
-    {
-      if (actionType === "accept") {
-        Game.update({ _id: Id }, { $pop: { moves: 1 } });
-        Game.update(
-          { _id: Id },
-          {
-            $push: { actions: { accepted: action } }
-          }
-        );
-      } else if (actionType === "request") {        
-        Game.update(
-          { _id: Id },
-          {
-            $push: { actions: { request: action } }
-          }
-        );
-      } else {
-        Game.update(
-          { _id: Id },
-          {
-            $push: { actions: { rejected: action } }
-          }
-        );
-      }
-    }
-    else if(action === "draw")
-    {
-      if (actionType === "accept") {
-       Game.update(
-        { _id: Id },
-        {
-          $push: { actions: { accepted: action } }
-        }
-      );
-    } else if (actionType === "request") {        
-      Game.update(
-        { _id: Id },
-        {
-          $push: { actions: { request: action } }
-        }
-      );
-    } else {
-      Game.update(
-        { _id: Id },
-        {
-          $push: { actions: { rejected: action } }
-        }
-      );
-    }
-      
-    }else if(action === "resign"){
-      if (actionType === "request") {        
-       Game.update(
-         { _id: Id },
-         {
-           $push: { actions: { request: action } }
-         }
-       );
-     }  
-    }else if(action === "abort"){
-      if (actionType === "request"){        
-       Game.update(
-         { _id: Id },
-         {
-           $push: { actions: { request: action } }
-         }
-       );
-     }  
-    }  
-  }
-});
-
 function firstRunCSS() {
   if (mongoCss.find().count() === 0) {
     mongoCss.insert(systemcss);

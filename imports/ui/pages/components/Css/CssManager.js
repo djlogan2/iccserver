@@ -61,19 +61,19 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.innerPopupMainPage);
     return style;
   }
-  squareStyle(squareColor, piece, color, side) {
+  squareStyle(squareColor, side) {
     var style = { width: side, height: side };
     if (this._boardStyle.square.all)
       Object.assign(style, this._boardStyle.square.all);
     Object.assign(style, this._boardStyle.square[squareColor]);
-
-    if (!!piece && !!color) {
-      if (this._boardStyle.pieces.all)
-        Object.assign(style, this._boardStyle.pieces.all);
-      Object.assign(style, this._boardStyle.pieces[color][piece]);
-    }
-
     return style;
+  }
+  imagePeice(piece, color){
+    var style;
+    if (piece!=undefined && color!=undefined) {
+        style = this._boardStyle.pieces[color][piece];
+      }
+     return style;
   }
   flags(country) {
     /*

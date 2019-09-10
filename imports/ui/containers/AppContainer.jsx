@@ -136,7 +136,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       alert("Game over");
       return false;
     }
-
+    if (game !== undefined){
     if (game.white.name === Meteor.user().username && gameTurn === "w") {
       result = this._board.move({ from: raf.from, to: raf.to });
     } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
@@ -153,7 +153,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     log.debug(
       "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
     );
-    if (game !== undefined && result !== null) {
+    if (result !== null) {
       let history = this._board.history();
       this.gameId = game._id;
       let move = history[history.length - 1];
@@ -161,6 +161,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     //  Meteor.call("execute-game-action", this.gameId, "moves", move);
       log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
     }
+  }
   };
   _boardFromMessages(legacymessages) {
     if (legacymessages.length)
