@@ -8,7 +8,8 @@ export default class WhitePlayerClock extends Component {
       isActive: props.ClockData2.IsActive
     };
   }
-  componentWillReceiveProps(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
+   
     if (this.props.ClockData2.IsActive === true) {
       clearInterval(this.intervalId);
       this.intervalId = setInterval(() => {

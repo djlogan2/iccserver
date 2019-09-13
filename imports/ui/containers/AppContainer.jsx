@@ -20,6 +20,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.gameId = null;
+    this.userId=null;
     this._board = new Chess.Chess();
     this._rm_index = 0;
     this.player = {
@@ -46,9 +47,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   renderGameMessages() {
-    const game = Game.findOne({}, { _id: { $slice: -1 } });
+    //const game = Game.findOne({}, { _id: { $slice: -1 } });
+    const game=Game.find({}, { sort: { startTime: -1 } }).fetch();
     log.debug("Game Collection  find", game);
-    return game;
+    return game[0];
   }
   _systemCSS() {
     return mongoCss.findOne({ type: "system" });
@@ -156,8 +158,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
     if (result !== null) {
       let history = this._board.history();
       this.gameId = game._id;
+      this.userId = Meteor.userId();
       let move = history[history.length - 1];
-      Meteor.call("game-move.insert", this.gameId, move);
+      Meteor.call("game-move.insert", this.gameId, move, this.userId);
     //  Meteor.call("execute-game-action", this.gameId, "moves", move);
       log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
     }
@@ -212,7 +215,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this._board = new Chess.Chess();
     let moves=game.moves;
     let actions=game.actions;
-    if (moves !== undefined) {
+     if (moves !== undefined) {
+    
       // this._board.clear();
       for (let i = 0; i < moves.length; i++) {
         this._board.move(moves[i]);
@@ -220,8 +224,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
      if(actions!=undefined && actions.length != null && actions.length > 0){
       let action = actions[actions.length - 1];
-      if(action["accepted"] === "draw" || action["accepted"] === "resign" || action["accepted"] === "abort"){
-        this._board = new Chess.Chess();
+      if((action["type"] === "draw" && action["value"] === "accepted") || action["type"] === "resigned" || action["type"] === "game" || action["type"] === "aborted"){
+        this._board.reset();
       }
     }
  

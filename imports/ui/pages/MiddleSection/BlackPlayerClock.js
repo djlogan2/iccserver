@@ -9,7 +9,8 @@ export default class BlackPlayerClock extends Component {
       isActive: props.ClockData1.IsActive
     };
   }
-  componentWillReceiveProps(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) {
+    
     if (this.props.ClockData1.IsActive === true) {
       clearInterval(this.intervalId);
       this.intervalId = setInterval(() => {

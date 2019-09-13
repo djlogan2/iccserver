@@ -7,6 +7,7 @@ class ActionComponent extends Component {
     super(props);
     this.username='';
     this.gameId='';
+    this.userId='';
     this.gameTurn='';
     this.whitePlayer='';
     this.blackPlayer='';
@@ -22,38 +23,40 @@ class ActionComponent extends Component {
   }
   _takeBackAction = (actionType, action) => {
     if(this.gameTurn ==="b" && this.whitePlayer===this.username ){
-          this.props.performAction(actionType, action);
+          this.props.performAction(actionType, action,this.userId);
     }else if(this.gameTurn ==="w" && this.blackPlayer===this.username ){
-          this.props.performAction(actionType, action);
+          this.props.performAction(actionType, action,this.userId);
     }
     return;  
   };
   
   _drawAction = (actionType, action) => {
     if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
-          this.props.performAction(actionType, action);
+      this.props.performAction(actionType, action,this.userId);
     }else if(this.gameTurn ==="b" && this.blackPlayer===this.username ){
-          this.props.performAction(actionType, action);
+      this.props.performAction(actionType, action,this.userId);
     }
     return;  
   };
   _resignAction = (actionType, action) => {
-    if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
-          this.props.performAction(actionType, action);
+  //  this.props.performAction(actionType, action,this.userId);
+  if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
+        this.props.performAction(actionType, action,this.userId);
     }else if(this.gameTurn ==="b" && this.blackPlayer===this.username ){
-          this.props.performAction(actionType, action);
-    }
-    return;  
+         this.props.performAction(actionType, action,this.userId);
+  }
+return; 
   };
   _abortAction = (actionType, action) => {
     if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
-          this.props.performAction(actionType, action);
+      this.props.performAction(actionType, action,this.userId);
     }else if(this.gameTurn ==="b" && this.blackPlayer===this.username ){
-          this.props.performAction(actionType, action);
+      this.props.performAction(actionType, action,this.userId);
     }
     return;  
   };
   render() {
+    this.userId = this.props.actionData.userId;
     this.username = this.props.actionData.user;
     this.gameId = this.props.actionData.gameId;
     this.gameTurn = this.props.actionData.gameTurn;
@@ -63,7 +66,7 @@ class ActionComponent extends Component {
       "Common.actionButtonLabel",
       ActionComponent.getLang()
     );
-    
+   
     return (
       <div className="draw-section">
         <div style={this.props.cssmanager.drawActionSection()}>
@@ -100,7 +103,7 @@ class ActionComponent extends Component {
         
           <li style={this.props.cssmanager.drawSectionList()}>
             <button style={this.props.cssmanager.buttonStyle()}
-             onClick={this._resignAction.bind(this, "request", "resign")}
+             onClick={this._resignAction.bind(this, "request", "resigned")}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("resign")}
@@ -113,7 +116,7 @@ class ActionComponent extends Component {
           
           <li style={this.props.cssmanager.drawSectionList()}>  
             <button style={this.props.cssmanager.buttonStyle()}
-             onClick={this._abortAction.bind(this, "request", "abort")}
+             onClick={this._abortAction.bind(this, "request", "aborted")}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("abort")}
