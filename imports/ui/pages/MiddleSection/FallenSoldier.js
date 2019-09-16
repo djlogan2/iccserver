@@ -1,11 +1,8 @@
-/* eslint-disable react/style-prop-object */
 import React from "react";
-import CssManager from "../components/Css/TestContainerCssManager";
-const css = new CssManager("developmentcss");
 export default class FallenSoldier extends React.Component {
   render() {
     let soldiers = this.props.FallenSoldiers;
-
+    
     let wSoldiers = soldiers
       ? soldiers.map((wSoldier, index) => {
           return (
@@ -13,7 +10,7 @@ export default class FallenSoldier extends React.Component {
               key={index}
               piece={wSoldier}
               color={this.props.color}
-              cssmanager={css}
+              cssmanager={this.props.cssmanager}
               side={this.props.side}
             />
           );
@@ -26,8 +23,8 @@ export default class FallenSoldier extends React.Component {
 
 class FallenSoldierSquare extends React.Component {
   render() {
-    const h = this.props.side / 20;
-    const w = this.props.side / 20;
+    const h = this.props.side / 30;
+    const w = this.props.side / 30;
 
     this._square_side = Math.min(h, w);
     const squareStyle = this.props.cssmanager.fSquareStyle(

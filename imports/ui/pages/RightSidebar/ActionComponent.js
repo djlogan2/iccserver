@@ -22,12 +22,13 @@ class ActionComponent extends Component {
     );
   }
   _takeBackAction = (actionType, action) => {
-    if(this.gameTurn ==="b" && this.whitePlayer===this.username ){
-          this.props.performAction(actionType, action,this.userId);
-    }else if(this.gameTurn ==="w" && this.blackPlayer===this.username ){
-          this.props.performAction(actionType, action,this.userId);
-    }
-    return;  
+    var isValid =
+      (this.gameTurn === "b" && this.whitePlayer === this.username) ||
+      (this.gameTurn === "w" && this.blackPlayer === this.username)
+        ? true
+        : false;
+    if (isValid) this.props.performAction(actionType, action, this.userId);
+    return; 
   };
   
   _drawAction = (actionType, action) => {
@@ -39,7 +40,6 @@ class ActionComponent extends Component {
     return;  
   };
   _resignAction = (actionType, action) => {
-  //  this.props.performAction(actionType, action,this.userId);
   if(this.gameTurn ==="w" && this.whitePlayer===this.username ){
         this.props.performAction(actionType, action,this.userId);
     }else if(this.gameTurn ==="b" && this.blackPlayer===this.username ){

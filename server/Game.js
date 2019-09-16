@@ -6,35 +6,7 @@ import { getUnpackedSettings } from "http2";
 import { stringLiteral } from "@babel/types";
 
 const GameCollection = new Mongo.Collection("game");
-/*
-{
-  "_id": "6T5c3bxoT4SCxBmT4",
-  "status": "scratch-game",
-  "owner": "djlogan",
-  "white": {
-    "name": "vimal",
-    "rating": "2800"
-  },
-  "black": {
-    "name": "test",
-    "rating": "1400"
-  },
-  "moves": [
-    "e3"
-    
-  ],
-  "actions": [
-    {
-      "moves": "e3"
-    },
-    
-    {
-      "moves": "g3"
-    }
-  ]
-}
 
-*/
 const playerSchema = new SimpleSchema({
   name: { type: String },
   userid: { type: String, regEx: SimpleSchema.RegEx.Id },
@@ -143,9 +115,13 @@ Meteor.methods({
     check(actionBy, String);
   
     if(action === "takeBack" && actionType === "accepted"){
-      console.log(GameCollection.update({ _id: Id }, { $pull: { moves: -1 } }));
+      GameCollection.update(
+        { _id: Id },
+        { $pop: { moves: 1 } },
+        { bypassCollection2: true }
+      );
     }
-    if(action === "aborted" || action === "resigned")
+    if(action === "resigned")
     {
       GameCollection.update(
         { _id: Id },
@@ -157,7 +133,8 @@ Meteor.methods({
           GameCollection.simpleSchema().namedContext().validationErrors()
         });  
     }else{
-      
+      console.log(actionType);
+      console.log(action);
       GameCollection.update(
         { _id: Id },
         {

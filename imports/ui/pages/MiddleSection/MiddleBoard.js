@@ -151,6 +151,7 @@ export default class MiddleBoard extends Component {
         </div>
         <div style={this.props.cssmanager.fullWidth()}>
           <FallenSoldier
+            cssmanager={this.props.cssmanager}
             side={size}
             color={tc}
             FallenSoldiers={topPlayerFallenSoldier}
@@ -168,7 +169,9 @@ export default class MiddleBoard extends Component {
               onDrop={this._pieceSquareDragStop}
             />
           </div>
+          
           <FallenSoldier
+            cssmanager={this.props.cssmanager}
             side={size}
             color={bc}
             FallenSoldiers={bottomPlayerFallenSoldier}

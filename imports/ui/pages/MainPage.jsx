@@ -20,29 +20,26 @@ export default class MainPage extends Component {
         startgame: false,
         aborted: false,
         resigned: false,
+        draw:false,
         move: null
       });
-
     this.toggleMenu = this.toggleMenu.bind(this);
-    this.intializeBoard();  
-  }
-  intializeBoard=()=>{
     this.Main = {
       LeftSection: {
         MenuLinks: links
       },
       MiddleSection: {
         BlackPlayer: {
-          Rating: "1400",
-          Name: "John",
+          Rating: "0000",
+          Name: "Player-1",
           Flag: "us",
           Timer: 1000,
           UserPicture: "player-img-top.png",
           IsActive: false
         },
         WhitePlayer: {
-          Rating: "1200",
-          Name: "Json",
+          Rating: "0000",
+          Name: "Player-2",
           Flag: "us",
           Timer: 1000,
           UserPicture: "player-img-bottom.png",
@@ -59,7 +56,9 @@ export default class MainPage extends Component {
         Action:{}
       }
     };
+    
   }
+ 
 
   getInformativePopup=(title,param )=>{
     return (
@@ -110,7 +109,7 @@ export default class MainPage extends Component {
     this.refs.middleBoard._flipboard();
   };
   _performAction = (actionType, action,actionBy) => {
-      
+     
       Meteor.call("execute-game-action", this.gameId, actionType, action,actionBy);    
   };  
   toggleMenu() {
@@ -119,15 +118,14 @@ export default class MainPage extends Component {
   
 hideInformativePopup(param) {
         if(param==="startgame"){
-          this.setState({startgame: true,resigned:false,aborted:false});  
+          this.setState({startgame: true,resigned:false,aborted:false,draw:false});  
         }else if(param==="resigned"){
-          this.setState({resigned: true,startgame:false,aborted:false});  
-          this.intializeBoard();
+          this.setState({resigned: true,startgame:false,aborted:false,draw:false});  
         }else if(param==="aborted"){
-          this.setState({aborted: true,startgame:false,startgame:false});  
-         
+          this.setState({aborted: true,startgame:false,startgame:false,draw:false});  
+        }else if(param==="draw"){
+          this.setState({draw:false,aborted: false,startgame:false,startgame:false});  
         }
-        
 }
   render() {
     let gameTurn = this.props.board.turn();
@@ -183,19 +181,50 @@ hideInformativePopup(param) {
         }else if(action["type"] === "resigned"){
              informativePopup=null;
              if (action["actionBy"]!==this.userId  && this.state.resigned===false) {
-                   informativePopup=this.getInformativePopup("Game is resigned ","resigned");
+                   informativePopup=this.getInformativePopup("opponent has resigned","resigned");
               }
+              this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
+              this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
+              this.Main.MiddleSection.BlackPlayer.Timer = 1000;
+              this.Main.MiddleSection.WhitePlayer.Timer = 1000;
+              this.Main.MiddleSection.WhitePlayer.IsActive= false;
+              this.Main.MiddleSection.BlackPlayer.IsActive= false;
              
-        }else if(action["type"] === "aborted"){
-            informativePopup=null;
-            if (action["actionBy"]!==this.userId  && this.state.aborted===false) {
-                informativePopup=this.getInformativePopup("Game is aborted ","aborted");
+        }else if(action["type"] === "aborted" && action["value"]==="request"){
+         
+             if (action["actionBy"]!==this.userId  && this.state.resigned===false) {
+              if (gameTurn === "w"){
+                  actionPopup=this.actionPopup(this.props.player.white.name + "Request to abort","aborted");
+              }else{
+                  actionPopup=this.actionPopup(this.props.player.black.name + "Request to abort","aborted");
+              }
                 
+              }
+        }else if(action["type"] === "aborted" && action["value"]==="accepted"){
+          if(action["actionBy"]!==this.userId && this.state.aborted==false){
+            informativePopup=this.getInformativePopup("Game is aborted","aborted");
+          }
+            
+            this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
+            this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
+            this.Main.MiddleSection.BlackPlayer.Timer = 1000;
+            this.Main.MiddleSection.WhitePlayer.Timer = 1000;
+            this.Main.MiddleSection.WhitePlayer.IsActive= false;
+            this.Main.MiddleSection.BlackPlayer.IsActive= false;
+         }else if(action["type"] === "draw" && action["value"]==="accepted"){
+            if(action["actionBy"]!==this.userId && this.state.draw==false){
+              informativePopup=this.getInformativePopup("Game is draw","draw");
             }
-           
-        }else if(action["type"] === "draw" && action["value"]==="accepted"){  
-            this.intializeBoard();
-         }
+            
+            this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
+            this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
+            this.Main.MiddleSection.BlackPlayer.Timer = 1000;
+            this.Main.MiddleSection.WhitePlayer.Timer = 1000;
+            this.Main.MiddleSection.WhitePlayer.IsActive= false;
+            this.Main.MiddleSection.BlackPlayer.IsActive= false;
+          }
+         
+         
 
       }
     }

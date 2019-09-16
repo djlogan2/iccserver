@@ -224,7 +224,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
      if(actions!=undefined && actions.length != null && actions.length > 0){
       let action = actions[actions.length - 1];
-      if((action["type"] === "draw" && action["value"] === "accepted") || action["type"] === "resigned" || action["type"] === "game" || action["type"] === "aborted"){
+      if((action["type"] === "draw" && action["value"] === "accepted") ||  (action["type"] === "aborted" && action["value"] === "accepted") ||action["type"] === "resigned"){
         this._board.reset();
       }
     }

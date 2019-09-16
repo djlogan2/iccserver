@@ -47,7 +47,8 @@ const systemcss = {
     height: "30px"
   },
   parentDivPopupMainPage: {
-    float: "left"
+    float: "left",
+    overflowY: "scroll"
   },
   outerPopupMainPage: {
     width: "300px",
@@ -470,8 +471,67 @@ const usercss = {
       k: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
       p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg"
     }
-  }
-  
+  },
+    fsquare: {
+      all: {
+        margin: "2px",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "100%",
+        backgroundPosition: "center",
+        display: "inline-block",
+        borderRadius: "3px"
+      },
+      w: {
+        backgroundColor: "none"
+      },
+      b: {
+        backgroundColor: "none"
+      }
+    },
+    fallendpieces: {
+      all: {
+      },
+      w: {
+        r: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wR.png)`
+        },
+        b: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wB.png)`
+        },
+        n: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wN.png)`
+        },
+        q: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wQ.png)`
+        },
+        k: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wK.png)`
+        },
+        p: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wP.png)`
+        }
+      },
+      b: {
+        r: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bR.png)`
+        },
+        b: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bB.png)`
+        },
+        n: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bN.png)`
+        },
+        q: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bQ.png)`
+        },
+        k: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bK.png)`
+        },
+        p: {
+          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bP.png)`
+        }
+      }
+    }
 };
 
 export { systemcss, usercss };
