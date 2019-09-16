@@ -133,6 +133,83 @@ function determineWhite(p1, p2, color) {
   else return p2;
 }
 
+function decline_draw() {
+  if (!Meteor.userId()) throw new Meteor.error("Not authorized");
+  throw new Meteor.error("Not implemented"); // Have to look for a pending draw in the moves
+}
+
+function decline_abort() {
+  if (!Meteor.userId()) throw new Meteor.error("Not authorized");
+  throw new Meteor.error("Not implemented"); // Have to look for a pending abort in the moves
+}
+
+function decline_adjourn() {
+  if (!Meteor.userId()) throw new Meteor.error("Not authorized");
+  throw new Meteor.error("Not implemented"); // Have to look for a adjourn draw in the moves
+}
+
+function decline_by_name(name) {
+  if (!Meteor.userId()) throw new Meteor.error("Not authorized");
+  throw new Meteor.error("Not implemented"); // Have to look for a game with that users name and see if amything is pending
+}
+
+function decline_in_general() {
+  if (!Meteor.userId()) throw new Meteor.error("Not authorized");
+  throw new Meteor.error("Not implemented"); // Have to look for a played game and see if amything is pending
+}
+
+function checkDrawAbort(name, type, result) {
+  let selector;
+  if (name) {
+    const them = getOtherUser(name);
+    selector = {
+      status: { $in: ["playing", "adjourned"] },
+      $and: [
+        {
+          $or: [
+            { white: { userid: Meteor.userId() } },
+            { black: { userid: them._id } }
+          ]
+        },
+        {
+          $or: [
+            { white: { userid: them._id } },
+            { black: { userid: Meteor.userId() } }
+          ]
+        }
+      ]
+    };
+  } else {
+    selector = {
+      status: { $in: ["playing", "adjourned"] },
+      $or: [
+        { white: { userid: Meteor.userId() } },
+        { black: { userid: Meteor.userId() } }
+      ]
+    };
+  }
+  const games = GameCollection.find(selector);
+  if (games.count() === 0) throw new Meteor.Error("Not playing a game");
+  const pending = games.fetch().filter(game => {
+    return !!game.actions && game.actions[game.actions.length - 1] === type; // TODO: This isn't right because we have to get around the timestamp
+  });
+  if (!pending || !pending.length)
+    throw new Meteor.Error("No pending draw found"); // TODO: Look for a playing game then and offer a draw
+
+  if (pending.length > 1)
+    throw new Meteor.Error("Can't figure out which game to draw"); // TODO: Better error? What to do?
+
+  GameCollection.update(
+    { _id: pending[0]._id },
+    {
+      status: "ended",
+      result: result,
+      $push: { actions: [{ type: "accepted", time: new Date() }] }
+    }
+  );
+  delete active_games[pending[0]._id]; // In case it was an active game
+}
+
 Meteor.methods({
   "game.match"(name, time, increment, time2, increment2, rated, wild, color) {
     check(name, String);
@@ -186,58 +263,86 @@ Meteor.methods({
       increment2 = temp_inc;
     }
 
-    if (them.settings.autoaccept) {
-      // TODO: Start!
-      let game = {
-        date: new Date(),
-        status: "playing",
-        clocks: {
-          white: { time: time * 60, inc: increment },
-          black: { time: time2 * 60, inc: increment2 }
-        },
-        white: {
-          name: white.username,
-          userid: white._id,
-          rating: white.rating
-        },
-        black: {
-          name: black.username,
-          userid: black._id,
-          rating: black.rating
-        },
-        actions: []
-      };
+    let game = {
+      date: new Date(),
+      status: them.settings.autoaccept ? "playing" : "pending",
+      clocks: {
+        white: { time: time * 60, inc: increment },
+        black: { time: time2 * 60, inc: increment2 }
+      },
+      white: {
+        name: white.username,
+        userid: white._id,
+        rating: white.rating
+      },
+      black: {
+        name: black.username,
+        userid: black._id,
+        rating: black.rating
+      },
+      actions: []
+    };
 
-      GameCollection.insert(game, (error, result) => {
-        if (error) log.error(error.invalidKeys);
-        GameCollection.simpleSchema()
-          .namedContext()
-          .validationErrors();
-      });
+    GameCollection.insert(game, (error, result) => {
+      if (error) log.error(error.invalidKeys);
+      GameCollection.simpleSchema()
+        .namedContext()
+        .validationErrors();
+    });
+
+    if (them.settings.autoaccept) {
       // TODO: I don't think this is quite right. Check to make sure we have valid ids, but more importantly,
       // don't do this if we incur some type of mongo error from whatever the above code is doing.
       active_games[game._id] = new Chess();
       setActiveGame(us._id, game._id);
       setActiveGame(them._id, game._id);
-    } else {
-      // TODO: Add a match request to spark the client update for the person we are trying to match
     }
   },
 
   "game.accept"(name) {
     check(name, String);
-    throw new Meteor.Error("Unimplemented");
+    let game = null;
+    if (!!name) {
+      const them = getOtherUser(name);
+      game = GameCollection.findOne({
+        status: "pending",
+        $or: [{ white: { userid: them._id } }, { black: { userid: them._id } }]
+      });
+    } else {
+      game = GameCollection.find({ status: "pending" });
+      if (game.count() > 1)
+        throw new Meteor.Error(
+          "More than one game to accept. Must specify name"
+        );
+      game = game.fetch();
+    }
+    if (!game) throw new Meteor.Error("No game to accept");
+    GameCollection.update({ _id: game._id }, { status: "playing" });
   },
 
   "game.decline"(type) {
     // type: "draw", "abort", "adjourn", "somebodys-name", or none, and we figure it out
     check(type, String);
-    throw new Meteor.Error("Unimplemented");
+    switch (type) {
+      case "draw":
+        decline_draw();
+        break;
+      case "abort":
+        decline_abort();
+        break;
+      case "adjourn":
+        decline_adjourn();
+        break;
+      default:
+        if (!type) decline_in_general();
+        else decline_by_name(type); // TODO: So usernames cannot be "draw", "abort" or "adjourn". Is this OK?
+    }
   },
 
   "game.draw"(name) {
     check(name, String);
-    throw new Meteor.Error("Unimplemented");
+    if (!checkDrawAbort(name, "draw", "1/2-1/2"))
+      throw new Meteor.error("Unimplemented"); // look for a game to offer a draw to
   },
 
   "game.adjourn"(name) {
@@ -247,7 +352,8 @@ Meteor.methods({
 
   "game.abort"(name) {
     check(name, String);
-    throw new Meteor.Error("Unimplemented");
+    if (!checkDrawAbort(name, "abort", "*-*"))
+      throw new Meteor.error("Unimplemented"); // look for a game to offer an abort to
   },
 
   "game.pending"() {
@@ -266,8 +372,9 @@ Meteor.methods({
   "game.takeback"(moves) {
     check(moves, [Number]);
     throw new Meteor.Error("Unimplemented");
-  },
-
+  }
+  /*
+TODO: Once we get this completely switched over, delete them
   "game-move.insert"(Id, move, actionBy) {
     check(Id, String);
     check(move, String);
@@ -340,6 +447,7 @@ Meteor.methods({
       );
     }
   }
+ */
 });
 
 const Game = {
