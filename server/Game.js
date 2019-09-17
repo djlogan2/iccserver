@@ -5,6 +5,21 @@ import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 
+//
+// MessagesCollection
+//     Date/time
+//     _id of user
+//     action
+//     error enumeration
+//     error-specific data array  <= game id, for example, or whatever
+//
+//
+//     Example:
+//        enum                     text
+//        PLAY_RESTRICTED          %1 has blocked your ability to play %2 games. Please contact %3 for details.
+//
+// The error-specific array could have: ['djlogan', 'rated', 'freebird']
+//
 const GameCollection = new Mongo.Collection("game");
 let log = new Logger("server/Game_js");
 
@@ -211,6 +226,13 @@ function checkDrawAbort(name, type, result) {
 }
 
 Meteor.methods({
+  //
+  // TODO: If the "matched" guy issues his own match command to the original matcher,
+  // we have to switch everything around, leave it pending, and of course the original player
+  // then gets notified somehow of the new request.
+  // From the technical perspective, this means we already have a record in the DB of "pending"
+  // with the guy we are matching. How to switch things around and notify the original matcher?
+  //
   "game.match"(name, time, increment, time2, increment2, rated, wild, color) {
     check(name, String);
     check(time, Number);
@@ -364,8 +386,23 @@ Meteor.methods({
     throw new Meteor.Error("Unimplemented");
   },
 
-  "game.move"(move) {
+  "game.move"(game_id, move) {
+    // For Prarek: If you want to, just implement the mongo update here, and I'll put the rest in later.
+    check(game_id, String);
     check(move, String);
+    //
+    // Get chess.js item for game.
+    //     TODO: If we can't find it, should we check the database for the game?
+    //     TODO: I guess we have to mongo find the record first anyway, since we will need to update it in all cases
+    //   return an error if the user isn't playing a game
+    // Make the move
+    // If chess.js says it's invalid, return that error
+    // Make the move in chess.js and update the mongo record (TODO: do we wait for update in case we have the updates below?)
+    // If chess.js says it's checkmate, update game to finished
+    // If chess.js says it's stalemate, update game to finished
+    //      TODO: If chess.js says it's forced draw, do we update anything, or just wait for the user to figure it out?
+    // If
+    //
     throw new Meteor.Error("Unimplemented");
   },
 
