@@ -10,19 +10,28 @@ export default class Player extends Component {
   }
 
   render() {
-    const ph = this.props.side / 9;
-    const pw = this.props.side / 9;
+    const ph = this.props.side / 12;
+    const pw = this.props.side / 12;
 
     let _user_side = Math.min(ph, pw);
     return (
-      <div style={{ width: pw * 6, display: "inline-block" }}>
+      <div style={{ width: pw * 8, display: "inline-block" }}>
         <img
           style={this.props.cssmanager.userPicture(_user_side)}
           src={`images/${this.props.PlayerData.UserPicture}`}
           alt="user"
         />
         <div style={this.props.cssmanager.tagLine()}>
-          <a href="#/" target="_blank" style={this.props.cssmanager.userName()}>
+          <a
+            href="#/"
+            target="_blank"
+            style={{
+              color: "#fff",
+              fontSize: pw / 3,
+              fontWeight: "600",
+              marginRight: "15px"
+            }}
+          >
             {this.props.PlayerData.Name}({this.props.PlayerData.Rating})
           </a>
           <img

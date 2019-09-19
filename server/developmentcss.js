@@ -47,8 +47,7 @@ const systemcss = {
     height: "30px"
   },
   parentDivPopupMainPage: {
-    float: "left",
-    overflowY: "scroll"
+    float: "left"
   },
   outerPopupMainPage: {
     width: "300px",
@@ -217,11 +216,11 @@ const systemcss = {
     all: {
       border: "solid #ccc",
       borderWidth: "0px 0px 0px 0px",
-      fontSize: "16px",
+      fontSize: "14px",
       textAlign: "center",
       WebkitFlex: "1",
       flex: "1",
-      padding: "7px 0"
+      padding: "8px 0"
     },
     Chat: {
       backgroundColor: "#fff",
@@ -250,24 +249,41 @@ const systemcss = {
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
       color: "#1565c0"
-    },
+    }
+  },
+  tabListItem1: {
     Game: {
       color: " #495057",
-      backgroundColor: "#efefef !important",
+      background: "#efefef",
       borderColor: " #1565c0",
-      borderTop: " 2px #1565c0 solid"
+      borderTop: " 2px #1565c0 solid",
+      fontSize: "18px",
+      textAlign: "center",
+      WebkitFlex: "1",
+      flex: "1",
+      padding: "8px 0"
     },
     Play: {
       color: " #495057",
-      backgroundColor: "#efefef !important",
+      background: "#efefef",
       borderColor: " #1565c0",
-      borderTop: " 2px #1565c0 solid"
+      borderTop: " 2px #1565c0 solid",
+      fontSize: "18px",
+      textAlign: "center",
+      WebkitFlex: "1",
+      flex: "1",
+      padding: "8px 0"
     },
     Tournaments: {
       color: " #495057",
-      backgroundColor: "#efefef !important",
+      background: "#efefef",
       borderColor: " #1565c0",
-      borderTop: " 2px #1565c0 solid"
+      borderTop: " 2px #1565c0 solid",
+      fontSize: "18px",
+      textAlign: "center",
+      WebkitFlex: "1",
+      flex: "1",
+      padding: "8px 0"
     }
   },
   tabContent: {
@@ -376,16 +392,18 @@ const usercss = {
   clock: {
     all: {
       right: "0",
-      height: "auto",
       lineHeight: "30px",
-      padding: "6px 20px",
-      textAlign: "right",
+      padding: "3px 20px",
+      textAlign: "center",
       borderRadius: "3px",
       fontSize: "19px",
       color: "#fff",
       top: "5px",
+      height: "36px",
+      width: "93px",
       background: "#333333",
-      fontWeight: "700"
+      fontWeight: "700",
+      position: "absolute"
     },
     alert: {
       color: "red"
@@ -405,7 +423,7 @@ const usercss = {
   },
   square: {
     all: {},
-    
+
     w: {
       backgroundColor: "#fff"
     },
@@ -456,15 +474,15 @@ const usercss = {
   },
   pieces: {
     w: {
-      r:"https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
-      b:"https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg",
+      r: "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
+      b: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg",
       n: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
-      q:"https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
-      k:"https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
-      p:"https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg"
+      q: "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
+      k: "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
+      p: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg"
     },
     b: {
-      r:"https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
+      r: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
       b: "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg",
       n: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
       q: "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
@@ -472,66 +490,65 @@ const usercss = {
       p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg"
     }
   },
-    fsquare: {
-      all: {
-        margin: "2px",
-        backgroundRepeat: "no-repeat",
-        backgroundSize: "100%",
-        backgroundPosition: "center",
-        display: "inline-block",
-        borderRadius: "3px"
-      },
-      w: {
-        backgroundColor: "none"
+  fsquare: {
+    all: {
+      margin: "2px",
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "100%",
+      backgroundPosition: "center",
+      display: "inline-block",
+      borderRadius: "3px"
+    },
+    w: {
+      backgroundColor: "none"
+    },
+    b: {
+      backgroundColor: "none"
+    }
+  },
+  fallendpieces: {
+    all: {},
+    w: {
+      r: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wR.png)`
       },
       b: {
-        backgroundColor: "none"
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wB.png)`
+      },
+      n: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wN.png)`
+      },
+      q: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wQ.png)`
+      },
+      k: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wK.png)`
+      },
+      p: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wP.png)`
       }
     },
-    fallendpieces: {
-      all: {
-      },
-      w: {
-        r: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wR.png)`
-        },
-        b: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wB.png)`
-        },
-        n: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wN.png)`
-        },
-        q: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wQ.png)`
-        },
-        k: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wK.png)`
-        },
-        p: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/wP.png)`
-        }
+    b: {
+      r: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bR.png)`
       },
       b: {
-        r: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bR.png)`
-        },
-        b: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bB.png)`
-        },
-        n: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bN.png)`
-        },
-        q: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bQ.png)`
-        },
-        k: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bK.png)`
-        },
-        p: {
-          backgroundImage: `url(http://localhost:3000/images/fallenpieces/bP.png)`
-        }
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bB.png)`
+      },
+      n: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bN.png)`
+      },
+      q: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bQ.png)`
+      },
+      k: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bK.png)`
+      },
+      p: {
+        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bP.png)`
       }
     }
+  }
 };
 
 export { systemcss, usercss };

@@ -68,14 +68,14 @@ export default class CssManager {
     Object.assign(style, this._boardStyle.square[squareColor]);
     return style;
   }
-  imagePiecesize(side){
+  imagePiecesize(side) {
     var style = { width: side, height: side };
     return style;
   }
   fSquareStyle(squareColor, piece, side) {
     var style = { width: side, height: side };
     if (this._boardStyle.fsquare.all)
-       Object.assign(style, this._boardStyle.fsquare.all);
+      Object.assign(style, this._boardStyle.fsquare.all);
     Object.assign(style, this._boardStyle.fsquare[squareColor]);
     if (!!piece && !!squareColor) {
       if (this._boardStyle.pieces.all)
@@ -84,12 +84,14 @@ export default class CssManager {
     }
     return style;
   }
-  imagePeice(piece, color){
+  imagePeice(piece, color) {
     var style;
-    if (piece!=undefined && color!=undefined) {
-        style = this._boardStyle.pieces[color][piece];
-      }
-     return style;
+    if (piece != undefined && color != undefined) {
+      style = this._boardStyle.pieces[color][piece];
+      return style;
+    } else {
+      return style;
+    }
   }
   flags(country) {
     /*
@@ -239,17 +241,29 @@ export default class CssManager {
     return style;
   }
   tabListItem(tabActive, hover) {
-    var style = {};
-    Object.assign(style, this._systemStyle.tabListItem.all);
-    if (tabActive) {
-      Object.assign(style, this._systemStyle.tabListItem[tabActive]);
-      //  Object.assign(style, this._systemStyle.tabListItem.active);
+    if (
+      tabActive != undefined &&
+      (tabActive === "Game" ||
+        tabActive === "Play" ||
+        tabActive === "Tournaments")
+    ) {
+      var style = {};
+      Object.assign(style, this._systemStyle.tabListItem1[tabActive]);
+      return style;
+    } else {
+      var style = {};
+      if (tabActive) {
+        Object.assign(style, this._systemStyle.tabListItem[tabActive]);
+        //  Object.assign(style, this._systemStyle.tabListItem.active);
+      }
+      Object.assign(style, this._systemStyle.tabListItem.all);
+
+      if (hover) {
+        Object.assign(style, this._systemStyle.tabListItem[hover]);
+      }
+      if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
+      return style;
     }
-    if (hover) {
-      Object.assign(style, this._systemStyle.tabListItem[hover]);
-    }
-    if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
-    return style;
   }
   TabIcon(tabName) {
     var style = {};

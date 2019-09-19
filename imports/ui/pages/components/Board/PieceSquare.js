@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React from "react";
 import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
@@ -91,22 +92,23 @@ export default class PieceSquare extends Square {
       file: this.props.file
     });
   };
-  dragStartImage=(event)=>{
+  dragStartImage = event => {
     console.log(event);
-  }
+  };
   render() {
     //
     // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
     //
-   
+
     const squareStyle = this.props.cssmanager.squareStyle(
       this._squarecolor,
       this.props.side
     );
-    const peiceImage=this.props.cssmanager.imagePeice(
+    let peiceImage = this.props.cssmanager.imagePeice(
       this.props.piece,
       this.props.color
-    );  
+    );
+
     let canvasStyle;
     if (this.props.circle)
       canvasStyle = this.props.cssmanager.squareCanvasStyle(this.props.side);
@@ -129,13 +131,17 @@ export default class PieceSquare extends Square {
           onDrop={this.drop}
           onDragOver={event => event.preventDefault()}
           style={squareStyle}
-       >
-         <img src={peiceImage} style={{
-          width: "100%",
-          height: "100%" }}
+        >
+          <img
+            src={peiceImage ? peiceImage : ""}
+            style={{
+              width: "100%",
+              border: "0px",
+              outline: "none",
+              height: "100%"
+            }}
           />
-
-         </div>
+        </div>
         <canvas
           style={canvasStyle}
           id={this._canvasid}

@@ -2,7 +2,7 @@ import React from "react";
 export default class FallenSoldier extends React.Component {
   render() {
     let soldiers = this.props.FallenSoldiers;
-    
+
     let wSoldiers = soldiers
       ? soldiers.map((wSoldier, index) => {
           return (

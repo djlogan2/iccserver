@@ -107,7 +107,9 @@ export default class MiddleBoard extends Component {
 
     d = h;
     w /= 2; // 1366/2
-    h -= d / 6;
+    h -= d / 9;
+    let mbh = h / 6;
+
     const size = Math.min(h, w);
     const newColor = this.state.top === "w" ? "Black" : "White";
 
@@ -156,7 +158,11 @@ export default class MiddleBoard extends Component {
             color={tc}
             FallenSoldiers={topPlayerFallenSoldier}
           />
-          <div style={this.props.cssmanager.parentPopup(h, w)}>
+          <div
+            // style={this.props.cssmanager.parentPopup(h, w)}
+            style={{ width: w, height: mbh }}
+            className="boardMain"
+          >
             <Board
               cssmanager={this.props.cssmanager}
               board={board.board()}
@@ -169,7 +175,7 @@ export default class MiddleBoard extends Component {
               onDrop={this._pieceSquareDragStop}
             />
           </div>
-          
+
           <FallenSoldier
             cssmanager={this.props.cssmanager}
             side={size}

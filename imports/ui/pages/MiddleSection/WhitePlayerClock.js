@@ -9,7 +9,6 @@ export default class WhitePlayerClock extends Component {
     };
   }
   componentDidUpdate(prevProps, prevState) {
-   
     if (this.props.ClockData2.IsActive === true) {
       clearInterval(this.intervalId);
       this.intervalId = setInterval(() => {
@@ -44,9 +43,32 @@ export default class WhitePlayerClock extends Component {
     let cv = this.props.side / 9;
     return (
       <div
-        style={{ width: cv * 2, display: "inline-block", verticalAlign: "top" }}
+        style={{
+          width: cv * 2,
+          display: "inline-block",
+          position: "relative",
+          verticalAlign: "top"
+        }}
       >
-        <div style={this.props.cssmanager.clock(time)}>
+        <div
+          style={{
+            right: "0",
+            paddingTop: cv / 10,
+            paddingBottom: cv / 5,
+            paddingLeft: cv / 3,
+            paddingRight: cv / 3,
+            textAlign: "center",
+            borderRadius: "3px",
+            fontSize: cv / 4,
+            color: "#fff",
+            top: "5px",
+            height: cv / 2,
+            width: cv * 1.5,
+            background: "#333333",
+            fontWeight: "700",
+            position: "absolute"
+          }}
+        >
           {minutes}:{seconds}
         </div>
       </div>
