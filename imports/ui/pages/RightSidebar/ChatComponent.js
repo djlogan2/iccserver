@@ -24,9 +24,9 @@ export default class ChatComponent extends Component {
       this.setState({ trial: trial });
     }, 500);
   }
+
   gameStart(user) {
-    Meteor.call("game-messages.insert", "Game started", user.username);
-    //  Meteor.call("game-messages.setPrivate", true);
+    Meteor.call("game.match", user.username, 5, 0, 5,0, false, 0, "white");
   }
 
   render() {

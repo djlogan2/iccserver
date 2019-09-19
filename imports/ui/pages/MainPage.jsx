@@ -59,6 +59,27 @@ export default class MainPage extends Component {
     
   }
  
+  gamerequest=(title,param)=>{
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        <div className="popup_inner">
+          <h3>{title}</h3>
+          <button
+            onClick={this.gameAccept.bind(this,param)}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            Accept
+          </button>
+          <button
+             style={this.props.cssmanager.innerPopupMain()}
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    ) 
+    
+  }
 
   getInformativePopup=(title,param )=>{
     return (
@@ -76,6 +97,7 @@ export default class MainPage extends Component {
     ) 
     
   }
+
   actionPopup=(title, action)=>{
     
     return (
@@ -111,7 +133,10 @@ export default class MainPage extends Component {
   _performAction = (actionType, action,actionBy) => {
      
       Meteor.call("execute-game-action", this.gameId, actionType, action,actionBy);    
-  };  
+  };
+  gameAccept = (name) => {
+        Meteor.call("game.accept", name);    
+  };   
   toggleMenu() {
     this.setState({ visible: !this.state.visible });
   }
@@ -132,6 +157,7 @@ hideInformativePopup(param) {
     let gamedata=this.props.player;
     let informativePopup = null;
     let actionPopup=null;
+    
     if (
       this.props.move !== this.Main.RightSection.MoveList.GameMove &&
       this.props.move !== ""
@@ -140,7 +166,7 @@ hideInformativePopup(param) {
       this.Main.RightSection.MoveList.GameMove = this.props.move + ",";
     }
     if (gamedata !== undefined ) {
-     
+      
       this.gameId = this.props.player._id;
       this.Main.MiddleSection.BlackPlayer.Name = this.props.player.black.name;
       this.Main.MiddleSection.WhitePlayer.Name = this.props.player.white.name;
@@ -154,6 +180,7 @@ hideInformativePopup(param) {
         this.Main.MiddleSection.WhitePlayer.IsActive = false;
       }
       this.userId= Meteor.userId();
+      
       this.Main.RightSection.MoveList.GameMove = this.props.player;
       this.Main.RightSection.Action.userId =this.userId
       this.Main.RightSection.Action.user = Meteor.user().username;
@@ -161,7 +188,7 @@ hideInformativePopup(param) {
       this.Main.RightSection.Action.whitePlayer=this.props.player.white.name;
       this.Main.RightSection.Action.blackPlayer=this.props.player.black.name;
       this.Main.RightSection.Action.gameId=this.gameId;
-
+     
       let actions = this.props.player.actions;
       if (actions !== undefined && actions.length !== 0) {
         let action = actions[actions.length - 1];
@@ -244,14 +271,11 @@ hideInformativePopup(param) {
     if (!h) h = window.innerHeight;
     w /= 2;
 
-    if (
-      this.props.player !== undefined &&
-      this.state.startgame === false &&
-      this.props.player.black.name === Meteor.user().username
-    ) {
-      if (this.props.player.moves.length === 0) {
-          informativePopup=this.getInformativePopup("Your Game started","startgame");
-      }
+    if (this.props.player !== undefined && this.props.player.requestBy!==this.userId )
+     {
+      //if (this.props.player.moves.length === 0) {
+          informativePopup=this.gamerequest("Opponent has request for a game", this.props.player.requestBy);
+      //}
     }
    
     return (

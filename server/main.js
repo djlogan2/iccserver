@@ -50,6 +50,9 @@ function firstRunUsers() {
       profile: {
         firstname: "Default",
         lastname: "Administrator"
+      },
+      settings: {
+        autoaccept: false
       }
     });
     Roles.addUsersToRoles(id, ["administrator"], Roles.GLOBAL_GROUP);
@@ -67,6 +70,9 @@ function firstRunUsers() {
           password: "ca014dedjl",
           autologin: true
         }
+      },
+      settings: {
+        autoaccept: true
       }
     });
 
@@ -84,6 +90,9 @@ function firstRunUsers() {
       profile: {
         firstname: "David",
         lastname: "Logan"
+      },
+      settings: {
+        autoaccept: true
       }
     });
     Roles.addUsersToRoles(
@@ -166,5 +175,8 @@ Accounts.onCreateUser(function(options, user) {
         autologin: true
       };
   }
+  user.settings = {
+    autoaccept: true
+  };
   return user;
 });
