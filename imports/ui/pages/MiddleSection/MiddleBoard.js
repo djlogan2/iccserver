@@ -10,6 +10,8 @@ import FallenSoldier from "./FallenSoldier";
 
 export default class MiddleBoard extends Component {
   constructor(props) {
+   
+
     super(props);
 
     this._circle = { lineWidth: 2, color: "red" };

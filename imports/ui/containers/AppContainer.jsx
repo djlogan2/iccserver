@@ -47,7 +47,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   renderGameMessages() {
-    //const game = Game.findOne({}, { _id: { $slice: -1 } });
     const game=Game.find({}, { sort: { startTime: -1 } }).fetch();
     log.debug("Game Collection  find", game);
     return game[0];
@@ -132,13 +131,19 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
+    if (!game){
+        return null
+    }else if(game.status ==="pending"){
+        return false;
+    }else{
+
     let result = null;
     let gameTurn = this._board.turn();
     if (this._board.game_over() === true) {
       alert("Game over");
       return false;
     }
-    if (game !== undefined){
+    
     if (game.white.name === Meteor.user().username && gameTurn === "w") {
       result = this._board.move({ from: raf.from, to: raf.to });
     } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
@@ -161,7 +166,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this.userId = Meteor.userId();
       let move = history[history.length - 1];
       Meteor.call("game.move", this.gameId, move);
-    //  Meteor.call("execute-game-action", this.gameId, "moves", move);
       log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
     }
   }
@@ -224,9 +228,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
      if(actions!=undefined && actions.length != null && actions.length > 0){
       let action = actions[actions.length - 1];
-      if((action["type"] === "draw" && action["value"] === "accepted") ||  (action["type"] === "aborted" && action["value"] === "accepted") ||action["type"] === "resigned"){
-        this._board.reset();
-      }
+      /* if((action["type"] === "draw" && action["value"] === "accepted") ||  (action["type"] === "aborted" && action["value"] === "accepted") ||action["type"] === "resigned"){
+       // this._board.reset();
+      } */
     }
  
   }
@@ -259,7 +263,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           board={this._board}
           move={this.state.move}
           capture={capture}
-          player={game}
+          game={game}
           onDrop={this._pieceSquareDragStop}
         />
       </div>

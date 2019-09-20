@@ -128,7 +128,8 @@ Meteor.publish("game", function tasksPublication() {
 function getOtherUser(name) {
   // TODO: Get user record of other user (remember usernames can be reused)
   // Presumably this will be a mongo find, in another class?
-  let user = Meteor.users.findOne({ username:  name },{"status.online": true });
+  //let user = Meteor.users.findOne({$or: [{username:name},{userid: name}]});
+  let user = Meteor.users.findOne({ $or : [ {_id:name},{username:name}] });
   
     if (user){
       return user;
@@ -348,14 +349,16 @@ Meteor.methods({
 
   "game.accept"(them_id) {
     let name = "";
-    check(name, String);
+    check(them_id, String);
     let game = null;
-    if (!!name) {
-      const them = getOtherUser(name);
+    if (!!them_id) {
+      const them = getOtherUser(them_id);
+     
         game = GameCollection.findOne({
         status: "pending",
-        $or: [{ white: { userid: them_id } }, { black: { userid: them_id } }]
+        $or: [{ "black.userid": them._id } , {"white.userid": them._id } ]
       });
+  
     } else {
       game = GameCollection.find({ status: "pending" });
       if (game.count() > 1)
@@ -389,10 +392,37 @@ Meteor.methods({
     }
   },
 
-  "game.draw"(name) {
-    check(name, String);
+  "game.draw"(game_id,actionType) {
+    check(actionType, String);
+    
+    check(game_id, String);
+    check(actionType, String);
+    console.log(actionType);
+    let actionBy=Meteor.userId();
+    let action = "draw";
+    if(actionType==="accepted"){
+      GameCollection.update(
+        { _id: game_id },
+        { $pop: { moves: 1 } },
+        { bypassCollection2: true }
+      );
+    }
+      GameCollection.update(
+        { _id: game_id },
+        {
+          $push: { actions: { type: action, value: actionType, actionBy: actionBy } }
+        },
+        (error, result) => {
+          if (error) log.error(error.invalidKeys);
+          GameCollection.simpleSchema()
+            .namedContext()
+            .validationErrors();
+        }
+      );
+    /* 
     if (!checkDrawAbort(name, "draw", "1/2-1/2"))
       throw new Meteor.error("Unimplemented"); // look for a game to offer a draw to
+    */  
   },
 
   "game.adjourn"(name) {
@@ -460,10 +490,35 @@ Meteor.methods({
    // throw new Meteor.Error("Unimplemented");
   },
 
-  "game.takeback"(moves) {
-    check(moves, [Number]);
-    throw new Meteor.Error("Unimplemented");
-  }
+  "game.takeback"(game_id,actionType) {
+    check(game_id, String);
+    check(actionType, String);
+    console.log(actionType);
+    let actionBy=Meteor.userId();
+    let action = "takeBack";
+    if(actionType==="accepted"){
+      GameCollection.update(
+        { _id: game_id },
+        { $pop: { moves: 1 } },
+        { bypassCollection2: true }
+      );
+    }
+      GameCollection.update(
+        { _id: game_id },
+        {
+          $push: { actions: { type: action, value: actionType, actionBy: actionBy } }
+        },
+        (error, result) => {
+          if (error) log.error(error.invalidKeys);
+          GameCollection.simpleSchema()
+            .namedContext()
+            .validationErrors();
+        }
+      );
+    
+  },
+
+ 
   /*
 TODO: Once we get this completely switched over, delete them
   "game-move.insert"(Id, move, actionBy) {

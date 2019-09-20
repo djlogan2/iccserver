@@ -22,6 +22,7 @@ class ActionComponent extends Component {
     );
   }
   _takeBackAction = (actionType, action) => {
+   
     var isValid =
       (this.gameTurn === "b" && this.whitePlayer === this.username) ||
       (this.gameTurn === "w" && this.blackPlayer === this.username)

@@ -24,6 +24,8 @@ export default class MainPage extends Component {
         move: null
       });
     this.toggleMenu = this.toggleMenu.bind(this);
+    this.userId= Meteor.userId();
+
     this.Main = {
       LeftSection: {
         MenuLinks: links
@@ -58,7 +60,24 @@ export default class MainPage extends Component {
     };
     
   }
- 
+  intializeBoard=()=>{
+    this.Main.MiddleSection.BlackPlayer.IsActive = false;
+    this.Main.MiddleSection.WhitePlayer.IsActive = false;
+/* 
+  this.Main.MiddleSection.BlackPlayer.Rating="0000";
+  this.Main.MiddleSection.BlackPlayer.Name="Player-1";
+  this.Main.MiddleSection.BlackPlayer.Flag= "us";
+  this.Main.MiddleSection.BlackPlayer.Timer= 1000;
+  this.Main.MiddleSection.BlackPlayer.UserPicture="player-img-top.png";
+  this.Main.MiddleSection.BlackPlayer.IsActive= false;
+  this.Main.MiddleSection.WhitePlayer.Rating= "0000";
+  this.Main.MiddleSection.WhitePlayer.Name="Player-2";
+  this.Main.MiddleSection.WhitePlayer.Flag= "us";
+  this.Main.MiddleSection.WhitePlayer.Timer=1000;
+  this.Main.MiddleSection.WhitePlayer.UserPicture="player-img-bottom.png";
+  this.Main.MiddleSection.WhitePlayer.IsActive= false; */
+
+}
   gamerequest=(title,param)=>{
     return (
       <div style={this.props.cssmanager.outerPopupMain()}>
@@ -70,7 +89,8 @@ export default class MainPage extends Component {
           >
             Accept
           </button>
-          <button
+          <button 
+             onClick={this.gameDecline.bind(this,param)}
              style={this.props.cssmanager.innerPopupMain()}
           >
             cancel
@@ -130,13 +150,35 @@ export default class MainPage extends Component {
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
-  _performAction = (actionType, action,actionBy) => {
-     
-      Meteor.call("execute-game-action", this.gameId, actionType, action,actionBy);    
+  tackBack=(actionType)=>{
+    Meteor.call("game.takeback", this.gameId,actionType);    
+  }
+  draw=(actionType)=>{
+    Meteor.call("game.draw", this.gameId,actionType);    
+  }
+  _performAction = (actionType, action) => {
+   
+       switch (action) {
+        case "takeBack":
+           this.tackBack(actionType);
+          break;
+        case "draw":
+            this.draw(actionType);
+        break;
+       default:
+       
+      }
+   
+    // console.log(this.gameId,actionType,action);
+        
   };
   gameAccept = (name) => {
         Meteor.call("game.accept", name);    
-  };   
+  };  
+  
+  gameDecline = (name) => {
+    Meteor.call("game.decline");    
+  };  
   toggleMenu() {
     this.setState({ visible: !this.state.visible });
   }
@@ -154,106 +196,55 @@ hideInformativePopup(param) {
 }
   render() {
     let gameTurn = this.props.board.turn();
-    let gamedata=this.props.player;
+    const game=this.props.game;
     let informativePopup = null;
     let actionPopup=null;
-    
-    if (
-      this.props.move !== this.Main.RightSection.MoveList.GameMove &&
-      this.props.move !== ""
-    ) {
-      this.Main.RightSection.MoveList.GameMove = "";
-      this.Main.RightSection.MoveList.GameMove = this.props.move + ",";
-    }
-    if (gamedata !== undefined ) {
-      
-      this.gameId = this.props.player._id;
-      this.Main.MiddleSection.BlackPlayer.Name = this.props.player.black.name;
-      this.Main.MiddleSection.WhitePlayer.Name = this.props.player.white.name;
-      this.Main.MiddleSection.BlackPlayer.Timer = this.props.player.black.time;
-      this.Main.MiddleSection.WhitePlayer.Timer = this.props.player.white.time;
-      if (gameTurn === "w") {
-        this.Main.MiddleSection.BlackPlayer.IsActive = false;
-        this.Main.MiddleSection.WhitePlayer.IsActive = true;
-      } else {
-        this.Main.MiddleSection.BlackPlayer.IsActive = true;
-        this.Main.MiddleSection.WhitePlayer.IsActive = false;
-      }
-      this.userId= Meteor.userId();
-      
-      this.Main.RightSection.MoveList.GameMove = this.props.player;
-      this.Main.RightSection.Action.userId =this.userId
-      this.Main.RightSection.Action.user = Meteor.user().username;
-      this.Main.RightSection.Action.gameTurn = gameTurn;
-      this.Main.RightSection.Action.whitePlayer=this.props.player.white.name;
-      this.Main.RightSection.Action.blackPlayer=this.props.player.black.name;
-      this.Main.RightSection.Action.gameId=this.gameId;
-     
-      let actions = this.props.player.actions;
-      if (actions !== undefined && actions.length !== 0) {
-        let action = actions[actions.length - 1];
-        
-        if (action["type"] === "takeBack" && action["value"]==="request") {
-          if (gameTurn === "w" && this.props.player.white.name===Meteor.user().username) {
-              actionPopup=this.actionPopup(this.props.player.black.name + " has requested to Take back","takeBack");
-          } else if(gameTurn==="b" && this.props.player.black.name===Meteor.user().username){
-            actionPopup=this.actionPopup(this.props.player.white.name + " has requested to Take back","takeBack");
-           }
-        }else if(action["type"] === "draw" && action["value"]==="request"){
-          if (gameTurn === "b" && this.props.player.white.name===Meteor.user().username) {
-            actionPopup=this.actionPopup(this.props.player.white.name + " has requested to draw","draw");
-          } else if(gameTurn==="w" && this.props.player.black.name===Meteor.user().username){
-            actionPopup=this.actionPopup(this.props.player.black.name + " has requested to draw","draw");
-         }
-        }else if(action["type"] === "resigned"){
-             informativePopup=null;
-             if (action["actionBy"]!==this.userId  && this.state.resigned===false) {
-                   informativePopup=this.getInformativePopup("opponent has resigned","resigned");
+    if (game !== undefined) {
+           if(game.requestBy!==this.userId && game.status==="pending"){
+               informativePopup=this.gamerequest("Opponent has request for a game", game.requestBy);
+               this.intializeBoard();
+              }else if(game.status==="playing"){
+                    this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
+                    this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
+                    this.Main.MiddleSection.BlackPlayer.Timer = game.clocks.black.time;
+                    this.Main.MiddleSection.WhitePlayer.Timer = game.clocks.white.time; 
+                    if (gameTurn === "w") {
+                      this.Main.MiddleSection.BlackPlayer.IsActive = false;
+                      this.Main.MiddleSection.WhitePlayer.IsActive = true;
+                    } else {
+                      this.Main.MiddleSection.BlackPlayer.IsActive = true;
+                      this.Main.MiddleSection.WhitePlayer.IsActive = false;
+                    }
+                    this.userId= Meteor.userId();
+                    this.gameId=game._id;
+                    this.Main.RightSection.MoveList.GameMove = game;
+                    this.Main.RightSection.Action.userId =this.userId;
+                    this.Main.RightSection.Action.user = Meteor.user().username;
+                    this.Main.RightSection.Action.gameTurn = gameTurn;
+                    this.Main.RightSection.Action.whitePlayer=game.white.name;
+                    this.Main.RightSection.Action.blackPlayer=game.black.name;
+                    this.Main.RightSection.Action.gameId=game._id;
+                    let actions = game.actions;
+             if (actions !== undefined && actions.length !== 0) {
+               let action = actions[actions.length - 1];
+               if (action["type"] === "takeBack" && action["value"]==="request") {
+                  if (gameTurn === "w" && game.white.name===Meteor.user().username) {
+                    actionPopup=this.actionPopup(game.black.name + " has requested to Take back","takeBack");
+                }else if(gameTurn==="b" && game.black.name===Meteor.user().username){
+                  actionPopup=this.actionPopup(game.white.name + " has requested to Take back","takeBack");
+                }
+            }else if(action["type"] === "draw" && action["value"]==="request"){
+              if (gameTurn === "b" && game.white.name===Meteor.user().username) {
+                actionPopup=this.actionPopup(game.black.name + " has requested to draw","draw");
+              } else if(gameTurn==="w" && game.black.name===Meteor.user().username){
+                actionPopup=this.actionPopup(game.white.name + " has requested to draw","draw");
               }
-              this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
-              this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
-              this.Main.MiddleSection.BlackPlayer.Timer = 1000;
-              this.Main.MiddleSection.WhitePlayer.Timer = 1000;
-              this.Main.MiddleSection.WhitePlayer.IsActive= false;
-              this.Main.MiddleSection.BlackPlayer.IsActive= false;
-             
-        }else if(action["type"] === "aborted" && action["value"]==="request"){
-         
-             if (action["actionBy"]!==this.userId  && this.state.resigned===false) {
-              if (gameTurn === "w"){
-                  actionPopup=this.actionPopup(this.props.player.white.name + "Request to abort","aborted");
-              }else{
-                  actionPopup=this.actionPopup(this.props.player.black.name + "Request to abort","aborted");
-              }
-                
-              }
-        }else if(action["type"] === "aborted" && action["value"]==="accepted"){
-          if(action["actionBy"]!==this.userId && this.state.aborted==false){
-            informativePopup=this.getInformativePopup("Game is aborted","aborted");
-          }
-            
-            this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
-            this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
-            this.Main.MiddleSection.BlackPlayer.Timer = 1000;
-            this.Main.MiddleSection.WhitePlayer.Timer = 1000;
-            this.Main.MiddleSection.WhitePlayer.IsActive= false;
-            this.Main.MiddleSection.BlackPlayer.IsActive= false;
-         }else if(action["type"] === "draw" && action["value"]==="accepted"){
-            if(action["actionBy"]!==this.userId && this.state.draw==false){
-              informativePopup=this.getInformativePopup("Game is draw","draw");
             }
-            
-            this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
-            this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
-            this.Main.MiddleSection.BlackPlayer.Timer = 1000;
-            this.Main.MiddleSection.WhitePlayer.Timer = 1000;
-            this.Main.MiddleSection.WhitePlayer.IsActive= false;
-            this.Main.MiddleSection.BlackPlayer.IsActive= false;
+            this.intializeBoard();
           }
-         
-         
-
-      }
+                }else{
+                  this.intializeBoard();
+                }
     }
     let buttonStyle;
     if (this.state.visible === true) {
@@ -261,23 +252,13 @@ hideInformativePopup(param) {
     } else {
       buttonStyle = "toggleOpen";
     }
-
-    // this.Main.RightSection.MoveList.GameMove = this.state.move + ", ";
     log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
-
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
     w /= 2;
 
-    if (this.props.player !== undefined && this.props.player.requestBy!==this.userId )
-     {
-      //if (this.props.player.moves.length === 0) {
-          informativePopup=this.gamerequest("Opponent has request for a game", this.props.player.requestBy);
-      //}
-    }
-   
     return (
       <div className="main">
         <div className="row">
