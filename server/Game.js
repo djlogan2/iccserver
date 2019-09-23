@@ -35,7 +35,7 @@ const playerSchema = new SimpleSchema({
 const actionSchema = new SimpleSchema({
   type: {
     type: String,
-    allowedValues: ["move", "takeBack", "draw", "resigned", "aborted", "game"]
+    allowedValues: ["move", "takeBack", "draw", "resign", "abort", "game"]
   },
   value: { type: String },
   actionBy: { type: String }
@@ -156,15 +156,44 @@ function determineWhite(p1, p2, color) {
   if (Math.random() <= 0.5) return p1;
   else return p2;
 }
-
-function decline_draw() {
+function decline_takeback(game_id) {
   if (!Meteor.userId()) throw new Meteor.error("Not authorized");
-  throw new Meteor.error("Not implemented"); // Have to look for a pending draw in the moves
+  let actionBy=Meteor.userId();
+  GameCollection.update(
+    { _id: game_id },
+    {
+      $push: { actions: { type: "takeBack", value: "rejected", actionBy: actionBy } }
+    },
+    (error, result) => {
+      if (error) log.error(error.invalidKeys);
+      GameCollection.simpleSchema()
+        .namedContext()
+        .validationErrors();
+    }
+  );
 }
-
-function decline_abort() {
+function decline_abort(game_id) {
   if (!Meteor.userId()) throw new Meteor.error("Not authorized");
-  throw new Meteor.error("Not implemented"); // Have to look for a pending abort in the moves
+  let actionBy=Meteor.userId();
+  GameCollection.update(
+    { _id: game_id },
+    {
+      $push: {
+        actions: { type: "abort", value: "rejected", actionBy: actionBy }
+      }
+    });
+  
+}
+function decline_draw(game_id) {
+  if (!Meteor.userId()) throw new Meteor.error("Not authorized");
+  let actionBy=Meteor.userId();
+  GameCollection.update(
+    { _id: game_id },
+    {
+      $push: {
+        actions: { type: "draw", value: "rejected", actionBy: actionBy }
+      }
+    });
 }
 
 function decline_adjourn() {
@@ -328,8 +357,6 @@ Meteor.methods({
     };
 
     GameCollection.insert(game, (error, result) => {
-    //  console.log("Error",error);
-    //  console.log("Result",result);
       if (error)log.error(error.invalidKeys);
       GameCollection.simpleSchema()
         .namedContext()
@@ -373,19 +400,27 @@ Meteor.methods({
    
   },
 
-  "game.decline"(type) {
+  "game.decline"(game_id,type) {
+    console.log(type);
     // type: "draw", "abort", "adjourn", "somebodys-name", or none, and we figure it out
     check(type, String);
+    check(game_id, String);
     switch (type) {
       case "draw":
-        decline_draw();
+        decline_draw(game_id);
         break;
       case "abort":
-        decline_abort();
+        decline_abort(game_id);
         break;
+      case "takeBack":
+          decline_takeback(game_id);
+       break;  
       case "adjourn":
         decline_adjourn();
         break;
+      case "resign":
+          decline_resign();
+       break;  
       default:
         if (!type) decline_in_general();
         else decline_by_name(type); // TODO: So usernames cannot be "draw", "abort" or "adjourn". Is this OK?
@@ -394,20 +429,14 @@ Meteor.methods({
 
   "game.draw"(game_id,actionType) {
     check(actionType, String);
-    
     check(game_id, String);
     check(actionType, String);
-    console.log(actionType);
+    
+  //   if (!checkDrawAbort(name, "draw", "1/2-1/2"))
+  //     throw new Meteor.error("Unimplemented");
     let actionBy=Meteor.userId();
     let action = "draw";
-    if(actionType==="accepted"){
-      GameCollection.update(
-        { _id: game_id },
-        { $pop: { moves: 1 } },
-        { bypassCollection2: true }
-      );
-    }
-      GameCollection.update(
+    GameCollection.update(
         { _id: game_id },
         {
           $push: { actions: { type: action, value: actionType, actionBy: actionBy } }
@@ -419,10 +448,7 @@ Meteor.methods({
             .validationErrors();
         }
       );
-    /* 
-    if (!checkDrawAbort(name, "draw", "1/2-1/2"))
-      throw new Meteor.error("Unimplemented"); // look for a game to offer a draw to
-    */  
+    
   },
 
   "game.adjourn"(name) {
@@ -430,10 +456,42 @@ Meteor.methods({
     throw new Meteor.Error("Unimplemented");
   },
 
-  "game.abort"(name) {
+  "game.abort"(game_id,name) {
     check(name, String);
-    if (!checkDrawAbort(name, "abort", "*-*"))
+    check(game_id, String);
+    let actionBy=Meteor.userId();
+   /*  if (!checkDrawAbort(name, "abort", "*-*"))
       throw new Meteor.error("Unimplemented"); // look for a game to offer an abort to
+ */
+      GameCollection.update(
+        { _id: game_id },
+        {
+          $push: {
+            actions: { type: "aborted", value: "accepted", actionBy: actionBy }
+          }
+        });
+  },
+  "game.resign"(game_id,actionType) {
+   
+    check(game_id, String);
+    check(actionType, String);
+    
+  //   if (!checkDrawAbort(name, "draw", "1/2-1/2"))
+  //     throw new Meteor.error("Unimplemented");
+    let actionBy=Meteor.userId();
+    GameCollection.update(
+        { _id: game_id },
+        {
+          $push: { actions: { type: "resign", value: actionType, actionBy: actionBy } }
+        },
+        (error, result) => {
+          if (error) log.error(error.invalidKeys);
+          GameCollection.simpleSchema()
+            .namedContext()
+            .validationErrors();
+        }
+      );
+    
   },
 
   "game.pending"() {
@@ -493,7 +551,6 @@ Meteor.methods({
   "game.takeback"(game_id,actionType) {
     check(game_id, String);
     check(actionType, String);
-    console.log(actionType);
     let actionBy=Meteor.userId();
     let action = "takeBack";
     if(actionType==="accepted"){

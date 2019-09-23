@@ -84,6 +84,13 @@ export default class CssManager {
     }
     return style;
   }
+  fcontainerStyle(squareColor){
+    var style = { };
+    if (this._boardStyle.fsquare.all)
+      Object.assign(style, this._boardStyle.fsquare.all);
+    Object.assign(style, this._boardStyle.fsquare[squareColor]);
+    return style;
+  }
   imagePeice(piece, color) {
     var style;
     if (piece != undefined && color != undefined) {

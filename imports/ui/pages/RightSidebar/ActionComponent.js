@@ -104,7 +104,7 @@ return;
         
           <li style={this.props.cssmanager.drawSectionList()}>
             <button style={this.props.cssmanager.buttonStyle()}
-             onClick={this._resignAction.bind(this, "request", "resigned")}
+             onClick={this._resignAction.bind(this, "request", "resign")}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("resign")}
@@ -117,7 +117,7 @@ return;
           
           <li style={this.props.cssmanager.drawSectionList()}>  
             <button style={this.props.cssmanager.buttonStyle()}
-             onClick={this._abortAction.bind(this, "request", "aborted")}
+             onClick={this._abortAction.bind(this, "request", "abort")}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("abort")}

@@ -15,10 +15,11 @@ export default class MiddleBoard extends Component {
     super(props);
 
     this._circle = { lineWidth: 2, color: "red" };
+  
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       draw_rank_and_file: "br",
-      top: "b",
+     // top: props.top,
       whitePlayer: props.MiddleBoardData.WhitePlayer,
       blackPlayer: props.MiddleBoardData.BlackPlayer,
       height: 500,
@@ -29,9 +30,11 @@ export default class MiddleBoard extends Component {
     this.switchSides();
   }
   updateDimensions() {
+   
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
+      
     });
   }
 
@@ -49,7 +52,12 @@ export default class MiddleBoard extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
   }
-
+  componentDidUpdate(prevProps) {
+    if(prevProps.top !== this.props.top) {
+      console.log("statechanges"+this.props.top);
+      this.setState({top: this.props.top});
+    }
+  }
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newTop });
@@ -154,12 +162,7 @@ export default class MiddleBoard extends Component {
           />
         </div>
         <div style={this.props.cssmanager.fullWidth()}>
-          <FallenSoldier
-            cssmanager={this.props.cssmanager}
-            side={size}
-            color={tc}
-            FallenSoldiers={topPlayerFallenSoldier}
-          />
+          
           <div
             // style={this.props.cssmanager.parentPopup(h, w)}
             style={{ width: w, height: mbh }}
@@ -177,7 +180,12 @@ export default class MiddleBoard extends Component {
               onDrop={this._pieceSquareDragStop}
             />
           </div>
-
+          <FallenSoldier
+            cssmanager={this.props.cssmanager}
+            side={size}
+            color={tc}
+            FallenSoldiers={topPlayerFallenSoldier}
+          />
           <FallenSoldier
             cssmanager={this.props.cssmanager}
             side={size}

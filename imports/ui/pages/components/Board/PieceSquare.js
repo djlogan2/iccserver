@@ -127,7 +127,6 @@ export default class PieceSquare extends Square {
         onDrop={this.dragStop}
       >
         <div
-          draggable="true"
           onDrop={this.drop}
           onDragOver={event => event.preventDefault()}
           style={squareStyle}

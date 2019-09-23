@@ -61,6 +61,7 @@ export default class MainPage extends Component {
     
   }
   intializeBoard=()=>{
+    
     this.Main.MiddleSection.BlackPlayer.IsActive = false;
     this.Main.MiddleSection.WhitePlayer.IsActive = false;
 /* 
@@ -78,7 +79,7 @@ export default class MainPage extends Component {
   this.Main.MiddleSection.WhitePlayer.IsActive= false; */
 
 }
-  gamerequest=(title,param)=>{
+  gameRequest=(title,param)=>{
     return (
       <div style={this.props.cssmanager.outerPopupMain()}>
         <div className="popup_inner">
@@ -89,25 +90,8 @@ export default class MainPage extends Component {
           >
             Accept
           </button>
-          <button 
-             onClick={this.gameDecline.bind(this,param)}
-             style={this.props.cssmanager.innerPopupMain()}
-          >
-            cancel
-          </button>
-        </div>
-      </div>
-    ) 
-    
-  }
-
-  getInformativePopup=(title,param )=>{
-    return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
-        <div className="popup_inner">
-          <h3>{title}</h3>
           <button
-            onClick={this.hideInformativePopup.bind(this,param)}
+            onClick={this.hideInformativePopup.bind(this,"startgame")}
             style={this.props.cssmanager.innerPopupMain()}
           >
             close me
@@ -119,36 +103,51 @@ export default class MainPage extends Component {
   }
 
   actionPopup=(title, action)=>{
-    
-    return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
-        <div className="popup_inner">
-          <h3>{title}</h3>
-          
-          <button
-            onClick={this._performAction.bind(this,"accepted",action,this.userId)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Accept
-          </button>
-          <button
-            onClick={this._performAction.bind(this,"rejected",action,this.userId)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            cancel
-          </button>
+   
+      return (
+        <div style={this.props.cssmanager.outerPopupMain()}>
+          <div className="popup_inner">
+            <h3>{title}</h3>
+            
+            <button
+              onClick={this._performAction.bind(this,"accepted",action,this.userId)}
+              style={this.props.cssmanager.innerPopupMain()}
+            >
+              Accept
+            </button>
+            <button
+              onClick={this.gameDecline.bind(this,"rejected",action,this.userId)}
+              style={this.props.cssmanager.innerPopupMain()}
+            >
+              cancel
+            </button>
+          </div>
         </div>
-      </div>
-    );
+      );
+  
   }
-  _pieceSquareDragStop = raf => {
-    this.props.onDrop({
-      from: raf.from,
-      to: raf.to
-    });
+ _performAction = (actionType, action) => {
+        switch (action) {
+        case "takeBack":
+           this.tackBack(actionType);
+          break;
+        case "draw":
+            this.draw(actionType);
+        break;
+        case "abort":
+          this.abort(actionType);
+        break;
+        case "resign":
+          this.resign(actionType);
+        break;
+        default:
+  }
   };
-  _flipboard = () => {
-    this.refs.middleBoard._flipboard();
+  gameDecline=(actionType,action)=>{
+    Meteor.call("game.decline", this.gameId,action); 
+  }
+  gameAccept = (name) => {
+        Meteor.call("game.accept", name);    
   };
   tackBack=(actionType)=>{
     Meteor.call("game.takeback", this.gameId,actionType);    
@@ -156,52 +155,51 @@ export default class MainPage extends Component {
   draw=(actionType)=>{
     Meteor.call("game.draw", this.gameId,actionType);    
   }
-  _performAction = (actionType, action) => {
-   
-       switch (action) {
-        case "takeBack":
-           this.tackBack(actionType);
-          break;
-        case "draw":
-            this.draw(actionType);
-        break;
-       default:
-       
-      }
-   
-    // console.log(this.gameId,actionType,action);
-        
-  };
-  gameAccept = (name) => {
-        Meteor.call("game.accept", name);    
-  };  
-  
-  gameDecline = (name) => {
-    Meteor.call("game.decline");    
-  };  
-  toggleMenu() {
+  abort=(actionType)=>{
+    Meteor.call("game.abort", this.gameId,actionType);    
+  }
+  resign=(actionType,action)=>{
+    Meteor.call("game.resign", this.gameId,actionType); 
+  }  
+ toggleMenu() {
     this.setState({ visible: !this.state.visible });
   }
   
 hideInformativePopup(param) {
-        if(param==="startgame"){
-          this.setState({startgame: true,resigned:false,aborted:false,draw:false});  
-        }else if(param==="resigned"){
-          this.setState({resigned: true,startgame:false,aborted:false,draw:false});  
-        }else if(param==="aborted"){
-          this.setState({aborted: true,startgame:false,startgame:false,draw:false});  
-        }else if(param==="draw"){
-          this.setState({draw:false,aborted: false,startgame:false,startgame:false});  
-        }
+  if(param==="startgame"){
+    this.setState({startgame: true,resigned:false,aborted:false,draw:false});  
+  }else if(param==="resigned"){
+    this.setState({resigned: true,startgame:false,aborted:false,draw:false});  
+  }else if(param==="aborted"){
+    this.setState({aborted: true,startgame:false,startgame:false,draw:false});  
+  }else if(param==="draw"){
+    this.setState({draw:false,aborted: false,startgame:false,startgame:false});  
+  }
 }
+_pieceSquareDragStop = raf => {
+  this.props.onDrop({
+    from: raf.from,
+    to: raf.to
+  });
+};
+_flipboard = () => {
+  this.refs.middleBoard._flipboard();
+};
   render() {
     let gameTurn = this.props.board.turn();
     const game=this.props.game;
     let informativePopup = null;
     let actionPopup=null;
+    let position={}
     if (game !== undefined) {
-           if(game.requestBy!==this.userId && game.status==="pending"){
-               informativePopup=this.gamerequest("Opponent has request for a game", game.requestBy);
+              if(game.black.name===Meteor.user().username) {
+                Object.assign(position,{top:"w"});
+               }
+               if(game.white.name===Meteor.user().username) {
+                Object.assign(position,{top:"b"});
+               }
+           if(game.requestBy!==this.userId && game.status==="pending" && this.state.startgame===false){
+               informativePopup=this.gameRequest("Opponent has requested for a game", game.requestBy);
                this.intializeBoard();
               }else if(game.status==="playing"){
                     this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
@@ -225,26 +223,40 @@ hideInformativePopup(param) {
                     this.Main.RightSection.Action.blackPlayer=game.black.name;
                     this.Main.RightSection.Action.gameId=game._id;
                     let actions = game.actions;
-             if (actions !== undefined && actions.length !== 0) {
-               let action = actions[actions.length - 1];
-               if (action["type"] === "takeBack" && action["value"]==="request") {
-                  if (gameTurn === "w" && game.white.name===Meteor.user().username) {
-                    actionPopup=this.actionPopup(game.black.name + " has requested to Take back","takeBack");
-                }else if(gameTurn==="b" && game.black.name===Meteor.user().username){
-                  actionPopup=this.actionPopup(game.white.name + " has requested to Take back","takeBack");
-                }
-            }else if(action["type"] === "draw" && action["value"]==="request"){
-              if (gameTurn === "b" && game.white.name===Meteor.user().username) {
-                actionPopup=this.actionPopup(game.black.name + " has requested to draw","draw");
-              } else if(gameTurn==="w" && game.black.name===Meteor.user().username){
-                actionPopup=this.actionPopup(game.white.name + " has requested to draw","draw");
-              }
-            }
-            this.intializeBoard();
-          }
-                }else{
+                    if (actions !== undefined && actions.length !== 0) {
+                      let action = actions[actions.length - 1];
+                      if (action["type"] === "takeBack" && action["value"]==="request") {
+                          if (gameTurn === "w" && game.white.name===Meteor.user().username) {
+                              actionPopup=this.actionPopup(game.black.name + " has requested to Take Back","takeBack");
+                          }else if(gameTurn==="b" && game.black.name===Meteor.user().username){
+                            actionPopup=this.actionPopup(game.white.name + " has requested to Take Back","takeBack");
+                          }
+                      }else if(action["type"] === "draw" && action["value"]==="request"){
+                          if (gameTurn === "b" && game.white.name===Meteor.user().username) {
+                            actionPopup=this.actionPopup(game.black.name + " has requested to draw","draw");
+                          } else if(gameTurn==="w" && game.black.name===Meteor.user().username){
+                            actionPopup=this.actionPopup(game.white.name + " has requested to draw","draw");
+                          }
+                        }else if(action["type"] === "resigned" && action["value"]==="request"){
+                          if (gameTurn === "b" && game.white.name===Meteor.user().username) {
+                            actionPopup=this.actionPopup(game.black.name + " has requested to resign","resign");
+                          } else if(gameTurn==="w" && game.black.name===Meteor.user().username){
+                            actionPopup=this.actionPopup(game.white.name + " has requested to resign","resign");
+                          }
+                      }else if(action["type"] === "aborted" && action["value"]==="request"){
+                        if (gameTurn === "b" && game.white.name===Meteor.user().username) {
+                          actionPopup=this.actionPopup(game.black.name + " has requested to abort","abort");
+                        } else if(gameTurn==="w" && game.black.name===Meteor.user().username){
+                          actionPopup=this.actionPopup(game.white.name + " has requested to abort","abort");
+                        }
+                     }else if(action["value"]==="accepted"){
+                           this.intializeBoard();
+                     }
+                    }
+             
+              }else{
                   this.intializeBoard();
-                }
+            }
     }
     let buttonStyle;
     if (this.state.visible === true) {
@@ -307,6 +319,7 @@ hideInformativePopup(param) {
               capture={this.props.capture}
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
+              top={position.top}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
