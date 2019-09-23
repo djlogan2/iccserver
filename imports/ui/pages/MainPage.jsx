@@ -237,13 +237,13 @@ _flipboard = () => {
                           } else if(gameTurn==="w" && game.black.name===Meteor.user().username){
                             actionPopup=this.actionPopup(game.white.name + " has requested to draw","draw");
                           }
-                        }else if(action["type"] === "resigned" && action["value"]==="request"){
+                        }else if(action["type"] === "resign" && action["value"]==="request"){
                           if (gameTurn === "b" && game.white.name===Meteor.user().username) {
                             actionPopup=this.actionPopup(game.black.name + " has requested to resign","resign");
                           } else if(gameTurn==="w" && game.black.name===Meteor.user().username){
                             actionPopup=this.actionPopup(game.white.name + " has requested to resign","resign");
                           }
-                      }else if(action["type"] === "aborted" && action["value"]==="request"){
+                      }else if(action["type"] === "abort" && action["value"]==="request"){
                         if (gameTurn === "b" && game.white.name===Meteor.user().username) {
                           actionPopup=this.actionPopup(game.black.name + " has requested to abort","abort");
                         } else if(gameTurn==="w" && game.black.name===Meteor.user().username){

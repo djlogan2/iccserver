@@ -184,6 +184,18 @@ function decline_abort(game_id) {
     });
   
 }
+function decline_resign(game_id) {
+  if (!Meteor.userId()) throw new Meteor.error("Not authorized");
+  let actionBy=Meteor.userId();
+  GameCollection.update(
+    { _id: game_id },
+    {
+      $push: {
+        actions: { type: "resign", value: "rejected", actionBy: actionBy }
+      }
+    });
+  
+}
 function decline_draw(game_id) {
   if (!Meteor.userId()) throw new Meteor.error("Not authorized");
   let actionBy=Meteor.userId();
@@ -419,7 +431,7 @@ Meteor.methods({
         decline_adjourn();
         break;
       case "resign":
-          decline_resign();
+          decline_resign(game_id);
        break;  
       default:
         if (!type) decline_in_general();
@@ -456,8 +468,8 @@ Meteor.methods({
     throw new Meteor.Error("Unimplemented");
   },
 
-  "game.abort"(game_id,name) {
-    check(name, String);
+  "game.abort"(game_id,actionType) {
+    check(actionType, String);
     check(game_id, String);
     let actionBy=Meteor.userId();
    /*  if (!checkDrawAbort(name, "abort", "*-*"))
@@ -467,7 +479,7 @@ Meteor.methods({
         { _id: game_id },
         {
           $push: {
-            actions: { type: "aborted", value: "accepted", actionBy: actionBy }
+            actions: { type: "abort", value: actionType, actionBy: actionBy }
           }
         });
   },
