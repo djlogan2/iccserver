@@ -1,7 +1,43 @@
 import React, { Component } from "react";
-
+import { Meteor } from "meteor/meteor";
 export default class CreateGameComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      error: null,
+      userList: null,
+      trial: 0
+    };
+  }
+
+  getRegisteredUsers() {
+    setTimeout(() => {
+      let users = Meteor.users
+        .find(
+          { _id: { $ne: Meteor.userId() }, "status.online": true },
+          { sort: { "profile.firstname": 1 } },
+          { username: 1 }
+        )
+        .fetch();
+      this.setState({ userList: users });
+      var trial = this.state.trial + 1;
+      this.setState({ trial: trial });
+    }, 500);
+  }
+
+  gameStart(user) {
+    Meteor.call("game.match", user.username, 5, 0, 5,0, false, 0, "white");
+  }
+
   render() {
+    if (
+      this.state.trial <= 3 &&
+      (this.state.userList === null || this.state.userList.length === 0)
+    ) {
+      this.getRegisteredUsers();
+      return <div>loading...</div>;
+    }
+
     return (
       <div className="play-tab-content">
         <nav>
@@ -39,224 +75,45 @@ export default class CreateGameComponent extends Component {
             </ul>
           </div>
         </nav>
-        <div className="tab-content py-3 px-3 px-sm-0" id="nav-tabContent">
-          <div
-            className="tab-pane fade show active"
-            id="nav-time"
-            role="tabpanel"
-            aria-labelledby="nav-time-tab"
-          >
-            <ul className="multiple-time-item">
-              <li>
-                <a href="#">10 min</a>
-              </li>
-              <li>
-                <a href="#">5 min</a>
-              </li>
-              <li>
-                <a href="#">3 min</a>
-              </li>
-              <li>
-                <a href="#">1 min</a>
-              </li>
-              <li>
-                <a href="#">15 | 10</a>
-              </li>
-              <li>
-                <a href="#">3 | 2</a>
-              </li>
-              <li>
-                <a href="#">2 | 1</a>
-              </li>
-              <li>
-                <a href="#">More</a>
-              </li>
-            </ul>
-          </div>
-          <div
-            className="tab-pane fade"
-            id="nav-type"
-            role="tabpanel"
-            aria-labelledby="nav-type-tab"
-          >
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/blitz-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  3|2 Blitz Arena
-                </span>
-                <span className="competitions-list-item-status">
-                  88 mins left
-                </span>
-                <span className="competitions-list-item-count">70 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/bullet-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  1|0 Bullet Arena
-                </span>
-                <span className="competitions-list-item-status">in 4 min</span>
-                <span className="competitions-list-item-count">40 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/rapid-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  15|10 Rapid Swiss{" "}
-                </span>
-                <span className="competitions-list-item-status">
-                  Round 1 of 5
-                </span>
-                <span className="competitions-list-item-count">51 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/blitz-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  3|2 Blitz Arena
-                </span>
-                <span className="competitions-list-item-status">
-                  88 mins left
-                </span>
-                <span className="competitions-list-item-count">70 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/blitz-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  3|2 Blitz Arena
-                </span>
-                <span className="competitions-list-item-status">
-                  88 mins left
-                </span>
-                <span className="competitions-list-item-count">70 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/bullet-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  1|0 Bullet Arena
-                </span>
-                <span className="competitions-list-item-status">in 4 min</span>
-                <span className="competitions-list-item-count">40 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/rapid-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  15|10 Rapid Swiss{" "}
-                </span>
-                <span className="competitions-list-item-status">
-                  Round 1 of 5
-                </span>
-                <span className="competitions-list-item-count">51 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/blitz-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  3|2 Blitz Arena
-                </span>
-                <span className="competitions-list-item-status">
-                  88 mins left
-                </span>
-                <span className="competitions-list-item-count">70 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/blitz-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  3|2 Blitz Arena
-                </span>
-                <span className="competitions-list-item-status">
-                  88 mins left
-                </span>
-                <span className="competitions-list-item-count">70 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/bullet-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  1|0 Bullet Arena
-                </span>
-                <span className="competitions-list-item-status">in 4 min</span>
-                <span className="competitions-list-item-count">40 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/rapid-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  15|10 Rapid Swiss{" "}
-                </span>
-                <span className="competitions-list-item-status">
-                  Round 1 of 5
-                </span>
-                <span className="competitions-list-item-count">51 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-            <div className="challenge-content">
-              <a href="#" className="competitions-list-item-component">
-                <i className="blitzicon">
-                  <img src="images/blitz-icon.png" />
-                </i>
-                <span className="competitions-list-item-name">
-                  3|2 Blitz Arena
-                </span>
-                <span className="competitions-list-item-status">
-                  88 mins left
-                </span>
-                <span className="competitions-list-item-count">70 </span>
-                <i className="fa fa-user" aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-          <div className="play-btn-right">
-            <a href="#">Play</a>
-          </div>
+        <div>
+          {this.state.userList
+            ? this.state.userList.map((user, index) => (
+                <div style={{ margin: "5px" }} key={index}>
+                  <div
+                    style={{
+                      backgroundColor: "#00BFFF",
+                      width: "100px",
+                      display: "inline-block",
+                      height: "auto",
+                      margin: "5px",
+                      borderRadius: "2px",
+                      color: "white",
+                      textAlign: "center"
+                    }}
+                  >
+                    {user.username}
+                  </div>
+                  <div style={{ width: "48%", display: "inline-block" }}>
+                    <button
+                      onClick={this.gameStart.bind(this, user)}
+                      style={{
+                        backgroundColor: "#1565c0",
+                        border: "none",
+                        color: "white",
+                        padding: "5px 10px",
+                        textAign: "center",
+                        textDecoration: "none",
+                        display: "inline-block",
+                        fontSize: "12px",
+                        borderRadius: "5px"
+                      }}
+                    >
+                      Start Game
+                    </button>
+                  </div>
+                </div>
+              ))
+            : null}
         </div>
       </div>
     );

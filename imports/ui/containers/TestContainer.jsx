@@ -14,7 +14,7 @@ class TestContainer extends Component {
     this._circle = { lineWidth: 2, color: "red" };
 
     this.state = {
-      draw_rank_and_file: "tl",
+      draw_rank_and_file: "bl",
       top: "b",
       what: this.props.match.params.what,
       from: null,

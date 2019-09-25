@@ -429,8 +429,34 @@ background: #efefef;
 		bottom: 55.5vh;
 	}
 */
+
+
+.event-content {
+    padding: 20px 15px;
+    max-height: 230px;
+    overflow-y: scroll;
+    min-height: 230px;
+    width: 100%;
+}
+.fen-label {
+    font-size: 18px;
+    color: #4f4f4f;
+    font-weight: 600;
+}
+
+.fen-input, .fen-input:focus {
+    background: #e3ecf5;
+    border: #d9d9d9 solid 1px;
+    margin-bottom: 15px;
+}
+.pgn-btn {
+    background: #1665c1;
+    font-size: 14px;
+    margin-right: 20px;
+    padding: 10px 20px;
+}
 	.draw-section {
-		bottom: 46vh;
+		bottom: 0vh;
 	}
 
 	.board-section {

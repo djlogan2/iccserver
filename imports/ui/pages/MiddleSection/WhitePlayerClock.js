@@ -47,23 +47,22 @@ export default class WhitePlayerClock extends Component {
           width: cv * 2,
           display: "inline-block",
           position: "relative",
-          verticalAlign: "top"
+          verticalAlign: "top",
+          marginTop:"8px"
         }}
       >
         <div
           style={{
             right: "0",
-            paddingTop: cv / 10,
+            paddingTop: cv / 15,
             paddingBottom: cv / 5,
-            paddingLeft: cv / 3,
-            paddingRight: cv / 3,
             textAlign: "center",
             borderRadius: "3px",
-            fontSize: cv / 4,
+            fontSize: cv / 3,
             color: "#fff",
             top: "5px",
-            height: cv / 2,
-            width: cv * 1.5,
+            height: cv / 1.7,
+            width: cv * 1.3,
             background: "#333333",
             fontWeight: "700",
             position: "absolute"

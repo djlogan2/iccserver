@@ -212,11 +212,19 @@ export default class CssManager {
    * @param which Position of the text
    * @param color Color of the square
    */
-  externalRankAndFileStyle(side) {
-    const style = { width: side, height: side };
+  externalFileStyle(side) {
+    const style = { width: side, height: side/5 };
 
-    if (this._boardStyle.external_rank_and_file.all)
-      Object.assign(style, this._boardStyle.external_rank_and_file.all);
+    if (this._boardStyle.external_file.all)
+      Object.assign(style, this._boardStyle.external_file.all);
+
+    return style;
+  }
+  externalRankStyle(side) {
+    const style = { width: side/5, height: side };
+
+    if (this._boardStyle.external_rank.all)
+      Object.assign(style, this._boardStyle.external_rank.all);
 
     return style;
   }
@@ -405,7 +413,14 @@ const developmentcss = [
         backgroundColor: "yellow"
       }
     },
-    external_rank_and_file: {
+    external_rank: {
+      all: {
+        float: "left",
+        position: "relative",
+        color: "black"
+      }
+    },
+    external_file: {
       all: {
         float: "left",
         position: "relative",

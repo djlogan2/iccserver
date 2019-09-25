@@ -84,13 +84,7 @@ export default class CssManager {
     }
     return style;
   }
-  fcontainerStyle(squareColor){
-    var style = { };
-    if (this._boardStyle.fsquare.all)
-      Object.assign(style, this._boardStyle.fsquare.all);
-    Object.assign(style, this._boardStyle.fsquare[squareColor]);
-    return style;
-  }
+  
   imagePeice(piece, color) {
     var style;
     if (piece != undefined && color != undefined) {
@@ -342,11 +336,20 @@ export default class CssManager {
    * @param which Position of the text
    * @param color Color of the square
    */
-  externalRankAndFileStyle(side) {
-    const style = { width: side, height: side };
+  
+  externalFileStyle(side) {
+    const style = { width: side, height: side/5 };
 
-    if (this._boardStyle.external_rank_and_file.all)
-      Object.assign(style, this._boardStyle.external_rank_and_file.all);
+    if (this._boardStyle.external_file.all)
+      Object.assign(style, this._boardStyle.external_file.all);
+
+    return style;
+  }
+  externalRankStyle(side) {
+    const style = { width: side/5, height: side };
+
+    if (this._boardStyle.external_rank.all)
+      Object.assign(style, this._boardStyle.external_rank.all);
 
     return style;
   }

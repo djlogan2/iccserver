@@ -179,10 +179,11 @@ const systemcss = {
       textAlign: "center",
       padding: "8px 0",
       width: "100%",
-      bottom: "350px",
+      bottom: "90px",
       zIndex: "999",
       display: "flex",
       flexWrap: "nowrap",
+      position:"absolute",
       alignItems: "center"
     }
   },
@@ -201,7 +202,8 @@ const systemcss = {
   },
   tab: {
     all: {
-      height: "100%"
+      height: "100%",
+      position:"relative"
     }
   },
   tabList: {
@@ -241,6 +243,13 @@ const systemcss = {
       color: "#1565c0"
     },
     Events: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    PGN: {
       backgroundColor: "#fff",
       borderTop: "0px #1565c0 solid",
       borderTopLeftRadius: "6px",
@@ -442,7 +451,14 @@ const usercss = {
       backgroundColor: "#1565c0"
     }
   },
-  external_rank_and_file: {
+  external_rank: {
+    all: {
+      float: "left",
+      position: "relative",
+      color: "white"
+    }
+  },
+  external_file: {
     all: {
       float: "left",
       position: "relative",
@@ -503,20 +519,19 @@ const usercss = {
   },
   fsquare: {
     all: {
-      margin: "2px",
       backgroundRepeat: "no-repeat",
       backgroundSize: "100%",
       backgroundPosition: "center",
-      display: "inline-block",
-      borderRadius: "3px"
+      borderRadius: "3px",
+      color:"#fff"
     },
     w: {
-      backgroundColor: "none",
-      marginTop:"30px",
+      backgroundColor: "none"
+    
     },
     b: {
-      backgroundColor: "none",
-      marginTop:"30px",
+      backgroundColor: "none"
+      
      
     }
   },

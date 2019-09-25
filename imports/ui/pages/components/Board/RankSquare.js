@@ -11,7 +11,7 @@ export default class RankSquare extends Square {
   render() {
     return (
       <div
-        style={this.props.cssmanager.externalRankAndFileStyle(this.props.side)}
+        style={this.props.cssmanager.externalRankStyle(this.props.side)}
       >
         {this._raf.charAt(1)}
       </div>

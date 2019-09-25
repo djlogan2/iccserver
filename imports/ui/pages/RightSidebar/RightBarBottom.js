@@ -29,11 +29,18 @@ class RightBarBottom extends Component {
           hoverSrc="images/chat-icon-blue.png"
         >
           <Chat cssmanager={this.props.cssmanager} />
-        </div>
+        </div>{/* 
         <div
           label={translator("events")}
           imgsrc="images/event-icon-white.png"
           hoverSrc="images/event-icon-blue.png"
+        >
+          <Events />
+        </div> */}
+        <div
+          label={translator("events")}
+          imgsrc="images/fen-pgn-white-icon.png"
+          hoverSrc="images/fen-pgn-blue-icon.png"
         >
           <Events />
         </div>

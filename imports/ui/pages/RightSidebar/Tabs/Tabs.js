@@ -41,7 +41,7 @@ class Tabs extends Component {
     let tabName = this.props.tabName;
 
     return (
-      <div style={this.props.cssmanager.tab()}>
+      <div  style={this.props.cssmanager.tab()}>
         <ol style={this.props.cssmanager.tabList(tabName)}>
           {children.map(child => {
             let { label, imgsrc, hoverSrc } = child.props;

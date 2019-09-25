@@ -6,7 +6,7 @@ import "../css/developmentboard.css";
 import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
 import WhitePlayerClock from "./WhitePlayerClock";
-import FallenSoldier from "./FallenSoldier";
+
 
 export default class MiddleBoard extends Component {
   constructor(props) {
@@ -18,8 +18,8 @@ export default class MiddleBoard extends Component {
   
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
-      draw_rank_and_file: "br",
-     // top: props.top,
+      draw_rank_and_file: "bl",
+      top: "w",
       whitePlayer: props.MiddleBoardData.WhitePlayer,
       blackPlayer: props.MiddleBoardData.BlackPlayer,
       height: 500,
@@ -54,7 +54,7 @@ export default class MiddleBoard extends Component {
   }
   componentDidUpdate(prevProps) {
     if(prevProps.top !== this.props.top) {
-      console.log("statechanges"+this.props.top);
+     
       this.setState({top: this.props.top});
     }
   }
@@ -154,6 +154,9 @@ export default class MiddleBoard extends Component {
             PlayerData={topPlayer}
             cssmanager={this.props.cssmanager}
             side={size}
+            color={tc}
+            FallenSoldiers={topPlayerFallenSoldier}
+            rank_and_file={this.state.draw_rank_and_file}
           />
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
@@ -180,30 +183,24 @@ export default class MiddleBoard extends Component {
               onDrop={this._pieceSquareDragStop}
             />
           </div>
-          <FallenSoldier
-            cssmanager={this.props.cssmanager}
-            side={size}
-            color={tc}
-            FallenSoldiers={topPlayerFallenSoldier}
-          />
-          <FallenSoldier
-            cssmanager={this.props.cssmanager}
-            side={size}
-            color={bc}
-            FallenSoldiers={bottomPlayerFallenSoldier}
-          />
+         
+          
         </div>
         <div style={{ width: size }}>
           <Player
             PlayerData={bottomPlayer}
             cssmanager={this.props.cssmanager}
             side={size}
+            color={bc}
+            FallenSoldiers={bottomPlayerFallenSoldier}
+            rank_and_file={this.state.draw_rank_and_file}
           />
           <WhitePlayerClock
             cssmanager={this.props.cssmanager}
             ClockData2={bottomPlayer}
             side={size}
           />
+
         </div>
       </div>
     );

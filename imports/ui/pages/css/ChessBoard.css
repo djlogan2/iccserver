@@ -255,6 +255,7 @@ h3 {
 .boardMain div div div:nth-child(9) div {
   height: 20px !important;
 } */
+/*
 .boardMain div div:nth-child(2) div:nth-child(9) {
   position: absolute;
   width: 20px !important;
@@ -314,13 +315,14 @@ height: 20px !important;
   height: 20px !important;
 }
 .boardMain > div > div div:nth-child(9) {
-  /*position: absolute !important;*/
+  
   height: 20px !important;
   right:0px;
 }
 .boardMain div div {
   position: relative;
 }
+*/
 img[src=""] { border: none; display: none; }
 /*end*/
 

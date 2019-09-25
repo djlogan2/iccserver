@@ -111,15 +111,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _fallenSoldier() {
     let history = this._board.history({ verbose: true });
     let position = {
-      w: [],
-      b: []
+      w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
+      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
     let capturedSoldiers = history.reduce((accumulator, move) => {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
-        accumulator[color].push(piece);
+       // accumulator[color].push(piece);
+        accumulator[color][piece] += 1;
         return accumulator;
       } else {
         return accumulator;
@@ -255,7 +256,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     log.debug(capture);
     log.trace(capture);
     log.info(capture);
-
+   
     return (
       <div>
         <MainPage

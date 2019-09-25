@@ -43,9 +43,7 @@ export default class RightBarTop extends Component {
           <CreateGame cssmanager={this.props.cssmanager} />
         </div>
 
-        {/*  Tournament list
-			   List of all tournaments will be displayed here.
-		   */}
+       
         <div
           label={translator("tournaments")}
           imgsrc="images/tournament-icon-gray.png"
