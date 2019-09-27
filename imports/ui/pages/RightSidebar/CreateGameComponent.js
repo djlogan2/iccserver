@@ -1,17 +1,37 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-export default class CreateGameComponent extends Component {
+import TrackerReact from "meteor/ultimatejs:tracker-react";
+const realtime_messages = new Mongo.Collection("realtime_messages");
+export default class CreateGameComponent extends TrackerReact(React.Component){
   constructor(props) {
     super(props);
     this.state = {
       error: null,
       userList: null,
-      trial: 0
+      trial: 0,
+      subscription: {
+        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
+        realtime: Meteor.subscribe("realtime_messages")
+       }
     };
+   
   }
-
+  componentWillUnmount() {
+      this.state.subscription.loggedOnUsers.stop();
+      this.state.subscription.realtime.stop();
+  }
+  _legacyMessages() {
+    const records = realtime_messages
+      .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
+      .fetch();
+  /*   console.log("Fetched " + records.length + " records from realtime_messages", {
+      records: records
+    }); */
+    return records;
+  }
+  
   getRegisteredUsers() {
-    setTimeout(() => {
+  //  setTimeout(() => {
       let users = Meteor.users
         .find(
           { _id: { $ne: Meteor.userId() }, "status.online": true },
@@ -19,10 +39,9 @@ export default class CreateGameComponent extends Component {
           { username: 1 }
         )
         .fetch();
-      this.setState({ userList: users });
-      var trial = this.state.trial + 1;
-      this.setState({ trial: trial });
-    }, 500);
+     return users;
+    
+   // }, 500);
   }
 
   gameStart(user) {
@@ -30,13 +49,12 @@ export default class CreateGameComponent extends Component {
   }
 
   render() {
-    if (
-      this.state.trial <= 3 &&
-      (this.state.userList === null || this.state.userList.length === 0)
-    ) {
-      this.getRegisteredUsers();
-      return <div>loading...</div>;
-    }
+    //console.log("Lagecy message", this._legacyMessages());
+    let userdata;      
+        if( Meteor.userId()!==null){
+            userdata=this.getRegisteredUsers();
+
+        }
 
     return (
       <div className="play-tab-content">
@@ -76,8 +94,8 @@ export default class CreateGameComponent extends Component {
           </div>
         </nav>
         <div>
-          {this.state.userList
-            ? this.state.userList.map((user, index) => (
+          {userdata
+            ? userdata.map((user, index) => (
                 <div style={{ margin: "5px" }} key={index}>
                   <div
                     style={{

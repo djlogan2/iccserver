@@ -35,12 +35,10 @@ export default class Player extends Component {
     
      this._square_side = Math.min(ph, pw);
     
-
-
     let _user_side = pw / 1.2;
     return (
       <div style={{ width: pw*6, display: "inline-block", marginTop: "5px", marginBottom: "5px", }}>
-        <div style={{ width: pw*4,display: "inline-block"}}>
+        <div style={{ width:pw*3.7,display: "inline-block"}}>
         <img
           style={this.props.cssmanager.userPicture(_user_side)}
           src={`images/${this.props.PlayerData.UserPicture}`}

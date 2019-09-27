@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Tabs from "./Tabs/Tabs";
 import Chat from "./ChatComponent";
 import Events from "./EventsComponent";
+import PGN from "./PGNComponent";
 import Friends from "./FriendsComponent";
 import History from "./HistoryComponent";
 import "./Tabs/BottomStyles";
@@ -38,11 +39,11 @@ class RightBarBottom extends Component {
           <Events />
         </div> */}
         <div
-          label={translator("events")}
+          label={translator("fen_pgn")}
           imgsrc="images/fen-pgn-white-icon.png"
           hoverSrc="images/fen-pgn-blue-icon.png"
         >
-          <Events />
+          <PGN />
         </div>
         <div
           label={translator("friends")}

@@ -44,6 +44,7 @@ Meteor.startup(() => {
         chat: "Chat",
         events: "Events",
         friends: "Friends",
+        fen_pgn: "FEN/PGN",
         history: "History"
       }
     }
@@ -89,6 +90,7 @@ Meteor.startup(() => {
         chat: "ドを",
         events: "ドをay",
         friends: "ドをドを",
+        fen_pgn: "FEN/PGN",
         history: "ドをドを"
       },
       menuLinkLabel: {

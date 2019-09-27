@@ -11,6 +11,7 @@ export default class GameComponent extends Component {
         <MoveList
           cssmanager={this.props.cssmanager}
           Moves={this.props.MoveHistory}
+          performAction={this.props.performAction}
           flip={this.props.flip}
         />
         <Action

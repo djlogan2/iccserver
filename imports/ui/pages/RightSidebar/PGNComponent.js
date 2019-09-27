@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-class Events extends Component {
+class PGN extends Component {
   render() {
     return (
 
@@ -17,4 +17,4 @@ class Events extends Component {
   }
 }
 
-export default Events;
+export default PGN;

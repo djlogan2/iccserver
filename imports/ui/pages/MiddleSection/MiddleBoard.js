@@ -199,7 +199,7 @@ export default class MiddleBoard extends Component {
             cssmanager={this.props.cssmanager}
             ClockData2={bottomPlayer}
             side={size}
-          />
+          />          
 
         </div>
       </div>

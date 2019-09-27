@@ -133,7 +133,12 @@ export default class MainPage extends Component {
       );
   
   }
+  _gamePgnView(actionType){
+   
+return true;
+  }
  _performAction = (actionType, action) => {
+   alert(action);
         switch (action) {
         case "takeBack":
            this.tackBack(actionType);
@@ -146,6 +151,9 @@ export default class MainPage extends Component {
         break;
         case "resign":
           this.resign(actionType);
+        break;
+        case "pgnview":
+          this._gamePgnView(actionType);
         break;
         default:
   }

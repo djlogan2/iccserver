@@ -253,13 +253,17 @@ export default class CssManager {
       return style;
     } else {
       var style = {};
+      
       if (tabActive) {
+        if(tabActive==="FEN/PGN") tabActive="PGN";
+      
         Object.assign(style, this._systemStyle.tabListItem[tabActive]);
-        //  Object.assign(style, this._systemStyle.tabListItem.active);
+     
       }
       Object.assign(style, this._systemStyle.tabListItem.all);
 
       if (hover) {
+        if(hover==="FEN/PGN") hover="PGN";
         Object.assign(style, this._systemStyle.tabListItem[hover]);
       }
       if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);

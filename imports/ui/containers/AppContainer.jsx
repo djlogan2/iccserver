@@ -9,7 +9,7 @@ import Chess from "chess.js";
 const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
-const realtime_messages = new Mongo.Collection("realtime_messages");
+//const realtime_messages = new Mongo.Collection("realtime_messages");
 const Game = new Mongo.Collection("game");
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   log.error(errorMsg + "::" + url + "::" + lineNumber);
@@ -33,7 +33,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       subscription: {
         css: Meteor.subscribe("css"),
         realtime: Meteor.subscribe("realtime_messages"),
-        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
         game: Meteor.subscribe("game")
       },
       move: "",
@@ -80,7 +79,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
   componentWillUnmount() {
     this.state.subscription.css.stop();
     this.state.subscription.realtime.stop();
-    this.state.subscription.loggedOnUsers.stop();
     this.state.subscription.game.stop();
   }
 
@@ -252,6 +250,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
     if (game !== undefined) {
       this._boardFromMongoMessages(game);
     }
+    /* let position = {
+      w: { p: 5, n: 2, b: 2, r: 2, q: 2 },
+      b: { p: 5, n: 2, b: 2, r: 2, q: 2 }
+    }; */
     const capture = this._fallenSoldier();
     log.debug(capture);
     log.trace(capture);
