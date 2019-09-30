@@ -6,11 +6,13 @@ import { Logger, SetupLogger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
+import { RealTime } from "../../../server/RealTime";
+
 const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
-//const realtime_messages = new Mongo.Collection("realtime_messages");
 const Game = new Mongo.Collection("game");
+
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   log.error(errorMsg + "::" + url + "::" + lineNumber);
   return false;
@@ -20,7 +22,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.gameId = null;
-    this.userId=null;
+    this.userId = null;
     this._board = new Chess.Chess();
     this._rm_index = 0;
     this.player = {
@@ -46,7 +48,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   renderGameMessages() {
-    const game=Game.find({}, { sort: { startTime: -1 } }).fetch();
+    const game = Game.find({}, { sort: { startTime: -1 } }).fetch();
     log.debug("Game Collection  find", game);
     return game[0];
   }
@@ -117,7 +119,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
-       // accumulator[color].push(piece);
+        // accumulator[color].push(piece);
         accumulator[color][piece] += 1;
         return accumulator;
       } else {
@@ -130,44 +132,46 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
-    if (!game){
-        return null
-    }else if(game.status ==="pending"){
-        return false;
-    }else{
-
-    let result = null;
-    let gameTurn = this._board.turn();
-    if (this._board.game_over() === true) {
-      alert("Game over");
+    if (!game) {
+      return null;
+    } else if (game.status === "pending") {
       return false;
+    } else {
+      let result = null;
+      let gameTurn = this._board.turn();
+      if (this._board.game_over() === true) {
+        alert("Game over");
+        return false;
+      }
+
+      if (game.white.name === Meteor.user().username && gameTurn === "w") {
+        result = this._board.move({ from: raf.from, to: raf.to });
+      } else if (
+        game.black.name === Meteor.user().username &&
+        gameTurn === "b"
+      ) {
+        result = this._board.move({ from: raf.from, to: raf.to });
+      }
+      var moveColor = "White";
+      if (this._board.turn() === "b") {
+        moveColor = "Black";
+      }
+      if (this._board.in_checkmate()) {
+        let status = "Game over, " + moveColor + " is in checkmate.";
+        alert(status);
+      }
+      log.debug(
+        "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
+      );
+      if (result !== null) {
+        let history = this._board.history();
+        this.gameId = game._id;
+        this.userId = Meteor.userId();
+        let move = history[history.length - 1];
+        Meteor.call("game.move", this.gameId, move);
+        log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
+      }
     }
-    
-    if (game.white.name === Meteor.user().username && gameTurn === "w") {
-      result = this._board.move({ from: raf.from, to: raf.to });
-    } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
-      result = this._board.move({ from: raf.from, to: raf.to });
-    }
-    var moveColor = "White";
-    if (this._board.turn() === "b") {
-      moveColor = "Black";
-    }
-    if (this._board.in_checkmate()) {
-      let status = "Game over, " + moveColor + " is in checkmate.";
-      alert(status);
-    }
-    log.debug(
-      "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
-    );
-    if (result !== null) {
-      let history = this._board.history();
-      this.gameId = game._id;
-      this.userId = Meteor.userId();
-      let move = history[history.length - 1];
-      Meteor.call("game.move", this.gameId, move);
-      log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
-    }
-  }
   };
   _boardFromMessages(legacymessages) {
     if (legacymessages.length)
@@ -214,24 +218,21 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _boardFromMongoMessages(game) {
-  
     this._board = new Chess.Chess();
-    let moves=game.moves;
-    let actions=game.actions;
-     if (moves !== undefined) {
-    
+    let moves = game.moves;
+    let actions = game.actions;
+    if (moves !== undefined) {
       // this._board.clear();
       for (let i = 0; i < moves.length; i++) {
         this._board.move(moves[i]);
       }
     }
-     if(actions!=undefined && actions.length != null && actions.length > 0){
+    if (actions != undefined && actions.length != null && actions.length > 0) {
       let action = actions[actions.length - 1];
       /* if((action["type"] === "draw" && action["value"] === "accepted") ||  (action["type"] === "aborted" && action["value"] === "accepted") ||action["type"] === "resigned"){
        // this._board.reset();
       } */
     }
- 
   }
 
   render() {
@@ -258,7 +259,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     log.debug(capture);
     log.trace(capture);
     log.info(capture);
-   
+
     return (
       <div>
         <MainPage

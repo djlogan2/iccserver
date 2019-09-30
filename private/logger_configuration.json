@@ -6,7 +6,7 @@
     "client/AppContainer": "TRACE",
     "Board/Board_js": "TRACE",
     "Tabs/Tabs_js": "TRACE",
-    "server/LegacyUser_js": "ERROR",
-    "server/main_js": "ERROR",
-    "server/RealTime_js": "ERROR"
+    "server/LegacyUser_js": "TRACE",
+    "server/main_js": "TRACE",
+    "server/RealTime_js": "TRACE"
 }

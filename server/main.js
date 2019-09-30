@@ -5,7 +5,6 @@ import { Logger } from "../lib/server/Logger";
 import { Accounts } from "meteor/accounts-base";
 import { Roles } from "meteor/alanning:roles";
 import { Mongo } from "meteor/mongo";
-import { check, Match } from "meteor/check";
 import { systemcss, usercss } from "./developmentcss";
 import "./Game";
 let log = new Logger("server/main_js");
@@ -101,6 +100,28 @@ function firstRunUsers() {
       Roles.GLOBAL_GROUP
     );
     Roles.addUsersToRoles(id2, standard_member_roles, Roles.GLOBAL_GROUP);
+
+    for (let x = 1; x < 3; x++) {
+      const idx = Accounts.createUser({
+        username: "uiuxtest" + x,
+        email: "iccserver" + x + "@chessclub.com",
+        password: "iccserver" + x,
+        profile: {
+          firstname: "David" + x,
+          lastname: "Logan" + x,
+          legacy: {
+            username: "uiuxtest" + x,
+            password: "iccserver" + x,
+            autologin: true
+          }
+        },
+        settings: {
+          autoaccept: true
+        }
+      });
+      Roles.addUsersToRoles(idx, standard_member_roles, Roles.GLOBAL_GROUP);
+      Roles.addUsersToRoles(idx, ["legacy_login"], Roles.GLOBAL_GROUP);
+    }
   }
 }
 
@@ -116,24 +137,9 @@ Meteor.publish("css", function() {
 Meteor.publish("loggedOnUsers", function() {
   return Meteor.users.find({});
 });
-//
-// The fields an average user will see of his own record
-//
-Meteor.publish("userData", function() {
-  if (!this.userId) return Meteor.users.find({ _id: null });
 
-  const self = this;
-
-  this.onStop(function() {
-    log.debug("User left");
-    LegacyUser.logout(self.userId);
-  });
-
-  log.debug("User has arrived");
-  const user = Meteor.users.findOne({ _id: this.userId });
-
-  if (!user.roles)
-    Roles.addUsersToRoles(user._id, standard_guest_roles, Roles.GLOBAL_GROUP);
+Accounts.onLogin(function(user_parameter) {
+  const user = user_parameter.user;
 
   log.debug("user record", user);
   log.debug(
@@ -151,7 +157,21 @@ Meteor.publish("userData", function() {
   ) {
     LegacyUser.login(user);
   }
+});
+//
+// The fields an average user will see of his own record
+//
+Meteor.publish("userData", function() {
+  if (!this.userId) return Meteor.users.find({ _id: null });
 
+  const self = this;
+
+  this.onStop(function() {
+    log.debug("User left");
+    LegacyUser.logout(self.userId);
+  });
+
+  log.debug("User has arrived");
   return Meteor.users.find(
     { _id: this.userId },
     { fields: fields_viewable_by_account_owner }

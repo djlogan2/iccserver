@@ -1,8 +1,10 @@
-import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import { Mongo } from "meteor/mongo";
+import React from "react";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 const realtime_messages = new Mongo.Collection("realtime_messages");
-export default class CreateGameComponent extends TrackerReact(React.Component){
+
+export default class CreateGameComponent extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.state = {
@@ -12,49 +14,49 @@ export default class CreateGameComponent extends TrackerReact(React.Component){
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
         realtime: Meteor.subscribe("realtime_messages")
-       }
+      }
     };
-   
   }
   componentWillUnmount() {
-      this.state.subscription.loggedOnUsers.stop();
-      this.state.subscription.realtime.stop();
+    this.state.subscription.loggedOnUsers.stop();
+    this.state.subscription.realtime.stop();
   }
   _legacyMessages() {
     const records = realtime_messages
       .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
       .fetch();
-  /*   console.log("Fetched " + records.length + " records from realtime_messages", {
+    /*   console.log("Fetched " + records.length + " records from realtime_messages", {
       records: records
     }); */
     return records;
   }
-  
+
   getRegisteredUsers() {
-  //  setTimeout(() => {
-      let users = Meteor.users
-        .find(
-          { _id: { $ne: Meteor.userId() }, "status.online": true },
-          { sort: { "profile.firstname": 1 } },
-          { username: 1 }
-        )
-        .fetch();
-     return users;
-    
-   // }, 500);
+    //  setTimeout(() => {
+    let users = Meteor.users
+      .find(
+        { _id: { $ne: Meteor.userId() }, "status.online": true },
+        { sort: { "profile.firstname": 1 } },
+        { username: 1 }
+      )
+      .fetch();
+    return users;
+
+    // }, 500);
   }
 
   gameStart(user) {
-    Meteor.call("game.match", user.username, 5, 0, 5,0, false, 0, "white");
+    Meteor.call("game.match", user.username, 5, 0, 5, 0, false, 0, "white");
   }
 
   render() {
     //console.log("Lagecy message", this._legacyMessages());
-    let userdata;      
-        if( Meteor.userId()!==null){
-            userdata=this.getRegisteredUsers();
-
-        }
+    let userdata;
+    let messages;
+    if (Meteor.userId() !== null) {
+      userdata = this.getRegisteredUsers();
+      messages = this._legacyMessages();
+    }
 
     return (
       <div className="play-tab-content">
