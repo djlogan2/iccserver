@@ -1,12 +1,17 @@
 {
-    "client/MainPage": "TRACE",
-    "Css/CssManager_js": "TRACE",
-    "SignUpPage/SignUpPage_js": "TRACE",
-    "LoginPage/LoginPage_js": "TRACE",
-    "client/AppContainer": "TRACE",
     "Board/Board_js": "TRACE",
-    "Tabs/Tabs_js": "TRACE",
+    "client/AppContainer": "TRACE",
+    "client/MainPage": "TRACE",
+    "client/RightBarTop": "TRACE",
+    "client/RightSidebar": "TRACE",
+    "CreateGameComponent_js": "TRACE",
+    "Css/CssManager_js": "TRACE",
+    "Css/CssManager_js": "TRACE",
+    "LoginPage/LoginPage_js": "TRACE",
+    "server/Game_js": "TRACE",
     "server/LegacyUser_js": "TRACE",
     "server/main_js": "TRACE",
-    "server/RealTime_js": "TRACE"
+    "server/RealTime_js": "TRACE",
+    "SignUpPage/SignUpPage_js": "TRACE",
+    "Tabs/Tabs_js": "TRACE"
 }

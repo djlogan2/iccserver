@@ -4,6 +4,7 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("CreateGameComponent_js");
+const legacyUserList = [];
 
 export default class CreateGameComponent extends TrackerReact(React.Component) {
   constructor(props) {
@@ -22,27 +23,25 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
     this.state.subscription.loggedOnUsers.stop();
   }
 
-  processRealtimeMessages(realtime_messages) {
-    let usercopy;
+  _processRealtimeMessages(realtime_messages) {
     let changed = false;
     let idx;
+    const self = this;
     realtime_messages.forEach(rec => {
       log.debug("realtime_record", rec);
       this._rm_index = rec.nid;
       switch (rec.type) {
         case "user_loggedon":
-          if (!usercopy) usercopy = this.state.legacyUsers.splice(0);
-          idx = usercopy.indexOf(rec.message.user);
+          idx = legacyUserList.indexOf(rec.message.user);
           if (idx === -1) {
-            usercopy.concat(rec.message);
+            legacyUserList.push(rec.message.user);
             changed = true;
           }
           break;
         case "user_loggedoff":
-          if (!usercopy) usercopy = this.state.legacyUsers.splice(0);
-          idx = usercopy.indexOf(rec.message.user);
+          idx = legacyUserList.indexOf(rec.message.user);
           if (idx !== -1) {
-            usercopy.splice(idx, 1);
+            legacyUserList.splice(idx, 1);
             changed = true;
           }
           break;
@@ -50,9 +49,9 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
     });
 
     if (changed) {
-      usercopy.sort();
-      this.setState({ legacyUsers: usercopy });
+      legacyUserList.sort();
     }
+    return changed;
   }
 
   getRegisteredUsers() {
@@ -74,18 +73,17 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   }
 
   render() {
-    //console.log("Lagecy message", this._legacyMessages());
-    let userdata;
+    log.debug("legacyMessage=" + this.props.legacymessages);
+    this._processRealtimeMessages(this.props.legacymessages);
+    //let userdata;
 
-    if (Meteor.userId() !== null) {
-      const _userdata = this.getRegisteredUsers();
-      this._usersFromMessages();
-      userdata = _userdata.map(function(user) {
-        return user.username;
-      });
-      userdata.concat(this.state.legacyUsers);
-      userdata.sort();
-    }
+    if (Meteor.userId() == null) return;
+
+    //const _userdata = this.getRegisteredUsers();
+    //userdata = _userdata.map(user => user.username);
+    //userdata.push(legacyUserList);
+    //userdata.sort();
+    const userdata = legacyUserList;
 
     return (
       <div className="play-tab-content">
@@ -140,7 +138,7 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
                       textAlign: "center"
                     }}
                   >
-                    {user.username}
+                    {user}
                   </div>
                   <div style={{ width: "48%", display: "inline-block" }}>
                     <button

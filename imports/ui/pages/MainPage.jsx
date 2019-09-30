@@ -60,10 +60,6 @@ export default class MainPage extends Component {
     };
   }
 
-  processRealtimeMessages(realtime_messages) {
-    this.refs.right_sidebar.processRealtimeMessaages(realtime_messages);
-  }
-
   componentDidUpdate(prevProps) {
     if (this.props.game !== undefined) {
       if (prevProps.game !== this.props.game) {
@@ -242,6 +238,7 @@ export default class MainPage extends Component {
   };
 
   render() {
+    log.debug("legacyMessage=" + this.props.legacymessages);
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
     let informativePopup = null;
@@ -439,6 +436,7 @@ export default class MainPage extends Component {
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
               top={position.top}
+              legacymessages={this.props.legacymessages}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
@@ -449,6 +447,7 @@ export default class MainPage extends Component {
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
               ref="right_sidebar"
+              legacymessages={this.props.legacymessages}
             />
           </div>
         </div>

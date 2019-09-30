@@ -2,12 +2,13 @@ import React, { Component } from "react";
 import RightBarTop from "./RightBarTop";
 import RightBarBottom from "./RightBarBottom";
 
-class RightSidebar extends Component {
-  processRealtimeMessages(realtime_messages) {
-    this.refs.right_bar_top.processRealtimeMessaages(realtime_messages);
-  }
+import { Logger } from "../../../../lib/client/Logger";
 
+const log = new Logger("client/RightSidebar");
+
+class RightSidebar extends Component {
   render() {
+    log.debug("legacyMessage=" + this.props.legacymessages);
     return (
       <div className="right-content-desktop">
         <div style={this.props.cssmanager.rightTopContent()}>
@@ -18,6 +19,7 @@ class RightSidebar extends Component {
             performAction={this.props.performAction}
             actionData={this.props.actionData}
             ref="right_bar_top"
+            legacymessages={this.props.legacymessages}
           />
         </div>
         <div style={this.props.cssmanager.rightBottomContent()}>

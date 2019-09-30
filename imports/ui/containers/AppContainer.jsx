@@ -47,15 +47,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.logout = this.logout.bind(this);
   }
 
-  processRealtimeMessages(realtime_messages) {
-    this.refs.main_page.processRealtimeMessaages(realtime_messages);
-  }
-
   renderGameMessages() {
     const game = Game.find({}, { sort: { startTime: -1 } }).fetch();
     log.debug("Game Collection  find", game);
     return game[0];
   }
+
   _systemCSS() {
     return mongoCss.findOne({ type: "system" });
   }
@@ -79,6 +76,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
       .fetch();
 
+    //console.log("_legacyMessages=" + JSON.stringify(records));
     return records;
   }
 
@@ -177,7 +175,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
       }
     }
   };
-  _boardFromMessages(legacymessages) {
+
+  _processLegacyMessages(legacymessages) {
     if (legacymessages.length)
       this._rm_index = legacymessages[legacymessages.length - 1].nid;
     legacymessages.forEach(rec => {
@@ -187,38 +186,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
         case "setup_logger":
           SetupLogger.addLoggers(rec.message);
           break;
-
-        case "game_start":
-          //  this._board = new Chess.Chess();
-          this.player.Black = rec.message.black;
-          this.player.White = rec.message.white;
-
-          break;
-
-        case "game_move":
-          if (!this._board) this._board = new Chess.Chess();
-          this._board.move(rec.message.algebraic);
-          this.setState({
-            move: rec.message.algebraic
-          });
-          this.setState(prevState => {
-            let player = Object.assign({}, prevState.player);
-            player.White = this.player.White;
-            player.Black = this.player.Black;
-            return { player };
-          });
-
-          break;
-
-        case "update_game_clock":
-          log.error("How to updaate the game clock");
-          break;
-
-        case "error":
+          case "error":
         default:
           log.error("realtime_message default", rec);
       }
     });
+    return legacymessages;
   }
 
   _boardFromMongoMessages(game) {
@@ -255,13 +228,18 @@ export default class AppContainer extends TrackerReact(React.Component) {
     if (game !== undefined) {
       this._boardFromMongoMessages(game);
     }
+
+    const legacyMessages = this._legacyMessages();
+    if (!!legacyMessages) this._processLegacyMessages(legacyMessages);
+    log.debug("legacyMessage=" + legacyMessages);
+    console.log("legacyMessage=" + JSON.stringify(legacyMessages));
     /* let position = {
       w: { p: 5, n: 2, b: 2, r: 2, q: 2 },
       b: { p: 5, n: 2, b: 2, r: 2, q: 2 }
     }; */
     const capture = this._fallenSoldier();
     log.debug(capture);
-    log.trace(capture);
+    log.debug(capture);
     log.info(capture);
 
     return (
@@ -274,6 +252,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           game={game}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
+          legacymessages={legacyMessages}
         />
       </div>
     );
