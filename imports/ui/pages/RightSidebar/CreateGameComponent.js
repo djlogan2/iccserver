@@ -37,7 +37,7 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   }
 
   gameStart(user) {
-    Meteor.call("game.match", user.username, 5, 0, 5, 0, false, 0, "white");
+    Meteor.call("game.match", "iccserver1", 5, 0, 5, 0, false, 0, "white");
   }
 
   render() {

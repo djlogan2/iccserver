@@ -190,6 +190,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this._rm_index = rec.nid;
       switch (rec.type) {
         case "setup_logger":
+          console.log("setup_logger=" + JSON.stringify(rec.message));
           SetupLogger.addLoggers(rec.message);
           break;
 

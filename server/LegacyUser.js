@@ -288,6 +288,10 @@ class LegacyUserConnection {
     }
   }
 
+  sendRawData(data) {
+    this.socket.write(";" + data + "\n");
+  }
+
   processPackets(packets) {
     log.debug("LegacyUser::processPackets", { packets: packets });
     // { level1Packets: [], level2Packets: [] }
@@ -463,6 +467,9 @@ class LegacyUserConnection {
 }
 
 const LegacyUser = {
+  find: function(userId) {
+    return legacy_user_map[userId];
+  },
   /**
    *
    * @param user
