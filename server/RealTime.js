@@ -131,12 +131,12 @@ const RealTime = {
     send(userId, "error", errorValue);
   },
 
-  user_logged_on(username) {
-    send(username, "user_loggedon", username);
+  user_logged_on(userId, username) {
+    send(userId, "user_loggedon", { user: username });
   },
 
-  user_logged_off(username) {
-    send(username, "user_loggedoff", username);
+  user_logged_off(userId, username) {
+    send(userId, "user_loggedoff", { user: username });
   }
 };
 

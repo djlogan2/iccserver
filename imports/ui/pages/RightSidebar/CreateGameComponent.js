@@ -11,34 +11,28 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
     this.state = {
       error: null,
       userList: null,
-      legacyUsers: [],
       trial: 0,
       subscription: {
-        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        realtime: Meteor.subscribe("realtime_messages")
+        loggedOnUsers: Meteor.subscribe("loggedOnUsers")
       }
     };
   }
 
   componentWillUnmount() {
     this.state.subscription.loggedOnUsers.stop();
-    this.state.subscription.realtime.stop();
   }
 
-  _usersFromMessages() {
-    const legacymessages = this._legacyMessages();
+  processRealtimeMessages(realtime_messages) {
     let usercopy;
     let changed = false;
     let idx;
-    if (legacymessages.length)
-      this._rm_index = legacymessages[legacymessages.length - 1].nid;
-    legacymessages.forEach(rec => {
+    realtime_messages.forEach(rec => {
       log.debug("realtime_record", rec);
       this._rm_index = rec.nid;
       switch (rec.type) {
         case "user_loggedon":
           if (!usercopy) usercopy = this.state.legacyUsers.splice(0);
-          idx = usercopy.indexOf(rec.message);
+          idx = usercopy.indexOf(rec.message.user);
           if (idx === -1) {
             usercopy.concat(rec.message);
             changed = true;
@@ -46,7 +40,7 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
           break;
         case "user_loggedoff":
           if (!usercopy) usercopy = this.state.legacyUsers.splice(0);
-          idx = usercopy.indexOf(rec.message);
+          idx = usercopy.indexOf(rec.message.user);
           if (idx !== -1) {
             usercopy.splice(idx, 1);
             changed = true;
@@ -59,14 +53,6 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
       usercopy.sort();
       this.setState({ legacyUsers: usercopy });
     }
-  }
-
-  _legacyMessages() {
-    const records = realtime_messages
-      .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
-      .fetch();
-
-    return records;
   }
 
   getRegisteredUsers() {

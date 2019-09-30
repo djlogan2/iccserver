@@ -7,15 +7,12 @@ import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
 import WhitePlayerClock from "./WhitePlayerClock";
 
-
 export default class MiddleBoard extends Component {
   constructor(props) {
-   
-
     super(props);
 
     this._circle = { lineWidth: 2, color: "red" };
-  
+
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       draw_rank_and_file: "bl",
@@ -30,11 +27,9 @@ export default class MiddleBoard extends Component {
     this.switchSides();
   }
   updateDimensions() {
-   
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
-      
     });
   }
 
@@ -53,9 +48,8 @@ export default class MiddleBoard extends Component {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
   }
   componentDidUpdate(prevProps) {
-    if(prevProps.top !== this.props.top) {
-     
-      this.setState({top: this.props.top});
+    if (prevProps.top !== this.props.top) {
+      this.setState({ top: this.props.top });
     }
   }
   switchSides = () => {
@@ -165,7 +159,6 @@ export default class MiddleBoard extends Component {
           />
         </div>
         <div style={this.props.cssmanager.fullWidth()}>
-          
           <div
             // style={this.props.cssmanager.parentPopup(h, w)}
             style={{ width: w, height: mbh }}
@@ -183,8 +176,6 @@ export default class MiddleBoard extends Component {
               onDrop={this._pieceSquareDragStop}
             />
           </div>
-         
-          
         </div>
         <div style={{ width: size }}>
           <Player
@@ -199,8 +190,7 @@ export default class MiddleBoard extends Component {
             cssmanager={this.props.cssmanager}
             ClockData2={bottomPlayer}
             side={size}
-          />          
-
+          />
         </div>
       </div>
     );

@@ -16,6 +16,11 @@ export default class RightBarTop extends Component {
       "en-US"
     );
   }
+
+  processRealtimeMessages(realtime_messages) {
+    this.refs.create_game.processRealtimeMessaages(realtime_messages);
+  }
+
   render() {
     let translator = i18n.createTranslator(
       "Common.rightBarTop",
@@ -40,10 +45,9 @@ export default class RightBarTop extends Component {
         </div>
 
         <div label={translator("play")} imgsrc="images/play-icon-gray.png">
-          <CreateGame cssmanager={this.props.cssmanager} />
+          <CreateGame cssmanager={this.props.cssmanager} ref="create_game" />
         </div>
 
-       
         <div
           label={translator("tournaments")}
           imgsrc="images/tournament-icon-gray.png"

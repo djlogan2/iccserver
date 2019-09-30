@@ -328,10 +328,10 @@ class LegacyUserConnection {
           RealTime.game_moveOnBoard(self.user._id, p2[1]);
           break;
         case L2.PLAYER_ARRIVED_SIMPLE:
-          RealTime.user_logged_on(p2[1]);
+          RealTime.user_logged_on(self.user._id, p2[0]);
           break;
         case L2.PLAYER_LEFT:
-          RealTime.user_logged_off(p2[1]);
+          RealTime.user_logged_off(self.user._id, p2[0]);
           break;
         case L2.STARTED_OBSERVING:
           RealTime.game_start(

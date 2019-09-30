@@ -3,6 +3,10 @@ import RightBarTop from "./RightBarTop";
 import RightBarBottom from "./RightBarBottom";
 
 class RightSidebar extends Component {
+  processRealtimeMessages(realtime_messages) {
+    this.refs.right_bar_top.processRealtimeMessaages(realtime_messages);
+  }
+
   render() {
     return (
       <div className="right-content-desktop">
@@ -13,6 +17,7 @@ class RightSidebar extends Component {
             flip={this.props.flip}
             performAction={this.props.performAction}
             actionData={this.props.actionData}
+            ref="right_bar_top"
           />
         </div>
         <div style={this.props.cssmanager.rightBottomContent()}>

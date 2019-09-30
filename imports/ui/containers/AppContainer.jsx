@@ -6,6 +6,7 @@ import { Logger, SetupLogger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
+import realtime_messages from "../../client/realtime";
 
 const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
@@ -44,6 +45,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
+  }
+
+  processRealtimeMessages(realtime_messages) {
+    this.refs.main_page.processRealtimeMessaages(realtime_messages);
   }
 
   renderGameMessages() {
@@ -268,6 +273,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           capture={capture}
           game={game}
           onDrop={this._pieceSquareDragStop}
+          ref="main_page"
         />
       </div>
     );
