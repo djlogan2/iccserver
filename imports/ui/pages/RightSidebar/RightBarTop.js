@@ -6,6 +6,7 @@ import TournamentsList from "./TournamentsListComponent";
 import i18n from "meteor/universe:i18n";
 import "./Tabs/styles";
 import { Logger } from "../../../../lib/client/Logger";
+import MiddleBoard from "../MiddleSection/MiddleBoard";
 
 const log = new Logger("client/RightBarTop");
 
@@ -21,7 +22,6 @@ export default class RightBarTop extends Component {
   }
 
   render() {
-    log.debug("legacyMessage=" + this.props.legacymessages);
     let translator = i18n.createTranslator(
       "Common.rightBarTop",
       this.getLang()
@@ -48,7 +48,7 @@ export default class RightBarTop extends Component {
           <CreateGame
             cssmanager={this.props.cssmanager}
             ref="create_game"
-            legacymessages={this.props.legacymessages}
+            legacyusers={this.props.legacyusers}
           />
         </div>
 

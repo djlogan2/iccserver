@@ -299,7 +299,7 @@ class LegacyUserConnection {
         case L2.WHO_AM_I /* who_am_i */:
           self.socket.write(";messages\n");
           self.socket.write(";finger\n");
-          self.socket.write(";fol *\n");
+          //self.socket.write(";fol *\n");
           break;
         case L2.MSEC:
           // (gamenumber color msec running free_time_to_move min_move_time)

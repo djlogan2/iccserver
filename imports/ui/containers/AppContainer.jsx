@@ -13,6 +13,8 @@ const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const Game = new Mongo.Collection("game");
 
+const legacyUserList = [];
+
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   log.error(errorMsg + "::" + url + "::" + lineNumber);
   return false;
@@ -177,8 +179,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
   };
 
   _processLegacyMessages(legacymessages) {
+    let idx;
+    let changed = false;
+
     if (legacymessages.length)
       this._rm_index = legacymessages[legacymessages.length - 1].nid;
+
     legacymessages.forEach(rec => {
       log.debug("realtime_record", rec);
       this._rm_index = rec.nid;
@@ -186,11 +192,33 @@ export default class AppContainer extends TrackerReact(React.Component) {
         case "setup_logger":
           SetupLogger.addLoggers(rec.message);
           break;
-          case "error":
+
+        case "user_loggedon":
+          idx = legacyUserList.indexOf(rec.message.user);
+          if (idx === -1) {
+            legacyUserList.push(rec.message.user);
+            changed = true;
+          }
+          break;
+
+        case "user_loggedoff":
+          idx = legacyUserList.indexOf(rec.message.user);
+          if (idx !== -1) {
+            legacyUserList.splice(idx, 1);
+            changed = true;
+          }
+          break;
+
+        case "error":
         default:
           log.error("realtime_message default", rec);
       }
     });
+
+    if (changed) {
+      legacyUserList.sort();
+    }
+
     return legacymessages;
   }
 
@@ -252,7 +280,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           game={game}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
-          legacymessages={legacyMessages}
+          legacyusers={legacyUserList}
         />
       </div>
     );
