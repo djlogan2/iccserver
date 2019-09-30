@@ -290,6 +290,7 @@ class LegacyUserConnection {
 
   sendRawData(data) {
     this.socket.write(";" + data + "\n");
+    //this.socket.write(";xt uiuxtest1: " + data + "\n");
   }
 
   processPackets(packets) {

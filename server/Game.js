@@ -107,7 +107,7 @@ function setActiveGame(user_id, game_id) {
 
 function startLegacyGame(
   us,
-  them,
+  name,
   time,
   increment,
   time2,
@@ -121,12 +121,12 @@ function startLegacyGame(
     throw new Meteor.error(
       "Unable to find a legacy user object for " + us.name
     );
-  our_legacy_user.sendRawData("match uiuxtest1 5 0 u w");
+  our_legacy_user.sendRawData("match uiuxtest2 5 0 u w");
 }
 
 function startLocalGame(
   us,
-  them,
+  name,
   time,
   increment,
   time2,
@@ -135,6 +135,17 @@ function startLocalGame(
   wild,
   color
 ) {
+
+  const them = getOtherUser(name);
+
+  if (!them) {
+    throw new Meteor.Error("Unable to find user " + name);
+  }
+
+  const weCanPlayMessage =  canPlay(rated, us, them);
+  if (!weCanPlayMessage)
+    throw new Meteor.Error("Cannot play a game: " + weCanPlayMessage);
+
   let white = determineWhite(us, them, color);
   let black = white === us ? them : us;
 
@@ -381,7 +392,7 @@ Meteor.methods({
   //
   "game.match"(
     name,
-    legacy,
+    //legacy,
     time,
     increment,
     time2,
@@ -391,7 +402,7 @@ Meteor.methods({
     color
   ) {
     check(name, String);
-    check(legacy, Boolean);
+    //check(legacy, Boolean);
     check(time, Number);
     check(increment, Number);
     check(time2, Number);
@@ -401,19 +412,11 @@ Meteor.methods({
     check(color, String);
     const us = Meteor.user();
 
+    const legacy = true;
+
     if (!us) {
       throw new Meteor.Error("not-authorized");
     }
-
-    const them = getOtherUser(name);
-
-    if (!them) {
-      throw new Meteor.Error("Unable to find user " + name);
-    }
-
-    const weCanPlayMessage = legacy || canPlay(rated, us, them);
-    if (!!weCanPlayMessage)
-      throw new Meteor.Error("Cannot play a game: " + weCanPlayMessage);
 
     if (!time) {
       throw new Meteor.Error("Invalid time specified");
@@ -423,14 +426,14 @@ Meteor.methods({
       throw new Meteor.Error("Only wild zero is supported at this time");
     }
 
-    if (!!color || color !== "white" || color !== "black") {
+    if (!!color && color !== "white" && color !== "black") {
       throw new Meteor.Error("Incorrect color value");
     }
 
     if (legacy) {
       startLegacyGame(
         us,
-        them,
+        name,
         time,
         increment,
         time2,
@@ -442,7 +445,7 @@ Meteor.methods({
     } else {
       startLocalGame(
         us,
-        them,
+        name,
         time,
         increment,
         time2,
