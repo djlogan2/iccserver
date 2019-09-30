@@ -6,7 +6,6 @@ import { Logger, SetupLogger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
-import { RealTime } from "../../../server/RealTime";
 
 const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");

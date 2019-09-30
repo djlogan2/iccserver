@@ -129,6 +129,14 @@ const RealTime = {
    */
   send_error(userId, errorValue) {
     send(userId, "error", errorValue);
+  },
+
+  user_logged_on(username) {
+    send(username, "user_loggedon", username);
+  },
+
+  user_logged_off(username) {
+    send(username, "user_loggedoff", username);
   }
 };
 
