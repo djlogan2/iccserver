@@ -308,6 +308,7 @@ class LegacyUserConnection {
           break;
         case L2.MSEC:
           // (gamenumber color msec running free_time_to_move min_move_time)
+          // Mongo.update - Prerak
           RealTime.update_game_clock(
             self.user._id,
             p2[1].toLowerCase(),
@@ -328,6 +329,7 @@ class LegacyUserConnection {
           //RealTime.send(self.user._id, 'legacy_message', [parseInt(p2[0]), p2[1], p2[2], p2[3], p2[4]]);
           break;
         case L2.SEND_MOVES:
+          // Mongo.update - Prerak
           //     five optional fields,
           //     algebraic-move, smith-move, time, clock, and is-variation.
           RealTime.game_moveOnBoard(self.user._id, p2[1]);
@@ -355,6 +357,34 @@ class LegacyUserConnection {
           //     // played-game {ex-string} white-rating black-rating game-id
           //     // white-titles black-titles irregular-legality irregular-semantics
           //     // uses-plunkers fancy-timecontrol promote-to-king)
+          break;
+        case L2.MY_GAME_STARTED:
+          // p2[0] = gamenumber
+          // p2[1] = whitename
+          // p2[11] = ex-string
+          // p2[12] = white-rating
+          //[gamenumber whitename blackname wild-number rating-type rated
+          // 		white-initial white-increment black-initial black-increment
+          // 		played-game {ex-string} white-rating black-rating game-id
+          // 		white-titles black-titles irregular-legality irregular-semantics
+          // 		uses-plunkers fancy-timecontrol promote-to-king]
+          // Mongo.update - Prerak
+          // const game = {
+          // white: p2[1],
+          // black: p2[2],
+          // time: p2[6],
+          // legacy_id: p2[0],
+          // etc. etc. etc.
+          // Mongo.insert(game);
+          break;
+        case L2.MY_GAME_CHANGE:
+          // Mongo.update - Prerak
+          break;
+        case L2.MY_GAME_ENDED:
+          // Mongo.update - Prerak
+          break;
+        case L2.MY_GAME_RESULT:
+          // Mongo.update - Prerak
           break;
         case L2.MOVE_LIST:
           const game_id = p2.shift();
