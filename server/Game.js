@@ -27,9 +27,10 @@ let log = new Logger("server/Game_js");
 let active_games = {};
 
 // eslint-disable-next-line no-unused-vars
+// TODO: Dangit, if we aren't using this, why is it in here???
 const playerSchema = new SimpleSchema({
   name: { type: String },
-  userid: { type: String, regEx: SimpleSchema.RegEx.Id },
+  userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false }, // TODO: See, by putting legacy games in the database, we have to do things like make ids optional. Do we really want to do this? We could make it optional only when there is a legacy_game_id, and that would be ok.
   rating: { type: SimpleSchema.Integer }
 });
 
@@ -49,7 +50,8 @@ const GameSchema = new SimpleSchema({
       return new Date();
     }
   },
-  requestBy: { type: String },
+  requestBy: { type: String, required: false }, // TODO: This is ok, yes? I'm not sure why it wouldn't be.
+  legacy_game_id: { type: Number, required: false },
   status: { type: String },
   clocks: new SimpleSchema({
     white: new SimpleSchema({
@@ -63,12 +65,12 @@ const GameSchema = new SimpleSchema({
   }),
   white: new SimpleSchema({
     name: { type: String },
-    userid: { type: String, regEx: SimpleSchema.RegEx.Id },
+    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
     rating: { type: SimpleSchema.Integer }
   }),
   black: new SimpleSchema({
     name: { type: String },
-    userid: { type: String, regEx: SimpleSchema.RegEx.Id },
+    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
     rating: { type: SimpleSchema.Integer }
   }),
   moves: [String],
@@ -106,7 +108,7 @@ function setActiveGame(user_id, game_id) {
   GameCollection.update({ _id: game_id }, newgame);
 }
 
-function startLegacyGame(
+export function startLegacyGame(
   us,
   name,
   time,
@@ -125,7 +127,7 @@ function startLegacyGame(
   our_legacy_user.sendRawData("match uiuxtest2 5 0 u w");
 }
 
-function startLocalGame(
+export function startLocalGame(
   us,
   name,
   time,
@@ -136,14 +138,13 @@ function startLocalGame(
   wild,
   color
 ) {
-
   const them = getOtherUser(name);
 
   if (!them) {
     throw new Meteor.Error("Unable to find user " + name);
   }
 
-  const weCanPlayMessage =  canPlay(rated, us, them);
+  const weCanPlayMessage = canPlay(rated, us, them);
   if (!weCanPlayMessage)
     throw new Meteor.Error("Cannot play a game: " + weCanPlayMessage);
 
@@ -166,12 +167,36 @@ function startLocalGame(
 
   white = Object.assign(white, { rating: 1000 });
   black = Object.assign(black, { rating: 1000 });
+  startLocalOrLegacyGame(
+    white,
+    black,
+    time,
+    increment,
+    time2,
+    increment2,
+    rated,
+    wild,
+    null,
+    "pending"
+  );
+}
 
+export function startLocalOrLegacyGame(
+  white,
+  black,
+  time,
+  increment,
+  time2,
+  increment2,
+  rated,
+  wild,
+  legacy_game_id,
+  game_status
+) {
   let game = {
     date: new Date(),
     //      status: them.settings.autoaccept ? "playing" : "pending",
-    status: "pending",
-    requestBy: us._id,
+    status: game_status || "pending",
     clocks: {
       white: { time: time * 60, inc: increment },
       black: { time: time2 * 60, inc: increment2 }
@@ -189,6 +214,8 @@ function startLocalGame(
     moves: [],
     actions: []
   };
+
+  if (!!legacy_game_id) game.legacy_game_id = legacy_game_id;
 
   GameCollection.insert(game, (error, result) => {
     if (error) log.error(error.invalidKeys);
@@ -261,6 +288,7 @@ function determineWhite(p1, p2, color) {
   if (Math.random() <= 0.5) return p1;
   else return p2;
 }
+
 function decline_takeback(game_id) {
   if (!Meteor.userId()) throw new Meteor.error("Not authorized");
   let actionBy = Meteor.userId();
@@ -279,6 +307,7 @@ function decline_takeback(game_id) {
     }
   );
 }
+
 function decline_abort(game_id) {
   if (!Meteor.userId()) throw new Meteor.error("Not authorized");
   let actionBy = Meteor.userId();
@@ -291,6 +320,7 @@ function decline_abort(game_id) {
     }
   );
 }
+
 function decline_resign(game_id) {
   if (!Meteor.userId()) throw new Meteor.error("Not authorized");
   let actionBy = Meteor.userId();
@@ -303,6 +333,7 @@ function decline_resign(game_id) {
     }
   );
 }
+
 function decline_draw(game_id) {
   if (!Meteor.userId()) throw new Meteor.error("Not authorized");
   let actionBy = Meteor.userId();
