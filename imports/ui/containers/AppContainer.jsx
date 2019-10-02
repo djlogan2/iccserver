@@ -74,12 +74,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _legacyMessages() {
-    const records = realtime_messages
+    //console.log("_legacyMessages=" + JSON.stringify(records));
+    return realtime_messages
       .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
       .fetch();
-
-    //console.log("_legacyMessages=" + JSON.stringify(records));
-    return records;
   }
 
   componentWillUnmount() {
@@ -89,13 +87,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   componentWillMount() {
-    if (!this.state.isAuthenticated) {
+    if (!this.state.isAuthenticated && !Meteor.isAppTest) {
       this.props.history.push("/sign-up");
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated) {
+    if (!this.state.isAuthenticated && !Meteor.isAppTest) {
       this.props.history.push("/login");
     }
   }
@@ -119,7 +117,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    let capturedSoldiers = history.reduce((accumulator, move) => {
+    return history.reduce((accumulator, move) => {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
@@ -130,8 +128,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         return accumulator;
       }
     }, position);
-
-    return capturedSoldiers;
   }
 
   _pieceSquareDragStop = raf => {
@@ -233,8 +229,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
         this._board.move(moves[i]);
       }
     }
-    if (actions != undefined && actions.length != null && actions.length > 0) {
-      let action = actions[actions.length - 1];
+    if (
+      actions !== undefined &&
+      actions.length !== null &&
+      actions.length > 0
+    ) {
+      //let action = actions[actions.length - 1];
       /* if((action["type"] === "draw" && action["value"] === "accepted") ||  (action["type"] === "aborted" && action["value"] === "accepted") ||action["type"] === "resigned"){
        // this._board.reset();
       } */
@@ -242,6 +242,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   render() {
+    if (Meteor.isTest || Meteor.isAppTest) return;
     const game = this.renderGameMessages();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
