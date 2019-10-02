@@ -20,7 +20,8 @@ import { LegacyUser } from "./LegacyUser";
 //
 // The error-specific array could have: ['djlogan', 'rated', 'freebird']
 //
-const GameCollection = new Mongo.Collection("game");
+/** Todo: temporary change name of collection   */
+const GameCollection = new Mongo.Collection("game1");
 let log = new Logger("server/Game_js");
 
 let active_games = {};

@@ -29,7 +29,7 @@ export default class Player extends Component {
     this._file_squares =
       this._rankline === "l" || this._rankline === "r" ? 8.7 : 9;
 
-      console.log(this._file_squares,this._rank_squares);
+   
      const ph = this.props.side / this._file_squares;
      const pw = this.props.side / this._rank_squares;
     

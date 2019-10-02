@@ -3,7 +3,8 @@ import { RealTime } from "./RealTime";
 import { Logger } from "../lib/server/Logger";
 import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
-
+import { Mongo } from "meteor/mongo";
+const GameCollection = new Mongo.Collection("game");
 import net from "net";
 
 import * as L2 from "../lib/server/l2";
@@ -95,26 +96,26 @@ class LegacyUserConnection {
 
     setTimeout(function() {
       //TODO: What do we do here?
-      console.log("server/legacyuser: why are we here");
-      log.error("server/legacyuser: why are we here");
+      //console.log("server/legacyuser: why are we here");
+      //log.error("server/legacyuser: why are we here");
     });
 
     self.socket.on("data", function(data) {
       self.databuffer += data;
-      log.debug("LegacyUser::(self.socket.on.data)", {
-        state: self.state,
-        databuffer: self.databuffer,
-        ctrl: self.ctrl,
-        level1: self.level1,
-        level1Array: self.level1Array,
-        level2Array: self.level2Array,
-        currentLevel1: self.currentLevel1,
-        currentLevel2: self.currentLevel2
-      });
+      // log.debug("LegacyUser::(self.socket.on.data)", {
+      //   state: self.state,
+      //   databuffer: self.databuffer,
+      //   ctrl: self.ctrl,
+      //   level1: self.level1,
+      //   level1Array: self.level1Array,
+      //   level2Array: self.level2Array,
+      //   currentLevel1: self.currentLevel1,
+      //   currentLevel2: self.currentLevel2
+      // });
       let packets = null;
       do {
         packets = self.parse();
-        log.debug("LegacyUser::(self.socket.on.data)", { packets: packets });
+        //log.debug("LegacyUser::(self.socket.on.data)", { packets: packets });
         if (packets) {
           if (
             packets.level2Packets.length &&
@@ -131,12 +132,13 @@ class LegacyUserConnection {
     });
 
     self.socket.on("error", function(e) {
+      console.log("socket error");
       self.processError(self.user._id, e);
     });
   }
 
   logout() {
-    log.debug("LegacyUser::logout");
+ //   log.debug("LegacyUser::logout");
     this.socket.write("quit\n");
     this.socket.destroy();
   }
@@ -289,17 +291,18 @@ class LegacyUserConnection {
   }
 
   sendRawData(data) {
+    
     this.socket.write(";" + data + "\n");
     //this.socket.write(";xt uiuxtest1: " + data + "\n");
   }
 
   processPackets(packets) {
-    log.debug("LegacyUser::processPackets", { packets: packets });
+  //  log.debug("LegacyUser::processPackets", { packets: packets });
     // { level1Packets: [], level2Packets: [] }
     const self = this;
     packets.level2Packets.forEach(function(p) {
       const p2 = LegacyUserConnection.parseLevel2(p);
-      log.debug("processPackets, parsed level 2", { parsed: p2 });
+   //   log.debug("processPackets, parsed level 2", { parsed: p2 });
       switch (parseInt(p2.shift())) {
         case L2.WHO_AM_I /* who_am_i */:
           self.socket.write(";messages\n");
@@ -359,23 +362,65 @@ class LegacyUserConnection {
           //     // uses-plunkers fancy-timecontrol promote-to-king)
           break;
         case L2.MY_GAME_STARTED:
-          // p2[0] = gamenumber
-          // p2[1] = whitename
-          // p2[11] = ex-string
-          // p2[12] = white-rating
-          //[gamenumber whitename blackname wild-number rating-type rated
-          // 		white-initial white-increment black-initial black-increment
-          // 		played-game {ex-string} white-rating black-rating game-id
-          // 		white-titles black-titles irregular-legality irregular-semantics
-          // 		uses-plunkers fancy-timecontrol promote-to-king]
-          // Mongo.update - Prerak
-          // const game = {
-          // white: p2[1],
-          // black: p2[2],
-          // time: p2[6],
-          // legacy_id: p2[0],
-          // etc. etc. etc.
-          // Mongo.insert(game);
+            let game = {
+                date: new Date(),
+                //      status: them.settings.autoaccept ? "playing" : "pending",
+                status: "pending",
+                requestBy:self.user._id,
+                legacy_id: p2[0],
+                clocks: {
+                  white: { time: p2[6], inc: p2[5] },
+                  black: { time: p2[8], inc: p2[7] }
+                },
+                white: {
+                  name: p2[1],
+                  rating: p2[12]
+                },
+                black: {
+                  name: p2[2],
+                  rating: p2[13]
+                },
+                moves: [],
+                actions: []
+              }
+            
+              console.log(game);
+              GameCollection.insert(game);
+            /** This Also we have tried  */
+         
+         /*  const bound = Meteor.bindEnvironment((callback) => {callback();});
+          bound(() => {
+            if (err) {
+              console.log(err); // an error occurred
+            } else {
+              let game = {
+                date: new Date(),
+                //      status: them.settings.autoaccept ? "playing" : "pending",
+                status: "pending",
+                requestBy:self.user._id,
+                legacy_id: p2[0],
+                clocks: {
+                  white: { time: p2[6], inc: p2[5] },
+                  black: { time: p2[8], inc: p2[7] }
+                },
+                white: {
+                  name: p2[1],
+                  rating: p2[12]
+                },
+                black: {
+                  name: p2[2],
+                  rating: p2[13]
+                },
+                moves: [],
+                actions: []
+              }
+              console.log(game);
+              GameCollection.insert(game);
+            }
+          });
+           */
+          
+        
           break;
         case L2.MY_GAME_CHANGE:
           // Mongo.update - Prerak
@@ -407,8 +452,16 @@ class LegacyUserConnection {
       }
     });
   }
+  async dataInsertMongo(game) {
 
+   
+    const result = GameCollection.insert(game);
+    
+    return result;
+};
+ 
   processError(error) {
+    console.log("error: " + error);
     RealTime.send(this.user._id, "error", error);
   }
 

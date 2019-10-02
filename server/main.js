@@ -141,12 +141,12 @@ Meteor.publish("loggedOnUsers", function() {
 Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;
 
-  log.debug("user record", user);
+ /*  log.debug("user record", user);
   log.debug(
     "User is in leagy_login role",
     Roles.userIsInRole(user, "legacy_login")
   );
-
+ */
   if (
     Roles.userIsInRole(user, "legacy_login") &&
     user.profile &&
