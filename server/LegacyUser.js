@@ -556,10 +556,10 @@ const LegacyUser = {
     if (lu) {
       lu.logout();
       delete lu[userId];
-    } else
+    } /*else
       throw new Meteor.Error(
         "Unable to find legacy connection for " + userId + " to logout from"
-      );
+      );*/
   }
 };
 
