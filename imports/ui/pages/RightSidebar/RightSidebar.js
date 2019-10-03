@@ -9,7 +9,7 @@ const log = new Logger("client/RightSidebar");
 
 class RightSidebar extends Component {
   render() {
-    log.debug("legacyMessage=" + this.props.legacymessages);
+  //  log.debug("legacyMessage=" + this.props.legacymessages);
     return (
       <div className="right-content-desktop">
         <div style={this.props.cssmanager.rightTopContent()}>

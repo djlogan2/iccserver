@@ -16,7 +16,7 @@ export default class MiddleBoard extends Component {
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       draw_rank_and_file: "bl",
-      top: "w",
+      top: props.top,
       whitePlayer: props.MiddleBoardData.WhitePlayer,
       blackPlayer: props.MiddleBoardData.BlackPlayer,
       height: 500,
@@ -51,6 +51,10 @@ export default class MiddleBoard extends Component {
     if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
     }
+    if (prevProps.MiddleBoardData.WhitePlayer !== this.props.MiddleBoardData.WhitePlayer) {
+      console.log(this.props.MiddleBoardData.WhitePlayer.Timer,this.props.MiddleBoardData.WhitePlayer.IsActive);
+    }
+    
   }
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";

@@ -21,11 +21,11 @@ Meteor.publish("userData", function() {
   const self = this;
 
   this.onStop(function() {
-    log.debug("User left");
+   // log.debug("User left");
     LegacyUser.logout(self.userId);
   });
 
-  log.debug("User has arrived");
+  //log.debug("User has arrived");
   return Meteor.users.find(
     { _id: this.userId },
     { fields: fields_viewable_by_account_owner }
@@ -58,7 +58,7 @@ Accounts.onCreateUser(function(options, user) {
 Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;
 
-  log.debug("user record", user);
+  //log.debug("user record", user);
   log.debug(
     "User is in leagy_login role",
     Roles.userIsInRole(user, "legacy_login")

@@ -21,7 +21,7 @@ import { LegacyUser } from "./LegacyUser";
 // The error-specific array could have: ['djlogan', 'rated', 'freebird']
 //
 /** Todo: temporary change name of collection   */
-const GameCollection = new Mongo.Collection("game1");
+const GameCollection = new Mongo.Collection("game");
 let log = new Logger("server/Game_js");
 
 let active_games = {};
@@ -119,6 +119,7 @@ export function startLegacyGame(
   wild,
   color
 ) {
+  
   const our_legacy_user = LegacyUser.find(us._id);
   if (!our_legacy_user)
     throw new Meteor.error(
@@ -138,7 +139,7 @@ export function startLocalGame(
   wild,
   color
 ) {
-  const them = getOtherUser(name);
+   const them = getOtherUser(name);
 
   if (!them) {
     throw new Meteor.Error("Unable to find user " + name);
@@ -214,16 +215,23 @@ export function startLocalOrLegacyGame(
     moves: [],
     actions: []
   };
-
+ console.log("legacy_game_id", legacy_game_id);
+ 
+  const gameExist = GameCollection.findOne({$and:[{"legacy_game_id":legacy_game_id}]});
+  
   if (!!legacy_game_id) game.legacy_game_id = legacy_game_id;
-
-  GameCollection.insert(game, (error, result) => {
+  if(gameExist === undefined){
+   
+    GameCollection.insert(game, (error, result) => {
     if (error) log.error(error.invalidKeys);
     GameCollection.simpleSchema()
       .namedContext()
       .validationErrors();
-  });
-
+    });
+  }else{
+    console.log("game Exist");
+  }
+  
   /*
   if (them.settings.autoaccept) {
     // TODO: I don't think this is quite right. Check to make sure we have valid ids, but more importantly,
@@ -617,10 +625,11 @@ Meteor.methods({
     throw new Meteor.Error("Unimplemented");
   },
 
-  "game.move"(game_id, move) {
+  "game.move"(game_id, move,addToLegacy) {
     // For Prarek: If you want to, just implement the mongo update here, and I'll put the rest in later.
     check(game_id, String);
     check(move, String);
+    check(addToLegacy, Boolean);
     let actionBy = Meteor.userId();
     //
     // Get chess.js item for game.
@@ -635,31 +644,42 @@ Meteor.methods({
     //      TODO: If chess.js says it's forced draw, do we update anything, or just wait for the user to figure it out?
     // If
     //
-    GameCollection.update(
-      { _id: game_id },
-      {
-        $push: { moves: move }
-      },
-      (error, result) => {
-        if (error) log.error(error.invalidKeys);
-        GameCollection.simpleSchema()
-          .namedContext()
-          .validationErrors();
-      }
-    );
-    GameCollection.update(
-      { _id: game_id },
-      {
-        $push: { actions: { type: "move", value: move, actionBy: actionBy } }
-      },
-      (error, result) => {
-        if (error) log.error(error.invalidKeys);
-        GameCollection.simpleSchema()
-          .namedContext()
-          .validationErrors();
-      }
-    );
-
+    if(addToLegacy)
+    {
+      const our_legacy_user = LegacyUser.find(actionBy);
+      if (!our_legacy_user)
+        throw new Meteor.error(
+          "Unable to find a legacy user object for " + us.name
+        );
+    
+      our_legacy_user.sendRawData(move);
+    }
+    else{
+      GameCollection.update(
+        { _id: game_id },
+        {
+          $push: { moves: move }
+        },
+        (error, result) => {
+          if (error) log.error(error.invalidKeys);
+          GameCollection.simpleSchema()
+            .namedContext()
+            .validationErrors();
+        }
+      );
+      GameCollection.update(
+        { _id: game_id },
+        {
+          $push: { actions: { type: "move", value: move, actionBy: actionBy } }
+        },
+        (error, result) => {
+          if (error) log.error(error.invalidKeys);
+          GameCollection.simpleSchema()
+            .namedContext()
+            .validationErrors();
+        }
+      );
+    }
     // throw new Meteor.Error("Unimplemented");
   },
 

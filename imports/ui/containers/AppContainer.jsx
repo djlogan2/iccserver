@@ -16,7 +16,7 @@ const Game = new Mongo.Collection("game");
 const legacyUserList = [];
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-  log.error(errorMsg + "::" + url + "::" + lineNumber);
+ // log.error(errorMsg + "::" + url + "::" + lineNumber);
   return false;
 };
 
@@ -32,6 +32,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       Black: { name: "xyz", rating: "456" }
     };
     this.state = {
+      gameClock:null,
       from: null,
       to: null,
       subscription: {
@@ -51,7 +52,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   renderGameMessages() {
     const game = Game.find({}, { sort: { startTime: -1 } }).fetch();
-    log.debug("Game Collection  find", game);
+   // log.debug("Game Collection  find", game);
     return game[0];
   }
 
@@ -74,10 +75,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _legacyMessages() {
-    //console.log("_legacyMessages=" + JSON.stringify(records));
-    return realtime_messages
+    const records = realtime_messages
       .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
       .fetch();
+
+    //console.log("_legacyMessages=" + JSON.stringify(records));
+    return records;
   }
 
   componentWillUnmount() {
@@ -87,13 +90,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   componentWillMount() {
-    if (!this.state.isAuthenticated && !Meteor.isAppTest) {
+    if (!this.state.isAuthenticated) {
       this.props.history.push("/sign-up");
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated && !Meteor.isAppTest) {
+    if (!this.state.isAuthenticated) {
       this.props.history.push("/login");
     }
   }
@@ -117,17 +120,18 @@ export default class AppContainer extends TrackerReact(React.Component) {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    return history.reduce((accumulator, move) => {
+    let capturedSoldiers = history.reduce((accumulator, move) => {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
-        // accumulator[color].push(piece);
-        accumulator[color][piece] += 1;
+         accumulator[color][piece] += 1;
         return accumulator;
       } else {
         return accumulator;
       }
     }, position);
+
+    return capturedSoldiers;
   }
 
   _pieceSquareDragStop = raf => {
@@ -160,16 +164,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
         let status = "Game over, " + moveColor + " is in checkmate.";
         alert(status);
       }
-      log.debug(
+    /*   log.debug(
         "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
-      );
+      ); */
       if (result !== null) {
         let history = this._board.history();
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
-        Meteor.call("game.move", this.gameId, move);
-        log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
+        Meteor.call("game.move", this.gameId, move,true);
+     //   log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
       }
     }
   };
@@ -182,11 +186,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this._rm_index = legacymessages[legacymessages.length - 1].nid;
 
     legacymessages.forEach(rec => {
-      log.debug("realtime_record", rec);
+   //   log.debug("realtime_record", rec);
       this._rm_index = rec.nid;
+     
+
       switch (rec.type) {
         case "setup_logger":
-          console.log("setup_logger=" + JSON.stringify(rec.message));
+          //console.log("setup_logger=" + JSON.stringify(rec.message));
           SetupLogger.addLoggers(rec.message);
           break;
 
@@ -197,7 +203,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
             changed = true;
           }
           break;
-
+          case "game_move":
+           
+            Meteor.call("game.move", this.gameId, rec.message.algebraic,false);
+            break; 
+          case "update_game_clock":
+            //   console.log(rec.message);
+              this.setState({ gameClock: rec.message});
+               
+          break;
+          
         case "user_loggedoff":
           idx = legacyUserList.indexOf(rec.message.user);
           if (idx !== -1) {
@@ -208,7 +223,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
         case "error":
         default:
-          log.error("realtime_message default", rec);
+         // log.error("realtime_message default", rec);
       }
     });
 
@@ -229,21 +244,15 @@ export default class AppContainer extends TrackerReact(React.Component) {
         this._board.move(moves[i]);
       }
     }
-    if (
-      actions !== undefined &&
-      actions.length !== null &&
-      actions.length > 0
-    ) {
-      //let action = actions[actions.length - 1];
-      /* if((action["type"] === "draw" && action["value"] === "accepted") ||  (action["type"] === "aborted" && action["value"] === "accepted") ||action["type"] === "resigned"){
-       // this._board.reset();
-      } */
-    }
+   /*  if (actions != undefined && actions.length != null && actions.length > 0) {
+      let action = actions[actions.length - 1];
+     
+    } */
   }
 
   render() {
-    if (Meteor.isTest || Meteor.isAppTest) return;
-    const game = this.renderGameMessages();
+   const game = this.renderGameMessages();
+    
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
 
@@ -256,22 +265,18 @@ export default class AppContainer extends TrackerReact(React.Component) {
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (game !== undefined) {
+    //  console.log("game display here ",game);
       this._boardFromMongoMessages(game);
     }
 
     const legacyMessages = this._legacyMessages();
     if (!!legacyMessages) this._processLegacyMessages(legacyMessages);
-    log.debug("legacyMessage=" + legacyMessages);
-    console.log("legacyMessage=" + JSON.stringify(legacyMessages));
-    /* let position = {
-      w: { p: 5, n: 2, b: 2, r: 2, q: 2 },
-      b: { p: 5, n: 2, b: 2, r: 2, q: 2 }
-    }; */
+  
     const capture = this._fallenSoldier();
-    log.debug(capture);
+   /*  log.debug(capture);
     log.debug(capture);
     log.info(capture);
-
+ */
     return (
       <div>
         <MainPage
@@ -279,6 +284,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           board={this._board}
           move={this.state.move}
           capture={capture}
+          gameClock={this.state.gameClock}
           game={game}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
