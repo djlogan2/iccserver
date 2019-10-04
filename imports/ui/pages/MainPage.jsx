@@ -25,68 +25,55 @@ export default class MainPage extends Component {
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.userId = Meteor.userId();
-
-    this.Main = {
-      LeftSection: {
-        MenuLinks: links
-      },
-      MiddleSection: {
-        BlackPlayer: {
-          Rating: "0000",
-          Name: "Player-1",
-          Flag: "us",
-          Timer: 1000,
-          UserPicture: "player-img-top.png",
-          IsActive: false
+    (this.clocks = {
+      white: { Timer: 3000, IsActive: false },
+      black: { Timer: 3000, IsActive: false }
+    }),
+      (this.Main = {
+        LeftSection: {
+          MenuLinks: links
         },
-        WhitePlayer: {
-          Rating: "0000",
-          Name: "Player-2",
-          Flag: "us",
-          Timer: 1000,
-          UserPicture: "player-img-bottom.png",
-          IsActive: false
+        MiddleSection: {
+          BlackPlayer: {
+            Rating: "0000",
+            Name: "Player-1",
+            Flag: "us",
+            Timer: 1000,
+            UserPicture: "player-img-top.png",
+            IsActive: false
+          },
+          WhitePlayer: {
+            Rating: "0000",
+            Name: "Player-2",
+            Flag: "us",
+            Timer: 1000,
+            UserPicture: "player-img-bottom.png",
+            IsActive: false
+          }
+        },
+        RightSection: {
+          TournamentList: {
+            Tournaments: Tournament
+          },
+          MoveList: {
+            GameMove: ""
+          },
+          Action: {}
         }
-      },
-      RightSection: {
-        TournamentList: {
-          Tournaments: Tournament
-        },
-        MoveList: {
-          GameMove: ""
-        },
-        Action: {}
-      }
-    };
+      });
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.game !== undefined) {
       if (prevProps.game !== this.props.game) {
-        this.setState({
-          draw: false,
-          aborted: false,
-          startgame: false
-        });
+        console.log(this.props.game.clocks.white.time);
       }
-      if (prevProps.gameClock!=null && prevProps.gameClock !== this.props.gameClock) {
-        
-        console.log(this.props.gameClock);
-        
-        /*{millis: 285995, color: "w", startclock: false}*/
-        if (this.props.gameClock.color === "w" &&  this.props.gameClock.startclock===true) {
-          this.Main.MiddleSection.BlackPlayer.IsActive = false;
-          this.Main.MiddleSection.WhitePlayer.IsActive = true;
-          this.Main.MiddleSection.WhitePlayer.Timer = this.props.gameClock.millis;
-        } else {
-          this.Main.MiddleSection.WhitePlayer.IsActive = false;
-          this.Main.MiddleSection.BlackPlayer.IsActive = true;
-          this.Main.MiddleSection.BlackPlayer.Timer = this.props.gameClock.millis;
-     
+      /* if(prevProps.game.clocks.white.time!=this.props.game.clocks.white.time){
+          console.log("white time changed", this.props.game.clocks.white.time);
         }
-      
-      }
-      
+        if(prevProps.game.clocks.black.time!=this.props.game.clocks.black.time){
+          console.log("black time changed", this.props.game.clocks.black.time);
+        } */
     }
   }
 
@@ -258,7 +245,7 @@ export default class MainPage extends Component {
   render() {
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-   
+
     let informativePopup = null;
     let actionPopup = null;
     let position = {};
@@ -284,13 +271,15 @@ export default class MainPage extends Component {
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
         this.Main.MiddleSection.BlackPlayer.Timer = game.clocks.black.time;
         this.Main.MiddleSection.WhitePlayer.Timer = game.clocks.white.time;
-        if (gameTurn === "w") {
-          this.Main.MiddleSection.BlackPlayer.IsActive = false;
-          this.Main.MiddleSection.WhitePlayer.IsActive = true;
+        /* if (gameTurn === "w") {
+          this.clocks.white.Timer = Object.assign({}, game.clocks.white.time);
+          this.clocks.white.IsActive = Object.assign({}, true);
+          this.clocks.black.IsActive = Object.assign({}, false);
         } else {
-          this.Main.MiddleSection.BlackPlayer.IsActive = true;
-          this.Main.MiddleSection.WhitePlayer.IsActive = false;
-        }
+          this.clocks.black.Timer = Object.assign({}, game.clocks.black.time);
+          this.clocks.black.IsActive = Object.assign({}, true);
+          this.clocks.white.IsActive = Object.assign({}, false);
+        } */
         this.userId = Meteor.userId();
         this.gameId = game._id;
         this.Main.RightSection.MoveList.GameMove = game;
@@ -388,8 +377,6 @@ export default class MainPage extends Component {
             this.intializeBoard();
           }
         }
-      } else {
-        this.intializeBoard();
       }
     }
     let buttonStyle;
@@ -398,7 +385,7 @@ export default class MainPage extends Component {
     } else {
       buttonStyle = "toggleOpen";
     }
-   // log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
+    // log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;
@@ -455,6 +442,7 @@ export default class MainPage extends Component {
               onDrop={this._pieceSquareDragStop}
               top={position.top}
               legacyusers={this.props.legacyusers}
+              clocks={this.clocks}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">

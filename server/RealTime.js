@@ -96,8 +96,6 @@ const RealTime = {
    * @param algebraic
    */
   game_moveOnBoard(userId, algebraic) {
-    console.log("Real message;",userId);
-    console.log("Real message;",algebraic);
     send(userId, "game_move", { algebraic: algebraic });
   },
 
