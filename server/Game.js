@@ -715,10 +715,9 @@ Meteor.methods({
         throw new Meteor.error(
           "Unable to find a legacy user object for " + us.name
         );
-    
+
       our_legacy_user.sendRawData(move);
-    }
-    else{
+    } else {
       GameCollection.update(
         { _id: game_id },
         {

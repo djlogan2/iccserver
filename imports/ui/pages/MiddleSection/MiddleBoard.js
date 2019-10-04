@@ -51,7 +51,6 @@ export default class MiddleBoard extends Component {
     if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
     }
-   
   }
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
@@ -155,7 +154,7 @@ export default class MiddleBoard extends Component {
           />
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
-            ClockData1={this.props.clocks.black}
+            ClockData1={topPlayer}
             side={size}
           />
         </div>
@@ -189,7 +188,7 @@ export default class MiddleBoard extends Component {
           />
           <WhitePlayerClock
             cssmanager={this.props.cssmanager}
-            ClockData2={this.props.clocks.white}
+            ClockData2={bottomPlayer}
             side={size}
           />
         </div>

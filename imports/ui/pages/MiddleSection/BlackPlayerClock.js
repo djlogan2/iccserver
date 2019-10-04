@@ -50,7 +50,7 @@ export default class BlackPlayerClock extends Component {
           display: "inline-block",
           position: "relative",
           verticalAlign: "top",
-          marginTop:"8px"
+          marginTop: "8px"
         }}
       >
         <div

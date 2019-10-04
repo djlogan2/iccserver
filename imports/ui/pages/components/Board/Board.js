@@ -94,7 +94,6 @@ export default class Board extends React.Component {
     if (this.state.currentarrow)
       arrows.push(this._renderArrow(this.state.currentarrow));
 
-     
     return (
       <div>
         <div
@@ -351,7 +350,7 @@ export default class Board extends React.Component {
   _renderEmptySquare() {
     const style = {
       width: this._square_side,
-      height: this._square_side/5,
+      height: this._square_side / 5,
       position: "relative",
       float: "left"
     };

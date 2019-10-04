@@ -8,9 +8,8 @@ export default class MoveListComponent extends Component {
     this.Moves = [];
   }
   _pgnView = (actionType, action) => {
-   this.props.performAction(action, actionType);
-    
-};
+    this.props.performAction(action, actionType);
+  };
   render() {
     let gameId = this.props.Moves._id;
     var moves = this.props.Moves.moves;
@@ -49,7 +48,10 @@ export default class MoveListComponent extends Component {
 					Different buttons such as next and previous is available for
 					player to check the previous moves. this along with GameComponent */}
 
-          <button style={this.props.cssmanager.buttonStyle()}  onClick={this._pgnView.bind(this, "pgnview", "draw")} >
+          <button
+            style={this.props.cssmanager.buttonStyle()}
+            onClick={this._pgnView.bind(this, "pgnview", "draw")}
+          >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
               alt="fast-forward"
@@ -83,7 +85,7 @@ export default class MoveListComponent extends Component {
               alt="next-single"
             />
           </button>
-          
+
           <button
             style={this.props.cssmanager.buttonStyle()}
             onClick={this.props.flip}

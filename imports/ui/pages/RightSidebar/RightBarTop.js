@@ -45,11 +45,7 @@ export default class RightBarTop extends Component {
         </div>
 
         <div label={translator("play")} imgsrc="images/play-icon-gray.png">
-          <CreateGame
-            cssmanager={this.props.cssmanager}
-            ref="create_game"
-            legacyusers={this.props.legacyusers}
-          />
+          <CreateGame cssmanager={this.props.cssmanager} ref="create_game" />
         </div>
 
         <div

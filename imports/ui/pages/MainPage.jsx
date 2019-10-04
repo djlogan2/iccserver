@@ -271,15 +271,13 @@ export default class MainPage extends Component {
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
         this.Main.MiddleSection.BlackPlayer.Timer = game.clocks.black.time;
         this.Main.MiddleSection.WhitePlayer.Timer = game.clocks.white.time;
-        /* if (gameTurn === "w") {
-          this.clocks.white.Timer = Object.assign({}, game.clocks.white.time);
-          this.clocks.white.IsActive = Object.assign({}, true);
-          this.clocks.black.IsActive = Object.assign({}, false);
+        if (gameTurn === "w") {
+          this.Main.MiddleSection.BlackPlayer.IsActive = false;
+          this.Main.MiddleSection.WhitePlayer.IsActive = true;
         } else {
-          this.clocks.black.Timer = Object.assign({}, game.clocks.black.time);
-          this.clocks.black.IsActive = Object.assign({}, true);
-          this.clocks.white.IsActive = Object.assign({}, false);
-        } */
+          this.Main.MiddleSection.BlackPlayer.IsActive = true;
+          this.Main.MiddleSection.WhitePlayer.IsActive = false;
+        }
         this.userId = Meteor.userId();
         this.gameId = game._id;
         this.Main.RightSection.MoveList.GameMove = game;
@@ -385,7 +383,7 @@ export default class MainPage extends Component {
     } else {
       buttonStyle = "toggleOpen";
     }
-    // log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
+    log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;
@@ -441,8 +439,6 @@ export default class MainPage extends Component {
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
               top={position.top}
-              legacyusers={this.props.legacyusers}
-              clocks={this.clocks}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
@@ -453,7 +449,6 @@ export default class MainPage extends Component {
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
               ref="right_sidebar"
-              legacyusers={this.props.legacyusers}
             />
           </div>
         </div>

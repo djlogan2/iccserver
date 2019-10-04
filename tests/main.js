@@ -3,10 +3,17 @@ import { Meteor } from "meteor/meteor";
 
 if (Meteor.isAppTest) {
   if (Meteor.isServer) {
-    require("./integration/server/serverIntegration1");
+    require("./integration/server/userCollectionIntegrationTests");
+    require("./integration/server/gameCollectionIntegrationTests");
   }
   if (Meteor.isClient) {
     require("./integration/client/clientIntegration1");
+  }
+}
+
+if (Meteor.isAppTest || Meteor.isTest) {
+  if (Meteor.isServer) {
+    require("./unit/server/encryptTests");
   }
 }
 

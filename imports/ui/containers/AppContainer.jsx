@@ -2,23 +2,32 @@ import React from "react";
 import MainPage from "./../pages/MainPage";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-import { Logger, SetupLogger } from "../../../lib/client/Logger";
+import { Logger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
 import realtime_messages from "../../client/realtime";
+import {Tracker} from "meteor/tracker";
 
 const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const Game = new Mongo.Collection("game");
 
-const legacyUserList = [];
-
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
- // log.error(errorMsg + "::" + url + "::" + lineNumber);
+  // log.error(errorMsg + "::" + url + "::" + lineNumber);
   return false;
 };
+
+Meteor.startup(() => {
+  Tracker.autorun(() => {
+    //
+    // This is in here so when the user navigates away from the page,
+    // the subscription is stopped on the server, cleaning up.
+    //
+    Meteor.subscribe("userData");
+  });
+});
 
 export default class AppContainer extends TrackerReact(React.Component) {
   constructor(props) {
@@ -32,7 +41,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       Black: { name: "xyz", rating: "456" }
     };
     this.state = {
-      gameClock:null,
+      gameClock: null,
       from: null,
       to: null,
       subscription: {
@@ -52,7 +61,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   renderGameMessages() {
     const game = Game.find({}, { sort: { startTime: -1 } }).fetch();
-   // log.debug("Game Collection  find", game);
+    log.debug("Game Collection  find", game);
     return game[0];
   }
 
@@ -72,15 +81,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   isAuthenticated() {
     return Meteor.userId() !== null;
-  }
-
-  _legacyMessages() {
-    const records = realtime_messages
-      .find({ nid: { $gt: this._rm_index } }, { sort: { nid: 1 } })
-      .fetch();
-
-    //console.log("_legacyMessages=" + JSON.stringify(records));
-    return records;
   }
 
   componentWillUnmount() {
@@ -124,7 +124,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
-         accumulator[color][piece] += 1;
+        accumulator[color][piece] += 1;
         return accumulator;
       } else {
         return accumulator;
@@ -164,75 +164,19 @@ export default class AppContainer extends TrackerReact(React.Component) {
         let status = "Game over, " + moveColor + " is in checkmate.";
         alert(status);
       }
-    /*   log.debug(
+      log.debug(
         "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
-      ); */
+      );
       if (result !== null) {
         let history = this._board.history();
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
-        Meteor.call("game.move", this.gameId, move,true);
-     //   log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
+        Meteor.call("game.move", this.gameId, move, true);
+        log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
       }
     }
   };
-
-  _processLegacyMessages(legacymessages) {
-    let idx;
-    let changed = false;
-
-    if (legacymessages.length)
-      this._rm_index = legacymessages[legacymessages.length - 1].nid;
-
-    legacymessages.forEach(rec => {
-   //   log.debug("realtime_record", rec);
-      this._rm_index = rec.nid;
-     
-
-      switch (rec.type) {
-        case "setup_logger":
-          //console.log("setup_logger=" + JSON.stringify(rec.message));
-          SetupLogger.addLoggers(rec.message);
-          break;
-
-        case "user_loggedon":
-          idx = legacyUserList.indexOf(rec.message.user);
-          if (idx === -1) {
-            legacyUserList.push(rec.message.user);
-            changed = true;
-          }
-          break;
-          case "game_move":
-           
-           // Meteor.call("game.move", this.gameId, rec.message.algebraic,false);
-            break; 
-          case "update_game_clock":
-            //   console.log(rec.message);
-            //  this.setState({ gameClock: rec.message});
-               
-          break;
-          
-        case "user_loggedoff":
-          idx = legacyUserList.indexOf(rec.message.user);
-          if (idx !== -1) {
-            legacyUserList.splice(idx, 1);
-            changed = true;
-          }
-          break;
-
-        case "error":
-        default:
-         // log.error("realtime_message default", rec);
-      }
-    });
-
-    if (changed) {
-      legacyUserList.sort();
-    }
-
-    return legacymessages;
-  }
 
   _boardFromMongoMessages(game) {
     this._board = new Chess.Chess();
@@ -244,15 +188,15 @@ export default class AppContainer extends TrackerReact(React.Component) {
         this._board.move(moves[i]);
       }
     }
-   /*  if (actions != undefined && actions.length != null && actions.length > 0) {
+    /*  if (actions != undefined && actions.length != null && actions.length > 0) {
       let action = actions[actions.length - 1];
      
     } */
   }
 
   render() {
-   const game = this.renderGameMessages();
-    
+    const game = this.renderGameMessages();
+
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
 
@@ -265,18 +209,15 @@ export default class AppContainer extends TrackerReact(React.Component) {
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (game !== undefined) {
-    //  console.log("game display here ",game);
+      //  console.log("game display here ",game);
       this._boardFromMongoMessages(game);
     }
 
-    const legacyMessages = this._legacyMessages();
-    if (!!legacyMessages) this._processLegacyMessages(legacyMessages);
-  
     const capture = this._fallenSoldier();
-   /*  log.debug(capture);
+    log.debug(capture);
     log.debug(capture);
     log.info(capture);
- */
+
     return (
       <div>
         <MainPage
@@ -287,7 +228,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           game={game}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
-          legacyusers={legacyUserList}
+        />
         />
       </div>
     );
