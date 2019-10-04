@@ -7,6 +7,8 @@ import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("CreateGameComponent_js");
 const legacyUsersC = new Mongo.Collection("legacyUsers");
 
+// TODO: What do we do when a user is logged on local AND legacy? They currently show up twice, as in localuser and legacyuser(L).
+//   I would assume we want to remove them from one of the lists...
 export default class CreateGameComponent extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
