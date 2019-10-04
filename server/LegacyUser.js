@@ -95,8 +95,8 @@ class LegacyUserConnection {
 
     setTimeout(function() {
       //TODO: What do we do here?
-    //  console.log("server/legacyuser: why are we here");
-    //  log.error("server/legacyuser: why are we here");
+      //  console.log("server/legacyuser: why are we here");
+      //  log.error("server/legacyuser: why are we here");
     });
 
     self.socket.on(
@@ -104,7 +104,7 @@ class LegacyUserConnection {
       Meteor.bindEnvironment(
         function(data) {
           self.databuffer += data;
-         /*  log.debug("LegacyUser::(self.socket.on.data)", {
+          log.debug("LegacyUser::(self.socket.on.data)", {
             state: self.state,
             databuffer: self.databuffer,
             ctrl: self.ctrl,
@@ -113,13 +113,13 @@ class LegacyUserConnection {
             level2Array: self.level2Array,
             currentLevel1: self.currentLevel1,
             currentLevel2: self.currentLevel2
-          }); */
+          });
           let packets = null;
           do {
             packets = self.parse();
-          /*   log.debug("LegacyUser::(self.socket.on.data)", {
+            log.debug("LegacyUser::(self.socket.on.data)", {
               packets: packets
-            }); */
+            });
             if (packets) {
               if (
                 packets.level2Packets.length &&
@@ -134,9 +134,9 @@ class LegacyUserConnection {
             }
           } while (packets);
         },
-        function() {
-          console.log("failed to bind environment");
-          throw new Meteor.Error("failed to bind environment");
+        function(error) {
+          log.fatal("failed to bind to environment: " + error);
+          throw new Meteor.Error("failed to bind environment: " + error);
         }
       )
     );
@@ -147,7 +147,7 @@ class LegacyUserConnection {
   }
 
   logout() {
-   // log.debug("LegacyUser::logout");
+    log.debug("LegacyUser::logout");
     this.socket.write("quit\n");
     this.socket.destroy();
   }
@@ -300,20 +300,19 @@ class LegacyUserConnection {
   }
 
   sendRawData(data) {
-    console.log("data send from here",data);
+    console.log("data send from here", data);
     this.socket.write(";" + data + "\n");
-    
+
     //this.socket.write(";xt uiuxtest1: " + data + "\n");
   }
 
   processPackets(packets) {
- //   log.debug("LegacyUser::processPackets", { packets: packets });
-    // { level1Packets: [], level2Packets: [] }
+    log.debug("LegacyUser::processPackets", { packets: packets });
     const self = this;
     packets.level2Packets.forEach(function(p) {
       const p2 = LegacyUserConnection.parseLevel2(p);
-      
-   //   log.debug("processPackets, parsed level 2", { parsed: p2 });
+
+      log.debug("processPackets, parsed level 2", { parsed: p2 });
       switch (parseInt(p2.shift())) {
         case L2.WHO_AM_I /* who_am_i */:
           self.socket.write(";messages\n");
@@ -331,10 +330,9 @@ class LegacyUserConnection {
           );
           break;
         case L2.LOGIN_FAILED /* login_failed */:
-          RealTime.send(self.user._id, "legacy_error", {
+          RealTime.send_error(self.user._id, {
             type: "login_failed",
-            reason: parseInt(p2[0]),
-            text: p2[1]
+            packet: p
           });
           break;
         case L2.MESSAGELIST_ITEM:
@@ -343,7 +341,6 @@ class LegacyUserConnection {
           //RealTime.send(self.user._id, 'legacy_message', [parseInt(p2[0]), p2[1], p2[2], p2[3], p2[4]]);
           break;
         case L2.SEND_MOVES:
-         
           // Mongo.update - Prerak
           //     five optional fields,
           //     algebraic-move, smith-move, time, clock, and is-variation.
@@ -382,7 +379,7 @@ class LegacyUserConnection {
             username: p2[2],
             rating: 0
           };
-          
+
           if (self.user.profile.legacy.username === p2[1]) {
             white._id = self.user._id;
           } else if (self.user.profile.legacy.username === p2[2]) {
@@ -405,7 +402,7 @@ class LegacyUserConnection {
           );
           break;
         case L2.MY_GAME_CHANGE:
-          console.log("MY GAME CHANGED",p2);
+          console.log("MY GAME CHANGED", p2);
           // Mongo.update - Prerak
           break;
         case L2.MY_GAME_ENDED:

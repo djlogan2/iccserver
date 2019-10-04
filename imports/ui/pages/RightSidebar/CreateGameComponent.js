@@ -37,7 +37,6 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   }
 
   gameStart(user) {
-    
     Meteor.call("game.match", "iccserver1", 5, 0, 5, 0, false, 0, "white");
   }
 
@@ -89,8 +88,8 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
             </ul>
           </div>
         </nav>
-        
-        <div style={{height:"250px",overflowX:"Scroll"}}>
+
+        <div style={{ height: "250px", overflowX: "Scroll" }}>
           {userdata
             ? userdata.map((user, index) => (
                 <div style={{ margin: "5px" }} key={index}>

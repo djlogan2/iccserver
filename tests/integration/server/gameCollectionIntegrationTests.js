@@ -32,7 +32,7 @@ function createLegacyGame(whiteuser, blackuser, status) {}
 //        Both players have to be able to play "normal" games (re roles)
 //        TODO: Neither player can be censoring the other
 //    Legacy game :
- //        TODO: We have to figure out AFTER the game starts if we are white or black!
+//        TODO: We have to figure out AFTER the game starts if we are white or black!
 //        TODO: I think match requests need to be in some type of "game_requests" collection
 //    Correspondence game:
 //    Tournament game:
@@ -53,15 +53,15 @@ function createLegacyGame(whiteuser, blackuser, status) {}
 //}
 
 describe("Games", function() {
-  beforeEach(function() {
-    resetDatabase();
+  beforeEach(function(done) {
+    resetDatabase(done);
   });
 
   it("is a test", function() {
     Meteor.call(
       "game.match",
       "name",
-      "legacy",
+      /*      "legacy", */
       "time",
       "inc",
       "t2",

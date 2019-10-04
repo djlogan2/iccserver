@@ -11,6 +11,12 @@ if (Meteor.isAppTest) {
   }
 }
 
+if (Meteor.isAppTest || Meteor.isTest) {
+  if (Meteor.isServer) {
+    require("./unit/server/encryptTests");
+  }
+}
+
 describe("icc", function() {
   it("package.json has correct name", async function() {
     const { name } = await import("../package.json");

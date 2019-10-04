@@ -69,12 +69,17 @@ export default class MainPage extends Component {
           startgame: false
         });
       }
-      if (prevProps.gameClock!=null && prevProps.gameClock !== this.props.gameClock) {
-        
+      if (
+        prevProps.gameClock != null &&
+        prevProps.gameClock !== this.props.gameClock
+      ) {
         console.log(this.props.gameClock);
-        
+
         /*{millis: 285995, color: "w", startclock: false}*/
-        if (this.props.gameClock.color === "w" &&  this.props.gameClock.startclock===true) {
+        if (
+          this.props.gameClock.color === "w" &&
+          this.props.gameClock.startclock === true
+        ) {
           this.Main.MiddleSection.BlackPlayer.IsActive = false;
           this.Main.MiddleSection.WhitePlayer.IsActive = true;
           this.Main.MiddleSection.WhitePlayer.Timer = this.props.gameClock.millis;
@@ -82,11 +87,8 @@ export default class MainPage extends Component {
           this.Main.MiddleSection.WhitePlayer.IsActive = false;
           this.Main.MiddleSection.BlackPlayer.IsActive = true;
           this.Main.MiddleSection.BlackPlayer.Timer = this.props.gameClock.millis;
-     
         }
-      
       }
-      
     }
   }
 
@@ -258,7 +260,7 @@ export default class MainPage extends Component {
   render() {
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-   
+
     let informativePopup = null;
     let actionPopup = null;
     let position = {};
@@ -398,7 +400,7 @@ export default class MainPage extends Component {
     } else {
       buttonStyle = "toggleOpen";
     }
-   // log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
+    log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;

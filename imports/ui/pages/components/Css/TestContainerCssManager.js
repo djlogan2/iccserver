@@ -29,17 +29,16 @@ export default class CssManager {
       Object.assign(style, this._boardStyle.square.all);
     Object.assign(style, this._boardStyle.square[squareColor]);
 
-
     return style;
   }
-  imagePeice(piece, color){
+  imagePeice(piece, color) {
     var style;
-    if (piece!=undefined && color!=undefined) {
-        style = this._boardStyle.pieces[color][piece];
-      }
-     return style;
+    if (piece != undefined && color != undefined) {
+      style = this._boardStyle.pieces[color][piece];
+    }
+    return style;
   }
-  imagePiecesize(side){
+  imagePiecesize(side) {
     var style = { width: side, height: side };
     return style;
   }
@@ -213,7 +212,7 @@ export default class CssManager {
    * @param color Color of the square
    */
   externalFileStyle(side) {
-    const style = { width: side, height: side/5 };
+    const style = { width: side, height: side / 5 };
 
     if (this._boardStyle.external_file.all)
       Object.assign(style, this._boardStyle.external_file.all);
@@ -221,7 +220,7 @@ export default class CssManager {
     return style;
   }
   externalRankStyle(side) {
-    const style = { width: side/5, height: side };
+    const style = { width: side / 5, height: side };
 
     if (this._boardStyle.external_rank.all)
       Object.assign(style, this._boardStyle.external_rank.all);
@@ -463,19 +462,29 @@ const developmentcss = [
     },
     pieces: {
       w: {
-        r:"https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
-        b:"https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg",
-        n: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
-        q:"https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
-        k:"https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
-        p:"https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg"
+        r:
+          "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
+        b:
+          "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg",
+        n:
+          "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
+        q:
+          "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
+        k:
+          "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
+        p: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg"
       },
       b: {
-        r:"https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
-        b: "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg",
-        n: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
-        q: "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
-        k: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
+        r:
+          "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
+        b:
+          "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg",
+        n:
+          "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
+        q:
+          "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
+        k:
+          "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
         p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg"
       }
     },

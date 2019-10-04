@@ -50,20 +50,20 @@ const systemcss = {
     float: "left"
   },
   outerPopupMainPage: {
-    width:"400px",
-      height:"auto",
-      margin:"auto",
-      borderRadius:"5px",
-      background:"#b7bdc5",
-      position:"fixed",
-      zIndex:"99",
-      left:"0",
-      right:"25%",
-      margin:"0 auto",
-      top:"27%",
-      padding:"20px",
-      textAlign:"center",
-      border: "5px solid"
+    width: "400px",
+    height: "auto",
+    margin: "auto",
+    borderRadius: "5px",
+    background: "#b7bdc5",
+    position: "fixed",
+    zIndex: "99",
+    left: "0",
+    right: "25%",
+    margin: "0 auto",
+    top: "27%",
+    padding: "20px",
+    textAlign: "center",
+    border: "5px solid"
   },
   innerPopupMainPage: {
     backgroundColor: "#1565c0",
@@ -76,7 +76,6 @@ const systemcss = {
     fontSize: "12px",
     borderRadius: "5px",
     margin: "0px 6px 0 0"
-    
   },
   buttonBackgroundImage: {
     takeBack: "images/take-forward-icon.png",
@@ -183,7 +182,7 @@ const systemcss = {
       zIndex: "999",
       display: "flex",
       flexWrap: "nowrap",
-      position:"absolute",
+      position: "absolute",
       alignItems: "center"
     }
   },
@@ -203,7 +202,7 @@ const systemcss = {
   tab: {
     all: {
       height: "100%",
-      position:"relative"
+      position: "relative"
     }
   },
   tabList: {
@@ -523,16 +522,13 @@ const usercss = {
       backgroundSize: "100%",
       backgroundPosition: "center",
       borderRadius: "3px",
-      color:"#fff"
+      color: "#fff"
     },
     w: {
       backgroundColor: "none"
-    
     },
     b: {
       backgroundColor: "none"
-      
-     
     }
   },
   fallendpieces: {

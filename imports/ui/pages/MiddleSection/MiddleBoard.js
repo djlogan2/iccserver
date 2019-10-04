@@ -51,10 +51,15 @@ export default class MiddleBoard extends Component {
     if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
     }
-    if (prevProps.MiddleBoardData.WhitePlayer !== this.props.MiddleBoardData.WhitePlayer) {
-      console.log(this.props.MiddleBoardData.WhitePlayer.Timer,this.props.MiddleBoardData.WhitePlayer.IsActive);
+    if (
+      prevProps.MiddleBoardData.WhitePlayer !==
+      this.props.MiddleBoardData.WhitePlayer
+    ) {
+      console.log(
+        this.props.MiddleBoardData.WhitePlayer.Timer,
+        this.props.MiddleBoardData.WhitePlayer.IsActive
+      );
     }
-    
   }
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";

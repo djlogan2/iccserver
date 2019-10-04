@@ -32,9 +32,7 @@ describe("Client integration 1", function() {
     createUser("ci1")
       .the(createUser("ci2"))
       .then(login("ci1"))
-      .then(() => {
-
-      });
+      .then(() => {});
     assert.fail("yep, fail");
   });
 });

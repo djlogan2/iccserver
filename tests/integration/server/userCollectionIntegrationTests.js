@@ -10,13 +10,14 @@ import "../../../imports/startup/server/firstRunUsers";
 //
 // TODO: Check guest roles
 // TODO: Check standard member roles
+// TODO: Hunt down the user types and figure out what to do about those
 // TODO: Create an admin user, and they should be able to see more fields
 // TODO: Add user collection table and add and look at notes
 // TODO: Add meteor methods to add and remove users from roles
 //      TODO: The method should fail if the calling user isn't in the appropriate role
 //      TODO: The method should success if the calling user IS in the appropriate role
 //
-// TODO: Create a collection for online legacy users
+// TODO: Create a collection for online legacy users and do that instead of realtime
 // TODO: See if we can prevent creating a user, and prevent logging on, from an IP (i.e. IP range)
 //
 const logged_on_user_fields = {
@@ -139,8 +140,8 @@ function createUser(username, login) {
 //}
 
 describe("Users", function() {
-  beforeEach(function() {
-    resetDatabase();
+  beforeEach(function(done) {
+    resetDatabase(null, done);
   });
 
   it("should have all fields", function() {
@@ -153,9 +154,9 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the entire user record in the userData subscription", function(done) {
+    createUser("user1");
     createUser("user2");
-    createUser("user3");
-    const user1 = Meteor.users.findOne({ username: "user2" });
+    const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
@@ -167,14 +168,14 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
-    createUser("user4", true);
-    createUser("user5", true);
-    const user1 = Meteor.users.findOne({ username: "user4" });
+    createUser("user1", true);
+    createUser("user2", true);
+    const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("loggedOnUsers", collections => {
-      const user2 = collections.users.filter(u => u.username === "user5");
+      const user2 = collections.users.filter(u => u.username === "user2");
       chai.assert.equal(user2.length, 1);
       const msg = compare(logged_on_user_fields, user2[0]);
       done(msg);
@@ -182,18 +183,18 @@ describe("Users", function() {
   });
 
   it("should only get logged on users with the loggedOnUsers subscription", function(done) {
-    createUser("user6");
-    createUser("user7", true);
-    createUser("user8");
-    createUser("user9", true);
-    const user1 = Meteor.users.findOne({ username: "user6" });
+    createUser("user1");
+    createUser("user2", true);
+    createUser("user3");
+    createUser("user4", true);
+    const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("loggedOnUsers", collections => {
       chai.assert.equal(collections.users.length, 2);
       chai.assert.sameMembers(
-        ["user7", "user9"],
+        ["user2", "user4"],
         collections.users.map(u => u.username)
       );
       done();

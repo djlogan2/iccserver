@@ -10,9 +10,7 @@ import Square from "./Square";
 export default class RankSquare extends Square {
   render() {
     return (
-      <div
-        style={this.props.cssmanager.externalRankStyle(this.props.side)}
-      >
+      <div style={this.props.cssmanager.externalRankStyle(this.props.side)}>
         {this._raf.charAt(1)}
       </div>
     );

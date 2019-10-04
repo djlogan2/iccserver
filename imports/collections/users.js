@@ -27,11 +27,11 @@ Meteor.publish("userData", function() {
   const self = this;
 
   this.onStop(function() {
-   // log.debug("User left");
+    log.debug("User left");
     LegacyUser.logout(self.userId);
   });
 
-  //log.debug("User has arrived");
+  log.debug("User has arrived");
   return Meteor.users.find(
     { _id: this.userId },
     { fields: fields_viewable_by_account_owner }

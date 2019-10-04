@@ -84,7 +84,7 @@ export default class CssManager {
     }
     return style;
   }
-  
+
   imagePeice(piece, color) {
     var style;
     if (piece != undefined && color != undefined) {
@@ -253,17 +253,16 @@ export default class CssManager {
       return style;
     } else {
       var style = {};
-      
+
       if (tabActive) {
-        if(tabActive==="FEN/PGN") tabActive="PGN";
-      
+        if (tabActive === "FEN/PGN") tabActive = "PGN";
+
         Object.assign(style, this._systemStyle.tabListItem[tabActive]);
-     
       }
       Object.assign(style, this._systemStyle.tabListItem.all);
 
       if (hover) {
-        if(hover==="FEN/PGN") hover="PGN";
+        if (hover === "FEN/PGN") hover = "PGN";
         Object.assign(style, this._systemStyle.tabListItem[hover]);
       }
       if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
@@ -340,9 +339,9 @@ export default class CssManager {
    * @param which Position of the text
    * @param color Color of the square
    */
-  
+
   externalFileStyle(side) {
-    const style = { width: side, height: side/5 };
+    const style = { width: side, height: side / 5 };
 
     if (this._boardStyle.external_file.all)
       Object.assign(style, this._boardStyle.external_file.all);
@@ -350,7 +349,7 @@ export default class CssManager {
     return style;
   }
   externalRankStyle(side) {
-    const style = { width: side/5, height: side };
+    const style = { width: side / 5, height: side };
 
     if (this._boardStyle.external_rank.all)
       Object.assign(style, this._boardStyle.external_rank.all);
