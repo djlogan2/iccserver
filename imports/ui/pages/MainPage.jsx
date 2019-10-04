@@ -456,7 +456,6 @@ export default class MainPage extends Component {
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
               top={position.top}
-              legacyusers={this.props.legacyusers}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
@@ -467,7 +466,6 @@ export default class MainPage extends Component {
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
               ref="right_sidebar"
-              legacyusers={this.props.legacyusers}
             />
           </div>
         </div>

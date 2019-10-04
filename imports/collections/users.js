@@ -3,6 +3,7 @@ import { Accounts } from "meteor/accounts-base";
 import { LegacyUser } from "../../server/LegacyUser";
 import {
   fields_viewable_by_account_owner,
+  standard_member_roles,
   viewable_logged_on_user_fields
 } from "../server/userConstants";
 import { encrypt } from "../../lib/server/encrypt";
@@ -44,6 +45,7 @@ Accounts.onCreateUser(function(options, user) {
       firstname: options.profile.firstname || "?",
       lastname: options.profile.lastname || "?"
     };
+    user.rating = options.profile.rating || 2000;
 
     if (
       options.profile.legacy &&
@@ -55,11 +57,15 @@ Accounts.onCreateUser(function(options, user) {
         autologin: true
       };
   }
+
   user.settings = {
     autoaccept: true
   };
+
   user.loggedOn = false;
-  user.rating = user.rating || user.profile.rating || 2000;
+  user.rating = user.rating || 2000;
+  user.roles = { __global_roles__: standard_member_roles };
+
   return user;
 });
 

@@ -1,39 +1,28 @@
 import { Meteor } from "meteor/meteor";
+import { Mongo } from "meteor/mongo";
 import React from "react";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("CreateGameComponent_js");
+const legacyUsersC = new Mongo.Collection("legacyUsers");
 
 export default class CreateGameComponent extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.state = {
       error: null,
-      userList: null,
       trial: 0,
       subscription: {
-        loggedOnUsers: Meteor.subscribe("loggedOnUsers")
+        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
+        legacyUsers: Meteor.subscribe("legacyUsers")
       }
     };
   }
 
   componentWillUnmount() {
     this.state.subscription.loggedOnUsers.stop();
-  }
-
-  getRegisteredUsers() {
-    //  setTimeout(() => {
-    let users = Meteor.users
-      .find(
-        { _id: { $ne: Meteor.userId() }, "status.online": true },
-        { sort: { "profile.firstname": 1 } },
-        { username: 1 }
-      )
-      .fetch();
-    return users;
-
-    // }, 500);
+    this.state.subscription.legacyUsers.stop();
   }
 
   gameStart(user) {
@@ -45,11 +34,14 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
 
     if (Meteor.userId() == null) return;
 
-    //const _userdata = this.getRegisteredUsers();
-    //userdata = _userdata.map(user => user.username);
-    //userdata.push(legacyUserList);
-    //userdata.sort();
-    const userdata = this.props.legacyusers;
+    const localUsers = Meteor.users.find({}).fetch();
+    const legacyUsers = legacyUsersC.find({}).fetch();
+
+    const _userdata = localUsers.map(user => user.username);
+    const userdata = _userdata.concat(
+      legacyUsers.map(user => user.username + "(L)")
+    );
+    userdata.sort();
 
     return (
       <div className="play-tab-content">

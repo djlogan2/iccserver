@@ -3,11 +3,21 @@ import { RealTime } from "./RealTime";
 import { Logger } from "../lib/server/Logger";
 import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
+import { Mongo } from "meteor/mongo";
 import { startLocalOrLegacyGame } from "./Game";
 import net from "net";
 
 import * as L2 from "../lib/server/l2";
 import * as CN from "../lib/server/cn";
+
+const legacyUsers = new Mongo.Collection("legacyUsers");
+Meteor.startup(function() {
+  legacyUsers.remove({}); // Start off with a clean collection upon startup
+});
+
+Meteor.publish("legacyUsers", function() {
+  return legacyUsers.find();
+});
 
 let log = new Logger("server/LegacyUser_js");
 
@@ -347,10 +357,12 @@ class LegacyUserConnection {
           RealTime.game_moveOnBoard(self.user._id, p2[1]);
           break;
         case L2.PLAYER_ARRIVED_SIMPLE:
-          RealTime.user_logged_on(self.user._id, p2[0]);
+          //RealTime.user_logged_on(self.user._id, p2[0]);
+          legacyUsers.upsert({ username: p2[0] }, {$set: {username: p2[0]}});
           break;
         case L2.PLAYER_LEFT:
-          RealTime.user_logged_off(self.user._id, p2[0]);
+          //RealTime.user_logged_off(self.user._id, p2[0]);
+          legacyUsers.remove({ username: p2[0] });
           break;
         case L2.STARTED_OBSERVING:
           RealTime.game_start(
