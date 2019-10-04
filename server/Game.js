@@ -126,6 +126,69 @@ export function startLegacyGame(
     );
   our_legacy_user.sendRawData("match uiuxtest2 5 0 u w");
 }
+export function startLegacyMove(move, by) {
+  const our_legacy_user = LegacyUser.find(by);
+  if (!our_legacy_user)
+    throw new Meteor.error(
+      "Unable to find a legacy user object for " + us.name
+    );
+
+  our_legacy_user.sendRawData(move);
+}
+export function updateClock(legacy_id, color, seconds) {
+  //let seconds = ((ms % 60000) / 1000).toFixed(0);
+ // console.log("second is here", seconds);
+  const game = GameCollection.findOne({ legacy_game_id: parseInt(legacy_id) });
+  if (game !== undefined) {
+    if (color === "w") {
+      GameCollection.update(
+        { _id: game._id },
+        {
+          $set: { "clocks.white.time": seconds }
+        }
+      );
+    }
+    if (color === "b") {
+      GameCollection.update(
+        { _id: game._id },
+        {
+          $set: { "clocks.black.time": seconds }
+        }
+      );
+    }
+  }
+}
+export function addMoves(legacy_id, move) {
+  const game = GameCollection.findOne({ legacy_game_id: parseInt(legacy_id) });
+
+  //console.log("inside add moves legacy id: " + legacy_id + ", _id: " + game._id);
+  GameCollection.update(
+    { _id: game._id },
+    {
+      $push: { moves: move }
+    },
+    (error, result) => {
+      if (error) log.error(error.invalidKeys);
+      GameCollection.simpleSchema()
+        .namedContext()
+        .validationErrors();
+    }
+  );
+  GameCollection.update(
+    { _id: game._id },
+    {
+      $push: {
+        actions: { type: "move", value: move, actionBy: Meteor.userId() }
+      }
+    },
+    (error, result) => {
+      if (error) log.error(error.invalidKeys);
+      GameCollection.simpleSchema()
+        .namedContext()
+        .validationErrors();
+    }
+  );
+}
 
 export function startLocalGame(
   us,
@@ -195,6 +258,7 @@ export function startLocalOrLegacyGame(
 ) {
   let game = {
     date: new Date(),
+    legacy_game_id: legacy_game_id,
     //      status: them.settings.autoaccept ? "playing" : "pending",
     status: game_status || "pending",
     clocks: {
@@ -214,13 +278,12 @@ export function startLocalOrLegacyGame(
     moves: [],
     actions: []
   };
-  console.log("legacy_game_id", legacy_game_id);
 
   const gameExist = GameCollection.findOne({
     $and: [{ legacy_game_id: legacy_game_id }]
   });
 
-  if (!!legacy_game_id) game.legacy_game_id = legacy_game_id;
+  //if (!!legacy_game_id) game.legacy_game_id = legacy_game_id;
   if (gameExist === undefined) {
     GameCollection.insert(game, (error, result) => {
       if (error) log.error(error.invalidKeys);
@@ -625,11 +688,10 @@ Meteor.methods({
     throw new Meteor.Error("Unimplemented");
   },
 
-  "game.move"(game_id, move, addToLegacy) {
+  "game.move"(game_id, move) {
     // For Prarek: If you want to, just implement the mongo update here, and I'll put the rest in later.
     check(game_id, String);
     check(move, String);
-    check(addToLegacy, Boolean);
     let actionBy = Meteor.userId();
     //
     // Get chess.js item for game.
@@ -644,7 +706,10 @@ Meteor.methods({
     //      TODO: If chess.js says it's forced draw, do we update anything, or just wait for the user to figure it out?
     // If
     //
-    if (addToLegacy) {
+    startLegacyMove(move, actionBy);
+    /*
+    if(addToLegacy)
+    {
       const our_legacy_user = LegacyUser.find(actionBy);
       if (!our_legacy_user)
         throw new Meteor.error(
@@ -678,7 +743,7 @@ Meteor.methods({
         }
       );
     }
-    // throw new Meteor.Error("Unimplemented");
+    */
   },
 
   "game.takeback"(game_id, actionType) {

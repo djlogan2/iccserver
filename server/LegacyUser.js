@@ -3,8 +3,7 @@ import { RealTime } from "./RealTime";
 import { Logger } from "../lib/server/Logger";
 import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
-import { Mongo } from "meteor/mongo";
-import { startLocalOrLegacyGame } from "./Game";
+import { startLocalOrLegacyGame, addMoves, updateClock } from "./Game";
 import net from "net";
 
 import * as L2 from "../lib/server/l2";
@@ -377,6 +376,9 @@ class LegacyUserConnection {
         case L2.MSEC:
           // (gamenumber color msec running free_time_to_move min_move_time)
           // Mongo.update - Prerak
+          //console.log( "Lagaecy id"+p2[0]+" Color "+ p2[1].toLowerCase()+" seconds " + parseInt(p2[2]) );
+          updateClock(p2[0], p2[1].toLowerCase(), parseInt(p2[2]));
+
           RealTime.update_game_clock(
             self.user._id,
             p2[1].toLowerCase(),
@@ -399,6 +401,7 @@ class LegacyUserConnection {
           // Mongo.update - Prerak
           //     five optional fields,
           //     algebraic-move, smith-move, time, clock, and is-variation.
+          addMoves(p2[0], p2[1]);
           RealTime.game_moveOnBoard(self.user._id, p2[1]);
           break;
         case L2.PLAYER_ARRIVED:

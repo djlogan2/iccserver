@@ -225,7 +225,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
           board={this._board}
           move={this.state.move}
           capture={capture}
-          gameClock={this.state.gameClock}
           game={game}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
