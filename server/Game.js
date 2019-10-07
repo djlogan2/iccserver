@@ -130,14 +130,13 @@ export function startLegacyMove(move, by) {
   const our_legacy_user = LegacyUser.find(by);
   if (!our_legacy_user)
     throw new Meteor.error(
-      "Unable to find a legacy user object for " + us.name
+      "Unable to find a legacy user object for " + by.name
     );
 
   our_legacy_user.sendRawData(move);
 }
-export function updateClock(legacy_id, color, seconds) {
-  //let seconds = ((ms % 60000) / 1000).toFixed(0);
- // console.log("second is here", seconds);
+export function updateClock(legacy_id, color, miliseconds) {
+  let seconds = (miliseconds / 1000).toFixed(0);
   const game = GameCollection.findOne({ legacy_game_id: parseInt(legacy_id) });
   if (game !== undefined) {
     if (color === "w") {
@@ -160,8 +159,6 @@ export function updateClock(legacy_id, color, seconds) {
 }
 export function addMoves(legacy_id, move) {
   const game = GameCollection.findOne({ legacy_game_id: parseInt(legacy_id) });
-
-  //console.log("inside add moves legacy id: " + legacy_id + ", _id: " + game._id);
   GameCollection.update(
     { _id: game._id },
     {
@@ -292,7 +289,7 @@ export function startLocalOrLegacyGame(
         .validationErrors();
     });
   } else {
-    console.log("game Exist");
+    log.debug("game Exist");
   }
 
   /*
@@ -585,7 +582,7 @@ Meteor.methods({
   },
 
   "game.decline"(game_id, type) {
-    console.log(type);
+    log.debug(type);
     // type: "draw", "abort", "adjourn", "somebodys-name", or none, and we figure it out
     check(type, String);
     check(game_id, String);

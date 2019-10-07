@@ -2,7 +2,9 @@
 import React from "react";
 import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
+import { Logger } from "../../../../../lib/server/Logger";
 
+let log = new Logger("Board/PieceSquare_js");
 /**
  * @param props React properties
  * @param props.rank The rank of the square being drawn
@@ -93,7 +95,7 @@ export default class PieceSquare extends Square {
     });
   };
   dragStartImage = event => {
-    console.log(event);
+    log.debug(event);
   };
   render() {
     //

@@ -31,13 +31,13 @@ function send(userId, type, message) {
 
 Meteor.publish("realtime_messages", function() {
   const self = this;
-  log.debug("publishing realtime_messages");
+  //log.debug("publishing realtime_messages");
   realtime_publish_map[this.userId] = {
     publish: self,
     prm_id: 0
   };
   this.onStop(function() {
-    log.debug("ending publication realtime_messages");
+    //log.debug("ending publication realtime_messages");
     delete realtime_publish_map[self.userId];
   });
 });

@@ -24,6 +24,11 @@ export default class BlackPlayerClock extends Component {
       clearInterval(this.intervalId);
     }
   }
+  componentWillReceiveProps() {
+    this.setState({
+      time: this.props.ClockData1.Timer
+    });
+  }
 
   render() {
     const { time } = this.state;

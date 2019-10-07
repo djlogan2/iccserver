@@ -17,7 +17,8 @@ export default class CssManager {
    * @param side The number of pixels on the side of a square
    */
   parentPopup(height, width) {
-    var style = { width: width, height: height };
+    //var style = { width: width, height: height };
+    var style = { height: height };
     Object.assign(style, this._systemStyle.parentDivPopupMainPage);
     return style;
   }

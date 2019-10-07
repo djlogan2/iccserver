@@ -7,7 +7,7 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
 import realtime_messages from "../../client/realtime";
-import {Tracker} from "meteor/tracker";
+import { Tracker } from "meteor/tracker";
 
 const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
@@ -61,7 +61,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   renderGameMessages() {
     const game = Game.find({}, { sort: { startTime: -1 } }).fetch();
-    log.debug("Game Collection  find", game);
+    //log.debug("Game Collection  find", game);
     return game[0];
   }
 
@@ -181,17 +181,17 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _boardFromMongoMessages(game) {
     this._board = new Chess.Chess();
     let moves = game.moves;
-    let actions = game.actions;
+    let clocks = game.clocks;
     if (moves !== undefined) {
       // this._board.clear();
       for (let i = 0; i < moves.length; i++) {
         this._board.move(moves[i]);
       }
     }
-    /*  if (actions != undefined && actions.length != null && actions.length > 0) {
-      let action = actions[actions.length - 1];
-     
-    } */
+    if (clocks !== undefined) {
+      game.clocks.white = clocks.white;
+      game.clocks.black = clocks.black;
+    }
   }
 
   render() {
@@ -209,7 +209,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (game !== undefined) {
-      //  console.log("game display here ",game);
       this._boardFromMongoMessages(game);
     }
 

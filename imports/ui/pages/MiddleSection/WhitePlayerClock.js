@@ -23,9 +23,13 @@ export default class WhitePlayerClock extends Component {
       clearInterval(this.intervalId);
     }
   }
+  componentWillReceiveProps() {
+    this.setState({
+      time: this.props.ClockData2.Timer
+    });
+  }
   render() {
     const { time } = this.state;
-
     let minutes =
       "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);
