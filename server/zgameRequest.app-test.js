@@ -62,4 +62,7 @@ describe("Game Requests", function() {
       done();
     });
   });
+  it("should delete all existing game_request records for that user upon logoff", function(done) {
+    chai.assert.fail("do me");
+  });
 });

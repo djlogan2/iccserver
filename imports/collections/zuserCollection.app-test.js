@@ -247,4 +247,7 @@ describe("Users", function() {
       done();
     });
   });
+
+  it("should write a new users username to legacy.pending_username", function() {chai.assert.fail("do me");});
+  it("should convert pending_username to username only upon successful legacy logon", function() {chai.assert.fail("do me");});
 });
