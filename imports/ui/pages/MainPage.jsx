@@ -66,14 +66,7 @@ export default class MainPage extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.game !== undefined) {
       if (prevProps.game !== this.props.game) {
-        console.log(this.props.game.clocks.white.time);
       }
-      /* if(prevProps.game.clocks.white.time!=this.props.game.clocks.white.time){
-          console.log("white time changed", this.props.game.clocks.white.time);
-        }
-        if(prevProps.game.clocks.black.time!=this.props.game.clocks.black.time){
-          console.log("black time changed", this.props.game.clocks.black.time);
-        } */
     }
   }
 

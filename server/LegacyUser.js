@@ -309,7 +309,6 @@ class LegacyUserConnection {
   }
 
   sendRawData(data) {
-    console.log("data send from here", data);
     this.socket.write(";" + data + "\n");
 
     //this.socket.write(";xt uiuxtest1: " + data + "\n");
