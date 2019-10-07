@@ -63,13 +63,6 @@ export default class MainPage extends Component {
       });
   }
 
-  componentDidUpdate(prevProps) {
-    if (this.props.game !== undefined) {
-      if (prevProps.game !== this.props.game) {
-      }
-    }
-  }
-
   intializeBoard = () => {
     this.Main.MiddleSection.BlackPlayer.IsActive = false;
     this.Main.MiddleSection.WhitePlayer.IsActive = false;

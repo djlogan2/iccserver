@@ -2,7 +2,7 @@
 import React from "react";
 import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
-import { Logger } from "../../../../../lib/server/Logger";
+import { Logger } from "../../../../../lib/client/Logger";
 
 let log = new Logger("Board/PieceSquare_js");
 /**
