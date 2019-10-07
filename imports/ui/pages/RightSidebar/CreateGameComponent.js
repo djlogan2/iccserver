@@ -9,6 +9,7 @@ const legacyUsersC = new Mongo.Collection("legacyUsers");
 
 // TODO: What do we do when a user is logged on local AND legacy? They currently show up twice, as in localuser and legacyuser(L).
 //   I would assume we want to remove them from one of the lists...
+// TODO: Do users that are not logged on to legacy see legacy users? I think not, but at the moment, everyone will.
 export default class CreateGameComponent extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
