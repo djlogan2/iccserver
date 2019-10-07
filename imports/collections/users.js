@@ -9,6 +9,7 @@ import {
 import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
+import * as L2 from "../../lib/server/l2";
 
 let log = new Logger("server/users_js");
 
@@ -39,13 +40,40 @@ Meteor.publish("userData", function() {
   );
 });
 
+const startingRatingObject = {
+  rating: 1600,
+  need: 0,
+  won: 0,
+  draw: 0,
+  lost: 0,
+  best: 0
+};
+
 Accounts.onCreateUser(function(options, user) {
   if (options.profile) {
     user.profile = {
       firstname: options.profile.firstname || "?",
       lastname: options.profile.lastname || "?"
     };
-    user.rating = options.profile.rating || 2000;
+
+    // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
+    user.ratings = {
+      //rating [need] win  loss  draw total   best
+      bullet: startingRatingObject,
+      blitz: startingRatingObject,
+      standard: startingRatingObject,
+      wild: startingRatingObject,
+      bughouse: startingRatingObject,
+      losers: startingRatingObject,
+      crazyhouse: startingRatingObject,
+      fiveminute: startingRatingObject,
+      oneminute: startingRatingObject,
+      correspondence: startingRatingObject,
+      fifteenminute: startingRatingObject,
+      threeminute: startingRatingObject,
+      computerpool: startingRatingObject,
+      chess960: startingRatingObject
+    };
 
     if (
       options.profile.legacy &&
@@ -63,7 +91,6 @@ Accounts.onCreateUser(function(options, user) {
   };
 
   user.loggedOn = false;
-  user.rating = user.rating || 2000;
   user.roles = { __global_roles__: standard_member_roles };
 
   return user;

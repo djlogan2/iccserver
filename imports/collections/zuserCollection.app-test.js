@@ -4,8 +4,8 @@ import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 
-import "../../../imports/collections/users";
-import "../../../imports/startup/server/firstRunUsers";
+import "./users";
+import "../startup/server/firstRunUsers";
 
 //
 // TODO: Check guest roles
@@ -23,7 +23,22 @@ import "../../../imports/startup/server/firstRunUsers";
 const logged_on_user_fields = {
   _id: 1,
   username: 1,
-  rating: 1
+  ratings: {
+    bullet: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    blitz: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    standard: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    wild: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    bughouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    losers: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    crazyhouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    fiveminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    oneminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    correspondence: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    fifteenminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    threeminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    computerpool: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    chess960: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
+  }
 };
 
 const our_allowed_user_fields = {
@@ -31,7 +46,22 @@ const our_allowed_user_fields = {
   createdAt: 1,
   username: 1,
   emails: 1,
-  rating: 1,
+  ratings: {
+    bullet: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    blitz: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    standard: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    wild: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    bughouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    losers: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    crazyhouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    fiveminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    oneminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    correspondence: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    fifteenminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    threeminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    computerpool: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    chess960: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
+  },
   profile: {
     firstname: 1,
     lastname: 1,
@@ -53,7 +83,22 @@ const all_fields = {
       bcrypt: 1
     }
   },
-  rating: 1,
+  ratings: {
+    bullet: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    blitz: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    standard: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    wild: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    bughouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    losers: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    crazyhouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    fiveminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    oneminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    correspondence: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    fifteenminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    threeminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    computerpool: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
+    chess960: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
+  },
   profile: {
     firstname: 1,
     lastname: 1,
@@ -65,12 +110,14 @@ const all_fields = {
   },
   settings: {
     autoaccept: 1
-  }
+  },
+  roles: { __global_roles__: 1 }
 };
 
 function isObject(obj) {
   if (!(obj instanceof Object)) return false;
   if (obj instanceof Date) return false;
+  // noinspection RedundantIfStatementJS
   if (obj instanceof Array) return false;
   return true;
 }
