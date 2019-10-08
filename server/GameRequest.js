@@ -192,17 +192,8 @@ export function addLocalGameRequest(
 
 export function removeLegacyMatchRequest(
   challenger_name,
-  receiver_name,
-  explanation_string
+  receiver_name
 ) {
-  log.debug(
-    "Legacy match removed between " +
-      challenger_name +
-      " and " +
-      receiver_name +
-      ": " +
-      explanation_string
-  );
   GameRequestCollection.remove({
     $and: [
       { challenger_name: challenger_name },

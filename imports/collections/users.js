@@ -28,13 +28,16 @@ Meteor.publish("loggedOnUsers", function() {
 //       In the L2.WHO_AM_I, if we have a pending, we change it to just username.
 
 Meteor.publish("userData", function() {
-  if (!this.userId) return Meteor.users.find({ _id: null });
+  if (!this.userId) return [];
 
   const self = this;
 
   this.onStop(function() {
-    log.debug("User left");
+    log.debug("User left: " + self.userId);
     LegacyUser.logout(self.userId);
+
+    Meteor.users.update({ _id: self.userId }, { $set: { loggedOn: false } });
+    runLogoutHooks(this, self.userId);
   });
 
   log.debug("User has arrived");
@@ -123,10 +126,17 @@ Accounts.onLogin(function(user_parameter) {
   }
 });
 
-Accounts.onLogout(function(user_parameter) {
-  const user = user_parameter.user;
-  Meteor.users.update({ _id: user._id }, { $set: { loggedOn: false } });
-});
+const logoutHooks = [];
+
+export function addLogoutHook(f) {
+  Meteor.startup(function() {
+    logoutHooks.push(f);
+  });
+}
+
+function runLogoutHooks(context, user) {
+  logoutHooks.forEach(f => f.call(context, user));
+}
 
 Accounts.validateLoginAttempt(function(params) {
   // params.type = service name

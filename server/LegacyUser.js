@@ -6,6 +6,7 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { startLocalOrLegacyGame, addMoves, updateClock } from "./Game";
 import { addLegacyGameRequest, removeLegacyMatchRequest } from "./GameRequest";
+import { sendMessageToClient } from "../imports/collections/clientMessages";
 import net from "net";
 
 import * as L2 from "../lib/server/l2";
@@ -400,6 +401,7 @@ class LegacyUserConnection {
           break;
         case L2.MATCH_REMOVED:
           //challenger-name receiver-name ^Y{Explanation string^Y}
+          sendMessageToClient(Meteor.userId(), p2[2]);
           removeLegacyMatchRequest.apply(null, p2);
           break;
         case L2.MUGSHOT:
