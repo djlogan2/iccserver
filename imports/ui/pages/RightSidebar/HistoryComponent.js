@@ -9,10 +9,7 @@ Now this display html code so we created functional component this component wil
 const History = () => (
   <div>
     <h3>History</h3>
-    <p>
-      orem ipsum dolor sit amet, consectetur adipisicing elit. Eius quos aliquam
-      consequuntur, esse provident impedit minima porro!
-    </p>
+    <p> </p>
   </div>
 );
 export default History;

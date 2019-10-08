@@ -10,10 +10,7 @@ export default class Friends extends Component {
     return (
       <div>
         <h3>Friends</h3>
-        <p>
-          Lorem ipsum dolor sit amet, conssectetur adipisicing elit. Eius quos
-          aliquam consequuntur, esse provident impedit minima porro!
-        </p>
+        <p> </p>
       </div>
     );
   }

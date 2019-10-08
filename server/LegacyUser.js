@@ -448,11 +448,11 @@ class LegacyUserConnection {
         case L2.MY_GAME_STARTED:
           const white = {
             username: p2[1],
-            rating: 0
+            rating: p2[12]
           };
           const black = {
             username: p2[2],
-            rating: 0
+            rating: p2[13]
           };
 
           if (self.user.profile.legacy.username === p2[1]) {

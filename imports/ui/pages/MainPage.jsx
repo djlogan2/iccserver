@@ -138,7 +138,7 @@ export default class MainPage extends Component {
     return true;
   }
   _performAction = (actionType, action) => {
-    alert(action);
+    //alert(action);
     switch (action) {
       case "takeBack":
         this.tackBack(actionType);
@@ -254,7 +254,9 @@ export default class MainPage extends Component {
         this.intializeBoard();
       } else if (game.status === "started") {
         this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
+        this.Main.MiddleSection.BlackPlayer.Rating = game.black.rating;
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
+        this.Main.MiddleSection.WhitePlayer.Rating = game.white.rating;
         this.Main.MiddleSection.BlackPlayer.Timer = game.clocks.black.time;
         this.Main.MiddleSection.WhitePlayer.Timer = game.clocks.white.time;
         if (gameTurn === "w") {

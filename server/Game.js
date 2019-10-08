@@ -661,6 +661,14 @@ Meteor.methods({
     //   if (!checkDrawAbort(name, "draw", "1/2-1/2"))
     //     throw new Meteor.error("Unimplemented");
     let actionBy = Meteor.userId();
+
+    const our_legacy_user = LegacyUser.find(actionBy);
+    if (!our_legacy_user)
+      throw new Meteor.error(
+        "Unable to find a legacy user object for " + actionBy.name
+      );
+
+    our_legacy_user.sendRawData("Game is resigned by " + actionBy);
     GameCollection.update(
       { _id: game_id },
       {
