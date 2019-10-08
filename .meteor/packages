@@ -30,3 +30,5 @@ aldeed:collection2@3.0.0
 meteortesting:mocha
 johanbrook:publication-collector
 xolvio:cleaner
+hwillson:stub-collections
+lmieulet:meteor-coverage

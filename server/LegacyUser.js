@@ -3,7 +3,10 @@ import { RealTime } from "./RealTime";
 import { Logger } from "../lib/server/Logger";
 import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
+import { Mongo } from "meteor/mongo";
 import { startLocalOrLegacyGame, addMoves, updateClock } from "./Game";
+import { addLegacyGameRequest, removeLegacyMatchRequest } from "./GameRequest";
+import { sendMessageToClient } from "../imports/collections/clientMessages";
 import net from "net";
 
 import * as L2 from "../lib/server/l2";
@@ -79,7 +82,9 @@ const USER_LEVEL2_PACKETS = [
   L2.THREEMINUTE,
   L2.FORTYFIVEMINUTE,
   L2.CHESS960,
-  L2.PLAYER_LEFT
+  L2.PLAYER_LEFT,
+  L2.MUGSHOT,
+  L2.MATCH
 ];
 
 const legacy_ratings_on_login = {};
@@ -146,11 +151,14 @@ class LegacyUserConnection {
 
     self.socket.setEncoding("utf8");
 
-    setTimeout(function() {
-      //TODO: What do we do here?
-      //  console.log("server/legacyuser: why are we here");
-      //  log.error("server/legacyuser: why are we here");
-    });
+    setTimeout(
+      Meteor.bindEnvironment(function() {
+        //TODO: What do we do here?
+        // eslint-disable-next-line no-console
+        console.log("server/legacyuser: why are we here");
+        log.error("server/legacyuser: why are we here");
+      })
+    );
 
     self.socket.on(
       "data",
@@ -371,6 +379,35 @@ class LegacyUserConnection {
           self.socket.write(";messages\n");
           self.socket.write(";finger\n");
           //self.socket.write(";fol *\n");
+          const user = Meteor.user();
+          //
+          // Fix the case on our username if everything is kosher except for the case
+          if (
+            !!user &&
+            !!user.profile &&
+            !!user.profile.legacy &&
+            p2[0] !== user.profile.legacy.username &&
+            p2[0].toLocaleLowerCase() ===
+              user.profile.legacy.username.toLocaleLowerCase()
+          ) {
+            Meteor.users.update(
+              { _id: Meteor.userId() },
+              { $set: { "profile.legacy.username": p2[0] } }
+            );
+          }
+          break;
+        case L2.MATCH:
+          addLegacyGameRequest.apply(null, p2);
+          break;
+        case L2.MATCH_REMOVED:
+          //challenger-name receiver-name ^Y{Explanation string^Y}
+          sendMessageToClient(Meteor.userId(), p2[2]);
+          removeLegacyMatchRequest.apply(null, p2);
+          break;
+        case L2.MUGSHOT:
+          // (Player URL gamenumber)
+          if (p2[0] === "W" || p2[0] === "B") return;
+          legacyUsers.update({ username: p2[0] }, { $set: { mugshot: p2[1] } });
           break;
         case L2.MSEC:
           // (gamenumber color msec running free_time_to_move min_move_time)
@@ -401,7 +438,7 @@ class LegacyUserConnection {
           //     five optional fields,
           //     algebraic-move, smith-move, time, clock, and is-variation.
           addMoves(p2[0], p2[1]);
-          RealTime.game_moveOnBoard(self.user._id, p2[1]);
+          //RealTime.game_moveOnBoard(self.user._id, p2[1]);
           break;
         case L2.PLAYER_ARRIVED:
           //RealTime.user_logged_on(self.user._id, p2[0]);
@@ -446,6 +483,8 @@ class LegacyUserConnection {
           //     // uses-plunkers fancy-timecontrol promote-to-king)
           break;
         case L2.MY_GAME_STARTED:
+          // TODO: So, I'm discovering that some of these I'm adjusting here in the case, and some I'm just calling whatever.apply with the array, and doing the work there. Pick one and stick with it.
+          // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
           const white = {
             username: p2[1],
             rating: p2[12]
@@ -477,7 +516,6 @@ class LegacyUserConnection {
           );
           break;
         case L2.MY_GAME_CHANGE:
-          console.log("MY GAME CHANGED", p2);
           // Mongo.update - Prerak
           break;
         case L2.MY_GAME_ENDED:
@@ -487,8 +525,8 @@ class LegacyUserConnection {
           // Mongo.update - Prerak
           break;
         case L2.MOVE_LIST:
-          const game_id = p2.shift();
-          const asterisk = p2.shift();
+          //const game_id = p2.shift();
+          //const asterisk = p2.shift();
           // p2 are all moves from here on
           p2.forEach(move => {
             let mm = move.split(" ");
