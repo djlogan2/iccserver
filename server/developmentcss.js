@@ -52,7 +52,6 @@ const systemcss = {
   outerPopupMainPage: {
     width: "400px",
     height: "auto",
-    margin: "auto",
     borderRadius: "5px",
     background: "#b7bdc5",
     position: "fixed",
@@ -139,9 +138,13 @@ const systemcss = {
       zIndex: "99"
     },
     middleBoard: {
+      flex: "0",
       textAlign: "center",
-      float: "right",
-      margin: "10px 5px 0 0"
+      right: "0px",
+      margin: "10px 5px 0px 0px",
+      position: "absolute",
+      top: "0px",
+      zIndex: "99"
     }
   },
   chatContent: {
