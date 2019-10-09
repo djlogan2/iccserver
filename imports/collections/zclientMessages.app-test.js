@@ -3,7 +3,7 @@ import chai from "chai";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
-import { sendMessageToClient } from "./clientMessages";
+import clientMessages, { sendMessageToClient } from "./clientMessages";
 
 function createUser(username, login) {
   Accounts.createUser({
@@ -34,11 +34,10 @@ describe("Client Messages", function() {
   });
 
   it("should not save a message for a user if they are logged off", function() {
-    chai.assert.fail("do me");
-  });
-
-  it("should save a message as unacknowldeged", function() {
-    chai.assert.fail("do me");
+    const user1 = createUser("user1", false);
+    sendMessageToClient(user1, "logged off user 1 message");
+    const rec = clientMessages.find({}).fetch();
+    chai.assert.equal(rec.length, 0);
   });
 
   it("should publish only unacknowledged messages to the client", function(done) {

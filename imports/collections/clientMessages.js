@@ -8,7 +8,7 @@ let log = new Logger("clientMessages_js");
 const clientMessages = new Mongo.Collection("client_messages");
 
 Meteor.publish("client_messages", function() {
-  return clientMessages.find({ to: this._userId });
+  return clientMessages.find({ to: this.userId });
 });
 
 Meteor.methods({
@@ -24,6 +24,8 @@ export default clientMessages;
 
 export function sendMessageToClient(user, message) {
   const id = typeof user === "object" ? user._id : user;
+  const touser = Meteor.users.findOne({_id: id, loggedOn: true });
+  if (!touser) return;
   clientMessages.insert({ to: id, message: message });
 }
 
