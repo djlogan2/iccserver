@@ -414,35 +414,18 @@ class LegacyUserConnection {
           // Mongo.update - Prerak
           //console.log( "Lagaecy id"+p2[0]+" Color "+ p2[1].toLowerCase()+" seconds " + parseInt(p2[2]) );
           updateClock(p2[0], p2[1].toLowerCase(), parseInt(p2[2]));
-/*
-          RealTime.update_game_clock(
-            self.user._id,
-            p2[1].toLowerCase(),
-            parseInt(p2[2]),
-            p2[3] === "1"
-          );
- */
           break;
         case L2.LOGIN_FAILED /* login_failed */:
-          RealTime.send_error(self.user._id, {
-            type: "login_failed",
-            packet: p
-          });
+          sendMessageToClient(self.user._id, "LOGIN_FAILED_" + p2[0]);
           break;
         case L2.MESSAGELIST_ITEM:
           //incomingMessage(parseInt(p2[1]), p2[2], p2[3], p2[4], p2[5]);
           // index, from, time, date, message
-          //RealTime.send(self.user._id, 'legacy_message', [parseInt(p2[0]), p2[1], p2[2], p2[3], p2[4]]);
           break;
         case L2.SEND_MOVES:
-          // Mongo.update - Prerak
-          //     five optional fields,
-          //     algebraic-move, smith-move, time, clock, and is-variation.
           addMoves(p2[0], p2[1]);
-          //RealTime.game_moveOnBoard(self.user._id, p2[1]);
           break;
         case L2.PLAYER_ARRIVED:
-          //RealTime.user_logged_on(self.user._id, p2[0]);
           let x = 0;
           const legacy_player = {
             username: p2[x++],
@@ -462,7 +445,6 @@ class LegacyUserConnection {
           legacyUsers.upsert({ username: p2[0] }, { $set: legacy_player });
           break;
         case L2.PLAYER_LEFT:
-          //RealTime.user_logged_off(self.user._id, p2[0]);
           legacyUsers.remove({ username: p2[0] });
           break;
         case L2.STARTED_OBSERVING:
@@ -532,10 +514,8 @@ class LegacyUserConnection {
           p2.forEach(move => {
             let mm = move.split(" ");
             addMoves(p2[0], mm[0]);
-            //RealTime.game_moveOnBoard(self.user._id, mm[0]);
           });
           //25 144 * {e4 e2e4 0 61}{e6 e7e6 0 61}{c3 c2c3 0 62}{d5 d7d5 1 61}{Bd3 f1d3 0 63}{Nf6 g8f6 1 62}{e5 e4e5 0 64}{Nfd7 f6d7 1 62}{Qh5 d1h5 0 65}{a6 a7a6 1 62}{b3 b2b3 0 66}{c5 c7c5 1 63}{f4 f2f4 0 66}{Nc6 b8c6 1 63}{Nf3 g1f3 0 67}{g6 g7g6 1 62}{Qg5 h5g5 0 68}{Be7 f8e7 1 62}{Qh6 g5h6 0 69}{Bf8 e7f8 1 63}{Qh3 h6h3 0 70}{Bg7 f8g7 1 63}{O-O e1g1c 0 71}{O-O e8g8c 1 63}{Ba3 c1a3 0 72}{b5 b7b5 1 63}{Ng5 f3g5 0 73}{h6 h7h6 1 62}{Nxe6 g5e6p 0 74}{fxe6 f7e6n 1 63}{Qxe6+ h3e6p 0 75}{Rf7 f8f7 2 62}{Qxc6 e6c6n 0 75}{Rb8 a8b8 4 59}{Bxg6 d3g6p 0 76}{Nf8 d7f8 5 55}{Bxf7+ g6f7r 0 77}{Kxf7 g8f7b 1 55}{Bxc5 a3c5p 0 78}{Bf5 c8f5 2 54}{Qxa6 c6a6p 0 79}{Ne6 f8e6 2 53}{Bd6 c5d6 0 80}{Qb6+ d8b6 3 51}{Qxb6 a6b6q 0 81}{Rxb6 b8b6q 1 51}{Na3 b1a3 0 82}{h5 h6h5 1 51}{Rf3 f1f3 0 83}{Bf8 g7f8 1 51}{Bxf8 d6f8b 0 84}{Kxf8 f7f8b 1 51}{d3 d2d3 0 84}{b4 b5b4 1 51}{cxb4 c3b4p 0 85}{Rxb4 b6b4p 1 51}{g3 g2g3 0 86}{Ke7 f8e7 5 47}{Rb1 a1b1 0 87}{Kd7 e7d7 1 47}{Nc2 a3c2 0 88}{Rb7 b4b7 1 46}{a3 a2a3 0 89}{Rc7 b7c7 1 46}{Nb4 c2b4 0 90}{d4 d5d4 2 45}{Nd5 b4d5 0 91}{Rc2 c7c2 1 45}{Nf6+ d5f6 0 91}{Kd8 d7d8 2 44}{Nxh5 f6h5p 0 92}{Bg4 f5g4 2 43}{Rf2 f3f2 0 93}{Rxf2 c2f2r 2 43}{Kxf2 g1f2r 0 94}{Bxh5 g4h5n 1 43}{b4 b3b4 0 95}{Bg6 h5g6 2 42}{Rb3 b1b3 0 96}{Bf5 g6f5 1 42}{h4 h2h4 0 97}{Bg4 f5g4 1 41}{a4 a3a4 0 98}{Kc7 d8c7 1 41}{Rb1 b3b1 0 99}{Kb6 c7b6 1 42}{Rb2 b1b2 0 100}{Nc7 e6c7 2 41}{Rb1 b2b1 0 100}{Nd5 c7d5 1 41}{Rb3 b1b3 0 101}{Nc3 d5c3 1 41}{Ra3 b3a3 0 102}{Bd7 g4d7 3 40}{a5+ a4a5 0 103}{Ka6 b6a6 1 40}{Ke1 f2e1 0 104}{Bg4 d7g4 1 39}{Rb3 a3b3 0 105}{Nb5 c3b5 1 39}{Kf2 e1f2 0 106}{Nc3 b5c3 5 35}{Ke1 f2e1 0 107}{Kb5 a6b5 1 35}{Kf2 e1f2 0 108}{Nd5 c3d5 1 35}{Rb2 b3b2 0 109}{Bf5 g4f5 5 32}{a6 a5a6 0 109}{Kxa6 b5a6p 1 31}{b5+ b4b5 0 110}{Kb6 a6b6 1 32}{Rd2 b2d2 0 111}{Bg4 f5g4 3 30}{Kg1 f2g1 0 112}{Nb4 d5b4 1 30}{Kh2 g1h2 0 113}{Kxb5 b6b5p 1 29}{h5 h4h5 0 114}{Bxh5 g4h5p 1 29}{f5 f4f5 0 115}{Bg4 h5g4 1 29}{f6 f5f6 0 116}{Be6 g4e6 1 29}{Kg1 h2g1 0 117}{Kc5 b5c5 1 29}{g4 g3g4 0 117}{Nd5 b4d5 2 28}{Rc2+ d2c2 0 118}{Kb6 c5b6 2 27}{Rb2+ c2b2 0 119}{Kc6 b6c6 1 27}{g5 g4g5 0 120}{Nf4 d5f4 1 27}{Kh2 g1h2 0 121}{Bf7 e6f7 4 24}{Rc2+ b2c2 0 122}{Kd7 c6d7 1 24}{Kg3 h2g3 1 122}{Ng6 f4g6 2 23}{Re2 c2e2 0 123}{Ke6 d7e6 1 23}{Kh2 g3h2 0 124}{Nxe5 g6e5p 2 22}{Kg3 h2g3 0 125}{Kf5 e6f5 1 23}{Re4 e2e4 0 126}{Nc6 e5c6 2 21}{Kh4 g3h4 0 127}"}
-          //RealTime.send(self.user._id, 'legacy_message', {type: 'move_list', moves: p2});
           break;
         // I20190106-22:35:53.595(-7)?                      =["25","144","*","e4 e2e4 0 61","e6 e7e6 0 61","c3 c2c3 0 62","d5 d7d5 1 61","Bd3 f1d3 0 63","Nf6 g8f6 1 62","e5 e4e5 0 64","Nfd7 f6d7 1 62","Qh5 d1h5 0 65","a6 a7a6 1 62","b3 b2b3 0 66","c5 c7c5 1 63","f4 f2f4 0 66","Nc6 b8c6 1 63","Nf3 g1f3 0 67","g6 g7g6 1 62","Qg5 h5g5 0 68","Be7 f8e7 1 62","Qh6 g5h6 0 69","Bf8 e7f8 1 63","Qh3 h6h3 0 70","Bg7 f8g7 1 63","O-O e1g1c 0 71","O-O e8g8c 1 63","Ba3 c1a3 0 72","b5 b7b5 1 63","Ng5 f3g5 0 73","h6 h7h6 1 62","Nxe6 g5e6p 0 74","fxe6 f7e6n 1 63","Qxe6+ h3e6p 0 75","Rf7 f8f7 2 62","Qxc6 e6c6n 0 75","Rb8 a8b8 4 59","Bxg6 d3g6p 0 76","Nf8 d7f8 5 55","Bxf7+ g6f7r 0 77","Kxf7 g8f7b 1 55","Bxc5 a3c5p 0 78","Bf5 c8f5 2 54","Qxa6 c6a6p 0 79","Ne6 f8e6 2 53","Bd6 c5d6 0 80","Qb6+ d8b6 3 51","Qxb6 a6b6q 0 81","Rxb6 b8b6q 1 51","Na3 b1a3 0 82","h5 h6h5 1 51","Rf3 f1f3 0 83","Bf8 g7f8 1 51","Bxf8 d6f8b 0 84","Kxf8 f7f8b 1 51","d3 d2d3 0 84","b4 b5b4 1 51","cxb4 c3b4p 0 85","Rxb4 b6b4p 1 51","g3 g2g3 0 86","Ke7 f8e7 5 47","Rb1 a1b1 0 87","Kd7 e7d7 1 47","Nc2 a3c2 0 88","Rb7 b4b7 1 46","a3 a2a3 0 89","Rc7 b7c7 1 46","Nb4 c2b4 0 90","d4 d5d4 2 45","Nd5 b4d5 0 91","Rc2 c7c2 1 45","Nf6+ d5f6 0 91","Kd8 d7d8 2 44","Nxh5 f6h5p 0 92","Bg4 f5g4 2 43","Rf2 f3f2 0 93","Rxf2 c2f2r 2 43","Kxf2 g1f2r 0 94","Bxh5 g4h5n 1 43","b4 b3b4 0 95","Bg6 h5g6 2 42","Rb3 b1b3 0 96","Bf5 g6f5 1 42","h4 h2h4 0 97","Bg4 f5g4 1 41","a4 a3a4 0 98","Kc7 d8c7 1 41","Rb1 b3b1 0 99","Kb6 c7b6 1 42","Rb2 b1b2 0 100","Nc7 e6c7 2 41","Rb1 b2b1 0 100","Nd5 c7d5 1 41","Rb3 b1b3 0 101","Nc3 d5c3 1 41","Ra3 b3a3 0 102","Bd7 g4d7 3 40","a5+ a4a5 0 103","Ka6 b6a6 1 40","Ke1 f2e1 0 104","Bg4 d7g4 1 39","Rb3 a3b3 0 105","Nb5 c3b5 1 39","Kf2 e1f2 0 106","Nc3 b5c3 5 35","Ke1 f2e1 0 107","Kb5 a6b5 1 35","Kf2 e1f2 0 108","Nd5 c3d5 1 35","Rb2 b3b2 0 109","Bf5 g4f5 5 32","a6 a5a6 0 109","Kxa6 b5a6p 1 31","b5+ b4b5 0 110","Kb6 a6b6 1 32","Rd2 b2d2 0 111","Bg4 f5g4 3 30","Kg1 f2g1 0 112","Nb4 d5b4 1 30","Kh2 g1h2 0 113","Kxb5 b6b5p 1 29","h5 h4h5 0 114","Bxh5 g4h5p 1 29","f5 f4f5 0 115","Bg4 h5g4 1 29","f6 f5f6 0 116","Be6 g4e6 1 29","Kg1 h2g1 0 117","Kc5 b5c5 1 29","g4 g3g4 0 117","Nd5 b4d5 2 28","Rc2+ d2c2 0 118","Kb6 c5b6 2 27","Rb2+ c2b2 0 119","Kc6 b6c6 1 27","g5 g4g5 0 120","Nf4 d5f4 1 27","Kh2 g1h2 0 121","Bf7 e6f7 4 24","Rc2+ b2c2 0 122","Kd7 c6d7 1 24","Kg3 h2g3 1 122","Ng6 f4g6 2 23","Re2 c2e2 0 123","Ke6 d7e6 1 23","Kh2 g3h2 0 124","Nxe5 g6e5p 2 22","Kg3 h2g3 0 125","Kf5 e6f5 1 23","Re4 e2e4 0 126","Nc6 e5c6 2 21","Kh4 g3h4 0 127"]
         case L2.TITLES:
@@ -578,17 +558,10 @@ class LegacyUserConnection {
           legacyUsers.upsert({ username: p2[0] }, { $set: set });
           break;
         default:
-          RealTime.send_error(self.user._id, {
-            type: "unknown_packet",
-            packet: p
-          });
-        //throw new Meteor.Error('Unhandled level 2 packet: ' + p);
+          log.error("Unknown packet: " + JSON.stringify(p));
+          break;
       }
     });
-  }
-
-  processError(error) {
-    RealTime.send(this.user._id, "error", error);
   }
 
   static parseLevel2(packet) {
