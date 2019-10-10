@@ -177,7 +177,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
         return true;
       }
-     
     }
   };
 
