@@ -4,7 +4,7 @@ import { Logger } from "../lib/server/Logger";
 import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-import { startLocalOrLegacyGame, addMoves, updateClock } from "./Game";
+import { Game } from "./Game";
 import { addLegacyGameRequest, removeLegacyMatchRequest } from "./GameRequest";
 import { sendMessageToClient } from "../imports/collections/clientMessages";
 import net from "net";
@@ -360,7 +360,22 @@ class LegacyUserConnection {
     }
   }
 
-  sendRawData(data) {
+  match(name, time, increment, time2, increment2, rated, wild, color) {
+    let matchString = "match " + name + " " + time;
+    if (increment) matchString += " " + increment;
+    if (time2) matchString += " " + time2;
+    if (increment2) matchString += " " + increment2;
+    matchString += rated ? " r" : " u";
+    if (typeof wild !== "undefined") matchString += " " + wild;
+    if (color) matchString += " " + color;
+    this._sendRawData(matchString + "\n");
+  }
+
+  move(move) {
+    this._sendRawData(move); // TODO: We should probably validate this as an actual move, or clients will be able to send whatever they damn well please with this!
+  }
+
+  _sendRawData(data) {
     this.socket.write(";" + data + "\n");
 
     //this.socket.write(";xt uiuxtest1: " + data + "\n");
@@ -413,7 +428,7 @@ class LegacyUserConnection {
           // (gamenumber color msec running free_time_to_move min_move_time)
           // Mongo.update - Prerak
           //console.log( "Lagaecy id"+p2[0]+" Color "+ p2[1].toLowerCase()+" seconds " + parseInt(p2[2]) );
-          updateClock(p2[0], p2[1].toLowerCase(), parseInt(p2[2]));
+          Game.updateClock(Meteor.user(), p2[0], p2[1].toLowerCase(), parseInt(p2[2]));
           break;
         case L2.LOGIN_FAILED /* login_failed */:
           sendMessageToClient(self.user._id, "LOGIN_FAILED_" + p2[0]);
@@ -423,7 +438,7 @@ class LegacyUserConnection {
           // index, from, time, date, message
           break;
         case L2.SEND_MOVES:
-          addMoves(p2[0], p2[1]);
+          Game.saveLegacyMove(Meteor.user(), p2[0], p2[1]);
           break;
         case L2.PLAYER_ARRIVED:
           let x = 0;
@@ -448,23 +463,6 @@ class LegacyUserConnection {
           legacyUsers.remove({ username: p2[0] });
           break;
         case L2.STARTED_OBSERVING:
-          RealTime.game_start(
-            self.user._id,
-            null,
-            p2[1],
-            parseInt(p2[12]),
-            p2[2],
-            parseInt(p2[13]),
-            null
-          );
-          //RealTime.send(self.user._id, 'legacy_message', {type: 'started_observing', moves: p2});
-          //["18","512","ilves","lsokol","0","5-minute","1","5","0","5","0","1","","2312","2478","1777434720","IM","IM","0","0","0","","0"]
-          //(gamenumber whitename blackname wild-number rating-type rated
-          //     // white-initial white-increment black-initial black-increment
-          //     // played-game {ex-string} white-rating black-rating game-id
-          //     // white-titles black-titles irregular-legality irregular-semantics
-          //     // uses-plunkers fancy-timecontrol promote-to-king)
-          break;
         case L2.MY_GAME_STARTED:
           // TODO: So, I'm discovering that some of these I'm adjusting here in the case, and some I'm just calling whatever.apply with the array, and doing the work there. Pick one and stick with it.
           // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
@@ -485,7 +483,7 @@ class LegacyUserConnection {
             throw new Meteor.Error(
               "Unable to figure out which player we are in this game"
             );
-          startLocalOrLegacyGame(
+          startLegacyGame(
             white,
             black,
             p2[6],
