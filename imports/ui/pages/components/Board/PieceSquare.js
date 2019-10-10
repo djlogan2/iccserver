@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 /* eslint-disable jsx-a11y/alt-text */
 import React from "react";
 import newid from "../../../../../lib/client/newid";
@@ -90,26 +89,24 @@ export default class PieceSquare extends Square {
     });
   };
   dragStop = event => {
-    this.props.onDrop({
+    let isMove = this.props.onDrop({
       rank: this.props.rank,
       file: this.props.file
     });
+
+    var theData = event.dataTransfer.getData("Text");
+    var theDraggedElement = document.getElementById(theData);
+    if (isMove) event.target.appendChild(theDraggedElement);
+    event.preventDefault();
   };
 
-/**Image drag and drop */
+  /**Image drag and drop */
 
   //function called when drag starts
   dragIt = theEvent => {
     theEvent.dataTransfer.setData("Text", theEvent.target.id);
   };
-  //function called when element drops
-  dropIt = theEvent => {
-    var theData = theEvent.dataTransfer.getData("Text");
-    var theDraggedElement = document.getElementById(theData);
-    theEvent.target.appendChild(theDraggedElement);
-    theEvent.preventDefault();
-  };
-  
+
   render() {
     //
     // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
@@ -141,10 +138,14 @@ export default class PieceSquare extends Square {
         onDragStart={this.dragStart}
         onDrop={this.dragStop}
       >
-        <div onDragOver={event => event.preventDefault()} style={squareStyle} onDrop={this.dropIt}>
+        <div
+          onDragOver={event => event.preventDefault()}
+          style={squareStyle}
+          onDrop={this.dragStop}
+        >
           <img
             draggable="true"
-            id={ this._pieceId}
+            id={this._pieceId}
             onDragStart={this.dragIt}
             src={peiceImage ? peiceImage : ""}
             style={{

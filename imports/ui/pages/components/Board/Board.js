@@ -262,11 +262,13 @@ export default class Board extends React.Component {
 
     let moveFrom = this.fileFrom + this.rankFrom;
     let moveTo = this.fileTo + this.rankTo;
-    this.props.onDrop({
+    let isMove = this.props.onDrop({
       from: moveFrom,
       to: moveTo,
       p: this.piece
     });
+    return isMove;
+    
   };
 
   _pieceSquareMouseUp = raf => {

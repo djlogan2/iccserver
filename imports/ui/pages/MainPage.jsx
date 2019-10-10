@@ -218,10 +218,11 @@ export default class MainPage extends Component {
   }
 
   _pieceSquareDragStop = raf => {
-    this.props.onDrop({
+    let isMove = this.props.onDrop({
       from: raf.from,
       to: raf.to
     });
+    return isMove;
   };
 
   _flipboard = () => {
