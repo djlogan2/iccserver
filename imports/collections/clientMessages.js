@@ -5,31 +5,31 @@ import { addLogoutHook } from "./users";
 import { Logger } from "../../lib/server/Logger";
 
 let log = new Logger("clientMessages_js");
-const clientMessages = new Mongo.Collection("client_messages");
+export const ClientMessagesCollection = new Mongo.Collection("client_messages");
 
 Meteor.publish("client_messages", function() {
-  return clientMessages.find({ to: this.userId });
+  return ClientMessagesCollection.find({ to: this.userId });
 });
 
 Meteor.methods({
   "acknowledge.client.message": function(id) {
-    const rec = clientMessages.findOne({ _id: id });
+    const rec = ClientMessagesCollection.findOne({ _id: id });
     if (!rec || !rec.count()) return; // TODO: Decide, should we throw an error?
     if (rec.to !== this.userId) return; // TODO: Decide, should we throw an error?
-    clientMessages.remove({ _id: id });
+    ClientMessagesCollection.remove({ _id: id });
   }
 });
 
-export default clientMessages;
+export default ClientMessagesCollection;
 
 export function sendMessageToClient(user, message) {
   const id = typeof user === "object" ? user._id : user;
   const touser = Meteor.users.findOne({_id: id, loggedOn: true });
   if (!touser) return;
-  clientMessages.insert({ to: id, message: message });
+  ClientMessagesCollection.insert({ to: id, message: message });
 }
 
 addLogoutHook(function(userId) {
   log.debug("runOnLogout: " + userId);
-  clientMessages.remove({ to: userId });
+  ClientMessagesCollection.remove({ to: userId });
 });

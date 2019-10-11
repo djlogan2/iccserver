@@ -187,7 +187,15 @@ export function addLocalGameRequest(
   if (!!challenger_user) record.challenger_id = challenger_user._id;
   if (!!receiver_user) record.receiver_id = receiver_user._id;
 
-  GameRequestCollection.insert(record);
+  return GameRequestCollection.insert(record);
+}
+
+export function acceptGameRequest(game_id) {
+
+}
+
+export function declineGameRequest(game_id) {
+
 }
 
 export function removeLegacyMatchRequest(
