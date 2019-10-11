@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
+import Chess from "chess.js";
 import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
@@ -14,53 +15,53 @@ export default class MainPage extends Component {
   constructor(props) {
     super(props);
     this.gameId = null;
+    this.board = null;
     this.state = {
+      mode: "play",
       username: "",
       visible: false,
       startgame: false,
       aborted: false,
       resigned: false,
       draw: false,
-      move: null
+      currentPos: 0,
+      history: null
     };
     this.toggleMenu = this.toggleMenu.bind(this);
     this.userId = Meteor.userId();
-    (this.clocks = {
-      white: { Timer: 3000, IsActive: false },
-      black: { Timer: 3000, IsActive: false }
-    }),
-      (this.Main = {
-        LeftSection: {
-          MenuLinks: links
+
+    this.Main = {
+      LeftSection: {
+        MenuLinks: links
+      },
+      MiddleSection: {
+        BlackPlayer: {
+          Rating: "0000",
+          Name: "Player-1",
+          Flag: "us",
+          Timer: 1000,
+          UserPicture: "player-img-top.png",
+          IsActive: false
         },
-        MiddleSection: {
-          BlackPlayer: {
-            Rating: "0000",
-            Name: "Player-1",
-            Flag: "us",
-            Timer: 1000,
-            UserPicture: "player-img-top.png",
-            IsActive: false
-          },
-          WhitePlayer: {
-            Rating: "0000",
-            Name: "Player-2",
-            Flag: "us",
-            Timer: 1000,
-            UserPicture: "player-img-bottom.png",
-            IsActive: false
-          }
-        },
-        RightSection: {
-          TournamentList: {
-            Tournaments: Tournament
-          },
-          MoveList: {
-            GameMove: ""
-          },
-          Action: {}
+        WhitePlayer: {
+          Rating: "0000",
+          Name: "Player-2",
+          Flag: "us",
+          Timer: 1000,
+          UserPicture: "player-img-bottom.png",
+          IsActive: false
         }
-      });
+      },
+      RightSection: {
+        TournamentList: {
+          Tournaments: Tournament
+        },
+        MoveList: {
+          GameMove: ""
+        },
+        Action: {}
+      }
+    };
   }
 
   intializeBoard = () => {
@@ -135,7 +136,21 @@ export default class MainPage extends Component {
     );
   };
   _gamePgnView(actionType) {
-    return true;
+    switch (actionType) {
+      case "startposition":
+        this.startPosition();
+        break;
+      case "endposition":
+        this.endPosition();
+        break;
+      case "previousOne":
+        this.previousOneMove();
+        break;
+      case "nextOne":
+        this.nextOneMove();
+        break;
+      default:
+    }
   }
   _performAction = (actionType, action) => {
     //alert(action);
@@ -188,33 +203,11 @@ export default class MainPage extends Component {
   }
 
   hideInformativePopup(param) {
-    if (param === "startgame") {
-      this.setState({
-        startgame: true,
-        resigned: false,
-        aborted: false,
-        draw: false
-      });
-    } else if (param === "resigned") {
-      this.setState({
-        resigned: true,
-        startgame: false,
-        aborted: false,
-        draw: false
-      });
-    } else if (param === "aborted") {
-      this.setState({
-        aborted: true,
-        startgame: false,
-        draw: false
-      });
-    } else if (param === "draw") {
-      this.setState({
-        draw: false,
-        aborted: false,
-        startgame: false
-      });
-    }
+    this.setState({
+      draw: true,
+      aborted: true,
+      startgame: true
+    });
   }
 
   _pieceSquareDragStop = raf => {
@@ -228,11 +221,50 @@ export default class MainPage extends Component {
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
+  startPosition = () => {
+    let history = this.props.board.history();
+    this.board = this.props.board;
+    this.board.reset();
+    this.setState({ currentPos: 0, history: history, mode: "view" });
+    //this.board.move(history[this.state.currentPos]);
+  };
+  nextOneMove = () => {
+    if (this.state.currentPos < this.state.history.length) {
+      this.board.move(this.state.history[this.state.currentPos]);
+      this.setState({ currentPos: this.state.currentPos + 1, mode: "view" });
+    } else if (this.state.currentPos === this.state.history.length) {
+      this.setState({ mode: "play" });
+    }
+  };
+  endPosition = () => {
+    let history = this.props.board.history();
+    //  this.board = new Chess.Chess();
+    this.board.load_pgn(history);
+    this.setState({
+      currentPos: history.length,
+      history: history,
+      mode: "play"
+    });
+    // this.board.move(history[history.lenth]);
+  };
+  previousOneMove = () => {
+    if (!this.board) {
+      this.board = this.props.board;
+      //  let history = this.props.board.history();
+    }
+    this.board.undo();
+    /*  this.setState({
+      currentPos: currentPos,
+      history: history,
+      mode: "view"
+    });  
+     */
+  };
+  // If Next button clicked, move forward one
 
   render() {
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-
     let informativePopup = null;
     let actionPopup = null;
     let position = {};
@@ -425,7 +457,7 @@ export default class MainPage extends Component {
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
               capture={this.props.capture}
-              board={this.props.board}
+              board={this.state.mode === "play" ? this.props.board : this.board}
               onDrop={this._pieceSquareDragStop}
               top={position.top}
             />

@@ -412,7 +412,7 @@ class LegacyUserConnection {
         case L2.MSEC:
           // (gamenumber color msec running free_time_to_move min_move_time)
           // Mongo.update - Prerak
-          //console.log( "Lagaecy id"+p2[0]+" Color "+ p2[1].toLowerCase()+" seconds " + parseInt(p2[2]) );
+
           updateClock(p2[0], p2[1].toLowerCase(), parseInt(p2[2]));
           break;
         case L2.LOGIN_FAILED /* login_failed */:
