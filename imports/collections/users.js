@@ -47,13 +47,34 @@ Meteor.publish("userData", function() {
   );
 });
 
-const startingRatingObject = {
+export const startingRatingObject = {
   rating: 1600,
   need: 0,
   won: 0,
   draw: 0,
   lost: 0,
   best: 0
+};
+
+export const user_ratings_object = {
+  bullet: startingRatingObject,
+  blitz: startingRatingObject,
+  standard: startingRatingObject,
+  wild: startingRatingObject,
+  bughouse: startingRatingObject,
+  losers: startingRatingObject,
+  crazyhouse: startingRatingObject,
+  fiveminute: startingRatingObject,
+  oneminute: startingRatingObject,
+  correspondence: startingRatingObject,
+  fifteenminute: startingRatingObject,
+  threeminute: startingRatingObject,
+  computerpool: startingRatingObject,
+  chess960: startingRatingObject
+};
+
+export const default_settings = {
+  autoaccept: true
 };
 
 Accounts.onCreateUser(function(options, user) {
@@ -64,23 +85,7 @@ Accounts.onCreateUser(function(options, user) {
     };
 
     // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
-    user.ratings = {
-      //rating [need] win  loss  draw total   best
-      bullet: startingRatingObject,
-      blitz: startingRatingObject,
-      standard: startingRatingObject,
-      wild: startingRatingObject,
-      bughouse: startingRatingObject,
-      losers: startingRatingObject,
-      crazyhouse: startingRatingObject,
-      fiveminute: startingRatingObject,
-      oneminute: startingRatingObject,
-      correspondence: startingRatingObject,
-      fifteenminute: startingRatingObject,
-      threeminute: startingRatingObject,
-      computerpool: startingRatingObject,
-      chess960: startingRatingObject
-    };
+    user.ratings = user_ratings_object;
 
     if (
       options.profile.legacy &&
@@ -93,9 +98,7 @@ Accounts.onCreateUser(function(options, user) {
       };
   }
 
-  user.settings = {
-    autoaccept: true
-  };
+  user.settings = default_settings;
 
   user.loggedOn = false;
   user.roles = { __global_roles__: standard_member_roles };

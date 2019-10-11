@@ -1,24 +1,63 @@
-describe("Match requests and game starts", function(){
-    it("should add a record to game_requests if autoaccept is false", function(){chai.assert.fail("do me")});
-    it("should delete the game_request and add a game record on a manual accept", function(){chai.assert.fail("do me")});
-    it("should delete the game_request and add a record to client_messages on a decline", function(){chai.assert.fail("do me")});
-    it("should skip game_requests and create a game on a match with auto accept of true", function(){chai.assert.fail("do me")});
-    it("A chess js game is created for a played game", function(){chai.assert.fail("do me")});
-    it("A chess js game is created for an examined game", function(){chai.assert.fail("do me")});
-    it("The same chess js game (or a copy) is still used when a played game switches to an examined game", function(){chai.assert.fail("do me")});
-});
-//function getLegacyUser(userId) {
-describe("getLegacyUser", function(){
-    it("still needs to be written", function(){chai.assert.fail("do me")});
-});
-// function getAndCheck(self, game_id, must_be_my_turn) {
-describe("getAndCheck", function(){
-    it("still needs to be written", function(){chai.assert.fail("do me")});
+import {Meteor} from "meteor/meteor";
+import { Roles } from "meteor/alanning:roles";
+import {addLegacyGameRequest, addLocalGameRequest, GameRequestCollection} from "./GameRequest";
+import {default_settings, user_ratings_object} from "../imports/collections/users";
+import sinon from 'sinon';
+import chai from 'chai';
+import {GameCollection} from "./Game";
+
+const player1 = {_id: "player1", username: "uplayer1", ratings: user_ratings_object, settings: default_settings};
+const player2 = {_id: "player2", username: "uplayer2", ratings: user_ratings_object, settings: default_settings};
+const examiner = {_id: "examiner1", username: "uexaminer", ratings: user_ratings_object, settings: default_settings};
+const observer = {_id: "observer1", username: "uobserver", ratings: user_ratings_object, settings: default_settings};
+
+describe("Match requests and game starts", function() {
+    let userIsInRole = false;
+    let meteoruser = undefined;
+
+    beforeEach(function(){
+        sinon.replace(Roles, 'userIsInRole', sinon.fake.returns(function() {return userIsInRole}));
+        sinon.replace(Meteor, 'user', sinon.fake.returns(function() {return meteoruser}));
+    });
+    afterEach(function(){
+        sinon.restore();
+        userIsInRole = false;
+        meteoruser = undefined;
+        player1.settings = default_settings;
+        player2.settings = default_settings;
+        examiner.settings = default_settings;
+        observer.settings = default_settings;
+    });
+
+    it("should add a record to game_requests for a local game if autoaccept is false", function(){
+        userIsInRole = true;
+        meteoruser = player1;
+        player2.settings.autoaccept = false;
+        const req1 = sinon.mock(GameRequestCollection);
+        const req2 = sinon.mock(GameCollection);
+        req1.expects("insert").twice();
+        req2.expects("insert").never();
+        addLocalGameRequest(player1, player2, "0", "standard", true, false, 5, 0, null, null, null, 16, 16, 16, null);
+        addLocalGameRequest(player1, player2, 0, "standard", true, false, 5, 0, null, null, null, 16, 16, 16, null);
+        req1.verify();
+        req2.verify();
+        req1.restore();
+        req2.restore();
+    });
+
+    it("should delete the game_request and add a game record on a manual accept of a local game request", function(){chai.assert.fail("do me")});
+    it("should delete the game_request and add a record to client_messages on a decline of a local game request", function(){chai.assert.fail("do me")});
+    it("should skip game_requests and create a game on a match of a local game request with auto accept of true", function(){chai.assert.fail("do me")});
+    it("should create a chess js game for a local played game", function(){chai.assert.fail("do me")});
+    it("should create a chess js game for a local examined game", function(){chai.assert.fail("do me")});
+    it("should NOT create a chess js game for a legacy played game", function(){chai.assert.fail("do me")});
+    it("should NOT create a chess js game for a legacy examined game", function(){chai.assert.fail("do me")});
+    it("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function(){chai.assert.fail("do me")});
 });
 // Game.startLocalGame = function(
 describe("Game.startLocalGame", function(){
     it("should error out if the user isn't logged on", function(){chai.assert.fail("do me")});
-    it("should error out if the game is examined, function(){chai.assert.fail("do me")});
+    it("should error out if the game is examined", function(){chai.assert.fail("do me")});
     it("should error out if the user is starting a rated game and cannot play rated games", function(){chai.assert.fail("do me")});
     it("should error out if the user is starting an unrated game and cannot play unrated games", function(){chai.assert.fail("do me")});
     it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function(){chai.assert.fail("do me")});
@@ -119,7 +158,7 @@ describe("Game.acceptTakeback", function(){
 // Game.declineTakeback = function(self, game_id) {
 describe("Game.declineTakeback", function(){
     it("still needs to be written", function(){chai.assert.fail("do me")});
-    it("should error out if the game is examine"d, function(){chai.assert.fail("do me")});
+    it("should error out if the game is examined", function(){chai.assert.fail("do me")});
     it("writes a client_message if their opponent has not requested a takeback", function(){chai.assert.fail("do me")});
     it("does not write an action if there is not a valid takeback accept", function(){chai.assert.fail("do me")});
     it("writes an action if there is a valid takeback decline", function(){chai.assert.fail("do me")});
@@ -167,7 +206,7 @@ describe("Game.resignGame", function(){
     it("pushes an action when it succeeds as a legacy game", function(){chai.assert.fail("do me")});
     it("calls legacy user 'resign' if it's a legacy game", function(){chai.assert.fail("do me")});
 });
-// Game.requestMoretime = function(self, game_id, issuer, seconds) {};
+// Game.requestMoretime = function(self, game_id, seconds) {};
 describe("Game.offerMoreTime", function(){
     it("fails if user is not playing a game", function(){chai.assert.fail("do me")});
     it("should error out if the game is examined", function(){chai.assert.fail("do me")});
@@ -193,23 +232,57 @@ describe("Game.acceptMoretime", function(){
     it("works on their opponents move", function(){chai.assert.fail("do me")});
     it("pushes an action when it succeeds as a local game", function(){chai.assert.fail("do me")});
 });
-// Game.moveBackward = function(self, game_id, issuer, halfmoves) {};
+// Game.moveBackward = function(self, game_id, halfmoves) {};
 describe("Game.moveBackward", function(){
     it("fails if user is not examining a game", function(){chai.assert.fail("do me")});
     it("should error out if the game is being played", function(){chai.assert.fail("do me")});
     it("works on either whites or blacks move", function(){chai.assert.fail("do me")});
     it("moves up to the previous variation and continues on", function(){chai.assert.fail("do me")});
 });
-// Game.moveForward = function(self, game_id, issuer, halfmoves) {};
+// Game.moveForward = function(self, game_id, halfmoves) {};
 describe("Game.moveForward", function(){
     it("fails if user is not examining a game", function(){chai.assert.fail("do me")});
     it("should error out if the game is being played", function(){chai.assert.fail("do me")});
     it("works on either whites or blacks move", function(){chai.assert.fail("do me")});
     it("moves forward if there is no variation", function(){chai.assert.fail("do me")});
-    it("errors out if there is a variation and 'variation' is null", function(){chai.assert.fail("do me")});
-    it("errors out if there is a variation and 'variation' is invalid", function(){chai.assert.fail("do me")});
-    it("errors out if there is no variation and 'variation' not undefined or zero", function(){chai.assert.fail("do me")});
-    it("follows the correct variation when specified as parameter (i.e. what is saved in chess.js)", function(){chai.assert.fail("do me")});
+    it("errors out if there is a variation starting at the current move and 'variation' is null", function(){chai.assert.fail("do me")});
+    it("errors out if there is a variation starting at the current move and 'variation' is invalid", function(){chai.assert.fail("do me")});
+    it("errors out if there is no variation starting at the current move and 'variation' not undefined or zero", function(){chai.assert.fail("do me")});
+    it("errors out if there is no variation starting at the current move and 'variation' not undefined or zero", function(){chai.assert.fail("do me")});
+    it("follows the correct variation when specified", function(){chai.assert.fail("do me")});
+    it("errors out if there is a variation at a future move and halfmoves would move past it", function(){chai.assert.fail("do me")});
+});
+// Game.updateClock = function(self, game_id, color, milliseconds) {};
+describe("Game.updateClock", function(){
+    it("still needs to be written", function(){chai.assert.fail("do me")});
+    it("errors if milliseconds is null, not a number, or negative", function(){chai.assert.fail("do me")});
+    it("requires color to exist and be 'white' or 'black'", function(){chai.assert.fail("do me")});
+    it("requires game_id to exist and be a valid game record", function(){chai.assert.fail("do me")});
+    it("errors out if the game is not being played", function(){chai.assert.fail("do me")});
+    it("updates the white clock when color is white", function(){chai.assert.fail("do me")});
+    it("updates the black clock when color is black", function(){chai.assert.fail("do me")});
+});
+//function getLegacyUser(userId) {
+describe("getLegacyUser", function(){
+    it("still needs to be written", function(){chai.assert.fail("do me")});
+});
+// function getAndCheck(self, game_id, must_be_my_turn) {
+describe("getAndCheck", function(){
+    it("still needs to be written", function(){chai.assert.fail("do me")});
+});
+// Game.addVariation = function(self, game_id, issuer) {};
+describe("Game.addVariation", function(){
+    it("still needs to be written", function(){chai.assert.fail("do me")});
+});
+// Game.deleteVariation = function(self, game_id, issuer) {};
+describe("Game.deleteVariation", function(){
+    it("still needs to be written", function(){chai.assert.fail("do me")});
+});
+describe("Game.startVariation", function(){
+    it("still needs to be written", function(){chai.assert.fail("do me")});
+});
+describe("Game.endVariation", function(){
+    it("still needs to be written", function(){chai.assert.fail("do me")});
 });
 // Game.drawCircle = function(self, game_id, issuer, square) {};
 describe("Game.drawCircle", function(){
@@ -229,23 +302,5 @@ describe("Game.removeArrow", function(){
 });
 // Game.changeHeaders = function(self, game_id, other_arguments) {};
 describe("Game.changeHeaders", function(){
-    it("still needs to be written", function(){chai.assert.fail("do me")});
-});
-// Game.updateClock = function(self, game_id, color, milliseconds) {};
-describe("Game.updateClock", function(){
-    it("still needs to be written", function(){chai.assert.fail("do me")});
-});
-// Game.addVariation = function(self, game_id, issuer) {};
-describe("Game.addVariation", function(){
-    it("still needs to be written", function(){chai.assert.fail("do me")});
-});
-// Game.deleteVariation = function(self, game_id, issuer) {};
-describe("Game.deleteVariation", function(){
-    it("still needs to be written", function(){chai.assert.fail("do me")});
-});
-describe("Game.startVariation", function(){
-    it("still needs to be written", function(){chai.assert.fail("do me")});
-});
-describe("Game.endVariation", function(){
     it("still needs to be written", function(){chai.assert.fail("do me")});
 });

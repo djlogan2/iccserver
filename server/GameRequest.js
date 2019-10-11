@@ -136,7 +136,7 @@ export function addLocalGameRequest(
 ) {
   if (!challenger_user) throw new Meteor.Error("Challenger is required");
   if (!receiver_user) throw new Meteor.Error("Receiver is required");
-  if (wild_number !== "0") throw new Meteor.Error("Wild must be zero");
+  if (parseInt(wild_number) !== 0) throw new Meteor.Error("Wild must be zero");
   if (typeof is_it_rated !== "boolean")
     throw new Meteor.Error("rated must be true or false");
   if (
@@ -165,7 +165,7 @@ export function addLocalGameRequest(
     challenger_rating: challenger_user.ratings[rating_type].rating,
     challenger_titles: [], // TODO: ditto
     challenger_established: established(challenger_user.ratings[rating_type]),
-    receiver: receiver_user.user.username,
+    receiver: receiver_user.username,
     receiver_rating: receiver_user.ratings[rating_type].rating,
     receiver_established: established(receiver_user.ratings[rating_type]),
     receiver_titles: [], // TODO: ditto
