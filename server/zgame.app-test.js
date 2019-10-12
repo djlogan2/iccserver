@@ -1,10 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { Roles } from "meteor/alanning:roles";
-import {
-  acceptGameRequest,
-  addLocalGameRequest,
-  GameRequestCollection
-} from "./GameRequest";
+import { GameRequestCollection, GameRequests } from "./GameRequest";
 import {
   default_settings,
   user_ratings_object
@@ -18,23 +14,27 @@ import ClientMessagesCollection from "../imports/collections/clientMessages";
 const player1 = {
   _id: "player1",
   username: "uplayer1",
+  loggedOn: true,
   ratings: user_ratings_object,
   settings: default_settings
 };
 const player2 = {
   _id: "player2",
+  loggedOn: true,
   username: "uplayer2",
   ratings: user_ratings_object,
   settings: default_settings
 };
 const examiner = {
   _id: "examiner1",
+  loggedOn: true,
   username: "uexaminer",
   ratings: user_ratings_object,
   settings: default_settings
 };
 const observer = {
   _id: "observer1",
+  loggedOn: true,
   username: "uobserver",
   ratings: user_ratings_object,
   settings: default_settings
@@ -70,6 +70,7 @@ describe("Match requests and game starts", function() {
     sinon.restore();
     userIsInRole = false;
     meteoruser = undefined;
+    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
     player1.settings = default_settings;
     player2.settings = default_settings;
     examiner.settings = default_settings;
@@ -83,7 +84,7 @@ describe("Match requests and game starts", function() {
     const req2 = sinon.mock(GameCollection);
     req1.expects("insert").twice();
     req2.expects("insert").never();
-    addLocalGameRequest(
+    GameRequests.addLocalMatchRequest(
       player1,
       player2,
       "0",
@@ -100,7 +101,7 @@ describe("Match requests and game starts", function() {
       16,
       null
     );
-    addLocalGameRequest(
+    GameRequests.addLocalMatchRequest(
       player1,
       player2,
       0,
@@ -130,7 +131,7 @@ describe("Match requests and game starts", function() {
     req1.expects("find").once();
     req1.expects("remove").once();
     req2.expects("insert").once();
-    acceptGameRequest("id");
+    GameRequests.acceptMatchRequest("id");
     req1.verify();
     req2.verify();
     req1.restore();
@@ -144,7 +145,7 @@ describe("Match requests and game starts", function() {
     req1.expects("find").once();
     req1.expects("remove").once();
     req2.expects("insert").once();
-    acceptGameRequest("id");
+    GameRequests.acceptMatchRequest("id");
     req1.verify();
     req2.verify();
     req1.restore();
@@ -159,7 +160,7 @@ describe("Match requests and game starts", function() {
     req1.expects("insert").never();
     req1.expects("remove").never();
     req2.expects("insert").once();
-    acceptGameRequest("id");
+    GameRequests.acceptMatchRequest("id");
     req1.verify();
     req2.verify();
     req1.restore();
@@ -224,7 +225,7 @@ describe("Match requests and game starts", function() {
     meteoruser = player1;
     const req1 = sinon.mock(ClientMessagesCollection);
     const req2 = sinon.mock(GameCollection);
-    req1.expects("insert").once();
+    req1.expects("insert").never();
     req2.expects("insert").once();
     req2.expects("update").never();
     const id = Game.startLegacyGame(
@@ -253,7 +254,35 @@ describe("Match requests and game starts", function() {
   });
 
   it("should NOT create a chess js game for a legacy examined game", function() {
-    chai.assert.fail("do me");
+    meteoruser = player1;
+    const req1 = sinon.mock(ClientMessagesCollection);
+    const req2 = sinon.mock(GameCollection);
+    req1.expects("insert").never();
+    req2.expects("insert").once();
+    req2.expects("update").never();
+    const id = Game.startLegacyGame(
+      player1,
+      123,
+      "iccplayer1",
+      "iccplayer2",
+      0,
+      "Standard",
+      true,
+      5,
+      0,
+      5,
+      0,
+      false,
+      "",
+      1200,
+      2300,
+      99887766
+    );
+    Game.makeMove(player1, id, "e5");
+    req1.verify();
+    req2.verify();
+    req1.restore();
+    req2.restore();
   });
   it("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function() {
     chai.assert.fail("do me");
@@ -262,12 +291,75 @@ describe("Match requests and game starts", function() {
 
 // Game.startLocalGame = function(
 describe("Game.startLocalGame", function() {
+  let userIsInRole = true;
+  let meteoruser = undefined;
+
+  beforeEach(function() {
+    sinon.replace(
+      Roles,
+      "userIsInRole",
+      sinon.fake.returns(function() {
+        return userIsInRole;
+      })
+    );
+    sinon.replace(
+      Meteor,
+      "user",
+      sinon.fake.returns(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      LegacyUser,
+      "find",
+      sinon.fake.returns({ legacy_user_record: true })
+    );
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    userIsInRole = false;
+    meteoruser = undefined;
+    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
+    player1.settings = default_settings;
+    player2.settings = default_settings;
+    examiner.settings = default_settings;
+    observer.settings = default_settings;
+  });
+
   it("should error out if the user isn't logged on", function() {
-    chai.assert.fail("do me");
+    player1.loggedOn = false;
+    meteoruser = player1;
+    const req1 = sinon.mock(GameRequestCollection);
+    const req2 = sinon.mock(GameCollection);
+    req1.expects("insert").never();
+    req2.expects("insert").never();
+    GameRequestCollection.addLocalMatchRequest(
+      player1,
+      player2,
+      "0",
+      "standard",
+      true,
+      false,
+      5,
+      0,
+      null,
+      null,
+      null,
+      16,
+      16,
+      16,
+      null
+    );
+    req1.verify();
+    req2.verify();
+    req1.restore();
+    req2.restore();
   });
-  it("should error out if the game is examined", function() {
-    chai.assert.fail("do me");
-  });
+  // I'm not sure what I was thinking here. If I, or anyone else, figures it out, put it back. Else, delete it :)
+  // it("should error out if the game is examined", function() {
+  //   chai.assert.fail("do me");
+  // });
   it("should error out if the user is starting a rated game and cannot play rated games", function() {
     chai.assert.fail("do me");
   });

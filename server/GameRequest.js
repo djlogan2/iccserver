@@ -18,8 +18,9 @@ Meteor.publish("game_requests", function() {
 
 let log = new Logger("server/GameRequest_js");
 
+export const GameRequests = {};
 //
-export function legacyGameSeek(
+GameRequests.addLegacyGameSeek = function(
   index,
   name,
   titles,
@@ -36,9 +37,18 @@ export function legacyGameSeek(
   autoaccept,
   formula,
   fancy_time_control
-) {}
+) {};
 
-export function addLegacyGameRequest(
+GameRequests.addLocalGameSeek = function() {};
+
+GameRequests.removeGameSeek = function(seek_id) {};
+
+GameRequests.acceptGameSeek = function(seek_id) {};
+
+//
+//-----------------------------------------------------------------------------
+//
+GameRequests.addLegacyMatchRequest = function(
   challenger_name,
   challenger_rating,
   challenger_established,
@@ -62,7 +72,7 @@ export function addLegacyGameRequest(
   fancy_time_control   It doesn't appear we actually get these from the server */
 ) {
   const args = arguments;
-  log.debug("addLegacyGameRequest: ", () => {
+  log.debug("addLegacyMatchRequest: ", () => {
     JSON.stringify(args);
   });
   const challenger_user = Meteor.users.findOne({
@@ -111,13 +121,13 @@ export function addLegacyGameRequest(
   if (!!receiver_user) record.receiver_id = receiver_user._id;
 
   GameRequestCollection.insert(record);
-}
+};
 
 function established(rating_object) {
   return rating_object.won + rating_object.draw + rating_object.lost >= 20;
 }
 
-export function addLocalGameRequest(
+GameRequests.addLocalMatchRequest = function(
   challenger_user,
   receiver_user,
   wild_number,
@@ -188,17 +198,13 @@ export function addLocalGameRequest(
   if (!!receiver_user) record.receiver_id = receiver_user._id;
 
   return GameRequestCollection.insert(record);
-}
+};
 
-export function acceptGameRequest(game_id) {
+GameRequests.acceptMatchRequest = function(game_id) {};
 
-}
+GameRequests.declineMatchRequest = function(game_id) {};
 
-export function declineGameRequest(game_id) {
-
-}
-
-export function removeLegacyMatchRequest(
+GameRequests.removeLegacyMatchRequest = function(
   challenger_name,
   receiver_name
 ) {
@@ -208,4 +214,4 @@ export function removeLegacyMatchRequest(
       { receiver_name: receiver_name }
     ]
   });
-}
+};

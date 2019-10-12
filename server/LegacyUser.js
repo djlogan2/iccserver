@@ -5,7 +5,7 @@ import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Game } from "./Game";
-import { addLegacyGameRequest, removeLegacyMatchRequest } from "./GameRequest";
+import { addLegacyMatchRequest, removeLegacyMatchRequest } from "./GameRequest";
 import { sendMessageToClient } from "../imports/collections/clientMessages";
 import net from "net";
 
@@ -412,7 +412,7 @@ class LegacyUserConnection {
           }
           break;
         case L2.MATCH:
-          addLegacyGameRequest.apply(null, p2);
+          addLegacyMatchRequest.apply(null, p2);
           break;
         case L2.MATCH_REMOVED:
           //challenger-name receiver-name ^Y{Explanation string^Y}

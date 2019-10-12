@@ -1,68 +1,66 @@
-import { PublicationCollector } from "meteor/johanbrook:publication-collector";
-import { resetDatabase } from "meteor/xolvio:cleaner";
-import { addLegacyGameRequest } from "./GameRequest";
-import { Accounts } from "meteor/accounts-base";
-import { Meteor } from "meteor/meteor";
 import chai from "chai";
 
 import "./GameRequest";
 
-function createUser(username, login) {
-  Accounts.createUser({
-    email: username + "@chessclub.com",
-    username: username,
-    password: username,
-    profile: {
-      legacy: {
-        username: "icc" + username,
-        password: "iccpassword",
-        autologin: true
-      }
-    }
+//GameRequests.addLegacyGameSeek = function(
+describe("GameRequests.addLegacyGameSeek", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
   });
-  if (!!login)
-    Meteor.users.update({ username: username }, { $set: { loggedOn: true } });
-  const rec = Meteor.users.findOne({ username: username });
-  return rec._id;
-}
+});
 
-function addGameMatch(user1, user2) {
-  addLegacyGameRequest(
-    user1,
-    2000,
-    true,
-    "GM",
-    user2,
-    1800,
-    true,
-    "IM",
-    0,
-    "Standard",
-    true,
-    false
-  );
-}
-
-describe("Game Requests", function() {
-  beforeEach(function(done) {
-    resetDatabase(null, done);
+// GameRequests.addLocalGameSeek = function() {};
+describe("GameRequests.addLocalGameSeek", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
   });
+});
 
-  it("should only send records belonging to the user in the client publication of game requests", function(done) {
-    const us = createUser("gcit1");
-    createUser("gcit2");
-    createUser("gcit3");
-    addGameMatch("iccgcit1", "iccgcit2");
-    addGameMatch("iccgcit3", "iccgcit1");
-    addGameMatch("iccgcit2", "iccgcit3");
-    const collector = new PublicationCollector({ userId: us });
-    collector.collect("game_requests", collections => {
-      chai.assert.equal(collections.game_requests.length, 2);
-      //chai.assert.equal(collections.game_requests[0].challenger_id, );
-      done();
-    });
+// GameRequests.removeGameSeek = function(seek_id) {};
+describe("GameRequests.removeGameSeek", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
   });
-  it("should delete all existing game_request records for that user upon logoff", function(done) {
+});
+
+// GameRequests.acceptGameSeek = function(seek_id) {};
+describe("GameRequests.acceptGameSeek", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+// GameRequests.addLegacyMatchRequest = function(
+describe("GameRequests.addLegacyMatchRequest", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+// GameRequests.addLocalMatchRequest = function(
+describe("GameRequests.addLocalMatchRequest", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+// GameRequests.acceptMatchRequest = function(game_id) {};
+describe("GameRequests.acceptMatchRequest", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+// GameRequests.declineMatchRequest = function(game_id) {};
+describe("GameRequests.declineMatchRequest", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+// GameRequests.removeLegacyMatchRequest = function(
+describe("GameRequests.removeLegacyMatchRequest", function() {
+  it("still needs to be written", function() {
     chai.assert.fail("do me");
   });
 });
