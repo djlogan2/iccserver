@@ -3,7 +3,7 @@ import chai from "chai";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
-import ClientMessagesCollection, { sendMessageToClient } from "./clientMessages";
+import ClientMessagesCollection, { sendMessageToClient } from "./ClientMessages";
 
 function createUser(username, login) {
   Accounts.createUser({

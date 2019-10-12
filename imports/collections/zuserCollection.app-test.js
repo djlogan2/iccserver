@@ -45,6 +45,8 @@ const our_allowed_user_fields = {
   _id: 1,
   createdAt: 1,
   username: 1,
+  locale: 1,
+  board_css: 1,
   emails: 1,
   ratings: {
     bullet: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
@@ -75,6 +77,8 @@ const our_allowed_user_fields = {
 const all_fields = {
   _id: 1,
   username: 1,
+  locale: 1,
+  board_css: 1,
   createdAt: 1,
   loggedOn: 1,
   emails: 1,

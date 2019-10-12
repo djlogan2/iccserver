@@ -6,7 +6,7 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Game } from "./Game";
 import { addLegacyMatchRequest, removeLegacyMatchRequest } from "./GameRequest";
-import { sendMessageToClient } from "../imports/collections/clientMessages";
+import { sendMessageToClient } from "../imports/collections/ClientMessages";
 import net from "net";
 
 import * as L2 from "../lib/server/l2";

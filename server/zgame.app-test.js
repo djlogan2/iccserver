@@ -9,7 +9,7 @@ import sinon from "sinon";
 import chai from "chai";
 import { Game, GameCollection } from "./Game";
 import { LegacyUser } from "./LegacyUser";
-import ClientMessagesCollection from "../imports/collections/clientMessages";
+import ClientMessagesCollection from "../imports/collections/ClientMessages";
 
 const player1 = {
   _id: "player1",

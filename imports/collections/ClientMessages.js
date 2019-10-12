@@ -1,5 +1,7 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
+import { Match, check } from "meteor/check";
+import { i18n } from "./i18n";
 import { addLogoutHook } from "./users";
 
 import { Logger } from "../../lib/server/Logger";
@@ -13,7 +15,7 @@ export const ClientMessagesCollection = new Mongo.Collection("client_messages");
 //       (2) Then of course our schema, and these methods, need to accept, perhaps even require, some type of identifier. If a message has no identifier,
 //           let's say "server failure" or something, then the identifier could be something generic, like "global", or "system" or something.
 //       So basically, our schema needs to be something like this:
-//           {_id: mongoid, datecreated: 2019-10-10 12:12:12, identifier: "required-custom-identifier", message: "i8n-message-id", parameters: ["parameter", "array"]}
+//           {_id: mongoid, datecreated: 2019-10-10 12:12:12, identifier: "required-custom-identifier", message: "i18n-message-id", parameters: ["parameter", "array"]}
 
 Meteor.publish("client_messages", function() {
   return ClientMessagesCollection.find({ to: this.userId });
@@ -28,14 +30,32 @@ Meteor.methods({
   }
 });
 
-export default ClientMessagesCollection;
+const ClientMessages = {};
+export default ClientMessages;
 
-export function sendMessageToClient(user, message) {
+ClientMessages.sendMessageToClient = function(
+  user,
+  client_identifier,
+  i8n_message,
+  parameter_array
+) {
+  check(user, Match.OneOf(Object, Meteor.Collection.ObjectID));
+  check(client_identifier, String);
+  check(i8n_message, Number);
+  check(parameter_array, [Match.Any]);
+
   const id = typeof user === "object" ? user._id : user;
-  const touser = Meteor.users.findOne({_id: id, loggedOn: true });
+  const touser = Meteor.users.findOne({ _id: id, loggedOn: true });
   if (!touser) return;
-  ClientMessagesCollection.insert({ to: id, message: message });
-}
+  // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
+  const locale = touser.locale || "en_US";
+  const message = i18n.localizeMessage(locale, i8n_message, parameter_array);
+  ClientMessagesCollection.insert({
+    to: id,
+    client_identifier: client_identifier,
+    message: message
+  });
+};
 
 addLogoutHook(function(userId) {
   log.debug("runOnLogout: " + userId);
