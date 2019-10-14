@@ -43,33 +43,37 @@ export default class MoveListComponent extends Component {
         </div>
 
         <div style={this.props.cssmanager.gameButtonMove()}>
-          {/* 
-					Game History Button Component
-					Different buttons such as next and previous is available for
-					player to check the previous moves. this along with GameComponent */}
-
           <button
             style={this.props.cssmanager.buttonStyle()}
-            onClick={this._pgnView.bind(this, "pgnview", "draw")}
+            onClick={this._pgnView.bind(this, "pgnview", "startposition")}
           >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
               alt="fast-forward"
             />
           </button>
-          <button style={this.props.cssmanager.buttonStyle()}>
+          <button
+            style={this.props.cssmanager.buttonStyle()}
+            onClick={this._pgnView.bind(this, "pgnview", "previousOne")}
+          >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")}
               alt="previous"
             />
           </button>
-          <button style={this.props.cssmanager.buttonStyle()}>
+          <button
+            style={this.props.cssmanager.buttonStyle()}
+            onClick={this._pgnView.bind(this, "pgnview", "nextOne")}
+          >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("nextIconGray")}
               alt="next"
             />
           </button>
-          <button style={this.props.cssmanager.buttonStyle()}>
+          <button
+            style={this.props.cssmanager.buttonStyle()}
+            onClick={this._pgnView.bind(this, "pgnview", "endposition")}
+          >
             <img
               src={this.props.cssmanager.buttonBackgroundImage(
                 "fastForwardNext"
@@ -85,7 +89,6 @@ export default class MoveListComponent extends Component {
               alt="next-single"
             />
           </button>
-
           <button
             style={this.props.cssmanager.buttonStyle()}
             onClick={this.props.flip}

@@ -97,10 +97,11 @@ export default class MiddleBoard extends Component {
     else return [values[i], texts[i]];
   }
   _pieceSquareDragStop = raf => {
-    this.props.onDrop({
+    let isMove = this.props.onDrop({
       from: raf.from,
       to: raf.to
     });
+    return isMove;
   };
   render() {
     let w = this.state.width;

@@ -136,8 +136,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
+
     if (!game) {
-      return null;
+      return false;
     } else if (game.status === "pending") {
       return false;
     } else {
@@ -174,6 +175,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         let move = history[history.length - 1];
         Meteor.call("game.move", this.gameId, move, true);
         log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
+        return true;
       }
     }
   };
