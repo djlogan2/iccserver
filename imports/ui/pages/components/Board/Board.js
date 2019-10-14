@@ -226,7 +226,7 @@ export default class Board extends React.Component {
     this.fileTo = raf.file;
 
     //
-    // TODO: Yea, this isn't really good. First of all, if there is going to be a gigantic IF statement, it shouldn't be replicated, it should be a function.
+    // TODO: Yea, this isn't really good  . First of all, if there is going to be a gigantic IF statement, it shouldn't be replicated, it should be a function.
     //       Secondly, aren't there far more efficient ways to do this?
     //       For example: this.fileFrom = String.fromCharCode(97 + this.fileFrom);
     //       For Example: const array = ['a','b','c','d','e','f','g','h']; this.fileFrom = array[this.fileFrom];
