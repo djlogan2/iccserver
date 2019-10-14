@@ -323,7 +323,7 @@ height: 20px !important;
   position: relative;
 }
 */
-img[src=""] { border: none; display: none; }
+ img[src=""] { border: none; display: none; } 
 /*end*/
 
 /* All media css*/

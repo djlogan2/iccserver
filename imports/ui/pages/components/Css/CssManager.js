@@ -88,10 +88,8 @@ export default class CssManager {
 
   imagePeice(piece, color) {
     var style;
-    if (piece != undefined && color != undefined) {
+    if (piece !== undefined && color !== undefined) {
       style = this._boardStyle.pieces[color][piece];
-      return style;
-    } else {
       return style;
     }
   }

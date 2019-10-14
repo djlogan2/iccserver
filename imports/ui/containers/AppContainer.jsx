@@ -168,6 +168,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       log.debug(
         "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
       );
+
       if (result !== null) {
         let history = this._board.history();
         this.gameId = game._id;
