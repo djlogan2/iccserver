@@ -5,7 +5,7 @@ import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Game } from "./Game";
-import { addLegacyMatchRequest, removeLegacyMatchRequest } from "./GameRequest";
+import {addLegacyMatchRequest, GameRequests, removeLegacyMatchRequest} from "./GameRequest";
 import { sendMessageToClient } from "../imports/collections/ClientMessages";
 import net from "net";
 
@@ -84,7 +84,9 @@ const USER_LEVEL2_PACKETS = [
   L2.CHESS960,
   L2.PLAYER_LEFT,
   L2.MUGSHOT,
-  L2.MATCH
+  L2.MATCH,
+    L2.SEEK,
+    L2.SEEK_REMOVED
 ];
 
 const legacy_ratings_on_login = {};
@@ -462,6 +464,29 @@ class LegacyUserConnection {
         case L2.PLAYER_LEFT:
           legacyUsers.remove({ username: p2[0] });
           break;
+        case L2.SEEK:
+          GameRequests.addLegacyGameSeek(
+            self,
+            p2[0],
+            p2[1],
+            p2[2],
+            p2[3],
+            p2[4],
+            p2[5],
+            p2[6],
+            p2[7],
+            p2[8],
+            p2[9],
+            p2[10],
+            p2[11],
+            p2[12],
+            p2[13],
+            p2[14]
+          );
+          break;
+        case L2.SEEK_REMOVED:
+          GameRequests.removeLegacySeek(self, p2[0]);
+          break;
         case L2.STARTED_OBSERVING:
         case L2.MY_GAME_STARTED:
           // TODO: So, I'm discovering that some of these I'm adjusting here in the case, and some I'm just calling whatever.apply with the array, and doing the work there. Pick one and stick with it.
@@ -483,7 +508,7 @@ class LegacyUserConnection {
             throw new Meteor.Error(
               "Unable to figure out which player we are in this game"
             );
-          startLegacyGame(
+          Game.startLegacyGame(
             white,
             black,
             p2[6],

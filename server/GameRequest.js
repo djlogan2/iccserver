@@ -21,6 +21,7 @@ let log = new Logger("server/GameRequest_js");
 export const GameRequests = {};
 //
 GameRequests.addLegacyGameSeek = function(
+  self,
   index,
   name,
   titles,
@@ -35,15 +36,117 @@ GameRequests.addLegacyGameSeek = function(
   minrating,
   maxrating,
   autoaccept,
+  formula
+) {
+  GameRequestCollection.insert({
+    type: "legacyseek",
+    owner: self._id,
+    legacy_index: index,
+    name: name,
+    titles: titles,
+    provisional_status: provisional_status,
+    wild: wild,
+    rating_type: rating_type,
+    time: time,
+    inc: inc,
+    rated: rated,
+    color: color,
+    minrating: minrating,
+    maxrating: maxrating,
+    autoaccept: autoaccept,
+    formula: formula
+  });
+};
+
+GameRequests.addLocalGameSeek = function(
+  self,
+  wild,
+  rating_type,
+  time,
+  inc,
+  rated,
+  color,
+  minrating,
+  maxrating,
+  autoaccept,
   formula,
   fancy_time_control
-) {};
+) {
+  if (!self) throw new Meteor.Error("self is null");
+  if (
+    !Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")
+  )
+    throw new Meteor.Error("Unable to seek this game");
+  GameRequestCollection.insert({
+    type: "seek",
+    owner: self._id,
+    wild: wild,
+    rating_type: rating_type,
+    time: time,
+    inc: inc,
+    rated: rated,
+    color: color,
+    minrating: minrating,
+    maxrating: maxrating,
+    autoaccept: autoaccept,
+    formula: formula
+  });
+};
 
-GameRequests.addLocalGameSeek = function() {};
+GameRequests.removeLegacySeek = function(self, seek_index) {
+  if (!self) throw new Meteor.Error("self is null");
+  const request = GameRequestCollection.findOne({ legacy_index: seek_index });
+  if (!request)
+    return; // The doc says we could get removes for seeks we do not have.
+    //throw new Meteor.Error("Unable to find seek with index " + seek_index);
+  if (self._id !== request.owner._id)
+    throw new Meteor.Error("Cannot remove another users game seek");
+  GameRequestCollection.remove({ _id: request._id });
+};
 
-GameRequests.removeGameSeek = function(seek_id) {};
+GameRequests.removeGameSeek = function(self, seek_id) {
+  if (!self) throw new Meteor.Error("self is null");
+  const request = GameRequestCollection.findOne({ _id: seek_id });
+  if (!request)
+    throw new Meteor.Error("Unable to find seek with id " + seek_id);
+  if (self._id !== request.owner._id)
+    throw new Meteor.Error("Cannot remove another users game seek");
+  GameRequestCollection.remove({ _id: seek_id });
+};
 
-GameRequests.acceptGameSeek = function(seek_id) {};
+GameRequests.acceptGameSeek = function(self, seek_id) {
+  if (!self) throw new Meteor.Error("self is null");
+  const request = GameRequestCollection.findOne({ _id: seek_id });
+  if (!request)
+    throw new Meteor.Error("Unable to find seek with id " + seek_id);
+  if (self._id === request.owner._id)
+    throw new Meteor.Error("Cannot accept a seek from yourself");
+  if (
+    !Roles.userIsInRole(
+      user,
+      request.rated ? "play_rated_games" : "play_unrated_games"
+    )
+  )
+    throw new Meteor.Error("Unable to accept seek: Not in role");
+
+  const white = Game.determineWhite(self, request.owner, request.color);
+  const black = white._id === self._id ? request.owner : self;
+  const game_id = Game.startLocalGame(
+    self,
+    white,
+    black,
+    request.wild,
+    request.rating_type,
+    request.rated,
+    request.time,
+    request.inc,
+    request.time,
+    request.inc,
+    true
+  );
+  GameRequestCollection.remove({ _id: seek_id });
+  return game_id;
+};
 
 //
 //-----------------------------------------------------------------------------
@@ -170,7 +273,7 @@ GameRequests.addLocalMatchRequest = function(
     throw new Meteor.Error("not_in_role", role);
 
   const record = {
-    type: "localmatch",
+    type: "match",
     challenger: challenger_user.username,
     challenger_rating: challenger_user.ratings[rating_type].rating,
     challenger_titles: [], // TODO: ditto

@@ -342,6 +342,15 @@ Game.resignGame = function(self, game_id) {
   );
 };
 
+Game.determineWhite = function(p1, p2, color) {
+  if (color === "white") return p1;
+  if (color === "black") return p2;
+
+  // TODO: Obviously this has to be a far better algorithm based on the games both players have recently played
+  if (Math.random() <= 0.5) return p1;
+  else return p2;
+}
+
 Game.offerMoretime = function(self, game_id, issuer, seconds) {};
 
 Game.declineMoretime = function(self, game_id) {};
