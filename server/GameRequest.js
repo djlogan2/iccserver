@@ -2,7 +2,8 @@ import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Roles } from "meteor/alanning:roles";
-/** Todo: temporary change name of collection   */
+import { Match, check } from "meteor/check";
+
 export const GameRequestCollection = new Mongo.Collection("game_requests");
 
 Meteor.startup(function() {
@@ -21,7 +22,6 @@ let log = new Logger("server/GameRequest_js");
 export const GameRequests = {};
 //
 GameRequests.addLegacyGameSeek = function(
-  self,
   index,
   name,
   titles,
@@ -38,6 +38,7 @@ GameRequests.addLegacyGameSeek = function(
   autoaccept,
   formula
 ) {
+  const self = Meteor.user();
   GameRequestCollection.insert({
     type: "legacyseek",
     owner: self._id,
@@ -59,7 +60,6 @@ GameRequests.addLegacyGameSeek = function(
 };
 
 GameRequests.addLocalGameSeek = function(
-  self,
   wild,
   rating_type,
   time,
@@ -69,9 +69,17 @@ GameRequests.addLocalGameSeek = function(
   minrating,
   maxrating,
   autoaccept,
-  formula,
-  fancy_time_control
+  formula
 ) {
+  check(wild, Number);
+  check(time, Number);
+  check(inc, Number);
+  check(rated, Boolean);
+  check(minrating, Match.Maybe(Number));
+  check(maxrating, Match.Maybe(Number));
+  check(autoaccept, Boolean);
+  check(formula, Match.Maybe(String));
+  const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   if (
     !Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")
@@ -93,18 +101,19 @@ GameRequests.addLocalGameSeek = function(
   });
 };
 
-GameRequests.removeLegacySeek = function(self, seek_index) {
+GameRequests.removeLegacySeek = function(seek_index) {
+  const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   const request = GameRequestCollection.findOne({ legacy_index: seek_index });
-  if (!request)
-    return; // The doc says we could get removes for seeks we do not have.
-    //throw new Meteor.Error("Unable to find seek with index " + seek_index);
+  if (!request) return; // The doc says we could get removes for seeks we do not have.
+
   if (self._id !== request.owner._id)
     throw new Meteor.Error("Cannot remove another users game seek");
   GameRequestCollection.remove({ _id: request._id });
 };
 
-GameRequests.removeGameSeek = function(self, seek_id) {
+GameRequests.removeGameSeek = function(seek_id) {
+  const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
@@ -114,7 +123,8 @@ GameRequests.removeGameSeek = function(self, seek_id) {
   GameRequestCollection.remove({ _id: seek_id });
 };
 
-GameRequests.acceptGameSeek = function(self, seek_id) {
+GameRequests.acceptGameSeek = function(seek_id) {
+  const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
@@ -123,7 +133,7 @@ GameRequests.acceptGameSeek = function(self, seek_id) {
     throw new Meteor.Error("Cannot accept a seek from yourself");
   if (
     !Roles.userIsInRole(
-      user,
+      self,
       request.rated ? "play_rated_games" : "play_unrated_games"
     )
   )
