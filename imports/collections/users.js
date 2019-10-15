@@ -78,9 +78,6 @@ export const default_settings = {
 };
 
 Accounts.onCreateUser(function(options, user) {
-  const { httpHeaders = {} } = this.connection;
-  const acceptLanguage = httpHeaders["accept-language"] || "en-US";
-
   if (options.profile) {
     user.profile = {
       firstname: options.profile.firstname || "?",
@@ -104,7 +101,7 @@ Accounts.onCreateUser(function(options, user) {
   user.settings = default_settings;
 
   user.loggedOn = false;
-  user.locale = acceptLanguage || "en_US";
+  user.locale = "unknown";
   user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
   user.roles = { __global_roles__: standard_member_roles };
 
@@ -155,6 +152,16 @@ Accounts.validateLoginAttempt(function(params) {
   // params.methodArguments
   if (!params.user) return false;
   // Pretty simple so far. Allow the user to login if they are in the role allowing them to do so.
-  if (Roles.userIsInRole(params.user, "login")) return true;
-  else throw new Meteor.Error("Administrators are not allowing you to login"); // TODO: i18n
+  if (!Roles.userIsInRole(params.user, "login"))
+    throw new Meteor.Error("Administrators are not allowing you to login"); // TODO: i18n
+
+  if (!params.user.locale || params.user.locale === "unknown") {
+    const httpHeaders = params.connection || {};
+    const acceptLanguage = httpHeaders["accept-language"] || "en-US";
+    Meteor.users.update(
+      { _id: params.user._id },
+      { $set: { local: acceptLanguage } }
+    );
+    params.user.local = acceptLanguage;
+  }
 });
