@@ -1,9 +1,12 @@
 import { Logger } from "../lib/server/Logger";
+import SimpleSchema from "simpl-schema";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Roles } from "meteor/alanning:roles";
+
 import { Match, check } from "meteor/check";
 
+/** Todo: temporary change name of collection   */
 export const GameRequestCollection = new Mongo.Collection("game_requests");
 
 Meteor.startup(function() {
@@ -17,6 +20,55 @@ Meteor.publish("game_requests", function() {
   });
 });
 
+const actionSchema = new SimpleSchema({
+  type: {
+    type: String,
+    allowedValues: ["move", "takeBack", "draw", "resign", "abort", "game"]
+  },
+  value: { type: String },
+  actionBy: { type: String }
+});
+
+const GameSchema = new SimpleSchema({
+  startTime: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
+  requestBy: { type: String, required: false }, // TODO: This is ok, yes? I'm not sure why it wouldn't be.
+  legacy_game_id: { type: Number, required: false },
+  wild: { type: Number, required: false },
+  rating_type: { type: String, required: false },
+  rated: { type: String, required: false },
+  status: { type: String, required: false },
+  clocks: new SimpleSchema({
+    white: new SimpleSchema({
+      time: { type: SimpleSchema.Integer },
+      inc: { type: Number },
+      current: { type: SimpleSchema.Integer }
+    }),
+    black: new SimpleSchema({
+      time: { type: SimpleSchema.Integer },
+      inc: { type: Number },
+      current: { type: SimpleSchema.Integer }
+    })
+  }),
+  white: new SimpleSchema({
+    name: { type: String },
+    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
+    rating: { type: SimpleSchema.Integer }
+  }),
+  black: new SimpleSchema({
+    name: { type: String },
+    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
+    rating: { type: SimpleSchema.Integer }
+  }),
+  moves: [String],
+  actions: [actionSchema]
+});
+
+GameRequestCollection.attachSchema(GameSchema);
 let log = new Logger("server/GameRequest_js");
 
 export const GameRequests = {};
@@ -244,18 +296,18 @@ GameRequests.addLocalMatchRequest = function(
   challenger_user,
   receiver_user,
   wild_number,
-  rating_type,
+  //rating_type,
   is_it_rated,
-  is_it_adjourned,
+  //is_it_adjourned,
   challenger_time,
   challenger_inc,
   receiver_time,
   receiver_inc,
-  challenger_color_request,
-  assess_loss,
-  assess_draw,
-  assess_win,
-  fancy_time_control
+  challenger_color_request
+  // assess_loss,
+  // assess_draw,
+  // assess_win,
+  // fancy_time_control
 ) {
   if (!challenger_user) throw new Meteor.Error("Challenger is required");
   if (!receiver_user) throw new Meteor.Error("Receiver is required");
@@ -272,8 +324,8 @@ GameRequests.addLocalMatchRequest = function(
     );
   }
 
-  if (challenger_user.ratings[rating_type] === undefined)
-    throw new Meteor.Error("Unknown rating type " + rating_type);
+  // if (challenger_user.ratings[rating_type] === undefined)
+  //   throw new Meteor.Error("Unknown rating type " + rating_type);
 
   const role = is_it_rated ? "play_rated_games" : "play_unrated_games";
 
@@ -285,26 +337,26 @@ GameRequests.addLocalMatchRequest = function(
   const record = {
     type: "match",
     challenger: challenger_user.username,
-    challenger_rating: challenger_user.ratings[rating_type].rating,
+    //challenger_rating: challenger_user.ratings[rating_type].rating,
     challenger_titles: [], // TODO: ditto
-    challenger_established: established(challenger_user.ratings[rating_type]),
+    //challenger_established: established(challenger_user.ratings[rating_type]),
     receiver: receiver_user.username,
-    receiver_rating: receiver_user.ratings[rating_type].rating,
-    receiver_established: established(receiver_user.ratings[rating_type]),
+    //receiver_rating: receiver_user.ratings[rating_type].rating,
+    //receiver_established: established(receiver_user.ratings[rating_type]),
     receiver_titles: [], // TODO: ditto
     wild_number: wild_number,
-    rating_type: rating_type,
+    //rating_type: rating_type,
     rated: is_it_rated,
-    adjourned: is_it_adjourned, // TODO: We have to figure this out too
+    //adjourned: is_it_adjourned, // TODO: We have to figure this out too
     challenger_time: challenger_time,
     challenger_inc: challenger_inc,
     receiver_time: receiver_time,
     receiver_inc: receiver_inc,
-    challenger_color_request: challenger_color_request, // TODO: We have to figure this out too
-    assess_loss: assess_loss, // TODO: We have to figure this out too
-    assess_draw: assess_draw, // TODO: We have to figure this out too
-    assess_win: assess_win, // TODO: We have to figure this out too
-    fancy_time_control: fancy_time_control // TODO: We have to figure this out too
+    challenger_color_request: challenger_color_request // TODO: We have to figure this out too
+    // assess_loss: assess_loss, // TODO: We have to figure this out too
+    // assess_draw: assess_draw, // TODO: We have to figure this out too
+    // assess_win: assess_win, // TODO: We have to figure this out too
+    // fancy_time_control: fancy_time_control // TODO: We have to figure this out too
   };
 
   if (!!challenger_user) record.challenger_id = challenger_user._id;

@@ -3,6 +3,7 @@ import { Mongo } from "meteor/mongo";
 import React from "react";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Logger } from "../../../../lib/client/Logger";
+import GameRequests from "../../../../server/GameRequest";
 
 const log = new Logger("CreateGameComponent_js");
 const legacyUsersC = new Mongo.Collection("legacyUsers");
@@ -29,7 +30,19 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   }
 
   gameStart(user) {
-    Meteor.call("game.match", "uiuxtest1", true, 5, 0, 5, 0, false, 0, "white");
+    const us = Meteor.user();
+    GameRequests.addLocalMatchRequest(
+      us,
+      "uiuxtest2",
+      0,
+      true,
+      5,
+      0,
+      5,
+      0,
+      "white"
+    );
+    //Meteor.call("game.match", "uiuxtest1", true, 5, 0, 5, 0, false, 0, "white");
   }
 
   render() {

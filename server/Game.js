@@ -1,4 +1,6 @@
 import Chess from "chess.js";
+import SimpleSchema from "simpl-schema";
+import { check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Logger } from "../lib/server/Logger";
 import { LegacyUser } from "./LegacyUser";
@@ -11,6 +13,56 @@ export const GameCollection = new Mongo.Collection("game");
 let log = new Logger("server/Game_js");
 
 let active_games = {};
+
+const actionSchema = new SimpleSchema({
+  type: {
+    type: String,
+    allowedValues: ["move", "takeBack", "draw", "resign", "abort", "game"]
+  },
+  value: { type: String },
+  actionBy: { type: String }
+});
+
+const GameSchema = new SimpleSchema({
+  startTime: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
+  requestBy: { type: String, required: false }, // TODO: This is ok, yes? I'm not sure why it wouldn't be.
+  legacy_game_id: { type: Number, required: false },
+  wild: { type: Number, required: false },
+  rating_type: { type: String, required: false },
+  rated: { type: String, required: false },
+  status: { type: String },
+  clocks: new SimpleSchema({
+    white: new SimpleSchema({
+      time: { type: SimpleSchema.Integer },
+      inc: { type: Number },
+      current: { type: SimpleSchema.Integer }
+    }),
+    black: new SimpleSchema({
+      time: { type: SimpleSchema.Integer },
+      inc: { type: Number },
+      current: { type: SimpleSchema.Integer }
+    })
+  }),
+  white: new SimpleSchema({
+    name: { type: String },
+    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
+    rating: { type: SimpleSchema.Integer }
+  }),
+  black: new SimpleSchema({
+    name: { type: String },
+    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
+    rating: { type: SimpleSchema.Integer }
+  }),
+  moves: [String],
+  actions: [actionSchema]
+});
+GameCollection.attachSchema(GameSchema);
+
 
 function getLegacyUser(userId) {
   const our_legacy_user = LegacyUser.find(userId);
@@ -207,6 +259,21 @@ Game.makeMove = function(self, game_id, move) {
   game.update({ _id: game_id }, updateobject);
 };
 
+Game.requestAction = function(self, game_id, number) {
+  const game = getAndCheck(self, game_id);
+  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
+
+  if (game.legacy_game_number) {
+    const lu = getLegacyUser(this._id);
+    if (!lu) throw new Meteor.Error("Unable to find legacy user for this game");
+    lu.requestTakeback(number);
+    return;
+  }
+
+  const ms = new Date().getTime() - game.starttime.getTime();
+  Meteor.update({ _id: game_id }, { $push: [ms, { takeback: number }] });
+};
+
 Game.requestTakeback = function(self, game_id, number) {
   const game = getAndCheck(self, game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
@@ -349,7 +416,7 @@ Game.determineWhite = function(p1, p2, color) {
   // TODO: Obviously this has to be a far better algorithm based on the games both players have recently played
   if (Math.random() <= 0.5) return p1;
   else return p2;
-}
+};
 
 Game.offerMoretime = function(self, game_id, issuer, seconds) {};
 
