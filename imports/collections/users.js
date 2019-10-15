@@ -156,13 +156,16 @@ Accounts.validateLoginAttempt(function(params) {
     throw new Meteor.Error("Administrators are not allowing you to login"); // TODO: i18n
 
   if (!params.user.locale || params.user.locale === "unknown") {
-    const httpHeaders = params.connection || {};
-    const acceptLanguage = httpHeaders["accept-language"] || "en-US";
+    const httpHeaders = params.connection.httpHeaders || {};
+    const acceptLanguage = (httpHeaders["accept-language"] || "en-us")
+      .split(/[,;]/)[0]
+      .toLocaleLowerCase()
+      .replace("_", "-");
     Meteor.users.update(
       { _id: params.user._id },
-      { $set: { local: acceptLanguage } }
+      { $set: { locale: acceptLanguage } }
     );
-    params.user.local = acceptLanguage;
+    params.user.locale = acceptLanguage;
   }
   return true;
 });
