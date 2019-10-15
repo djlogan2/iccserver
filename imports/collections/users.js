@@ -47,7 +47,7 @@ Meteor.publish("userData", function() {
   );
 });
 
-const startingRatingObject = {
+export const startingRatingObject = {
   rating: 1600,
   need: 0,
   won: 0,
@@ -56,7 +56,31 @@ const startingRatingObject = {
   best: 0
 };
 
+export const user_ratings_object = {
+  bullet: startingRatingObject,
+  blitz: startingRatingObject,
+  standard: startingRatingObject,
+  wild: startingRatingObject,
+  bughouse: startingRatingObject,
+  losers: startingRatingObject,
+  crazyhouse: startingRatingObject,
+  fiveminute: startingRatingObject,
+  oneminute: startingRatingObject,
+  correspondence: startingRatingObject,
+  fifteenminute: startingRatingObject,
+  threeminute: startingRatingObject,
+  computerpool: startingRatingObject,
+  chess960: startingRatingObject
+};
+
+export const default_settings = {
+  autoaccept: true
+};
+
 Accounts.onCreateUser(function(options, user) {
+  const { httpHeaders = {} } = this.connection;
+  const acceptLanguage = httpHeaders["accept-language"] || "en-US";
+
   if (options.profile) {
     user.profile = {
       firstname: options.profile.firstname || "?",
@@ -64,23 +88,7 @@ Accounts.onCreateUser(function(options, user) {
     };
 
     // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
-    user.ratings = {
-      //rating [need] win  loss  draw total   best
-      bullet: startingRatingObject,
-      blitz: startingRatingObject,
-      standard: startingRatingObject,
-      wild: startingRatingObject,
-      bughouse: startingRatingObject,
-      losers: startingRatingObject,
-      crazyhouse: startingRatingObject,
-      fiveminute: startingRatingObject,
-      oneminute: startingRatingObject,
-      correspondence: startingRatingObject,
-      fifteenminute: startingRatingObject,
-      threeminute: startingRatingObject,
-      computerpool: startingRatingObject,
-      chess960: startingRatingObject
-    };
+    user.ratings = user_ratings_object;
 
     if (
       options.profile.legacy &&
@@ -93,11 +101,11 @@ Accounts.onCreateUser(function(options, user) {
       };
   }
 
-  user.settings = {
-    autoaccept: true
-  };
+  user.settings = default_settings;
 
   user.loggedOn = false;
+  user.locale = acceptLanguage || "en_US";
+  user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
   user.roles = { __global_roles__: standard_member_roles };
 
   return user;
@@ -148,5 +156,5 @@ Accounts.validateLoginAttempt(function(params) {
   if (!params.user) return false;
   // Pretty simple so far. Allow the user to login if they are in the role allowing them to do so.
   if (Roles.userIsInRole(params.user, "login")) return true;
-  else throw new Meteor.Error("Administrators are not allowing you to login"); // TODO: i8n
+  else throw new Meteor.Error("Administrators are not allowing you to login"); // TODO: i18n
 });

@@ -3,7 +3,7 @@ import chai from "chai";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
-import clientMessages, { sendMessageToClient } from "./clientMessages";
+import ClientMessagesCollection, { sendMessageToClient } from "./ClientMessages";
 
 function createUser(username, login) {
   Accounts.createUser({
@@ -36,7 +36,7 @@ describe("Client Messages", function() {
   it("should not save a message for a user if they are logged off", function() {
     const user1 = createUser("user1", false);
     sendMessageToClient(user1, "logged off user 1 message");
-    const rec = clientMessages.find({}).fetch();
+    const rec = ClientMessagesCollection.find({}).fetch();
     chai.assert.equal(rec.length, 0);
   });
 

@@ -18,8 +18,10 @@ Meteor.publish("game_requests", function() {
 
 let log = new Logger("server/GameRequest_js");
 
+export const GameRequests = {};
 //
-export function legacyGameSeek(
+GameRequests.addLegacyGameSeek = function(
+  self,
   index,
   name,
   titles,
@@ -34,11 +36,122 @@ export function legacyGameSeek(
   minrating,
   maxrating,
   autoaccept,
+  formula
+) {
+  GameRequestCollection.insert({
+    type: "legacyseek",
+    owner: self._id,
+    legacy_index: index,
+    name: name,
+    titles: titles,
+    provisional_status: provisional_status,
+    wild: wild,
+    rating_type: rating_type,
+    time: time,
+    inc: inc,
+    rated: rated,
+    color: color,
+    minrating: minrating,
+    maxrating: maxrating,
+    autoaccept: autoaccept,
+    formula: formula
+  });
+};
+
+GameRequests.addLocalGameSeek = function(
+  self,
+  wild,
+  rating_type,
+  time,
+  inc,
+  rated,
+  color,
+  minrating,
+  maxrating,
+  autoaccept,
   formula,
   fancy_time_control
-) {}
+) {
+  if (!self) throw new Meteor.Error("self is null");
+  if (
+    !Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")
+  )
+    throw new Meteor.Error("Unable to seek this game");
+  GameRequestCollection.insert({
+    type: "seek",
+    owner: self._id,
+    wild: wild,
+    rating_type: rating_type,
+    time: time,
+    inc: inc,
+    rated: rated,
+    color: color,
+    minrating: minrating,
+    maxrating: maxrating,
+    autoaccept: autoaccept,
+    formula: formula
+  });
+};
 
-export function addLegacyGameRequest(
+GameRequests.removeLegacySeek = function(self, seek_index) {
+  if (!self) throw new Meteor.Error("self is null");
+  const request = GameRequestCollection.findOne({ legacy_index: seek_index });
+  if (!request)
+    return; // The doc says we could get removes for seeks we do not have.
+    //throw new Meteor.Error("Unable to find seek with index " + seek_index);
+  if (self._id !== request.owner._id)
+    throw new Meteor.Error("Cannot remove another users game seek");
+  GameRequestCollection.remove({ _id: request._id });
+};
+
+GameRequests.removeGameSeek = function(self, seek_id) {
+  if (!self) throw new Meteor.Error("self is null");
+  const request = GameRequestCollection.findOne({ _id: seek_id });
+  if (!request)
+    throw new Meteor.Error("Unable to find seek with id " + seek_id);
+  if (self._id !== request.owner._id)
+    throw new Meteor.Error("Cannot remove another users game seek");
+  GameRequestCollection.remove({ _id: seek_id });
+};
+
+GameRequests.acceptGameSeek = function(self, seek_id) {
+  if (!self) throw new Meteor.Error("self is null");
+  const request = GameRequestCollection.findOne({ _id: seek_id });
+  if (!request)
+    throw new Meteor.Error("Unable to find seek with id " + seek_id);
+  if (self._id === request.owner._id)
+    throw new Meteor.Error("Cannot accept a seek from yourself");
+  if (
+    !Roles.userIsInRole(
+      user,
+      request.rated ? "play_rated_games" : "play_unrated_games"
+    )
+  )
+    throw new Meteor.Error("Unable to accept seek: Not in role");
+
+  const white = Game.determineWhite(self, request.owner, request.color);
+  const black = white._id === self._id ? request.owner : self;
+  const game_id = Game.startLocalGame(
+    self,
+    white,
+    black,
+    request.wild,
+    request.rating_type,
+    request.rated,
+    request.time,
+    request.inc,
+    request.time,
+    request.inc,
+    true
+  );
+  GameRequestCollection.remove({ _id: seek_id });
+  return game_id;
+};
+
+//
+//-----------------------------------------------------------------------------
+//
+GameRequests.addLegacyMatchRequest = function(
   challenger_name,
   challenger_rating,
   challenger_established,
@@ -62,7 +175,7 @@ export function addLegacyGameRequest(
   fancy_time_control   It doesn't appear we actually get these from the server */
 ) {
   const args = arguments;
-  log.debug("addLegacyGameRequest: ", () => {
+  log.debug("addLegacyMatchRequest: ", () => {
     JSON.stringify(args);
   });
   const challenger_user = Meteor.users.findOne({
@@ -111,13 +224,13 @@ export function addLegacyGameRequest(
   if (!!receiver_user) record.receiver_id = receiver_user._id;
 
   GameRequestCollection.insert(record);
-}
+};
 
 function established(rating_object) {
   return rating_object.won + rating_object.draw + rating_object.lost >= 20;
 }
 
-export function addLocalGameRequest(
+GameRequests.addLocalMatchRequest = function(
   challenger_user,
   receiver_user,
   wild_number,
@@ -136,7 +249,7 @@ export function addLocalGameRequest(
 ) {
   if (!challenger_user) throw new Meteor.Error("Challenger is required");
   if (!receiver_user) throw new Meteor.Error("Receiver is required");
-  if (wild_number !== "0") throw new Meteor.Error("Wild must be zero");
+  if (parseInt(wild_number) !== 0) throw new Meteor.Error("Wild must be zero");
   if (typeof is_it_rated !== "boolean")
     throw new Meteor.Error("rated must be true or false");
   if (
@@ -160,12 +273,12 @@ export function addLocalGameRequest(
     throw new Meteor.Error("not_in_role", role);
 
   const record = {
-    type: "localmatch",
+    type: "match",
     challenger: challenger_user.username,
     challenger_rating: challenger_user.ratings[rating_type].rating,
     challenger_titles: [], // TODO: ditto
     challenger_established: established(challenger_user.ratings[rating_type]),
-    receiver: receiver_user.user.username,
+    receiver: receiver_user.username,
     receiver_rating: receiver_user.ratings[rating_type].rating,
     receiver_established: established(receiver_user.ratings[rating_type]),
     receiver_titles: [], // TODO: ditto
@@ -187,10 +300,14 @@ export function addLocalGameRequest(
   if (!!challenger_user) record.challenger_id = challenger_user._id;
   if (!!receiver_user) record.receiver_id = receiver_user._id;
 
-  GameRequestCollection.insert(record);
-}
+  return GameRequestCollection.insert(record);
+};
 
-export function removeLegacyMatchRequest(
+GameRequests.acceptMatchRequest = function(game_id) {};
+
+GameRequests.declineMatchRequest = function(game_id) {};
+
+GameRequests.removeLegacyMatchRequest = function(
   challenger_name,
   receiver_name
 ) {
@@ -200,4 +317,4 @@ export function removeLegacyMatchRequest(
       { receiver_name: receiver_name }
     ]
   });
-}
+};

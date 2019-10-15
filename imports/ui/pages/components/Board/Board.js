@@ -225,6 +225,13 @@ export default class Board extends React.Component {
     this.rankTo = raf.rank + 1;
     this.fileTo = raf.file;
 
+    //
+    // TODO: Yea, this isn't really good  . First of all, if there is going to be a gigantic IF statement, it shouldn't be replicated, it should be a function.
+    //       Secondly, aren't there far more efficient ways to do this?
+    //       For example: this.fileFrom = String.fromCharCode(97 + this.fileFrom);
+    //       For Example: const array = ['a','b','c','d','e','f','g','h']; this.fileFrom = array[this.fileFrom];
+    //       And then the code is duplicated again? Please clean this up.
+    //
     if (this.fileFrom === 0) {
       this.fileFrom = "a";
     } else if (this.fileFrom === 1) {
