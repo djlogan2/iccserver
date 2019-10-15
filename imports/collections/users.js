@@ -164,4 +164,5 @@ Accounts.validateLoginAttempt(function(params) {
     );
     params.user.local = acceptLanguage;
   }
+  return true;
 });
