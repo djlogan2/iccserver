@@ -877,4 +877,7 @@ describe("game_requests publication", function() {
   it("only return records for which the owner is a challenger or receiver of a seek or match", function() {
     chai.assert.fail("do me");
   });
+  it("should not return any records if user is playing a game", function() {
+    chai.assert.fail("do me");
+  });
 });
