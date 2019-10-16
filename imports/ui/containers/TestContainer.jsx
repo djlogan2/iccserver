@@ -6,8 +6,11 @@ import Board from "../pages/components/Board/Board";
 import CssManager from "../pages/components/Css/TestContainerCssManager";
 import Chess from "chess.js";
 import MoveListComponent from "../pages/RightSidebar/MoveListComponent";
+import { Meteor } from "meteor/meteor";
+import TrackerReact from "meteor/ultimatejs:tracker-react";
+
 const css = new CssManager("developmentcss");
-class TestContainer extends Component {
+class TestContainer extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.chess = new Chess.Chess();
@@ -18,7 +21,11 @@ class TestContainer extends Component {
       top: "b",
       what: this.props.match.params.what,
       from: null,
-      to: null
+      to: null,
+      subscription: {
+        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
+        legacyUsers: Meteor.subscribe("legacyUsers")
+      }
     };
   }
 
@@ -42,10 +49,14 @@ class TestContainer extends Component {
    */
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
+    this.state.subscription.loggedOnUsers.stop();
+    this.state.subscription.legacyUsers.stop();
   }
 
   render() {
     switch (this.state.what) {
+      case "userlist":
+        return this.renderUserList();
       case "square":
         return this.renderSquare();
       case "board":
@@ -55,6 +66,24 @@ class TestContainer extends Component {
       default:
         return TestContainer.renderUnknown(this.state.what);
     }
+  }
+
+  renderUserList() {
+    const localUsers = Meteor.users.find({}).fetch();
+    //const legacyUsers = legacyUsersC.find({}).fetch();
+    return (
+      <div>
+        <table>
+          {localUsers.map(user => (
+            <tr>
+              {Object.keys(user).map(k => (
+                <td>{JSON.stringify(user[k])}</td>
+              ))}
+            </tr>
+          ))}
+        </table>
+      </div>
+    );
   }
 
   static renderUnknown(what) {
@@ -121,7 +150,7 @@ class TestContainer extends Component {
   renderBoard() {
     if (this.state.from != null && this.state.to != null) {
       this.chess.move({ from: this.state.from, to: this.state.to });
-    //  this.chess.undo();
+      //  this.chess.undo();
     }
     let w = this.state.width;
     let h = this.state.height;
