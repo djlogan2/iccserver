@@ -13,7 +13,6 @@ import {
   default_settings,
   user_ratings_object
 } from "../imports/collections/users";
-import { GameCollection } from "./Game";
 
 const player1 = {
   _id: "player1",
@@ -61,8 +60,13 @@ describe("GameRequests.addLegacyGameSeek", function() {
     sinon.replace(
       GameRequests.collection,
       "findOne",
-      sinon.fake.returns(function(selector) {
-        if (selector._id === 999) return { _id: "haveit" };
+      sinon.fake(function(selector) {
+        if (selector.legacy_index === 999)
+          return {
+            type: "legacyseek",
+            owner: "player1",
+            legacy_index: 999
+          };
         else return null;
       })
     );
@@ -570,20 +574,84 @@ describe("GameRequests.addLocalGameSeek", function() {
 
 // GameRequests.removeLegacySeek = function(self, index)
 describe("GameRequests.removeLegacySeek", function() {
+  const stubvalues = {
+    userIsInRole: true,
+    meetsTimeAndIncRules: true,
+    meetsMinimumAndMaximumRatingRules: true
+  };
+
+  beforeEach(function() {
+    stubvalues.userIsInRole = true;
+    stubvalues.meetsTimeAndIncRules = true;
+    stubvalues.meetsMinimumAndMaximumRatingRules = true;
+    sinon.replace(
+      GameRequests.collection,
+      "findOne",
+      sinon.fake(function(selector) {
+        if (selector.legacy_index === 999)
+          return {
+            type: "legacyseek",
+            owner: "player1",
+            legacy_index: 999
+          };
+        else return null;
+      })
+    );
+    sinon.replace(
+      Meteor,
+      "user",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      LegacyUser,
+      "find",
+      sinon.fake.returns({ legacy_user_record: true })
+    );
+  });
+
+  afterEach(function() {
+    sinon.restore();
+  });
+
   it("should fail if self is null or invalid", function() {
-    chai.assert.fail("do me");
+    meteoruser = undefined;
+    chai.assert.throws(() => {
+      GameRequests.removeLegacySeek(0);
+    }, Meteor.Error);
   });
+
   it("should succeed if we try to remove a non-existant index", function() {
-    chai.assert.fail("do me");
+    chai.assert.throws(() => {
+      GameRequests.removeLegacySeek(0);
+    }, Meteor.Error);
   });
+
   it("should remove a previously added record by legacy index", function() {
-    chai.assert.fail("do me");
+    let removed = false;
+    meteoruser = player1;
+    sinon.replace(
+      GameRequests.collection,
+      "remove",
+      sinon.fake(function() {
+        removed = true;
+      })
+    );
+    GameRequests.removeLegacySeek(999);
+    chai.assert.isTrue(removed);
   });
+
   it("should fail if the seek record does not belong to the user", function() {
-    chai.assert.fail("do me");
+    meteoruser = player2;
+    chai.assert.throws(() => {
+      GameRequests.removeLegacySeek(999);
+    }, Meteor.Error);
   });
-  it("should fail if the seek record is not a legacy seek", function() {
+
+  it("should return successfully if we try to remove a nonexistent seek index (per formats.txt documentation)", function() {
     chai.assert.fail("do me");
+    chai.assert.doesNotThrow(GameRequests.removeLegacySeek(111));
   });
 });
 

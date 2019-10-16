@@ -156,7 +156,7 @@ GameRequests.removeLegacySeek = function(seek_index) {
   const request = GameRequestCollection.findOne({ legacy_index: seek_index });
   if (!request) return; // The doc says we could get removes for seeks we do not have.
 
-  if (self._id !== request.owner._id)
+  if (self._id !== request.owner)
     throw new Meteor.Error("Cannot remove another users game seek");
   GameRequestCollection.remove({ _id: request._id });
 };
@@ -167,7 +167,7 @@ GameRequests.removeGameSeek = function(seek_id) {
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
     throw new Meteor.Error("Unable to find seek with id " + seek_id);
-  if (self._id !== request.owner._id)
+  if (self._id !== request.owner)
     throw new Meteor.Error("Cannot remove another users game seek");
   GameRequestCollection.remove({ _id: seek_id });
 };
@@ -178,7 +178,7 @@ GameRequests.acceptGameSeek = function(seek_id) {
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
     throw new Meteor.Error("Unable to find seek with id " + seek_id);
-  if (self._id === request.owner._id)
+  if (self._id === request.owner)
     throw new Meteor.Error("Cannot accept a seek from yourself");
   if (
     !Roles.userIsInRole(
@@ -188,8 +188,9 @@ GameRequests.acceptGameSeek = function(seek_id) {
   )
     throw new Meteor.Error("Unable to accept seek: Not in role");
 
-  const white = Game.determineWhite(self, request.owner, request.color);
-  const black = white._id === self._id ? request.owner : self;
+  const owner_user = Meteor.users.findOne({ _id: request.owner });
+  const white = Game.determineWhite(self, owner_user, request.color);
+  const black = white._id === self._id ? owner_user : self;
   const game_id = Game.startLocalGame(
     self,
     white,
