@@ -101,3 +101,9 @@ addLogoutHook(function(userId) {
   log.debug("runOnLogout: " + userId);
   ClientMessagesCollection.remove({ to: userId });
 });
+
+Meteor.startup(function() {
+  if (Meteor.isTest || Meteor.isAppTest) {
+    ClientMessages.collection = ClientMessagesCollection;
+  }
+});

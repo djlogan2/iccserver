@@ -3,7 +3,7 @@ import chai from "chai";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
-import ClientMessagesCollection, { sendMessageToClient } from "./ClientMessages";
+import { ClientMessages } from "./ClientMessages";
 
 function createUser(username, login) {
   Accounts.createUser({
@@ -35,8 +35,8 @@ describe("Client Messages", function() {
 
   it("should not save a message for a user if they are logged off", function() {
     const user1 = createUser("user1", false);
-    sendMessageToClient(user1, "logged off user 1 message");
-    const rec = ClientMessagesCollection.find({}).fetch();
+    ClientMessages.sendMessageToClient(user1, "logged off user 1 message");
+    const rec = ClientMessages.collection.find({}).fetch();
     chai.assert.equal(rec.length, 0);
   });
 
@@ -45,10 +45,10 @@ describe("Client Messages", function() {
     const user2 = createUser("user2", true);
     const user3 = createUser("user3", true);
     const user4 = createUser("user4", true);
-    sendMessageToClient(user1, "user 1 message");
-    sendMessageToClient(user2, "user 2 message");
-    sendMessageToClient(user3, "user 3 message");
-    sendMessageToClient(user4, "user 4 message");
+    ClientMessages.sendMessageToClient(user1, "user 1 message");
+    ClientMessages.sendMessageToClient(user2, "user 2 message");
+    ClientMessages.sendMessageToClient(user3, "user 3 message");
+    ClientMessages.sendMessageToClient(user4, "user 4 message");
     const collector = new PublicationCollector({ userId: user1 });
     collector.collect("client_messages", collections => {
       chai.assert.equal(collections.client_messages.length, 1);

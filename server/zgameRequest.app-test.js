@@ -558,9 +558,9 @@ describe("GameRequests.addLocalGameSeek", function() {
       15,
       0,
       true,
-      null,
-      null,
-      null,
+      "white",
+      1000,
+      2000,
       true
     );
     gr.verify();
