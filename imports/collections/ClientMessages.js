@@ -7,15 +7,17 @@ import { addLogoutHook } from "./users";
 import { Logger } from "../../lib/server/Logger";
 
 let log = new Logger("clientMessages_js");
-export const ClientMessagesCollection = new Mongo.Collection("client_messages");
+const ClientMessagesCollection = new Mongo.Collection("client_messages");
 
 //
-// TODO: OK, so we need more structure here. For client messages, we need two things:
-//       (1) Incoming commands, say a game seek, needs to have some sort of client-defined identifier that says "Any messsage regarding this seek should be logged into client_messages with this identifier"
-//       (2) Then of course our schema, and these methods, need to accept, perhaps even require, some type of identifier. If a message has no identifier,
-//           let's say "server failure" or something, then the identifier could be something generic, like "global", or "system" or something.
-//       So basically, our schema needs to be something like this:
-//           {_id: mongoid, datecreated: 2019-10-10 12:12:12, identifier: "required-custom-identifier", message: "i18n-message-id", parameters: ["parameter", "array"]}
+// You can put whatever you want in the array for the parameters. It's for documentation only at the time of this writing.
+// The code checks for the parameter COUNT, but does not otherwise verify.
+//
+export const DefinedClientMessagesMap = {
+  UNABLE_TO_LOGON: { parameters: ["player_name"] },
+  UNABLE_TO_PLAY_RATED_GAMES: {},
+  UNABLE_TO_PLAY_UNRATED_GAMES: {}
+};
 
 Meteor.publish("client_messages", function() {
   return ClientMessagesCollection.find({ to: this.userId });
@@ -23,15 +25,21 @@ Meteor.publish("client_messages", function() {
 
 Meteor.methods({
   "acknowledge.client.message": function(id) {
+    check(id, Meteor.Collection.ObjectID);
     const rec = ClientMessagesCollection.findOne({ _id: id });
-    if (!rec || !rec.count()) return; // TODO: Decide, should we throw an error?
-    if (rec.to !== this.userId) return; // TODO: Decide, should we throw an error?
+    if (!rec || !rec.count())
+      throw Meteor.Error(
+        "Why are we here? We should not be deleting a nonexistant client message"
+      );
+    if (rec.to !== this.userId)
+      throw Meteor.Error(
+        "Why are we here? We should not be deleting a client message that does not belong to us"
+      );
     ClientMessagesCollection.remove({ _id: id });
   }
 });
 
-const ClientMessages = {};
-export default ClientMessages;
+export const ClientMessages = {};
 
 ClientMessages.sendMessageToClient = function(
   user,
@@ -41,8 +49,40 @@ ClientMessages.sendMessageToClient = function(
 ) {
   check(user, Match.OneOf(Object, Meteor.Collection.ObjectID));
   check(client_identifier, String);
-  check(i8n_message, Number);
-  check(parameter_array, [Match.Any]);
+  check(
+    i8n_message,
+    Match.Where(() => DefinedClientMessagesMap[i8n_message] !== undefined)
+  ); // It has to be a known and supported message to the client
+  check(
+    parameter_array,
+    Match.Where(() => {
+      if (
+        !DefinedClientMessagesMap[i8n_message].parameters ||
+        DefinedClientMessagesMap[i8n_message].parameters.length === 0
+      ) {
+        if (
+          parameter_array === undefined ||
+          parameter_array == null ||
+          (Array.isArray(parameter_array) && parameter_array.length() === 0)
+        )
+          return true;
+        throw new Match.Error(
+          "Message " + i8n_message + " is not allowed to have any parameters"
+        );
+      }
+      if (!Array.isArray(parameter_array))
+        throw new Match.Error("parameter_array must be an array");
+      if (
+        parameter_array.length() !==
+        DefinedClientMessagesMap[i8n_message].parameters.length
+      )
+        throw new Match.Error(
+          "parameter_array does not have the correct number of parameters. It should have " +
+            DefinedClientMessagesMap[i8n_message].parameters.length +
+            " parameters"
+        );
+    })
+  );
 
   const id = typeof user === "object" ? user._id : user;
   const touser = Meteor.users.findOne({ _id: id, loggedOn: true });

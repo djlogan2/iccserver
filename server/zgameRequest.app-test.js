@@ -3,6 +3,7 @@ import chai from "chai";
 import "./GameRequest";
 import { GameRequests } from "./GameRequest";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { ClientMessages } from "../imports/collections/ClientMessages";
 import sinon from "sinon";
 import { Meteor } from "meteor/meteor";
 import { Match } from "meteor/check";
@@ -12,6 +13,7 @@ import {
   default_settings,
   user_ratings_object
 } from "../imports/collections/users";
+import { GameCollection } from "./Game";
 
 const player1 = {
   _id: "player1",
@@ -42,11 +44,67 @@ const observer = {
   settings: default_settings
 };
 
+let meteoruser = player1;
+
 //GameRequests.addLegacyGameSeek = function(
 describe("GameRequests.addLegacyGameSeek", function() {
+  const stubvalues = {
+    userIsInRole: true,
+    meetsTimeAndIncRules: true,
+    meetsMinimumAndMaximumRatingRules: true
+  };
+
+  beforeEach(function() {
+    stubvalues.userIsInRole = true;
+    stubvalues.meetsTimeAndIncRules = true;
+    stubvalues.meetsMinimumAndMaximumRatingRules = true;
+    sinon.replace(
+      GameRequests.collection,
+      "findOne",
+      sinon.fake.returns(function(selector) {
+        if (selector._id === 999) return { _id: "haveit" };
+        else return null;
+      })
+    );
+    sinon.replace(
+      Meteor,
+      "user",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      LegacyUser,
+      "find",
+      sinon.fake.returns({ legacy_user_record: true })
+    );
+  });
+
+  afterEach(function() {
+    sinon.restore();
+  });
+
   //  index,
   it("should fail if we try to add the same index twice", function() {
-    chai.assert.fail("do me");
+    chai.assert.throws(() => {
+      GameRequests.addLegacyGameSeek(
+        999,
+        "player1",
+        "C GM",
+        2340,
+        false,
+        0,
+        "Standard",
+        15,
+        0,
+        true,
+        "w",
+        0,
+        3000,
+        true,
+        ""
+      );
+    }, Meteor.Error);
   });
   //   name,
   //   titles,
@@ -67,18 +125,37 @@ describe("GameRequests.addLegacyGameSeek", function() {
 
 // GameRequests.addLocalGameSeek = function() {};
 describe("GameRequests.addLocalGameSeek", function() {
-  let userIsInRole = true;
-  let meteoruser = undefined;
+  const stubvalues = {
+    userIsInRole: true,
+    meetsTimeAndIncRules: true,
+    meetsMinimumAndMaximumRatingRules: true
+  };
 
   beforeEach(function() {
+    stubvalues.userIsInRole = true;
+    stubvalues.meetsTimeAndIncRules = true;
+    stubvalues.meetsMinimumAndMaximumRatingRules = true;
     sinon.replace(
       Roles,
       "userIsInRole",
-      sinon.fake.returns(function() {
-        return userIsInRole;
+      sinon.fake(function() {
+        return stubvalues.userIsInRole;
       })
     );
-    sinon.replace(Meteor, "user", sinon.fake.returns(meteoruser));
+    sinon.replace(
+      Meteor,
+      "user",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      Meteor.users,
+      "findOne",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
     sinon.replace(
       LegacyUser,
       "find",
@@ -87,14 +164,21 @@ describe("GameRequests.addLocalGameSeek", function() {
     sinon.replace(
       SystemConfiguration,
       "meetsTimeAndIncRules",
-      sinon.fake.returns(true)
+      sinon.fake(function() {
+        return stubvalues.meetsTimeAndIncRules;
+      })
+    );
+    sinon.replace(
+      SystemConfiguration,
+      "meetsMinimumAndMaximumRatingRules",
+      sinon.fake(function() {
+        return stubvalues.meetsMinimumAndMaximumRatingRules;
+      })
     );
   });
 
   afterEach(function() {
     sinon.restore();
-    userIsInRole = false;
-    meteoruser = undefined;
     player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
     player1.settings = default_settings;
     player2.settings = default_settings;
@@ -107,10 +191,10 @@ describe("GameRequests.addLocalGameSeek", function() {
     meteoruser = undefined;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
-        null,
+        "test_identifier",
         0,
         "standard",
-        5,
+        15,
         0,
         true,
         null,
@@ -121,13 +205,14 @@ describe("GameRequests.addLocalGameSeek", function() {
     }, Meteor.Error);
   });
   //   wild,
-  it("should fail if wild is not zero", function() {
+  it("should fail if wild is invalid (currently anything other than zero)", function() {
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         1,
         "standard",
-        5,
+        15,
         0,
         true,
         null,
@@ -135,13 +220,14 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
+    }, Match.Error);
   });
   //   rating_type,
   it("should fail if rating_type is not a valid rating type for ICC", function() {
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         0,
         "bogus",
         5,
@@ -159,6 +245,7 @@ describe("GameRequests.addLocalGameSeek", function() {
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         0,
         "standard",
         null,
@@ -173,6 +260,7 @@ describe("GameRequests.addLocalGameSeek", function() {
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         0,
         "standard",
         "five",
@@ -184,14 +272,11 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, Match.Error);
-    sinon.replace(
-      SystemConfiguration,
-      "meetsTimeAndIncRules",
-      sinon.fake.returns(false)
-    );
+    stubvalues.meetsTimeAndIncRules = false;
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         0,
         "standard",
         "five",
@@ -202,16 +287,17 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
+    }, Match.Error);
   });
   //   inc,
   it("should fail if inc is null or not a number or not within ICC configuration requirements", function() {
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         0,
         "standard",
-        5,
+        15,
         null,
         true,
         null,
@@ -219,13 +305,14 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
+    }, Match.Error);
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         0,
         "standard",
-        5,
+        15,
         "five",
         true,
         null,
@@ -233,35 +320,17 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
-    sinon.replace(
-      SystemConfiguration,
-      "meetsTimeAndIncRules",
-      sinon.fake.returns(false)
-    );
-    meteoruser = player1;
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        0,
-        "standard",
-        5,
-        0,
-        true,
-        null,
-        null,
-        null,
-        true
-      );
-    }, Meteor.Error);
+    }, Match.Error);
   });
   //   rated,
   it("should fail if rated is not 'true' or 'false'", function() {
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
+        "test_identifier",
         0,
         "standard",
-        5,
+        15,
         0,
         "something",
         null,
@@ -269,23 +338,73 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
+    }, Match.Error);
   });
   it("should write a message to client_messages if rated and user cannot play rated games", function() {
-    chai.assert.fail("do me");
+    const cm = sinon.mock(ClientMessages);
+
+    cm.expects("sendMessageToClient")
+      .once()
+      .withExactArgs(player1, "test_identifier", "UNABLE_TO_PLAY_RATED_GAMES");
+
+    meteoruser = player1;
+    stubvalues.userIsInRole = false;
+    GameRequests.addLocalGameSeek(
+      "test_identifier",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      null,
+      null,
+      true
+    );
+
+    cm.verify();
+    cm.restore();
   });
+
   it("should write a message to client_messages if unrated and user cannot play unrated games", function() {
-    chai.assert.fail("do me");
+    const cm = sinon.mock(ClientMessages);
+
+    cm.expects("sendMessageToClient")
+      .once()
+      .withExactArgs(
+        player1,
+        "test_identifier",
+        "UNABLE_TO_PLAY_UNRATED_GAMES"
+      );
+
+    meteoruser = player1;
+    stubvalues.userIsInRole = false;
+    GameRequests.addLocalGameSeek(
+      "test_identifier",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      null,
+      null,
+      true
+    );
+
+    cm.verify();
+    cm.restore();
   });
   //   color,
-  it("should fail if is not null, 'black' or 'white'", function() {
+
+  it("should fail if color is not null, 'black' or 'white'", function() {
     meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
-        null,
+        "test_identifier",
         0,
         "standard",
-        5,
+        15,
         0,
         true,
         "something",
@@ -293,26 +412,159 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
+    }, Match.Error);
   });
   //   minrating,
   it("should fail if minrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
-    chai.assert.fail("do me");
+    meteoruser = player1;
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        "1200",
+        null,
+        true
+      );
+    }, Match.Error);
+    stubvalues.meetsMinimumAndMaximumRatingRules = false;
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        -4,
+        null,
+        true
+      );
+    }, Meteor.Error);
+
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        1200,
+        null,
+        true
+      );
+    }, Meteor.Error);
   });
   //   maxrating,
   it("should fail if maxrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
-    chai.assert.fail("do me");
+    meteoruser = player1;
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        null,
+        "1200",
+        true
+      );
+    }, Match.Error);
+    stubvalues.meetsMinimumAndMaximumRatingRules = false;
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        null,
+        -4,
+        true
+      );
+    }, Meteor.Error);
+
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        null,
+        1200,
+        true
+      );
+    }, Meteor.Error);
   });
   //   autoaccept,
   it("should fail if autoaccept not 'true' or 'false'", function() {
-    chai.assert.fail("do me");
+    meteoruser = player1;
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        null,
+        null,
+        "something"
+      );
+    }, Match.Error);
   });
   //   formula,
   it("should fail if formula is specified (until we write the code)", function() {
-    chai.assert.fail("do me");
+    meteoruser = player1;
+    chai.assert.throws(() => {
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        null,
+        null,
+        true,
+        "Not yet supported"
+      );
+    }, Meteor.Error);
   });
   it("should should add a record to the database if all is well and good", function() {
-    chai.assert.fail("do me");
+    const grc = GameRequests.collection;
+    const gr = sinon.mock(grc);
+    gr.expects("insert").once();
+    GameRequests.addLocalGameSeek(
+      "test_identifier",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      null,
+      null,
+      true
+    );
+    gr.verify();
+    gr.restore();
   });
 });
 

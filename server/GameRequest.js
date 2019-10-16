@@ -3,8 +3,11 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Roles } from "meteor/alanning:roles";
 import { Match, check } from "meteor/check";
+import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { ClientMessages } from "../imports/collections/ClientMessages";
+import { Game } from "./Game";
 
-export const GameRequestCollection = new Mongo.Collection("game_requests");
+const GameRequestCollection = new Mongo.Collection("game_requests");
 
 Meteor.startup(function() {
   GameRequestCollection.remove({}); // Start off with a clean collection upon startup
@@ -39,6 +42,11 @@ GameRequests.addLegacyGameSeek = function(
   formula
 ) {
   const self = Meteor.user();
+
+  if (!self) throw new Meteor.Error("self is null or invalid");
+  if (GameRequestCollection.findOne({ legacy_index: index }) !== null)
+    throw new Meteor.Error("Index already exists");
+
   GameRequestCollection.insert({
     type: "legacyseek",
     owner: self._id,
@@ -60,6 +68,7 @@ GameRequests.addLegacyGameSeek = function(
 };
 
 GameRequests.addLocalGameSeek = function(
+  message_identifier,
   wild,
   rating_type,
   time,
@@ -71,21 +80,57 @@ GameRequests.addLocalGameSeek = function(
   autoaccept,
   formula
 ) {
+  check(message_identifier, String);
   check(wild, Number);
+  check(rating_type, String);
   check(time, Number);
   check(inc, Number);
   check(rated, Boolean);
+  check(color, Match.Maybe(String));
   check(minrating, Match.Maybe(Number));
   check(maxrating, Match.Maybe(Number));
   check(autoaccept, Boolean);
   check(formula, Match.Maybe(String));
   const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
+  if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
+  if (color !== null && color !== "white" && color !== "black")
+    throw new Match.Error("Invalid color specification");
+  if (!SystemConfiguration.meetsTimeAndIncRules(time, inc))
+    throw new Meteor.Error(
+      "seek fails to meet time and increment configuration rules"
+    );
+  if (!self.ratings[rating_type]) throw new Meteor.Error("Invalid rating type");
+  if (!SystemConfiguration.meetsRatingTypeRules(rating_type, time, inc))
+    throw new Meteor.Error(
+      "seek fails to meet rating type rules for time and inc"
+    );
+
+  if (
+    !SystemConfiguration.meetsMinimumAndMaximumRatingRules(
+      rating_type,
+      self.ratings[rating_type],
+      minrating,
+      maxrating
+    )
+  )
+    throw new Meteor.Error(
+      "seek fails to meet minimum or maximum rating rules"
+    );
+  if (!!formula) throw new Meteor.Error("Formula is not yet supported");
+
   if (
     !Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")
-  )
-    throw new Meteor.Error("Unable to seek this game");
-  GameRequestCollection.insert({
+  ) {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      rated ? "UNABLE_TO_PLAY_RATED_GAMES" : "UNABLE_TO_PLAY_UNRATED_GAMES"
+    );
+    return;
+  }
+
+  const game = {
     type: "seek",
     owner: self._id,
     wild: wild,
@@ -93,12 +138,15 @@ GameRequests.addLocalGameSeek = function(
     time: time,
     inc: inc,
     rated: rated,
-    color: color,
-    minrating: minrating,
-    maxrating: maxrating,
-    autoaccept: autoaccept,
-    formula: formula
-  });
+    autoaccept: autoaccept
+  };
+
+  if (!!color) game.color = color;
+  if (!!minrating) game.minrating = minrating;
+  if (!!maxrating) game.maxrating = maxrating;
+  if (!!formula) game.formula = formula;
+
+  GameRequestCollection.insert(game);
 };
 
 GameRequests.removeLegacySeek = function(seek_index) {
@@ -328,3 +376,9 @@ GameRequests.removeLegacyMatchRequest = function(
     ]
   });
 };
+
+Meteor.startup(function() {
+  if (Meteor.isTest || Meteor.isAppTest) {
+    GameRequests.collection = GameRequestCollection;
+  }
+});

@@ -31,7 +31,7 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
     );
   }
 
-  if (!locale || !i8nrecord.text || !i8nrecord.text[locale]) locale = "en_US";
+  if (!locale || !i8nrecord.text || !i8nrecord.text[locale]) locale = "en_us";
 
   if (!i8nrecord.text[locale])
     throw new Meteor.Error(
@@ -46,5 +46,3 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
   }
   return a;
 };
-
-export default i18nCollection;

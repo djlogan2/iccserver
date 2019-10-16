@@ -6,7 +6,7 @@ import { Meteor } from "meteor/meteor";
 
 export const Game = {};
 
-export const GameCollection = new Mongo.Collection("game");
+const GameCollection = new Mongo.Collection("game");
 
 let log = new Logger("server/Game_js");
 
