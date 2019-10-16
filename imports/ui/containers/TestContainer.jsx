@@ -116,7 +116,6 @@ class TestContainer extends Component {
     return <MoveListComponent moves={moveList} />;
   }
   _pieceSquareDragStop = raf => {
-    console.log("RAF", raf);
     this.setState({ from: raf.from, to: raf.to });
   };
   renderBoard() {

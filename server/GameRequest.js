@@ -42,10 +42,25 @@ GameRequests.addLegacyGameSeek = function(
   autoaccept,
   formula
 ) {
+  check(index, Number);
+  check(name, String);
+  check(titles, String);
+  check(rating, Number);
+  check(provisional_status, Number);
+  check(wild, Number);
+  check(rating_type, String);
+  check(time, Number);
+  check(inc, Number);
+  check(rated, Boolean);
+  check(color, String);
+  check(minrating, Number);
+  check(maxrating, Number);
+  check(autoaccept, Boolean);
+  check(formula, String);
   const self = Meteor.user();
 
   if (!self) throw new Meteor.Error("self is null or invalid");
-  if (GameRequestCollection.findOne({ legacy_index: index }) !== null)
+  if (GameRequestCollection.find({ legacy_index: index }).count() > 0)
     throw new Meteor.Error("Index already exists");
 
   GameRequestCollection.insert({
@@ -151,6 +166,7 @@ GameRequests.addLocalGameSeek = function(
 };
 
 GameRequests.removeLegacySeek = function(seek_index) {
+  check(seek_index, Number);
   const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   const request = GameRequestCollection.findOne({ legacy_index: seek_index });
@@ -162,6 +178,7 @@ GameRequests.removeLegacySeek = function(seek_index) {
 };
 
 GameRequests.removeGameSeek = function(seek_id) {
+  check(seek_id, Meteor.Collection.ObjectID);
   const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   const request = GameRequestCollection.findOne({ _id: seek_id });
@@ -173,6 +190,7 @@ GameRequests.removeGameSeek = function(seek_id) {
 };
 
 GameRequests.acceptGameSeek = function(seek_id) {
+  check(seek_id, Meteor.Collection.ObjectID);
   const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   const request = GameRequestCollection.findOne({ _id: seek_id });
@@ -234,10 +252,25 @@ GameRequests.addLegacyMatchRequest = function(
   assess_win,
   fancy_time_control   It doesn't appear we actually get these from the server */
 ) {
-  const args = arguments;
-  log.debug("addLegacyMatchRequest: ", () => {
-    JSON.stringify(args);
-  });
+  check(challenger_name, String);
+  check(challenger_rating, Number);
+  check(challenger_established, Boolean);
+  check(challenger_titles, String);
+  check(receiver_name, String);
+  check(receiver_rating, Number);
+  check(receiver_established, Boolean);
+  check(receiver_titles, String);
+  check(wild_number, Number);
+  check(rating_type, String);
+  check(is_it_rated, Boolean);
+  check(is_it_adjourned, Boolean);
+  check(challenger_time, Number);
+  check(challenger_inc, Number);
+  check(receiver_time, Number);
+  check(receiver_inc, Number);
+  check(challenger_color_request, String);
+  check(assess_loss, Number);
+
   const challenger_user = Meteor.users.findOne({
     "profile.legacy.username": challenger_name
   });
@@ -249,11 +282,11 @@ GameRequests.addLegacyMatchRequest = function(
     type: "legacymatch",
     challenger: challenger_name,
     challenger_rating: challenger_rating,
-    challenger_established: challenger_established === "1",
+    challenger_established: challenger_established,
     challenger_titles: challenger_titles,
     receiver: receiver_name,
     receiver_rating: receiver_rating,
-    receiver_established: receiver_established === "1",
+    receiver_established: receiver_established,
     receiver_titles: receiver_titles,
     wild_number: wild_number,
     rating_type: rating_type,
@@ -269,7 +302,7 @@ GameRequests.addLegacyMatchRequest = function(
     fancy_time_control: fancy_time_control*/
   };
 
-  switch (parseInt(challenger_color_request)) {
+  switch (challenger_color_request) {
     case 0:
       record.challenger_color_request = "black";
       break;
@@ -307,11 +340,22 @@ GameRequests.addLocalMatchRequest = function(
   assess_win,
   fancy_time_control
 ) {
-  if (!challenger_user) throw new Meteor.Error("Challenger is required");
-  if (!receiver_user) throw new Meteor.Error("Receiver is required");
+  check(challenger_user, Object);
+  check(receiver_user, Object);
+  check(wild_number, Number);
+  check(rating_type, String);
+  check(is_it_rated, Boolean);
+  check(is_it_adjourned, Boolean);
+  check(challenger_time, Number);
+  check(challenger_inc, Number);
+  check(receiver_time, Number);
+  check(receiver_inc, Number);
+  check(challenger_color_request, Match.Maybe(String));
+  check(assess_loss, Number);
+  check(assess_draw, Number);
+  check(assess_win, Number);
+  check(fancy_time_control, Match.Maybe(String));
   if (parseInt(wild_number) !== 0) throw new Meteor.Error("Wild must be zero");
-  if (typeof is_it_rated !== "boolean")
-    throw new Meteor.Error("rated must be true or false");
   if (
     challenger_color_request != null &&
     challenger_color_request !== "white" &&
@@ -371,6 +415,8 @@ GameRequests.removeLegacyMatchRequest = function(
   challenger_name,
   receiver_name
 ) {
+  check(challenger_name, String);
+  check(receiver_name, String);
   GameRequestCollection.remove({
     $and: [
       { challenger_name: challenger_name },

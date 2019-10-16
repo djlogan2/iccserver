@@ -1,17 +1,18 @@
 {
     "Board/Board_js": "TRACE",
-    "client/AppContainer": "TRACE",
-    "client/MainPage": "TRACE",
+    "Board/PieceSquare_js": "TRACE",
     "client/RightBarTop": "TRACE",
     "client/RightSidebar": "TRACE",
+    "clientMessages_js": "TRACE",
     "CreateGameComponent_js": "TRACE",
     "Css/CssManager_js": "TRACE",
-    "Css/CssManager_js": "TRACE",
-    "LoginPage/LoginPage_js": "TRACE",
+    "server/firstRunUsers_js": "TRACE",
     "server/Game_js": "TRACE",
+    "server/GameRequest_js": "TRACE",
     "server/LegacyUser_js": "TRACE",
+    "server/LegacyUser_js:rawlegacy": "ERROR",
     "server/main_js": "TRACE",
     "server/RealTime_js": "TRACE",
-    "SignUpPage/SignUpPage_js": "TRACE",
+    "server/users_js": "TRACE",
     "Tabs/Tabs_js": "TRACE"
 }
