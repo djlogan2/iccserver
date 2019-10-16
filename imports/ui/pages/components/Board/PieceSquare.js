@@ -61,6 +61,7 @@ export default class PieceSquare extends Square {
         this._squarecolor,
         this.props.side
       );
+
       return <div style={rafStyle}>{this._raf}</div>;
     } else {
       return "";
@@ -81,30 +82,29 @@ export default class PieceSquare extends Square {
     });
   };
 
-  dragStart = event => {
-    this.props.onDragStart({
+  dragStop = event => {
+    let isMove = this.props.onDrop({
       rank: this.props.rank,
       file: this.props.file,
       piece: this.props.piece
     });
-  };
-  dragStop = event => {
-    let isMove = this.props.onDrop({
-      rank: this.props.rank,
-      file: this.props.file
-    });
 
-    var theData = event.dataTransfer.getData("Text");
-    var theDraggedElement = document.getElementById(theData);
-    if (isMove) event.target.appendChild(theDraggedElement);
-    event.preventDefault();
+   // var theData = event.dataTransfer.getData("Text");
+   // var theDraggedElement = document.getElementById(theData);
+   // if (isMove) event.target.appendChild(theDraggedElement);
+   // event.preventDefault();
   };
 
   /**Image drag and drop */
 
   //function called when drag starts
-  dragIt = theEvent => {
+  dragStart = theEvent => {
     theEvent.dataTransfer.setData("Text", theEvent.target.id);
+    this.props.onDragStart({
+      rank: this.props.rank,
+      file: this.props.file,
+      piece: this.props.piece
+    });
   };
 
   render() {
@@ -135,18 +135,18 @@ export default class PieceSquare extends Square {
         }}
         onMouseDown={this.mouseDown}
         onMouseUp={this.mouseUp}
-        onDragStart={this.dragStart}
-        onDrop={this.dragStop}
+        //  onDragStart={this.dragStart}
+        //  onDrop={this.dragStop}
       >
         <div
+          draggable="true"
           onDragOver={event => event.preventDefault()}
           style={squareStyle}
+          onDragStart={this.dragStart}
           onDrop={this.dragStop}
         >
           <img
-            draggable="true"
             id={this._pieceId}
-            onDragStart={this.dragIt}
             src={peiceImage ? peiceImage : ""}
             style={{
               width: "100%",

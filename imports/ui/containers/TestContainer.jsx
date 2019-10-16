@@ -105,7 +105,7 @@ class TestContainer extends Component {
     if (i === values.length) return [null, "No rank and file"];
     else return [values[i], texts[i]];
   }
-
+  gameUndo = () => {};
   static renderMoveList() {
     const moveList = [
       "d4",
@@ -122,6 +122,7 @@ class TestContainer extends Component {
   renderBoard() {
     if (this.state.from != null && this.state.to != null) {
       this.chess.move({ from: this.state.from, to: this.state.to });
+    //  this.chess.undo();
     }
     let w = this.state.width;
     let h = this.state.height;
@@ -155,6 +156,7 @@ class TestContainer extends Component {
         <div style={{ id: "board-right", float: "left", width: w, height: h }}>
           <button onClick={this.switchSides}>{newcolor} on top</button>
           <button onClick={this.switchRAF}>{raf}</button>
+          <button onClick={this.gameUndo}>Game Undo</button>
           <p>Color on top: {this.state.top}</p>
           <p>Rank and file: {this.state.draw_rank_and_file}</p>
           <p>
