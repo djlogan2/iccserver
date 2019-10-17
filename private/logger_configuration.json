@@ -12,7 +12,6 @@
     "server/LegacyUser_js": "TRACE",
     "server/LegacyUser_js:rawlegacy": "ERROR",
     "server/main_js": "TRACE",
-    "server/RealTime_js": "TRACE",
     "server/users_js": "TRACE",
     "Tabs/Tabs_js": "TRACE"
 }
