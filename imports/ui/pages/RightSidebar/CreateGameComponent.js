@@ -3,11 +3,10 @@ import { Mongo } from "meteor/mongo";
 import React from "react";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Logger } from "../../../../lib/client/Logger";
-//import GameRequests from "../../../../server/GameRequest";
-
 const log = new Logger("CreateGameComponent_js");
 const legacyUsersC = new Mongo.Collection("legacyUsers");
 
+const GameRequestCollection = new Mongo.Collection("game_requests");
 // TODO: What do we do when a user is logged on local AND legacy? They currently show up twice, as in localuser and legacyuser(L).
 //   I would assume we want to remove them from one of the lists...
 // TODO: Do users that are not logged on to legacy see legacy users? I think not, but at the moment, everyone will.
@@ -19,7 +18,8 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
       trial: 0,
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        legacyUsers: Meteor.subscribe("legacyUsers")
+        legacyUsers: Meteor.subscribe("legacyUsers"),
+        gameRequests: Meteor.subscribe("game_requests")
       }
     };
   }
@@ -27,34 +27,28 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   componentWillUnmount() {
     this.state.subscription.loggedOnUsers.stop();
     this.state.subscription.legacyUsers.stop();
+    this.state.subscription.gameRequests.stop();
   }
 
   gameStart(user) {
-    const us = Meteor.user();
-    /*
-    GameRequests.addLocalMatchRequest(
-      us,
+    Meteor.call(
+      "game.requestmatch",
       "uiuxtest2",
-      0,
       true,
       5,
       0,
       5,
       0,
+      false,
+      0,
       "white"
     );
-     */
-    //Meteor.call("game.match", "uiuxtest1", true, 5, 0, 5, 0, false, 0, "white");
   }
 
   render() {
-    //let userdata;
-
     if (Meteor.userId() == null) return;
-
     const localUsers = Meteor.users.find({}).fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
-
     const _userdata = localUsers.map(user => user.username);
     const userdata = _userdata.concat(
       legacyUsers.map(user => user.username + "(L)")

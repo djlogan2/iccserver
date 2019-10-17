@@ -404,7 +404,7 @@ export default class MainPage extends Component {
     } else {
       buttonStyle = "toggleOpen";
     }
-    log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
+    //log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;

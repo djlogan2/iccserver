@@ -5,6 +5,7 @@ import { Mongo } from "meteor/mongo";
 import { Logger } from "../lib/server/Logger";
 import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
+import { GameRequests } from "./GameRequest";
 
 export const Game = {};
 
@@ -62,7 +63,6 @@ const GameSchema = new SimpleSchema({
   actions: [actionSchema]
 });
 GameCollection.attachSchema(GameSchema);
-
 
 function getLegacyUser(userId) {
   const our_legacy_user = LegacyUser.find(userId);
@@ -149,7 +149,6 @@ Game.startLocalGame = function(
 };
 
 Game.startLegacyGame = function(
-  self,
   gamenumber,
   whitename,
   blackname,
@@ -164,22 +163,27 @@ Game.startLegacyGame = function(
   ex_string,
   white_rating,
   black_rating,
-  game_id /*,
+  game_id,
   white_titles,
   black_titles,
   irregular_legality,
   irregular_semantics,
   uses_plunkers,
   fancy_timecontrol,
-  promote_to_king*/
+  promote_to_king
 ) {
+  check(whitename, String);
+  check(blackname, String);
+
   const whiteuser = Meteor.users.findOne({
     "profile.legay.username": whitename
   });
+  log.debug(whiteuser);
   const blackuser = Meteor.users.findOne({
     "profile.legay.username": blackname
   });
 
+  const self = Meteor.user();
   if (!self || (self._id !== whiteuser._id && self._id !== blackuser._id))
     throw new Meteor.Error("Who are we?");
 
@@ -443,3 +447,54 @@ Game.updateClock = function(self, game_id, color, milliseconds) {};
 Game.addVariation = function(self, game_id, issuer) {};
 
 Game.deleteVariation = function(self, game_id, issuer) {};
+
+Meteor.methods({
+  "game.requestmatch"(
+    name,
+    legacy,
+    time,
+    increment,
+    time2,
+    increment2,
+    rated,
+    wild,
+    color
+  ) {
+    check(name, String);
+    check(legacy, Boolean);
+    check(time, Number);
+    check(increment, Number);
+    check(time2, Number);
+    check(increment2, Number);
+    check(rated, Boolean);
+    check(wild, Number);
+    check(color, String);
+    const us = Meteor.user();
+
+    if (!us) {
+      throw new Meteor.Error("not-authorized");
+    }
+
+    if (legacy) {
+      const our_legacy_user = LegacyUser.find(us._id);
+      if (!our_legacy_user)
+        throw new Meteor.error(
+          "Unable to find a legacy user object for " + us.name
+        );
+
+      our_legacy_user.match(
+        name,
+        time,
+        increment,
+        time2,
+        increment2,
+        rated,
+        wild,
+        color
+      );
+      //name, time, increment, time2, increment2, rated, wild, color
+    } else {
+      GameRequests.addLocalMatchRequest(us, name, 0, true, 5, 0, 5, 0, "white");
+    }
+  }
+});

@@ -216,10 +216,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
 
     const capture = this._fallenSoldier();
-    log.debug(capture);
-    log.debug(capture);
-    log.info(capture);
-
     return (
       <div>
         <MainPage

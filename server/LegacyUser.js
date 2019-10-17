@@ -384,25 +384,23 @@ class LegacyUserConnection {
 
   _sendRawData(data) {
     this.socket.write(";" + data + "\n");
-
-    //this.socket.write(";xt uiuxtest1: " + data + "\n");
   }
 
   processPackets(packets) {
-    log.debug("LegacyUser::processPackets", { packets: packets });
+    //  log.debug("LegacyUser::processPackets", { packets: packets });
     const self = this;
     packets.level2Packets.forEach(function(p) {
       const p2 = LegacyUserConnection.parseLevel2(p);
 
-      log.debug("processPackets, parsed level 2", { parsed: p2 });
+      //  log.debug("processPackets, parsed level 2", { parsed: p2 });
       const l2value = parseInt(p2.shift());
+
       switch (l2value) {
         case L2.WHO_AM_I /* who_am_i */:
           self.socket.write(";messages\n");
           self.socket.write(";finger\n");
           //self.socket.write(";fol *\n");
           const user = Meteor.user();
-          //
           // Fix the case on our username if everything is kosher except for the case
           if (
             !!user &&
@@ -419,7 +417,26 @@ class LegacyUserConnection {
           }
           break;
         case L2.MATCH:
-          addLegacyMatchRequest.apply(null, p2);
+          GameRequests.addLegacyMatchRequest(
+            "uiuxtest1",
+            1400,
+            0,
+            "",
+            "uiuxtest2",
+            1400,
+            0,
+            "",
+            0,
+            "Blitz",
+            0,
+            0,
+            5,
+            5,
+            0,
+            5,
+            "1",
+            ""
+          );
           break;
         case L2.MATCH_REMOVED:
           //challenger-name receiver-name ^Y{Explanation string^Y}
@@ -466,7 +483,7 @@ class LegacyUserConnection {
           legacy_player.open = p2[x++] === "1";
           legacy_player.state = p2[x++];
           legacy_player.game_id = p2[x];
-          legacyUsers.upsert({ username: p2[0] }, {$set: legacy_player});
+          legacyUsers.upsert({ username: p2[0] }, { $set: legacy_player });
           break;
         case L2.PLAYER_LEFT:
           legacyUsers.remove({ username: p2[0] });
@@ -497,6 +514,7 @@ class LegacyUserConnection {
         case L2.MY_GAME_STARTED:
           // TODO: So, I'm discovering that some of these I'm adjusting here in the case, and some I'm just calling whatever.apply with the array, and doing the work there. Pick one and stick with it.
           // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
+      /*
           const white = {
             username: p2[1],
             rating: p2[12]
@@ -514,17 +532,30 @@ class LegacyUserConnection {
             throw new Meteor.Error(
               "Unable to figure out which player we are in this game"
             );
+*/
           Game.startLegacyGame(
-            white,
-            black,
+            p2[0], //we cant figure gamenumber each time change
+            p2[1],
+            p2[2],
+            p2[3],
+            p2[4],
+            p2[5],
             p2[6],
             p2[7],
             p2[8],
             p2[9],
-            p2[5],
-            p2[3],
-            p2[0],
-            "started"
+            p2[10],
+            p2[11],
+            p2[12],
+            p2[13],
+            p2[14],
+            p2[15],
+            p2[16],
+            p2[17],
+            p2[18],
+            p2[19],
+            p2[20],
+            p2[21]
           );
           break;
         case L2.MY_GAME_CHANGE:
