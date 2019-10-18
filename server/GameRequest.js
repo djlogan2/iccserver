@@ -7,6 +7,7 @@ import { Match, check } from "meteor/check";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
+import { LegacyUser } from "./LegacyUser";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 
@@ -205,13 +206,9 @@ GameRequests.acceptGameSeek = function(seek_id) {
   )
     throw new Meteor.Error("Unable to accept seek: Not in role");
 
-  const owner_user = Meteor.users.findOne({ _id: request.owner });
-  const white = Game.determineWhite(self, owner_user, request.color);
-  const black = white._id === self._id ? owner_user : self;
+  const challenger = Meteor.users.findOne({ _id: request.owner });
   const game_id = Game.startLocalGame(
-    self,
-    white,
-    black,
+    challenger,
     request.wild,
     request.rating_type,
     request.rated,
@@ -219,7 +216,8 @@ GameRequests.acceptGameSeek = function(seek_id) {
     request.inc,
     request.time,
     request.inc,
-    true
+    true,
+    request.challenger_color_request
   );
   GameRequestCollection.remove({ _id: seek_id });
   return game_id;
@@ -315,7 +313,6 @@ function established(rating_object) {
 }
 
 GameRequests.addLocalMatchRequest = function(
-  challenger_user,
   receiver_user,
   wild_number,
   rating_type,
@@ -331,6 +328,7 @@ GameRequests.addLocalMatchRequest = function(
   assess_win,
   fancy_time_control
 ) {
+  const challenger_user = Meteor.user();
   check(challenger_user, Object);
   check(receiver_user, Object);
   check(wild_number, Number);
@@ -435,6 +433,50 @@ GameRequests.removeLegacyMatchRequest = function(
     explanation_string
   );
 };
+
+Meteor.methods({
+  "game.requestlegacymatch"(
+    name,
+    time,
+    increment,
+    time2,
+    increment2,
+    rated,
+    wild,
+    color
+  ) {
+    check(name, String);
+    check(time, Number);
+    check(increment, Number);
+    check(time2, Number);
+    check(increment2, Number);
+    check(rated, Boolean);
+    check(wild, Number);
+    check(color, String);
+    const us = Meteor.user();
+
+    if (!us) {
+      throw new Meteor.Error("not-authorized");
+    }
+
+    const our_legacy_user = LegacyUser.find(us._id);
+    if (!our_legacy_user)
+      throw new Meteor.error(
+        "Unable to find a legacy user object for " + us.name
+      );
+
+    our_legacy_user.match(
+      name,
+      time,
+      increment,
+      time2,
+      increment2,
+      rated,
+      wild,
+      color
+    );
+  }
+});
 
 Meteor.startup(function() {
   if (Meteor.isTest || Meteor.isAppTest) {

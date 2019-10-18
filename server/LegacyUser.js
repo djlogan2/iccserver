@@ -23,6 +23,7 @@ Meteor.publish("legacyUsers", function() {
 
 let log = new Logger("server/LegacyUser_js");
 let log_rawlegacy = new Logger("server/LegacyUser_js:rawlegacy");
+let log_packets = new Logger("server/LegacyUser_js:parsedpackets");
 
 /*
  * The packets the admin user will receive for saving and publishing.
@@ -383,12 +384,12 @@ class LegacyUserConnection {
   }
 
   processPackets(packets) {
-    //  log.debug("LegacyUser::processPackets", { packets: packets });
+    log_packets.debug("LegacyUser::processPackets", { packets: packets });
     const self = this;
     packets.level2Packets.forEach(function(p) {
       const p2 = LegacyUserConnection.parseLevel2(p);
 
-      //  log.debug("processPackets, parsed level 2", { parsed: p2 });
+      log_packets.debug("processPackets, parsed level 2", { parsed: p2 });
       const l2value = parseInt(p2.shift());
 
       switch (l2value) {
@@ -512,27 +513,7 @@ class LegacyUserConnection {
           break;
         case L2.STARTED_OBSERVING:
         case L2.MY_GAME_STARTED:
-          // TODO: So, I'm discovering that some of these I'm adjusting here in the case, and some I'm just calling whatever.apply with the array, and doing the work there. Pick one and stick with it.
           // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
-      /*
-          const white = {
-            username: p2[1],
-            rating: p2[12]
-          };
-          const black = {
-            username: p2[2],
-            rating: p2[13]
-          };
-
-          if (self.user.profile.legacy.username === p2[1]) {
-            white._id = self.user._id;
-          } else if (self.user.profile.legacy.username === p2[2]) {
-            black._id = self.user._id;
-          } else
-            throw new Meteor.Error(
-              "Unable to figure out which player we are in this game"
-            );
-*/
           Game.startLegacyGame(
             p2[0], //we cant figure gamenumber each time change
             p2[1],

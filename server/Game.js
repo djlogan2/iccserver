@@ -1,11 +1,10 @@
 import Chess from "chess.js";
 import SimpleSchema from "simpl-schema";
-import { check } from "meteor/check";
+import { Match, check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Logger } from "../lib/server/Logger";
 import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
-import { GameRequests } from "./GameRequest";
 
 export const Game = {};
 
@@ -74,10 +73,13 @@ function getLegacyUser(userId) {
 }
 
 function getAndCheck(game_id, must_be_my_turn) {
-  const game = GameCollection.findOne({ _id: game_id });
-  if (!game) throw new Meteor.Error("Unable to find a game to make a move for");
+  const self = Meteor.user();
   if (!self || (self._id !== game.white.id && self._id !== game.black.id))
     throw new Meteor.Error("Who are we?");
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) throw new Meteor.Error("Unable to find a game to make a move for");
+
   if (!active_games[game_id])
     throw new Meteor.Error("Unable to find chessboard validator for game");
 
@@ -94,9 +96,7 @@ function getAndCheck(game_id, must_be_my_turn) {
 }
 
 Game.startLocalGame = function(
-  self,
-  white,
-  black,
+  other_user,
   wild_number,
   rating_type,
   rated,
@@ -104,15 +104,31 @@ Game.startLocalGame = function(
   white_increment,
   black_initial,
   black_increment,
-  played_game /*,
+  played_game,
+  color /*,
   irregular_legality,
   irregular_semantics,
   uses_plunkers,
   fancy_timecontrol,
   promote_to_king*/
 ) {
-  if (!self || (self._id !== white._id && self._id !== black._id))
-    throw new Meteor.Error("Who are we?");
+  const self = Meteor.user();
+
+  check(self, Object);
+  check(other_user, Object);
+  check(wild_number, Number);
+  check(rating_type, String);
+  check(rated, Boolean);
+  check(white_initial, Number);
+  check(white_increment, Number);
+  check(black_initial, Number);
+  check(black_increment, Number);
+  check(played_game, Boolean);
+  check(color, Match.Maybe(String));
+
+  const white = determineWhite(self, other_user, color);
+  const black = white._id === self._id ? other_user : self;
+
   const game = {
     starttime: new Date(),
     result: "*",
@@ -413,14 +429,14 @@ Game.resignGame = function(game_id) {
   );
 };
 
-Game.determineWhite = function(p1, p2, color) {
+function determineWhite(p1, p2, color) {
   if (color === "white") return p1;
   if (color === "black") return p2;
 
   // TODO: Obviously this has to be a far better algorithm based on the games both players have recently played
   if (Math.random() <= 0.5) return p1;
   else return p2;
-};
+}
 
 Game.offerMoretime = function(game_id, issuer, seconds) {};
 
@@ -450,56 +466,6 @@ Game.deleteVariation = function(game_id, issuer) {};
 
 Game.deleteVariation = function(self, game_id, issuer) {};
 
-Meteor.methods({
-  "game.requestmatch"(
-    name,
-    legacy,
-    time,
-    increment,
-    time2,
-    increment2,
-    rated,
-    wild,
-    color
-  ) {
-    check(name, String);
-    check(legacy, Boolean);
-    check(time, Number);
-    check(increment, Number);
-    check(time2, Number);
-    check(increment2, Number);
-    check(rated, Boolean);
-    check(wild, Number);
-    check(color, String);
-    const us = Meteor.user();
-
-    if (!us) {
-      throw new Meteor.Error("not-authorized");
-    }
-
-    if (legacy) {
-      const our_legacy_user = LegacyUser.find(us._id);
-      if (!our_legacy_user)
-        throw new Meteor.error(
-          "Unable to find a legacy user object for " + us.name
-        );
-
-      our_legacy_user.match(
-        name,
-        time,
-        increment,
-        time2,
-        increment2,
-        rated,
-        wild,
-        color
-      );
-      //name, time, increment, time2, increment2, rated, wild, color
-    } else {
-      GameRequests.addLocalMatchRequest(us, name, 0, true, 5, 0, 5, 0, "white");
-    }
-  }
-});
 //TODO: Add to tests
 Game.opponentUserIdList = function(ofuser) {
   check(ofuser, String);
