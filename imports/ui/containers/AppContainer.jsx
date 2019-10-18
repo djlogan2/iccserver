@@ -6,7 +6,6 @@ import { Logger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
-import realtime_messages from "../../client/realtime";
 import { Tracker } from "meteor/tracker";
 
 const log = new Logger("client/AppContainer");
@@ -35,7 +34,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.gameId = null;
     this.userId = null;
     this._board = new Chess.Chess();
-    this._rm_index = 0;
     this.player = {
       White: { name: "abc", rating: "123" },
       Black: { name: "xyz", rating: "456" }
@@ -46,7 +44,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       to: null,
       subscription: {
         css: Meteor.subscribe("css"),
-        realtime: Meteor.subscribe("realtime_messages"),
         game: Meteor.subscribe("game")
       },
       move: "",
@@ -85,7 +82,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   componentWillUnmount() {
     this.state.subscription.css.stop();
-    this.state.subscription.realtime.stop();
     this.state.subscription.game.stop();
   }
 

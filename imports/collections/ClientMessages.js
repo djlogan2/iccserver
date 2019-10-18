@@ -14,9 +14,32 @@ const ClientMessagesCollection = new Mongo.Collection("client_messages");
 // The code checks for the parameter COUNT, but does not otherwise verify.
 //
 export const DefinedClientMessagesMap = {
-  UNABLE_TO_LOGON: { parameters: ["player_name"] },
+  UNABLE_TO_LOGON: { parameters: ["player_name"] }, // TODO: See if we can use one of the LOGIN_FAILED_X messages for this and remove this.
   UNABLE_TO_PLAY_RATED_GAMES: {},
-  UNABLE_TO_PLAY_UNRATED_GAMES: {}
+  UNABLE_TO_PLAY_UNRATED_GAMES: {},
+  LEGACY_MATCH_REMOVED: { parameters: ["legacy_explanation_string"] },
+   LOGIN_FAILED_1: {},
+  LOGIN_FAILED_2: {},
+  LOGIN_FAILED_3: {},
+  LOGIN_FAILED_4: {},
+  LOGIN_FAILED_5: {},
+  LOGIN_FAILED_6: {},
+  LOGIN_FAILED_7: {},
+  LOGIN_FAILED_8: {},
+  LOGIN_FAILED_9: {},
+  LOGIN_FAILED_10: {},
+  LOGIN_FAILED_11: {},
+  LOGIN_FAILED_12: {},
+  LOGIN_FAILED_13: {},
+  LOGIN_FAILED_14: {},
+  LOGIN_FAILED_15: {},
+  LOGIN_FAILED_16: {},
+  LOGIN_FAILED_17: {},
+  LOGIN_FAILED_18: {},
+  LOGIN_FAILED_19: {},
+  LOGIN_FAILED_20: {},
+  LOGIN_FAILED_21: {},
+  LOGIN_FAILED_22: {}
 };
 
 Meteor.publish("client_messages", function() {

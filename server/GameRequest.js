@@ -404,16 +404,36 @@ GameRequests.declineMatchRequest = function(game_id) {};
 
 GameRequests.removeLegacyMatchRequest = function(
   challenger_name,
-  receiver_name
+  receiver_name,
+  explanation_string
 ) {
   check(challenger_name, String);
   check(receiver_name, String);
+  check(explanation_string, String);
+  const self = Meteor.user();
+  if (!self) throw new Meteor.Error("self is null or invalid");
+  if (!self.profile || !self.profile.legacy || !self.profile.legacy.username)
+    throw new Meteor.Error(
+      "User is neither challenger nor receiver of removed match"
+    );
+  if (
+    self.profile.legacy.username !== challenger_name &&
+    self.profile.legacy.username !== receiver_name
+  )
+    throw new Meteor.Error(
+      "User is neither challenger nor receiver of removed match (2)"
+    );
   GameRequestCollection.remove({
     $and: [
       { challenger_name: challenger_name },
       { receiver_name: receiver_name }
     ]
   });
+  ClientMessages.sendMessageToClient(
+    Meteor.user(),
+    "LEGACY_MATCH_REMOVED",
+    explanation_string
+  );
 };
 
 Meteor.startup(function() {

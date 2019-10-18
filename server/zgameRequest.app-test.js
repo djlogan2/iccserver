@@ -579,6 +579,7 @@ describe("GameRequests.removeLegacySeek", function() {
   };
 
   beforeEach(function() {
+    this.timeout(3000000);
     stubvalues.userIsInRole = true;
     stubvalues.meetsTimeAndIncRules = true;
     stubvalues.meetsMinimumAndMaximumRatingRules = true;
@@ -648,7 +649,7 @@ describe("GameRequests.removeLegacySeek", function() {
   });
 
   it("should return successfully if we try to remove a nonexistent seek index (per formats.txt documentation)", function() {
-    chai.assert.doesNotThrow(GameRequests.removeLegacySeek(111));
+    chai.assert.doesNotThrow(() => GameRequests.removeLegacySeek(111));
   });
 });
 

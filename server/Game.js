@@ -73,7 +73,7 @@ function getLegacyUser(userId) {
   return our_legacy_user;
 }
 
-function getAndCheck(self, game_id, must_be_my_turn) {
+function getAndCheck(game_id, must_be_my_turn) {
   const game = GameCollection.findOne({ _id: game_id });
   if (!game) throw new Meteor.Error("Unable to find a game to make a move for");
   if (!self || (self._id !== game.white.id && self._id !== game.black.id))
@@ -225,10 +225,10 @@ Game.startLegacyGame = function(
   GameCollection.insert(game);
 };
 
-Game.saveLegacyMove = function(self, game_id, move) {};
+Game.saveLegacyMove = function(game_id, move) {};
 
-Game.makeMove = function(self, game_id, move) {
-  const game = getAndCheck(self, game_id, true);
+Game.makeMove = function(game_id, move) {
+  const game = getAndCheck(game_id, true);
 
   if (game.legacy_game_number) {
     const lu = getLegacyUser(this._id);
@@ -263,8 +263,8 @@ Game.makeMove = function(self, game_id, move) {
   game.update({ _id: game_id }, updateobject);
 };
 
-Game.requestAction = function(self, game_id, number) {
-  const game = getAndCheck(self, game_id);
+Game.requestAction = function(game_id, number) {
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
 
   if (game.legacy_game_number) {
@@ -278,8 +278,8 @@ Game.requestAction = function(self, game_id, number) {
   Meteor.update({ _id: game_id }, { $push: [ms, { takeback: number }] });
 };
 
-Game.requestTakeback = function(self, game_id, number) {
-  const game = getAndCheck(self, game_id);
+Game.requestTakeback = function(game_id, number) {
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
 
   if (game.legacy_game_number) {
@@ -293,8 +293,8 @@ Game.requestTakeback = function(self, game_id, number) {
   Meteor.update({ _id: game_id }, { $push: [ms, { takeback: number }] });
 };
 
-Game.acceptTakeback = function(self, game_id) {
-  const game = getAndCheck(self, game_id);
+Game.acceptTakeback = function(game_id) {
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
   if (game.legacy_game_number) {
     const lu = getLegacyUser(this._id);
@@ -324,9 +324,9 @@ Game.acceptTakeback = function(self, game_id) {
   for (let x = 0; x < takeback_legal; x++) active_games[game_id].undo();
 };
 
-Game.declineTakeback = function(self, game_id) {
+Game.declineTakeback = function(game_id) {
   //TODO: meteor error? client_messages?
-  const game = getAndCheck(self, game_id);
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
   if (game.legacy_game_number) {
     const lu = getLegacyUser(this._id);
@@ -355,8 +355,8 @@ Game.declineTakeback = function(self, game_id) {
   );
 };
 
-Game.requestDraw = function(self, game_id) {
-  const game = getAndCheck(self, game_id);
+Game.requestDraw = function(game_id) {
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
 
   const ms = new Date().getTime() - game.starttime.getTime();
@@ -377,8 +377,8 @@ Game.requestDraw = function(self, game_id) {
   );
 };
 
-Game.acceptDraw = function(self, game_id) {
-  const game = getAndCheck(self, game_id);
+Game.acceptDraw = function(game_id) {
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
 
   const ms = new Date().getTime() - game.starttime.getTime();
@@ -389,8 +389,8 @@ Game.acceptDraw = function(self, game_id) {
   );
 };
 
-Game.declineDraw = function(self, game_id) {
-  const game = getAndCheck(self, game_id);
+Game.declineDraw = function(game_id) {
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
 
   const ms = new Date().getTime() - game.starttime.getTime();
@@ -401,8 +401,8 @@ Game.declineDraw = function(self, game_id) {
   );
 };
 
-Game.resignGame = function(self, game_id) {
-  const game = getAndCheck(self, game_id);
+Game.resignGame = function(game_id) {
+  const game = getAndCheck(game_id);
   if (game.status !== "playing") throw new Meteor.Error("Must be playing");
 
   const ms = new Date().getTime() - game.starttime.getTime();
@@ -422,29 +422,31 @@ Game.determineWhite = function(p1, p2, color) {
   else return p2;
 };
 
-Game.offerMoretime = function(self, game_id, issuer, seconds) {};
+Game.offerMoretime = function(game_id, issuer, seconds) {};
 
-Game.declineMoretime = function(self, game_id) {};
+Game.declineMoretime = function(game_id) {};
 
-Game.acceptMoretime = function(self, game_id) {};
+Game.acceptMoretime = function(game_id) {};
 
-Game.moveBackward = function(self, game_id, issuer, halfmoves) {};
+Game.moveBackward = function(game_id, issuer, halfmoves) {};
 
-Game.moveForward = function(self, game_id, issuer, halfmoves) {};
+Game.moveForward = function(game_id, issuer, halfmoves) {};
 
-Game.drawCircle = function(self, game_id, issuer, square) {};
+Game.drawCircle = function(game_id, issuer, square) {};
 
-Game.removeCircle = function(self, game_id, issuer, square) {};
+Game.removeCircle = function(game_id, issuer, square) {};
 
-Game.drawArrow = function(self, game_id, issuer, square) {};
+Game.drawArrow = function(game_id, issuer, square) {};
 
-Game.removeArrow = function(self, game_id, issuer, square) {};
+Game.removeArrow = function(game_id, issuer, square) {};
 
-Game.changeHeaders = function(self, game_id, other_arguments) {};
+Game.changeHeaders = function(game_id, other_arguments) {};
 
-Game.updateClock = function(self, game_id, color, milliseconds) {};
+Game.updateClock = function(game_id, color, milliseconds) {};
 
-Game.addVariation = function(self, game_id, issuer) {};
+Game.addVariation = function(game_id, issuer) {};
+
+Game.deleteVariation = function(game_id, issuer) {};
 
 Game.deleteVariation = function(self, game_id, issuer) {};
 
@@ -498,3 +500,14 @@ Meteor.methods({
     }
   }
 });
+//TODO: Add to tests
+Game.opponentUserIdList = function(ofuser) {
+  check(ofuser, String);
+  //check(ofuser, Meteor.Collection.ObjectID);
+  const array = [];
+  const g1 = GameCollection.find({ "white.id": ofuser });
+  g1.fetch().forEach(game => array.push(game.black.id));
+  const g2 = GameCollection.find({ "black.id": ofuser });
+  g2.fetch().forEach(game => array.push(game.white.id));
+  return array;
+};

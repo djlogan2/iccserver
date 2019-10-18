@@ -4,17 +4,13 @@ import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Game } from "./Game";
-import {
-  addLegacyMatchRequest,
-  GameRequests,
-  removeLegacyMatchRequest
-} from "./GameRequest";
-import { sendMessageToClient } from "../imports/collections/ClientMessages";
+import { GameRequests } from "./GameRequest";
+import { ClientMessages } from "../imports/collections/ClientMessages";
 import net from "net";
 
 import * as L2 from "../lib/server/l2";
-import * as CN from "../lib/server/cn";
-import { check } from "meteor/check";
+//import * as CN from "../lib/server/cn";
+//import { check } from "meteor/check";
 
 const legacyUsers = new Mongo.Collection("legacyUsers");
 Meteor.startup(function() {
@@ -417,31 +413,31 @@ class LegacyUserConnection {
           }
           break;
         case L2.MATCH:
-          GameRequests.addLegacyMatchRequest(
-            "uiuxtest1",
-            1400,
-            0,
-            "",
-            "uiuxtest2",
-            1400,
-            0,
-            "",
-            0,
-            "Blitz",
-            0,
-            0,
-            5,
-            5,
-            0,
-            5,
-            "1",
-            ""
+          //
+          GameRequests.addLegacyMatchReques(
+            p2[0],
+            parseInt(p2[1]),
+            p2[2] === "1",
+            p2[3],
+            p2[4],
+            parseInt(p2[5]),
+            p2[6] === "1",
+            p2[7],
+            parseInt(p2[8]),
+            p2[9],
+            p2[10] === "1",
+            p2[11] === "1",
+            parseInt(p2[12]),
+            parseInt(p2[13]),
+            parseInt(p2[14]),
+            parseInt(p2[15]),
+            p2[16],
+            parseInt(p2[17])
           );
           break;
         case L2.MATCH_REMOVED:
           //challenger-name receiver-name ^Y{Explanation string^Y}
-          sendMessageToClient(Meteor.userId(), p2[2]);
-          removeLegacyMatchRequest.apply(null, p2);
+          GameRequests.removeLegacyMatchRequest.apply(null, p2);
           break;
         case L2.MUGSHOT:
           // (Player URL gamenumber)
@@ -457,7 +453,11 @@ class LegacyUserConnection {
           );
           break;
         case L2.LOGIN_FAILED /* login_failed */:
-          sendMessageToClient(self.user._id, "LOGIN_FAILED_" + p2[0]);
+          ClientMessages.sendMessageToClient(
+            Meteor.user(),
+            "LEGACY_LOGIN",
+            "LOGIN_FAILED_" + p2[0]
+          );
           break;
         case L2.MESSAGELIST_ITEM:
           //incomingMessage(parseInt(p2[1]), p2[2], p2[3], p2[4], p2[5]);

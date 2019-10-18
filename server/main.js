@@ -3,9 +3,11 @@ import { Logger } from "../lib/server/Logger";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
+import fs from "fs";
 
 import "../imports/collections/css";
 import "../imports/collections/users";
+import "../lib/server/timestamp";
 
 let log = new Logger("server/main_js");
 
@@ -13,10 +15,14 @@ const bound = Meteor.bindEnvironment(callback => {
   callback();
 });
 
-process.on("uncaughtException", err => {
+process.on("uncaughtException", (err, origin) => {
   bound(() => {
-    log.error("Server Crashed!", err);
-    console.error(err.stack);
+    fs.writeSync(
+      process.stderr.fd,
+      `Caught exception: ${err}\n` + `Exception origin: ${origin}`
+    );
+    console.log(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
+    log.error(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
     process.exit(7);
   });
 });

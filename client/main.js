@@ -3,6 +3,8 @@ import { render } from "react-dom";
 import { renderRoutes } from "../imports/startup/client/routes.jsx";
 import i18n from "meteor/universe:i18n";
 
+import "../lib/client/timestamp";
+
 Meteor.startup(() => {
   i18n.addTranslations("en-US", {
     Common: {
