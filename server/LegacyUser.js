@@ -383,12 +383,12 @@ class LegacyUserConnection {
   }
 
   processPackets(packets) {
-    //  log.debug("LegacyUser::processPackets", { packets: packets });
+    log.debug("LegacyUser::processPackets", { packets: packets });
     const self = this;
     packets.level2Packets.forEach(function(p) {
       const p2 = LegacyUserConnection.parseLevel2(p);
 
-      //  log.debug("processPackets, parsed level 2", { parsed: p2 });
+      log.debug("processPackets, parsed level 2", { parsed: p2 });
       const l2value = parseInt(p2.shift());
 
       switch (l2value) {

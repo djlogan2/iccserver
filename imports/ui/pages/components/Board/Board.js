@@ -225,6 +225,10 @@ export default class Board extends React.Component {
     this.rankTo = raf.rank + 1;
     this.fileTo = raf.file;
 
+    const filefromList = ["a", "b", "c", "d", "e", "f", "g", "h"];
+    this.fileFrom = filefromList[this.fileFrom];
+    this.fileTo = filefromList[this.fileTo];
+
     //
     // TODO: Yea, this isn't really good  . First of all, if there is going to be a gigantic IF statement, it shouldn't be replicated, it should be a function.
     //       Secondly, aren't there far more efficient ways to do this?
@@ -232,7 +236,7 @@ export default class Board extends React.Component {
     //       For Example: const array = ['a','b','c','d','e','f','g','h']; this.fileFrom = array[this.fileFrom];
     //       And then the code is duplicated again? Please clean this up.
     //
-    if (this.fileFrom === 0) {
+   /*  if (this.fileFrom === 0) {
       this.fileFrom = "a";
     } else if (this.fileFrom === 1) {
       this.fileFrom = "b";
@@ -265,7 +269,7 @@ export default class Board extends React.Component {
       this.fileTo = "g";
     } else {
       this.fileTo = "h";
-    }
+    } */
 
     let moveFrom = this.fileFrom + this.rankFrom;
     let moveTo = this.fileTo + this.rankTo;
@@ -275,7 +279,6 @@ export default class Board extends React.Component {
       p: this.piece
     });
     return isMove;
-    
   };
 
   _pieceSquareMouseUp = raf => {

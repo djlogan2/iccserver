@@ -58,7 +58,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   renderGameMessages() {
     const game = Game.find({}, { sort: { startTime: -1 } }).fetch();
-    //log.debug("Game Collection  find", game);
+    log.debug("Game Collection  find", game);
     return game[0];
   }
 
