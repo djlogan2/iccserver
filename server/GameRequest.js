@@ -58,29 +58,30 @@ GameRequests.addLegacyGameSeek = function(
   check(maxrating, Number);
   check(autoaccept, Boolean);
   check(formula, String);
+
   const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null or invalid");
   if (GameRequestCollection.find({ legacy_index: index }).count() > 0)
-    //throw new Meteor.Error("Index already exists");
+    throw new Meteor.Error("Index already exists");
 
-    GameRequestCollection.insert({
-      type: "legacyseek",
-      owner: self._id,
-      legacy_index: index,
-      name: name,
-      titles: titles,
-      provisional_status: provisional_status,
-      wild: wild,
-      rating_type: rating_type,
-      time: time,
-      inc: inc,
-      rated: rated,
-      color: color,
-      minrating: minrating,
-      maxrating: maxrating,
-      autoaccept: autoaccept,
-      formula: formula
-    });
+  GameRequestCollection.insert({
+    type: "legacyseek",
+    owner: self._id,
+    legacy_index: index,
+    name: name,
+    titles: titles,
+    provisional_status: provisional_status,
+    wild: wild,
+    rating_type: rating_type,
+    time: time,
+    inc: inc,
+    rated: rated,
+    color: color,
+    minrating: minrating,
+    maxrating: maxrating,
+    autoaccept: autoaccept,
+    formula: formula
+  });
 };
 
 GameRequests.addLocalGameSeek = function(
@@ -178,19 +179,21 @@ GameRequests.removeLegacySeek = function(seek_index) {
 };
 
 GameRequests.removeGameSeek = function(seek_id) {
-  check(seek_id, Meteor.Collection.ObjectID);
   const self = Meteor.user();
-  if (!self) throw new Meteor.Error("self is null");
+  check(seek_id, String);
+  check(self, Object);
+
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
     throw new Meteor.Error("Unable to find seek with id " + seek_id);
+
   if (self._id !== request.owner)
     throw new Meteor.Error("Cannot remove another users game seek");
   GameRequestCollection.remove({ _id: seek_id });
 };
 
 GameRequests.acceptGameSeek = function(seek_id) {
-  check(seek_id, Meteor.Collection.ObjectID);
+  check(seek_id, String);
   const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null");
   const request = GameRequestCollection.findOne({ _id: seek_id });

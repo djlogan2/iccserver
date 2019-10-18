@@ -579,7 +579,6 @@ describe("GameRequests.removeLegacySeek", function() {
   };
 
   beforeEach(function() {
-    this.timeout(3000000);
     stubvalues.userIsInRole = true;
     stubvalues.meetsTimeAndIncRules = true;
     stubvalues.meetsMinimumAndMaximumRatingRules = true;
@@ -602,11 +601,6 @@ describe("GameRequests.removeLegacySeek", function() {
       sinon.fake(function() {
         return meteoruser;
       })
-    );
-    sinon.replace(
-      LegacyUser,
-      "find",
-      sinon.fake.returns({ legacy_user_record: true })
     );
   });
 
@@ -666,13 +660,6 @@ describe("GameRequests.removeGameSeek", function() {
     stubvalues.meetsTimeAndIncRules = true;
     stubvalues.meetsMinimumAndMaximumRatingRules = true;
     sinon.replace(
-      Roles,
-      "userIsInRole",
-      sinon.fake(function() {
-        return stubvalues.userIsInRole;
-      })
-    );
-    sinon.replace(
       Meteor,
       "user",
       sinon.fake(function() {
@@ -687,22 +674,12 @@ describe("GameRequests.removeGameSeek", function() {
       })
     );
     sinon.replace(
-      LegacyUser,
-      "find",
-      sinon.fake.returns({ legacy_user_record: true })
-    );
-    sinon.replace(
-      SystemConfiguration,
-      "meetsTimeAndIncRules",
-      sinon.fake(function() {
-        return stubvalues.meetsTimeAndIncRules;
-      })
-    );
-    sinon.replace(
-      SystemConfiguration,
-      "meetsMinimumAndMaximumRatingRules",
-      sinon.fake(function() {
-        return stubvalues.meetsMinimumAndMaximumRatingRules;
+      GameRequests.collection,
+      "findOne",
+      sinon.fake(function(selector) {
+        if (selector._id === "existing_seek_id")
+          return { _id: "existing_seek_id", owner: "player1" };
+        else return null;
       })
     );
   });
@@ -720,7 +697,7 @@ describe("GameRequests.removeGameSeek", function() {
     meteoruser = undefined;
     chai.assert.throws(() => {
       GameRequests.removeGameSeek("existing_seek_id");
-    }, Meteor.Error);
+    }, Match.Error);
   });
   it("should fail if seek record cannot be found", function() {
     meteoruser = player1;

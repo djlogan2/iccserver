@@ -469,7 +469,6 @@ Game.deleteVariation = function(self, game_id, issuer) {};
 //TODO: Add to tests
 Game.opponentUserIdList = function(ofuser) {
   check(ofuser, String);
-  //check(ofuser, Meteor.Collection.ObjectID);
   const array = [];
   const g1 = GameCollection.find({ "white.id": ofuser });
   g1.fetch().forEach(game => array.push(game.black.id));

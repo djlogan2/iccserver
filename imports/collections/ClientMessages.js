@@ -48,7 +48,7 @@ Meteor.publish("client_messages", function() {
 
 Meteor.methods({
   "acknowledge.client.message": function(id) {
-    check(id, Meteor.Collection.ObjectID);
+    check(id, String);
     const rec = ClientMessagesCollection.findOne({ _id: id });
     if (!rec || !rec.count())
       throw Meteor.Error(
@@ -70,7 +70,7 @@ ClientMessages.sendMessageToClient = function(
   i8n_message,
   parameter_array
 ) {
-  check(user, Match.OneOf(Object, Meteor.Collection.ObjectID));
+  check(user, Match.OneOf(Object, String));
   check(client_identifier, String);
   check(
     i8n_message,

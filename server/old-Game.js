@@ -649,7 +649,7 @@ Meteor.methods({
   },
 
   "game.move"(game_id, move) {
-    check(game_id, Meteor.Collection.ObjectID);
+    check(game_id, String);
     check(move, String);
     playMove(game_id, move);
   },
