@@ -93,6 +93,7 @@ omega:custom-protocol@4.0.2
 omega:direct-stream-access@4.0.3
 omega:json-protocol@1.0.1
 ordered-dict@1.1.0
+practicalmeteor:faker@3.0.1_1
 promise@0.11.2
 raix:eventemitter@1.0.0
 random@1.1.0

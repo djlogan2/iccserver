@@ -1,7 +1,6 @@
 import chai from "chai";
-
-import "./GameRequest";
 import { GameRequests } from "./GameRequest";
+import { Game } from "./Game";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import sinon from "sinon";
@@ -47,12 +46,6 @@ let meteoruser = player1;
 
 //GameRequests.addLegacyGameSeek = function(
 describe("GameRequests.addLegacyGameSeek", function() {
-  const stubvalues = {
-    userIsInRole: true,
-    meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true
-  };
-
   beforeEach(function() {
     stubvalues.userIsInRole = true;
     stubvalues.meetsTimeAndIncRules = true;
@@ -87,8 +80,12 @@ describe("GameRequests.addLegacyGameSeek", function() {
   });
 
   //  index,
-  it("should fail if we try to add the same index twice", function() {
-    chai.assert.throws(() => {
+  it("should be able to add the same index for two different owners without conflict", function() {
+    chai.assert.fail("do me");
+  });
+
+  it("should replace the record in the database if we try to add the same index twice", function() {
+    chai.assert.doesNotThrow(() => {
       GameRequests.addLegacyGameSeek(
         999,
         "player1",
@@ -713,7 +710,9 @@ describe("GameRequests.removeGameSeek", function() {
   });
   it("should delete the seek if all is well", function() {
     meteoruser = player1;
-    chai.assert.doesNotThrow(GameRequests.removeGameSeek("existing_seek_id"));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.removeGameSeek("existing_seek_id")
+    );
   });
   it("should fail if the seek record is not a local seek", function() {
     meteoruser = player2;
@@ -725,19 +724,117 @@ describe("GameRequests.removeGameSeek", function() {
 
 // GameRequests.acceptGameSeek = function(self, seek_id) {};
 describe("GameRequests.acceptGameSeek", function() {
+  const stubvalues = {
+    userIsInRole: true,
+    meetsTimeAndIncRules: true,
+    meetsMinimumAndMaximumRatingRules: true
+  };
+
+  beforeEach(function() {
+    stubvalues.userIsInRole = true;
+    stubvalues.meetsTimeAndIncRules = true;
+    stubvalues.meetsMinimumAndMaximumRatingRules = true;
+    sinon.replace(
+      Meteor,
+      "user",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      Meteor.users,
+      "findOne",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      GameRequests.collection,
+      "findOne",
+      sinon.fake(function(selector) {
+        if (selector._id === "existing_seek_id")
+          return {
+            _id: "existing_seek_id",
+            owner: "player1",
+            type: "seek",
+            wild: 0,
+            rating_type: "standard",
+            rated: true,
+            time: 15,
+            inc: 0
+          };
+        else if (selector._id === "legacy_seek_id")
+          return {
+            _id: "legacy_seek_id",
+            owner: "player1",
+            type: "legacyseek"
+          };
+        else return null;
+      })
+    );
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
+    player1.settings = default_settings;
+    player2.settings = default_settings;
+    examiner.settings = default_settings;
+    observer.settings = default_settings;
+  });
+
   it("should fail if self is null or invalid", function() {
-    chai.assert.fail("do me");
+    meteoruser = undefined;
+    chai.assert.throws(() => {
+      GameRequests.acceptGameSeek("existing_seek_id");
+    }, Match.Error);
   });
+
   it("should fail if seek record cannot be found", function() {
-    chai.assert.fail("do me");
+    meteoruser = player1;
+    chai.assert.throws(() => {
+      GameRequests.acceptGameSeek("nonexisting_seek_id");
+    }, Meteor.Error);
   });
+
   it("should fail if seek record does belong to the user", function() {
-    chai.assert.fail("do me");
+    meteoruser = player2;
+    chai.assert.throws(() => {
+      GameRequests.acceptGameSeek("existing_seek_id");
+    }, Meteor.Error);
   });
+
   it("should delete the seek and insert a new game if all is well", function() {
+    const grc = GameRequests.collection;
+    const gr = sinon.mock(grc);
+    const gm = sinon.mock(Game);
+
+    gr.expects("remove").once();
+    gm.expects("startLocalGame").once();
+
+    meteoruser = player1;
+    chai.assert.doesNotThrow(() => {
+      GameRequests.acceptGameSeek("existing_seek_id");
+    }, Match.Error);
+
+    gr.verify();
+    gm.verify();
+
+    gr.restore();
+    gm.restore();
+  });
+
+  it("should fail if the seek record is not a local seek", function() {
+    meteoruser = player1;
+    chai.assert.throws(() => {
+      GameRequests.acceptGameSeek("legacy_seek_id");
+    }, Meteor.Error);
+  });
+
+  it("should fail if the seek is rated and user cannot play rated games", function() {
     chai.assert.fail("do me");
   });
-  it("should fail if the seek record is not a local seek", function() {
+  it("should fail if the seek is unrated and user cannot play unrated games", function() {
     chai.assert.fail("do me");
   });
 });

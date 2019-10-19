@@ -8,18 +8,108 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import { LegacyUser } from "./LegacyUser";
+import SimpleSchema from "simpl-schema";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
-
-Meteor.startup(function() {
-  GameRequestCollection.remove({}); // Start off with a clean collection upon startup
+const LocalSeekSchema = new SimpleSchema({
+  type: { type: String, allowedValues: ["seek"] },
+  owner: { type: String },
+  wild: { type: Number },
+  rating_type: { type: String },
+  time: { type: Number },
+  inc: { type: Number },
+  rated: { type: Boolean },
+  autoaccept: { type: Boolean },
+  color: { type: String, optiona: true, allowedValues: ["white", "black"] },
+  minrating: { type: Number, optiona: true },
+  maxrating: { type: Number, optiona: true },
+  formula: { type: String, optiona: true }
 });
-
-Meteor.publish("game_requests", function() {
-  if (!this.userId) return [];
-  return GameRequestCollection.find({
-    $or: [{ challenger_id: this.userId }, { receiver_id: this.userId }]
-  });
+const LegacyMatchSchema = {
+  type: { type: String, allowedValues: ["legacymatch"] },
+  challenger: { type: String },
+  challenger_rating: { type: Number },
+  challenger_established: { type: Boolean },
+  challenger_titles: { type: Array, optiona: true },
+  receiver: { type: String },
+  receiver_rating: { type: Number },
+  receiver_established: { type: Boolean },
+  receiver_titles: { type: Array, optiona: true },
+  wild_number: { type: Number },
+  rating_type: { type: String },
+  rated: { type: Boolean },
+  adjourned: { type: Boolean },
+  challenger_time: { type: Number },
+  challenger_inc: { type: Number },
+  receiver_time: { type: Number },
+  receiver_inc: { type: Number },
+  challenger_color_request: {
+    type: String,
+    optiona: true,
+    allowedValues: ["white", "black"]
+  },
+  challenger_id: { type: String, optiona: true },
+  receiver_id: { type: String, optiona: true }
+};
+const LocalMatchSchema = {
+  type: { type: String, allowedValues: ["match"] },
+  challenger: { type: String },
+  challenger_rating: { type: Number },
+  challenger_titles: { type: Array },
+  challenger_established: { type: Boolean },
+  receiver: { type: String },
+  receiver_rating: { type: Number },
+  receiver_established: { type: Boolean },
+  receiver_titles: { type: Array },
+  wild_number: { type: Number },
+  rating_type: { type: String },
+  rated: { type: Boolean },
+  adjourned: { type: Boolean },
+  challenger_time: { type: Number },
+  challenger_inc: { type: Number },
+  receiver_time: { type: Number },
+  receiver_inc: { type: Number },
+  challenger_color_request: {
+    type: String,
+    allowedValues: ["white", "black"],
+    optional: true
+  },
+  assess_loss: { type: Number },
+  assess_draw: { type: Number },
+  assess_win: { type: Number },
+  fancy_time_control: { type: String, optional: true },
+  challenger_id: { type: String, optional: true },
+  receiver_id: { type: String, optional: true }
+};
+const LegacySeekSchema = {
+  type: { type: String, allowedValues: ["legacyseek"] },
+  owner: { type: String },
+  legacy_index: { type: Number },
+  name: { type: String },
+  titles: { type: Array },
+  provisional_status: { type: Number },
+  wild: { type: Number },
+  rating_type: { type: String },
+  time: { type: Number },
+  inc: { type: Number },
+  rated: { type: Boolean },
+  color: { type: Number },
+  minrating: { type: Number },
+  maxrating: { type: Number },
+  autoaccept: { type: Boolean },
+  formula: { type: String, optional: true }
+};
+GameRequestCollection.attachSchema(LocalSeekSchema, {
+  selector: { type: "seek" }
+});
+GameRequestCollection.attachSchema(LocalMatchSchema, {
+  selector: { type: "match" }
+});
+GameRequestCollection.attachSchema(LegacyMatchSchema, {
+  selector: { type: "legacymatch" }
+});
+GameRequestCollection.attachSchema(LegacySeekSchema, {
+  selector: { type: "legacyseek" }
 });
 
 let log = new Logger("server/GameRequest_js");
@@ -61,27 +151,28 @@ GameRequests.addLegacyGameSeek = function(
 
   const self = Meteor.user();
   if (!self) throw new Meteor.Error("self is null or invalid");
-  if (GameRequestCollection.find({ legacy_index: index }).count() > 0)
-    throw new Meteor.Error("Index already exists");
 
-  GameRequestCollection.insert({
-    type: "legacyseek",
-    owner: self._id,
-    legacy_index: index,
-    name: name,
-    titles: titles,
-    provisional_status: provisional_status,
-    wild: wild,
-    rating_type: rating_type,
-    time: time,
-    inc: inc,
-    rated: rated,
-    color: color,
-    minrating: minrating,
-    maxrating: maxrating,
-    autoaccept: autoaccept,
-    formula: formula
-  });
+  GameRequestCollection.upsert(
+    { type: "legacyseek", legacy_index: index, owner: self._id },
+    {
+      type: "legacyseek",
+      owner: self._id,
+      legacy_index: index,
+      name: name,
+      titles: titles,
+      provisional_status: provisional_status,
+      wild: wild,
+      rating_type: rating_type,
+      time: time,
+      inc: inc,
+      rated: rated,
+      color: color,
+      minrating: minrating,
+      maxrating: maxrating,
+      autoaccept: autoaccept,
+      formula: formula
+    }
+  );
 };
 
 GameRequests.addLocalGameSeek = function(
@@ -193,14 +284,17 @@ GameRequests.removeGameSeek = function(seek_id) {
 };
 
 GameRequests.acceptGameSeek = function(seek_id) {
-  check(seek_id, String);
   const self = Meteor.user();
-  if (!self) throw new Meteor.Error("self is null");
+  check(self, Object);
+  check(seek_id, String);
+
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
     throw new Meteor.Error("Unable to find seek with id " + seek_id);
   if (self._id === request.owner)
     throw new Meteor.Error("Cannot accept a seek from yourself");
+  if (request.type !== "seek")
+    throw new Meteor.Error("Cannot accept a non-local seek");
   if (
     !Roles.userIsInRole(
       self,
