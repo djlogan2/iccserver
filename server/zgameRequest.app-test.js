@@ -1,4 +1,5 @@
 import chai from "chai";
+
 import { GameRequests } from "./GameRequest";
 import { Game } from "./Game";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
@@ -46,6 +47,12 @@ let meteoruser = player1;
 
 //GameRequests.addLegacyGameSeek = function(
 describe("GameRequests.addLegacyGameSeek", function() {
+  const stubvalues = {
+    userIsInRole: true,
+    meetsTimeAndIncRules: true,
+    meetsMinimumAndMaximumRatingRules: true
+  };
+
   beforeEach(function() {
     stubvalues.userIsInRole = true;
     stubvalues.meetsTimeAndIncRules = true;
@@ -727,7 +734,8 @@ describe("GameRequests.acceptGameSeek", function() {
   const stubvalues = {
     userIsInRole: true,
     meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true
+    meetsMinimumAndMaximumRatingRules: true,
+    ratedseek: true
   };
 
   beforeEach(function() {
@@ -759,15 +767,18 @@ describe("GameRequests.acceptGameSeek", function() {
             type: "seek",
             wild: 0,
             rating_type: "standard",
-            rated: true,
+            rated: function() {
+              return stubvalues.ratedseek;
+            },
             time: 15,
             inc: 0
           };
         else if (selector._id === "legacy_seek_id")
           return {
             _id: "legacy_seek_id",
-            owner: "player1",
-            type: "legacyseek"
+            type: "legacymatch",
+            challenger: "iccplayer1",
+            receiver: "iccplayer2"
           };
         else return null;
       })
@@ -798,7 +809,7 @@ describe("GameRequests.acceptGameSeek", function() {
   });
 
   it("should fail if seek record does belong to the user", function() {
-    meteoruser = player2;
+    meteoruser = player1;
     chai.assert.throws(() => {
       GameRequests.acceptGameSeek("existing_seek_id");
     }, Meteor.Error);
@@ -812,7 +823,7 @@ describe("GameRequests.acceptGameSeek", function() {
     gr.expects("remove").once();
     gm.expects("startLocalGame").once();
 
-    meteoruser = player1;
+    meteoruser = player2;
     chai.assert.doesNotThrow(() => {
       GameRequests.acceptGameSeek("existing_seek_id");
     }, Match.Error);
@@ -832,24 +843,133 @@ describe("GameRequests.acceptGameSeek", function() {
   });
 
   it("should fail if the seek is rated and user cannot play rated games", function() {
-    chai.assert.fail("do me");
+    const cm = sinon.mock(ClientMessages);
+
+    cm.expects("sendMessageToClient")
+      .once()
+      .withExactArgs(player1, "test_identifier", "UNABLE_TO_PLAY_RATED_GAMES");
+
+    meteoruser = player2;
+    stubvalues.userIsInRole = false;
+    GameRequests.acceptGameSeek("legacy_seek_id");
+
+    cm.verify();
+    cm.restore();
   });
+
   it("should fail if the seek is unrated and user cannot play unrated games", function() {
-    chai.assert.fail("do me");
+    stubvalues.ratedseek = false;
+    const cm = sinon.mock(ClientMessages);
+
+    cm.expects("sendMessageToClient")
+      .once()
+      .withExactArgs(
+        player1,
+        "test_identifier",
+        "UNABLE_TO_PLAY_UNRATED_GAMES"
+      );
+
+    meteoruser = player2;
+    stubvalues.userIsInRole = false;
+    GameRequests.acceptGameSeek("legacy_seek_id");
+
+    cm.verify();
+    cm.restore();
   });
 });
 
 // GameRequests.addLegacyMatchRequest = function(
 describe("GameRequests.addLegacyMatchRequest", function() {
-  it("should fail if self is null or invalid", function() {
-    chai.assert.fail("do me");
+  const stubvalues = {
+    userIsInRole: true,
+    meetsTimeAndIncRules: true,
+    meetsMinimumAndMaximumRatingRules: true,
+    ratedseek: true
+  };
+
+  beforeEach(function() {
+    stubvalues.userIsInRole = true;
+    stubvalues.meetsTimeAndIncRules = true;
+    stubvalues.meetsMinimumAndMaximumRatingRules = true;
+    sinon.replace(
+      Meteor,
+      "user",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      Meteor.users,
+      "findOne",
+      sinon.fake(function() {
+        return meteoruser;
+      })
+    );
+    sinon.replace(
+      GameRequests.collection,
+      "findOne",
+      sinon.fake(function(selector) {
+        if (selector._id === "existing_seek_id")
+          return {
+            _id: "existing_seek_id",
+            owner: "player1",
+            type: "match"
+          };
+        else if (selector._id === "legacy_seek_id")
+          return {
+            _id: "legacy_seek_id",
+            type: "legacymatch",
+            challenger: "iccplayer1",
+            receiver: "iccplayer2"
+          };
+        else return null;
+      })
+    );
   });
+
+  afterEach(function() {
+    sinon.restore();
+    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
+    player1.settings = default_settings;
+    player2.settings = default_settings;
+    examiner.settings = default_settings;
+    observer.settings = default_settings;
+  });
+
+  it("should fail if self is null or invalid", function() {
+    meteoruser = undefined;
+    chai.assert.throws(() => {
+      GameRequests.addLegacyMatchRequest(
+        "challenger",
+        2000,
+        true,
+        ["GM"],
+        "receiver",
+        1900,
+        true,
+        ["GM"],
+        0,
+        "Standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        0,
+        16
+      );
+    }, Meteor.Error);
+  });
+
   it("should fail if self is neither challenger nor receiver", function() {
     chai.assert.fail("do me");
   });
+
   it("should add challenger_id if self is challenger", function() {
     chai.assert.fail("do me");
   });
+
   it("should add receiver_id if self is receiver", function() {
     chai.assert.fail("do me");
   });
