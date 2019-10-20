@@ -1,11 +1,9 @@
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import chai from "chai";
-import { Meteor } from "meteor/meteor";
-import { Accounts } from "meteor/accounts-base";
 import { resetDatabase } from "meteor/xolvio:cleaner";
-
-import "./users";
-import "../startup/server/firstRunUsers";
+import { Accounts } from "meteor/accounts-base";
+import { Meteor } from "meteor/meteor";
+import { TestHelpers } from "../server/TestHelpers";
 
 //
 // TODO: Check guest roles
@@ -69,6 +67,7 @@ const our_allowed_user_fields = {
     lastname: 1,
     legacy: {
       username: 1,
+      validated: 1,
       autologin: 1
     }
   }
@@ -108,6 +107,7 @@ const all_fields = {
     lastname: 1,
     legacy: {
       username: 1,
+      validated: 1,
       autologin: 1,
       password: 1
     }
@@ -169,34 +169,20 @@ function compare(testobject, actualobject, propheader) {
   }
 }
 
-function createUser(username, login) {
-  Accounts.createUser({
-    email: username + "@chessclub.com",
-    username: username,
-    password: username,
-    profile: {
-      legacy: {
-        username: "icc" + username,
-        password: "iccpassword",
-        autologin: true
-      }
-    }
-  });
-  if (!!login)
-    Meteor.users.update({ username: username }, { $set: { loggedOn: true } });
-}
-
-//function logoutUser(username) {
-//  Meteor.users.update({ username: username }, { $set: { loggedOn: false } });
-//}
-
 describe("Users", function() {
   beforeEach(function(done) {
     resetDatabase(null, done);
   });
 
   it("should have all fields", function() {
-    createUser("user1");
+    Accounts.createUser({
+      username: "user1",
+      email: "user1@chessclub.com",
+      password: "user1",
+      profile: {
+        legacy: { username: "icc1", password: "pw1", autologin: true }
+      }
+    });
     const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
@@ -205,9 +191,8 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the entire user record in the userData subscription", function(done) {
-    createUser("user1");
-    createUser("user2");
-    const user1 = Meteor.users.findOne({ username: "user1" });
+    const user1 = TestHelpers.createUser({ login: false });
+    TestHelpers.createUser({ login: false });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
@@ -219,39 +204,44 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
-    createUser("user1", true);
-    createUser("user2", true);
-    const user1 = Meteor.users.findOne({ username: "user1" });
+    const user1 = TestHelpers.createUser({ login: true });
+    const user2 = TestHelpers.createUser({ login: true });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("loggedOnUsers", collections => {
-      const user2 = collections.users.filter(u => u.username === "user2");
-      chai.assert.equal(user2.length, 1);
-      const msg = compare(logged_on_user_fields, user2[0]);
+      const user2a = collections.users.filter(
+        u => u.username === user2.username
+      );
+      chai.assert.equal(user2a.length, 1);
+      const msg = compare(logged_on_user_fields, user2a[0]);
       done(msg);
     });
   });
 
   it("should only get logged on users with the loggedOnUsers subscription", function(done) {
-    createUser("user1");
-    createUser("user2", true);
-    createUser("user3");
-    createUser("user4", true);
-    const user1 = Meteor.users.findOne({ username: "user1" });
+    const user1 = TestHelpers.createUser({ login: false });
+    const user2 = TestHelpers.createUser({ login: true });
+    const user3 = TestHelpers.createUser({ login: false });
+    const user4 = TestHelpers.createUser({ login: true });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("loggedOnUsers", collections => {
       chai.assert.equal(collections.users.length, 2);
       chai.assert.sameMembers(
-        ["user2", "user4"],
+        [user2.username, user4.username],
         collections.users.map(u => u.username)
       );
       done();
     });
   });
-
-  it("should write a new users username to legacy.pending_username", function() {chai.assert.fail("do me");});
-  it("should convert pending_username to username only upon successful legacy logon", function() {chai.assert.fail("do me");});
+  /*
+  it("should write a new users username to and it should not be validated", function() {
+    chai.assert.fail("do me");
+  });
+  it("should set legacy information as validated upon successful legacy logon", function() {
+    chai.assert.fail("do me");
+  });
+ */
 });

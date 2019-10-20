@@ -1,5 +1,9 @@
 export const standard_guest_roles = ["login"];
 
+export const UserConstants = {};
+
+export const titles = ["C", "*", "H", "FM", "IM", "GM"];
+
 export const standard_member_roles = [
   "login",
   "send_messages",
@@ -12,8 +16,11 @@ export const fields_viewable_by_account_owner = {
   createdAt: 1,
   ratings: 1,
   emails: 1,
+  locale: 1,
+  board_css: 1,
   "profile.firstname": 1,
   "profile.lastname": 1,
+  "profile.legacy.validated": 1,
   "profile.legacy.username": 1,
   "profile.legacy.autologin": 1
 };

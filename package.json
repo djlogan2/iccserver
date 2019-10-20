@@ -20,6 +20,7 @@
     "@babel/runtime": "^7.1.5",
     "bcrypt": "^3.0.6",
     "chess.js": "git+https://github.com/jhlywa/chess.js.git",
+    "faker": "^4.1.0",
     "meteor-node-stubs": "^0.4.1",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",

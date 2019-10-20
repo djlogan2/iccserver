@@ -9,6 +9,7 @@ import { ClientMessages } from "../imports/collections/ClientMessages";
 import net from "net";
 
 import * as L2 from "../lib/server/l2";
+import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 //import * as CN from "../lib/server/cn";
 //import { check } from "meteor/check";
 
@@ -201,7 +202,11 @@ class LegacyUserConnection {
         },
         function(error) {
           log.fatal("failed to bind to environment: " + error);
-          throw new Meteor.Error("failed to bind environment: " + error);
+          throw new ICCMeteorError(
+            "server",
+            "failed to bind to environment",
+            error
+          );
         }
       )
     );
@@ -364,7 +369,17 @@ class LegacyUserConnection {
     }
   }
 
-  match(name, time, increment, time2, increment2, rated, wild, color) {
+  match(
+    message_identifier,
+    name,
+    time,
+    increment,
+    time2,
+    increment2,
+    rated,
+    wild,
+    color
+  ) {
     let matchString = "match " + name + " " + time;
     if (increment) matchString += " " + increment;
     if (time2) matchString += " " + time2;
@@ -372,15 +387,15 @@ class LegacyUserConnection {
     matchString += rated ? " r" : " u";
     if (typeof wild !== "undefined") matchString += " " + wild;
     if (color) matchString += " " + color;
-    this._sendRawData(matchString + "\n");
+    this._sendRawData(message_identifier, matchString + "\n");
   }
 
-  move(move) {
-    this._sendRawData(move); // TODO: We should probably validate this as an actual move, or clients will be able to send whatever they damn well please with this!
+  move(message_identifier, move) {
+    this._sendRawData(message_identifier, move); // TODO: We should probably validate this as an actual move, or clients will be able to send whatever they damn well please with this!
   }
 
-  _sendRawData(data) {
-    this.socket.write(";" + data + "\n");
+  _sendRawData(message_identifier, data) {
+    this.socket.write("`" + message_identifier + "`" + data + "\n");
   }
 
   processPackets(packets) {
@@ -409,7 +424,7 @@ class LegacyUserConnection {
           ) {
             Meteor.users.update(
               { _id: Meteor.userId() },
-              { $set: { "profile.legacy.username": p2[0] } }
+              { $set: { "profile.legacy.username": p2[0], "profile.legacy.validated": true } }
             );
           }
           break;
@@ -699,7 +714,9 @@ const LegacyUser = {
    * @param user
    */
   // TODO: Make sure they aren't already logged in
-  login: function(user) {
+  login: function(message_identifier, user) {
+    check(message_identifier, String);
+    check(user, Object);
     if (
       !Roles.userIsInRole(user, "legacy_login") ||
       !user.profile ||
@@ -709,9 +726,10 @@ const LegacyUser = {
       !user.profile.legacy.autologin
     ) {
       log.debug("Not legacy logging in", null, user._id);
-      throw new Meteor.Error(
-        "Unable to login to the legacy server - Insufficient information in user record or user not authorized: " +
-          user._id
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to login to the legacy server",
+        "Insufficient information in user record or user not authorized"
       );
     }
     legacy_user_map[user._id] = new LegacyUserConnection(user);
@@ -726,10 +744,7 @@ const LegacyUser = {
     if (lu) {
       lu.logout();
       delete lu[userId];
-    } /*else
-      throw new Meteor.Error(
-        "Unable to find legacy connection for " + userId + " to logout from"
-      );*/
+    }
   }
 };
 

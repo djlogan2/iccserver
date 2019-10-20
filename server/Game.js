@@ -5,6 +5,8 @@ import { Mongo } from "meteor/mongo";
 import { Logger } from "../lib/server/Logger";
 import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
+import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { ClientMessages } from "../imports/collections/ClientMessages";
 
 export const Game = {};
 
@@ -19,8 +21,8 @@ const actionSchema = new SimpleSchema({
     type: String,
     allowedValues: ["move", "takeBack", "draw", "resign", "abort", "game"]
   },
-  value: { type: String },
-  actionBy: { type: String }
+  value: String,
+  actionBy: String
 });
 
 const GameSchema = new SimpleSchema({
@@ -35,28 +37,28 @@ const GameSchema = new SimpleSchema({
   wild: { type: Number, required: false },
   rating_type: { type: String, required: false },
   rated: { type: String, required: false },
-  status: { type: String },
+  status: String,
   clocks: new SimpleSchema({
     white: new SimpleSchema({
-      time: { type: SimpleSchema.Integer },
-      inc: { type: Number },
-      current: { type: SimpleSchema.Integer }
+      time: SimpleSchema.Integer,
+      inc: Number,
+      current: SimpleSchema.Integer
     }),
     black: new SimpleSchema({
-      time: { type: SimpleSchema.Integer },
-      inc: { type: Number },
-      current: { type: SimpleSchema.Integer }
+      time: SimpleSchema.Integer,
+      inc: Number,
+      current: SimpleSchema.Integer
     })
   }),
   white: new SimpleSchema({
-    name: { type: String },
+    name: String,
     userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
-    rating: { type: SimpleSchema.Integer }
+    rating: SimpleSchema.Integer
   }),
   black: new SimpleSchema({
-    name: { type: String },
+    name: String,
     userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
-    rating: { type: SimpleSchema.Integer }
+    rating: SimpleSchema.Integer
   }),
   moves: [String],
   actions: [actionSchema]
@@ -66,22 +68,30 @@ GameCollection.attachSchema(GameSchema);
 function getLegacyUser(userId) {
   const our_legacy_user = LegacyUser.find(userId);
   if (!our_legacy_user)
-    throw new Meteor.error(
+    throw new ICCMeteorError(
+      "server",
       "Unable to find a legacy user object for " + this.name
     );
   return our_legacy_user;
 }
 
-function getAndCheck(game_id, must_be_my_turn) {
+function getAndCheck(message_identifier, game_id, must_be_my_turn) {
   const self = Meteor.user();
-  if (!self || (self._id !== game.white.id && self._id !== game.black.id))
-    throw new Meteor.Error("Who are we?");
 
   const game = GameCollection.findOne({ _id: game_id });
-  if (!game) throw new Meteor.Error("Unable to find a game to make a move for");
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to find a game to make a move for"
+    );
+  if (!self || (self._id !== game.white.id && self._id !== game.black.id))
+    throw new ICCMeteorError("server", "Who are we?");
 
   if (!active_games[game_id])
-    throw new Meteor.Error("Unable to find chessboard validator for game");
+    throw new ICCMeteorError(
+      "server",
+      "Unable to find chessboard validator for game"
+    );
 
   if (!must_be_my_turn) return game;
 
@@ -89,13 +99,20 @@ function getAndCheck(game_id, must_be_my_turn) {
     (self._id !== active_games[game_id].turn()) === "w"
       ? game.white.id
       : game.black.id
-  )
-    throw new Meteor.Error("Invalid command when its not your turn");
+  ) {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_YOUR_MOVE"
+    );
+    return null;
+  }
 
   return game;
 }
 
 Game.startLocalGame = function(
+  message_identifier,
   other_user,
   wild_number,
   rating_type,
@@ -115,6 +132,7 @@ Game.startLocalGame = function(
   const self = Meteor.user();
 
   check(self, Object);
+  check(message_identifier, String);
   check(other_user, Object);
   check(wild_number, Number);
   check(rating_type, String);
@@ -165,6 +183,7 @@ Game.startLocalGame = function(
 };
 
 Game.startLegacyGame = function(
+  message_identifier,
   gamenumber,
   whitename,
   blackname,
@@ -188,9 +207,29 @@ Game.startLegacyGame = function(
   fancy_timecontrol,
   promote_to_king
 ) {
+  check(message_identifier, String);
+  check(gamenumber, Number);
   check(whitename, String);
   check(blackname, String);
-
+  check(wild_number, Number);
+  check(rating_type, String);
+  check(rated, Boolean);
+  check(white_initial, Number);
+  check(white_increment, Number);
+  check(black_initial, Number);
+  check(black_increment, Number);
+  check(played_game, Boolean);
+  check(ex_string, String);
+  check(white_rating, Number);
+  check(black_rating, Number);
+  check(game_id, Number);
+  check(white_titles, Array);
+  check(black_titles, Array);
+  check(irregular_legality, Match.Maybe(String));
+  check(irregular_semantics, Match.Maybe(String));
+  check(uses_plunkers, Match.Maybe(String));
+  check(fancy_timecontrol, Match.Maybe(String));
+  check(promote_to_king, Match.Maybe(String));
   const whiteuser = Meteor.users.findOne({
     "profile.legay.username": whitename
   });
@@ -201,7 +240,7 @@ Game.startLegacyGame = function(
 
   const self = Meteor.user();
   if (!self || (self._id !== whiteuser._id && self._id !== blackuser._id))
-    throw new Meteor.Error("Who are we?");
+    throw new ICCMeteorError(message_identifier, "Unable to find user");
 
   const game = {
     starttime: new Date(),
@@ -241,20 +280,40 @@ Game.startLegacyGame = function(
   GameCollection.insert(game);
 };
 
-Game.saveLegacyMove = function(game_id, move) {};
+Game.saveLegacyMove = function(message_identifier, game_id, move) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(move, String);
+};
 
-Game.makeMove = function(game_id, move) {
-  const game = getAndCheck(game_id, true);
+Game.makeMove = function(message_identifier, game_id, move) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(move, String);
+  const game = getAndCheck(message_identifier, game_id, true);
+  if (!game) return;
 
   if (game.legacy_game_number) {
     const lu = getLegacyUser(this._id);
-    if (!lu) throw new Meteor.Error("Unable to find legacy user for this game");
+    if (!lu)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to find legacy user for this game"
+      );
     lu.move(move);
     return;
   }
 
   const result = active_games[game_id].move(move);
-  if (!result) throw new Meteor.Error("Illegal move"); // I think we need to move this to client_messages
+  if (!result) {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "ILLEGAL_MOVE",
+      move
+    );
+    return;
+  }
 
   const ms = new Date().getTime() - game.starttime.getTime();
 
@@ -279,13 +338,28 @@ Game.makeMove = function(game_id, move) {
   game.update({ _id: game_id }, updateobject);
 };
 
-Game.requestAction = function(game_id, number) {
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
+Game.requestTakeback = function(message_identifier, game_id, number) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(number, Number);
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
 
   if (game.legacy_game_number) {
     const lu = getLegacyUser(this._id);
-    if (!lu) throw new Meteor.Error("Unable to find legacy user for this game");
+    if (!lu)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to find legacy user for this game"
+      );
     lu.requestTakeback(number);
     return;
   }
@@ -294,27 +368,27 @@ Game.requestAction = function(game_id, number) {
   Meteor.update({ _id: game_id }, { $push: [ms, { takeback: number }] });
 };
 
-Game.requestTakeback = function(game_id, number) {
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
-
-  if (game.legacy_game_number) {
-    const lu = getLegacyUser(this._id);
-    if (!lu) throw new Meteor.Error("Unable to find legacy user for this game");
-    lu.requestTakeback(number);
+Game.acceptTakeback = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-  Meteor.update({ _id: game_id }, { $push: [ms, { takeback: number }] });
-};
-
-Game.acceptTakeback = function(game_id) {
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
   if (game.legacy_game_number) {
     const lu = getLegacyUser(this._id);
-    if (!lu) throw new Meteor.Error("Unable to find legacy user for this game");
+    if (!lu)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to find legacy user for this game"
+      );
     lu.requestTakeback();
     return;
   }
@@ -331,8 +405,10 @@ Game.acceptTakeback = function(game_id) {
     else if (typeof game.actions[x].takeback === "number")
       takeback_legal = game.actions[x].takeback;
   }
-  if (takeback_legal === undefined || takeback_legal === -1)
-    throw new Meteor.Error("Illegal takeback accept"); // TODO: Should probably use client_messaages
+  if (takeback_legal === undefined || takeback_legal === -1) {
+    ClientMessages.sendMessageToClient(Meteor.user(), "ILLEGAL_TAKEBACK");
+    return;
+  }
   Meteor.update(
     { _id: game_id },
     { $push: [ms, { accept_takeback: takeback_legal }] }
@@ -340,13 +416,28 @@ Game.acceptTakeback = function(game_id) {
   for (let x = 0; x < takeback_legal; x++) active_games[game_id].undo();
 };
 
-Game.declineTakeback = function(game_id) {
-  //TODO: meteor error? client_messages?
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
+Game.declineTakeback = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(move, String);
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
+
   if (game.legacy_game_number) {
     const lu = getLegacyUser(this._id);
-    if (!lu) throw new Meteor.Error("Unable to find legacy user for this game");
+    if (!lu)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to find legacy user for this game"
+      );
     lu.requestTakeback();
     return;
   }
@@ -363,17 +454,30 @@ Game.declineTakeback = function(game_id) {
     else if (typeof game.actions[x].takeback === "number")
       takeback_legal = game.actions[x].takeback;
   }
-  if (takeback_legal === undefined || takeback_legal === -1)
-    throw new Meteor.Error("Illegal takeback decline"); // TODO: Should probably use client_messaages
+  if (takeback_legal === undefined || takeback_legal === -1) {
+    ClientMessages.sendMessageToClient(Meteor.user(), "ILLEGAL_TAKEBACK");
+    return;
+  }
+
   Meteor.update(
     { _id: game_id },
     { $push: [ms, { decline_takeback: takeback_legal }] }
   );
 };
 
-Game.requestDraw = function(game_id) {
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
+Game.requestDraw = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
 
   const ms = new Date().getTime() - game.starttime.getTime();
 
@@ -393,9 +497,19 @@ Game.requestDraw = function(game_id) {
   );
 };
 
-Game.acceptDraw = function(game_id) {
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
+Game.acceptDraw = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
 
   const ms = new Date().getTime() - game.starttime.getTime();
 
@@ -405,9 +519,19 @@ Game.acceptDraw = function(game_id) {
   );
 };
 
-Game.declineDraw = function(game_id) {
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
+Game.declineDraw = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
 
   const ms = new Date().getTime() - game.starttime.getTime();
 
@@ -417,9 +541,19 @@ Game.declineDraw = function(game_id) {
   );
 };
 
-Game.resignGame = function(game_id) {
-  const game = getAndCheck(game_id);
-  if (game.status !== "playing") throw new Meteor.Error("Must be playing");
+Game.resignGame = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
 
   const ms = new Date().getTime() - game.starttime.getTime();
 
@@ -438,31 +572,36 @@ function determineWhite(p1, p2, color) {
   else return p2;
 }
 
-Game.offerMoretime = function(game_id, issuer, seconds) {};
+Game.offerMoretime = function(message_identifier, game_id, issuer, seconds) {};
 
-Game.declineMoretime = function(game_id) {};
+Game.declineMoretime = function(message_identifier, game_id) {};
 
-Game.acceptMoretime = function(game_id) {};
+Game.acceptMoretime = function(message_identifier, game_id) {};
 
-Game.moveBackward = function(game_id, issuer, halfmoves) {};
+Game.moveBackward = function(message_identifier, game_id, issuer, halfmoves) {};
 
-Game.moveForward = function(game_id, issuer, halfmoves) {};
+Game.moveForward = function(message_identifier, game_id, issuer, halfmoves) {};
 
-Game.drawCircle = function(game_id, issuer, square) {};
+Game.drawCircle = function(message_identifier, game_id, issuer, square) {};
 
-Game.removeCircle = function(game_id, issuer, square) {};
+Game.removeCircle = function(message_identifier, game_id, issuer, square) {};
 
-Game.drawArrow = function(game_id, issuer, square) {};
+Game.drawArrow = function(message_identifier, game_id, issuer, square) {};
 
-Game.removeArrow = function(game_id, issuer, square) {};
+Game.removeArrow = function(message_identifier, game_id, issuer, square) {};
 
-Game.changeHeaders = function(game_id, other_arguments) {};
+Game.changeHeaders = function(message_identifier, game_id, other_arguments) {};
 
-Game.updateClock = function(game_id, color, milliseconds) {};
+Game.updateClock = function(
+  message_identifier,
+  game_id,
+  color,
+  milliseconds
+) {};
 
-Game.addVariation = function(game_id, issuer) {};
+Game.addVariation = function(message_identifier, game_id, issuer) {};
 
-Game.deleteVariation = function(game_id, issuer) {};
+Game.deleteVariation = function(message_identifier, game_id, issuer) {};
 
 Game.deleteVariation = function(self, game_id, issuer) {};
 

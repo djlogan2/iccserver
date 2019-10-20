@@ -5,20 +5,32 @@ import { i18n } from "./i18n";
 import { addLogoutHook } from "./users";
 
 import { Logger } from "../../lib/server/Logger";
+import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 
 let log = new Logger("clientMessages_js");
 const ClientMessagesCollection = new Mongo.Collection("client_messages");
+const ClientMessageSchema = {
+  createDate: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
+  to: String,
+  client_identifier: String,
+  message: String
+};
+ClientMessagesCollection.attachSchema(ClientMessageSchema);
 
 //
 // You can put whatever you want in the array for the parameters. It's for documentation only at the time of this writing.
 // The code checks for the parameter COUNT, but does not otherwise verify.
 //
 export const DefinedClientMessagesMap = {
-  UNABLE_TO_LOGON: { parameters: ["player_name"] }, // TODO: See if we can use one of the LOGIN_FAILED_X messages for this and remove this.
   UNABLE_TO_PLAY_RATED_GAMES: {},
   UNABLE_TO_PLAY_UNRATED_GAMES: {},
   LEGACY_MATCH_REMOVED: { parameters: ["legacy_explanation_string"] },
-   LOGIN_FAILED_1: {},
+  LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},
   LOGIN_FAILED_4: {},
@@ -39,7 +51,8 @@ export const DefinedClientMessagesMap = {
   LOGIN_FAILED_19: {},
   LOGIN_FAILED_20: {},
   LOGIN_FAILED_21: {},
-  LOGIN_FAILED_22: {}
+  LOGIN_FAILED_22: {},
+  FOR_TESTING: {}
 };
 
 Meteor.publish("client_messages", function() {
@@ -50,13 +63,15 @@ Meteor.methods({
   "acknowledge.client.message": function(id) {
     check(id, String);
     const rec = ClientMessagesCollection.findOne({ _id: id });
-    if (!rec || !rec.count())
-      throw Meteor.Error(
-        "Why are we here? We should not be deleting a nonexistant client message"
+    if (!rec)
+      throw new ICCMeteorError(
+        "server",
+        "We should not be deleting a nonexistant client message"
       );
     if (rec.to !== this.userId)
-      throw Meteor.Error(
-        "Why are we here? We should not be deleting a client message that does not belong to us"
+      throw new ICCMeteorError(
+        "server",
+        "We should not be deleting a client message that does not belong to us"
       );
     ClientMessagesCollection.remove({ _id: id });
   }
@@ -86,7 +101,7 @@ ClientMessages.sendMessageToClient = function(
         if (
           parameter_array === undefined ||
           parameter_array == null ||
-          (Array.isArray(parameter_array) && parameter_array.length() === 0)
+          (Array.isArray(parameter_array) && parameter_array.length === 0)
         )
           return true;
         throw new Match.Error(
@@ -96,7 +111,7 @@ ClientMessages.sendMessageToClient = function(
       if (!Array.isArray(parameter_array))
         throw new Match.Error("parameter_array must be an array");
       if (
-        parameter_array.length() !==
+        parameter_array.length !==
         DefinedClientMessagesMap[i8n_message].parameters.length
       )
         throw new Match.Error(
@@ -113,15 +128,15 @@ ClientMessages.sendMessageToClient = function(
   // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
   const locale = touser.locale || "en_US";
   const message = i18n.localizeMessage(locale, i8n_message, parameter_array);
-  ClientMessagesCollection.insert({
+  const mongoid = ClientMessagesCollection.insert({
     to: id,
     client_identifier: client_identifier,
     message: message
   });
+  return mongoid;
 };
 
 addLogoutHook(function(userId) {
-  log.debug("runOnLogout: " + userId);
   ClientMessagesCollection.remove({ to: userId });
 });
 

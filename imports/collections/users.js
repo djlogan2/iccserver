@@ -9,7 +9,7 @@ import {
 import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
-import * as L2 from "../../lib/server/l2";
+import { i18n } from "./i18n";
 
 let log = new Logger("server/users_js");
 
@@ -84,22 +84,21 @@ Accounts.onCreateUser(function(options, user) {
       lastname: options.profile.lastname || "?"
     };
 
-    // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
-    user.ratings = user_ratings_object;
-
     if (
       options.profile.legacy &&
       (options.profile.legacy.username || options.profile.legacy.password)
     )
       user.profile.legacy = {
         username: options.profile.legacy.username,
+        validated: false,
         password: encrypt(options.profile.legacy.password),
         autologin: true
       };
   }
 
+  // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
+  user.ratings = user_ratings_object;
   user.settings = default_settings;
-
   user.loggedOn = false;
   user.locale = "unknown";
   user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
@@ -152,9 +151,6 @@ Accounts.validateLoginAttempt(function(params) {
   // params.methodArguments
   if (!params.user) return false;
   // Pretty simple so far. Allow the user to login if they are in the role allowing them to do so.
-  if (!Roles.userIsInRole(params.user, "login"))
-    throw new Meteor.Error("Administrators are not allowing you to login"); // TODO: i18n
-
   if (!params.user.locale || params.user.locale === "unknown") {
     const httpHeaders = params.connection.httpHeaders || {};
     const acceptLanguage = (httpHeaders["accept-language"] || "en-us")
@@ -167,5 +163,14 @@ Accounts.validateLoginAttempt(function(params) {
     );
     params.user.locale = acceptLanguage;
   }
+
+  if (!Roles.userIsInRole(params.user, "login")) {
+    const message = i18n.localizeMessage(
+      params.user.locale || "en_us",
+      "LOGIN_FAILED_12"
+    );
+    throw new Meteor.Error(message);
+  }
+
   return true;
 });

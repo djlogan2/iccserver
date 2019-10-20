@@ -1,85 +1,58 @@
 import chai from "chai";
+import { resetDatabase } from "meteor/xolvio:cleaner";
 
 import { GameRequests } from "./GameRequest";
 import { Game } from "./Game";
-import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import sinon from "sinon";
 import { Meteor } from "meteor/meteor";
 import { Match } from "meteor/check";
-import { LegacyUser } from "./LegacyUser";
-import { Roles } from "meteor/alanning:roles";
-import {
-  default_settings,
-  user_ratings_object
-} from "../imports/collections/users";
 
-const player1 = {
-  _id: "player1",
-  username: "uplayer1",
-  loggedOn: true,
-  ratings: user_ratings_object,
-  settings: default_settings
-};
-const player2 = {
-  _id: "player2",
-  loggedOn: true,
-  username: "uplayer2",
-  ratings: user_ratings_object,
-  settings: default_settings
-};
-const examiner = {
-  _id: "examiner1",
-  loggedOn: true,
-  username: "uexaminer",
-  ratings: user_ratings_object,
-  settings: default_settings
-};
-const observer = {
-  _id: "observer1",
-  loggedOn: true,
-  username: "uobserver",
-  ratings: user_ratings_object,
-  settings: default_settings
-};
+import { TestHelpers } from "../imports/server/TestHelpers";
+import { standard_member_roles } from "../imports/server/userConstants";
+import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
-let meteoruser = player1;
+function legacySeekParameters(user) {
+  return [
+    "id1",
+    999,
+    user.profile.legacy.username,
+    [],
+    2000,
+    0,
+    0,
+    "Standard",
+    15,
+    0,
+    true,
+    "white",
+    0,
+    9999,
+    true,
+    ""
+  ];
+}
+
+function localSeekParameters() {
+  return ["id1", 0, "standard", 15, 0, true, null, null, null, true];
+}
 
 //GameRequests.addLegacyGameSeek = function(
 describe("GameRequests.addLegacyGameSeek", function() {
-  const stubvalues = {
-    userIsInRole: true,
-    meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true
-  };
-
-  beforeEach(function() {
-    stubvalues.userIsInRole = true;
-    stubvalues.meetsTimeAndIncRules = true;
-    stubvalues.meetsMinimumAndMaximumRatingRules = true;
-    sinon.replace(
-      GameRequests.collection,
-      "find",
-      sinon.fake(function(selector) {
-        return {
-          count: function() {
-            return selector.legacy_index === 999 ? 1 : 0;
-          }
-        };
-      })
-    );
+  const self = this;
+  beforeEach(function(done) {
+    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
     sinon.replace(
       Meteor,
       "user",
-      sinon.fake(function() {
-        return meteoruser;
-      })
+      sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+      )
     );
-    sinon.replace(
-      LegacyUser,
-      "find",
-      sinon.fake.returns({ legacy_user_record: true })
-    );
+    resetDatabase(null, done);
   });
 
   afterEach(function() {
@@ -88,131 +61,68 @@ describe("GameRequests.addLegacyGameSeek", function() {
 
   //  index,
   it("should be able to add the same index for two different owners without conflict", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
+
+    self.loggedonuser = TestHelpers.createUser();
+    GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
+
+    chai.assert.equal(2, GameRequests.collection.find().count());
   });
 
   it("should replace the record in the database if we try to add the same index twice", function() {
-    chai.assert.doesNotThrow(() => {
-      GameRequests.addLegacyGameSeek(
-        999,
-        "player1",
-        "C GM",
-        2340,
-        0,
-        0,
-        "Standard",
-        15,
-        0,
-        true,
-        "w",
-        0,
-        3000,
-        true,
-        ""
-      );
-    }, Meteor.Error);
+    self.loggedonuser = TestHelpers.createUser();
+
+    GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
+    GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
+    const cursor = GameRequests.collection.find();
+    chai.assert.equal(1, cursor.count());
   });
-  //   name,
-  //   titles,
-  //   rating,
-  //   provisional_status,
-  //   wild,
-  //   rating_type,
-  //   time,
-  //   inc,
-  //   rated,
-  //   color,
-  //   minrating,
-  //   maxrating,
-  //   autoaccept,
-  //   formula,
-  //   fancy_time_control
 });
 
 // GameRequests.addLocalGameSeek = function() {};
 describe("GameRequests.addLocalGameSeek", function() {
-  const stubvalues = {
-    userIsInRole: true,
-    meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true
-  };
-
-  beforeEach(function() {
-    stubvalues.userIsInRole = true;
-    stubvalues.meetsTimeAndIncRules = true;
-    stubvalues.meetsMinimumAndMaximumRatingRules = true;
-    sinon.replace(
-      Roles,
-      "userIsInRole",
-      sinon.fake(function() {
-        return stubvalues.userIsInRole;
-      })
-    );
+  let self = this;
+  beforeEach(function(done) {
+    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
     sinon.replace(
       Meteor,
       "user",
-      sinon.fake(function() {
-        return meteoruser;
-      })
+      sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+      )
     );
-    sinon.replace(
-      Meteor.users,
-      "findOne",
-      sinon.fake(function() {
-        return meteoruser;
-      })
-    );
-    sinon.replace(
-      LegacyUser,
-      "find",
-      sinon.fake.returns({ legacy_user_record: true })
-    );
-    sinon.replace(
-      SystemConfiguration,
-      "meetsTimeAndIncRules",
-      sinon.fake(function() {
-        return stubvalues.meetsTimeAndIncRules;
-      })
-    );
-    sinon.replace(
-      SystemConfiguration,
-      "meetsMinimumAndMaximumRatingRules",
-      sinon.fake(function() {
-        return stubvalues.meetsMinimumAndMaximumRatingRules;
-      })
-    );
+    resetDatabase(null, done);
   });
-
   afterEach(function() {
     sinon.restore();
-    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
-    player1.settings = default_settings;
-    player2.settings = default_settings;
-    examiner.settings = default_settings;
-    observer.settings = default_settings;
   });
 
   //  self,
   it("should fail if self is null or invalid", function() {
-    meteoruser = undefined;
+    self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        0,
-        true,
-        null,
-        null,
-        null,
-        true
-      );
-    }, Meteor.Error);
+      GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+    }, ICCMeteorError);
   });
+
   //   wild,
   it("should fail if wild is invalid (currently anything other than zero)", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -228,9 +138,10 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
   });
+
   //   rating_type,
   it("should fail if rating_type is not a valid rating type for ICC", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -244,11 +155,12 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
+    }, Match.Error);
   });
+
   //   time,
   it("should fail if time is null or not a number or not within ICC configuration requirements", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -263,7 +175,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, Match.Error);
-    meteoruser = player1;
+
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -278,8 +190,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, Match.Error);
-    stubvalues.meetsTimeAndIncRules = false;
-    meteoruser = player1;
+
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -295,9 +206,10 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
   });
+
   //   inc,
   it("should fail if inc is null or not a number or not within ICC configuration requirements", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -312,7 +224,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, Match.Error);
-    meteoruser = player1;
+
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -328,9 +240,10 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
   });
+
   //   rated,
   it("should fail if rated is not 'true' or 'false'", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -346,15 +259,17 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
   });
+
   it("should write a message to client_messages if rated and user cannot play rated games", function() {
     const cm = sinon.mock(ClientMessages);
 
-    cm.expects("sendMessageToClient")
-      .once()
-      .withExactArgs(player1, "test_identifier", "UNABLE_TO_PLAY_RATED_GAMES");
+    const roles = standard_member_roles.filter(
+      role => role !== "play_rated_games"
+    );
+    self.loggedonuser = TestHelpers.createUser({ roles: roles });
 
-    meteoruser = player1;
-    stubvalues.userIsInRole = false;
+    cm.expects("sendMessageToClient").once();
+
     GameRequests.addLocalGameSeek(
       "test_identifier",
       0,
@@ -375,16 +290,13 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should write a message to client_messages if unrated and user cannot play unrated games", function() {
     const cm = sinon.mock(ClientMessages);
 
-    cm.expects("sendMessageToClient")
-      .once()
-      .withExactArgs(
-        player1,
-        "test_identifier",
-        "UNABLE_TO_PLAY_UNRATED_GAMES"
-      );
+    const roles = standard_member_roles.filter(
+      role => role !== "play_unrated_games"
+    );
+    self.loggedonuser = TestHelpers.createUser({ roles: roles });
 
-    meteoruser = player1;
-    stubvalues.userIsInRole = false;
+    cm.expects("sendMessageToClient").once();
+
     GameRequests.addLocalGameSeek(
       "test_identifier",
       0,
@@ -404,7 +316,7 @@ describe("GameRequests.addLocalGameSeek", function() {
   //   color,
 
   it("should fail if color is not null, 'black' or 'white'", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -420,9 +332,10 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
   });
+
   //   minrating,
   it("should fail if minrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -437,22 +350,12 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, Match.Error);
-    stubvalues.meetsMinimumAndMaximumRatingRules = false;
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        0,
-        true,
-        null,
-        -4,
-        null,
-        true
-      );
-    }, Meteor.Error);
 
+    sinon.replace(
+      SystemConfiguration,
+      "meetsMinimumAndMaximumRatingRules",
+      sinon.fake.returns(false)
+    );
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -466,11 +369,13 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Meteor.Error);
+    }, ICCMeteorError); //ICCMeteorError);
+    sinon.restore();
   });
+
   //   maxrating,
   it("should fail if maxrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -485,22 +390,12 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, Match.Error);
-    stubvalues.meetsMinimumAndMaximumRatingRules = false;
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        0,
-        true,
-        null,
-        null,
-        -4,
-        true
-      );
-    }, Meteor.Error);
 
+    sinon.replace(
+      SystemConfiguration,
+      "meetsMinimumAndMaximumRatingRules",
+      sinon.fake.returns(false)
+    );
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -514,11 +409,13 @@ describe("GameRequests.addLocalGameSeek", function() {
         1200,
         true
       );
-    }, Meteor.Error);
+    }, ICCMeteorError);
+    sinon.restore();
   });
+
   //   autoaccept,
   it("should fail if autoaccept not 'true' or 'false'", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -534,9 +431,10 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
   });
+
   //   formula,
   it("should fail if formula is specified (until we write the code)", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
         "test_identifier",
@@ -551,268 +449,206 @@ describe("GameRequests.addLocalGameSeek", function() {
         true,
         "Not yet supported"
       );
-    }, Meteor.Error);
+    }, ICCMeteorError);
+    sinon.restore();
   });
+
   it("should should add a record to the database if all is well and good", function() {
-    const grc = GameRequests.collection;
-    const gr = sinon.mock(grc);
-    gr.expects("insert").once();
-    GameRequests.addLocalGameSeek(
-      "test_identifier",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      "white",
-      1000,
-      2000,
-      true
-    );
-    gr.verify();
-    gr.restore();
+    self.loggedonuser = TestHelpers.createUser();
+    GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+    const records = GameRequests.collection.find().fetch();
+    chai.assert.equal(records.length, 1);
   });
 });
 
 // GameRequests.removeLegacySeek = function(index)
 describe("GameRequests.removeLegacySeek", function() {
-  const stubvalues = {
-    userIsInRole: true,
-    meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true
-  };
-
-  beforeEach(function() {
-    stubvalues.userIsInRole = true;
-    stubvalues.meetsTimeAndIncRules = true;
-    stubvalues.meetsMinimumAndMaximumRatingRules = true;
-    sinon.replace(
-      GameRequests.collection,
-      "findOne",
-      sinon.fake(function(selector) {
-        if (selector.legacy_index === 999)
-          return {
-            type: "legacyseek",
-            owner: "player1",
-            legacy_index: 999
-          };
-        else return null;
-      })
-    );
+  let self = this;
+  beforeEach(function(done) {
+    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
     sinon.replace(
       Meteor,
       "user",
-      sinon.fake(function() {
-        return meteoruser;
-      })
+      sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+      )
     );
+    resetDatabase(null, done);
   });
-
   afterEach(function() {
     sinon.restore();
   });
 
   it("should fail if self is null or invalid", function() {
-    meteoruser = undefined;
+    self.loggedonuser = TestHelpers.createUser();
+    GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
+    self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.removeLegacySeek(0);
-    }, Meteor.Error);
+      GameRequests.removeLegacySeek("message_identifier", 0);
+    }, Match.Error);
   });
 
   it("should succeed if we try to remove a non-existant index", function() {
-    chai.assert.throws(() => {
-      GameRequests.removeLegacySeek(0);
-    }, Meteor.Error);
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() => {
+      GameRequests.removeLegacySeek("message_identifier", 0);
+    });
   });
 
   it("should remove a previously added record by legacy index", function() {
-    let removed = false;
-    meteoruser = player1;
-    sinon.replace(
-      GameRequests.collection,
-      "remove",
-      sinon.fake(function() {
-        removed = true;
-      })
+    self.loggedonuser = TestHelpers.createUser();
+    GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
     );
-    GameRequests.removeLegacySeek(999);
-    chai.assert.isTrue(removed);
+    chai.assert.equal(GameRequests.collection.find().count(), 1);
+    GameRequests.removeLegacySeek("message_identifier", 999);
+    chai.assert.equal(GameRequests.collection.find().count(), 0);
   });
 
   it("should fail if the seek record does not belong to the user", function() {
-    meteoruser = player2;
+    self.loggedonuser = TestHelpers.createUser();
+    GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
+    chai.assert.equal(GameRequests.collection.find().count(), 1);
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.removeLegacySeek(999);
-    }, Meteor.Error);
-  });
-
-  it("should return successfully if we try to remove a nonexistent seek index (per formats.txt documentation)", function() {
-    chai.assert.doesNotThrow(() => GameRequests.removeLegacySeek(111));
+      GameRequests.removeLegacySeek("message_identifier", 999);
+    }, ICCMeteorError);
   });
 });
 
 // GameRequests.removeGameSeek = function(seek_id) {};
 describe("GameRequests.removeGameSeek", function() {
-  const stubvalues = {
-    userIsInRole: true,
-    meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true
-  };
-
-  beforeEach(function() {
-    stubvalues.userIsInRole = true;
-    stubvalues.meetsTimeAndIncRules = true;
-    stubvalues.meetsMinimumAndMaximumRatingRules = true;
+  let self = this;
+  beforeEach(function(done) {
+    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
     sinon.replace(
       Meteor,
       "user",
-      sinon.fake(function() {
-        return meteoruser;
-      })
+      sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+      )
     );
-    sinon.replace(
-      Meteor.users,
-      "findOne",
-      sinon.fake(function() {
-        return meteoruser;
-      })
-    );
-    sinon.replace(
-      GameRequests.collection,
-      "findOne",
-      sinon.fake(function(selector) {
-        if (selector._id === "existing_seek_id")
-          return { _id: "existing_seek_id", owner: "player1" };
-        else return null;
-      })
-    );
+    resetDatabase(null, done);
   });
-
   afterEach(function() {
     sinon.restore();
-    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
-    player1.settings = default_settings;
-    player2.settings = default_settings;
-    examiner.settings = default_settings;
-    observer.settings = default_settings;
   });
 
   it("should fail if self is null or invalid", function() {
-    meteoruser = undefined;
+    self.loggedonuser = undefined;
+
     chai.assert.throws(() => {
-      GameRequests.removeGameSeek("existing_seek_id");
+      GameRequests.removeGameSeek("message_identifier", "seek_id");
     }, Match.Error);
   });
+
   it("should fail if seek record cannot be found", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.removeGameSeek("nonexisting_seek_id");
-    }, Meteor.Error);
+      GameRequests.removeGameSeek("message_identifier", "seek_id");
+    }, ICCMeteorError);
   });
+
   it("should fail if seek record does not belong to the user", function() {
-    meteoruser = player2;
-    chai.assert.throws(() => {
-      GameRequests.removeGameSeek("existing_seek_id");
-    }, Meteor.Error);
-  });
-  it("should delete the seek if all is well", function() {
-    meteoruser = player1;
-    chai.assert.doesNotThrow(() =>
-      GameRequests.removeGameSeek("existing_seek_id")
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek.apply(
+      null,
+      localSeekParameters()
     );
-  });
-  it("should fail if the seek record is not a local seek", function() {
-    meteoruser = player2;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.removeGameSeek("local_seek_id");
-    }, Meteor.Error);
+      GameRequests.removeGameSeek("message_identifier", seek_id);
+    }, ICCMeteorError);
+  });
+
+  it("should delete the seek if all is well", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek.apply(
+      null,
+      localSeekParameters()
+    );
+    chai.assert.equal(1, GameRequests.collection.find().count());
+    chai.assert.doesNotThrow(() => {
+      GameRequests.removeGameSeek("message_identifier", seek_id);
+    });
+    chai.assert.equal(0, GameRequests.collection.find().count());
+  });
+
+  it("should fail if the seek record is not a local seek", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
+    chai.assert.throws(() => {
+      GameRequests.removeGameSeek("message_identifier", seek_id);
+    }, ICCMeteorError);
   });
 });
 
 // GameRequests.acceptGameSeek = function(self, seek_id) {};
 describe("GameRequests.acceptGameSeek", function() {
-  const stubvalues = {
-    userIsInRole: true,
-    meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true,
-    ratedseek: true
-  };
-
-  beforeEach(function() {
-    stubvalues.userIsInRole = true;
-    stubvalues.meetsTimeAndIncRules = true;
-    stubvalues.meetsMinimumAndMaximumRatingRules = true;
+  let self = this;
+  beforeEach(function(done) {
+    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
     sinon.replace(
       Meteor,
       "user",
-      sinon.fake(function() {
-        return meteoruser;
-      })
+      sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+      )
     );
-    sinon.replace(
-      Meteor.users,
-      "findOne",
-      sinon.fake(function() {
-        return meteoruser;
-      })
-    );
-    sinon.replace(
-      GameRequests.collection,
-      "findOne",
-      sinon.fake(function(selector) {
-        if (selector._id === "existing_seek_id")
-          return {
-            _id: "existing_seek_id",
-            owner: "player1",
-            type: "seek",
-            wild: 0,
-            rating_type: "standard",
-            rated: function() {
-              return stubvalues.ratedseek;
-            },
-            time: 15,
-            inc: 0
-          };
-        else if (selector._id === "legacy_seek_id")
-          return {
-            _id: "legacy_seek_id",
-            type: "legacymatch",
-            challenger: "iccplayer1",
-            receiver: "iccplayer2"
-          };
-        else return null;
-      })
-    );
+    resetDatabase(null, done);
   });
-
   afterEach(function() {
     sinon.restore();
-    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
-    player1.settings = default_settings;
-    player2.settings = default_settings;
-    examiner.settings = default_settings;
-    observer.settings = default_settings;
   });
 
   it("should fail if self is null or invalid", function() {
-    meteoruser = undefined;
+    self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.acceptGameSeek("existing_seek_id");
+      GameRequests.acceptGameSeek("message_identifier", "existing_seek_id");
     }, Match.Error);
   });
 
   it("should fail if seek record cannot be found", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.acceptGameSeek("nonexisting_seek_id");
-    }, Meteor.Error);
+      GameRequests.acceptGameSeek("message_identifier", "nonexisting_seek_id");
+    }, ICCMeteorError);
   });
 
   it("should fail if seek record does belong to the user", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
     chai.assert.throws(() => {
-      GameRequests.acceptGameSeek("existing_seek_id");
-    }, Meteor.Error);
+      GameRequests.acceptGameSeek("message_identifier", seek_id);
+    }, ICCMeteorError);
   });
 
   it("should delete the seek and insert a new game if all is well", function() {
@@ -823,9 +659,24 @@ describe("GameRequests.acceptGameSeek", function() {
     gr.expects("remove").once();
     gm.expects("startLocalGame").once();
 
-    meteoruser = player2;
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
+
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.doesNotThrow(() => {
-      GameRequests.acceptGameSeek("existing_seek_id");
+      GameRequests.acceptGameSeek("message_identifier", seek_id);
     }, Match.Error);
 
     gr.verify();
@@ -836,42 +687,100 @@ describe("GameRequests.acceptGameSeek", function() {
   });
 
   it("should fail if the seek record is not a local seek", function() {
-    meteoruser = player1;
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLegacyGameSeek(
+      "id1",
+      999,
+      "iccuser1",
+      [],
+      2000,
+      0,
+      0,
+      "Standard",
+      15,
+      0,
+      true,
+      0,
+      0,
+      9999,
+      true,
+      ""
+    );
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.acceptGameSeek("legacy_seek_id");
-    }, Meteor.Error);
+      GameRequests.acceptGameSeek("message_identifier", seek_id);
+    }, ICCMeteorError);
   });
 
   it("should fail if the seek is rated and user cannot play rated games", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
+
+    const roles = standard_member_roles.filter(
+      role => role !== "play_rated_games"
+    );
+    self.loggedonuser = TestHelpers.createUser({ roles: roles });
+
     const cm = sinon.mock(ClientMessages);
 
     cm.expects("sendMessageToClient")
       .once()
-      .withExactArgs(player1, "test_identifier", "UNABLE_TO_PLAY_RATED_GAMES");
+      .withExactArgs(
+        self.loggedonuser,
+        "test_identifier",
+        "ICCMeteorError(message_identifier, "
+      );
 
-    meteoruser = player2;
-    stubvalues.userIsInRole = false;
-    GameRequests.acceptGameSeek("legacy_seek_id");
+    GameRequests.acceptGameSeek("message_identifier", seek_id);
 
     cm.verify();
     cm.restore();
   });
 
   it("should fail if the seek is unrated and user cannot play unrated games", function() {
-    stubvalues.ratedseek = false;
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
+
     const cm = sinon.mock(ClientMessages);
+
+    const roles = standard_member_roles.filter(
+      role => role !== "play_unrated_games"
+    );
+    self.loggedonuser = TestHelpers.createUser({ roles: roles });
 
     cm.expects("sendMessageToClient")
       .once()
       .withExactArgs(
-        player1,
+        self.loggedonuser,
         "test_identifier",
         "UNABLE_TO_PLAY_UNRATED_GAMES"
       );
 
-    meteoruser = player2;
-    stubvalues.userIsInRole = false;
-    GameRequests.acceptGameSeek("legacy_seek_id");
+    GameRequests.acceptGameSeek("message_identifier", seek_id);
 
     cm.verify();
     cm.restore();
@@ -880,64 +789,26 @@ describe("GameRequests.acceptGameSeek", function() {
 
 // GameRequests.addLegacyMatchRequest = function(
 describe("GameRequests.addLegacyMatchRequest", function() {
-  const stubvalues = {
-    userIsInRole: true,
-    meetsTimeAndIncRules: true,
-    meetsMinimumAndMaximumRatingRules: true,
-    ratedseek: true
-  };
-
-  beforeEach(function() {
-    stubvalues.userIsInRole = true;
-    stubvalues.meetsTimeAndIncRules = true;
-    stubvalues.meetsMinimumAndMaximumRatingRules = true;
+  let self = this;
+  beforeEach(function(done) {
+    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
     sinon.replace(
       Meteor,
       "user",
-      sinon.fake(function() {
-        return meteoruser;
-      })
+      sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+      )
     );
-    sinon.replace(
-      Meteor.users,
-      "findOne",
-      sinon.fake(function() {
-        return meteoruser;
-      })
-    );
-    sinon.replace(
-      GameRequests.collection,
-      "findOne",
-      sinon.fake(function(selector) {
-        if (selector._id === "existing_seek_id")
-          return {
-            _id: "existing_seek_id",
-            owner: "player1",
-            type: "match"
-          };
-        else if (selector._id === "legacy_seek_id")
-          return {
-            _id: "legacy_seek_id",
-            type: "legacymatch",
-            challenger: "iccplayer1",
-            receiver: "iccplayer2"
-          };
-        else return null;
-      })
-    );
+    resetDatabase(null, done);
   });
-
   afterEach(function() {
     sinon.restore();
-    player1.loggedOn = player2.loggedOn = examiner.loggedOn = observer.loggedOn = true;
-    player1.settings = default_settings;
-    player2.settings = default_settings;
-    examiner.settings = default_settings;
-    observer.settings = default_settings;
   });
 
   it("should fail if self is null or invalid", function() {
-    meteoruser = undefined;
+    self.loggedonuser = undefined;
     chai.assert.throws(() => {
       GameRequests.addLegacyMatchRequest(
         "challenger",
@@ -959,7 +830,7 @@ describe("GameRequests.addLegacyMatchRequest", function() {
         0,
         16
       );
-    }, Meteor.Error);
+    }, ICCMeteorError);
   });
 
   it("should fail if self is neither challenger nor receiver", function() {
