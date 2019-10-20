@@ -254,7 +254,7 @@ GameRequests.addLocalGameSeek = function(
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "UNABLE_TO_PLAY" + (rated ? "" : "UN") + "RATED_GAMES"
+      "UNABLE_TO_PLAY_" + (rated ? "" : "UN") + "RATED_GAMES"
     );
     return;
   }

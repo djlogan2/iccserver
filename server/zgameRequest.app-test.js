@@ -13,6 +13,29 @@ import { standard_member_roles } from "../imports/server/userConstants";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
+function legacyMatchRequest(challenger, receiver) {
+  return [
+    typeof challenger === "object" ? challenger.profile.legacy.username : challenger,
+    2000,
+    true,
+    ["GM"],
+    receiver === "object" ? receiver.profile.legacy.username : receiver,
+    1900,
+    true,
+    ["GM"],
+    0,
+    "Standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0,
+    0,
+    16
+  ];
+}
+
 function legacySeekParameters(user) {
   return [
     "id1",
@@ -42,21 +65,25 @@ function localSeekParameters() {
 describe("GameRequests.addLegacyGameSeek", function() {
   const self = this;
   beforeEach(function(done) {
-    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
-    sinon.replace(
-      Meteor,
-      "user",
-      sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
-      )
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
 
   afterEach(function() {
     sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
 
   //  index,
@@ -96,20 +123,25 @@ describe("GameRequests.addLegacyGameSeek", function() {
 describe("GameRequests.addLocalGameSeek", function() {
   let self = this;
   beforeEach(function(done) {
-    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
-    sinon.replace(
-      Meteor,
-      "user",
-      sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
-      )
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
+
   afterEach(function() {
     sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
 
   //  self,
@@ -155,7 +187,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         null,
         true
       );
-    }, Match.Error);
+    }, ICCMeteorError);
   });
 
   //   time,
@@ -261,14 +293,10 @@ describe("GameRequests.addLocalGameSeek", function() {
   });
 
   it("should write a message to client_messages if rated and user cannot play rated games", function() {
-    const cm = sinon.mock(ClientMessages);
-
     const roles = standard_member_roles.filter(
       role => role !== "play_rated_games"
     );
     self.loggedonuser = TestHelpers.createUser({ roles: roles });
-
-    cm.expects("sendMessageToClient").once();
 
     GameRequests.addLocalGameSeek(
       "test_identifier",
@@ -282,20 +310,18 @@ describe("GameRequests.addLocalGameSeek", function() {
       null,
       true
     );
-
-    cm.verify();
-    cm.restore();
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "UNABLE_TO_PLAY_RATED_GAMES"
+    );
   });
 
   it("should write a message to client_messages if unrated and user cannot play unrated games", function() {
-    const cm = sinon.mock(ClientMessages);
-
     const roles = standard_member_roles.filter(
       role => role !== "play_unrated_games"
     );
     self.loggedonuser = TestHelpers.createUser({ roles: roles });
-
-    cm.expects("sendMessageToClient").once();
 
     GameRequests.addLocalGameSeek(
       "test_identifier",
@@ -310,11 +336,13 @@ describe("GameRequests.addLocalGameSeek", function() {
       true
     );
 
-    cm.verify();
-    cm.restore();
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "UNABLE_TO_PLAY_UNRATED_GAMES"
+    );
   });
   //   color,
-
   it("should fail if color is not null, 'black' or 'white'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
@@ -465,20 +493,24 @@ describe("GameRequests.addLocalGameSeek", function() {
 describe("GameRequests.removeLegacySeek", function() {
   let self = this;
   beforeEach(function(done) {
-    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
-    sinon.replace(
-      Meteor,
-      "user",
-      sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
-      )
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
   afterEach(function() {
     sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
 
   it("should fail if self is null or invalid", function() {
@@ -529,20 +561,24 @@ describe("GameRequests.removeLegacySeek", function() {
 describe("GameRequests.removeGameSeek", function() {
   let self = this;
   beforeEach(function(done) {
-    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
-    sinon.replace(
-      Meteor,
-      "user",
-      sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
-      )
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
   afterEach(function() {
     sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
 
   it("should fail if self is null or invalid", function() {
@@ -601,20 +637,24 @@ describe("GameRequests.removeGameSeek", function() {
 describe("GameRequests.acceptGameSeek", function() {
   let self = this;
   beforeEach(function(done) {
-    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
-    sinon.replace(
-      Meteor,
-      "user",
-      sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
-      )
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
   afterEach(function() {
     sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
 
   it("should fail if self is null or invalid", function() {
@@ -688,23 +728,9 @@ describe("GameRequests.acceptGameSeek", function() {
 
   it("should fail if the seek record is not a local seek", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLegacyGameSeek(
-      "id1",
-      999,
-      "iccuser1",
-      [],
-      2000,
-      0,
-      0,
-      "Standard",
-      15,
-      0,
-      true,
-      0,
-      0,
-      9999,
-      true,
-      ""
+    const seek_id = GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
     );
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
@@ -713,6 +739,35 @@ describe("GameRequests.acceptGameSeek", function() {
   });
 
   it("should fail if the seek is rated and user cannot play rated games", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
+
+    const roles = standard_member_roles.filter(
+      role => role !== "play_rated_games"
+    );
+    self.loggedonuser = TestHelpers.createUser({ roles: roles });
+    GameRequests.acceptGameSeek("message_identifier", seek_id);
+
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "UNABLE_TO_PLAY_RATED_GAMES"
+    );
+  });
+
+  it("should fail if the seek is unrated and user cannot play unrated games", function() {
     self.loggedonuser = TestHelpers.createUser();
     const seek_id = GameRequests.addLocalGameSeek(
       "id1",
@@ -729,61 +784,16 @@ describe("GameRequests.acceptGameSeek", function() {
     );
 
     const roles = standard_member_roles.filter(
-      role => role !== "play_rated_games"
-    );
-    self.loggedonuser = TestHelpers.createUser({ roles: roles });
-
-    const cm = sinon.mock(ClientMessages);
-
-    cm.expects("sendMessageToClient")
-      .once()
-      .withExactArgs(
-        self.loggedonuser,
-        "test_identifier",
-        "ICCMeteorError(message_identifier, "
-      );
-
-    GameRequests.acceptGameSeek("message_identifier", seek_id);
-
-    cm.verify();
-    cm.restore();
-  });
-
-  it("should fail if the seek is unrated and user cannot play unrated games", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLocalGameSeek(
-      "id1",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      null,
-      null,
-      null,
-      true,
-      null
-    );
-
-    const cm = sinon.mock(ClientMessages);
-
-    const roles = standard_member_roles.filter(
       role => role !== "play_unrated_games"
     );
     self.loggedonuser = TestHelpers.createUser({ roles: roles });
-
-    cm.expects("sendMessageToClient")
-      .once()
-      .withExactArgs(
-        self.loggedonuser,
-        "test_identifier",
-        "UNABLE_TO_PLAY_UNRATED_GAMES"
-      );
-
     GameRequests.acceptGameSeek("message_identifier", seek_id);
 
-    cm.verify();
-    cm.restore();
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(
+        self.clientMessagesFake.args[0][2],
+        "UNABLE_TO_PLAY_UNRATED_GAMES"
+    );
   });
 });
 
@@ -791,50 +801,38 @@ describe("GameRequests.acceptGameSeek", function() {
 describe("GameRequests.addLegacyMatchRequest", function() {
   let self = this;
   beforeEach(function(done) {
-    sinon.replace(ClientMessages, "sendMessageToClient", sinon.fake());
-    sinon.replace(
-      Meteor,
-      "user",
-      sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
-      )
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
   afterEach(function() {
     sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
 
   it("should fail if self is null or invalid", function() {
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.addLegacyMatchRequest(
-        "challenger",
-        2000,
-        true,
-        ["GM"],
-        "receiver",
-        1900,
-        true,
-        ["GM"],
-        0,
-        "Standard",
-        true,
-        false,
-        15,
-        0,
-        15,
-        0,
-        0,
-        16
-      );
+      GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser()));
     }, ICCMeteorError);
   });
 
   it("should fail if self is neither challenger nor receiver", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser()));
+    }, ICCMeteorError);
   });
 
   it("should add challenger_id if self is challenger", function() {
