@@ -14,7 +14,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
       username: options.username || faker.internet.userName(),
       email: options.email || faker.internet.email(),
       password: options.password || faker.internet.password(),
-      locale: options.locale || "en_us",
+      locale: options.locale || "en-us",
       board_css: options.board_css || "developmentcss"
     };
     if (

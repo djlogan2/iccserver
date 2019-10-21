@@ -166,7 +166,7 @@ Accounts.validateLoginAttempt(function(params) {
 
   if (!Roles.userIsInRole(params.user, "login")) {
     const message = i18n.localizeMessage(
-      params.user.locale || "en_us",
+      params.user.locale || "en-us",
       "LOGIN_FAILED_12"
     );
     throw new Meteor.Error(message);

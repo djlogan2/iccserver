@@ -10,7 +10,7 @@ export default function firstRunUsers() {
   if (Meteor.users.find().count() === 0) {
     const id = Accounts.createUser({
       username: "admin",
-      locale: "en_US",
+      locale: "en-us",
       board_css: "developmentcss",
       email: "icc@chessclub.com",
       password: "administrator",
@@ -27,7 +27,7 @@ export default function firstRunUsers() {
     //TODO: Remove this too
     const id3 = Accounts.createUser({
       username: "djlogan",
-      locale: "en_US",
+      locale: "en-us",
       board_css: "developmentcss",
       email: "djlogan@chessclub.com",
       password: "ca014dedjl",
@@ -37,7 +37,8 @@ export default function firstRunUsers() {
         legacy: {
           username: "stcbot",
           password: "ca014dedjl",
-          autologin: true
+          autologin: true,
+          validated: true
         }
       },
       settings: {
@@ -54,7 +55,7 @@ export default function firstRunUsers() {
     //TODO: Remove this too
     const id2 = Accounts.createUser({
       username: "d",
-      locale: "en_US",
+      locale: "en-us",
       board_css: "developmentcss",
       email: "d@c.com",
       password: "d",
@@ -76,7 +77,7 @@ export default function firstRunUsers() {
     for (let x = 1; x < 3; x++) {
       const idx = Accounts.createUser({
         username: "uiuxtest" + x,
-        locale: "en_US",
+        locale: "en-us",
         board_css: "developmentcss",
         email: "iccserver" + x + "@chessclub.com",
         password: "iccserver" + x,
@@ -86,7 +87,8 @@ export default function firstRunUsers() {
           legacy: {
             username: "uiuxtest" + x,
             password: "iccserver" + x,
-            autologin: true
+            autologin: true,
+            validated: true
           }
         },
         settings: {

@@ -18,6 +18,29 @@ const i18nCollection = new Mongo.Collection("i18n");
 // }
 //
 
+i18n.standardizeLocale = function(locale) {
+  // We need an array of all of the possible locales.
+  // This includes, in order:
+  // (1) The original locale, such as, say "fr-sp"
+  // (2) Just the language part if there is a qualifier, like "fr" from above
+  // (3) "en-us" if the original locale isn't english
+  // (4) "en" per the same logic as #2
+  let lower = null;
+  const all = [];
+  if (!!locale) {
+    lower = locale.toLowerCase().replace("_", "-");
+    all.push(lower);
+    const idx = lower.indexOf("-");
+    if (idx !== -1) {
+      all.push(lower.substr(0, idx));
+    }
+  }
+  if (lower === "en" || lower === "en-us") return all;
+  all.push("en-us");
+  all.push("en");
+  return all;
+};
+
 i18n.localizeMessage = function(locale, i8nvalue, parameters) {
   const i8nrecord = i18nCollection.findOne({
     messagid: i8nvalue,
@@ -31,23 +54,25 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
     );
   }
 
-  if (!locale || !i8nrecord.text || !i8nrecord.text[locale]) locale = "en_us";
+  const locale_array = i18n.standardizeLocale(locale);
 
-  if (!i8nrecord.text[locale])
-    throw new Meteor.Error(
-      "Unable to find an internationalization record of type server with a suitable locale for identifier " +
-        i8nvalue
-    );
+  locale_array.forEach(ll => {
+    if (i8nrecord.text[ll]) {
+      let a = i8nrecord.text[ll];
 
-  let a = i8nrecord.text[locale];
+      for (let k in parameters) {
+        a = a.replace("{" + k + "}", parameters[k]);
+      }
+      return a;
+    }
+  });
 
-  for (let k in parameters) {
-    a = a.replace("{" + k + "}", parameters[k]);
-  }
-  return a;
+  throw new Meteor.Error(
+    "Unable to find an internationalization record of type server with a suitable locale for identifier " +
+      i8nvalue
+  );
 };
 
-Meteor.startup(function(){
-  if (Meteor.isTest || Meteor.isAppTest)
-    i18n.collection = i18nCollection;
+Meteor.startup(function() {
+  if (Meteor.isTest || Meteor.isAppTest) i18n.collection = i18nCollection;
 });

@@ -126,7 +126,7 @@ ClientMessages.sendMessageToClient = function(
   const touser = Meteor.users.findOne({ _id: id, loggedOn: true });
   if (!touser) return;
   // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
-  const locale = touser.locale || "en_US";
+  const locale = touser.locale || "en-us";
   const message = i18n.localizeMessage(locale, i8n_message, parameter_array);
   const mongoid = ClientMessagesCollection.insert({
     to: id,
