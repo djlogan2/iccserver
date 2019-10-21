@@ -15,12 +15,14 @@ import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 function legacyMatchRequest(challenger, receiver) {
   return [
-      "message_identifier",
-    typeof challenger === "object" ? challenger.profile.legacy.username : challenger,
+    "message_identifier",
+    typeof challenger === "object"
+      ? challenger.profile.legacy.username
+      : challenger,
     2000,
     0,
     ["GM"],
-    receiver === "object" ? receiver.profile.legacy.username : receiver,
+    typeof receiver === "object" ? receiver.profile.legacy.username : receiver,
     1900,
     0,
     ["GM"],
@@ -32,7 +34,7 @@ function legacyMatchRequest(challenger, receiver) {
     0,
     15,
     0,
-    0,
+    "white",
     16
   ];
 }
@@ -344,7 +346,7 @@ describe("GameRequests.addLocalGameSeek", function() {
     );
   });
   //   color,
-   it("should fail if color is not null, 'black' or 'white'", function() {
+  it("should fail if color is not null, 'black' or 'white'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
@@ -792,8 +794,8 @@ describe("GameRequests.acceptGameSeek", function() {
 
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
     chai.assert.equal(
-        self.clientMessagesFake.args[0][2],
-        "UNABLE_TO_PLAY_UNRATED_GAMES"
+      self.clientMessagesFake.args[0][2],
+      "UNABLE_TO_PLAY_UNRATED_GAMES"
     );
   });
 });
@@ -825,51 +827,36 @@ describe("GameRequests.addLegacyMatchRequest", function() {
   it("should fail if self is null or invalid", function() {
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser()));
-    }, ICCMeteorError);
+      GameRequests.addLegacyMatchRequest.apply(
+        null,
+        legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser())
+      );
+    }, Match.Error);
   });
 
   it("should fail if self is neither challenger nor receiver", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser()));
+      GameRequests.addLegacyMatchRequest.apply(
+        null,
+        legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser())
+      );
     }, ICCMeteorError);
   });
 
-  it("should add challenger_id if self is challenger", function() {
-    chai.assert.fail("do me");
+  it("should add challenger._id and receiver._id if we can find them in the database", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
+    const rec = GameRequests.collection.findOne();
+    chai.assert.isDefined(rec);
+    chai.assert.equal(challenger._id, rec.challenger_id);
+    chai.assert.equal(receiver._id, rec.receiver_id);
   });
-
-  it("should add receiver_id if self is receiver", function() {
-    chai.assert.fail("do me");
-  });
-  //  challenger_name,
-  //   challenger_rating,
-  //   challenger_established,
-  //   challenger_titles,
-  //   receiver_name,
-  //   receiver_rating,
-  //   receiver_established,
-  //   receiver_titles,
-  //   wild_number,
-  //   rating_type,
-  //   is_it_rated,
-  //   is_it_adjourned,
-  //   challenger_time,
-  //   challenger_inc,
-  //   receiver_time,
-  //   receiver_inc,
-  //   challenger_color_request, // -1 for neither, 0 for black, 1 for white
-  it("should not set color if challenger_color_request is -1", function() {
-    chai.assert.fail("do me");
-  });
-  it("should set color to 'black' if challenger_color_request is 0", function() {
-    chai.assert.fail("do me");
-  });
-  it("should set color to 'white' if challenger_color_request is 1", function() {
-    chai.assert.fail("do me");
-  });
-  //   assess_loss /*,
 });
 
 // GameRequests.addLocalMatchRequest = function(

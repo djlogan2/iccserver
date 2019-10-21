@@ -354,9 +354,9 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     )
   ) {
     ClientMessages.sendMessageToClient(
-        self,
-        message_identifier,
-        "UNABLE_TO_PLAY_" + (request.rated ? "" : "UN") + "RATED_GAMES"
+      self,
+      message_identifier,
+      "UNABLE_TO_PLAY_" + (request.rated ? "" : "UN") + "RATED_GAMES"
     );
     return;
   }
@@ -407,39 +407,56 @@ GameRequests.addLegacyMatchRequest = function(
   check(challenger_name, String);
   check(challenger_rating, Number);
   check(challenger_established, Number);
-  check(challenger_titles, String);
+  check(challenger_titles, Array);
   check(receiver_name, String);
   check(receiver_rating, Number);
   check(receiver_established, Number);
-  check(receiver_titles, String);
+  check(receiver_titles, Array);
   check(wild_number, Number);
   check(rating_type, String);
-  check(is_it_rated, Number);
-  check(is_it_adjourned, Number);
+  check(is_it_rated, Boolean);
+  check(is_it_adjourned, Boolean);
   check(challenger_time, Number);
   check(challenger_inc, Number);
   check(receiver_time, Number);
   check(receiver_inc, Number);
   check(challenger_color_request, String);
-  check(assess_loss, String);
+  check(assess_loss, Number);
+  let challenger_or_receiver = false;
+
+  const self = Meteor.user();
+  check(self, Object);
+
   const challenger_user = Meteor.users.findOne({
     "profile.legacy.username": challenger_name,
     "profile.legacy.validated": true
   });
+
   const receiver_user = Meteor.users.findOne({
     "profile.legacy.username": receiver_name,
     "profile.legacy.validated": true
   });
 
+  if (challenger_user && challenger_user._id === self._id)
+    challenger_or_receiver = true;
+  if (receiver_user && receiver_user._id === self._id)
+    challenger_or_receiver = true;
+
+  if (!challenger_or_receiver)
+    throw new ICCMeteorError(
+      message_identifier,
+      "addLegacyMatch where neither challenger nor receiver is the logged on user"
+    );
+
   const record = {
     type: "legacymatch",
-    challenger: challenger_name.username,
+    challenger: challenger_name,
     challenger_rating: challenger_rating,
-    challenger_established: challenger_established === "1",
+    challenger_established: challenger_established,
     challenger_titles: challenger_titles,
     receiver: receiver_name,
     receiver_rating: receiver_rating,
-    receiver_established: receiver_established === "1",
+    receiver_established: receiver_established,
     receiver_titles: receiver_titles,
     wild_number: wild_number,
     rating_type: rating_type,
@@ -451,16 +468,9 @@ GameRequests.addLegacyMatchRequest = function(
     receiver_inc: receiver_inc,
     challenger_color_request: challenger_color_request
   };
-  switch (challenger_color_request) {
-    case 0:
-      record.challenger_color_request = "black";
-      break;
-    case 1:
-      record.challenger_color_request = "white";
-      break;
-    default:
-      break;
-  }
+
+  if (challenger_color_request)
+    record.challenger_color_request = challenger_color_request;
 
   if (!!challenger_user) record.challenger_id = challenger_user._id;
   if (!!receiver_user) record.receiver_id = receiver_user._id;

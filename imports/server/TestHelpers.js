@@ -43,6 +43,8 @@ if (Meteor.isTest || Meteor.isAppTest) {
     if (options.login === undefined || options.login) {
       Meteor.users.update({ _id: id }, { $set: { loggedOn: true } });
     }
+    if (userRecord.profile && userRecord.profile.legacy)
+      Meteor.users.update({_id: id}, {$set: {"profile.legacy.validated": true}});
     return userRecord;
   };
 }
