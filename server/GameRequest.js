@@ -31,12 +31,12 @@ const LegacyMatchSchema = {
   type: String,
   challenger: String,
   challenger_rating: Number,
-  challenger_established: Boolean,
+  challenger_established: Number,
   challenger_titles: { type: Array, optional: true },
   "challenger_titles.$": { type: String, allowedValues: titles },
   receiver: String,
   receiver_rating: Number,
-  receiver_established: Boolean,
+  receiver_established: Number,
   receiver_titles: { type: Array, optional: true },
   "receiver_titles.$": { type: String, allowedValues: titles },
   wild_number: Number,
@@ -352,12 +352,14 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
       self,
       request.rated ? "play_rated_games" : "play_unrated_games"
     )
-  )
+  ) {
     ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "UNABLE_TO_PLAY" + (request.rated ? "" : "UN") + "RATED_GAMES"
+        self,
+        message_identifier,
+        "UNABLE_TO_PLAY_" + (request.rated ? "" : "UN") + "RATED_GAMES"
     );
+    return;
+  }
 
   const challenger = Meteor.users.findOne({ _id: request.owner });
   const game_id = Game.startLocalGame(

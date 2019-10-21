@@ -15,13 +15,14 @@ import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 function legacyMatchRequest(challenger, receiver) {
   return [
+      "message_identifier",
     typeof challenger === "object" ? challenger.profile.legacy.username : challenger,
     2000,
-    true,
+    0,
     ["GM"],
     receiver === "object" ? receiver.profile.legacy.username : receiver,
     1900,
-    true,
+    0,
     ["GM"],
     0,
     "Standard",
@@ -343,7 +344,7 @@ describe("GameRequests.addLocalGameSeek", function() {
     );
   });
   //   color,
-  it("should fail if color is not null, 'black' or 'white'", function() {
+   it("should fail if color is not null, 'black' or 'white'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
