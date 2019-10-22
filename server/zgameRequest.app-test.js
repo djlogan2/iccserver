@@ -401,7 +401,6 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, ICCMeteorError); //ICCMeteorError);
-    sinon.restore();
   });
 
   //   maxrating,
@@ -861,55 +860,212 @@ describe("GameRequests.addLegacyMatchRequest", function() {
 
 // GameRequests.addLocalMatchRequest = function(
 describe("GameRequests.addLocalMatchRequest", function() {
+  let self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
   //  self,
   it("should fail if self is null or invalid", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if self is neither challenger nor receiver", function() {
-    chai.assert.fail("do me");
-  });
-  //  challenger_user,
-  it("should fail if challenger_user is null or invalid", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if challenger_user is the same as receiver_user", function() {
-    chai.assert.fail("do me");
+    const otherguy = TestHelpers.createUser();
+    self.loggedonuser = undefined;
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        otherguy,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        null,
+        16,
+        16,
+        16
+      );
+    }, Match.Error);
   });
   //   receiver_user,
   it("should fail if receiver_user is null or invalid", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        null,
+        16,
+        16,
+        16
+      );
+    }, Match.Error);
+  });
+  it("should return a client message if receiver_user is not logged on", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser({ login: false });
+    GameRequests.addLocalMatchRequest(
+      "mid",
+      otherguy,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0,
+      null,
+      16,
+      16,
+      16
+    );
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "CANNOT_MATCH_LOGGED_OFF_USER"
+    );
   });
   //   wild_number,
   it("should fail if wild is not zero", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        1,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        null,
+        16,
+        16,
+        16
+      );
+    }, Match.Error);
   });
   //   rating_type,
   it("should fail if rating_type is not a valid rating type", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "bogus",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        null,
+        16,
+        16,
+        16
+      );
+    }, Match.Error);
   });
   //   is_it_rated,
   it("should fail if is_it_rated is not 'true' or 'false'", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        "yep",
+        false,
+        15,
+        0,
+        15,
+        0,
+        null,
+        16,
+        16,
+        16
+      );
+    }, Match.Error);
   });
   //   is_it_adjourned,
   it("should fail if is_it_adjourned is not 'true' or 'false'", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        "yep",
+        15,
+        0,
+        15,
+        0,
+        null,
+        16,
+        16,
+        16
+      );
+    }, Match.Error);
   }); // TODO: Where are we keeping adjourned games? We should connect this
   //   challenger_time,
-  it("should fail if challenger_time is null, not a number, < 0, or not within ICC configuration", function() {
-    chai.assert.fail("do me");
-  });
-  //   challenger_inc,
-  it("should fail if challenger_inc is null, not a number, < 0, or not within ICC configuration", function() {
-    chai.assert.fail("do me");
-  });
-  //   receiver_time,
-  it("should fail if receiver_time is null, not a number, < 0, or not within ICC configuration", function() {
-    chai.assert.fail("do me");
-  });
-  //   receiver_inc,
-  it("should fail if receiver_inc is null, not a number, < 0, or not within ICC configuration", function() {
-    chai.assert.fail("do me");
+  it("should fail if time/inc invalid/not within ICC configuration", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    sinon.replace(
+      SystemConfiguration,
+      "meetsMinimumAndMaximumRatingRules",
+      sinon.fake.returns(false)
+    );
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        null,
+        16,
+        16,
+        16
+      );
+    }, Match.Error);
   });
   //   challenger_color_request,
   it("should fail if challenger_color_request is null, 'white' or 'black'", function() {
