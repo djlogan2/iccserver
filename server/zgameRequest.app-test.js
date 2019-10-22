@@ -1433,23 +1433,140 @@ describe("GameRequests.acceptMatchRequest", function() {
 
 // GameRequests.declineMatchRequest = function(game_id) {};
 describe("GameRequests.declineMatchRequest", function() {
+  const self = this;
+
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
   it("should fail if self is null or invalid", function() {
-    chai.assert.fail("do me");
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      15,
+      15
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(() => {
+      GameRequests.declineMatchRequest("mi1", match_id);
+    }, Match.Error);
   });
-  it("should fail if self is not the challenger", function() {
-    chai.assert.fail("do me");
+
+  it("should fail if self is the challenger", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      15,
+      15
+    );
+    self.loggedonuser = challenger;
+    chai.assert.throws(() => {
+      GameRequests.declineMatchRequest("mi2", match_id);
+    }, ICCMeteorError);
   });
-  it("should fail if self is the receiver", function() {
-    chai.assert.fail("do me");
+
+  it("should fail if self is not the receiver", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    const somebodyelse = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      15,
+      15
+    );
+    self.loggedonuser = somebodyelse;
+    chai.assert.throws(() => {
+      GameRequests.declineMatchRequest("mi1", match_id);
+    }, ICCMeteorError);
   });
-  it("should fail if game_id is null or there isn't a valid record", function() {
-    chai.assert.fail("do me");
+
+  it("should fail if game_id is null", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.declineMatchRequest("mi1", null);
+    }, Match.Error);
   });
+
   it("should fail if request record is a legacy request", function() {
-    chai.assert.fail("do me");
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
+    chai.assert.throws(() => {
+      GameRequests.declineMatchRequest("mi1", match_id);
+    }, ICCMeteorError);
   });
-  it("should delete this record upon a successful request", function() {
-    chai.assert.fail("do me");
+
+  it("should delete this record and send a client message to the challenger upon a successful request", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      15,
+      15
+    );
+    self.loggedonuser = receiver;
+    chai.assert.equal(1, GameRequests.collection.find().count());
+    GameRequests.declineMatchRequest("mi2", match_id);
+    chai.assert.equal(0, GameRequests.collection.find().count());
+    chai.assert.equal(self.clientMessagesFake.args[0][0], challenger._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "MATCH_DECLINED");
   });
 });
 

@@ -62,10 +62,13 @@ const LocalMatchSchema = {
   challenger_titles: { type: Array, optional: true },
   "challenger_titles.$": { type: String, allowedValues: titles },
   challenger_established: Boolean,
+  challenger_id: String,
+  message_identifier: String,
   receiver: String,
   receiver_rating: Number,
   receiver_established: Boolean,
   receiver_titles: { type: Array, optional: true },
+  receiver_id: String,
   "receiver_titles.$": { type: String, allowedValues: titles },
   wild_number: Number,
   rating_type: String,
@@ -83,9 +86,7 @@ const LocalMatchSchema = {
   assess_loss: Number,
   assess_draw: Number,
   assess_win: Number,
-  fancy_time_control: { type: String, optional: true },
-  challenger_id: { type: String, optional: true },
-  receiver_id: { type: String, optional: true }
+  fancy_time_control: { type: String, optional: true }
 };
 const LegacySeekSchema = {
   type: String,
@@ -567,9 +568,12 @@ GameRequests.addLocalMatchRequest = function(
     challenger_rating: challenger_user.ratings[rating_type].rating,
     challenger_titles: [], // TODO: ditto
     challenger_established: established(challenger_user.ratings[rating_type]),
+    challenger_id: challenger_user._id,
+    message_identifier: message_identifier,
     receiver: receiver_user.username,
     receiver_rating: receiver_user.ratings[rating_type].rating,
     receiver_established: established(receiver_user.ratings[rating_type]),
+    receiver_id: receiver_user._id,
     receiver_titles: [], // TODO: ditto
     wild_number: wild_number,
     rating_type: rating_type,
@@ -585,9 +589,6 @@ GameRequests.addLocalMatchRequest = function(
     assess_win: assess.win,
     fancy_time_control: fancy_time_control // TODO: We have to figure this out too
   };
-
-  if (!!challenger_user) record.challenger_id = challenger_user._id;
-  if (!!receiver_user) record.receiver_id = receiver_user._id;
 
   return GameRequestCollection.insert(record);
 };
@@ -686,7 +687,39 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
   return started_id;
 };
 
-GameRequests.declineMatchRequest = function(message_identifier, game_id) {};
+GameRequests.declineMatchRequest = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const request = GameRequestCollection.findOne({ _id: game_id });
+  if (!request)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to decline match",
+      "game id not found"
+    );
+  if (request.challenger_id === self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to decline match",
+      "challenger cannot decline a match"
+    );
+  if (request.receiver_id !== self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to decline match",
+      "not the receiver"
+    );
+
+  GameRequestCollection.remove({ _id: game_id });
+  ClientMessages.sendMessageToClient(
+    request.challenger_id,
+    request.message_identifier,
+    "MATCH_DECLINED"
+  );
+};
 
 GameRequests.removeLegacyMatchRequest = function(
   message_identifier,
