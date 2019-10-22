@@ -897,11 +897,7 @@ describe("GameRequests.addLocalMatchRequest", function() {
         15,
         0,
         15,
-        0,
-        null,
-        16,
-        16,
-        16
+        0
       );
     }, Match.Error);
   });
@@ -919,11 +915,7 @@ describe("GameRequests.addLocalMatchRequest", function() {
         15,
         0,
         15,
-        0,
-        null,
-        16,
-        16,
-        16
+        0
       );
     }, Match.Error);
   });
@@ -940,11 +932,7 @@ describe("GameRequests.addLocalMatchRequest", function() {
       15,
       0,
       15,
-      0,
-      null,
-      16,
-      16,
-      16
+      0
     );
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
     chai.assert.equal(
@@ -966,14 +954,11 @@ describe("GameRequests.addLocalMatchRequest", function() {
         15,
         0,
         15,
-        0,
-        null,
-        16,
-        16,
-        16
+        0
       );
     }, Match.Error);
   });
+
   //   rating_type,
   it("should fail if rating_type is not a valid rating type", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -988,14 +973,11 @@ describe("GameRequests.addLocalMatchRequest", function() {
         15,
         0,
         15,
-        0,
-        null,
-        16,
-        16,
-        16
+        0
       );
     }, Match.Error);
   });
+
   //   is_it_rated,
   it("should fail if is_it_rated is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1010,14 +992,11 @@ describe("GameRequests.addLocalMatchRequest", function() {
         15,
         0,
         15,
-        0,
-        null,
-        16,
-        16,
-        16
+        0
       );
     }, Match.Error);
   });
+
   //   is_it_adjourned,
   it("should fail if is_it_adjourned is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1032,20 +1011,17 @@ describe("GameRequests.addLocalMatchRequest", function() {
         15,
         0,
         15,
-        0,
-        null,
-        16,
-        16,
-        16
+        0
       );
     }, Match.Error);
   }); // TODO: Where are we keeping adjourned games? We should connect this
+
   //   challenger_time,
   it("should fail if time/inc invalid/not within ICC configuration", function() {
     self.loggedonuser = TestHelpers.createUser();
     sinon.replace(
       SystemConfiguration,
-      "meetsMinimumAndMaximumRatingRules",
+      "meetsTimeAndIncRules",
       sinon.fake.returns(false)
     );
     chai.assert.throws(() => {
@@ -1059,33 +1035,80 @@ describe("GameRequests.addLocalMatchRequest", function() {
         15,
         0,
         15,
-        0,
-        null,
-        16,
-        16,
-        16
+        0
       );
     }, Match.Error);
   });
+
   //   challenger_color_request,
   it("should fail if challenger_color_request is null, 'white' or 'black'", function() {
-    chai.assert.fail("do me");
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        "yep"
+      );
+    }, Match.Error);
   });
+
   //   assess_loss,
-  it("should fail if assess_loss is null, not an number, < 0, or loss + win > 32", function() {
-    chai.assert.fail("do me");
-  });
-  //   assess_draw,
-  it("should fail if assess_draw is null, not an number, < 0, or > 32", function() {
-    chai.assert.fail("do me");
-  });
-  //   assess_win,
-  it("should fail if assess_win is null, not an number, < 0", function() {
-    chai.assert.fail("do me");
+  it("should fail if assess_loss is null, not an number, < 0, or loss + win > ICC configuration maximum", function() {
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0
+      );
+    }, Match.Error);
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        "yep"
+      );
+    }, Match.Error);
   });
   //   fancy_time_control
   it("should fail if fancy_time_control is not null", function() {
-    chai.assert.fail("do me");
+    chai.assert.throws(() => {
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        0,
+        null,
+        "fancy"
+      );
+    }, Match.Error);
   });
 });
 

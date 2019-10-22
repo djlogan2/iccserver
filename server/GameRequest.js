@@ -494,9 +494,6 @@ GameRequests.addLocalMatchRequest = function(
   receiver_time,
   receiver_inc,
   challenger_color_request,
-  assess_loss,
-  assess_draw,
-  assess_win,
   fancy_time_control
 ) {
   const challenger_user = Meteor.user();
@@ -512,12 +509,11 @@ GameRequests.addLocalMatchRequest = function(
   check(receiver_time, Number);
   check(receiver_inc, Number);
   check(challenger_color_request, Match.Maybe(String));
-  check(assess_loss, Number);
-  check(assess_draw, Number);
-  check(assess_win, Number);
   check(fancy_time_control, Match.Maybe(String));
+
   if (parseInt(wild_number) !== 0)
     throw new ICCMeteorError(message_identifier, "Wild must be zero");
+
   if (
     challenger_color_request != null &&
     challenger_color_request !== "white" &&
@@ -542,6 +538,20 @@ GameRequests.addLocalMatchRequest = function(
   if (!Roles.userIsInRole(receiver_user, role))
     throw new ICCMeteorError(message_identifier, "not_in_role", role);
 
+  if (!receiver_user.loggedOn) {
+    ClientMessages.sendMessageToClient(
+      challenger_user,
+      message_identifier,
+      "CANNOT_MATCH_LOGGED_OFF_USER"
+    );
+    return;
+  }
+
+  const assess = SystemConfiguration.winDrawLossAssessValues(
+    challenger_user.ratings[rating_type],
+    receiver_user.ratings[rating_type]
+  );
+
   const record = {
     type: "match",
     challenger: challenger_user.username,
@@ -561,9 +571,9 @@ GameRequests.addLocalMatchRequest = function(
     receiver_time: receiver_time,
     receiver_inc: receiver_inc,
     challenger_color_request: challenger_color_request, // TODO: We have to figure this out too
-    assess_loss: assess_loss, // TODO: We have to figure this out too
-    assess_draw: assess_draw, // TODO: We have to figure this out too
-    assess_win: assess_win, // TODO: We have to figure this out too
+    assess_loss: assess.loss,
+    assess_draw: assess.draw,
+    assess_win: assess.win,
     fancy_time_control: fancy_time_control // TODO: We have to figure this out too
   };
 
