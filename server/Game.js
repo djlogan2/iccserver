@@ -7,6 +7,7 @@ import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
+import {GameRequests} from "./GameRequest";
 
 export const Game = {};
 
@@ -615,3 +616,9 @@ Game.opponentUserIdList = function(ofuser) {
   g2.fetch().forEach(game => array.push(game.white.id));
   return array;
 };
+
+Meteor.startup(function() {
+  if (Meteor.isTest || Meteor.isAppTest) {
+    Game.collection = GameCollection;
+  }
+});

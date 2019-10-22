@@ -31,6 +31,7 @@ export const DefinedClientMessagesMap = {
   UNABLE_TO_PLAY_UNRATED_GAMES: {},
   LEGACY_MATCH_REMOVED: { parameters: ["legacy_explanation_string"] },
   CANNOT_MATCH_LOGGED_OFF_USER: {},
+  NO_MATCH_FOUND: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

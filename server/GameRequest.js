@@ -475,7 +475,7 @@ GameRequests.addLegacyMatchRequest = function(
   if (!!challenger_user) record.challenger_id = challenger_user._id;
   if (!!receiver_user) record.receiver_id = receiver_user._id;
 
-  GameRequestCollection.insert(record);
+  return GameRequestCollection.insert(record);
 };
 
 function established(rating_object) {
@@ -511,11 +511,11 @@ GameRequests.addLocalMatchRequest = function(
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
 
-  if (parseInt(wild_number) !== 0)
+  if (wild_number !== 0)
     throw new ICCMeteorError(message_identifier, "Wild must be zero");
 
   if (
-    challenger_color_request != null &&
+    !!challenger_color_request &&
     challenger_color_request !== "white" &&
     challenger_color_request !== "black"
   ) {
@@ -523,6 +523,15 @@ GameRequests.addLocalMatchRequest = function(
       message_identifier,
       "challenger_color_request must be null, 'black' or 'white'"
     );
+  }
+
+  if (!challenger_color_request) {
+    if (challenger_time !== receiver_time || challenger_inc !== receiver_inc)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Cannot add match request",
+        "Color not specified and time controls differ"
+      );
   }
 
   if (challenger_user.ratings[rating_type] === undefined)
@@ -583,7 +592,99 @@ GameRequests.addLocalMatchRequest = function(
   return GameRequestCollection.insert(record);
 };
 
-GameRequests.acceptMatchRequest = function(message_identifier, game_id) {};
+GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+
+  const receiver = Meteor.user();
+  check(receiver, Object);
+
+  const match = GameRequestCollection.findOne({ _id: game_id });
+  if (!match) {
+    ClientMessages.sendMessageToClient(
+      receiver,
+      message_identifier,
+      "NO_MATCH_FOUND"
+    );
+    return;
+  }
+
+  if (match.type !== "match")
+    throw new ICCMeteorError(
+      message_identifier,
+      "Cannot accept match",
+      "Match request is a legacy request"
+    );
+
+  if (receiver._id === match.challenger_id) {
+    throw new ICCMeteorError(
+      message_identifier,
+      "Cannot accept match",
+      "Cannot accept your own match"
+    );
+  }
+
+  if (receiver._id !== match.receiver_id) {
+    throw new ICCMeteorError(
+      message_identifier,
+      "Cannot accept match",
+      "You are not the receiver"
+    );
+  }
+
+  const challenger = Meteor.users.findOne({ _id: match.challenger_id });
+  check(challenger, Object);
+
+  let white_initial;
+  let black_initial;
+  let white_inc;
+  let black_inc;
+  let color = null;
+
+  if (!match.challenger_color_request) {
+    if (
+      match.challenger_time !== match.receiver_time ||
+      match.challenger_inc !== match.receiver_inc
+    )
+      throw new ICCMeteorError(
+        message_identifier,
+        "Cannot accept match",
+        "No color specified and time/inc mismatch"
+      );
+    white_initial = black_initial = match.challenger_time;
+    white_inc = black_inc = match.challenger_inc;
+  } else if (match.challenger_color_request === "white") {
+    white_initial = match.challenger_time;
+    white_inc = match.challenger_inc;
+    black_initial = match.receiver_time;
+    black_inc = match.receiver_inc;
+    color = "black";
+  } else {
+    white_initial = match.receiver_time;
+    white_inc = match.receiver_inc;
+    black_initial = match.challenger_time;
+    black_inc = match.challenger_inc;
+    color = "white";
+  }
+
+  const started_id = Game.startLocalGame(
+    message_identifier,
+    challenger,
+    match.wild_number,
+    match.rating_type,
+    match.rated,
+    white_initial,
+    white_inc,
+    black_initial,
+    black_inc,
+    true,
+    color
+  );
+
+  GameRequestCollection.remove({ _id: game_id });
+
+  return started_id;
+};
 
 GameRequests.declineMatchRequest = function(message_identifier, game_id) {};
 

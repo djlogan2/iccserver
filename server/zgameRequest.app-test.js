@@ -1017,6 +1017,82 @@ describe("GameRequests.addLocalMatchRequest", function() {
   }); // TODO: Where are we keeping adjourned games? We should connect this
 
   //   challenger_time,
+  it("should fail if color is not specified and challenger time/inc !== receiver time/inc", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+
+    self.loggedonuser = challenger;
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi",
+          receiver,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          0,
+          11,
+          0
+        ),
+      ICCMeteorError
+    );
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi",
+          receiver,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          0,
+          15,
+          5
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should succeed if color is specified and challenger time/inc !== receiver time/inc", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+
+    self.loggedonuser = challenger;
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi",
+        receiver,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        11,
+        0,
+        "black"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi",
+        receiver,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        15,
+        5,
+        "white"
+      )
+    );
+  });
+
   it("should fail if time/inc invalid/not within ICC configuration", function() {
     self.loggedonuser = TestHelpers.createUser();
     sinon.replace(
@@ -1114,23 +1190,244 @@ describe("GameRequests.addLocalMatchRequest", function() {
 
 // GameRequests.acceptMatchRequest = function(game_id) {};
 describe("GameRequests.acceptMatchRequest", function() {
+  let self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
   it("should fail if self is null or invalid", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      TestHelpers.createUser(),
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(() => {
+      GameRequests.acceptMatchRequest("message_identifier", match_id);
+    }, Match.Error);
   });
+
   it("should fail if self is the challenger", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    chai.assert.throws(() => {
+      GameRequests.acceptMatchRequest("message_identifier", match_id);
+    }, ICCMeteorError);
   });
+
   it("should fail if self is not the receiver", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.acceptMatchRequest("message_identifier", match_id);
+    }, ICCMeteorError);
   });
-  it("should fail if game_id is null or there isn't a valid record", function() {
-    chai.assert.fail("do me");
+
+  it("should fail if game_id is null", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.acceptMatchRequest("message_identifier", null);
+    }, Match.Error);
   });
+
+  it("should return a client message if there isn't a valid record", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    GameRequests.acceptMatchRequest("message_identifier", "badid");
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NO_MATCH_FOUND");
+  });
+
   it("should fail if request record is a legacy request", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+
+    const game_id = GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(self.loggedonuser, receiver)
+    );
+
+    self.loggedonuser = receiver;
+    chai.assert.throws(() => {
+      GameRequests.acceptMatchRequest("message_identifier", game_id);
+    }, ICCMeteorError);
   });
-  it("should delete this record and insert a recod into the game collection upon a successful request", function() {
-    chai.assert.fail("do me");
+
+  it("should delete this record and insert a record into the game collection upon a successful request", function() {
+    chai.assert.equal(GameRequests.collection.find().count(), 0);
+
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+
+    chai.assert.equal(GameRequests.collection.find().count(), 1);
+    chai.assert.equal(Game.collection.find().count(), 0);
+
+    self.loggedonuser = receiver;
+
+    const fake = sinon.fake.returns("id");
+    sinon.replace(Game, "startLocalGame", fake);
+    GameRequests.acceptMatchRequest("mi2", match_id);
+
+    chai.assert.equal(GameRequests.collection.find().count(), 0);
+    chai.assert.equal(fake.args[0][0], "mi2");
+    chai.assert.equal(fake.args[0][1]._id, challenger._id);
+    chai.assert.equal(fake.args[0][2], 0);
+    chai.assert.equal(fake.args[0][3], "standard");
+    chai.assert.equal(fake.args[0][4], true);
+    chai.assert.equal(fake.args[0][5], 15);
+    chai.assert.equal(fake.args[0][6], 0);
+    chai.assert.equal(fake.args[0][7], 15);
+    chai.assert.equal(fake.args[0][8], 0);
+    chai.assert.equal(fake.args[0][9], true);
+    chai.assert.isTrue(
+      fake.args[0][10] === undefined || fake.args[0][10] === null
+    );
+  });
+
+  // that is, if color=white, time=15 inc=0  otherguy time=10 inc=5, the game record should have:
+  //  white: me, white_time: 15, inc 0, black: him, time: 10, inc: 5
+  // and vice-versa:
+  // color=black, time=15 inc=0  otherguy time=10 inc=5, the game record should have:
+  //  white: them, white_time: 10, inc 5, black: us, time: 15, inc: 0
+  it("should set the game record white correctly when color is specified in the game request", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      25,
+      25,
+      "white"
+    );
+
+    self.loggedonuser = receiver;
+
+    const fake = sinon.fake.returns("id");
+    sinon.replace(Game, "startLocalGame", fake);
+    GameRequests.acceptMatchRequest("mi2", match_id);
+
+    chai.assert.equal(GameRequests.collection.find().count(), 0);
+    chai.assert.equal(fake.args[0][0], "mi2");
+    chai.assert.equal(fake.args[0][1]._id, challenger._id);
+    chai.assert.equal(fake.args[0][2], 0);
+    chai.assert.equal(fake.args[0][3], "standard");
+    chai.assert.equal(fake.args[0][4], true);
+    chai.assert.equal(fake.args[0][5], 15);
+    chai.assert.equal(fake.args[0][6], 15);
+    chai.assert.equal(fake.args[0][7], 25);
+    chai.assert.equal(fake.args[0][8], 25);
+    chai.assert.equal(fake.args[0][9], true);
+    chai.assert.equal(fake.args[0][10], "black");
+  });
+
+  it("should set the game record black correctly when color is specified in the game request", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+
+    self.loggedonuser = challenger;
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      25,
+      25,
+      "black"
+    );
+
+    self.loggedonuser = receiver;
+
+    const fake = sinon.fake.returns("id");
+    sinon.replace(Game, "startLocalGame", fake);
+    GameRequests.acceptMatchRequest("mi2", match_id);
+
+    chai.assert.equal(GameRequests.collection.find().count(), 0);
+    chai.assert.equal(fake.args[0][0], "mi2");
+    chai.assert.equal(fake.args[0][1]._id, challenger._id);
+    chai.assert.equal(fake.args[0][2], 0);
+    chai.assert.equal(fake.args[0][3], "standard");
+    chai.assert.equal(fake.args[0][4], true);
+    chai.assert.equal(fake.args[0][5], 25);
+    chai.assert.equal(fake.args[0][6], 25);
+    chai.assert.equal(fake.args[0][7], 15);
+    chai.assert.equal(fake.args[0][8], 15);
+    chai.assert.equal(fake.args[0][9], true);
+    chai.assert.equal(fake.args[0][10], "white");
   });
 });
 
@@ -1176,10 +1473,16 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
 });
 
 describe("game_requests publication", function() {
-  it("only return records for which the owner is a challenger or receiver of a seek or match", function() {
+  it("should only return records for which the owner is a challenger or receiver of a match", function() {
     chai.assert.fail("do me");
   });
-  it("should not return any records if user is playing a game", function() {
+  it("should only return records for seeks if you are the owner or the seek is playable by you", function() {
+    chai.assert.fail("do me");
+  });
+  it("should stop publishing records when played game is started", function() {
+    chai.assert.fail("do me");
+  });
+  it("should republish matches and seeks when played game is over", function() {
     chai.assert.fail("do me");
   });
 });
