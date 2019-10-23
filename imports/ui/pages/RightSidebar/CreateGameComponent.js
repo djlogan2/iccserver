@@ -47,6 +47,8 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
 
   render() {
     if (Meteor.userId() == null) return;
+    /*     const gameRquest = GameRequestCollection.find({}).fetch();
+    log.debug(gameRquest); */
     const localUsers = Meteor.users.find({}).fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
     const _userdata = localUsers.map(user => user.username);

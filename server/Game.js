@@ -7,7 +7,6 @@ import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
-
 export const Game = {};
 
 const GameCollection = new Mongo.Collection("game");
@@ -64,6 +63,16 @@ const GameSchema = new SimpleSchema({
   actions: [actionSchema]
 });
 GameCollection.attachSchema(GameSchema);
+
+Meteor.publish("game", function() {
+  const user = Meteor.user();
+  if (!user || !user.loggedOn) return [];
+  const id = Meteor.userId();
+  if (!id) return [];
+  return GameCollection.find({
+    $or: [{ "black.userid": id }, { "white.userid": id }]
+  });
+});
 
 function getLegacyUser(userId) {
   const our_legacy_user = LegacyUser.find(userId);
@@ -282,18 +291,15 @@ Game.startLegacyGame = function(
   if (!!whiteuser) game.white._id = whiteuser._id;
   if (!!blackuser) game.black._id = blackuser._id;
 
-  GameCollection.insert(game, (error, result) => {
-    if (error) log.debug(error.invalidKeys);
-    GameCollection.simpleSchema()
-      .namedContext()
-      .validationErrors();
-  });
+  GameCollection.insert(game);
 };
 
 Game.saveLegacyMove = function(message_identifier, game_id, move) {
   check(message_identifier, String);
   check(game_id, String);
   check(move, String);
+
+  log.debug("Game Move", move);
 };
 
 Game.makeMove = function(message_identifier, game_id, move) {
@@ -625,3 +631,9 @@ Game.opponentUserIdList = function(ofuser) {
   g2.fetch().forEach(game => array.push(game.white.id));
   return array;
 };
+
+Meteor.startup(function() {
+  if (Meteor.isTest || Meteor.isAppTest) {
+    Game.collection = GameCollection;
+  }
+});

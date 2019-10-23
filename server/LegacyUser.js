@@ -516,16 +516,33 @@ class LegacyUserConnection {
           break;
         case L2.SEEK:
           // log.debug(" SEEK_");
-          GameRequests.addLegacyGameSeek(parseInt(p2[0]), p2[1]);
+          GameRequests.addLegacyGameSeek(
+            "addLegacyGameSeek",
+            parseInt(p2[0]),
+            p2[1],
+            Array.isArray(p2[2]) ? p2[2] : [],
+            parseInt(p2[3]),
+            parseInt(p2[4]),
+            parseInt(p2[5]),
+            p2[6],
+            parseInt(p2[7]),
+            parseInt(p2[8]),
+            p2[9] === "1",
+            p2[10],
+            parseInt(p2[11]),
+            parseInt(p2[12]),
+            p2[13] === "1",
+            p2[14]
+          );
           break;
         case L2.SEEK_REMOVED:
-         //   log.debug(" SEEK_REMOVED");
+          //   log.debug(" SEEK_REMOVED");
           GameRequests.removeLegacySeek("legacyseekRemove", parseInt(p2[0]));
           break;
         case L2.STARTED_OBSERVING:
         case L2.MY_GAME_STARTED:
           log.debug("Game started");
-       //   Game.startLegacyGame(p2[1], p2[2]);
+          //   Game.startLegacyGame(p2[1], p2[2]);
           // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
           Game.startLegacyGame(
             "startLegacygame",
@@ -543,8 +560,8 @@ class LegacyUserConnection {
             parseInt(p2[12]),
             parseInt(p2[13]),
             parseInt(p2[14]),
-            p2[15] ? p2[15] : [],
-            p2[16] ? p2[15] : [],
+            Array.isArray(p2[15]) ? p2[15] : [],
+            Array.isArray(p2[16]) ? p2[16] : [],
             p2[11],
             p2[17],
             p2[18],

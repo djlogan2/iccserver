@@ -114,7 +114,7 @@ Accounts.onLogin(function(user_parameter) {
 
   log.debug("user record", user);
   log.debug(
-    "User is in leagy_login role",
+    "User is in legacy_login role",
     Roles.userIsInRole(user, "legacy_login")
   );
 
@@ -128,14 +128,27 @@ Accounts.onLogin(function(user_parameter) {
   ) {
     LegacyUser.login("login", user);
   }
+
+  runLoginHooks();
 });
 
+const loginHooks = [];
 const logoutHooks = [];
+
+export function addLoginHook(f) {
+  Meteor.startup(function() {
+    loginHooks.push(f);
+  });
+}
 
 export function addLogoutHook(f) {
   Meteor.startup(function() {
     logoutHooks.push(f);
   });
+}
+
+function runLoginHooks(context, user) {
+  loginHooks.forEach(f => f.call(context, user));
 }
 
 function runLogoutHooks(context, user) {

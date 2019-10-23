@@ -35,16 +35,15 @@ if (Meteor.isTest || Meteor.isAppTest) {
     const id = Accounts.createUser(userRecord);
     userRecord._id = id;
     if (!!options.roles)
-      Roles.setUserRoles(
-        userRecord._id,
-        options.roles,
-        Roles.GLOBAL_GROUP
-      );
+      Roles.setUserRoles(userRecord._id, options.roles, Roles.GLOBAL_GROUP);
     if (options.login === undefined || options.login) {
       Meteor.users.update({ _id: id }, { $set: { loggedOn: true } });
     }
     if (userRecord.profile && userRecord.profile.legacy)
-      Meteor.users.update({_id: id}, {$set: {"profile.legacy.validated": true}});
-    return userRecord;
+      Meteor.users.update(
+        { _id: id },
+        { $set: { "profile.legacy.validated": true } }
+      );
+    return Meteor.users.findOne({_id: id});
   };
 }

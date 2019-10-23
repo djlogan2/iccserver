@@ -30,6 +30,8 @@ export const DefinedClientMessagesMap = {
   UNABLE_TO_PLAY_RATED_GAMES: {},
   UNABLE_TO_PLAY_UNRATED_GAMES: {},
   LEGACY_MATCH_REMOVED: { parameters: ["legacy_explanation_string"] },
+  CANNOT_MATCH_LOGGED_OFF_USER: {},
+  NO_MATCH_FOUND: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},
@@ -128,12 +130,11 @@ ClientMessages.sendMessageToClient = function(
   // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
   const locale = touser.locale || "en-us";
   const message = i18n.localizeMessage(locale, i8n_message, parameter_array);
-  const mongoid = ClientMessagesCollection.insert({
+  return ClientMessagesCollection.insert({
     to: id,
     client_identifier: client_identifier,
     message: message
   });
-  return mongoid;
 };
 
 addLogoutHook(function(userId) {
