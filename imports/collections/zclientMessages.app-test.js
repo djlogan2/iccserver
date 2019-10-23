@@ -47,10 +47,13 @@ describe("Client Messages", function() {
       message: "message23"
     });
     chai.assert.equal(6, ClientMessages.collection.find().count());
+    /*
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("userData", collections => {
       // We don't really care what happens in here, we just need the collection to stop.
     });
+     */
+    ClientMessages.logoutHook(user1._id);
     chai.assert.equal(3, ClientMessages.collection.find().count());
   });
 

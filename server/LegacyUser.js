@@ -2,7 +2,7 @@ import { decrypt } from "../lib/server/encrypt";
 import { Logger } from "../lib/server/Logger";
 import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { Match, check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Game } from "./Game";
 import { GameRequests } from "./GameRequest";
@@ -382,6 +382,16 @@ class LegacyUserConnection {
     wild,
     color
   ) {
+    check(message_identifier, String);
+    check(name, String);
+    check(time, Number);
+    check(increment, Match.Maybe(Number));
+    check(time2, Match.Maybe(Number));
+    check(increment2, Match.Maybe(Number));
+    check(rated, Boolean);
+    check(wild, Match.Maybe(Number));
+    check(color, Match.Maybe(String));
+
     log.debug("inside match legacyUser");
     let matchString = "match " + name + " " + time;
     if (increment) matchString += " " + increment;
@@ -394,6 +404,8 @@ class LegacyUserConnection {
   }
 
   move(message_identifier, move) {
+    check(message_identifier, String);
+    check(move, String);
     this._sendRawData(message_identifier, move); // TODO: We should probably validate this as an actual move, or clients will be able to send whatever they damn well please with this!
   }
 
@@ -442,11 +454,11 @@ class LegacyUserConnection {
             p2[0],
             parseInt(p2[1]),
             p2[2] === "1",
-            //p2[3],
+            p2[3].split(" "),
             p2[4],
             parseInt(p2[5]),
             p2[6] === "1",
-            //p2[7],
+            p2[7].split(" "),
             parseInt(p2[8]),
             p2[9],
             p2[10] === "1",

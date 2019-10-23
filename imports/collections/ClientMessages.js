@@ -137,13 +137,15 @@ ClientMessages.sendMessageToClient = function(
   });
 };
 
+function logoutHook(userId) {
+  ClientMessagesCollection.remove({ to: userId });
+}
 
 Meteor.startup(function() {
-  Users.addLogoutHook(function(userId) {
-    ClientMessagesCollection.remove({ to: userId });
-  });
+  Users.addLogoutHook(logoutHook);
 
   if (Meteor.isTest || Meteor.isAppTest) {
     ClientMessages.collection = ClientMessagesCollection;
+    ClientMessages.logoutHook = logoutHook;
   }
 });
