@@ -7,8 +7,6 @@ import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
-import { GameRequests } from "./GameRequest";
-
 export const Game = {};
 
 const GameCollection = new Mongo.Collection("game");
@@ -196,12 +194,12 @@ Game.startLegacyGame = function(
   black_initial,
   black_increment,
   played_game,
-  ex_string,
   white_rating,
   black_rating,
   game_id,
   white_titles,
   black_titles,
+  ex_string,
   irregular_legality,
   irregular_semantics,
   uses_plunkers,
@@ -231,12 +229,13 @@ Game.startLegacyGame = function(
   check(uses_plunkers, Match.Maybe(String));
   check(fancy_timecontrol, Match.Maybe(String));
   check(promote_to_king, Match.Maybe(String));
+
   const whiteuser = Meteor.users.findOne({
-    "profile.legay.username": whitename
+    "profile.legacy.username": whitename
   });
   log.debug(whiteuser);
   const blackuser = Meteor.users.findOne({
-    "profile.legay.username": blackname
+    "profile.legacy.username": blackname
   });
 
   const self = Meteor.user();
@@ -260,12 +259,12 @@ Game.startLegacyGame = function(
     rated: rated,
     clocks: {
       white: {
-        initial: white_initial,
+        time: white_initial,
         inc: white_increment,
         current: white_initial
       },
       black: {
-        initial: black_initial,
+        time: black_initial,
         inc: black_increment,
         current: black_initial
       }
@@ -285,6 +284,8 @@ Game.saveLegacyMove = function(message_identifier, game_id, move) {
   check(message_identifier, String);
   check(game_id, String);
   check(move, String);
+
+  log.debug("Game Move", move);
 };
 
 Game.makeMove = function(message_identifier, game_id, move) {

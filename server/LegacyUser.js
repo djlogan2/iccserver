@@ -2,6 +2,7 @@ import { decrypt } from "../lib/server/encrypt";
 import { Logger } from "../lib/server/Logger";
 import { Roles } from "meteor/alanning:roles";
 import { Meteor } from "meteor/meteor";
+import { check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Game } from "./Game";
 import { GameRequests } from "./GameRequest";
@@ -380,6 +381,7 @@ class LegacyUserConnection {
     wild,
     color
   ) {
+    log.debug("inside match legacyUser");
     let matchString = "match " + name + " " + time;
     if (increment) matchString += " " + increment;
     if (time2) matchString += " " + time2;
@@ -424,21 +426,26 @@ class LegacyUserConnection {
           ) {
             Meteor.users.update(
               { _id: Meteor.userId() },
-              { $set: { "profile.legacy.username": p2[0], "profile.legacy.validated": true } }
+              {
+                $set: {
+                  "profile.legacy.username": p2[0],
+                  "profile.legacy.validated": true
+                }
+              }
             );
           }
           break;
         case L2.MATCH:
-          //
-          GameRequests.addLegacyMatchReques(
+          GameRequests.addLegacyMatchRequest(
+            "legacymatch",
             p2[0],
             parseInt(p2[1]),
             p2[2] === "1",
-            p2[3],
+            //p2[3],
             p2[4],
             parseInt(p2[5]),
             p2[6] === "1",
-            p2[7],
+            //p2[7],
             parseInt(p2[8]),
             p2[9],
             p2[10] === "1",
@@ -452,15 +459,18 @@ class LegacyUserConnection {
           );
           break;
         case L2.MATCH_REMOVED:
+          log.debug(" L2.MATCH_REMOVED");
           //challenger-name receiver-name ^Y{Explanation string^Y}
           GameRequests.removeLegacyMatchRequest.apply(null, p2);
           break;
         case L2.MUGSHOT:
+          log.debug("L2.MUGSHOT");
           // (Player URL gamenumber)
           if (p2[0] === "W" || p2[0] === "B") return;
           legacyUsers.update({ username: p2[0] }, { $set: { mugshot: p2[1] } });
           break;
         case L2.MSEC:
+          log.debug("L2.MSEC:");
           Game.updateClock(
             Meteor.user(),
             p2[0],
@@ -505,10 +515,12 @@ class LegacyUserConnection {
           legacyUsers.remove({ username: p2[0] });
           break;
         case L2.SEEK:
+          // log.debug(" SEEK_");
           GameRequests.addLegacyGameSeek(
+            "addLegacyGameSeek",
             parseInt(p2[0]),
             p2[1],
-            p2[2],
+            Array.isArray(p2[2]) ? p2[2] : [],
             parseInt(p2[3]),
             parseInt(p2[4]),
             parseInt(p2[5]),
@@ -524,37 +536,43 @@ class LegacyUserConnection {
           );
           break;
         case L2.SEEK_REMOVED:
-          GameRequests.removeLegacySeek(parseInt(p2[0]));
+          //   log.debug(" SEEK_REMOVED");
+          GameRequests.removeLegacySeek("legacyseekRemove", parseInt(p2[0]));
           break;
         case L2.STARTED_OBSERVING:
         case L2.MY_GAME_STARTED:
+          log.debug("Game started");
+          //   Game.startLegacyGame(p2[1], p2[2]);
           // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
           Game.startLegacyGame(
-            p2[0], //we cant figure gamenumber each time change
+            "startLegacygame",
+            parseInt(p2[0]),
             p2[1],
             p2[2],
-            p2[3],
+            parseInt(p2[3]),
             p2[4],
-            p2[5],
-            p2[6],
-            p2[7],
-            p2[8],
-            p2[9],
-            p2[10],
+            p2[5] === "1",
+            parseInt(p2[6]),
+            parseInt(p2[7]),
+            parseInt(p2[8]),
+            parseInt(p2[9]),
+            p2[10] === "1",
+            parseInt(p2[12]),
+            parseInt(p2[13]),
+            parseInt(p2[14]),
+            Array.isArray(p2[15]) ? p2[15] : [],
+            Array.isArray(p2[16]) ? p2[16] : [],
             p2[11],
-            p2[12],
-            p2[13],
-            p2[14],
-            p2[15],
-            p2[16],
             p2[17],
             p2[18],
             p2[19],
             p2[20],
             p2[21]
           );
+
           break;
         case L2.MY_GAME_CHANGE:
+          log.debug("L2.MY_GAME_CHANGE");
           // Mongo.update - Prerak
           break;
         case L2.MY_GAME_ENDED:

@@ -125,7 +125,6 @@ GameRequestCollection.attachSchema(LegacySeekSchema, {
 let log = new Logger("server/GameRequest_js");
 
 export const GameRequests = {};
-//
 GameRequests.addLegacyGameSeek = function(
   message_identifier,
   index,
@@ -155,7 +154,7 @@ GameRequests.addLegacyGameSeek = function(
   check(time, Number);
   check(inc, Number);
   check(rated, Boolean);
-  check(color, Match.Maybe(String));
+  check(color, Match.Any); //TODO CAN WE USE Match.Any ?
   check(minrating, Number);
   check(maxrating, Number);
   check(autoaccept, Boolean);
@@ -164,6 +163,12 @@ GameRequests.addLegacyGameSeek = function(
   const self = Meteor.user();
   if (!self)
     throw new ICCMeteorError(message_identifier, "self is null or invalid");
+
+  if (color === 1 || color === "white") {
+    color = "white";
+  } else {
+    color = "black";
+  }
 
   const upsertReturn = GameRequestCollection.upsert(
     { type: "legacyseek", legacy_index: index, owner: self._id },
@@ -304,6 +309,7 @@ GameRequests.removeLegacySeek = function(message_identifier, seek_index) {
       message_identifier,
       "Cannot remove another users game seek"
     );
+
   GameRequestCollection.remove({ _id: request._id });
 };
 
@@ -399,11 +405,11 @@ GameRequests.addLegacyMatchRequest = function(
   challenger_name,
   challenger_rating,
   challenger_established,
-  challenger_titles,
+  //  challenger_titles,
   receiver_name,
   receiver_rating,
   receiver_established,
-  receiver_titles,
+  //  receiver_titles,
   wild_number,
   rating_type,
   is_it_rated,
@@ -418,12 +424,12 @@ GameRequests.addLegacyMatchRequest = function(
   check(message_identifier, String);
   check(challenger_name, String);
   check(challenger_rating, Number);
-  check(challenger_established, Number);
-  check(challenger_titles, Array);
+  check(challenger_established, Boolean);
+  //  check(challenger_titles, Match.Maybe(Array));
   check(receiver_name, String);
   check(receiver_rating, Number);
-  check(receiver_established, Number);
-  check(receiver_titles, Array);
+  check(receiver_established, Boolean);
+  //check(receiver_titles, Match.Maybe(Array));
   check(wild_number, Number);
   check(rating_type, String);
   check(is_it_rated, Boolean);
@@ -440,15 +446,16 @@ GameRequests.addLegacyMatchRequest = function(
   check(self, Object);
 
   const challenger_user = Meteor.users.findOne({
-    "profile.legacy.username": challenger_name,
-    "profile.legacy.validated": true
+    "profile.legacy.username": challenger_name
+    //  "profile.legacy.validated": true
   });
 
   const receiver_user = Meteor.users.findOne({
-    "profile.legacy.username": receiver_name,
-    "profile.legacy.validated": true
+    "profile.legacy.username": receiver_name
+    // "profile.legacy.validated": true
   });
-
+  let challenger_establish = 0;
+  let receiver_establish = 0;
   if (challenger_user && challenger_user._id === self._id)
     challenger_or_receiver = true;
   if (receiver_user && receiver_user._id === self._id)
@@ -459,16 +466,24 @@ GameRequests.addLegacyMatchRequest = function(
       message_identifier,
       "addLegacyMatch where neither challenger nor receiver is the logged on user"
     );
-
+  if (challenger_established === true) challenger_establish = 1;
+  if (receiver_established === true) receiver_establish = 1;
+  if (challenger_color_request === 1 || challenger_color_request === "white") {
+    challenger_color_request = "white";
+  } else {
+    challenger_color_request = "black";
+  }
+  let challenger_titles;
+  let receiver_titles;
   const record = {
     type: "legacymatch",
     challenger: challenger_name,
     challenger_rating: challenger_rating,
-    challenger_established: challenger_established,
+    challenger_established: challenger_establish,
     challenger_titles: challenger_titles,
     receiver: receiver_name,
     receiver_rating: receiver_rating,
-    receiver_established: receiver_established,
+    receiver_established: receiver_establish,
     receiver_titles: receiver_titles,
     wild_number: wild_number,
     rating_type: rating_type,
@@ -792,6 +807,28 @@ Meteor.methods({
     wild,
     color
   ) {
+    /*
+    log.debug(
+      "inside request" +
+        message_identifier +
+        " -- " +
+        name +
+        " -- " +
+        time +
+        " -- " +
+        increment +
+        " -- " +
+        time2 +
+        " -- " +
+        increment2 +
+        " -- " +
+        rated +
+        " -- " +
+        wild +
+        " -- " +
+        color
+    );
+    */
     check(message_identifier, String);
     check(name, String);
     check(time, Number);
@@ -808,6 +845,7 @@ Meteor.methods({
     }
 
     const our_legacy_user = LegacyUser.find(us._id);
+
     if (!our_legacy_user)
       throw new ICCMeteorError(
         message_identifier,
@@ -842,7 +880,7 @@ function seekMatchesUser(user, seek) {
 Meteor.publish("game_requests", function() {
   const user = Meteor.user();
   if (!user || !user.loggedOn) return [];
-  if (Game.isPlayingGame(user)) return [];
+  // if (Game.isPlayingGame(user)) return []; /* TODO we dont know. is a function ? where ?*/
 
   const id = user._id;
   if (!id) return [];
