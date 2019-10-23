@@ -13,7 +13,6 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { Users } from "../imports/collections/users";
 
 function legacyMatchRequest(challenger, receiver) {
   return [
@@ -837,10 +836,12 @@ describe("GameRequests.addLegacyMatchRequest", function() {
 
   it("should fail if self is neither challenger nor receiver", function() {
     self.loggedonuser = TestHelpers.createUser();
+    const guy1 = TestHelpers.createUser();
+    const guy2 = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLegacyMatchRequest.apply(
         null,
-        legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser())
+        legacyMatchRequest(guy1, guy2)
       );
     }, ICCMeteorError);
   });
