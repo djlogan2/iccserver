@@ -499,7 +499,7 @@ class LegacyUserConnection {
         case L2.LOGIN_FAILED /* login_failed */:
           ClientMessages.sendMessageToClient(
             Meteor.user(),
-            "LEGACY_LOGIN",
+            p.l1messageidentifier,
             "LOGIN_FAILED_" + p2[0]
           );
           break;
