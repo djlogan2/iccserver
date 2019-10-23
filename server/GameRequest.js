@@ -11,6 +11,7 @@ import { LegacyUser } from "./LegacyUser";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
+import { addLoginHook, addLogoutHook } from "../imports/collections/users";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
@@ -25,7 +26,8 @@ const LocalSeekSchema = new SimpleSchema({
   color: { type: String, optional: true, allowedValues: ["white", "black"] },
   minrating: { type: Number, optional: true },
   maxrating: { type: Number, optional: true },
-  formula: { type: String, optional: true }
+  formula: { type: String, optional: true },
+  matchingusers: [String]
 });
 const LegacyMatchSchema = {
   type: String,
@@ -275,6 +277,15 @@ GameRequests.addLocalGameSeek = function(
   if (!!minrating) game.minrating = minrating;
   if (!!maxrating) game.maxrating = maxrating;
   if (!!formula) game.formula = formula;
+
+  const users = Meteor.users.find({ loggedOn: true }).fetch();
+  let matchingusers = [];
+  if (!!users) {
+    matchingusers = users
+      .filter(user => seekMatchesUser(user, game))
+      .map(user => user._id);
+  }
+  game.matchingusers = matchingusers || [];
 
   return GameRequestCollection.insert(game);
 };
@@ -732,8 +743,8 @@ GameRequests.removeLegacyMatchRequest = function(
   check(receiver_name, String);
   check(explanation_string, String);
   const self = Meteor.user();
-  if (!self)
-    throw new ICCMeteorError(message_identifier, "self is null or invalid");
+  check(self, Object);
+
   if (
     !self.profile ||
     !self.profile.legacy ||
@@ -752,12 +763,16 @@ GameRequests.removeLegacyMatchRequest = function(
       message_identifier,
       "User is neither challenger nor receiver of removed match (2)"
     );
-  GameRequestCollection.remove({
-    $and: [
-      { challenger_name: challenger_name },
-      { receiver_name: receiver_name }
-    ]
+  const result = GameRequestCollection.remove({
+    $and: [{ challenger: challenger_name }, { receiver: receiver_name }]
   });
+
+  if (!result)
+    throw new ICCMeteorError(
+      message_identifier,
+      "No legacy match record found to remove"
+    );
+
   ClientMessages.sendMessageToClient(
     Meteor.user(),
     "LEGACY_MATCH_REMOVED",
@@ -817,4 +832,63 @@ Meteor.startup(function() {
   if (Meteor.isTest || Meteor.isAppTest) {
     GameRequests.collection = GameRequestCollection;
   }
+});
+
+function seekMatchesUser(user, seek) {
+  if (user._id === seek.owner) return false;
+  if (!Roles.userIsInRole(user, "play_rated_games") && seek.rated) return false;
+  if (!Roles.userIsInRole(user, "play_unrated_games") && !seek.rated)
+    return false;
+  if (!seek.minrating || !seek.maxrating) return true;
+  const myrating = user.ratings[seek.rating_type];
+  if (seek.minrating && seek.minrating > myrating) return false;
+  return seek.maxrating && seek.maxrating >= myrating;
+}
+
+Meteor.publish("game_requests", function() {
+  const user = Meteor.user();
+  if (!user || !user.loggedOn) return [];
+  if (Game.isPlayingGame(user)) return [];
+
+  const id = Meteor.userId();
+  if (!id) return [];
+  return GameRequestCollection.find({
+    $or: [
+      { challenger_id: id },
+      { receiver_id: id },
+      { owner: id },
+      { matchingusers: id }
+    ]
+  });
+});
+
+Meteor.startup(() => {
+  addLogoutHook(userId => {
+    GameRequestCollection.remove({
+      $or: [
+        { challenger_id: userId },
+        { receiver_id: userId },
+        { owner: userId }
+      ]
+    });
+    GameRequestCollection.update(
+      { matchingusers: userId },
+      { $pull: { matchingusers: userId } },
+      { multi: true }
+    );
+  });
+
+  addLoginHook(user => {
+    const seeks = GameRequestCollection.find({ type: "seek" }).fetch();
+    const matchingseeks = seeks
+      .filter(seek => seekMatchesUser(user, seek))
+      .map(seek => seek._id);
+    if (matchingseeks.length > 0) {
+      GameRequestCollection.update(
+        { _id: { $in: matchingseeks } },
+        { $push: { matchingusers: user._id } },
+        { multi: true }
+      );
+    }
+  });
 });

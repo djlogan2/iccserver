@@ -1572,19 +1572,139 @@ describe("GameRequests.declineMatchRequest", function() {
 
 // GameRequests.removeLegacyMatchRequest = function(
 describe("GameRequests.removeLegacyMatchRequest", function() {
+  let self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
   it("should fail if self is null or invalid", function() {
-    chai.assert.fail("do me");
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(() => {
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        receiver.profile.legacy.username,
+        "explanation"
+      );
+    }, Match.Error);
   });
+
   it("should fail if self is not the owner", function() {
-    chai.assert.fail("do me");
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => {
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        receiver.profile.legacy.username,
+        "explanation"
+      );
+    }, ICCMeteorError);
   });
-  it("should fail if game_id is null or there isn't a valid record", function() {
-    chai.assert.fail("do me");
+
+  it("should fail if challenger or receiver is null or there isn't a valid record", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
+    chai.assert.throws(() => {
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        null,
+        receiver.profile.legacy.username,
+        "explanation"
+      );
+    }, Match.Error);
+    chai.assert.throws(() => {
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        null,
+        "explanation"
+      );
+    }, Match.Error);
+    chai.assert.throws(() => {
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        "bogus1",
+        receiver.profile.legacy.username,
+        "explanation"
+      );
+    }, ICCMeteorError);
+    chai.assert.throws(() => {
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        "bogus2",
+        "explanation"
+      );
+    }, ICCMeteorError);
   });
-  it("should fail if request record is a not legacy request", function() {
-    chai.assert.fail("do me");
-  });
+
   it("should delete this record upon a successful request", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    self.loggedonuser = challenger;
+    chai.assert.equal(0, GameRequests.collection.find().count());
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
+    chai.assert.equal(1, GameRequests.collection.find().count());
+    GameRequests.removeLegacyMatchRequest(
+      "message_identifier",
+      challenger.profile.legacy.username,
+      receiver.profile.legacy.username,
+      "explanation"
+    );
+    chai.assert.equal(0, GameRequests.collection.find().count());
+  });
+});
+
+describe("game_requests collection", function() {
+  it("should have match records for which the user is the challenger deleted when a user logs off", function() {
+    chai.assert.fail("do me");
+  });
+  it("should have match records for which the user is the receiver deleted when a user logs off", function() {
+    chai.assert.fail("do me");
+  });
+  it("should have seek records for which the user is the challenger deleted when a user logs off", function() {
+    chai.assert.fail("do me");
+  });
+  it("should NOT have seek records for which the user is NOT the challenger deleted when a user logs off", function() {
     chai.assert.fail("do me");
   });
 });
@@ -1600,6 +1720,45 @@ describe("game_requests publication", function() {
     chai.assert.fail("do me");
   });
   it("should republish matches and seeks when played game is over", function() {
+    chai.assert.fail("do me");
+  });
+  it("should return only local seeks for which their id is in the matchingusers array, or they are the owner", function() {
+    chai.assert.fail("do me");
+  });
+  it("should not return matchingusers array, but instead the 'qualified users count', which is the count of elements in matchingusers", function() {
+    chai.assert.fail("do me");
+  });
+  it("should return legacy seeks for which they are the owner", function() {
+    chai.assert.fail("do me");
+  });
+  it("should return legacy matches for which they are either the challenger or the receiver", function() {
+    chai.assert.fail("do me");
+  });
+  it("should return local mataches for which they are either the challenger or the receiver", function() {
+    chai.assert.fail("do me");
+  });
+  it("should not return legacy seeks for which they are not the owner", function() {
+    chai.assert.fail("do me");
+  });
+  it("should not return legacy matches for which they are neither the challenger or the receiver", function() {
+    chai.assert.fail("do me");
+  });
+  it("should not return local mataches for which they are neither the challenger or the receiver", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+describe("Local seeks", function() {
+  it("should add user ids to the matchingusers array of appropriate seeks when a user logs on", function() {
+    chai.assert.fail("do me");
+  });
+  it("should add not user ids to the matchingusers array of inappropriate seeks when a user logs on", function() {
+    chai.assert.fail("do me");
+  });
+  it("should remove user ids from all matchingusers arrays when a user logs off", function() {
+    chai.assert.fail("do me");
+  });
+  it("should add all qualified already-logged on users ids to matchingusers array when a new seek is added", function() {
     chai.assert.fail("do me");
   });
 });
