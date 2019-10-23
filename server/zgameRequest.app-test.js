@@ -1,17 +1,19 @@
 import chai from "chai";
+import sinon from "sinon";
+
 import { resetDatabase } from "meteor/xolvio:cleaner";
+import { Meteor } from "meteor/meteor";
+import { Match } from "meteor/check";
+import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
 import { GameRequests } from "./GameRequest";
 import { Game } from "./Game";
 import { ClientMessages } from "../imports/collections/ClientMessages";
-import sinon from "sinon";
-import { Meteor } from "meteor/meteor";
-import { Match } from "meteor/check";
-
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { Users } from "../imports/collections/users";
 
 function legacyMatchRequest(challenger, receiver) {
   return [
@@ -1586,6 +1588,7 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
       self.clientMessagesFake
     );
     sinon.replace(Meteor, "user", self.meteorUsersFake);
+    console.log("Replaced Meteor.user");
     resetDatabase(null, done);
   });
   afterEach(function() {
@@ -1695,67 +1698,355 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
 });
 
 describe("game_requests collection", function() {
+  let self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  function add15(challenger, receiver, otherguy) {
+    self.loggedonuser = challenger;
+    GameRequests.addLocalMatchRequest(
+      "mi1",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    GameRequests.addLocalMatchRequest(
+      "mi1",
+      otherguy,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, otherguy)
+    );
+
+    self.loggedonuser = receiver;
+    GameRequests.addLocalMatchRequest(
+      "mi1",
+      challenger,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    GameRequests.addLocalMatchRequest(
+      "mi1",
+      otherguy,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(receiver, challenger)
+    );
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(receiver, otherguy)
+    );
+
+    self.loggedonuser = otherguy;
+    GameRequests.addLocalMatchRequest(
+      "mi1",
+      challenger,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    GameRequests.addLocalMatchRequest(
+      "mi1",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      15,
+      0
+    );
+    GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(otherguy, challenger)
+    );
+    GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(otherguy, receiver)
+    );
+  }
+
   it("should have match records for which the user is the challenger deleted when a user logs off", function() {
-    chai.assert.fail("do me");
-  });
-  it("should have match records for which the user is the receiver deleted when a user logs off", function() {
-    chai.assert.fail("do me");
-  });
-  it("should have seek records for which the user is the challenger deleted when a user logs off", function() {
-    chai.assert.fail("do me");
-  });
-  it("should NOT have seek records for which the user is NOT the challenger deleted when a user logs off", function() {
-    chai.assert.fail("do me");
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+
+    add15(challenger, receiver, otherguy);
+    chai.assert.equal(GameRequests.collection.find().count(), 15);
+
+    self.loggedonuser = challenger;
+
+    const collector = new PublicationCollector({ userId: challenger._id });
+    collector.collect("game_requests", collections => {
+      chai.assert.equal(collections.game_requests.length, 11);
+    });
+
+    GameRequests.logoutHook(challenger._id);
+    chai.assert.equal(GameRequests.collection.find().count(), 6);
+    chai.assert.equal(
+      GameRequests.collection.find({ matchingusers: challenger._id }).count(),
+      0
+    );
+    chai.assert.equal(
+      GameRequests.collection.find({ type: "seek" }).count(),
+      2
+    );
   });
 });
 
 describe("game_requests publication", function() {
-  it("should only return records for which the owner is a challenger or receiver of a match", function() {
-    chai.assert.fail("do me");
+  let self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+        ClientMessages,
+        "sendMessageToClient",
+        self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
   });
-  it("should only return records for seeks if you are the owner or the seek is playable by you", function() {
-    chai.assert.fail("do me");
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
+
   it("should stop publishing records when played game is started", function() {
     chai.assert.fail("do me");
   });
   it("should republish matches and seeks when played game is over", function() {
     chai.assert.fail("do me");
   });
-  it("should return only local seeks for which their id is in the matchingusers array, or they are the owner", function() {
-    chai.assert.fail("do me");
-  });
-  it("should not return matchingusers array, but instead the 'qualified users count', which is the count of elements in matchingusers", function() {
-    chai.assert.fail("do me");
-  });
-  it("should return legacy seeks for which they are the owner", function() {
-    chai.assert.fail("do me");
-  });
-  it("should return legacy matches for which they are either the challenger or the receiver", function() {
-    chai.assert.fail("do me");
-  });
-  it("should return local mataches for which they are either the challenger or the receiver", function() {
-    chai.assert.fail("do me");
-  });
-  it("should not return legacy seeks for which they are not the owner", function() {
-    chai.assert.fail("do me");
-  });
-  it("should not return legacy matches for which they are neither the challenger or the receiver", function() {
-    chai.assert.fail("do me");
-  });
-  it("should not return local mataches for which they are neither the challenger or the receiver", function() {
-    chai.assert.fail("do me");
-  });
 });
 
 describe("Local seeks", function() {
-  it("should add user ids to the matchingusers array of appropriate seeks when a user logs on", function() {
+  let self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+        ClientMessages,
+        "sendMessageToClient",
+        self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  // What should happen? A replace? A ClientMessage?
+  it("Should not add a duplicate seek. At least one of the seeking parameters needs to be different (i.e. 'autoaccept' isn't a seeking parameter)", function() {
     chai.assert.fail("do me");
+  });
+  it("should add user ids to the matchingusers array of appropriate seeks when a user logs on", function() {
+    const guy1 = TestHelpers.createUser();
+    const guy2 = TestHelpers.createUser();
+    self.loggedonuser = guy1;
+    GameRequests.addLocalGameSeek(
+      "meet",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      null,
+      null,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "fail",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      2000,
+      null,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "meet",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      null,
+      1000,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "meet",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      1000,
+      2000,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "fail",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      2000,
+      2500,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "meet",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      null,
+      null,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "fail",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      2000,
+      null,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "meet",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      null,
+      1000,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "meet",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      1000,
+      2000,
+      true
+    );
+    GameRequests.addLocalGameSeek(
+      "fail",
+      0,
+      "standard",
+      15,
+      0,
+      false,
+      null,
+      2000,
+      2500,
+      true
+    );
+    self.loggedonuser = undefined;
+    GameRequests.loginHook(guy2);
+    chai.assert.equal(
+      GameRequests.collection
+        .find({ matchingusers: guy2._id })
+        .count(),
+      6
+    );
   });
   it("should add not user ids to the matchingusers array of inappropriate seeks when a user logs on", function() {
-    chai.assert.fail("do me");
-  });
-  it("should remove user ids from all matchingusers arrays when a user logs off", function() {
     chai.assert.fail("do me");
   });
   it("should add all qualified already-logged on users ids to matchingusers array when a new seek is added", function() {

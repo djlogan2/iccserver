@@ -11,7 +11,7 @@ import { LegacyUser } from "./LegacyUser";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
-import { addLoginHook, addLogoutHook } from "../imports/collections/users";
+import { Users } from "../imports/collections/users";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
@@ -828,12 +828,6 @@ Meteor.methods({
   }
 });
 
-Meteor.startup(function() {
-  if (Meteor.isTest || Meteor.isAppTest) {
-    GameRequests.collection = GameRequestCollection;
-  }
-});
-
 function seekMatchesUser(user, seek) {
   if (user._id === seek.owner) return false;
   if (!Roles.userIsInRole(user, "play_rated_games") && seek.rated) return false;
@@ -850,7 +844,7 @@ Meteor.publish("game_requests", function() {
   if (!user || !user.loggedOn) return [];
   if (Game.isPlayingGame(user)) return [];
 
-  const id = Meteor.userId();
+  const id = user._id;
   if (!id) return [];
   return GameRequestCollection.find({
     $or: [
@@ -862,33 +856,39 @@ Meteor.publish("game_requests", function() {
   });
 });
 
-Meteor.startup(() => {
-  addLogoutHook(userId => {
-    GameRequestCollection.remove({
-      $or: [
-        { challenger_id: userId },
-        { receiver_id: userId },
-        { owner: userId }
-      ]
-    });
-    GameRequestCollection.update(
-      { matchingusers: userId },
-      { $pull: { matchingusers: userId } },
+function logoutHook(userId) {
+  GameRequestCollection.remove({
+    $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
+  });
+  GameRequestCollection.update(
+    { type: "seek", matchingusers: userId },
+    { $pull: { matchingusers: userId } },
+    { multi: true }
+  );
+}
+
+function loginHook(user) {
+  const seeks = GameRequestCollection.find({ type: "seek" }).fetch();
+  const matchingseeks = seeks
+    .filter(seek => seekMatchesUser(user, seek))
+    .map(seek => seek._id);
+  if (matchingseeks.length > 0) {
+    const updated = GameRequestCollection.update(
+      { type: "seek", _id: { $in: matchingseeks } }, //{ $and: [{ type: "seek" }, { _id: { $in: matchingseeks } }] },
+      { $push: { matchingusers: user._id } },
       { multi: true }
     );
-  });
+    log.debug(updated + " records updated in loginHook for " + user._id);
+  }
+}
 
-  addLoginHook(user => {
-    const seeks = GameRequestCollection.find({ type: "seek" }).fetch();
-    const matchingseeks = seeks
-      .filter(seek => seekMatchesUser(user, seek))
-      .map(seek => seek._id);
-    if (matchingseeks.length > 0) {
-      GameRequestCollection.update(
-        { _id: { $in: matchingseeks } },
-        { $push: { matchingusers: user._id } },
-        { multi: true }
-      );
-    }
-  });
+Meteor.startup(function() {
+  GameRequestCollection.remove(); // Truncate this table on Meteor startup.
+  Users.addLogoutHook(logoutHook);
+  Users.addLoginHook(loginHook);
+  if (Meteor.isTest || Meteor.isAppTest) {
+    GameRequests.collection = GameRequestCollection;
+    GameRequests.loginHook = loginHook;
+    GameRequests.logoutHook = logoutHook;
+  }
 });

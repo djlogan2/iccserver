@@ -13,6 +13,8 @@ import { i18n } from "./i18n";
 
 let log = new Logger("server/users_js");
 
+export const Users = {};
+
 Meteor.publish("loggedOnUsers", function() {
   return Meteor.users.find(
     { loggedOn: true },
@@ -129,23 +131,23 @@ Accounts.onLogin(function(user_parameter) {
     LegacyUser.login(user);
   }
 
-  runLoginHooks();
+  runLoginHooks(this, user);
 });
 
 const loginHooks = [];
 const logoutHooks = [];
 
-export function addLoginHook(f) {
+Users.addLoginHook = function(f) {
   Meteor.startup(function() {
     loginHooks.push(f);
   });
-}
+};
 
-export function addLogoutHook(f) {
+Users.addLogoutHook = function(f) {
   Meteor.startup(function() {
     logoutHooks.push(f);
   });
-}
+};
 
 function runLoginHooks(context, user) {
   loginHooks.forEach(f => f.call(context, user));
@@ -154,6 +156,13 @@ function runLoginHooks(context, user) {
 function runLogoutHooks(context, user) {
   logoutHooks.forEach(f => f.call(context, user));
 }
+
+Meteor.startup(function() {
+  if (Meteor.isTest || Meteor.isAppTest) {
+    Users.runLoginHooks = runLoginHooks;
+    Users.ruLogoutHooks = runLogoutHooks;
+  }
+});
 
 Accounts.validateLoginAttempt(function(params) {
   // params.type = service name

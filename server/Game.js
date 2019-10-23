@@ -7,7 +7,7 @@ import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
-import {GameRequests} from "./GameRequest";
+import { GameRequests } from "./GameRequest";
 
 export const Game = {};
 
@@ -615,6 +615,19 @@ Game.opponentUserIdList = function(ofuser) {
   const g2 = GameCollection.find({ "black.id": ofuser });
   g2.fetch().forEach(game => array.push(game.white.id));
   return array;
+};
+
+Game.isPlayingGame = function(user_or_id) {
+  check(user_or_id, Match.OneOf(Object, String));
+  const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
+  return (
+    GameCollection.find({
+      $and: [
+        { type: "playing" },
+        { $or: [{ "white.id": id }, { "black.id": id }] }
+      ]
+    }).count() !== 0
+  );
 };
 
 Meteor.startup(function() {

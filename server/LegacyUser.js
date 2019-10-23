@@ -15,7 +15,7 @@ import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 const legacyUsers = new Mongo.Collection("legacyUsers");
 Meteor.startup(function() {
-  legacyUsers.remove({}); // Start off with a clean collection upon startup
+  legacyUsers.remove(); // Start off with a clean collection upon startup
 });
 
 Meteor.publish("legacyUsers", function() {

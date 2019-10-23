@@ -2,7 +2,7 @@ import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
 import { Match, check } from "meteor/check";
 import { i18n } from "./i18n";
-import { addLogoutHook } from "./users";
+import { Users } from "./users";
 
 import { Logger } from "../../lib/server/Logger";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
@@ -137,7 +137,7 @@ ClientMessages.sendMessageToClient = function(
   });
 };
 
-addLogoutHook(function(userId) {
+Users.addLogoutHook(function(userId) {
   ClientMessagesCollection.remove({ to: userId });
 });
 
