@@ -227,7 +227,7 @@ class LegacyUserConnection {
     if (this.state === "login") {
       if (this.databuffer.indexOf("login") !== -1) {
         this.databuffer = "";
-        this.socket.write("level1=15\n");
+        this.socket.write("level1=13\n");
         this.socket.write(
           "level2settings=" + L2.LEVEL2STRING(USER_LEVEL2_PACKETS) + "\n"
         );
@@ -330,10 +330,11 @@ class LegacyUserConnection {
                   ? this.level1Array[0]
                   : this.currentLevel1;
               hdrstr.replace(/([\n\r])+$/, "");
-              let cl1 = hdrstr.split(/(\s+)/);
+              let cl1 = hdrstr.split(/\s+/);
               this.level2Array.push({
                 l1key: this.level1,
-                l1index: cl1.length === 3 ? cl1[2] : null,
+                l1index: cl1.length > 1 ? cl1[2] : null,
+                l1messageidentifier: cl1.length > 2 ? cl1[3] : "server",
                 packet: this.currentLevel2
               });
               this.currentLevel2 = "";
@@ -411,9 +412,9 @@ class LegacyUserConnection {
 
       switch (l2value) {
         case L2.WHO_AM_I /* who_am_i */:
-          self.socket.write(";messages\n");
-          self.socket.write(";finger\n");
-          //self.socket.write(";fol *\n");
+          self.socket.write("`messages`messages\n");
+          self.socket.write("`finger`finger\n");
+          self.socket.write("`matchme`match idjit 15 0 15 0 u\n");
           const user = Meteor.user();
           // Fix the case on our username if everything is kosher except for the case
           if (
@@ -428,7 +429,7 @@ class LegacyUserConnection {
               { _id: Meteor.userId() },
               {
                 $set: {
-                  "profile.legacy.username": p2[0],
+                  "profile.legacyf.username": p2[0],
                   "profile.legacy.validated": true
                 }
               }
@@ -437,7 +438,7 @@ class LegacyUserConnection {
           break;
         case L2.MATCH:
           GameRequests.addLegacyMatchRequest(
-            "legacymatch",
+            p.l1messageidentifier,
             p2[0],
             parseInt(p2[1]),
             p2[2] === "1",
@@ -461,7 +462,12 @@ class LegacyUserConnection {
         case L2.MATCH_REMOVED:
           log.debug(" L2.MATCH_REMOVED");
           //challenger-name receiver-name ^Y{Explanation string^Y}
-          GameRequests.removeLegacyMatchRequest.apply(null, p2);
+          GameRequests.removeLegacyMatchRequest(
+            p.l1messageidentifier,
+            p2[0],
+            p2[1],
+            p2[2]
+          );
           break;
         case L2.MUGSHOT:
           log.debug("L2.MUGSHOT");
@@ -490,7 +496,12 @@ class LegacyUserConnection {
           // index, from, time, date, message
           break;
         case L2.SEND_MOVES:
-          Game.saveLegacyMove(Meteor.user(), p2[0], p2[1]);
+          Game.saveLegacyMove(
+            p.l1messageidentifier,
+            Meteor.user(),
+            parseInt(p2[0]),
+            p2[1]
+          );
           break;
         case L2.PLAYER_ARRIVED:
           let x = 0;
@@ -515,9 +526,8 @@ class LegacyUserConnection {
           legacyUsers.remove({ username: p2[0] });
           break;
         case L2.SEEK:
-          // log.debug(" SEEK_");
           GameRequests.addLegacyGameSeek(
-            "addLegacyGameSeek",
+            p.l1messageidentifier,
             parseInt(p2[0]),
             p2[1],
             Array.isArray(p2[2]) ? p2[2] : [],
@@ -537,15 +547,14 @@ class LegacyUserConnection {
           break;
         case L2.SEEK_REMOVED:
           //   log.debug(" SEEK_REMOVED");
-          GameRequests.removeLegacySeek("legacyseekRemove", parseInt(p2[0]));
+          GameRequests.removeLegacySeek(p.l1messageidentifier, parseInt(p2[0]));
           break;
         case L2.STARTED_OBSERVING:
         case L2.MY_GAME_STARTED:
           log.debug("Game started");
-          //   Game.startLegacyGame(p2[1], p2[2]);
           // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
           Game.startLegacyGame(
-            "startLegacygame",
+            p.l1messageidentifier,
             parseInt(p2[0]),
             p2[1],
             p2[2],

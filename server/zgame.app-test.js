@@ -98,7 +98,7 @@ describe("Match requests and game starts", function() {
       0,
       true
     );
-    Game.makeMove(player1, id, "e5");
+    Game.saveLocalMove(player1, id, "e5");
     req1.verify();
     req2.verify();
     req1.restore();
@@ -125,7 +125,7 @@ describe("Match requests and game starts", function() {
       0,
       false
     );
-    Game.makeMove(player1, id, "e5");
+    Game.saveLocalMove(player1, id, "e5");
     req1.verify();
     req2.verify();
     req1.restore();
@@ -157,7 +157,7 @@ describe("Match requests and game starts", function() {
       2300,
       99887766
     );
-    Game.makeMove(player1, id, "e5");
+    Game.saveLocalMove(player1, id, "e5");
     req1.verify();
     req2.verify();
     req1.restore();
@@ -189,7 +189,7 @@ describe("Match requests and game starts", function() {
       2300,
       99887766
     );
-    Game.makeMove(player1, id, "e5");
+    Game.saveLocalMove(player1, id, "e5");
     req1.verify();
     req2.verify();
     req1.restore();
@@ -383,8 +383,8 @@ describe("Game.saveLegacyMove", function() {
     chai.assert.fail("do me");
   });
 });
-// Game.makeMove = function(self, game_id, move) {
-describe("Game.makeMove", function() {
+// Game.saveLocalMove = function(self, game_id, move) {
+describe("Game.saveLocalMove", function() {
   it("should error out if self is null", function() {
     chai.assert.fail("do me");
   });
@@ -950,7 +950,7 @@ describe("Game.saveLegacyMove", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.makeMove", function() {
+describe("Game.saveLocalMove", function() {
   it("should error out if self is null", function () {
     chai.assert.fail("do me");
   });

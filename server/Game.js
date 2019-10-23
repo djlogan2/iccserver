@@ -282,13 +282,13 @@ Game.startLegacyGame = function(
 
 Game.saveLegacyMove = function(message_identifier, game_id, move) {
   check(message_identifier, String);
-  check(game_id, String);
+  check(game_id, Number);
   check(move, String);
 
   log.debug("Game Move", move);
 };
 
-Game.makeMove = function(message_identifier, game_id, move) {
+Game.saveLocalMove = function(message_identifier, game_id, move) {
   check(message_identifier, String);
   check(game_id, String);
   check(move, String);
