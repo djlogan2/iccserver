@@ -123,65 +123,37 @@ let log = new Logger("server/GameRequest_js");
 
 export const GameRequests = {};
 //
-GameRequests.addLegacyGameSeek = function(
-  message_identifier,
-  index,
-  name,
-  titles,
-  rating,
-  provisional_status,
-  wild,
-  rating_type,
-  time,
-  inc,
-  rated,
-  color,
-  minrating,
-  maxrating,
-  autoaccept,
-  formula
-) {
-  check(message_identifier, String);
+GameRequests.addLegacyGameSeek = function(index, name) {
+  const self = Meteor.user();
   check(index, Number);
   check(name, String);
-  check(titles, Array);
-  check(rating, Number);
-  check(provisional_status, Number);
-  check(wild, Number);
-  check(rating_type, String);
-  check(time, Number);
-  check(inc, Number);
-  check(rated, Boolean);
-  check(color, Match.Maybe(String));
-  check(minrating, Number);
-  check(maxrating, Number);
-  check(autoaccept, Boolean);
-  check(formula, String);
-
-  const self = Meteor.user();
-  if (!self)
-    throw new ICCMeteorError(message_identifier, "self is null or invalid");
+  //GameSeek -- 20 -- JasonBot -- C -- 1131 -- 2 -- 0 -- Standard -- 45 -- 10 -- true -- -1 -- 0 -- 9999 -- false -- 1
+  if (!self) throw new ICCMeteorError("legacyseek", "self is null or invalid");
 
   const upsertReturn = GameRequestCollection.upsert(
-    { type: "legacyseek", legacy_index: index, owner: self._id },
+    {
+      type: "legacyseek",
+      legacy_index: index,
+      owner: self._id
+    },
     {
       $set: {
         //       type: "legacyseek",
         //       owner: self._id,
         //       legacy_index: index,
         name: name,
-        titles: titles,
-        provisional_status: provisional_status,
-        wild: wild,
-        rating_type: rating_type,
-        time: time,
-        inc: inc,
-        rated: rated,
-        color: color,
-        minrating: minrating,
-        maxrating: maxrating,
-        autoaccept: autoaccept,
-        formula: formula
+        titles: "C",
+        provisional_status: 1131,
+        wild: 2,
+        rating_type: "standered",
+        time: 45,
+        inc: 10,
+        rated: true,
+        color: "white",
+        minrating: 0,
+        maxrating: 9999,
+        autoaccept: false,
+        formula: 1
       }
     }
   );
@@ -387,11 +359,11 @@ GameRequests.addLegacyMatchRequest = function(
   challenger_name,
   challenger_rating,
   challenger_established,
-  challenger_titles,
+  //  challenger_titles,
   receiver_name,
   receiver_rating,
   receiver_established,
-  receiver_titles,
+  //  receiver_titles,
   wild_number,
   rating_type,
   is_it_rated,
@@ -406,12 +378,12 @@ GameRequests.addLegacyMatchRequest = function(
   check(message_identifier, String);
   check(challenger_name, String);
   check(challenger_rating, Number);
-  check(challenger_established, Number);
-  check(challenger_titles, Array);
+  check(challenger_established, Boolean);
+  //  check(challenger_titles, Match.Maybe(Array));
   check(receiver_name, String);
   check(receiver_rating, Number);
-  check(receiver_established, Number);
-  check(receiver_titles, Array);
+  check(receiver_established, Boolean);
+  //check(receiver_titles, Match.Maybe(Array));
   check(wild_number, Number);
   check(rating_type, String);
   check(is_it_rated, Boolean);
@@ -428,15 +400,16 @@ GameRequests.addLegacyMatchRequest = function(
   check(self, Object);
 
   const challenger_user = Meteor.users.findOne({
-    "profile.legacy.username": challenger_name,
-    "profile.legacy.validated": true
+    "profile.legacy.username": challenger_name
+    //  "profile.legacy.validated": true
   });
 
   const receiver_user = Meteor.users.findOne({
-    "profile.legacy.username": receiver_name,
-    "profile.legacy.validated": true
+    "profile.legacy.username": receiver_name
+    // "profile.legacy.validated": true
   });
-
+  let challenger_establish = 0;
+  let receiver_establish = 0;
   if (challenger_user && challenger_user._id === self._id)
     challenger_or_receiver = true;
   if (receiver_user && receiver_user._id === self._id)
@@ -447,16 +420,24 @@ GameRequests.addLegacyMatchRequest = function(
       message_identifier,
       "addLegacyMatch where neither challenger nor receiver is the logged on user"
     );
-
+  if (challenger_established === true) challenger_establish = 1;
+  if (receiver_established === true) receiver_establish = 1;
+  if (challenger_color_request === 1 || challenger_color_request === "white") {
+    challenger_color_request = "white";
+  } else {
+    challenger_color_request = "black";
+  }
+  let challenger_titles;
+  let receiver_titles;
   const record = {
     type: "legacymatch",
     challenger: challenger_name,
     challenger_rating: challenger_rating,
-    challenger_established: challenger_established,
+    challenger_established: challenger_establish,
     challenger_titles: challenger_titles,
     receiver: receiver_name,
     receiver_rating: receiver_rating,
-    receiver_established: receiver_established,
+    receiver_established: receiver_establish,
     receiver_titles: receiver_titles,
     wild_number: wild_number,
     rating_type: rating_type,
@@ -474,7 +455,6 @@ GameRequests.addLegacyMatchRequest = function(
 
   if (!!challenger_user) record.challenger_id = challenger_user._id;
   if (!!receiver_user) record.receiver_id = receiver_user._id;
-
   GameRequestCollection.insert(record);
 };
 
@@ -633,6 +613,28 @@ Meteor.methods({
     wild,
     color
   ) {
+    /*
+    log.debug(
+      "inside request" +
+        message_identifier +
+        " -- " +
+        name +
+        " -- " +
+        time +
+        " -- " +
+        increment +
+        " -- " +
+        time2 +
+        " -- " +
+        increment2 +
+        " -- " +
+        rated +
+        " -- " +
+        wild +
+        " -- " +
+        color
+    );
+    */
     check(message_identifier, String);
     check(name, String);
     check(time, Number);
@@ -649,6 +651,7 @@ Meteor.methods({
     }
 
     const our_legacy_user = LegacyUser.find(us._id);
+
     if (!our_legacy_user)
       throw new ICCMeteorError(
         message_identifier,

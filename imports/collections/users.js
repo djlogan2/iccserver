@@ -126,7 +126,7 @@ Accounts.onLogin(function(user_parameter) {
     user.profile.legacy.password &&
     user.profile.legacy.autologin
   ) {
-    LegacyUser.login(user);
+    LegacyUser.login("login", user);
   }
 });
 

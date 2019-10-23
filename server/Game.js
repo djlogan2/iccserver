@@ -195,12 +195,12 @@ Game.startLegacyGame = function(
   black_initial,
   black_increment,
   played_game,
-  ex_string,
   white_rating,
   black_rating,
   game_id,
   white_titles,
   black_titles,
+  ex_string,
   irregular_legality,
   irregular_semantics,
   uses_plunkers,
@@ -219,25 +219,29 @@ Game.startLegacyGame = function(
   check(black_initial, Number);
   check(black_increment, Number);
   check(played_game, Boolean);
-  check(ex_string, String);
   check(white_rating, Number);
   check(black_rating, Number);
   check(game_id, Number);
   check(white_titles, Array);
   check(black_titles, Array);
-  check(irregular_legality, Match.Maybe(String));
-  check(irregular_semantics, Match.Maybe(String));
-  check(uses_plunkers, Match.Maybe(String));
-  check(fancy_timecontrol, Match.Maybe(String));
-  check(promote_to_king, Match.Maybe(String));
-  const whiteuser = Meteor.users.findOne({
-    "profile.legay.username": whitename
-  });
-  log.debug(whiteuser);
-  const blackuser = Meteor.users.findOne({
-    "profile.legay.username": blackname
-  });
+  check(ex_string, Match.Any);
+  check(irregular_legality, Match.Any);
+  check(irregular_semantics, Match.Any);
+  check(uses_plunkers, Match.Any);
+  check(fancy_timecontrol, Match.Any);
+  check(promote_to_king, Match.Any);
 
+  const whiteuser = Meteor.users
+    .find({
+      "profile.legacy.username": whitename
+    })
+    .fetch()[0];
+
+  const blackuser = Meteor.users
+    .find({
+      "profile.legacy.username": blackname
+    })
+    .fetch()[0];
   const self = Meteor.user();
   if (!self || (self._id !== whiteuser._id && self._id !== blackuser._id))
     throw new ICCMeteorError(message_identifier, "Unable to find user");
@@ -259,25 +263,31 @@ Game.startLegacyGame = function(
     rated: rated,
     clocks: {
       white: {
-        initial: white_initial,
+        time: white_initial,
         inc: white_increment,
         current: white_initial
       },
       black: {
-        initial: black_initial,
+        time: black_initial,
         inc: black_increment,
         current: black_initial
       }
     },
     status: played_game ? "playing" : "examining",
     result: "*",
+    moves: [],
     actions: []
   };
 
   if (!!whiteuser) game.white._id = whiteuser._id;
   if (!!blackuser) game.black._id = blackuser._id;
 
-  GameCollection.insert(game);
+  GameCollection.insert(game, (error, result) => {
+    if (error) log.debug(error.invalidKeys);
+    GameCollection.simpleSchema()
+      .namedContext()
+      .validationErrors();
+  });
 };
 
 Game.saveLegacyMove = function(message_identifier, game_id, move) {

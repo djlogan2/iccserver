@@ -33,6 +33,7 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   gameStart(user) {
     Meteor.call(
       "game.requestlegacymatch",
+      "match",
       "uiuxtest2",
       5,
       0,
