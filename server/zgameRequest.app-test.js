@@ -1721,119 +1721,12 @@ describe("game_requests collection", function() {
     delete self.clientMessagesFake;
   });
 
-  function add15(challenger, receiver, otherguy) {
-    self.loggedonuser = challenger;
-    GameRequests.addLocalMatchRequest(
-      "mi1",
-      receiver,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      0,
-      15,
-      0
-    );
-    GameRequests.addLocalMatchRequest(
-      "mi1",
-      otherguy,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      0,
-      15,
-      0
-    );
-    GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
-    GameRequests.addLegacyMatchRequest.apply(
-      null,
-      legacyMatchRequest(challenger, receiver)
-    );
-    GameRequests.addLegacyMatchRequest.apply(
-      null,
-      legacyMatchRequest(challenger, otherguy)
-    );
-
-    self.loggedonuser = receiver;
-    GameRequests.addLocalMatchRequest(
-      "mi1",
-      challenger,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      0,
-      15,
-      0
-    );
-    GameRequests.addLocalMatchRequest(
-      "mi1",
-      otherguy,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      0,
-      15,
-      0
-    );
-    GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
-    GameRequests.addLegacyMatchRequest.apply(
-      null,
-      legacyMatchRequest(receiver, challenger)
-    );
-    GameRequests.addLegacyMatchRequest.apply(
-      null,
-      legacyMatchRequest(receiver, otherguy)
-    );
-
-    self.loggedonuser = otherguy;
-    GameRequests.addLocalMatchRequest(
-      "mi1",
-      challenger,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      0,
-      15,
-      0
-    );
-    GameRequests.addLocalMatchRequest(
-      "mi1",
-      receiver,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      0,
-      15,
-      0
-    );
-    GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
-    GameRequests.addLegacyMatchRequest.apply(
-      null,
-      legacyMatchRequest(otherguy, challenger)
-    );
-    GameRequests.addLegacyMatchRequest.apply(
-      null,
-      legacyMatchRequest(otherguy, receiver)
-    );
-  }
-
   it("should have match records for which the user is the challenger deleted when a user logs off", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
 
-    add15(challenger, receiver, otherguy);
+    add15(self, challenger, receiver, otherguy);
     chai.assert.equal(GameRequests.collection.find().count(), 15);
 
     self.loggedonuser = challenger;
@@ -1860,15 +1753,15 @@ describe("game_requests publication", function() {
   let self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
     self.clientMessagesFake = sinon.fake();
     sinon.replace(
-        ClientMessages,
-        "sendMessageToClient",
-        self.clientMessagesFake
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
     );
     sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
@@ -1879,9 +1772,46 @@ describe("game_requests publication", function() {
     delete self.clientMessagesFake;
   });
 
-  it("should stop publishing records when played game is started", function() {
-    chai.assert.fail("do me");
+  it.only("should stop publishing records when played game is started", function() {
+    const challenger = TestHelpers.createUser();
+    const receiver = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    add15(self, challenger, receiver, otherguy);
+
+    self.loggedonuser = challenger;
+
+    const collector1 = new PublicationCollector({ userId: challenger._id });
+    collector1.collect("game_requests", collections => {
+      chai.assert.equal(collections.game_requests.length, 11);
+    });
+
+    const gameid = Game.startLocalGame(
+      "mi",
+      otherguy,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      null
+    );
+
+    const collector2 = new PublicationCollector({ userId: challenger._id });
+    collector2.collect("game_requests", collections => {
+      chai.assert.equal(collections.game_requests.length, 0);
+    });
+
+    Game.resignGame("mi2", gameid);
+
+    const collector3 = new PublicationCollector({ userId: challenger._id });
+    collector3.collect("game_requests", collections => {
+      chai.assert.equal(collections.game_requests.length, 11);
+    });
   });
+
   it("should republish matches and seeks when played game is over", function() {
     chai.assert.fail("do me");
   });
@@ -1891,15 +1821,15 @@ describe("Local seeks", function() {
   let self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
-        Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
-        })
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
     );
     self.clientMessagesFake = sinon.fake();
     sinon.replace(
-        ClientMessages,
-        "sendMessageToClient",
-        self.clientMessagesFake
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
     );
     sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
@@ -2041,9 +1971,7 @@ describe("Local seeks", function() {
     self.loggedonuser = undefined;
     GameRequests.loginHook(guy2);
     chai.assert.equal(
-      GameRequests.collection
-        .find({ matchingusers: guy2._id })
-        .count(),
+      GameRequests.collection.find({ matchingusers: guy2._id }).count(),
       6
     );
   });
@@ -2054,3 +1982,110 @@ describe("Local seeks", function() {
     chai.assert.fail("do me");
   });
 });
+
+function add15(self, challenger, receiver, otherguy) {
+  self.loggedonuser = challenger;
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    receiver,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    otherguy,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0
+  );
+  GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+  GameRequests.addLegacyMatchRequest.apply(
+    null,
+    legacyMatchRequest(challenger, receiver)
+  );
+  GameRequests.addLegacyMatchRequest.apply(
+    null,
+    legacyMatchRequest(challenger, otherguy)
+  );
+
+  self.loggedonuser = receiver;
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    challenger,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    otherguy,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0
+  );
+  GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+  GameRequests.addLegacyMatchRequest.apply(
+    null,
+    legacyMatchRequest(receiver, challenger)
+  );
+  GameRequests.addLegacyMatchRequest.apply(
+    null,
+    legacyMatchRequest(receiver, otherguy)
+  );
+
+  self.loggedonuser = otherguy;
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    challenger,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    receiver,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0
+  );
+  GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+  GameRequests.addLegacyMatchRequest.apply(
+    null,
+    legacyMatchRequest(otherguy, challenger)
+  );
+  GameRequests.addLegacyMatchRequest.apply(
+    null,
+    legacyMatchRequest(otherguy, receiver)
+  );
+}

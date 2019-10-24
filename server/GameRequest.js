@@ -27,7 +27,15 @@ const LocalSeekSchema = new SimpleSchema({
   minrating: { type: Number, optional: true },
   maxrating: { type: Number, optional: true },
   formula: { type: String, optional: true },
-  matchingusers: [String]
+  matchingusers: [String],
+  eligibleplayers: {
+    type: Number,
+    autoValue() {
+      const array = this.field("matchingusers").value;
+      if (!array) return 0;
+      else return array.length;
+    }
+  }
 });
 const LegacyMatchSchema = {
   type: String,
@@ -474,7 +482,6 @@ GameRequests.addLegacyMatchRequest = function(
     challenger_color_request = "black";
   }
 
-
   const record = {
     type: "legacymatch",
     challenger: challenger_name,
@@ -884,14 +891,17 @@ Meteor.publish("game_requests", function() {
 
   const id = user._id;
   if (!id) return [];
-  return GameRequestCollection.find({
-    $or: [
-      { challenger_id: id },
-      { receiver_id: id },
-      { owner: id },
-      { matchingusers: id }
-    ]
-  });
+  return GameRequestCollection.find(
+    {
+      $or: [
+        { challenger_id: id },
+        { receiver_id: id },
+        { owner: id },
+        { matchingusers: id }
+      ]
+    },
+    { fields: { matchingusers: 0 } }
+  );
 });
 
 function logoutHook(userId) {
@@ -912,7 +922,7 @@ function loginHook(user) {
     .map(seek => seek._id);
   if (matchingseeks.length > 0) {
     const updated = GameRequestCollection.update(
-      { type: "seek", _id: { $in: matchingseeks } }, //{ $and: [{ type: "seek" }, { _id: { $in: matchingseeks } }] },
+      { type: "seek", _id: { $in: matchingseeks } },
       { $push: { matchingusers: user._id } },
       { multi: true }
     );
