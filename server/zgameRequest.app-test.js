@@ -1751,6 +1751,7 @@ describe("game_requests collection", function() {
 
 describe("game_requests publication", function() {
   let self = this;
+
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
       Meteor.users.findOne({
@@ -1766,6 +1767,7 @@ describe("game_requests publication", function() {
     sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
+
   afterEach(function() {
     sinon.restore();
     delete self.meteorUsersFake;
@@ -1810,10 +1812,6 @@ describe("game_requests publication", function() {
     collector3.collect("game_requests", collections => {
       chai.assert.equal(collections.game_requests.length, 11);
     });
-  });
-
-  it("should republish matches and seeks when played game is over", function() {
-    chai.assert.fail("do me");
   });
 });
 

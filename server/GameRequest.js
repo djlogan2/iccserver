@@ -887,7 +887,7 @@ function seekMatchesUser(user, seek) {
 Meteor.publish("game_requests", function() {
   const user = Meteor.user();
   if (!user || !user.loggedOn) return [];
-  // if (Game.isPlayingGame(user)) return []; /* TODO we dont know. is a function ? where ?*/
+  if (Game.isPlayingGame(user)) return [];
 
   const id = user._id;
   if (!id) return [];

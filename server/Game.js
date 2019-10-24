@@ -15,34 +15,68 @@ let log = new Logger("server/Game_js");
 
 let active_games = {};
 
+function parameterCheck() {
+  const parameter = this.field("parameter");
+  const nope = [
+    {
+      name: "parameter",
+      type: SimpleSchema.ErrorTypes.EXPECTED_TYPE,
+      value: parameter.value
+    }
+  ];
+
+  switch (this.field("type")) {
+    case "move":
+    case "kibitz":
+    case "whisper":
+      if (!parameter.isSet || typeof parameter.value !== "string") return nope;
+      else return;
+    case "takeback_request":
+      if (parameter.isSet && parameter.value === parseInt(parameter.value))
+        return;
+      else return nope;
+    default:
+      if (parameter.isSet) return nope;
+  }
+}
+
 const actionSchema = new SimpleSchema({
-  time: Number, // Time in ms, or some way to tell exactly when the action occurred
+  time: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
   type: {
     type: String,
     allowedValues: [
-      "move",
-      "kibitz",
-      "whisper",
-      "disconnect",
-      "connect",
-      "adjourn",
-      "adjourn_request",
-      "adjourn_accept",
-      "adjourn_decline",
-      "takeback_request",
-      "takeback_accept",
-      "takeback_decline",
+      "move",                   // Obviously a normal move
+      "kibitz",                 // A kibitz
+      "whisper",                // A whisper
+      "disconnect",             // When a user disconnects during a game
+      "connect",                // When a user reconnects (TODO: Like anytime? Some type of courtesy wait?")
+      "adjourned",              // When the game is adjourned, either by accepting, or by a disconnect adjourn
+      "resumed",                // Obviously, resumed
+      "adjourn_requested",      // When an adjourn is requested
+      "adjourn_declined",       // and declined
+      "takeback_requested",     // etc.
+      "takeback_accepted",
+      "takeback_declined",
       "draw",
-      "draw_request",
-      "draw_accept",
-      "draw_decline",
+      "draw_requested",
+      "draw_accepted",
+      "draw_declined",
       "resign",
-      "abort_request",
-      "abort_accept",
-      "abort_decline"
+      "abort_requested",
+      "abort_accepted",
+      "abort_declined"
     ]
-  } //,
-  //  parameters: [...] // I'm not yet sure how to specify it. Some commands will have parameters, like kibitz, whisper, takeback, some won't, like draw, resign. They will be different types. takeback will be a number. kibitz/whisper will be a string. Maybe we just need to custom validate.
+  },
+  parameter: {
+    type: Object,
+    optional: true,
+    custom: parameterCheck
+  }
 });
 
 const GameSchema = new SimpleSchema({
@@ -52,7 +86,6 @@ const GameSchema = new SimpleSchema({
       return new Date();
     }
   },
-  requestBy: { type: String, required: false }, // TODO: This is ok, yes? I'm not sure why it wouldn't be.
   legacy_game_id: { type: Number, required: false },
   wild: { type: Number, required: false },
   rating_type: { type: String, required: false },
@@ -72,12 +105,26 @@ const GameSchema = new SimpleSchema({
   }),
   white: new SimpleSchema({
     name: String,
-    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
+    id: {
+      type: String,
+      custom() {
+        if (this.field("white.id").isSet) return;
+        if (!this.field("legacy_id").isSet) return;
+        return [{ name: "white.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
+      }
+    },
     rating: SimpleSchema.Integer
   }),
   black: new SimpleSchema({
     name: String,
-    userid: { type: String, regEx: SimpleSchema.RegEx.Id, required: false },
+    id: {
+      type: String,
+      custom() {
+        if (this.field("black. id").isSet) return;
+        if (!this.field("legacy_id").isSet) return;
+        return [{ name: "black.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
+      }
+    },
     rating: SimpleSchema.Integer
   }),
   actions: [actionSchema]
@@ -197,8 +244,9 @@ Game.startLocalGame = function(
     status: played_game ? "playing" : "examining",
     actions: []
   };
-  GameCollection.insert(game);
-  active_games[game._id] = new Chess();
+  const game_id = GameCollection.insert(game);
+  active_games[game_id] = new Chess.Chess();
+  return game_id;
 };
 
 Game.startLegacyGame = function(
@@ -337,9 +385,9 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-
-  const updateobject = { $push: { actions: [ms, move] } };
+  const updateobject = {
+    $push: { actions: { type: "move", parameter: move } }
+  };
   if (active_games[game_id].in_draw()) {
     updateobject["$set"] = { result: "1/2" };
   } else if (active_games[game_id].in_stalemate()) {
@@ -386,8 +434,10 @@ Game.requestTakeback = function(message_identifier, game_id, number) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-  Meteor.update({ _id: game_id }, { $push: [ms, { takeback: number }] });
+  Meteor.update(
+    { _id: game_id },
+    { $push: { actions: { type: "takeback_request", parameters: number } } }
+  );
 };
 
 Game.acceptTakeback = function(message_identifier, game_id) {
@@ -415,8 +465,6 @@ Game.acceptTakeback = function(message_identifier, game_id) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-
   let takeback_legal;
   for (
     let x = game.actions.length - 1;
@@ -433,7 +481,7 @@ Game.acceptTakeback = function(message_identifier, game_id) {
   }
   Meteor.update(
     { _id: game_id },
-    { $push: [ms, { accept_takeback: takeback_legal }] }
+    { $push: { actions: { type: "accept_takeback" } } }
   );
   for (let x = 0; x < takeback_legal; x++) active_games[game_id].undo();
 };
@@ -464,8 +512,6 @@ Game.declineTakeback = function(message_identifier, game_id) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-
   let takeback_legal;
   for (
     let x = game.actions.length - 1;
@@ -483,7 +529,7 @@ Game.declineTakeback = function(message_identifier, game_id) {
 
   Meteor.update(
     { _id: game_id },
-    { $push: [ms, { decline_takeback: takeback_legal }] }
+    { $push: { actions: { type: "decline_takeback" } } }
   );
 };
 
@@ -501,13 +547,11 @@ Game.requestDraw = function(message_identifier, game_id) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-
   if (active_games[game_id].in_threefold_repetition()) {
     GameCollection.update(
       { _id: game_id },
       {
-        $push: { actions: [ms, { requestdraw: "threefold" }] },
+        $push: { actions: { type: "draw" } },
         $set: { status: "examining" }
       }
     );
@@ -515,7 +559,7 @@ Game.requestDraw = function(message_identifier, game_id) {
   }
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: [ms, { requestdraw: 1 }] } }
+    { $push: { actions: { type: "request_draw" } } }
   );
 };
 
@@ -533,11 +577,9 @@ Game.acceptDraw = function(message_identifier, game_id) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: [ms, { acceptdraw: 1 }] } }
+    { $push: { actions: { type: "accept_draw" } } }
   );
 };
 
@@ -555,11 +597,9 @@ Game.declineDraw = function(message_identifier, game_id) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: [ms, { declinedraw: 1 }] } }
+    { $push: { actions: { type: "decline_draw" } } }
   );
 };
 
@@ -577,11 +617,9 @@ Game.resignGame = function(message_identifier, game_id) {
     return;
   }
 
-  const ms = new Date().getTime() - game.starttime.getTime();
-
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: [ms, { resign: 1 }] }, $set: { status: "examining" } }
+    { $push: { actions: { type: "resign" } }, $set: { status: "examining" } }
   );
 };
 
@@ -644,7 +682,7 @@ Game.isPlayingGame = function(user_or_id) {
   return (
     GameCollection.find({
       $and: [
-        { type: "playing" },
+        { status: "playing" },
         { $or: [{ "white.id": id }, { "black.id": id }] }
       ]
     }).count() !== 0
@@ -652,6 +690,7 @@ Game.isPlayingGame = function(user_or_id) {
 };
 
 Meteor.startup(function() {
+  GameCollection.remove();
   if (Meteor.isTest || Meteor.isAppTest) {
     Game.collection = GameCollection;
   }
