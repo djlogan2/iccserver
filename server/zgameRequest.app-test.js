@@ -1772,7 +1772,7 @@ describe("game_requests publication", function() {
     delete self.clientMessagesFake;
   });
 
-  it.only("should stop publishing records when played game is started", function() {
+  it("should stop publishing records when played game is started", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();

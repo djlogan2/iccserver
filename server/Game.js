@@ -19,9 +19,30 @@ const actionSchema = new SimpleSchema({
   time: Number, // Time in ms, or some way to tell exactly when the action occurred
   type: {
     type: String,
-    allowedValues: ["move", "kibitz", "whisper", "disconnect", "connect", "adjourn", "adjourn_request", "adjourn_accept", "adjourn_decline", "takeback_request", "takeback_accept", "takeback_decline", "draw", "draw_request", "draw_accept", "draw_decline", "resign", "abort_request", "abort_accept", "abort_decline"]
-  }//,
-//  parameters: [...] // I'm not yet sure how to specify it. Some commands will have parameters, like kibitz, whisper, takeback, some won't, like draw, resign. They will be different types. takeback will be a number. kibitz/whisper will be a string. Maybe we just need to custom validate.
+    allowedValues: [
+      "move",
+      "kibitz",
+      "whisper",
+      "disconnect",
+      "connect",
+      "adjourn",
+      "adjourn_request",
+      "adjourn_accept",
+      "adjourn_decline",
+      "takeback_request",
+      "takeback_accept",
+      "takeback_decline",
+      "draw",
+      "draw_request",
+      "draw_accept",
+      "draw_decline",
+      "resign",
+      "abort_request",
+      "abort_accept",
+      "abort_decline"
+    ]
+  } //,
+  //  parameters: [...] // I'm not yet sure how to specify it. Some commands will have parameters, like kibitz, whisper, takeback, some won't, like draw, resign. They will be different types. takeback will be a number. kibitz/whisper will be a string. Maybe we just need to custom validate.
 });
 
 const GameSchema = new SimpleSchema({
