@@ -74,7 +74,7 @@ describe("Game.startLocalGame", function() {
   //  Don't use Meteor.Error. Use ICCMeteorError.
   //
   // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
-  it.only("should error out if the user isn't logged on", function() {
+  it("should error out if the user isn't logged on", function() {
     const guy1 = undefined;
     const guy2 = TestHelpers.createUser({ login: false });
     chai.assert.throws(() => {
@@ -83,7 +83,7 @@ describe("Game.startLocalGame", function() {
   });
 
   // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
-  it.only("should error out if the user is starting a rated game and cannot play rated games", function() {
+  it("should error out if the user is starting a rated game and cannot play rated games", function() {
     const guy2 = TestHelpers.createUser();
     chai.assert.throws(() => {
       Game.startLocalGame(
@@ -103,7 +103,7 @@ describe("Game.startLocalGame", function() {
   });
 
   // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
-  it.only("should error out if the user is starting an unrated game and cannot play unrated games", function() {
+  it("should error out if the user is starting an unrated game and cannot play unrated games", function() {
     const guy2 = TestHelpers.createUser();
     chai.assert.throws(() => {
       Game.startLocalGame(
@@ -123,7 +123,7 @@ describe("Game.startLocalGame", function() {
   });
 
   // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
-  it.only("should error out if the user is starting a rated game and thier opponent cannot play rated games", function() {
+  it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function() {
     const roles = standard_member_roles.filter(
       role => role !== "play_unrated_games"
     );
@@ -155,7 +155,7 @@ describe("Game.startLocalGame", function() {
     chai.assert.fail("do me");
   });
 
-  it.only("should error out if self is null", function() {
+  it("should error out if self is null", function() {
     self.loggedonuser = undefined;
     const guy2 = TestHelpers.createUser();
     chai.assert.throws(() => {
@@ -175,7 +175,7 @@ describe("Game.startLocalGame", function() {
     }, Match.Error);
   });
 
-  it.only("should error out user is neither white nor black", function() {
+  it("should error out user is neither white nor black", function() {
     self.loggedonuser = undefined;
     const guy2 = TestHelpers.createUser();
     chai.assert.throws(() => {
@@ -200,7 +200,7 @@ describe("Game.startLocalGame", function() {
     chai.assert.fail("do me");
   });
 
-  it.only("should error out if black is null", function() {
+  it("should error out if black is null", function() {
     self.loggedonuser = undefined;
     const guy2 = undefined;
     chai.assert.throws(() => {

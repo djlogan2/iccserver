@@ -5,6 +5,7 @@ import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Meteor } from "meteor/meteor";
 import { Match } from "meteor/check";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+import { Roles } from "meteor/alanning:roles";
 
 import { GameRequests } from "./GameRequest";
 import { Game } from "./Game";
@@ -1589,7 +1590,6 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
       self.clientMessagesFake
     );
     sinon.replace(Meteor, "user", self.meteorUsersFake);
-    console.log("Replaced Meteor.user");
     resetDatabase(null, done);
   });
   afterEach(function() {
@@ -1855,135 +1855,36 @@ describe("Local seeks", function() {
     const guy1 = TestHelpers.createUser();
     const guy2 = TestHelpers.createUser();
     self.loggedonuser = guy1;
-    GameRequests.addLocalGameSeek(
-      "meet",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      null,
-      null,
-      null,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "fail",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      null,
-      2000,
-      null,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "meet",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      null,
-      null,
-      1000,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "meet",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      null,
-      1000,
-      2000,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "fail",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      null,
-      2000,
-      2500,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "meet",
-      0,
-      "standard",
-      15,
-      0,
-      false,
-      null,
-      null,
-      null,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "fail",
-      0,
-      "standard",
-      15,
-      0,
-      false,
-      null,
-      2000,
-      null,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "meet",
-      0,
-      "standard",
-      15,
-      0,
-      false,
-      null,
-      null,
-      1000,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "meet",
-      0,
-      "standard",
-      15,
-      0,
-      false,
-      null,
-      1000,
-      2000,
-      true
-    );
-    GameRequests.addLocalGameSeek(
-      "fail",
-      0,
-      "standard",
-      15,
-      0,
-      false,
-      null,
-      2000,
-      2500,
-      true
-    );
+    const ratings = [
+      [null, null, true],
+      [null, 2000, true],
+      [null, 1000, false],
+      [1000, 2000, true],
+      [2000, 2500, false]
+    ];
+    ratings.forEach(onerating => {
+      GameRequests.addLocalGameSeek(
+        "mi-" + onerating[0] + "-" + onerating[1] + "-" + onerating[2],
+        0,
+        "standard",
+        15,
+        0,
+        true,
+        null,
+        onerating[0],
+        onerating[1],
+        true
+      );
+    });
     self.loggedonuser = undefined;
     GameRequests.loginHook(guy2);
     chai.assert.equal(
       GameRequests.collection.find({ matchingusers: guy2._id }).count(),
-      6
+      3
     );
   });
 
-  it.only("should add all qualified already-logged on users ids to matchingusers array when a new seek is added", function() {
+  it("should add all qualified already-logged on users ids to matchingusers array when a new seek is added", function() {
     const users = [];
     for (let x = 0; x < 10; x++) {
       const user = TestHelpers.createUser();
@@ -2009,7 +1910,12 @@ describe("Local seeks", function() {
       true
     );
     const theseek = GameRequests.collection.findOne({ _id: seek_id });
-    const matchingusers = Meteor.users.find({"ratings.standard.rating": {$gte: 1500}}).fetch()
+    const matchingusers = Meteor.users
+      .find({
+        "ratings.standard.rating": { $gte: 1500 },
+        _id: { $ne: self.loggedonuser._id }
+      })
+      .fetch()
       .map(user => user._id);
     chai.assert.notEqual(users.length, matchingusers.length); // Just make sure it's not everybody!
     chai.assert.sameMembers(theseek.matchingusers, matchingusers);
@@ -2122,3 +2028,60 @@ function add15(self, challenger, receiver, otherguy) {
     legacyMatchRequest(otherguy, receiver)
   );
 }
+
+describe("GameRequests.seekMatchesUser", function() {
+  beforeEach(function() {
+    sinon.replace(Roles, "userIsInRole", sinon.fake.returns(true));
+  });
+
+  afterEach(function() {
+    sinon.restore();
+  });
+
+  it("needs to work in all cases", function() {
+    const checks = [
+      [null, null, 1600, true],
+      [1500, null, 1600, true],
+      [null, 2000, 1600, true],
+      [1500, 2000, 1600, true],
+      [1500, null, 1400, false],
+      [null, 2000, 2200, false],
+      [1500, 2000, 1400, false],
+      [1500, 2000, 2400, false]
+    ];
+
+    checks.forEach(check => {
+      const minrating = check[0];
+      const maxrating = check[1];
+      const userrating = check[2];
+      const succeed = check[3];
+      const message =
+        "should " + succeed
+          ? "succeed"
+          : "fail" +
+            " when minrating is " +
+            minrating +
+            " and maxrating is " +
+            maxrating +
+            " and user rating is " +
+            userrating;
+      const user = {
+        _id: "user",
+        ratings: {
+          standard: { rating: userrating }
+        }
+      };
+      const seek = {
+        _id: "seek",
+        minrating: minrating,
+        maxrating: maxrating,
+        rating_type: "standard"
+      };
+      chai.assert.equal(
+        GameRequests.seekMatchesUser(user, seek),
+        succeed,
+        message
+      );
+    });
+  });
+});

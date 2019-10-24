@@ -186,29 +186,21 @@ GameRequests.addLegacyGameSeek = function(
   check(time, Number);
   check(inc, Number);
   check(rated, Boolean);
-  check(color, Match.Any); //TODO CAN WE USE Match.Any ?
+  check(color, Match.Maybe(String));
   check(minrating, Number);
   check(maxrating, Number);
   check(autoaccept, Boolean);
   check(formula, String);
 
   const self = Meteor.user();
-  if (!self)
-    throw new ICCMeteorError(message_identifier, "self is null or invalid");
-
-  if (color === 1 || color === "white") {
-    color = "white";
-  } else {
-    color = "black";
-  }
+  check(self, Object);
+  if (color !== "white" && color !== "black")
+    throw new Match.Error("Color must be 'white' or 'black'");
 
   const upsertReturn = GameRequestCollection.upsert(
     { type: "legacyseek", legacy_index: index, owner: self._id },
     {
       $set: {
-        //       type: "legacyseek",
-        //       owner: self._id,
-        //       legacy_index: index,
         name: name,
         titles: titles,
         provisional_status: provisional_status,
@@ -335,7 +327,7 @@ GameRequests.removeLegacySeek = function(message_identifier, seek_index) {
   check(seek_index, Number);
   const self = Meteor.user();
   check(self, Object);
-  if (!self) throw new ICCMeteorError(message_identifier, "self is null");
+
   const request = GameRequestCollection.findOne({ legacy_index: seek_index });
   if (!request) return; // The doc says we could get removes for seeks we do not have.
 
@@ -489,8 +481,7 @@ GameRequests.addLegacyMatchRequest = function(
     "profile.legacy.username": receiver_name,
     "profile.legacy.validated": true
   });
-  let challenger_establish = 0;
-  let receiver_establish = 0;
+
   if (challenger_user && challenger_user._id === self._id)
     challenger_or_receiver = true;
   if (receiver_user && receiver_user._id === self._id)
@@ -501,23 +492,16 @@ GameRequests.addLegacyMatchRequest = function(
       message_identifier,
       "addLegacyMatch where neither challenger nor receiver is the logged on user"
     );
-  if (challenger_established === true) challenger_establish = 1;
-  if (receiver_established === true) receiver_establish = 1;
-  if (challenger_color_request === 1 || challenger_color_request === "white") {
-    challenger_color_request = "white";
-  } else {
-    challenger_color_request = "black";
-  }
 
   const record = {
     type: "legacymatch",
     challenger: challenger_name,
     challenger_rating: challenger_rating,
-    challenger_established: challenger_establish,
+    challenger_established: challenger_established,
     challenger_titles: challenger_titles,
     receiver: receiver_name,
     receiver_rating: receiver_rating,
-    receiver_established: receiver_establish,
+    receiver_established: receiver_established,
     receiver_titles: receiver_titles,
     wild_number: wild_number,
     rating_type: rating_type,
@@ -907,7 +891,7 @@ function seekMatchesUser(user, seek) {
     return false;
   if (!seek.minrating && !seek.maxrating) return true;
 
-  const myrating = user.ratings[seek.rating_type];
+  const myrating = user.ratings[seek.rating_type].rating;
   if (!!seek.minrating && myrating < seek.minrating) return false;
   return !seek.maxrating || seek.maxrating >= myrating;
 }
@@ -958,13 +942,15 @@ function loginHook(user) {
   }
 }
 
+if (Meteor.isTest || Meteor.isAppTest) {
+  GameRequests.collection = GameRequestCollection;
+  GameRequests.loginHook = loginHook;
+  GameRequests.logoutHook = logoutHook;
+  GameRequests.seekMatchesUser = seekMatchesUser;
+}
+
 Meteor.startup(function() {
   GameRequestCollection.remove(); // Truncate this table on Meteor startup.
   Users.addLogoutHook(logoutHook);
   Users.addLoginHook(loginHook);
-  if (Meteor.isTest || Meteor.isAppTest) {
-    GameRequests.collection = GameRequestCollection;
-    GameRequests.loginHook = loginHook;
-    GameRequests.logoutHook = logoutHook;
-  }
 });
