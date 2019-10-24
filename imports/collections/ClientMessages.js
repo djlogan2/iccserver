@@ -32,6 +32,7 @@ export const DefinedClientMessagesMap = {
   LEGACY_MATCH_REMOVED: { parameters: ["legacy_explanation_string"] },
   CANNOT_MATCH_LOGGED_OFF_USER: {},
   NO_MATCH_FOUND: {},
+  ILLEGAL_MOVE: { parameters: ["move"] },
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

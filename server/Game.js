@@ -50,16 +50,16 @@ const actionSchema = new SimpleSchema({
   type: {
     type: String,
     allowedValues: [
-      "move",                   // Obviously a normal move
-      "kibitz",                 // A kibitz
-      "whisper",                // A whisper
-      "disconnect",             // When a user disconnects during a game
-      "connect",                // When a user reconnects (TODO: Like anytime? Some type of courtesy wait?")
-      "adjourned",              // When the game is adjourned, either by accepting, or by a disconnect adjourn
-      "resumed",                // Obviously, resumed
-      "adjourn_requested",      // When an adjourn is requested
-      "adjourn_declined",       // and declined
-      "takeback_requested",     // etc.
+      "move", // Obviously a normal move
+      "kibitz", // A kibitz
+      "whisper", // A whisper
+      "disconnect", // When a user disconnects during a game
+      "connect", // When a user reconnects (TODO: Like anytime? Some type of courtesy wait?")
+      "adjourned", // When the game is adjourned, either by accepting, or by a disconnect adjourn
+      "resumed", // Obviously, resumed
+      "adjourn_requested", // When an adjourn is requested
+      "adjourn_declined", // and declined
+      "takeback_requested", // etc.
       "takeback_accepted",
       "takeback_declined",
       "draw",
@@ -73,7 +73,7 @@ const actionSchema = new SimpleSchema({
     ]
   },
   parameter: {
-    type: Object,
+    type: SimpleSchema.oneOf(String, Number),
     optional: true,
     custom: parameterCheck
   }
@@ -161,11 +161,10 @@ function getAndCheck(message_identifier, game_id, must_be_my_turn) {
 
   if (!must_be_my_turn) return game;
 
-  if (
-    (self._id !== active_games[game_id].turn()) === "w"
-      ? game.white.id
-      : game.black.id
-  ) {
+  const turn_id =
+    active_games[game_id].turn() === "w" ? game.white.id : game.black.id;
+
+  if (self._id !== turn_id) {
     ClientMessages.sendMessageToClient(
       Meteor.user(),
       message_identifier,
@@ -360,7 +359,8 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   check(message_identifier, String);
   check(game_id, String);
   check(move, String);
-  const game = getAndCheck(message_identifier, game_id, true);
+
+  const game = getAndCheck(message_identifier, game_id, false);
   if (!game) return;
 
   if (game.legacy_game_number) {
@@ -368,13 +368,21 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     if (!lu)
       throw new ICCMeteorError(
         message_identifier,
+        "Unable to make move",
         "Unable to find legacy user for this game"
       );
     lu.move(move);
     return;
   }
 
-  const result = active_games[game_id].move(move);
+  const chessObject = active_games[game_id];
+  if (!chessObject)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to make move",
+      "Unable to find chess object"
+    );
+  const result = chessObject.move(move);
   if (!result) {
     ClientMessages.sendMessageToClient(
       Meteor.user(),
@@ -388,6 +396,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   const updateobject = {
     $push: { actions: { type: "move", parameter: move } }
   };
+
   if (active_games[game_id].in_draw()) {
     updateobject["$set"] = { result: "1/2" };
   } else if (active_games[game_id].in_stalemate()) {
@@ -405,7 +414,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     updateobject["$set"].status = "examining";
   }
 
-  game.update({ _id: game_id }, updateobject);
+  GameCollection.update({ _id: game_id }, updateobject);
 };
 
 Game.requestTakeback = function(message_identifier, game_id, number) {
