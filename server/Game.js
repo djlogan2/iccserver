@@ -50,26 +50,26 @@ const actionSchema = new SimpleSchema({
   type: {
     type: String,
     allowedValues: [
-      "move",
-      "kibitz",
-      "whisper",
-      "disconnect",
-      "connect",
-      "adjourn",
-      "adjourn_request",
-      "adjourn_accept",
-      "adjourn_decline",
-      "takeback_request",
-      "takeback_accept",
-      "takeback_decline",
+      "move",                   // Obviously a normal move
+      "kibitz",                 // A kibitz
+      "whisper",                // A whisper
+      "disconnect",             // When a user disconnects during a game
+      "connect",                // When a user reconnects (TODO: Like anytime? Some type of courtesy wait?")
+      "adjourned",              // When the game is adjourned, either by accepting, or by a disconnect adjourn
+      "resumed",                // Obviously, resumed
+      "adjourn_requested",      // When an adjourn is requested
+      "adjourn_declined",       // and declined
+      "takeback_requested",     // etc.
+      "takeback_accepted",
+      "takeback_declined",
       "draw",
-      "draw_request",
-      "draw_accept",
-      "draw_decline",
+      "draw_requested",
+      "draw_accepted",
+      "draw_declined",
       "resign",
-      "abort_request",
-      "abort_accept",
-      "abort_decline"
+      "abort_requested",
+      "abort_accepted",
+      "abort_declined"
     ]
   },
   parameter: {

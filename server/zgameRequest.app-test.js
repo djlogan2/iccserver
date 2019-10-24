@@ -1813,10 +1813,6 @@ describe("game_requests publication", function() {
       chai.assert.equal(collections.game_requests.length, 11);
     });
   });
-
-  it("should republish matches and seeks when played game is over", function() {
-    chai.assert.fail("do me");
-  });
 });
 
 describe("Local seeks", function() {
