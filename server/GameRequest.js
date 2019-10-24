@@ -15,6 +15,12 @@ import { Users } from "../imports/collections/users";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
+  create_date: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
   type: String,
   owner: String,
   wild: Number,
@@ -38,6 +44,12 @@ const LocalSeekSchema = new SimpleSchema({
   }
 });
 const LegacyMatchSchema = {
+  create_date: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
   type: String,
   challenger: String,
   challenger_rating: Number,
@@ -66,6 +78,12 @@ const LegacyMatchSchema = {
   receiver_id: { type: String, optional: true }
 };
 const LocalMatchSchema = {
+  create_date: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
   type: String,
   challenger: String,
   challenger_rating: Number,
@@ -99,6 +117,12 @@ const LocalMatchSchema = {
   fancy_time_control: { type: String, optional: true }
 };
 const LegacySeekSchema = {
+  create_date: {
+    type: Date,
+    autoValue: function() {
+      return new Date();
+    }
+  },
   type: String,
   owner: String,
   legacy_index: Number,
@@ -290,6 +314,9 @@ GameRequests.addLocalGameSeek = function(
   if (!!minrating) game.minrating = minrating;
   if (!!maxrating) game.maxrating = maxrating;
   if (!!formula) game.formula = formula;
+
+  const existing_seek = GameRequestCollection.findOne(game);
+  if (existing_seek) return existing_seek._id;
 
   const users = Meteor.users.find({ loggedOn: true }).fetch();
   let matchingusers = [];
@@ -878,10 +905,11 @@ function seekMatchesUser(user, seek) {
   if (!Roles.userIsInRole(user, "play_rated_games") && seek.rated) return false;
   if (!Roles.userIsInRole(user, "play_unrated_games") && !seek.rated)
     return false;
-  if (!seek.minrating || !seek.maxrating) return true;
+  if (!seek.minrating && !seek.maxrating) return true;
+
   const myrating = user.ratings[seek.rating_type];
-  if (seek.minrating && seek.minrating > myrating) return false;
-  return seek.maxrating && seek.maxrating >= myrating;
+  if (!!seek.minrating && myrating < seek.minrating) return false;
+  return !seek.maxrating || seek.maxrating >= myrating;
 }
 
 Meteor.publish("game_requests", function() {

@@ -7,7 +7,11 @@ import { standard_member_roles } from "../../server/userConstants";
 let log = new Logger("server/firstRunUsers_js");
 
 export default function firstRunUsers() {
-  if (Meteor.users.find().count() === 0) {
+  if (
+    !Meteor.isTest &&
+    !Meteor.isAppTest &&
+    Meteor.users.find().count() === 0
+  ) {
     const id = Accounts.createUser({
       username: "admin",
       locale: "en-us",

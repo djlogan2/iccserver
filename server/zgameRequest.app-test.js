@@ -1838,10 +1838,19 @@ describe("Local seeks", function() {
     delete self.clientMessagesFake;
   });
 
-  // What should happen? A replace? A ClientMessage?
   it("Should not add a duplicate seek. At least one of the seeking parameters needs to be different (i.e. 'autoaccept' isn't a seeking parameter)", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id_1 = GameRequests.addLocalGameSeek.apply(
+      null,
+      localSeekParameters()
+    );
+    const game_id_2 = GameRequests.addLocalGameSeek.apply(
+      null,
+      localSeekParameters()
+    );
+    chai.assert.equal(game_id_1, game_id_2);
   });
+
   it("should add user ids to the matchingusers array of appropriate seeks when a user logs on", function() {
     const guy1 = TestHelpers.createUser();
     const guy2 = TestHelpers.createUser();
@@ -1973,11 +1982,37 @@ describe("Local seeks", function() {
       6
     );
   });
-  it("should add not user ids to the matchingusers array of inappropriate seeks when a user logs on", function() {
-    chai.assert.fail("do me");
-  });
-  it("should add all qualified already-logged on users ids to matchingusers array when a new seek is added", function() {
-    chai.assert.fail("do me");
+
+  it.only("should add all qualified already-logged on users ids to matchingusers array when a new seek is added", function() {
+    const users = [];
+    for (let x = 0; x < 10; x++) {
+      const user = TestHelpers.createUser();
+      users.push(user);
+      if (x % 2 === 0) {
+        Meteor.users.update(
+          { _id: user._id },
+          { $set: { "ratings.standard.rating": 1000 } }
+        );
+      }
+    }
+    self.loggedonuser = TestHelpers.createUser();
+    const seek_id = GameRequests.addLocalGameSeek(
+      "mi1",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      1500,
+      null,
+      true
+    );
+    const theseek = GameRequests.collection.findOne({ _id: seek_id });
+    const matchingusers = Meteor.users.find({"ratings.standard.rating": {$gte: 1500}}).fetch()
+      .map(user => user._id);
+    chai.assert.notEqual(users.length, matchingusers.length); // Just make sure it's not everybody!
+    chai.assert.sameMembers(theseek.matchingusers, matchingusers);
   });
 });
 

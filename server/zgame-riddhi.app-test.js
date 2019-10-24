@@ -50,6 +50,30 @@ describe("Game.startLocalGame", function() {
     delete self.meteorUsersFake;
     delete self.clientMessagesFake;
   });
+  // Riddhi: So there are, oh, let's say four types of returns, and we need to use each one correctly:
+  //
+  // (1) ClientMessage.sendMessageToClient(...)
+  //     Whenever something happens that is NORMAL, but an error, should be returned to the user.
+  //     For example, matching a user that has been restricted from playing rated games isn't a coding error.
+  //     Starting a game with a guy that's been logged off probably isn't a coding error (the guy could have lost his connection between the match and start, for example.)
+  //
+  // (2) I'm going to start on the other end now. For coding errors, Meteor.Error comes with the framework.
+  //     DO NOT USE THIS. I'll get back to this later on.
+  // (3) ICCMeteorError - This is an extension to Meteor.Error. It write log messages, sends stuff back to the client
+  //     using their message identifiers, but then otherwise behaves like Meteor.Error does. Basically, it's Meteor.Error
+  //     plus extra stuff we want. Use this if you're throwing any type of error where the programmer did something stupid.
+  // (4) Match.Error - This occurs when one of the check() methods fails. You can throw this manually if you have a parameter
+  //     error too. For example:
+  //     check(color, String);  // Will throw a Match.Error if color isn't a setring.
+  //     if(color !== "black" && color !== "white") throw new Match.Error(); // You can do it too if the values are incorrect.
+  //     This is OK because it's a programming/parameter error.
+  //
+  //  Now lastly, back to Meteor.Error. IF...IF...you are so low level that you don't have access to i18n and/or ClientMessages,
+  //  then you have no choice but to throw a Meteor.Error. However, 99% of the modules will be above those two modules, so
+  //  in general you should never throw another Meteor.Error again. Use ICCMeteorError. Game.js is one of those modules.
+  //  Don't use Meteor.Error. Use ICCMeteorError.
+  //
+  // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
   it.only("should error out if the user isn't logged on", function() {
     const guy1 = undefined;
     const guy2 = TestHelpers.createUser({ login: false });
@@ -58,6 +82,7 @@ describe("Game.startLocalGame", function() {
     }, Match.Error);
   });
 
+  // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
   it.only("should error out if the user is starting a rated game and cannot play rated games", function() {
     const guy2 = TestHelpers.createUser();
     chai.assert.throws(() => {
@@ -76,6 +101,8 @@ describe("Game.startLocalGame", function() {
       );
     }, Match.Error);
   });
+
+  // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
   it.only("should error out if the user is starting an unrated game and cannot play unrated games", function() {
     const guy2 = TestHelpers.createUser();
     chai.assert.throws(() => {
@@ -94,6 +121,8 @@ describe("Game.startLocalGame", function() {
       );
     }, Match.Error);
   });
+
+  // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
   it.only("should error out if the user is starting a rated game and thier opponent cannot play rated games", function() {
     const roles = standard_member_roles.filter(
       role => role !== "play_unrated_games"
@@ -120,9 +149,12 @@ describe("Game.startLocalGame", function() {
       "UNABLE_TO_PLAY_UNRATED_GAMES"
     );
   });
+
+  // TODO: I think this should return a client message, not an ICCMeteorError, and not a Match.Error
   it("should error out if the user is starting an unrated game and their opponent cannot play unrated games", function() {
     chai.assert.fail("do me");
   });
+
   it.only("should error out if self is null", function() {
     self.loggedonuser = undefined;
     const guy2 = TestHelpers.createUser();
@@ -142,6 +174,7 @@ describe("Game.startLocalGame", function() {
       );
     }, Match.Error);
   });
+
   it.only("should error out user is neither white nor black", function() {
     self.loggedonuser = undefined;
     const guy2 = TestHelpers.createUser();
@@ -161,10 +194,12 @@ describe("Game.startLocalGame", function() {
       );
     }, Match.Error);
   });
+
   //   white,
   it("should error out if white is null", function() {
     chai.assert.fail("do me");
   });
+
   it.only("should error out if black is null", function() {
     self.loggedonuser = undefined;
     const guy2 = undefined;
@@ -184,6 +219,7 @@ describe("Game.startLocalGame", function() {
       );
     }, Match.Error);
   });
+
   it("should error out if wild is not zero", function() {
     chai.assert.fail("do me");
   });
