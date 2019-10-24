@@ -37,6 +37,7 @@ const LocalSeekSchema = new SimpleSchema({
   eligibleplayers: {
     type: Number,
     autoValue() {
+      if (!this.field("matchingusers").isSet) return 0;
       const array = this.field("matchingusers").value;
       if (!array) return 0;
       else return array.length;
