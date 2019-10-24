@@ -1751,6 +1751,7 @@ describe("game_requests collection", function() {
 
 describe("game_requests publication", function() {
   let self = this;
+
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
       Meteor.users.findOne({
@@ -1766,13 +1767,14 @@ describe("game_requests publication", function() {
     sinon.replace(Meteor, "user", self.meteorUsersFake);
     resetDatabase(null, done);
   });
+
   afterEach(function() {
     sinon.restore();
     delete self.meteorUsersFake;
     delete self.clientMessagesFake;
   });
 
-  it.only("should stop publishing records when played game is started", function() {
+  it("should stop publishing records when played game is started", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
