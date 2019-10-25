@@ -1,87 +1,5 @@
-describe("Game.startLocalGame", function() {
-  it("should error out if the user isn't logged on", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the user is starting a rated game and cannot play rated games", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the user is starting an unrated game and cannot play unrated games", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the user is starting an unrated game and their opponent cannot play unrated games", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if self is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out user is neither white nor black", function () {
-    chai.assert.fail("do me");
-  });
-//   white,
-  it("should error out if white is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if black is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if wild is not zero", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if rating_type is not in the ICC configuration", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if rated is not 'true' or 'false', and of course both of those work", function () {
-    chai.assert.fail("do me");
-  });
-//   white_initial,
-  it("should error out if white_initial is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if white_initial is not a number", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if white_initial fails to meet the rules in ICC configuration", function () {
-    chai.assert.fail("do me");
-  });
-//   white_increment,
-  it("should error out if white_increment is not a number", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if white_increment fails to meet the rules in ICC configuration", function () {
-    chai.assert.fail("do me");
-  });
-//   black_initial,
-  it("should use white_initial if black_initial is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if black_initial is not a number", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if black_initial fails to meet the rules in ICC configuration", function () {
-    chai.assert.fail("do me");
-  });
-  it("should use white_increment if black_increment is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if black_increment is not a number", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if black_increment fails to meet the rules in ICC configuration", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if played_game is not 'true' or 'false'", function () {
-    chai.assert.fail("do me");
-  });
-  it("should add an examined game to the database if played_game is false", function () {
-    chai.assert.fail("do me");
-  });
-  it("should add a playing game to the database if played_game is true", function () {
-    chai.assert.fail("do me");
-  });
-});
+// Yea, there are very few tests for this, but that's because there isn't much we can do with legacy. We get what we get.
+// Feel free to write more, since I do want to make sure we have 100% coverage.
 describe("Game.startLegacyGame", function() {
   it("should error out if the user isn't logged on", function () {
     chai.assert.fail("do me");
@@ -93,6 +11,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.fail("do me");
   });
 });
+
 describe("Game.saveLegacyMove", function() {
   it("should error out if self is null", function () {
     chai.assert.fail("do me");
@@ -145,6 +64,23 @@ describe("Game.saveLocalMove", function() {
     chai.assert.fail("do me");
   });
 });
+
+describe("Game.removeLocalGame", function(){
+  it("should fail if self is null", function(){chai.assert.fail("do me")});
+  it("should fail if game_id is null", function(){chai.assert.fail("do me")});
+  it("should fail if game cannot be found", function(){chai.assert.fail("do me")});
+  // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
+  it("should fail if game is still being played", function(){chai.assert.fail("do me")});
+  it("should succeed if everything else is well, and it should delete the chess.js instance", function(){chai.assert.fail("do me")});
+});
+
+describe("Game.removeLegacyGame", function(){
+  it("should fail if self is null", function(){chai.assert.fail("do me")});
+  it("should fail if legacy game number is null", function(){chai.assert.fail("do me")});
+  it("should fail if game cannot be found", function(){chai.assert.fail("do me")});
+  it("should succeed if everything else is well", function(){chai.assert.fail("do me")});
+});
+
 describe("Game.requestTakeback", function() {
   it("fails if user is not playing a game", function () {
     chai.assert.fail("do me");
