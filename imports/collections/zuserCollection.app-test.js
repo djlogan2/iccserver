@@ -115,7 +115,7 @@ const all_fields = {
   settings: {
     autoaccept: 1
   },
-  roles: { __global_roles__: 1 }
+  roles: 1
 };
 
 function isObject(obj) {

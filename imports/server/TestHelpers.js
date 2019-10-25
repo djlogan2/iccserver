@@ -3,7 +3,6 @@ import { Meteor } from "meteor/meteor";
 import { Roles } from "meteor/alanning:roles";
 import faker from "faker";
 import "../../imports/collections/users";
-import { all_roles } from "./userConstants";
 
 export const TestHelpers = {};
 
@@ -16,7 +15,8 @@ if (Meteor.isTest || Meteor.isAppTest) {
       email: options.email || faker.internet.email(),
       password: options.password || faker.internet.password(),
       locale: options.locale || "en-us",
-      board_css: options.board_css || "developmentcss"
+      board_css: options.board_css || "developmentcss",
+      roles: []
     };
     if (
       options.legacy === undefined ||
@@ -35,10 +35,12 @@ if (Meteor.isTest || Meteor.isAppTest) {
     }
     const id = Accounts.createUser(userRecord);
     userRecord._id = id;
-    if (Roles.getAllRoles().count() === 0)
-      all_roles.forEach(role => Roles.createRole(role));
-    if (!!options.roles)
-      Roles.setUserRoles(userRecord._id, options.roles);
+    if (!!options.roles) {
+      options.roles.forEach(role =>
+        Roles.createRole(role, { unlessExists: true })
+      );
+      Roles.setUserRoles(id, options.roles);
+    }
     if (options.login === undefined || options.login) {
       Meteor.users.update({ _id: id }, { $set: { loggedOn: true } });
     }

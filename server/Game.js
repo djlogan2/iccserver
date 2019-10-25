@@ -2,11 +2,13 @@ import Chess from "chess.js";
 import SimpleSchema from "simpl-schema";
 import { Match, check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
+import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../lib/server/Logger";
 import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
+import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 export const Game = {};
 
 const GameCollection = new Mongo.Collection("game");
@@ -247,6 +249,72 @@ Game.startLocalGame = function(
   check(played_game, Boolean);
   check(color, Match.Maybe(String));
 
+  if (!self.loggedOn) {
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to start game",
+      "User starting game is not logged on"
+    );
+  }
+
+  if (!!color && color !== "white" && color !== "black")
+    throw new Match.Error("color must be undefined, 'white' or 'black");
+
+  if (played_game && !other_user.loggedOn) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "UNABLE_TO_PLAY_OPPONENT"
+    );
+    return;
+  }
+
+  if (
+    played_game &&
+    !Roles.userIsInRole(self, "play_" + (rated ? "" : "un") + "rated_games")
+  ) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "UNABLE_TO_PLAY_" + (rated ? "" : "UN") + "RATED_GAMES"
+    );
+    return;
+  }
+
+  if (
+    played_game &&
+    !Roles.userIsInRole(
+      other_user,
+      "play_" + (rated ? "" : "un") + "rated_games"
+    )
+  ) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "UNABLE_TO_PLAY_OPPONENT"
+    );
+    return;
+  }
+
+  if (played_game) {
+    if (
+      !SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)
+    ) {
+      throw new ICCMeteorError(
+        "Unable to start game",
+        "White time/inc fails validation"
+      );
+    }
+    if (
+      !SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)
+    ) {
+      throw new ICCMeteorError(
+        "Unable to start game",
+        "White time/inc fails validation"
+      );
+    }
+  }
+
   const white = determineWhite(self, other_user, color);
   const black = white._id === self._id ? other_user : self;
 
@@ -484,7 +552,7 @@ Game.removeLocalGame = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
-  GameCollection.remove({_id: game._id});
+  GameCollection.remove({ _id: game._id });
   delete active_games[game._id];
 };
 
@@ -494,7 +562,7 @@ Game.removeLegacyGame = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
-  GameCollection.remove({legacy_game_number: game_id});
+  GameCollection.remove({ legacy_game_number: game_id });
 };
 
 Game.requestTakeback = function(message_identifier, game_id, number) {
