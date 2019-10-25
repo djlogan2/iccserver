@@ -91,11 +91,41 @@ const GameSchema = new SimpleSchema({
       return new Date();
     }
   },
-  legacy_game_number: { type: Number, required: false},
-  legacy_game_id: { type: Number, required: false },
-  wild: { type: Number, required: false },
-  rating_type: { type: String, required: false },
-  rated: { type: String, required: false },
+  legacy_game_number: {
+    type: Number,
+    required: false,
+    custom() {
+      if (
+        this.field("legacy_game_number").isSet !==
+        this.field("legacy_game_id").isSet
+      )
+        return [
+          {
+            name: "legacy_game_number and legacy_game_id",
+            type: SimpleSchema.ErrorTypes.REQUIRED
+          }
+        ];
+    }
+  },
+  legacy_game_id: {
+    type: Number,
+    required: false,
+    custom() {
+      if (
+        this.field("legacy_game_number").isSet !==
+        this.field("legacy_game_id").isSet
+      )
+        return [
+          {
+            name: "legacy_game_number and legacy_game_id",
+            type: SimpleSchema.ErrorTypes.REQUIRED
+          }
+        ];
+    }
+  },
+  wild: Number,
+  rating_type: String,
+  rated: Boolean,
   status: String,
   clocks: new SimpleSchema({
     white: new SimpleSchema({
@@ -360,7 +390,31 @@ Game.saveLegacyMove = function(message_identifier, game_id, move) {
   check(game_id, Number);
   check(move, String);
 
+  const self = Meteor.user();
+  check(self, Object);
+
   log.debug("Game Move", move);
+
+  const game = GameCollection.findOne({ legacy_game_number: game_id });
+
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to make move",
+      "Unable to find legacy game record"
+    );
+
+  if (game.white.id !== self._id && game.black.id !== self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to make move",
+      "User does not seem to be either player"
+    );
+
+  GameCollection.update(
+    { _id: game._id },
+    { $push: { actions: { type: "move", parameter: move } } }
+  );
 };
 
 Game.saveLocalMove = function(message_identifier, game_id, move) {
@@ -418,11 +472,29 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   }
 
   if (updateobject["$set"]) {
-    delete active_games[game_id];
     updateobject["$set"].status = "examining";
   }
 
   GameCollection.update({ _id: game_id }, updateobject);
+};
+
+Game.removeLocalGame = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  GameCollection.remove({_id: game._id});
+  delete active_games[game._id];
+};
+
+Game.removeLegacyGame = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, Number);
+  const self = Meteor.user();
+  check(self, Object);
+
+  GameCollection.remove({legacy_game_number: game_id});
 };
 
 Game.requestTakeback = function(message_identifier, game_id, number) {
