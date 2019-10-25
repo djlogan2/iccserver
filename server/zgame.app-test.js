@@ -567,7 +567,7 @@ describe("Game.startLocalGame", function() {
 
 // Yea, there are very few tests for this, but that's because there isn't much we can do with legacy. We get what we get.
 // Feel free to write more, since I do want to make sure we have 100% coverage.
-describe("Game.startLegacyGame", function() {
+describe.skip("Game.startLegacyGame", function() {
   it("should error out if the user isn't logged on", function () {
     chai.assert.fail("do me");
   });
