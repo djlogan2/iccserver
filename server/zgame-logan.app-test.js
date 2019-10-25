@@ -30,8 +30,7 @@ describe("Match requests and game starts", function() {
     delete self.clientMessagesFake;
   });
 
-  it.only("should create a chess js game for a local played game", function() {
-    this.timeout(500000);
+  it("should create a chess js game for a local played game", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -46,7 +45,7 @@ describe("Match requests and game starts", function() {
       15,
       0,
       true,
-        "white"
+      "white"
     );
     Game.saveLocalMove("mi2", game_id, "c3");
     Game.saveLocalMove("mi3", game_id, "e5");
@@ -58,14 +57,53 @@ describe("Match requests and game starts", function() {
   });
 
   it("should create a chess js game for a local examined game", function() {
-    chai.assert.fail("do me");
+    const us = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi",
+      otherguy,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      false,
+      "white"
+    );
+    Game.saveLocalMove("mi2", game_id, "c3");
+    Game.saveLocalMove("mi3", game_id, "e5");
+    Game.saveLocalMove("mi4", game_id, "Nc3");
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "ILLEGAL_MOVE");
   });
+
   it("should NOT create a chess js game for a legacy played game", function() {
-    chai.assert.fail("do me");
+    const us = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1200, 1300, 888, ["GM"], ["GM"]);
+    Game.saveLegacyMove("mi2", game_id, "c3");
+    Game.saveLegacyMove("mi3", game_id, "e5");
+    Game.saveLegacyMove("mi4", game_id, "Nc3");
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
   });
+
   it("should NOT create a chess js game for a legacy examined game", function() {
-    chai.assert.fail("do me");
+    const us = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, false, 1200, 1300, 888, ["GM"], ["GM"]);
+    Game.saveLegacyMove("mi2", game_id, "c3");
+    Game.saveLegacyMove("mi3", game_id, "e5");
+    Game.saveLegacyMove("mi4", game_id, "Nc3");
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
   });
+
   it("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function() {
     chai.assert.fail("do me");
   });
