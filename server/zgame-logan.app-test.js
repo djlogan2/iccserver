@@ -82,11 +82,11 @@ describe("Match requests and game starts", function() {
     chai.assert.equal(self.clientMessagesFake.args[0][2], "ILLEGAL_MOVE");
   });
 
-  it("should NOT create a chess js game for a legacy played game", function() {
+  it.only("should NOT create a chess js game for a legacy played game", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1200, 1300, 888, ["GM"], ["GM"]);
+    const game_id = Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1200, 1300, 888, ["GM"], ["GM"], "");
     Game.saveLegacyMove("mi2", game_id, "c3");
     Game.saveLegacyMove("mi3", game_id, "e5");
     Game.saveLegacyMove("mi4", game_id, "Nc3");
@@ -97,7 +97,7 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, false, 1200, 1300, 888, ["GM"], ["GM"]);
+    const game_id = Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, false, 1200, 1300, 888, ["GM"], ["GM"], "");
     Game.saveLegacyMove("mi2", game_id, "c3");
     Game.saveLegacyMove("mi3", game_id, "e5");
     Game.saveLegacyMove("mi4", game_id, "Nc3");

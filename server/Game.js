@@ -41,6 +41,11 @@ function parameterCheck() {
 }
 
 const actionSchema = new SimpleSchema({
+  // TODO: I don't think we xare going to be able to use new Date() as an autovalue for this. I think we are going
+  //       going to have to use some type of normal integer/long (millisecond since start of game or millisecond
+  //       since last action) type of thing. Why? Because we are going to have to deal with lag. lag is subtracted
+  //       from the users time to take a move. Well, that means we can't use new Date(). We have to save some type
+  //       of number that can be adjusted for the current users lag.
   time: {
     type: Date,
     autoValue: function() {
@@ -86,6 +91,7 @@ const GameSchema = new SimpleSchema({
       return new Date();
     }
   },
+  legacy_game_number: { type: Number, required: false},
   legacy_game_id: { type: Number, required: false },
   wild: { type: Number, required: false },
   rating_type: { type: String, required: false },
@@ -109,7 +115,8 @@ const GameSchema = new SimpleSchema({
       type: String,
       custom() {
         if (this.field("white.id").isSet) return;
-        if (!this.field("legacy_id").isSet) return;
+        if (this.field("black.id").isSet) return;
+        if (!this.field("legacy_game_number").isSet) return;
         return [{ name: "white.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
@@ -120,8 +127,9 @@ const GameSchema = new SimpleSchema({
     id: {
       type: String,
       custom() {
-        if (this.field("black. id").isSet) return;
-        if (!this.field("legacy_id").isSet) return;
+        if (this.field("black.id").isSet) return;
+        if (this.field("white.id").isSet) return;
+        if (!this.field("legacy_game_number").isSet) return;
         return [{ name: "black.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
@@ -300,7 +308,7 @@ Game.startLegacyGame = function(
   const whiteuser = Meteor.users.findOne({
     "profile.legacy.username": whitename
   });
-  log.debug(whiteuser);
+  log.debug(JSON.stringify(whiteuser));
   const blackuser = Meteor.users.findOne({
     "profile.legacy.username": blackname
   });
@@ -326,12 +334,12 @@ Game.startLegacyGame = function(
     rated: rated,
     clocks: {
       white: {
-        time: white_initial,
+        initial: white_initial,
         inc: white_increment,
         current: white_initial
       },
       black: {
-        time: black_initial,
+        initial: black_initial,
         inc: black_increment,
         current: black_initial
       }
@@ -341,10 +349,10 @@ Game.startLegacyGame = function(
     actions: []
   };
 
-  if (!!whiteuser) game.white._id = whiteuser._id;
-  if (!!blackuser) game.black._id = blackuser._id;
+  if (!!whiteuser) game.white.id = whiteuser._id;
+  if (!!blackuser) game.black.id = blackuser._id;
 
-  GameCollection.insert(game);
+  return GameCollection.insert(game);
 };
 
 Game.saveLegacyMove = function(message_identifier, game_id, move) {
