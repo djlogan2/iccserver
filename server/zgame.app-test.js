@@ -10,6 +10,35 @@ import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 
+function startLegacyGameParameters(self, other, rated) {
+  if (rated === undefined || rated === null) rated = true;
+  return [
+    "mi1",
+    999,
+    typeof self === "string" ? self : self.profile.legacy.username,
+    typeof other === "string" ? other : other.profile.legacy.username,
+    0,
+    "Standard",
+    rated,
+    15,
+    0,
+    15,
+    0,
+    true,
+    2000,
+    1900,
+    "gameid",
+    ["GM"],
+    ["GM"],
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+  ];
+}
+
 describe("Match requests and game starts", function() {
   const self = this;
   beforeEach(function(done) {
@@ -90,25 +119,9 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLegacyGame(
-      "mi1",
-      999,
-      us.profile.legacy.username,
-      otherguy.profile.legacy.username,
-      0,
-      "Standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1200,
-      1300,
-      888,
-      ["GM"],
-      ["GM"],
-      ""
+    Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, otherguy)
     );
     Game.saveLegacyMove("mi2", 999, "c3");
     Game.saveLegacyMove("mi3", 999, "e5");
@@ -120,25 +133,9 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLegacyGame(
-      "mi1",
-      999,
-      us.profile.legacy.username,
-      otherguy.profile.legacy.username,
-      0,
-      "Standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      false,
-      1200,
-      1300,
-      888,
-      ["GM"],
-      ["GM"],
-      ""
+    Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, otherguy, false)
     );
     Game.saveLegacyMove("mi2", 999, "c3");
     Game.saveLegacyMove("mi3", 999, "e5");
@@ -565,82 +562,301 @@ describe("Game.startLocalGame", function() {
   });
 });
 
-// Yea, there are very few tests for this, but that's because there isn't much we can do with legacy. We get what we get.
-// Feel free to write more, since I do want to make sure we have 100% coverage.
-describe.skip("Game.startLegacyGame", function() {
-  it("should error out if the user isn't logged on", function () {
-    chai.assert.fail("do me");
+describe("Game.startLegacyGame", function() {
+  this.timeout(500000);
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
   });
-  it("should error out if self is null", function () {
-    chai.assert.fail("do me");
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
   });
-  it("should error out user is neither white nor black", function () {
-    chai.assert.fail("do me");
+
+  it("should error out if the user isn't logged on", function() {
+    self.loggedonuser = TestHelpers.createUser({ login: false });
+    const otherguy = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        Game.startLegacyGame.apply(
+          null,
+          startLegacyGameParameters(self.loggedonuser, otherguy)
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should error out if self is null", function() {
+    self.loggedonuser = undefined;
+    const otherguy = TestHelpers.createUser();
+    const thirdguy = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        Game.startLegacyGame.apply(
+          null,
+          startLegacyGameParameters(thirdguy, otherguy)
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should error out user is neither white nor black", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const thirdguy = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        Game.startLegacyGame.apply(
+          null,
+          startLegacyGameParameters(thirdguy, otherguy)
+        ),
+      ICCMeteorError
+    );
   });
   //  message_identifier,
   //   gamenumber,
-  it("should error out game number is invalid", function () {
-    chai.assert.fail("do me");
+  it("should error out game number is invalid", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[1] = "nine-nine-nine";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
-  it("should error out game number already exists", function () {
-    chai.assert.fail("do me");
+  it("should error out game number already exists", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      Game.startLegacyGame.apply(
+        null,
+        startLegacyGameParameters(self.loggedonuser, otherguy)
+      )
+    );
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.throws(
+      () =>
+        Game.startLegacyGame.apply(
+          null,
+          startLegacyGameParameters(self.loggedonuser, otherguy)
+        ),
+      ICCMeteorError
+    );
+    chai.assert.equal(Game.collection.find().count(), 1);
   });
   //   whitename,
   //   blackname,
   //   wild_number,
   //   rating_type,
   //   rated,
-  it("should error out if rated isn't boolean", function () {
-    chai.assert.fail("do me");
+  it("should error out if rated isn't boolean", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[6] = "yep";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   white_initial,
-  it("should error out if white initial isn't a number", function () {
-    chai.assert.fail("do me");
+  it("should error out if white initial isn't a number", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[7] = "fifteen";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   white_increment,
-  it("should error out if white increment isn't a number", function () {
-    chai.assert.fail("do me");
+  it("should error out if white increment isn't a number", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[8] = "fifteen";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   black_initial,
-  it("should error out if black initial isn't a number", function () {
-    chai.assert.fail("do me");
+  it("should error out if black initial isn't a number", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[9] = "fifteen";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   black_increment,
-  it("should error out if black increment isn't a number", function () {
-    chai.assert.fail("do me");
+  it("should error out if black increment isn't a number", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[10] = "fifteen";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   played_game,
-  it("should error out if played_game isn't a boolean", function () {
-    chai.assert.fail("do me");
+  it("should error out if played_game isn't a boolean", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[11] = "yep";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   white_rating,
-  it("should error out if white_rating isn't a number", function () {
-    chai.assert.fail("do me");
+  it("should error out if white_rating isn't a number", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[12] = "fifteen";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   black_rating,
-  it("should error out if black_rating isn't a number", function () {
-    chai.assert.fail("do me");
+  it("should error out if black_rating isn't a number", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[13] = "fifteen";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   game_id,
   //   white_titles,
-  it("should error out if white_titles isn't an array", function () {
-    chai.assert.fail("do me");
+  it("should error out if white_titles isn't an array", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[15] = "GM C TD";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
   //   black_titles,
-  it("should error out if black_titles isn't an array", function () {
-    chai.assert.fail("do me");
+  it("should error out if black_titles isn't an array", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(
+      0
+    );
+    args[16] = "GM C TD";
+    chai.assert.throws(
+      () => Game.startLegacyGame.apply(null, args),
+      Match.Error
+    );
   });
-  it("should add a record if all is ok", function () {
-    chai.assert.fail("do me");
+  it("should add a record if all is ok", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      Game.startLegacyGame.apply(
+        null,
+        startLegacyGameParameters(self.loggedonuser, otherguy)
+      )
+    );
+    chai.assert.equal(Game.collection.find().count(), 1);
   });
-  it("should add white.id if we can find a legacy record that matches", function () {
-    chai.assert.fail("do me");
+
+  it("should add white.id if we can find a legacy record that matches", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, "otherguy")
+    );
+    const game_record = Game.collection.findOne({ _id: game_id });
+    chai.assert.isDefined(game_record);
+    chai.assert.equal(game_record.white.id, self.loggedonuser._id);
+    chai.assert.isUndefined(game_record.black.id);
   });
-  it("should add black.id if we can find a legacy record that matches", function () {
-    chai.assert.fail("do me");
+
+  it("should add black.id if we can find a legacy record that matches", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters("otherguy", self.loggedonuser)
+    );
+
+    const game_record = Game.collection.findOne({ _id: game_id });
+    chai.assert.isDefined(game_record);
+    chai.assert.isUndefined(game_record.white.id);
+    chai.assert.equal(game_record.black.id, self.loggedonuser._id);
   });
-  it("should fail to save to the database if neither white.id nor black.id are specified", function () {
-    chai.assert.fail("do me");
+
+  it("should add both white.id and black.id if we can find legacy records that match", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+    const game_id = Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(otherguy, self.loggedonuser)
+    );
+
+    const game_record = Game.collection.findOne({ _id: game_id });
+    chai.assert.isDefined(game_record);
+    chai.assert.equal(game_record.white.id, otherguy._id);
+    chai.assert.equal(game_record.black.id, self.loggedonuser._id);
+  });
+
+  it("should fail to save to the database if neither white.id nor black.id are specified", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        Game.startLegacyGame.apply(
+          null,
+          startLegacyGameParameters("guy1", "guy2")
+        ),
+      ICCMeteorError
+    );
   });
   //   ex_string,
   //   irregular_legality,

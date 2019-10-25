@@ -110,7 +110,7 @@ const GameSchema = new SimpleSchema({
     }
   },
   legacy_game_id: {
-    type: Number,
+    type: String,
     required: false,
     custom() {
       if (
@@ -145,10 +145,13 @@ const GameSchema = new SimpleSchema({
     name: String,
     id: {
       type: String,
+      required: false,
       custom() {
-        if (this.field("white.id").isSet) return;
-        if (this.field("black.id").isSet) return;
-        if (!this.field("legacy_game_number").isSet) return;
+        let set = 0;
+        if (this.field("white.id").isSet) set += 4;
+        if (this.field("black.id").isSet) set += 2;
+        if (this.field("legacy_game_number").isSet) set += 1;
+        if (set === 5 || set === 3 || set === 6 || set === 7) return;
         return [{ name: "white.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
@@ -158,10 +161,13 @@ const GameSchema = new SimpleSchema({
     name: String,
     id: {
       type: String,
+      required: false,
       custom() {
-        if (this.field("black.id").isSet) return;
-        if (this.field("white.id").isSet) return;
-        if (!this.field("legacy_game_number").isSet) return;
+        let set = 0;
+        if (this.field("white.id").isSet) set += 4;
+        if (this.field("black.id").isSet) set += 2;
+        if (this.field("legacy_game_number").isSet) set += 1;
+        if (set === 5 || set === 3 || set === 6 || set === 7) return;
         return [{ name: "black.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
@@ -394,7 +400,7 @@ Game.startLegacyGame = function(
   check(ex_string, String);
   check(white_rating, Number);
   check(black_rating, Number);
-  check(game_id, Number);
+  check(game_id, String);
   check(white_titles, Array);
   check(black_titles, Array);
   check(irregular_legality, Match.Maybe(String));
@@ -406,14 +412,37 @@ Game.startLegacyGame = function(
   const whiteuser = Meteor.users.findOne({
     "profile.legacy.username": whitename
   });
-  log.debug(JSON.stringify(whiteuser));
+
   const blackuser = Meteor.users.findOne({
     "profile.legacy.username": blackname
   });
 
   const self = Meteor.user();
-  if (!self || (self._id !== whiteuser._id && self._id !== blackuser._id))
-    throw new ICCMeteorError(message_identifier, "Unable to find user");
+  const iswhite = !!self && !!whiteuser && whiteuser._id === self._id;
+  const isblack = !!self && !!blackuser && blackuser._id === self._id;
+  if (!self || (!iswhite && !isblack))
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to start legacy game",
+      "Unable to find user"
+    );
+
+  if (!self.loggedOn)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to start legacy game",
+      "User is not logged on"
+    );
+
+  const exists = GameCollection.find({
+    legacy_game_number: gamenumber
+  }).count();
+  if (exists)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to start game",
+      "There is already a game in the database with the same game number"
+    );
 
   const game = {
     starttime: new Date(),
@@ -552,8 +581,8 @@ Game.removeLocalGame = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
-  GameCollection.remove({ _id: game._id });
-  delete active_games[game._id];
+  GameCollection.remove({ _id: game_id });
+  delete active_games[game_id];
 };
 
 Game.removeLegacyGame = function(message_identifier, game_id) {
