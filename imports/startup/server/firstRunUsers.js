@@ -2,11 +2,14 @@ import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../lib/server/Logger";
 import { Accounts } from "meteor/accounts-base";
 import { Roles } from "meteor/alanning:roles";
-import { standard_member_roles } from "../../server/userConstants";
+import { all_roles, standard_member_roles } from "../../server/userConstants";
 
 let log = new Logger("server/firstRunUsers_js");
 
 export default function firstRunUsers() {
+  if (Meteor.users.find().count() === 0)
+    all_roles.forEach(role => Roles.createRole(role));
+
   if (
     !Meteor.isTest &&
     !Meteor.isAppTest &&
@@ -26,8 +29,8 @@ export default function firstRunUsers() {
         autoaccept: false
       }
     });
-    Roles.addUsersToRoles(id, ["administrator"], Roles.GLOBAL_GROUP);
-    Roles.addUsersToRoles(id, standard_member_roles, Roles.GLOBAL_GROUP);
+    Roles.addUsersToRoles(id, "administrator");
+    Roles.addUsersToRoles(id, standard_member_roles);
     //TODO: Remove this too
     const id3 = Accounts.createUser({
       username: "djlogan",
@@ -50,12 +53,8 @@ export default function firstRunUsers() {
       }
     });
 
-    Roles.addUsersToRoles(
-      id3,
-      ["administrator", "legacy_login", "developer"],
-      Roles.GLOBAL_GROUP
-    );
-    Roles.addUsersToRoles(id3, standard_member_roles, Roles.GLOBAL_GROUP);
+    Roles.addUsersToRoles(id3, ["administrator", "legacy_login", "developer"]);
+    Roles.addUsersToRoles(id3, standard_member_roles);
     //TODO: Remove this too
     const id2 = Accounts.createUser({
       username: "d",
@@ -71,12 +70,8 @@ export default function firstRunUsers() {
         autoaccept: true
       }
     });
-    Roles.addUsersToRoles(
-      id2,
-      ["administrator", "developer"],
-      Roles.GLOBAL_GROUP
-    );
-    Roles.addUsersToRoles(id2, standard_member_roles, Roles.GLOBAL_GROUP);
+    Roles.addUsersToRoles(id2, ["administrator", "developer"]);
+    Roles.addUsersToRoles(id2, standard_member_roles);
 
     for (let x = 1; x < 3; x++) {
       const idx = Accounts.createUser({
@@ -99,8 +94,8 @@ export default function firstRunUsers() {
           autoaccept: true
         }
       });
-      Roles.addUsersToRoles(idx, standard_member_roles, Roles.GLOBAL_GROUP);
-      Roles.addUsersToRoles(idx, ["legacy_login"], Roles.GLOBAL_GROUP);
+      Roles.addUsersToRoles(idx, standard_member_roles);
+      Roles.addUsersToRoles(idx, "legacy_login");
     }
   }
 }

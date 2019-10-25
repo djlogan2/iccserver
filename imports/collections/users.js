@@ -104,7 +104,11 @@ Accounts.onCreateUser(function(options, user) {
   user.loggedOn = false;
   user.locale = "unknown";
   user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
-  user.roles = { __global_roles__: standard_member_roles };
+  user.roles = [];
+  standard_member_roles.forEach(role =>
+    user.roles.push({ _id: role, scope: null, assigned: true })
+  );
+  //user.roles = standard_member_roles;
 
   return user;
 });

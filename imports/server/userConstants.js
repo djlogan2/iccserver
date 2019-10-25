@@ -4,6 +4,16 @@ export const UserConstants = {};
 
 export const titles = ["C", "*", "H", "FM", "IM", "GM"];
 
+export const all_roles = [
+    "login",
+    "send_messages",
+    "play_rated_games",
+    "play_unrated_games",
+    "legacy_login",
+    "administrator",
+    "developer"
+];
+
 export const standard_member_roles = [
   "login",
   "send_messages",

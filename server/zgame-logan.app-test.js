@@ -86,7 +86,26 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1200, 1300, 888, ["GM"], ["GM"], "");
+    Game.startLegacyGame(
+      "mi1",
+      999,
+      us.profile.legacy.username,
+      otherguy.profile.legacy.username,
+      0,
+      "Standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      1200,
+      1300,
+      888,
+      ["GM"],
+      ["GM"],
+      ""
+    );
     Game.saveLegacyMove("mi2", 999, "c3");
     Game.saveLegacyMove("mi3", 999, "e5");
     Game.saveLegacyMove("mi4", 999, "Nc3");
@@ -97,7 +116,26 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLegacyGame("mi1", 999, us.profile.legacy.username, otherguy.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, false, 1200, 1300, 888, ["GM"], ["GM"], "");
+    Game.startLegacyGame(
+      "mi1",
+      999,
+      us.profile.legacy.username,
+      otherguy.profile.legacy.username,
+      0,
+      "Standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      false,
+      1200,
+      1300,
+      888,
+      ["GM"],
+      ["GM"],
+      ""
+    );
     Game.saveLegacyMove("mi2", 999, "c3");
     Game.saveLegacyMove("mi3", 999, "e5");
     Game.saveLegacyMove("mi4", 999, "Nc3");
@@ -110,86 +148,86 @@ describe("Match requests and game starts", function() {
 });
 
 describe("Game.startLocalGame", function() {
-  it("should error out if the user isn't logged on", function () {
+  it("should error out if the user isn't logged on", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if the user is starting a rated game and cannot play rated games", function () {
+  it("should error out if the user is starting a rated game and cannot play rated games", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if the user is starting an unrated game and cannot play unrated games", function () {
+  it("should error out if the user is starting an unrated game and cannot play unrated games", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function () {
+  it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if the user is starting an unrated game and their opponent cannot play unrated games", function () {
+  it("should error out if the user is starting an unrated game and their opponent cannot play unrated games", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if self is null", function () {
+  it("should error out if self is null", function() {
     chai.assert.fail("do me");
   });
-  it("should error out user is neither white nor black", function () {
+  it("should error out user is neither white nor black", function() {
     chai.assert.fail("do me");
   });
-//   white,
-  it("should error out if white is null", function () {
+  //   white,
+  it("should error out if white is null", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if black is null", function () {
+  it("should error out if black is null", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if wild is not zero", function () {
+  it("should error out if wild is not zero", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if rating_type is not in the ICC configuration", function () {
+  it("should error out if rating_type is not in the ICC configuration", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if rated is not 'true' or 'false', and of course both of those work", function () {
+  it("should error out if rated is not 'true' or 'false', and of course both of those work", function() {
     chai.assert.fail("do me");
   });
-//   white_initial,
-  it("should error out if white_initial is null", function () {
+  //   white_initial,
+  it("should error out if white_initial is null", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if white_initial is not a number", function () {
+  it("should error out if white_initial is not a number", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if white_initial fails to meet the rules in ICC configuration", function () {
+  it("should error out if white_initial fails to meet the rules in ICC configuration", function() {
     chai.assert.fail("do me");
   });
-//   white_increment,
-  it("should error out if white_increment is not a number", function () {
+  //   white_increment,
+  it("should error out if white_increment is not a number", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if white_increment fails to meet the rules in ICC configuration", function () {
+  it("should error out if white_increment fails to meet the rules in ICC configuration", function() {
     chai.assert.fail("do me");
   });
-//   black_initial,
-  it("should use white_initial if black_initial is null", function () {
+  //   black_initial,
+  it("should use white_initial if black_initial is null", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if black_initial is not a number", function () {
+  it("should error out if black_initial is not a number", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if black_initial fails to meet the rules in ICC configuration", function () {
+  it("should error out if black_initial fails to meet the rules in ICC configuration", function() {
     chai.assert.fail("do me");
   });
-  it("should use white_increment if black_increment is null", function () {
+  it("should use white_increment if black_increment is null", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if black_increment is not a number", function () {
+  it("should error out if black_increment is not a number", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if black_increment fails to meet the rules in ICC configuration", function () {
+  it("should error out if black_increment fails to meet the rules in ICC configuration", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if played_game is not 'true' or 'false'", function () {
+  it("should error out if played_game is not 'true' or 'false'", function() {
     chai.assert.fail("do me");
   });
-  it("should add an examined game to the database if played_game is false", function () {
+  it("should add an examined game to the database if played_game is false", function() {
     chai.assert.fail("do me");
   });
-  it("should add a playing game to the database if played_game is true", function () {
+  it("should add a playing game to the database if played_game is true", function() {
     chai.assert.fail("do me");
   });
 });
