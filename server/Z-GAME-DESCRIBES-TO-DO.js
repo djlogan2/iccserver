@@ -1,17 +1,3 @@
-// Yea, there are very few tests for this, but that's because there isn't much we can do with legacy. We get what we get.
-// Feel free to write more, since I do want to make sure we have 100% coverage.
-describe("Game.startLegacyGame", function() {
-  it("should error out if the user isn't logged on", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if self is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out user is neither white nor black", function () {
-    chai.assert.fail("do me");
-  });
-});
-
 describe("Game.saveLegacyMove", function() {
   it("should error out if self is null", function () {
     chai.assert.fail("do me");
@@ -36,7 +22,7 @@ describe("Game.saveLocalMove", function() {
   it("should write a client_message and not save the move to the dataabase if the move is illegal", function () {
     chai.assert.fail("do me");
   });
-  it("should save the move to the dataabase if the move is legal", function () {
+  it("should save the move to the database if the move is legal", function () {
     chai.assert.fail("do me");
   });
   it("should end the game if the move results in a stalemate", function () {
@@ -49,12 +35,6 @@ describe("Game.saveLocalMove", function() {
     chai.assert.fail("do me");
   });
   it("should not end the game if the move results in a draw by repetition situation", function () {
-    chai.assert.fail("do me");
-  });
-  it("calls the move method of legacy user if it's a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-  it("does not check move validity if it's a legacy game (it lets the server do that.)", function () {
     chai.assert.fail("do me");
   });
   it("pushes an action when it succeeds as a local game", function () {

@@ -564,3 +564,88 @@ describe("Game.startLocalGame", function() {
     );
   });
 });
+
+// Yea, there are very few tests for this, but that's because there isn't much we can do with legacy. We get what we get.
+// Feel free to write more, since I do want to make sure we have 100% coverage.
+describe("Game.startLegacyGame", function() {
+  it("should error out if the user isn't logged on", function () {
+    chai.assert.fail("do me");
+  });
+  it("should error out if self is null", function () {
+    chai.assert.fail("do me");
+  });
+  it("should error out user is neither white nor black", function () {
+    chai.assert.fail("do me");
+  });
+  //  message_identifier,
+  //   gamenumber,
+  it("should error out game number is invalid", function () {
+    chai.assert.fail("do me");
+  });
+  it("should error out game number already exists", function () {
+    chai.assert.fail("do me");
+  });
+  //   whitename,
+  //   blackname,
+  //   wild_number,
+  //   rating_type,
+  //   rated,
+  it("should error out if rated isn't boolean", function () {
+    chai.assert.fail("do me");
+  });
+  //   white_initial,
+  it("should error out if white initial isn't a number", function () {
+    chai.assert.fail("do me");
+  });
+  //   white_increment,
+  it("should error out if white increment isn't a number", function () {
+    chai.assert.fail("do me");
+  });
+  //   black_initial,
+  it("should error out if black initial isn't a number", function () {
+    chai.assert.fail("do me");
+  });
+  //   black_increment,
+  it("should error out if black increment isn't a number", function () {
+    chai.assert.fail("do me");
+  });
+  //   played_game,
+  it("should error out if played_game isn't a boolean", function () {
+    chai.assert.fail("do me");
+  });
+  //   white_rating,
+  it("should error out if white_rating isn't a number", function () {
+    chai.assert.fail("do me");
+  });
+  //   black_rating,
+  it("should error out if black_rating isn't a number", function () {
+    chai.assert.fail("do me");
+  });
+  //   game_id,
+  //   white_titles,
+  it("should error out if white_titles isn't an array", function () {
+    chai.assert.fail("do me");
+  });
+  //   black_titles,
+  it("should error out if black_titles isn't an array", function () {
+    chai.assert.fail("do me");
+  });
+  it("should add a record if all is ok", function () {
+    chai.assert.fail("do me");
+  });
+  it("should add white.id if we can find a legacy record that matches", function () {
+    chai.assert.fail("do me");
+  });
+  it("should add black.id if we can find a legacy record that matches", function () {
+    chai.assert.fail("do me");
+  });
+  it("should fail to save to the database if neither white.id nor black.id are specified", function () {
+    chai.assert.fail("do me");
+  });
+  //   ex_string,
+  //   irregular_legality,
+  //   irregular_semantics,
+  //   uses_plunkers,
+  //   fancy_timecontrol,
+  //   promote_to_king
+});
