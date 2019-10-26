@@ -432,3 +432,18 @@ describe("Game ends from legacy we need to replicate in local", function(){
   // 		mode 11: (BQ)  Game aborted when Black got disconnected
   // 		mode 12: (?)   No result [specific reason unknown]
 });
+
+describe("When a played game ends", function(){
+  it("should convert one, the other, or both users to examiners of the game, and convert the game to examined, if their 'examine after play' setting is true", function(){chai.assert.fail("do me")});
+  it("should delete the game if neither player has their examine flag set", function(){chai.assert.fail("do me")});
+  it("should allow any examiner to make moves in an examined game", function(){chai.assert.fail("do me")});
+  it("should not allow adding of an examiner to a game being played", function(){chai.assert.fail("do me")});
+  it("should allow adding of an examiner to a game being examined", function(){chai.assert.fail("do me")});
+  it("should only add an examiner once. Second plus should just report they are already examiners", function(){chai.assert.fail("do me")});
+  it("should not delete the game record when examiners leave if they are not the last examiner", function(){chai.assert.fail("do me")});
+  it("should delete the game record when the last examiner leaves", function(){chai.assert.fail("do me")});
+});
+
+describe("games collection", function(){
+  it("should publish all games for which a user is a player (white or black), an examiner, or an observer of", function(){});
+});

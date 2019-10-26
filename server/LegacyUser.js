@@ -563,7 +563,6 @@ class LegacyUserConnection {
           );
           break;
         case L2.SEEK_REMOVED:
-          //   log.debug(" SEEK_REMOVED");
           GameRequests.removeLegacySeek(p.l1messageidentifier, parseInt(p2[0]));
           break;
         case L2.STARTED_OBSERVING:
@@ -599,12 +598,18 @@ class LegacyUserConnection {
           break;
         case L2.MY_GAME_CHANGE:
           log.debug("L2.MY_GAME_CHANGE");
-          // Mongo.update - Prerak
           break;
         case L2.MY_GAME_ENDED:
-          // Mongo.update - Prerak
+          Game.removeLegacyGame(p.l1messageidentifier, parseInt(p2[0]));
           break;
         case L2.MY_GAME_RESULT:
+          Game.legacyGameEnded(
+            p.l1messageidentifier,
+            parseInt(p2[0]),
+            p2[1] === "1",
+            p2[2],
+            p2[3]
+          );
           // Mongo.update - Prerak
           break;
         case L2.MOVE_LIST:

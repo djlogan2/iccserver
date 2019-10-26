@@ -17,6 +17,32 @@ let log = new Logger("server/Game_js");
 
 let active_games = {};
 
+function examinerCheck() {
+  //
+  // Basically, this says:
+  // If status=playing, examiners has to not exist or be empty
+  // Otherwise, examiners has to exist and not be empty
+  //
+  const examiners = this.field("examiners");
+  const status = this.field("status");
+  const nope = [
+    {
+      name: "examiners",
+      type: SimpleSchema.ErrorTypes.EXPECTED_TYPE,
+      value: examiners.value
+    }
+  ];
+  if (!status.isSet) return; // We'll let somebody else complain about this.
+  if (status.value === "playing") {
+    if (!examiners.isSet) return;
+    if (!examiners.value.length) return;
+    return nope;
+  } else {
+    if (examiners.isSet && examiners.value.length > 0) return;
+    return nope;
+  }
+}
+
 function parameterCheck() {
   const parameter = this.field("parameter");
   const nope = [
@@ -175,19 +201,13 @@ const GameSchema = new SimpleSchema({
     },
     rating: SimpleSchema.Integer
   }),
-  actions: [actionSchema]
+  actions: [actionSchema],
+  examiners: { type: Array, required: false, custom: examinerCheck },
+  "examiners.$": String,
+  observers: { type: Array, defaultValue: [] },
+  "observers.$": String
 });
 GameCollection.attachSchema(GameSchema);
-
-function getLegacyUser(userId) {
-  const our_legacy_user = LegacyUser.find(userId);
-  if (!our_legacy_user)
-    throw new ICCMeteorError(
-      "server",
-      "Unable to find a legacy user object for " + this.name
-    );
-  return our_legacy_user;
-}
 
 function getAndCheck(message_identifier, game_id, must_be_my_turn) {
   const self = Meteor.user();
@@ -344,6 +364,7 @@ Game.startLocalGame = function(
     status: played_game ? "playing" : "examining",
     actions: []
   };
+  if (game.status === "examining") game.examiners = [self._id];
   const game_id = GameCollection.insert(game);
   active_games[game_id] = new Chess.Chess();
   return game_id;
@@ -465,8 +486,15 @@ Game.startLegacyGame = function(
     actions: []
   };
 
-  if (!!whiteuser) game.white.id = whiteuser._id;
-  if (!!blackuser) game.black.id = blackuser._id;
+  game.examiners = [];
+  if (!!whiteuser) {
+    game.white.id = whiteuser._id;
+    if (!played_game) game.examiners.push(whiteuser._id);
+  }
+  if (!!blackuser) {
+    game.black.id = blackuser._id;
+    if (!played_game) game.examiners.push(blackuser._id);
+  }
 
   return GameCollection.insert(game);
 };
@@ -557,6 +585,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   if (updateobject["$set"]) {
     updateobject["$set"].status = "examining";
+    updateobject["$set"].examining = [game.white.id, game.black.id];
   }
 
   GameCollection.update({ _id: game_id }, updateobject);
@@ -572,7 +601,7 @@ Game.legacyGameEnded = function(
   become_examined,
   game_result_code,
   score_string2
-    //description_string,
+  //description_string,
   //eco
 ) {
   check(message_identifier, String);
@@ -604,22 +633,116 @@ Game.legacyGameEnded = function(
       "Unable to end game",
       "Game is not being played"
     );
-  if (become_examined)
+  if (become_examined) {
+    const examiners = [];
+    if (game.white.id) examiners.push(game.white.id);
+    if (game.black.id) examiners.push(game.black.id);
     GameCollection.update(
       { _id: game._id },
-      { $set: { result: score_string2, status: "examining" } }
+      {
+        $set: {
+          result: score_string2,
+          status: "examining",
+          examiners: examiners
+        },
+        $push: { observers: { $each: examiners } }
+      }
     );
-  else GameCollection.remove({ _id: game._id });
+  } else GameCollection.remove({ _id: game._id });
 };
 
-Game.removeLocalGame = function(message_identifier, game_id) {
+Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
   check(message_identifier, String);
   check(game_id, String);
   const self = Meteor.user();
   check(self, Object);
 
-  GameCollection.remove({ _id: game_id });
-  delete active_games[game_id];
+  const game = GameCollection.findOne({
+    _id: game_id,
+    examiners: id_to_remove
+  });
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to remove examiner",
+      "game id does not exist or user is not an examiner"
+    );
+  GameCollection.update(
+    { _id: game_id },
+    { $pull: { examiners: id_to_remove } }
+  );
+};
+
+Game.localAddExamainer = function(message_identifier, game_id, id_to_add) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({ _id: game_id, observers: id_to_add });
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add examiner",
+      "game id does not exist or user is not an observer"
+    );
+  GameCollection.update({ _id: game_id }, { $push: { examiners: id_to_add } });
+};
+
+Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({
+    _id: game_id,
+    observers: id_to_remove
+  });
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to remove examiner",
+      "game id does not exist or user is not an examiner"
+    );
+  GameCollection.update(
+    { _id: game_id },
+    { $pull: { examiners: id_to_remove, observers: id_to_remove } }
+  );
+};
+
+Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add examiner",
+      "game id does not exist"
+    );
+  if (Meteor.users.find({ _id: id_to_add }).count() !== 1)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add examiner",
+      "Unable to find user record for ID"
+    );
+  if (game.status === "playing")
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add examiner",
+      "Game is being played"
+    );
+  if (game.legacy_game_number)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add examiner",
+      "Game is a legacy game"
+    );
+  GameCollection.update({ _id: game_id }, { $push: { observers: id_to_add } });
 };
 
 Game.removeLegacyGame = function(message_identifier, game_id) {
@@ -758,21 +881,30 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     GameCollection.update(
       { _id: game_id },
       {
-        $push: { actions: { type: "draw", issuer: self._id } },
-        $set: { status: "examining", result: "1/2-1/2" }
+        $push: {
+          actions: { type: "draw", issuer: self._id },
+          observers: { $each: [game.white.id, game.black.id] }
+        },
+        $set: {
+          status: "examining",
+          result: "1/2-1/2",
+          examiners: [game.white.id, game.black.id]
+        }
       }
     );
     return;
   }
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "draw_requested", issuer: self_id } } }
+    { $push: { actions: { type: "draw_requested", issuer: self._id } } }
   );
 };
 
 Game.acceptLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+  const self = Meteor.user();
+  check(self);
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -786,13 +918,24 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
 
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "draw_accepted", issuer: self._id } } }
+    {
+      $set: { examiners: [game.white.id, game.black.id] },
+      $push: {
+        actions: {
+          type: "draw_accepted",
+          issuer: self._id
+        },
+        observers: { $each: [game.white.id, game.black.id] }
+      }
+    }
   );
 };
 
 Game.declineLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+  check(game_id, String);
+  const self = Meteor.user();
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -830,8 +973,11 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   GameCollection.update(
     { _id: game_id },
     {
-      $push: { actions: { type: "resign", issuer: self._id } },
-      $set: { status: "examining" }
+      $push: {
+        actions: { type: "resign", issuer: self._id },
+        observers: { $each: [game.white.id, game.black.id] }
+      },
+      $set: { status: "examining", examiners: [game.white.id, game.black.id] }
     }
   );
 };

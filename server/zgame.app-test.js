@@ -918,6 +918,7 @@ describe("Game.saveLegacyMove", function() {
       Match.Error
     );
   });
+
   it("should error out if we don't have a game record", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(
@@ -925,6 +926,7 @@ describe("Game.saveLegacyMove", function() {
       ICCMeteorError
     );
   });
+
   it("pushes an action when it succeeds", function() {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(
@@ -1323,7 +1325,6 @@ describe("Game.legacyGameEnded", function() {
   });
 
   it("should fail if game is not being played", function() {
-    self.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(
       null,
@@ -1373,18 +1374,59 @@ describe("Game.legacyGameEnded", function() {
   });
 });
 
-describe("Game.removeLocalGame", function(){
-  it("should fail if self is null", function(){chai.assert.fail("do me")});
-  it("should fail if game_id is null", function(){chai.assert.fail("do me")});
-  it("should fail if game cannot be found", function(){chai.assert.fail("do me")});
+describe.skip("Game.localAddExaminer", function() {
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  it("should fail if self is null", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if game_id is null", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if game cannot be found", function() {
+    chai.assert.fail("do me");
+  });
   // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
-  it("should fail if game is still being played", function(){chai.assert.fail("do me")});
-  it("should succeed if everything else is well, and it should delete the chess.js instance", function(){chai.assert.fail("do me")});
+  it("should fail if game is still being played", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed if everything else is well, and it should delete the chess.js instance", function() {
+    chai.assert.fail("do me");
+  });
 });
 
-describe("Game.removeLegacyGame", function(){
-  it("should fail if self is null", function(){chai.assert.fail("do me")});
-  it("should fail if legacy game number is null", function(){chai.assert.fail("do me")});
-  it("should fail if game cannot be found", function(){chai.assert.fail("do me")});
-  it("should succeed if everything else is well", function(){chai.assert.fail("do me")});
+describe("Game.removeLegacyGame", function() {
+  it("should fail if self is null", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if legacy game number is null", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if game cannot be found", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed if everything else is well", function() {
+    chai.assert.fail("do me");
+  });
 });
