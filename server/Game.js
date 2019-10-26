@@ -544,15 +544,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     active_games[game_id].in_draw() &&
     !active_games[game_id].in_threefold_repetition()
   ) {
-    updateobject["$set"] = { result: "1/2" };
+    updateobject["$set"] = { result: "1/2-1/2" };
   } else if (active_games[game_id].in_stalemate()) {
-    updateobject["$set"] = { result: "1/2" };
+    updateobject["$set"] = { result: "1/2-1/2" };
   } else if (active_games[game_id].in_checkmate()) {
     updateobject["$set"] = {
       result: active_games[game_id].turn() === "w" ? "0-1" : "1-0"
     };
   } else if (active_games[game_id].insufficient_material()) {
-    updateobject["$set"] = { result: "1/2" };
+    updateobject["$set"] = { result: "1/2-1/2" };
   }
 
   if (updateobject["$set"]) {
@@ -562,15 +562,55 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   GameCollection.update({ _id: game_id }, updateobject);
 };
 
+//	There are three outcome codes, given in the following order:
+// 	(1) game_result, e.g. "Mat" (the 3-letter codes used in game lists)
+// 	(2) score_string2, "0-1", "1-0", "1/2-1/2", "*", or "aborted"
+// 	(3) description_string, e.g. "White checkmated"
 Game.legacyGameEnded = function(
   message_identifier,
   gamenumber,
   become_examined,
   game_result_code,
-  score_string2,
-  description_string,
-  eco
-) {};
+  score_string2
+    //description_string,
+  //eco
+) {
+  check(message_identifier, String);
+  check(gamenumber, Number);
+  check(become_examined, Boolean);
+  //check(game_result_code, String);
+  check(score_string2, String);
+  //check(description_string, String);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({ legacy_game_number: gamenumber });
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to end game",
+      "Unable to locate legacy game record"
+    );
+  if (game.white.id !== self._id && game.black.id !== self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to end game",
+      "User does not seem to be black or white"
+    );
+  if (game.status !== "playing")
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to end game",
+      "Game is not being played"
+    );
+  if (become_examined)
+    GameCollection.update(
+      { _id: game._id },
+      { $set: { result: score_string2, status: "examining" } }
+    );
+  else GameCollection.remove({ _id: game._id });
+};
 
 Game.removeLocalGame = function(message_identifier, game_id) {
   check(message_identifier, String);
@@ -719,7 +759,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
       { _id: game_id },
       {
         $push: { actions: { type: "draw", issuer: self._id } },
-        $set: { status: "examining", result: "1/2" }
+        $set: { status: "examining", result: "1/2-1/2" }
       }
     );
     return;

@@ -1060,7 +1060,7 @@ describe("Game.saveLocalMove", function() {
     const game = Game.collection.findOne();
     chai.assert.isDefined(game);
     chai.assert.equal(game.status, "examining");
-    chai.assert.equal(game.result, "1/2");
+    chai.assert.equal(game.result, "1/2-1/2");
   });
 
   it("should end the game if the move results in a checkmate", function() {
@@ -1124,7 +1124,7 @@ describe("Game.saveLocalMove", function() {
     const game = Game.collection.findOne();
     chai.assert.isDefined(game);
     chai.assert.equal(game.status, "examining");
-    chai.assert.equal(game.result, "1/2");
+    chai.assert.equal(game.result, "1/2-1/2");
   });
 
   //
@@ -1166,7 +1166,7 @@ describe("Game.saveLocalMove", function() {
     const game2 = Game.collection.findOne();
     chai.assert.isDefined(game2);
     chai.assert.equal(game2.status, "examining");
-    chai.assert.equal(game2.result, "1/2");
+    chai.assert.equal(game2.result, "1/2-1/2");
   });
 
   it("should fail if the game is a legacy game", function() {
@@ -1228,10 +1228,147 @@ describe("Game.saveLocalMove", function() {
     chai.assert.isTrue(self.clientMessagesFake.calledTwice);
     chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
     chai.assert.equal(self.clientMessagesFake.args[0][1], "move2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "COMMAND_INVALID_NOT_YOUR_MOVE");
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "COMMAND_INVALID_NOT_YOUR_MOVE"
+    );
 
     chai.assert.equal(self.clientMessagesFake.args[1][0]._id, them._id);
     chai.assert.equal(self.clientMessagesFake.args[1][1], "move4");
-    chai.assert.equal(self.clientMessagesFake.args[1][2], "COMMAND_INVALID_NOT_YOUR_MOVE");
+    chai.assert.equal(
+      self.clientMessagesFake.args[1][2],
+      "COMMAND_INVALID_NOT_YOUR_MOVE"
+    );
+  });
+});
+
+describe("Game.legacyGameEnded", function() {
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  it("should fail if self is null", function() {
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+      () =>
+        Game.legacyGameEnded(
+          "mi",
+          999,
+          true,
+          "Mat",
+          "0-1",
+          "Checkmated",
+          "B00"
+        ),
+      Match.Error
+    );
+  });
+
+  it("should fail if game id cannot be found", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        Game.legacyGameEnded(
+          "mi",
+          999,
+          true,
+          "Mat",
+          "0-1",
+          "Checkmated",
+          "B00"
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should fail if user is neither player", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, "otherguy")
+    );
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        Game.legacyGameEnded(
+          "mi",
+          999,
+          true,
+          "Mat",
+          "0-1",
+          "Checkmated",
+          "B00"
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should fail if game is not being played", function() {
+    self.timeout(500000);
+    self.loggedonuser = TestHelpers.createUser();
+    Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, "otherguy")
+    );
+    chai.assert.doesNotThrow(() =>
+      Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00")
+    );
+    chai.assert.throws(
+      () =>
+        Game.legacyGameEnded(
+          "mi",
+          999,
+          true,
+          "Mat",
+          "0-1",
+          "Checkmated",
+          "B00"
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should convert to examined if become_examined is true", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, "otherguy")
+    );
+    Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00");
+    const games = Game.collection.find().fetch();
+    chai.assert.isDefined(games);
+    chai.assert.equal(games.length, 1);
+    chai.assert.equal(games[0].status, "examining");
+  });
+
+  it("should be deleted if become_examined is false", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, "otherguy")
+    );
+    Game.legacyGameEnded("mi", 999, false, "Mat", "0-1", "Checkmated", "B00");
+    const games = Game.collection.find().fetch();
+    chai.assert.isDefined(games);
+    chai.assert.equal(games.length, 0);
   });
 });
