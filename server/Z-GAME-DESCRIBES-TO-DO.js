@@ -1,20 +1,4 @@
-describe("Game.removeLocalGame", function(){
-  it("should fail if self is null", function(){chai.assert.fail("do me")});
-  it("should fail if game_id is null", function(){chai.assert.fail("do me")});
-  it("should fail if game cannot be found", function(){chai.assert.fail("do me")});
-  // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
-  it("should fail if game is still being played", function(){chai.assert.fail("do me")});
-  it("should succeed if everything else is well, and it should delete the chess.js instance", function(){chai.assert.fail("do me")});
-});
-
-describe("Game.removeLegacyGame", function(){
-  it("should fail if self is null", function(){chai.assert.fail("do me")});
-  it("should fail if legacy game number is null", function(){chai.assert.fail("do me")});
-  it("should fail if game cannot be found", function(){chai.assert.fail("do me")});
-  it("should succeed if everything else is well", function(){chai.assert.fail("do me")});
-});
-
-describe("Game.requestTakeback", function() {
+describe("Game.requestLocalTakeback", function() {
   it("fails if user is not playing a game", function () {
     chai.assert.fail("do me");
   });
@@ -58,7 +42,7 @@ describe("Game.requestTakeback", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.acceptTakeback", function() {
+describe("Game.acceptLocalTakeback", function() {
   it("writes a client_message if their opponent has not requested a takeback", function () {
     chai.assert.fail("do me");
   });
@@ -93,7 +77,7 @@ describe("Game.acceptTakeback", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.declineTakeback", function() {
+describe("Game.declineLocalTakeback", function() {
   it("still needs to be written", function () {
     chai.assert.fail("do me");
   });
@@ -119,7 +103,7 @@ describe("Game.declineTakeback", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.requestDraw", function() {
+describe("Game.requestLocalDraw", function() {
   it("fails if user is not playing a game", function () {
     chai.assert.fail("do me");
   });
@@ -142,7 +126,7 @@ describe("Game.requestDraw", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.acceptDraw", function() {
+describe("Game.acceptLocalDraw", function() {
   it("fails if user is not playing a game", function () {
     chai.assert.fail("do me");
   });
@@ -165,7 +149,7 @@ describe("Game.acceptDraw", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.declineDraw", function() {
+describe("Game.declineLocalDraw", function() {
   it("fails if user is not playing a game", function () {
     chai.assert.fail("do me");
   });
