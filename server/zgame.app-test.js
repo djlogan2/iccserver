@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Game } from "./Game";
-import { Match } from "meteor/check";
+import { check, Match } from "meteor/check";
 import chai from "chai";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
@@ -278,7 +278,7 @@ describe("Game.startLocalGame", function() {
     const us = TestHelpers.createUser({ roles: roles });
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
+    Game.startLocalGame(
       "mi",
       otherguy,
       0,
@@ -302,7 +302,7 @@ describe("Game.startLocalGame", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({ roles: roles });
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
+    Game.startLocalGame(
       "mi",
       otherguy,
       0,
@@ -330,7 +330,7 @@ describe("Game.startLocalGame", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({ roles: roles });
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
+    Game.startLocalGame(
       "mi",
       otherguy,
       0,
@@ -563,7 +563,6 @@ describe("Game.startLocalGame", function() {
 });
 
 describe("Game.startLegacyGame", function() {
-  this.timeout(500000);
   const self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
@@ -864,4 +863,73 @@ describe("Game.startLegacyGame", function() {
   //   uses_plunkers,
   //   fancy_timecontrol,
   //   promote_to_king
+});
+
+// TODO: It occurs to me that if we are just getting legacy moves, how do we know what the board looks like?
+//       Think a wild, like atomic or something. Hmmm...
+describe("Game.saveLegacyMove", function() {
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+  it("should error out if self is null", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.startLegacyGame.apply(
+      null,
+      startLegacyGameParameters(self.loggedonuser, "otherguy")
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+      () => Game.saveLegacyMove("mi1", 999, "e4"),
+      Match.Error
+    );
+  });
+  it("should error out if we don't have a game record", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(
+        () => Game.saveLegacyMove("mi1", 999, "e4"),
+        ICCMeteorError
+    );
+  });
+  it("pushes an action when it succeeds", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.startLegacyGame.apply(
+        null,
+        startLegacyGameParameters(self.loggedonuser, "otherguy")
+    );
+    // Sure, leave it this way, legacy move saves aren't suppose to check legality
+    const moves = ["e4", "e5", "Nf2", "Nf6", "Nc3"];
+    moves.forEach(move => Game.saveLegacyMove("mi1", 999, move));
+
+    const games = Game.collection.find().fetch();
+    chai.assert.isDefined(games);
+    chai.assert.equal(games.length, 1);
+    chai.assert.isDefined(games[0].actions);
+    chai.assert.equal(games[0].actions.length, moves.length);
+    for(let x = 0 ; x < moves.length ; x++) {
+      chai.assert.equal(games[0].actions[x].type, "move");
+      chai.assert.equal(games[0].actions[x].parameter, moves[x]);
+    }
+  });
+  //  check(message_identifier, String);
+  //   check(game_id, Number);
+  //   check(move, String);
 });

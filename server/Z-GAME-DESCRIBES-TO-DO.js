@@ -1,14 +1,4 @@
-describe("Game.saveLegacyMove", function() {
-  it("should error out if self is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if we don't have a game record", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds", function () {
-    chai.assert.fail("do me");
-  });
-});
+
 describe("Game.saveLocalMove", function() {
   it("should error out if self is null", function () {
     chai.assert.fail("do me");
