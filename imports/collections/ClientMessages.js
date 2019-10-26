@@ -33,6 +33,7 @@ export const DefinedClientMessagesMap = {
   CANNOT_MATCH_LOGGED_OFF_USER: {},
   NO_MATCH_FOUND: {},
   ILLEGAL_MOVE: { parameters: ["move"] },
+  COMMAND_INVALID_NOT_YOUR_MOVE: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

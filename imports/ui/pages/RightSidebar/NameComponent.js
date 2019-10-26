@@ -6,7 +6,7 @@ import GameAnalysisComponent from "./GameAnalysisComponent";
 export default class NameComponent extends Component {
   /*
         This Component display tournaments Name using Props 
-        it load When game Load or create Game By player   
+        it load When game Load or create Game By player
 		OR
 		This shows the Name of the game and Name of the players.
     */

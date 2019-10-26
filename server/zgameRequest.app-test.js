@@ -1806,7 +1806,7 @@ describe("game_requests publication", function() {
       chai.assert.equal(collections.game_requests.length, 0);
     });
 
-    Game.resignGame("mi2", gameid);
+    Game.resignLocalGame("mi2", gameid);
 
     const collector3 = new PublicationCollector({ userId: challenger._id });
     collector3.collect("game_requests", collections => {

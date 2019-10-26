@@ -54,6 +54,7 @@ const actionSchema = new SimpleSchema({
       return new Date();
     }
   },
+  issuer: String,
   type: {
     type: String,
     allowedValues: [
@@ -93,6 +94,7 @@ const GameSchema = new SimpleSchema({
       return new Date();
     }
   },
+  result: String,
   legacy_game_number: {
     type: Number,
     required: false,
@@ -189,6 +191,7 @@ function getLegacyUser(userId) {
 
 function getAndCheck(message_identifier, game_id, must_be_my_turn) {
   const self = Meteor.user();
+  check(self, Object);
 
   const game = GameCollection.findOne({ _id: game_id });
   if (!game)
@@ -196,28 +199,14 @@ function getAndCheck(message_identifier, game_id, must_be_my_turn) {
       message_identifier,
       "Unable to find a game to make a move for"
     );
-  if (!self || (self._id !== game.white.id && self._id !== game.black.id))
-    throw new ICCMeteorError("server", "Who are we?");
+  if (game.legacy_game_number)
+    throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
   if (!active_games[game_id])
     throw new ICCMeteorError(
       "server",
       "Unable to find chessboard validator for game"
     );
-
-  if (!must_be_my_turn) return game;
-
-  const turn_id =
-    active_games[game_id].turn() === "w" ? game.white.id : game.black.id;
-
-  if (self._id !== turn_id) {
-    ClientMessages.sendMessageToClient(
-      Meteor.user(),
-      message_identifier,
-      "COMMAND_INVALID_NOT_YOUR_MOVE"
-    );
-    return null;
-  }
 
   return game;
 }
@@ -510,7 +499,7 @@ Game.saveLegacyMove = function(message_identifier, game_id, move) {
 
   GameCollection.update(
     { _id: game._id },
-    { $push: { actions: { type: "move", parameter: move } } }
+    { $push: { actions: { type: "move", issuer: "legacy", parameter: move } } }
   );
 };
 
@@ -519,28 +508,23 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   check(game_id, String);
   check(move, String);
 
-  const game = getAndCheck(message_identifier, game_id, false);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
 
-  if (game.legacy_game_number) {
-    const lu = getLegacyUser(this._id);
-    if (!lu)
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to make move",
-        "Unable to find legacy user for this game"
-      );
-    lu.move(move);
+  const chessObject = active_games[game_id];
+  const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
+  if (self._id !== turn_id) {
+    ClientMessages.sendMessageToClient(
+      Meteor.user(),
+      message_identifier,
+      "COMMAND_INVALID_NOT_YOUR_MOVE"
+    );
     return;
   }
 
-  const chessObject = active_games[game_id];
-  if (!chessObject)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to make move",
-      "Unable to find chess object"
-    );
   const result = chessObject.move(move);
   if (!result) {
     ClientMessages.sendMessageToClient(
@@ -553,10 +537,13 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   }
 
   const updateobject = {
-    $push: { actions: { type: "move", parameter: move } }
+    $push: { actions: { type: "move", issuer: self._id, parameter: move } }
   };
 
-  if (active_games[game_id].in_draw()) {
+  if (
+    active_games[game_id].in_draw() &&
+    !active_games[game_id].in_threefold_repetition()
+  ) {
     updateobject["$set"] = { result: "1/2" };
   } else if (active_games[game_id].in_stalemate()) {
     updateobject["$set"] = { result: "1/2" };
@@ -574,6 +561,16 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   GameCollection.update({ _id: game_id }, updateobject);
 };
+
+Game.legacyGameEnded = function(
+  message_identifier,
+  gamenumber,
+  become_examined,
+  game_result_code,
+  score_string2,
+  description_string,
+  eco
+) {};
 
 Game.removeLocalGame = function(message_identifier, game_id) {
   check(message_identifier, String);
@@ -594,7 +591,7 @@ Game.removeLegacyGame = function(message_identifier, game_id) {
   GameCollection.remove({ legacy_game_number: game_id });
 };
 
-Game.requestTakeback = function(message_identifier, game_id, number) {
+Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   check(message_identifier, String);
   check(game_id, String);
   check(number, Number);
@@ -609,24 +606,21 @@ Game.requestTakeback = function(message_identifier, game_id, number) {
     return;
   }
 
-  if (game.legacy_game_number) {
-    const lu = getLegacyUser(this._id);
-    if (!lu)
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to find legacy user for this game"
-      );
-    lu.requestTakeback(number);
-    return;
-  }
-
   Meteor.update(
     { _id: game_id },
-    { $push: { actions: { type: "takeback_request", parameters: number } } }
+    {
+      $push: {
+        actions: {
+          type: "takeback_requested",
+          issuer: self._id,
+          parameters: number
+        }
+      }
+    }
   );
 };
 
-Game.acceptTakeback = function(message_identifier, game_id) {
+Game.acceptLocalTakeback = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
   const game = getAndCheck(message_identifier, game_id);
@@ -637,17 +631,6 @@ Game.acceptTakeback = function(message_identifier, game_id) {
       message_identifier,
       "COMMAND_INVALID_NOT_PLAYING"
     );
-    return;
-  }
-
-  if (game.legacy_game_number) {
-    const lu = getLegacyUser(this._id);
-    if (!lu)
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to find legacy user for this game"
-      );
-    lu.requestTakeback();
     return;
   }
 
@@ -667,15 +650,14 @@ Game.acceptTakeback = function(message_identifier, game_id) {
   }
   Meteor.update(
     { _id: game_id },
-    { $push: { actions: { type: "accept_takeback" } } }
+    { $push: { actions: { type: "takeback_accepted", issuer: self._id } } }
   );
   for (let x = 0; x < takeback_legal; x++) active_games[game_id].undo();
 };
 
-Game.declineTakeback = function(message_identifier, game_id) {
+Game.declineLocalTakeback = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
-  check(move, String);
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -684,17 +666,6 @@ Game.declineTakeback = function(message_identifier, game_id) {
       message_identifier,
       "COMMAND_INVALID_NOT_PLAYING"
     );
-    return;
-  }
-
-  if (game.legacy_game_number) {
-    const lu = getLegacyUser(this._id);
-    if (!lu)
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to find legacy user for this game"
-      );
-    lu.requestTakeback();
     return;
   }
 
@@ -715,16 +686,26 @@ Game.declineTakeback = function(message_identifier, game_id) {
 
   Meteor.update(
     { _id: game_id },
-    { $push: { actions: { type: "decline_takeback" } } }
+    { $push: { actions: { type: "takeback_declined", issuer: self._id } } }
   );
 };
 
-Game.requestDraw = function(message_identifier, game_id) {
+Game.requestLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
   const game = getAndCheck(message_identifier, game_id);
-  if (!game) return;
-  if (game.status !== "playing") {
+
+  if (game.legacy_game_number)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to request draw",
+      "Cannot request a local draw on a legacy game"
+    );
+
+  if (!game || game.status !== "playing") {
     ClientMessages.sendMessageToClient(
       Meteor.user(),
       message_identifier,
@@ -737,19 +718,19 @@ Game.requestDraw = function(message_identifier, game_id) {
     GameCollection.update(
       { _id: game_id },
       {
-        $push: { actions: { type: "draw" } },
-        $set: { status: "examining" }
+        $push: { actions: { type: "draw", issuer: self._id } },
+        $set: { status: "examining", result: "1/2" }
       }
     );
     return;
   }
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "request_draw" } } }
+    { $push: { actions: { type: "draw_requested", issuer: self_id } } }
   );
 };
 
-Game.acceptDraw = function(message_identifier, game_id) {
+Game.acceptLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
   const game = getAndCheck(message_identifier, game_id);
@@ -765,11 +746,11 @@ Game.acceptDraw = function(message_identifier, game_id) {
 
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "accept_draw" } } }
+    { $push: { actions: { type: "draw_accepted", issuer: self._id } } }
   );
 };
 
-Game.declineDraw = function(message_identifier, game_id) {
+Game.declineLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
   const game = getAndCheck(message_identifier, game_id);
@@ -785,13 +766,16 @@ Game.declineDraw = function(message_identifier, game_id) {
 
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "decline_draw" } } }
+    { $push: { actions: { type: "decline_draw", issuer: self._id } } }
   );
 };
 
-Game.resignGame = function(message_identifier, game_id) {
+Game.resignLocalGame = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -805,8 +789,51 @@ Game.resignGame = function(message_identifier, game_id) {
 
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "resign" } }, $set: { status: "examining" } }
+    {
+      $push: { actions: { type: "resign", issuer: self._id } },
+      $set: { status: "examining" }
+    }
   );
+};
+
+Game.recordLegacyOffers = function(
+  message_identifier,
+  game_number,
+  wdraw,
+  bdraw,
+  wadjourn,
+  badjourn,
+  wabort,
+  babort,
+  wtakeback,
+  btakeback
+) {
+  check(message_identifier, String);
+  check(wdraw, Boolean);
+  check(bdraw, Boolean);
+  check(wadjourn, Boolean);
+  check(badjourn, Boolean);
+  check(wabort, Boolean);
+  check(babort, Boolean);
+  check(wtakeback, Number);
+  check(btakeback, Number);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({ legacy_game_number: game_number });
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to record offers",
+      "Unable to find legacy game record"
+    );
+  if (game.white.id !== self._id && game.black.id !== self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to record offers",
+      "Player is neither white nor black"
+    );
 };
 
 function determineWhite(p1, p2, color) {
@@ -817,39 +844,6 @@ function determineWhite(p1, p2, color) {
   if (Math.random() <= 0.5) return p1;
   else return p2;
 }
-
-Game.offerMoretime = function(message_identifier, game_id, issuer, seconds) {};
-
-Game.declineMoretime = function(message_identifier, game_id) {};
-
-Game.acceptMoretime = function(message_identifier, game_id) {};
-
-Game.moveBackward = function(message_identifier, game_id, issuer, halfmoves) {};
-
-Game.moveForward = function(message_identifier, game_id, issuer, halfmoves) {};
-
-Game.drawCircle = function(message_identifier, game_id, issuer, square) {};
-
-Game.removeCircle = function(message_identifier, game_id, issuer, square) {};
-
-Game.drawArrow = function(message_identifier, game_id, issuer, square) {};
-
-Game.removeArrow = function(message_identifier, game_id, issuer, square) {};
-
-Game.changeHeaders = function(message_identifier, game_id, other_arguments) {};
-
-Game.updateClock = function(
-  message_identifier,
-  game_id,
-  color,
-  milliseconds
-) {};
-
-Game.addVariation = function(message_identifier, game_id, issuer) {};
-
-Game.deleteVariation = function(message_identifier, game_id, issuer) {};
-
-Game.deleteVariation = function(self, game_id, issuer) {};
 
 //TODO: Add to tests
 Game.opponentUserIdList = function(ofuser) {

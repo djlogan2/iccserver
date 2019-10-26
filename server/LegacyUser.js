@@ -183,7 +183,7 @@ class LegacyUserConnection {
           });
           let packets = null;
           do {
-            packets = self.parse();
+            packets = self._parse();
             log_rawlegacy.debug("LegacyUser::(self.socket.on.data)", {
               packets: packets
             });
@@ -223,7 +223,7 @@ class LegacyUserConnection {
     this.socket.destroy();
   }
 
-  parse() {
+  _parse() {
     if (this.state === "login") {
       if (this.databuffer.indexOf("login") !== -1) {
         this.databuffer = "";
@@ -407,6 +407,11 @@ class LegacyUserConnection {
     check(message_identifier, String);
     check(move, String);
     this._sendRawData(message_identifier, move); // TODO: We should probably validate this as an actual move, or clients will be able to send whatever they damn well please with this!
+  }
+
+  draw(message_identifier) {
+    check(message_identifier, String);
+    this._sendRawData(message_identifier, "draw");
   }
 
   _sendRawData(message_identifier, data) {

@@ -1,40 +1,4 @@
-
-describe("Game.saveLocalMove", function() {
-  it("should error out if self is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if a game cannot be found", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if an active game cannot be found", function () {
-    chai.assert.fail("do me");
-  });
-  it("should write a client_message and not save the move to the dataabase if the move is illegal", function () {
-    chai.assert.fail("do me");
-  });
-  it("should save the move to the database if the move is legal", function () {
-    chai.assert.fail("do me");
-  });
-  it("should end the game if the move results in a stalemate", function () {
-    chai.assert.fail("do me");
-  });
-  it("should end the game if the move results in a checkmate", function () {
-    chai.assert.fail("do me");
-  });
-  it("should end the game if the move results in an insufficient material draw", function () {
-    chai.assert.fail("do me");
-  });
-  it("should not end the game if the move results in a draw by repetition situation", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a local game", function () {
-    chai.assert.fail("do me");
-  });
-  it("does not push an action when it succeeds as a legacy game (an incoming L2 will save this move)", function () {
-    chai.assert.fail("do me");
-  });
-});
-
+describe?("Game.legacyGameEnded", function(){});
 describe("Game.removeLocalGame", function(){
   it("should fail if self is null", function(){chai.assert.fail("do me")});
   it("should fail if game_id is null", function(){chai.assert.fail("do me")});
@@ -225,7 +189,7 @@ describe("Game.declineDraw", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.resignGame", function() {
+describe("Game.resignLocalGame", function() {
   it("fails if user is not playing a game", function () {
     chai.assert.fail("do me");
   });

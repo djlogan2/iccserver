@@ -80,8 +80,11 @@ describe("Match requests and game starts", function() {
       true,
       "white"
     );
+    self.loggedonuser = us;
     Game.saveLocalMove("mi2", game_id, "c3");
+    self.loggedonuser = otherguy;
     Game.saveLocalMove("mi3", game_id, "e5");
+    self.loggedonuser = us;
     Game.saveLocalMove("mi4", game_id, "Nc3");
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
     chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
@@ -106,8 +109,11 @@ describe("Match requests and game starts", function() {
       false,
       "white"
     );
+    self.loggedonuser = us;
     Game.saveLocalMove("mi2", game_id, "c3");
+    self.loggedonuser = otherguy;
     Game.saveLocalMove("mi3", game_id, "e5");
+    self.loggedonuser = us;
     Game.saveLocalMove("mi4", game_id, "Nc3");
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
     chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
@@ -123,8 +129,11 @@ describe("Match requests and game starts", function() {
       null,
       startLegacyGameParameters(self.loggedonuser, otherguy)
     );
+    self.loggedonuser = us;
     Game.saveLegacyMove("mi2", 999, "c3");
+    self.loggedonuser = otherguy;
     Game.saveLegacyMove("mi3", 999, "e5");
+    self.loggedonuser = us;
     Game.saveLegacyMove("mi4", 999, "Nc3");
     chai.assert.isTrue(self.clientMessagesFake.notCalled);
   });
@@ -137,8 +146,11 @@ describe("Match requests and game starts", function() {
       null,
       startLegacyGameParameters(self.loggedonuser, otherguy, false)
     );
+    self.loggedonuser = us;
     Game.saveLegacyMove("mi2", 999, "c3");
+    self.loggedonuser = otherguy;
     Game.saveLegacyMove("mi3", 999, "e5");
+    self.loggedonuser = us;
     Game.saveLegacyMove("mi4", 999, "Nc3");
     chai.assert.isTrue(self.clientMessagesFake.notCalled);
   });
@@ -160,9 +172,12 @@ describe("Match requests and game starts", function() {
       true,
       "white"
     );
+    self.loggedonuser = us;
     Game.saveLocalMove("mi2", game_id, "c3");
+    self.loggedonuser = otherguy;
     Game.saveLocalMove("mi3", game_id, "e5");
-    Game.resignGame("mi4", game_id);
+    self.loggedonuser = us;
+    Game.resignLocalGame("mi4", game_id);
     Game.saveLocalMove("mi5", game_id, "Nc3");
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
     chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
@@ -890,6 +905,7 @@ describe("Game.saveLegacyMove", function() {
     delete self.meteorUsersFake;
     delete self.clientMessagesFake;
   });
+
   it("should error out if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(
@@ -905,15 +921,15 @@ describe("Game.saveLegacyMove", function() {
   it("should error out if we don't have a game record", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(
-        () => Game.saveLegacyMove("mi1", 999, "e4"),
-        ICCMeteorError
+      () => Game.saveLegacyMove("mi1", 999, "e4"),
+      ICCMeteorError
     );
   });
   it("pushes an action when it succeeds", function() {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(
-        null,
-        startLegacyGameParameters(self.loggedonuser, "otherguy")
+      null,
+      startLegacyGameParameters(self.loggedonuser, "otherguy")
     );
     // Sure, leave it this way, legacy move saves aren't suppose to check legality
     const moves = ["e4", "e5", "Nf2", "Nf6", "Nc3"];
@@ -924,7 +940,7 @@ describe("Game.saveLegacyMove", function() {
     chai.assert.equal(games.length, 1);
     chai.assert.isDefined(games[0].actions);
     chai.assert.equal(games[0].actions.length, moves.length);
-    for(let x = 0 ; x < moves.length ; x++) {
+    for (let x = 0; x < moves.length; x++) {
       chai.assert.equal(games[0].actions[x].type, "move");
       chai.assert.equal(games[0].actions[x].parameter, moves[x]);
     }
@@ -932,4 +948,290 @@ describe("Game.saveLegacyMove", function() {
   //  check(message_identifier, String);
   //   check(game_id, Number);
   //   check(move, String);
+});
+
+describe("Game.saveLocalMove", function() {
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  it("should error out if self is null", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      "white"
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+      () => Game.saveLocalMove("mi2", game_id, "e4"),
+      Match.Error
+    );
+  });
+
+  it("should error out if a game cannot be found", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    chai.assert.throws(
+      () => Game.saveLocalMove("mi2", "game_id", "e4"),
+      ICCMeteorError
+    );
+  });
+
+  it("should write a client_message and not save the move to the dataabase if the move is illegal", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      "white"
+    );
+    Game.saveLocalMove("mi2", game_id, "O-O");
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "ILLEGAL_MOVE");
+  });
+
+  it("should end the game if the move results in a stalemate", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      "white"
+    );
+    // eslint-disable-next-line prettier/prettier
+    const moves = ["e3","a5","Qh5","Ra6","Qxa5","h5","h4","Rah6","Qxc7","f6","Qxd7","Kf7","Qxb7","Qd3","Qxb8","Qh7","Qxc8","Kg6","Qe6"];
+    const tomove = [us, them];
+    let tm = 0;
+    moves.forEach(move => {
+      self.loggedonuser = tomove[tm];
+      Game.saveLocalMove(move, game_id, move);
+      tm = !tm ? 1 : 0;
+    });
+    const game = Game.collection.findOne();
+    chai.assert.isDefined(game);
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "1/2");
+  });
+
+  it("should end the game if the move results in a checkmate", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      "white"
+    );
+    const moves = ["f4", "e6", "g4", "Qh4"];
+    const tomove = [us, them];
+    let tm = 0;
+    moves.forEach(move => {
+      self.loggedonuser = tomove[tm];
+      Game.saveLocalMove(move, game_id, move);
+      tm = !tm ? 1 : 0;
+    });
+    const game = Game.collection.findOne();
+    chai.assert.isDefined(game);
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "0-1");
+  });
+  //
+  it("should end the game if the move results in an insufficient material draw", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      "white"
+    );
+    // Yea, I had to do this one manually, so it's a zillion moves. Feel free to shorten!
+    // eslint-disable-next-line prettier/prettier
+    const moves = ["e4","e5","f4","exf4","g3","fxg3","Nf3","gxh2","Rxh2","f5","exf5","d5","d4","c5","dxc5","b6","cxb6","Nc6","bxa7","Rxa7","Qxd5","Bxf5","Rxh7","Rxa2","Rxh8","Rxa1","Rxg8","Rxb1","Rxf8","Kxf8","Qxc6","Rxb2","Qc8","Rxc2","Qxd8","Kf7","Nd4","Rxc1","Kd2","Rxf1","Nxf5","Rxf5","Qd7","Kf6","Qxg7","Ke6","Qg6","Rf6","Qxf6","Kxf6"];
+    const tomove = [us, them];
+    let tm = 0;
+    moves.forEach(move => {
+      self.loggedonuser = tomove[tm];
+      Game.saveLocalMove(move, game_id, move);
+      tm = !tm ? 1 : 0;
+    });
+    const game = Game.collection.findOne();
+    chai.assert.isDefined(game);
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "1/2");
+  });
+
+  //
+  it("should not end the game if the move results in a draw by repetition situation", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      "white"
+    );
+
+    // eslint-disable-next-line prettier/prettier
+    const moves = ["e4", "e5", "Be2", "Be7", "Bf1", "Bf8", "Be2", "Be7", "Bf1", "Bf8", "Be2"];
+    const tomove = [us, them];
+    let tm = 0;
+    moves.forEach(move => {
+      self.loggedonuser = tomove[tm];
+      Game.saveLocalMove(move, game_id, move);
+      tm = !tm ? 1 : 0;
+    });
+
+    const game = Game.collection.findOne();
+    chai.assert.isDefined(game);
+    chai.assert.equal(game.status, "playing");
+    chai.assert.equal(game.result, "*");
+
+    Game.requestLocalDraw("mi2", game_id);
+
+    const game2 = Game.collection.findOne();
+    chai.assert.isDefined(game2);
+    chai.assert.equal(game2.status, "examining");
+    chai.assert.equal(game2.result, "1/2");
+  });
+
+  it("should fail if the game is a legacy game", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLegacyGame(
+      "mi",
+      999,
+      us.profile.legacy.username,
+      "otherguy",
+      0,
+      "Standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      1600,
+      1700,
+      "id",
+      [],
+      [],
+      ""
+    );
+    chai.assert.throws(
+      () => Game.saveLocalMove("mi2", game_id, "e4"),
+      ICCMeteorError
+    );
+  });
+
+  it("should fail if the wrong user is trying to make a move in a played game (i.e. black is trying to make a legal white move", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      "white"
+    );
+
+    Game.saveLocalMove("move1", game_id, "e4");
+    Game.saveLocalMove("move2", game_id, "e5");
+    self.loggedonuser = them;
+    Game.saveLocalMove("move3", game_id, "e5");
+    Game.saveLocalMove("move4", game_id, "Nc3");
+    self.loggedonuser = us;
+    Game.saveLocalMove("move5", game_id, "Nc3");
+
+    chai.assert.isTrue(self.clientMessagesFake.calledTwice);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "move2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "COMMAND_INVALID_NOT_YOUR_MOVE");
+
+    chai.assert.equal(self.clientMessagesFake.args[1][0]._id, them._id);
+    chai.assert.equal(self.clientMessagesFake.args[1][1], "move4");
+    chai.assert.equal(self.clientMessagesFake.args[1][2], "COMMAND_INVALID_NOT_YOUR_MOVE");
+  });
 });
