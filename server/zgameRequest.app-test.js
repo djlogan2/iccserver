@@ -1796,9 +1796,7 @@ describe("game_requests publication", function() {
       15,
       0,
       15,
-      0,
-      true,
-      null
+      0
     );
 
     const collector2 = new PublicationCollector({ userId: challenger._id });

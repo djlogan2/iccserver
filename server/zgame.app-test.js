@@ -77,7 +77,6 @@ describe("Match requests and game starts", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     self.loggedonuser = us;
@@ -106,7 +105,6 @@ describe("Match requests and game starts", function() {
       0,
       15,
       0,
-      false,
       "white"
     );
     self.loggedonuser = us;
@@ -169,7 +167,6 @@ describe("Match requests and game starts", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     self.loggedonuser = us;
@@ -223,8 +220,7 @@ describe("Game.startLocalGame", function() {
           15,
           0,
           15,
-          0,
-          true
+          0
         ),
       Match.Error
     );
@@ -246,7 +242,6 @@ describe("Game.startLocalGame", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
@@ -274,7 +269,6 @@ describe("Game.startLocalGame", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
@@ -284,30 +278,6 @@ describe("Game.startLocalGame", function() {
       self.clientMessagesFake.args[0][2],
       "UNABLE_TO_PLAY_UNRATED_GAMES"
     );
-  });
-
-  it("should be fine if a user cannot play rated games, but the game is examined", function() {
-    const roles = standard_member_roles.filter(
-      role => role !== "play_rated_games"
-    );
-    const us = TestHelpers.createUser({ roles: roles });
-    const otherguy = TestHelpers.createUser();
-    self.loggedonuser = us;
-    Game.startLocalGame(
-      "mi",
-      otherguy,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      false,
-      "white"
-    );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
-    chai.assert.equal(Game.collection.find().count(), 1);
   });
 
   it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function() {
@@ -327,7 +297,6 @@ describe("Game.startLocalGame", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
@@ -355,7 +324,6 @@ describe("Game.startLocalGame", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     chai.assert.isTrue(self.clientMessagesFake.calledOnce);
@@ -380,8 +348,7 @@ describe("Game.startLocalGame", function() {
           15,
           0,
           15,
-          0,
-          true
+          0
         ),
       ICCMeteorError
     );
@@ -406,32 +373,12 @@ describe("Game.startLocalGame", function() {
           15,
           0,
           15,
-          0,
-          true
+          0
         ),
       ICCMeteorError
     );
   });
-  it("should error out if played_game is not 'true' or 'false'", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
-    chai.assert.throws(
-      () =>
-        Game.startLocalGame(
-          "mi1",
-          otherguy,
-          0,
-          "standard",
-          true,
-          15,
-          0,
-          15,
-          0,
-          "yep"
-        ),
-      Match.Error
-    );
-  });
+
   it("should add an examined game to the database if played_game is true", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
@@ -444,32 +391,13 @@ describe("Game.startLocalGame", function() {
       15,
       0,
       15,
-      0,
-      true
+      0
     );
     const game = Game.collection.find().fetch();
     chai.assert.equal(game.length, 1);
     chai.assert.equal(game[0].status, "playing");
   });
-  it("should add a playing game to the database if played_game is false", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
-    Game.startLocalGame(
-      "mi1",
-      otherguy,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      false
-    );
-    const game = Game.collection.find().fetch();
-    chai.assert.equal(game.length, 1);
-    chai.assert.equal(game[0].status, "examining");
-  });
+
   it("should add a playing game to the database with a random(ish--it's actually an algorithm) color if null", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
@@ -483,8 +411,7 @@ describe("Game.startLocalGame", function() {
         15,
         0,
         15,
-        0,
-        true
+        0
       );
     }
     const game = Game.collection.find().fetch();
@@ -510,7 +437,6 @@ describe("Game.startLocalGame", function() {
         0,
         15,
         0,
-        true,
         "white"
       );
     }
@@ -539,7 +465,6 @@ describe("Game.startLocalGame", function() {
         0,
         15,
         0,
-        true,
         "black"
       );
     }
@@ -569,7 +494,6 @@ describe("Game.startLocalGame", function() {
           0,
           15,
           0,
-          true,
           "green!"
         ),
       Match.Error
@@ -990,7 +914,6 @@ describe("Game.saveLocalMove", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     self.loggedonuser = undefined;
@@ -1022,7 +945,6 @@ describe("Game.saveLocalMove", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     Game.saveLocalMove("mi2", game_id, "O-O");
@@ -1046,7 +968,6 @@ describe("Game.saveLocalMove", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     // eslint-disable-next-line prettier/prettier
@@ -1078,7 +999,6 @@ describe("Game.saveLocalMove", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     const moves = ["f4", "e6", "g4", "Qh4"];
@@ -1109,7 +1029,6 @@ describe("Game.saveLocalMove", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
     // Yea, I had to do this one manually, so it's a zillion moves. Feel free to shorten!
@@ -1143,7 +1062,6 @@ describe("Game.saveLocalMove", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
 
@@ -1213,7 +1131,6 @@ describe("Game.saveLocalMove", function() {
       0,
       15,
       0,
-      true,
       "white"
     );
 
@@ -1724,7 +1641,7 @@ describe("Game.localRemoveExaminer", function() {
     );
   });
 
-  it.only("should succeed if everything else is well", function() {
+  it("should succeed if everything else is well", function() {
     const us = TestHelpers.createUser();
     const users = [];
 
@@ -1780,7 +1697,7 @@ describe("Game.localRemoveExaminer", function() {
   });
 });
 
-describe.only("Game.localAddObserver", function() {
+describe("Game.localAddObserver", function() {
   const self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
@@ -1821,7 +1738,7 @@ describe.only("Game.localAddObserver", function() {
   });
 });
 
-describe.only("Game.localRemoveObserver", function() {
+describe("Game.localRemoveObserver", function() {
   const self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
@@ -1865,7 +1782,7 @@ describe.only("Game.localRemoveObserver", function() {
   });
 });
 
-describe.only("Game.removeLegacyGame", function() {
+describe("Game.removeLegacyGame", function() {
   it("should fail if self is null", function() {
     chai.assert.fail("do me");
   });
