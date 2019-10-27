@@ -2025,8 +2025,8 @@ describe("Game.removeLegacyGame", function() {
   it("should succeed if everything else is well", function() {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
-    self.loggedonuser =
+    self.loggedonuser = us;
     Game.startLegacyGame.apply(null, startLegacyGameParameters(us, opp));
-    chai.assert.fail("do me");
+    chai.assert.doesNotThrow(() => Game.removeLegacyGame("mi2", 999));
   });
 });

@@ -875,7 +875,11 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
       "You can only remove yourself"
     );
 
-  if (game.examiners.length === 1 && game.examiners[0] === id_to_remove)
+  if (
+    !!game.examiners &&
+    game.examiners.length === 1 &&
+    game.examiners[0] === id_to_remove
+  )
     GameCollection.remove({ _id: game_id });
   else
     GameCollection.update(
