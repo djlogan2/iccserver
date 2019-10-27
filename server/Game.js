@@ -4,7 +4,6 @@ import { Match, check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../lib/server/Logger";
-import { LegacyUser } from "./LegacyUser";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
@@ -155,18 +154,52 @@ const GameSchema = new SimpleSchema({
   },
   wild: Number,
   rating_type: String,
-  rated: Boolean,
+  rated: {
+    type: Boolean,
+    required: false,
+    custom() {
+      if (this.field("status").value === "examining") return;
+      if (!this.field("rated").isSet)
+        return [{ name: "rated", type: SimpleSchema.ErrorTypes.REQUIRED }];
+    }
+  },
   status: String,
   clocks: new SimpleSchema({
     white: new SimpleSchema({
       initial: SimpleSchema.Integer,
       inc: Number,
-      current: SimpleSchema.Integer
+      current: {
+        type: SimpleSchema.Integer,
+        required: false,
+        custom() {
+          if (this.field("status").value === "examining") return;
+          if (!this.field("clocks.white.current").isSet)
+            return [
+              {
+                name: "clocks.white.current",
+                type: SimpleSchema.ErrorTypes.REQUIRED
+              }
+            ];
+        }
+      }
     }),
     black: new SimpleSchema({
       initial: SimpleSchema.Integer,
       inc: Number,
-      current: SimpleSchema.Integer
+      current: {
+        type: SimpleSchema.Integer,
+        required: false,
+        custom() {
+          if (this.field("status").value === "examining") return;
+          if (!this.field("clocks.black.current").isSet)
+            return [
+              {
+                name: "clocks.black.current",
+                type: SimpleSchema.ErrorTypes.REQUIRED
+              }
+            ];
+        }
+      }
     })
   }),
   white: new SimpleSchema({
@@ -176,6 +209,7 @@ const GameSchema = new SimpleSchema({
       required: false,
       custom() {
         let set = 0;
+        if (this.field("status").value === "examining") return;
         if (this.field("white.id").isSet) set += 4;
         if (this.field("black.id").isSet) set += 2;
         if (this.field("legacy_game_number").isSet) set += 1;
@@ -192,6 +226,7 @@ const GameSchema = new SimpleSchema({
       required: false,
       custom() {
         let set = 0;
+        if (this.field("status").value === "examining") return;
         if (this.field("white.id").isSet) set += 4;
         if (this.field("black.id").isSet) set += 2;
         if (this.field("legacy_game_number").isSet) set += 1;
@@ -201,6 +236,7 @@ const GameSchema = new SimpleSchema({
     },
     rating: SimpleSchema.Integer
   }),
+  tags: { type: Object, required: false },
   actions: [actionSchema],
   examiners: { type: Array, required: false, custom: examinerCheck },
   "examiners.$": String,
@@ -209,7 +245,7 @@ const GameSchema = new SimpleSchema({
 });
 GameCollection.attachSchema(GameSchema);
 
-function getAndCheck(message_identifier, game_id, must_be_my_turn) {
+function getAndCheck(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
@@ -241,7 +277,6 @@ Game.startLocalGame = function(
   white_increment,
   black_initial,
   black_increment,
-  played_game,
   color /*,
   irregular_legality,
   irregular_semantics,
@@ -261,7 +296,6 @@ Game.startLocalGame = function(
   check(white_increment, Number);
   check(black_initial, Number);
   check(black_increment, Number);
-  check(played_game, Boolean);
   check(color, Match.Maybe(String));
 
   if (!self.loggedOn) {
@@ -275,7 +309,7 @@ Game.startLocalGame = function(
   if (!!color && color !== "white" && color !== "black")
     throw new Match.Error("color must be undefined, 'white' or 'black");
 
-  if (played_game && !other_user.loggedOn) {
+  if (!other_user.loggedOn) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -285,7 +319,6 @@ Game.startLocalGame = function(
   }
 
   if (
-    played_game &&
     !Roles.userIsInRole(self, "play_" + (rated ? "" : "un") + "rated_games")
   ) {
     ClientMessages.sendMessageToClient(
@@ -297,7 +330,6 @@ Game.startLocalGame = function(
   }
 
   if (
-    played_game &&
     !Roles.userIsInRole(
       other_user,
       "play_" + (rated ? "" : "un") + "rated_games"
@@ -311,23 +343,21 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (played_game) {
-    if (
-      !SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)
-    ) {
-      throw new ICCMeteorError(
-        "Unable to start game",
-        "White time/inc fails validation"
-      );
-    }
-    if (
-      !SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)
-    ) {
-      throw new ICCMeteorError(
-        "Unable to start game",
-        "White time/inc fails validation"
-      );
-    }
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)
+  ) {
+    throw new ICCMeteorError(
+      "Unable to start game",
+      "White time/inc fails validation"
+    );
+  }
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)
+  ) {
+    throw new ICCMeteorError(
+      "Unable to start game",
+      "White time/inc fails validation"
+    );
   }
 
   const white = determineWhite(self, other_user, color);
@@ -361,10 +391,79 @@ Game.startLocalGame = function(
         current: black_initial
       }
     },
-    status: played_game ? "playing" : "examining",
-    actions: []
+    status: "playing",
+    actions: [],
+    observers: []
   };
-  if (game.status === "examining") game.examiners = [self._id];
+  const game_id = GameCollection.insert(game);
+  active_games[game_id] = new Chess.Chess();
+  return game_id;
+};
+
+Game.startLocalExaminedGame = function(
+  message_identifier,
+  white_name,
+  black_name,
+  wild_number,
+  rating_type,
+  white_initial,
+  white_increment,
+  black_initial,
+  black_increment,
+  other_headers
+) {
+  const self = Meteor.user();
+
+  check(self, Object);
+  check(message_identifier, String);
+  check(white_name, String);
+  check(black_name, String);
+  check(wild_number, Number);
+  check(rating_type, String);
+  check(white_initial, Number);
+  check(white_increment, Number);
+  check(black_initial, Number);
+  check(black_increment, Number);
+  check(other_headers, Match.Maybe(Object));
+
+  if (!self.loggedOn) {
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to examine game",
+      "User examining game is not logged on"
+    );
+  }
+
+  const game = {
+    starttime: new Date(),
+    result: "*",
+    white: {
+      name: white_name,
+      rating: 1600
+    },
+    black: {
+      name: black_name,
+      rating: 1600
+    },
+    wild: wild_number,
+    rating_type: rating_type,
+    clocks: {
+      white: {
+        initial: white_initial,
+        inc: white_increment
+      },
+      black: {
+        initial: black_initial,
+        inc: black_increment
+      }
+    },
+    status: "examining",
+    actions: [],
+    observers: [self._id],
+    examiners: [self._id]
+  };
+
+  if (!!other_headers) game.tags = other_headers;
   const game_id = GameCollection.insert(game);
   active_games[game_id] = new Chess.Chess();
   return game_id;
@@ -654,19 +753,34 @@ Game.legacyGameEnded = function(
 Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
   check(message_identifier, String);
   check(game_id, String);
+  check(id_to_remove, String);
   const self = Meteor.user();
   check(self, Object);
 
+  if (id_to_remove === self._id)
+    throw new ICCMeteorError(message_identifier, "Unable to remove examiner", "Cannot remove yourself");
+
   const game = GameCollection.findOne({
-    _id: game_id,
-    examiners: id_to_remove
+    _id: game_id
   });
   if (!game)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to remove examiner",
-      "game id does not exist or user is not an examiner"
+      "game id does not exist"
     );
+
+  if (!game.examiners || game.examiners.indexOf(self._id) === -1)
+    throw new ICCMeteorError(message_identifier, "Unable to remove examiner", "Issuer is not an examiner");
+
+  if (!game.examiners || game.examiners.indexOf(id_to_remove) === -1) {
+    ClientMessages.sendMessageToClient(
+      self._id,
+      message_identifier,
+      "NOT_AN_EXAMINER"
+    );
+    return;
+  }
   GameCollection.update(
     { _id: game_id },
     { $pull: { examiners: id_to_remove } }
@@ -676,35 +790,73 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
 Game.localAddExamainer = function(message_identifier, game_id, id_to_add) {
   check(message_identifier, String);
   check(game_id, String);
+  check(id_to_add, String);
   const self = Meteor.user();
   check(self, Object);
 
-  const game = GameCollection.findOne({ _id: game_id, observers: id_to_add });
+  const game = GameCollection.findOne({ _id: game_id });
+
   if (!game)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to add examiner",
-      "game id does not exist or user is not an observer"
+      "Unable to find game record"
     );
+
+  if (!game.examiners || game.examiners.indexOf(self._id) === -1) {
+    ClientMessages.sendMessageToClient(
+      self._id,
+      message_identifier,
+      "NOT_AN_EXAMINER"
+    );
+    return;
+  }
+
+  if (!game.observers || game.observers.indexOf(id_to_add) === -1) {
+    ClientMessages.sendMessageToClient(
+      self._id,
+      message_identifier,
+      "NOT_AN_OBSERVER"
+    );
+    return;
+  }
+
+  if (!!game.examiners && game.examiners.indexOf(id_to_add) !== -1) {
+    ClientMessages.sendMessageToClient(
+      self._id,
+      message_identifier,
+      "ALREADY_AN_EXAMINER"
+    );
+    return;
+  }
+
   GameCollection.update({ _id: game_id }, { $push: { examiners: id_to_add } });
 };
 
 Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   check(message_identifier, String);
   check(game_id, String);
+  check(id_to_remove, String);
   const self = Meteor.user();
   check(self, Object);
 
   const game = GameCollection.findOne({
-    _id: game_id,
-    observers: id_to_remove
+    _id: game_id
   });
   if (!game)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to remove examiner",
-      "game id does not exist or user is not an examiner"
+      "game id does not exist"
     );
+  if (!game.observers || game.observers.indexOf(id_to_remove) === -1) {
+    ClientMessages.sendMessageToClient(
+      self._id,
+      message_identifier,
+      "NOT_AN_OBSERVER"
+    );
+    return;
+  }
   GameCollection.update(
     { _id: game_id },
     { $pull: { examiners: id_to_remove, observers: id_to_remove } }
@@ -714,6 +866,8 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
 Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
   check(message_identifier, String);
   check(game_id, String);
+  check(id_to_add, String);
+
   const self = Meteor.user();
   check(self, Object);
 
@@ -727,20 +881,20 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
   if (Meteor.users.find({ _id: id_to_add }).count() !== 1)
     throw new ICCMeteorError(
       message_identifier,
-      "Unable to add examiner",
+      "Unable to add observer",
       "Unable to find user record for ID"
-    );
-  if (game.status === "playing")
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to add examiner",
-      "Game is being played"
     );
   if (game.legacy_game_number)
     throw new ICCMeteorError(
       message_identifier,
-      "Unable to add examiner",
+      "Unable to add observer",
       "Game is a legacy game"
+    );
+  if (self._id !== id_to_add)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add observer",
+      "Currently no support for adding another observer"
     );
   GameCollection.update({ _id: game_id }, { $push: { observers: id_to_add } });
 };
@@ -758,6 +912,10 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   check(message_identifier, String);
   check(game_id, String);
   check(number, Number);
+
+  const self = Meteor.user();
+  check(self, Object);
+
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -786,6 +944,10 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
 Game.acceptLocalTakeback = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+
+  const self = Meteor.user();
+  check(self, Object);
+
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -821,6 +983,10 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
 Game.declineLocalTakeback = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+
+  const self = Meteor.user();
+  check(self, Object);
+
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -1061,3 +1227,86 @@ Meteor.startup(function() {
     Game.collection = GameCollection;
   }
 });
+
+function updateGameRecordWithPGNTag(gamerecord, tag, value) {
+  switch (tag) {
+    case "Event":
+      break;
+    case "Site":
+      break;
+    case "Date":
+      gamerecord.startTime = Date.parse(value);
+      break;
+    case "Round":
+      break;
+    case "White":
+      gamerecord.white.name = value;
+      break;
+    case "Black":
+      gamerecord.black.name = value;
+      break;
+    case "Result":
+      gamerecord.result = value;
+      break;
+    case "WhiteTitle":
+      break;
+    case "BlackTitle":
+      break;
+    case "WhiteUSCF":
+    case "WhiteElo":
+      gamerecord.white.rating = parseInt(value);
+      break;
+    case "BlackUSCF":
+    case "BlackElo":
+      gamerecord.black.rating = parseInt(value);
+      break;
+    case "WhiteNA":
+      break;
+    case "BlackNA":
+      break;
+    case "WhiteType":
+      break;
+    case "BlackType":
+      break;
+    case "EventDate":
+      break;
+    case "EventSponsor":
+      break;
+    case "Section":
+      break;
+    case "Stage":
+      break;
+    case "Board":
+      break;
+    case "Opening":
+      break;
+    case "Variation":
+      break;
+    case "SubVariation":
+      break;
+    case "ECO":
+      break;
+    case "NIC":
+      break;
+    case "Time":
+      break;
+    case "UTCTime":
+      break;
+    case "UTCDate":
+      break;
+    case "TimeControl":
+      break;
+    case "SetUp":
+      break;
+    case "FEN":
+      break;
+    case "Termination":
+      break;
+    case "Annotator":
+      break;
+    case "Mode":
+      break;
+    case "PlyCount":
+      break;
+  }
+}

@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Game } from "./Game";
-import { check, Match } from "meteor/check";
+import { Match } from "meteor/check";
 import chai from "chai";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
@@ -1001,8 +1001,7 @@ describe("Game.saveLocalMove", function() {
   });
 
   it("should error out if a game cannot be found", function() {
-    const us = TestHelpers.createUser();
-    self.loggedonuser = us;
+    self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(
       () => Game.saveLocalMove("mi2", "game_id", "e4"),
       ICCMeteorError
@@ -1051,7 +1050,7 @@ describe("Game.saveLocalMove", function() {
       "white"
     );
     // eslint-disable-next-line prettier/prettier
-    const moves = ["e3","a5","Qh5","Ra6","Qxa5","h5","h4","Rah6","Qxc7","f6","Qxd7","Kf7","Qxb7","Qd3","Qxb8","Qh7","Qxc8","Kg6","Qe6"];
+        const moves = ["e3", "a5", "Qh5", "Ra6", "Qxa5", "h5", "h4", "Rah6", "Qxc7", "f6", "Qxd7", "Kf7", "Qxb7", "Qd3", "Qxb8", "Qh7", "Qxc8", "Kg6", "Qe6"];
     const tomove = [us, them];
     let tm = 0;
     moves.forEach(move => {
@@ -1115,7 +1114,7 @@ describe("Game.saveLocalMove", function() {
     );
     // Yea, I had to do this one manually, so it's a zillion moves. Feel free to shorten!
     // eslint-disable-next-line prettier/prettier
-    const moves = ["e4","e5","f4","exf4","g3","fxg3","Nf3","gxh2","Rxh2","f5","exf5","d5","d4","c5","dxc5","b6","cxb6","Nc6","bxa7","Rxa7","Qxd5","Bxf5","Rxh7","Rxa2","Rxh8","Rxa1","Rxg8","Rxb1","Rxf8","Kxf8","Qxc6","Rxb2","Qc8","Rxc2","Qxd8","Kf7","Nd4","Rxc1","Kd2","Rxf1","Nxf5","Rxf5","Qd7","Kf6","Qxg7","Ke6","Qg6","Rf6","Qxf6","Kxf6"];
+        const moves = ["e4", "e5", "f4", "exf4", "g3", "fxg3", "Nf3", "gxh2", "Rxh2", "f5", "exf5", "d5", "d4", "c5", "dxc5", "b6", "cxb6", "Nc6", "bxa7", "Rxa7", "Qxd5", "Bxf5", "Rxh7", "Rxa2", "Rxh8", "Rxa1", "Rxg8", "Rxb1", "Rxf8", "Kxf8", "Qxc6", "Rxb2", "Qc8", "Rxc2", "Qxd8", "Kf7", "Nd4", "Rxc1", "Kd2", "Rxf1", "Nxf5", "Rxf5", "Qd7", "Kf6", "Qxg7", "Ke6", "Qg6", "Rf6", "Qxf6", "Kxf6"];
     const tomove = [us, them];
     let tm = 0;
     moves.forEach(move => {
@@ -1149,7 +1148,7 @@ describe("Game.saveLocalMove", function() {
     );
 
     // eslint-disable-next-line prettier/prettier
-    const moves = ["e4", "e5", "Be2", "Be7", "Bf1", "Bf8", "Be2", "Be7", "Bf1", "Bf8", "Be2"];
+        const moves = ["e4", "e5", "Be2", "Be7", "Bf1", "Bf8", "Be2", "Be7", "Bf1", "Bf8", "Be2"];
     const tomove = [us, them];
     let tm = 0;
     moves.forEach(move => {
@@ -1173,7 +1172,6 @@ describe("Game.saveLocalMove", function() {
 
   it("should fail if the game is a legacy game", function() {
     const us = TestHelpers.createUser();
-    const them = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLegacyGame(
       "mi",
@@ -1374,7 +1372,415 @@ describe("Game.legacyGameEnded", function() {
   });
 });
 
-describe.skip("Game.localAddExaminer", function() {
+describe("Game.localAddExaminer", function() {
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  it("should fail if self is null", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+      () => Game.localAddExamainer("mi2", game_id, newguy._id),
+      Match.Error
+    );
+  });
+
+  it("should fail if game_id is null", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+      () => Game.localAddExamainer("mi2", null, newguy),
+      Match.Error
+    );
+  });
+
+  it("should fail if game cannot be found", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+      () => Game.localAddExamainer("mi2", "xyz", newguy._id),
+      ICCMeteorError
+    );
+  });
+
+  // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
+  it("should fail if game is still being played", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const opponent = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opponent,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0
+    );
+    Game.localAddExamainer("mi2", game_id, newguy._id);
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_EXAMINER");
+  });
+
+  it("should write a client message if user being added is not an observer", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.localAddExamainer("mi2", game_id, newguy._id);
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_OBSERVER");
+  });
+
+  it("should fail if user doing the adding isn't an examiner", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy1 = TestHelpers.createUser();
+    const newguy2 = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    self.loggedonuser = newguy1;
+    Game.localAddObserver("mi2", game_id, newguy1._id);
+    self.loggedonuser = newguy2;
+    Game.localAddObserver("mi2", game_id, newguy2._id);
+    Game.localAddExamainer("mi2", game_id, newguy1._id);
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_EXAMINER");
+  });
+
+  it("should write a client message if user being added is already an examiner", function() {
+    self.timeout(500000);
+    const us = TestHelpers.createUser();
+    const newguy1 = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    self.loggedonuser = newguy1;
+    Game.localAddObserver("mi2", game_id, newguy1._id);
+    self.loggedonuser = us;
+    Game.localAddExamainer("mi2", game_id, newguy1._id);
+    Game.localAddExamainer("mi2", game_id, newguy1._id);
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "ALREADY_AN_EXAMINER"
+    );
+  });
+
+  it("should succeed if everything else is well", function() {
+    const us = TestHelpers.createUser();
+    const users = [];
+
+    for (let x = 0; x < 10; x++) users.push(TestHelpers.createUser());
+
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+
+    const observers = [];
+    const examiners = [];
+
+    for (let x = 0; x < 10; x++) {
+      observers.push(users[x]);
+      self.loggedonuser = users[x];
+      Game.localAddObserver(
+        "add-observer-" + users[x]._id,
+        game_id,
+        users[x]._id
+      );
+    }
+
+    observers.push(us);
+    examiners.push(us);
+
+    self.loggedonuser = us;
+    for (let x = 0; x < 5; x++) {
+      Game.localAddExamainer("add-examiner-" + x, game_id, observers[x]._id);
+      examiners.push(observers[x]);
+    }
+
+    const games = Game.collection.find().fetch();
+    chai.assert.isDefined(games);
+    chai.assert.equal(games.length, 1);
+    chai.assert.isDefined(games[0].observers);
+    chai.assert.isDefined(games[0].examiners);
+    chai.assert.equal(games[0].observers.length, observers.length);
+    chai.assert.equal(games[0].examiners.length, examiners.length);
+    chai.assert.sameMembers(observers.map(ob => ob._id), games[0].observers);
+    chai.assert.sameMembers(examiners.map(ex => ex._id), games[0].examiners);
+  });
+});
+
+describe("Game.localRemoveExaminer", function() {
+  const self = this;
+  this.timeout(500000);
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  it("should fail if self is null", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.localAddExamainer("mi2", game_id, newguy._id);
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+      () => Game.localRemoveExaminer("mi2", game_id, newguy._id),
+      Match.Error
+    );
+  });
+
+  it("should fail if game_id is null", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+      () => Game.localRemoveExaminer("mi2", null, newguy._id),
+      Match.Error
+    );
+  });
+
+  it("should fail if game cannot be found", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+      () => Game.localRemoveExaminer("mi2", "somegame", newguy._id),
+      ICCMeteorError
+    );
+  });
+
+  it("should fail if target user is not an examiner", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const observer = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi3", game_id, observer._id);
+    self.loggedonuser = us;
+    Game.localRemoveExaminer("mi4", game_id, observer._id);
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_EXAMINER");
+  });
+
+  it("should fail if issuer is not a current examiner of the game", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const newguy = TestHelpers.createUser();
+    const observer = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.localAddExamainer("mi2", game_id, newguy._id);
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi3", game_id, observer._id);
+    self.loggedonuser = observer;
+    chai.assert.throws(
+      () => Game.localRemoveExaminer("mi2", game_id, us._id),
+      ICCMeteorError
+    );
+  });
+
+  it("should fail if user is to evict himself", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    chai.assert.throws(
+      () => Game.localRemoveExaminer("mi2", game_id, us._id),
+      ICCMeteorError
+    );
+  });
+
+  it.only("should succeed if everything else is well", function() {
+    const us = TestHelpers.createUser();
+    const users = [];
+
+    for (let x = 0; x < 10; x++) users.push(TestHelpers.createUser());
+
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+
+    const observers = [];
+    const examiners = [];
+
+    for (let x = 0; x < 10; x++) {
+      observers.push(users[x]);
+      self.loggedonuser = users[x];
+      Game.localAddObserver(
+        "add-observer-" + users[x]._id,
+        game_id,
+        users[x]._id
+      );
+    }
+
+    observers.push(us);
+    examiners.push(us);
+
+    self.loggedonuser = us;
+    for (let x = 0; x < 5; x++) {
+      Game.localAddExamainer("add-examiner-" + x, game_id, observers[x]._id);
+      examiners.push(observers[x]);
+    }
+
+    while (examiners.length !== 1) {
+      const examiner = examiners.shift();
+      self.loggedonuser = examiner;
+      Game.localRemoveExaminer("remove-" + examiner._id, game_id, examiner._id);
+    }
+
+    const games = Game.collection.find().fetch();
+    chai.assert.isDefined(games);
+    chai.assert.equal(games.length, 1);
+    chai.assert.isDefined(games[0].examiners);
+    chai.assert.equal(games[0].examiners.length, examiners.length);
+    chai.assert.sameMembers(examiners.map(ex => ex._id), games[0].examiners);
+  });
+});
+
+describe.only("Game.localAddObserver", function() {
   const self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
@@ -1407,16 +1813,59 @@ describe.skip("Game.localAddExaminer", function() {
   it("should fail if game cannot be found", function() {
     chai.assert.fail("do me");
   });
-  // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
-  it("should fail if game is still being played", function() {
+  it("should fail if user is trying to add another user (and not himself)", function() {
     chai.assert.fail("do me");
   });
-  it("should succeed if everything else is well, and it should delete the chess.js instance", function() {
+  it("should succeed if everything else is well", function() {
     chai.assert.fail("do me");
   });
 });
 
-describe("Game.removeLegacyGame", function() {
+describe.only("Game.localRemoveObserver", function() {
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+      Meteor.users.findOne({
+        _id: self.loggedonuser ? self.loggedonuser._id : ""
+      })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+      ClientMessages,
+      "sendMessageToClient",
+      self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
+  it("should fail if self is null", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if game_id is null", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if game cannot be found or user is not an observer", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if user is trying to evict another user", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed if everything else is well", function() {
+    chai.assert.fail("do me");
+  });
+  it("should delete the record if the last examiner leaves, regardless of observers left", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+describe.only("Game.removeLegacyGame", function() {
   it("should fail if self is null", function() {
     chai.assert.fail("do me");
   });
