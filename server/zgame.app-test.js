@@ -1969,7 +1969,7 @@ describe("Game.localRemoveObserver", function() {
     chai.assert.equal(ex2.observers.indexOf(observer._id), -1);
   });
 
-  it.only("should delete the record if the last examiner leaves, regardless of observers left", function() {
+  it("should delete the record if the last examiner leaves, regardless of observers left", function() {
     const examiner = TestHelpers.createUser();
     const observer = TestHelpers.createUser();
 
@@ -2022,7 +2022,7 @@ describe("Game.removeLegacyGame", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => Game.removeLegacyGame("mi2", 111), ICCMeteorError);
   });
-  it.only("should succeed if everything else is well", function() {
+  it("should succeed if everything else is well", function() {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser =
