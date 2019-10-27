@@ -1673,18 +1673,14 @@ describe("Game.localRemoveExaminer", function() {
       );
     }
 
-    observers.push(us);
-    examiners.push(us);
-
     self.loggedonuser = us;
     for (let x = 0; x < 5; x++) {
       Game.localAddExamainer("add-examiner-" + x, game_id, observers[x]._id);
       examiners.push(observers[x]);
     }
 
-    while (examiners.length !== 1) {
+    while (examiners.length) {
       const examiner = examiners.shift();
-      self.loggedonuser = examiner;
       Game.localRemoveExaminer("remove-" + examiner._id, game_id, examiner._id);
     }
 
@@ -1692,12 +1688,12 @@ describe("Game.localRemoveExaminer", function() {
     chai.assert.isDefined(games);
     chai.assert.equal(games.length, 1);
     chai.assert.isDefined(games[0].examiners);
-    chai.assert.equal(games[0].examiners.length, examiners.length);
-    chai.assert.sameMembers(examiners.map(ex => ex._id), games[0].examiners);
+    chai.assert.equal(games[0].examiners.length, 1);
+    chai.assert.sameMembers([us._id], games[0].examiners);
   });
 });
 
-describe("Game.localAddObserver", function() {
+describe.only("Game.localAddObserver", function() {
   const self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
