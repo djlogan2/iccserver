@@ -868,13 +868,20 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     return;
   }
 
-  if(id_to_remove !== self._id)
-    throw new ICCMeteorError(message_identifier, "Unable to remove observer", "You can only remove yourself");
+  if (id_to_remove !== self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to remove observer",
+      "You can only remove yourself"
+    );
 
-  GameCollection.update(
-    { _id: game_id },
-    { $pull: { examiners: id_to_remove, observers: id_to_remove } }
-  );
+  if (game.examiners.length === 1 && game.examiners[0] === id_to_remove)
+    GameCollection.remove({ _id: game_id });
+  else
+    GameCollection.update(
+      { _id: game_id },
+      { $pull: { examiners: id_to_remove, observers: id_to_remove } }
+    );
 };
 
 Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
