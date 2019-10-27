@@ -1423,7 +1423,6 @@ describe("Game.localAddExaminer", function() {
   });
 
   it("should write a client message if user being added is already an examiner", function() {
-    self.timeout(500000);
     const us = TestHelpers.createUser();
     const newguy1 = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -1507,7 +1506,6 @@ describe("Game.localAddExaminer", function() {
 
 describe("Game.localRemoveExaminer", function() {
   const self = this;
-  this.timeout(500000);
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
       Meteor.users.findOne({
@@ -1693,7 +1691,7 @@ describe("Game.localRemoveExaminer", function() {
   });
 });
 
-describe.only("Game.localAddObserver", function() {
+describe("Game.localAddObserver", function() {
   const self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
