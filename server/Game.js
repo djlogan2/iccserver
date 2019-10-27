@@ -758,7 +758,11 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
   check(self, Object);
 
   if (id_to_remove === self._id)
-    throw new ICCMeteorError(message_identifier, "Unable to remove examiner", "Cannot remove yourself");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to remove examiner",
+      "Cannot remove yourself"
+    );
 
   const game = GameCollection.findOne({
     _id: game_id
@@ -771,7 +775,11 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
     );
 
   if (!game.examiners || game.examiners.indexOf(self._id) === -1)
-    throw new ICCMeteorError(message_identifier, "Unable to remove examiner", "Issuer is not an examiner");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to remove examiner",
+      "Issuer is not an examiner"
+    );
 
   if (!game.examiners || game.examiners.indexOf(id_to_remove) === -1) {
     ClientMessages.sendMessageToClient(
@@ -843,12 +851,14 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   const game = GameCollection.findOne({
     _id: game_id
   });
+
   if (!game)
     throw new ICCMeteorError(
       message_identifier,
-      "Unable to remove examiner",
+      "Unable to remove observer",
       "game id does not exist"
     );
+
   if (!game.observers || game.observers.indexOf(id_to_remove) === -1) {
     ClientMessages.sendMessageToClient(
       self._id,
@@ -857,6 +867,10 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     );
     return;
   }
+
+  if(id_to_remove !== self._id)
+    throw new ICCMeteorError(message_identifier, "Unable to remove observer", "You can only remove yourself");
+
   GameCollection.update(
     { _id: game_id },
     { $pull: { examiners: id_to_remove, observers: id_to_remove } }
@@ -905,7 +919,19 @@ Game.removeLegacyGame = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
-  GameCollection.remove({ legacy_game_number: game_id });
+  const count = GameCollection.remove({ legacy_game_number: game_id });
+  if (!count)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to remove legacy game",
+      "Game id not found"
+    );
+  else if (count !== 1)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Catastrophe!",
+      "Deleted more than one record!"
+    );
 };
 
 Game.requestLocalTakeback = function(message_identifier, game_id, number) {

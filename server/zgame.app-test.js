@@ -211,17 +211,7 @@ describe("Game.startLocalGame", function() {
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
       () =>
-        Game.startLocalGame(
-          "mi1",
-          otherguy,
-          0,
-          "standard",
-          true,
-          15,
-          0,
-          15,
-          0
-        ),
+        Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, 15, 0),
       Match.Error
     );
   });
@@ -339,17 +329,7 @@ describe("Game.startLocalGame", function() {
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
       () =>
-        Game.startLocalGame(
-          "mi1",
-          otherguy,
-          0,
-          "standard",
-          true,
-          15,
-          0,
-          15,
-          0
-        ),
+        Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, 15, 0),
       ICCMeteorError
     );
   });
@@ -364,17 +344,7 @@ describe("Game.startLocalGame", function() {
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
       () =>
-        Game.startLocalGame(
-          "mi1",
-          otherguy,
-          0,
-          "standard",
-          true,
-          15,
-          0,
-          15,
-          0
-        ),
+        Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, 15, 0),
       ICCMeteorError
     );
   });
@@ -382,17 +352,7 @@ describe("Game.startLocalGame", function() {
   it("should add an examined game to the database if played_game is true", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
-    Game.startLocalGame(
-      "mi1",
-      otherguy,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      15,
-      0
-    );
+    Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, 15, 0);
     const game = Game.collection.find().fetch();
     chai.assert.equal(game.length, 1);
     chai.assert.equal(game[0].status, "playing");
@@ -402,17 +362,7 @@ describe("Game.startLocalGame", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     for (let x = 0; x < 10; x++) {
-      Game.startLocalGame(
-        "mi1",
-        otherguy,
-        0,
-        "standard",
-        true,
-        15,
-        0,
-        15,
-        0
-      );
+      Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, 15, 0);
     }
     const game = Game.collection.find().fetch();
     chai.assert.equal(game.length, 10);
@@ -1716,19 +1666,88 @@ describe("Game.localAddObserver", function() {
   });
 
   it("should fail if self is null", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+      () => Game.localAddObserver("mi2", game_id, newguy._id),
+      Match.Error
+    );
   });
+
   it("should fail if game_id is null", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+        () => Game.localAddObserver("mi2", null, newguy._id),
+        Match.Error
+    );
   });
+
   it("should fail if game cannot be found", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+        () => Game.localAddObserver("mi2", "somegame", newguy._id),
+        ICCMeteorError
+    );
   });
+
   it("should fail if user is trying to add another user (and not himself)", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const opponent = TestHelpers.createUser();
+    const observer = TestHelpers.createUser();
+    const victim = TestHelpers.createUser();
+    const game_id = Game.startLocalGame("mi1", opponent, 0, "standard", true, 15, 0, 15, 0);
+    self.loggedonuser = observer;
+    chai.assert.throws(() => Game.localAddObserver("mi2", game_id, victim._id), ICCMeteorError);
   });
+
   it("should succeed if everything else is well", function() {
-    chai.assert.fail("do me");
+    const us = TestHelpers.createUser();
+    const opponent = TestHelpers.createUser();
+    const observer = TestHelpers.createUser();
+    const randomguy = TestHelpers.createUser();
+
+    self.loggedonuser = us;
+    const game_id1 = Game.startLocalGame("mi1", opponent, 0, "standard", true, 15, 0, 15, 0);
+
+    self.loggedonuser = randomguy;
+    const game_id2 = Game.startLocalExaminedGame("mi2", "whiteguy", "blackguy", 0, "standard", 15, 0, 15, 0);
+
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi3", game_id1, observer._id);
+    Game.localAddObserver("mi4", game_id2, observer._id);
+
+    const ipgame = Game.collection.findOne({status: "playing"});
+    const exgame = Game.collection.findOne({status: "examining"});
+    chai.assert.isDefined(ipgame);
+    chai.assert.isDefined(exgame);
+    chai.assert.isDefined(ipgame.observers);
+    chai.assert.isDefined(exgame.observers);
+    chai.assert.equal(ipgame.observers.length, 1);
+    chai.assert.equal(exgame.observers.length, 2);
+
+    chai.assert.sameMembers(ipgame.observers, [observer._id]);
+    chai.assert.sameMembers(exgame.observers, [randomguy._id, observer._id]);
+
+    self.loggedonuser = opponent;
+    Game.resignLocalGame("mi5", game_id1);
+
+    const game3 = Game.collection.findOne({_id: game_id1});
+    chai.assert.sameMembers(game3.observers, [us._id, opponent._id, observer._id]);
+    chai.assert.sameMembers(game3.examiners, [us._id, opponent._id]);
   });
 });
 
@@ -1757,34 +1776,155 @@ describe("Game.localRemoveObserver", function() {
   });
 
   it("should fail if self is null", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+        "mi1",
+        "whiteguy",
+        "blackguy",
+        0,
+        "standard",
+        15,
+        0,
+        15,
+        0
+    );
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+        () => Game.localRemoveObserver("mi2", game_id, newguy._id),
+        Match.Error
+    );
   });
   it("should fail if game_id is null", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+        () => Game.localRemoveObserver("mi2", null, newguy._id),
+        Match.Error
+    );
   });
-  it("should fail if game cannot be found or user is not an observer", function() {
-    chai.assert.fail("do me");
+  it("should fail if game cannot be found", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const newguy = TestHelpers.createUser();
+    chai.assert.throws(
+        () => Game.localRemoveObserver("mi2", "somegame", newguy._id),
+        ICCMeteorError
+    );
   });
+
+  it("should return a client message if user is not an observer", function(){
+    const us = TestHelpers.createUser();
+    const dumbguy = TestHelpers.createUser();
+
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0, "standard", 15, 0, 15, 0);
+    self.loggedonuser = dumbguy;
+    Game.localRemoveObserver("mi2", game_id, dumbguy._id);
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0], dumbguy._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_OBSERVER");
+  });
+
   it("should fail if user is trying to evict another user", function() {
-    chai.assert.fail("do me");
+    const us = TestHelpers.createUser();
+    const abuser = TestHelpers.createUser();
+    const victim = TestHelpers.createUser();
+
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0, "standard", 15, 0, 15, 0);
+    self.loggedonuser = victim;
+    Game.localAddObserver("mi2", game_id, victim._id);
+    self.loggedonuser = abuser;
+    Game.localAddObserver("mi2", game_id, abuser._id);
+    self.loggedonuser = us;
+    Game.localAddExamainer("mi3", game_id, abuser._id); // Make him an examiner just to maximize ability!
+    self.loggedonuser = abuser;
+    chai.assert.throws(() => Game.localRemoveObserver("mi2", game_id, victim._id), ICCMeteorError);
+    chai.assert.throws(() => Game.localRemoveObserver("mi2", game_id, us._id), ICCMeteorError); // Might as well check this one too
   });
+
   it("should succeed if everything else is well", function() {
-    chai.assert.fail("do me");
+    const us = TestHelpers.createUser();
+    const opponent = TestHelpers.createUser();
+    const examiner = TestHelpers.createUser();
+    const observer = TestHelpers.createUser();
+
+    self.loggedonuser = us;
+    const playing_game = Game.startLocalGame("mi1", opponent, 0, "standard", true, 15, 0, 15, 0);
+
+    self.loggedonuser = examiner;
+    const examined_game = Game.startLocalExaminedGame("mi2", "whiteguy", "blackguy", 0, "standard", 15, 0, 15, 0);
+
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi3", playing_game, observer._id);
+    Game.localAddObserver("mi4", examined_game, observer._id);
+
+    const pg1 = Game.collection.findOne({status: "playing"});
+    const ex1 = Game.collection.findOne({status: "examining"});
+
+    chai.assert.notEqual(pg1.observers.indexOf(observer._id), -1);
+    chai.assert.notEqual(ex1.observers.indexOf(observer._id), -1);
+
+    Game.localRemoveObserver("mi5", playing_game, observer._id);
+    Game.localRemoveObserver("mi5", examined_game, observer._id);
+
+    const pg2 = Game.collection.findOne({status: "playing"});
+    const ex2 = Game.collection.findOne({status: "examining"});
+
+    chai.assert.equal(pg2.observers.indexOf(observer._id), -1);
+    chai.assert.equal(ex2.observers.indexOf(observer._id), -1);
   });
+
   it("should delete the record if the last examiner leaves, regardless of observers left", function() {
     chai.assert.fail("do me");
   });
 });
 
 describe("Game.removeLegacyGame", function() {
+  const self = this;
+  beforeEach(function(done) {
+    self.meteorUsersFake = sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+    );
+    self.clientMessagesFake = sinon.fake();
+    sinon.replace(
+        ClientMessages,
+        "sendMessageToClient",
+        self.clientMessagesFake
+    );
+    sinon.replace(Meteor, "user", self.meteorUsersFake);
+    resetDatabase(null, done);
+  });
+
+  afterEach(function() {
+    sinon.restore();
+    delete self.meteorUsersFake;
+    delete self.clientMessagesFake;
+  });
+
   it("should fail if self is null", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = undefined;
+    chai.assert.throws(
+        () => Game.removeLegacyGame("mi2", 999),
+        Match.Error
+    );
   });
   it("should fail if legacy game number is null", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(
+        () => Game.removeLegacyGame("mi2", null),
+        Match.Error
+    );
   });
   it("should fail if game cannot be found", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(
+        () => Game.removeLegacyGame("mi2", 111),
+        ICCMeteorError
+    );
   });
   it("should succeed if everything else is well", function() {
     chai.assert.fail("do me");
