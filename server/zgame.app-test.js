@@ -349,15 +349,6 @@ describe("Game.startLocalGame", function() {
     );
   });
 
-  it("should add an examined game to the database if played_game is true", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
-    Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, 15, 0);
-    const game = Game.collection.find().fetch();
-    chai.assert.equal(game.length, 1);
-    chai.assert.equal(game[0].status, "playing");
-  });
-
   it("should add a playing game to the database with a random(ish--it's actually an algorithm) color if null", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
@@ -2028,5 +2019,93 @@ describe("Game.removeLegacyGame", function() {
     self.loggedonuser = us;
     Game.startLegacyGame.apply(null, startLegacyGameParameters(us, opp));
     chai.assert.doesNotThrow(() => Game.removeLegacyGame("mi2", 999));
+  });
+});
+
+describe("Takeback behavior", function(){
+  // giver_request  -> giver_request(same)        -> message, already pending
+  it("will write a client message when takeback asker asks for another takeback with the same ply count", function(){chai.assert.fail("do me")});
+  //                -> giver_request(different)   -> message, already pending
+  it("will write a client message when takeback asker asks for another takeback with a different ply count", function(){chai.assert.fail("do me")});
+  //                -> taker_request(same)        -> same as an accept
+  it("will behave like a takeback accept when takeback receiver asks for takeback with the same ply count", function(){chai.assert.fail("do me")});
+  //                -> taker_request(different)   -> Invalidates givers, then functions as a giver_request
+  it("will invalidate askers takeback, and create one owned by the giver (as the asker) when the giver requests a takeback with a different ply count", function(){chai.assert.fail("do me")});
+  //                -> giver_decline              -> message, not pending
+  it("will send a client message to the asker if the asker tries to decline his own takeback request", function(){chai.assert.fail("do me")});
+  //                -> taker_decline              -> declines
+  it("will decline a takeback and send a client message to the asker if the giver declines the takeback", function(){chai.assert.fail("do me")});
+  //                -> giver_accept               -> message, not pending
+  it("will send a client message to the asker if the asker tries to accept his own takeback request", function(){chai.assert.fail("do me")});
+  //                -> taker_accept               -> do it!
+  it("will accept a takeback and send a client message to the asker if the giver accepts the takeback", function(){chai.assert.fail("do me")});
+});
+
+describe("Game.requestLocalTakeback", function() {
+  it("sends a client message if user is not playing a game", function () {
+    chai.assert.fail("do me");
+  });
+  it("works on their move", function () {
+    chai.assert.fail("do me");
+  });
+  it("works on their opponents move", function () {
+    chai.assert.fail("do me");
+  });
+  it("stays pending if asker makes a move", function () {
+    chai.assert.fail("do me");
+  });
+  it("removes pending if taker makes a move instead", function () {
+    chai.assert.fail("do me");
+  });
+  it("fails if number is null", function () {
+    chai.assert.fail("do me");
+  });
+  it("fails if number is not a number", function () {
+    chai.assert.fail("do me");
+  });
+  it("fails if number is less than 1", function () {
+    chai.assert.fail("do me");
+  });
+  it("fails if number is greater than the limit in the ICC configuration", function () {
+    chai.assert.fail("do me");
+  });
+});
+
+describe("Game.acceptLocalTakeback", function() {
+  it("sends a client message if user is not playing a game", function () {
+    chai.assert.fail("do me");
+  });
+  it("sends a client_message if a takeback request is not pending", function () {
+    chai.assert.fail("do me");
+  });
+  it("does not write an action if there is not a valid takeback accept", function () {
+    chai.assert.fail("do me");
+  });
+  it("writes an action if there is a valid takeback accept", function () {
+    chai.assert.fail("do me");
+  });
+  it("moves the chess.js moves back if it's a local game (prove with fen/a different move)", function () {
+    chai.assert.fail("do me");
+  });
+  it("pushes an action when it succeeds", function () {
+    chai.assert.fail("do me");
+  });
+});
+
+describe("Game.declineLocalTakeback", function() {
+  it("should send a client message if a game is not being played", function () {
+    chai.assert.fail("do me");
+  });
+  it("writes a client_message if their opponent has not requested a takeback", function () {
+    chai.assert.fail("do me");
+  });
+  it("does not write an action if there is not a valid takeback accept", function () {
+    chai.assert.fail("do me");
+  });
+  it("writes an action if there is a valid takeback decline", function () {
+    chai.assert.fail("do me");
+  });
+  it("pushes an action and removes the pending state when it succeeds", function () {
+    chai.assert.fail("do me");
   });
 });

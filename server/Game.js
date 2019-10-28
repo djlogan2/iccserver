@@ -67,6 +67,18 @@ function parameterCheck() {
   }
 }
 
+const OneColorPendingSchema = new SimpleSchema({
+  draw: Boolean,
+  abort: Boolean,
+  adjourn: Boolean,
+  takeback: Number
+});
+
+const PendingSchema = new SimpleSchema({
+  white: OneColorPendingSchema,
+  black: OneColorPendingSchema
+});
+
 const actionSchema = new SimpleSchema({
   // TODO: I don't think we xare going to be able to use new Date() as an autovalue for this. I think we are going
   //       going to have to use some type of normal integer/long (millisecond since start of game or millisecond
@@ -119,6 +131,7 @@ const GameSchema = new SimpleSchema({
       return new Date();
     }
   },
+  pending: PendingSchema,
   result: String,
   legacy_game_number: {
     type: Number,
@@ -366,6 +379,7 @@ Game.startLocalGame = function(
   const game = {
     starttime: new Date(),
     result: "*",
+    pending: {white: {draw: false, abort: false, adjourn: false, takeback: 0}, black: {draw: false, abort: false, adjourn: false, takeback: 0}},
     white: {
       id: white._id,
       name: white.username,
@@ -437,6 +451,7 @@ Game.startLocalExaminedGame = function(
   const game = {
     starttime: new Date(),
     result: "*",
+    pending: {white: {draw: false, abort: false, adjourn: false, takeback: 0}, black: {draw: false, abort: false, adjourn: false, takeback: 0}},
     white: {
       name: white_name,
       rating: 1600
@@ -582,6 +597,7 @@ Game.startLegacyGame = function(
     },
     status: played_game ? "playing" : "examining",
     result: "*",
+    pending: {white: {draw: false, abort: false, adjourn: false, takeback: 0}, black: {draw: false, abort: false, adjourn: false, takeback: 0}},
     actions: []
   };
 
@@ -667,25 +683,33 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     $push: { actions: { type: "move", issuer: self._id, parameter: move } }
   };
 
+  const setobject = {};
+
   if (
     active_games[game_id].in_draw() &&
     !active_games[game_id].in_threefold_repetition()
   ) {
-    updateobject["$set"] = { result: "1/2-1/2" };
+    setobject.result = "1/2-1/2";
   } else if (active_games[game_id].in_stalemate()) {
-    updateobject["$set"] = { result: "1/2-1/2" };
+    setobject.result = "1/2-1/2";
   } else if (active_games[game_id].in_checkmate()) {
-    updateobject["$set"] = {
-      result: active_games[game_id].turn() === "w" ? "0-1" : "1-0"
-    };
+    setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
   } else if (active_games[game_id].insufficient_material()) {
-    updateobject["$set"] = { result: "1/2-1/2" };
+    setobject.result = "1/2-1/2";
   }
 
-  if (updateobject["$set"]) {
-    updateobject["$set"].status = "examining";
-    updateobject["$set"].examining = [game.white.id, game.black.id];
+  if (!!setobject.result) {
+    setobject.status = "examining";
+    setobject.examining = [game.white.id, game.black.id];
   }
+
+  const bw = self._id === game.white.id ? "black" : "white";
+  setobject["pending." + bw + ".draw"] = false;
+  setobject["pending." + bw + ".abort"] = false;
+  setobject["pending." + bw + ".adjourn"] = false;
+  setobject["pending." + bw + ".takeback"] = 0;
+
+  updateobject["$set"] = setobject;
 
   GameCollection.update({ _id: game_id }, updateobject);
 };
