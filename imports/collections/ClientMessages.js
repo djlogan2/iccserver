@@ -39,6 +39,13 @@ export const DefinedClientMessagesMap = {
   ALREADY_AN_EXAMINER: {},
   NOT_AN_EXAMINER: {},
   NOT_PLAYING_A_GAME: {},
+  UNABLE_TO_PLAY_OPPONENT: {},
+  SERVER_ERROR: { parameters: ["message", "reason"] },
+  TAKEBACK_ALREADY_PENDING: {},
+  NO_TAKEBACK_PENDING: {},
+  TAKEBACK_ACCEPTED: {},
+  TAKEBACK_DECLINED: {},
+  MATCH_DECLINED: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},
@@ -91,52 +98,44 @@ export const ClientMessages = {};
 ClientMessages.sendMessageToClient = function(
   user,
   client_identifier,
-  i8n_message,
-  parameter_array
+  i18n_message
 ) {
   check(user, Match.OneOf(Object, String));
   check(client_identifier, String);
   check(
-    i8n_message,
-    Match.Where(() => DefinedClientMessagesMap[i8n_message] !== undefined)
-  ); // It has to be a known and supported message to the client
-  check(
-    parameter_array,
+    i18n_message,
     Match.Where(() => {
-      if (
-        !DefinedClientMessagesMap[i8n_message].parameters ||
-        DefinedClientMessagesMap[i8n_message].parameters.length === 0
-      ) {
-        if (
-          parameter_array === undefined ||
-          parameter_array == null ||
-          (Array.isArray(parameter_array) && parameter_array.length === 0)
-        )
-          return true;
-        throw new Match.Error(
-          "Message " + i8n_message + " is not allowed to have any parameters"
-        );
-      }
-      if (!Array.isArray(parameter_array))
-        throw new Match.Error("parameter_array must be an array");
-      if (
-        parameter_array.length !==
-        DefinedClientMessagesMap[i8n_message].parameters.length
-      )
-        throw new Match.Error(
-          "parameter_array does not have the correct number of parameters. It should have " +
-            DefinedClientMessagesMap[i8n_message].parameters.length +
-            " parameters"
-        );
+      if (DefinedClientMessagesMap[i18n_message] === undefined)
+        throw new Match.Error(i18n_message + " is not known to ClientMessages");
+      else return true;
     })
-  );
+  ); // It has to be a known and supported message to the client
+  const parms = [];
+  for (let x = 3; x < arguments.length; x++)
+    if (Array.isArray(arguments[x]))
+      arguments[x].forEach(arg => parms.push(arg));
+    else parms.push(arguments[x]);
+
+  const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
+    ? 0
+    : DefinedClientMessagesMap[i18n_message].parameters.length;
+
+  if (required_parms !== parms.length)
+    throw new Match.Error(
+      i18n_message +
+        " is required to have " +
+        required_parms +
+        " parameters, but only had " +
+        parms.length +
+        " parameters"
+    );
 
   const id = typeof user === "object" ? user._id : user;
   const touser = Meteor.users.findOne({ _id: id, loggedOn: true });
   if (!touser) return;
   // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
   const locale = touser.locale || "en-us";
-  const message = i18n.localizeMessage(locale, i8n_message, parameter_array);
+  const message = i18n.localizeMessage(locale, i18n_message, parms);
   return ClientMessagesCollection.insert({
     to: id,
     client_identifier: client_identifier,

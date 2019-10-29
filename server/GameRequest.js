@@ -808,9 +808,10 @@ GameRequests.removeLegacyMatchRequest = function(
     );
 
   ClientMessages.sendMessageToClient(
-    Meteor.user(),
+    self,
+    message_identifier,
     "LEGACY_MATCH_REMOVED",
-    explanation_string
+    [explanation_string]
   );
 };
 

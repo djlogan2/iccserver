@@ -721,7 +721,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       Meteor.user(),
       message_identifier,
       "ILLEGAL_MOVE",
-      move
+      [move]
     );
     return;
   }

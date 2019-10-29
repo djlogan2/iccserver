@@ -9,6 +9,7 @@ import chai from "chai";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { i18n } from "../imports/collections/i18n";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
@@ -39,35 +40,8 @@ function startLegacyGameParameters(self, other, rated) {
   ];
 }
 
-function setupDescribe() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
-
-  return self;
-}
-
 describe("Match requests and game starts", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should create a chess js game for a local played game", function() {
     const us = TestHelpers.createUser();
@@ -91,10 +65,10 @@ describe("Match requests and game starts", function() {
     Game.saveLocalMove("mi3", game_id, "e5");
     self.loggedonuser = us;
     Game.saveLocalMove("mi4", game_id, "Nc3");
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi4");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "ILLEGAL_MOVE");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
 
   it("should create a chess js game for a local examined game", function() {
@@ -119,10 +93,10 @@ describe("Match requests and game starts", function() {
     Game.saveLocalMove("mi3", game_id, "e5");
     self.loggedonuser = us;
     Game.saveLocalMove("mi4", game_id, "Nc3");
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi4");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "ILLEGAL_MOVE");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
 
   it("should NOT create a chess js game for a legacy played game", function() {
@@ -139,7 +113,7 @@ describe("Match requests and game starts", function() {
     Game.saveLegacyMove("mi3", 999, "e5");
     self.loggedonuser = us;
     Game.saveLegacyMove("mi4", 999, "Nc3");
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 
   it("should NOT create a chess js game for a legacy examined game", function() {
@@ -156,7 +130,7 @@ describe("Match requests and game starts", function() {
     Game.saveLegacyMove("mi3", 999, "e5");
     self.loggedonuser = us;
     Game.saveLegacyMove("mi4", 999, "Nc3");
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 
   it("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function() {
@@ -182,15 +156,15 @@ describe("Match requests and game starts", function() {
     self.loggedonuser = us;
     Game.resignLocalGame("mi4", game_id);
     Game.saveLocalMove("mi5", game_id, "Nc3");
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi5");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "ILLEGAL_MOVE");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi5");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
 });
 
 describe("Game.startLocalGame", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should error out if self is null", function() {
     const otherguy = TestHelpers.createUser();
@@ -219,11 +193,11 @@ describe("Game.startLocalGame", function() {
       0,
       "white"
     );
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "UNABLE_TO_PLAY_RATED_GAMES"
     );
   });
@@ -246,11 +220,11 @@ describe("Game.startLocalGame", function() {
       0,
       "white"
     );
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "UNABLE_TO_PLAY_UNRATED_GAMES"
     );
   });
@@ -274,11 +248,11 @@ describe("Game.startLocalGame", function() {
       0,
       "white"
     );
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "UNABLE_TO_PLAY_OPPONENT"
     );
   });
@@ -301,11 +275,11 @@ describe("Game.startLocalGame", function() {
       0,
       "white"
     );
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "UNABLE_TO_PLAY_OPPONENT"
     );
   });
@@ -428,7 +402,7 @@ describe("Game.startLocalGame", function() {
 });
 
 describe("Game.startLegacyGame", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should error if we try to start a legacy game when both players are actually logged on here", function() {
     //
@@ -722,7 +696,7 @@ describe("Game.startLegacyGame", function() {
 // TODO: It occurs to me that if we are just getting legacy moves, how do we know what the board looks like?
 //       Think a wild, like atomic or something. Hmmm...
 describe("Game.saveLegacyMove", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should error out if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -771,17 +745,18 @@ describe("Game.saveLegacyMove", function() {
 });
 
 describe("Game.saveLocalMove", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should error out if a game cannot be found", function() {
     self.loggedonuser = TestHelpers.createUser();
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    Game.saveLocalMove("mi1", "somegame", "e4");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(
-      self.clientMessagesFake.args[0][0]._id,
+      self.clientMessagesSpy.args[0][0]._id,
       self.loggedonuser._id
     );
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
   it("should write a client_message and not save the move to the dataabase if the move is illegal", function() {
@@ -801,10 +776,10 @@ describe("Game.saveLocalMove", function() {
       "white"
     );
     Game.saveLocalMove("mi2", game_id, "O-O");
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "ILLEGAL_MOVE");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
 
   it("should end the game if the move results in a stalemate", function() {
@@ -995,25 +970,25 @@ describe("Game.saveLocalMove", function() {
     self.loggedonuser = us;
     Game.saveLocalMove("move5", game_id, "Nc3");
 
-    chai.assert.isTrue(self.clientMessagesFake.calledTwice);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "move2");
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "move2");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "COMMAND_INVALID_NOT_YOUR_MOVE"
     );
 
-    chai.assert.equal(self.clientMessagesFake.args[1][0]._id, them._id);
-    chai.assert.equal(self.clientMessagesFake.args[1][1], "move4");
+    chai.assert.equal(self.clientMessagesSpy.args[1][0]._id, them._id);
+    chai.assert.equal(self.clientMessagesSpy.args[1][1], "move4");
     chai.assert.equal(
-      self.clientMessagesFake.args[1][2],
+      self.clientMessagesSpy.args[1][2],
       "COMMAND_INVALID_NOT_YOUR_MOVE"
     );
   });
 });
 
 describe("Game.legacyGameEnded", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = undefined;
@@ -1122,7 +1097,7 @@ describe("Game.legacyGameEnded", function() {
 });
 
 describe("Game.localAddExaminer", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1180,10 +1155,10 @@ describe("Game.localAddExaminer", function() {
       0
     );
     Game.localAddExamainer("mi2", game_id, newguy._id);
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_EXAMINER");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
   it("should write a client message if user being added is not an observer", function() {
@@ -1201,10 +1176,10 @@ describe("Game.localAddExaminer", function() {
       0
     );
     Game.localAddExamainer("mi2", game_id, newguy._id);
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_OBSERVER");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_OBSERVER");
   });
 
   it("should fail if user doing the adding isn't an examiner", function() {
@@ -1227,10 +1202,10 @@ describe("Game.localAddExaminer", function() {
     self.loggedonuser = newguy2;
     Game.localAddObserver("mi2", game_id, newguy2._id);
     Game.localAddExamainer("mi2", game_id, newguy1._id);
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_EXAMINER");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
   it("should write a client message if user being added is already an examiner", function() {
@@ -1253,11 +1228,11 @@ describe("Game.localAddExaminer", function() {
     self.loggedonuser = us;
     Game.localAddExamainer("mi2", game_id, newguy1._id);
     Game.localAddExamainer("mi2", game_id, newguy1._id);
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "ALREADY_AN_EXAMINER"
     );
   });
@@ -1316,7 +1291,7 @@ describe("Game.localAddExaminer", function() {
 });
 
 describe("Game.localRemoveExaminer", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1377,10 +1352,10 @@ describe("Game.localRemoveExaminer", function() {
     Game.localAddObserver("mi3", game_id, observer._id);
     self.loggedonuser = us;
     Game.localRemoveExaminer("mi4", game_id, observer._id);
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, self._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi4");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_EXAMINER");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
   it("should fail if issuer is not a current examiner of the game", function() {
@@ -1482,7 +1457,7 @@ describe("Game.localRemoveExaminer", function() {
 });
 
 describe("Game.localAddObserver", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1608,7 +1583,7 @@ describe("Game.localAddObserver", function() {
 });
 
 describe("Game.localRemoveObserver", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1665,10 +1640,10 @@ describe("Game.localRemoveObserver", function() {
     );
     self.loggedonuser = dumbguy;
     Game.localRemoveObserver("mi2", game_id, dumbguy._id);
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0], dumbguy._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_AN_OBSERVER");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], dumbguy._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_OBSERVER");
   });
 
   it("should fail if user is trying to evict another user", function() {
@@ -1785,7 +1760,7 @@ describe("Game.localRemoveObserver", function() {
 });
 
 describe("Game.removeLegacyGame", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = undefined;
@@ -1836,7 +1811,7 @@ function checkTakeback(gamerecord, wtakeback, btakeback) {
 }
 
 describe("Takeback behavior", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   // giver_request  -> giver_request(same)        -> message, already pending
   it("will write a client message when takeback asker asks for another takeback with the same ply count", function() {
@@ -1866,17 +1841,17 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi3", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "TAKEBACK_ALREADY_PENDING"
     );
 
@@ -1920,17 +1895,17 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi3", game_id, 2)
     );
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "TAKEBACK_ALREADY_PENDING"
     );
 
@@ -1973,16 +1948,16 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi3", game_id, 4)
     );
-    chai.assert.equal(self.clientMessagesFake.args[0][0], p1._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "TAKEBACK_ACCEPTED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "TAKEBACK_ACCEPTED");
     const game = Game.collection.findOne();
     checkTakeback(game);
 
@@ -1996,7 +1971,7 @@ describe("Takeback behavior", function() {
 
     self.loggedonuser = p1;
     chai.assert.doesNotThrow(() => Game.saveLocalMove("mi5", game_id, "c3")); // A move now replacing c4
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
   });
 
   //                -> taker_request(different)   -> Invalidates givers, then functions as a giver_request
@@ -2027,14 +2002,14 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi3", game_id, 5)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
 
     const game = Game.collection.findOne();
     checkTakeback(game, 4, 5);
@@ -2075,15 +2050,15 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     chai.assert.doesNotThrow(() => Game.declineLocalTakeback("mi3", game_id));
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "NO_TAKEBACK_PENDING"
     );
     checkTakeback(Game.collection.findOne(), 4, 0);
@@ -2116,15 +2091,15 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() => Game.declineLocalTakeback("mi3", game_id));
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0], p1._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "TAKEBACK_DECLINED");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "TAKEBACK_DECLINED");
     checkTakeback(Game.collection.findOne(), 4, 0);
   });
   //                -> giver_accept               -> message, not pending
@@ -2155,15 +2130,15 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     chai.assert.doesNotThrow(() => Game.acceptLocalTakeback("mi3", game_id));
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
     chai.assert.equal(
-      self.clientMessagesFake.args[0][2],
+      self.clientMessagesSpy.args[0][2],
       "NO_TAKEBACK_PENDING"
     );
     checkTakeback(Game.collection.findOne(), 4, 0);
@@ -2196,30 +2171,30 @@ describe("Takeback behavior", function() {
     chai.assert.doesNotThrow(() =>
       Game.requestLocalTakeback("mi2", game_id, 4)
     );
-    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() => Game.acceptLocalTakeback("mi3", game_id));
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0], p1._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "TAKEBACK_ACCEPTED");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "TAKEBACK_ACCEPTED");
     checkTakeback(Game.collection.findOne());
   });
 });
 
 describe("Game.requestLocalTakeback", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("sends a client message if user is not playing a game", function() {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     Game.requestLocalTakeback("mi1", "somegame", 5);
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
   it("works on their move", function() {
@@ -2329,29 +2304,29 @@ describe("Game.requestLocalTakeback", function() {
 });
 
 describe("Game.acceptLocalTakeback", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("sends a client message if user is not playing a game", function() {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     Game.acceptLocalTakeback("mi1", "somegame");
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 });
 
 describe("Game.declineLocalTakeback", function() {
-  const self = setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.apply(this);
 
   it("sends a client message if user is not playing a game", function() {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     Game.declineLocalTakeback("mi1", "somegame");
-    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
-    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
-    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 });

@@ -3,6 +3,10 @@ import { Meteor } from "meteor/meteor";
 import { Roles } from "meteor/alanning:roles";
 import faker from "faker";
 import "../../imports/collections/users";
+import sinon from "sinon";
+import { ClientMessages } from "../collections/ClientMessages";
+import { i18n } from "../collections/i18n";
+import { resetDatabase } from "meteor/xolvio:cleaner";
 
 export const TestHelpers = {};
 
@@ -50,5 +54,39 @@ if (Meteor.isTest || Meteor.isAppTest) {
         { $set: { "profile.legacy.validated": true } }
       );
     return Meteor.users.findOne({ _id: id });
+  };
+
+  TestHelpers.setupDescribe = function() {
+    const self = this;
+
+    beforeEach.call(this, function(done) {
+      self.meteorUsersFake = sinon.fake(() =>
+        Meteor.users.findOne({
+          _id: self.loggedonuser ? self.loggedonuser._id : ""
+        })
+      );
+      sinon.replace(Meteor, "user", self.meteorUsersFake);
+
+      self.clientMessagesSpy = sinon.spy(ClientMessages, "sendMessageToClient");
+
+      sinon.replace(
+        i18n,
+        "localizeMessage",
+        sinon.fake(function(locale, i18nvalue, parameters) {
+          return "i18n: " + locale + ", " + i18nvalue + ", " + parameters;
+        })
+      );
+
+      resetDatabase(null, done);
+    });
+
+    afterEach.call(this, function() {
+      ClientMessages.sendMessageToClient.restore();
+      sinon.restore();
+      delete self.meteorUsersFake;
+      delete self.clientMessagesSpy;
+    });
+
+    return self;
   };
 }
