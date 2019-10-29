@@ -39,7 +39,7 @@ function startLegacyGameParameters(self, other, rated) {
   ];
 }
 
-describe("Match requests and game starts", function() {
+function setupDescribe() {
   const self = this;
   beforeEach(function(done) {
     self.meteorUsersFake = sinon.fake(() =>
@@ -62,6 +62,12 @@ describe("Match requests and game starts", function() {
     delete self.meteorUsersFake;
     delete self.clientMessagesFake;
   });
+
+  return self;
+}
+
+describe("Match requests and game starts", function() {
+  const self = setupDescribe.apply(this);
 
   it("should create a chess js game for a local played game", function() {
     const us = TestHelpers.createUser();
@@ -184,28 +190,7 @@ describe("Match requests and game starts", function() {
 });
 
 describe("Game.startLocalGame", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should error out if self is null", function() {
     const otherguy = TestHelpers.createUser();
@@ -443,30 +428,9 @@ describe("Game.startLocalGame", function() {
 });
 
 describe("Game.startLegacyGame", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
+  const self = setupDescribe.apply(this);
 
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
-
-  it("should error if we try to start a legacy game when both players are actually logged on here", function(){
+  it("should error if we try to start a legacy game when both players are actually logged on here", function() {
     //
     // OK, so here's the deal. If a user is logged on here, they can play a legacy user.
     // But I assert that if both players are logged on here, don't go through legacy. Just play local.
@@ -758,28 +722,7 @@ describe("Game.startLegacyGame", function() {
 // TODO: It occurs to me that if we are just getting legacy moves, how do we know what the board looks like?
 //       Think a wild, like atomic or something. Hmmm...
 describe("Game.saveLegacyMove", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should error out if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -828,58 +771,17 @@ describe("Game.saveLegacyMove", function() {
 });
 
 describe("Game.saveLocalMove", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
-
-  it("should error out if self is null", function() {
-    const us = TestHelpers.createUser();
-    const them = TestHelpers.createUser();
-    self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      them,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      "white"
-    );
-    self.loggedonuser = undefined;
-    chai.assert.throws(
-      () => Game.saveLocalMove("mi2", game_id, "e4"),
-      Match.Error
-    );
-  });
+  const self = setupDescribe.apply(this);
 
   it("should error out if a game cannot be found", function() {
     self.loggedonuser = TestHelpers.createUser();
-    chai.assert.throws(
-      () => Game.saveLocalMove("mi2", "game_id", "e4"),
-      ICCMeteorError
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][0]._id,
+      self.loggedonuser._id
     );
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
   it("should write a client_message and not save the move to the dataabase if the move is illegal", function() {
@@ -1111,28 +1013,7 @@ describe("Game.saveLocalMove", function() {
 });
 
 describe("Game.legacyGameEnded", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = undefined;
@@ -1241,28 +1122,7 @@ describe("Game.legacyGameEnded", function() {
 });
 
 describe("Game.localAddExaminer", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1456,28 +1316,7 @@ describe("Game.localAddExaminer", function() {
 });
 
 describe("Game.localRemoveExaminer", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1643,28 +1482,7 @@ describe("Game.localRemoveExaminer", function() {
 });
 
 describe("Game.localAddObserver", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1790,28 +1608,7 @@ describe("Game.localAddObserver", function() {
 });
 
 describe("Game.localRemoveObserver", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -1965,7 +1762,17 @@ describe("Game.localRemoveObserver", function() {
     const observer = TestHelpers.createUser();
 
     self.loggedonuser = examiner;
-    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0, "standard", 15, 0, 15, 0);
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
 
     self.loggedonuser = observer;
     Game.localAddObserver("mi2", game_id, observer._id);
@@ -1978,28 +1785,7 @@ describe("Game.localRemoveObserver", function() {
 });
 
 describe("Game.removeLegacyGame", function() {
-  const self = this;
-  beforeEach(function(done) {
-    self.meteorUsersFake = sinon.fake(() =>
-      Meteor.users.findOne({
-        _id: self.loggedonuser ? self.loggedonuser._id : ""
-      })
-    );
-    self.clientMessagesFake = sinon.fake();
-    sinon.replace(
-      ClientMessages,
-      "sendMessageToClient",
-      self.clientMessagesFake
-    );
-    sinon.replace(Meteor, "user", self.meteorUsersFake);
-    resetDatabase(null, done);
-  });
-
-  afterEach(function() {
-    sinon.restore();
-    delete self.meteorUsersFake;
-    delete self.clientMessagesFake;
-  });
+  const self = setupDescribe.apply(this);
 
   it("should fail if self is null", function() {
     self.loggedonuser = undefined;
@@ -2022,90 +1808,550 @@ describe("Game.removeLegacyGame", function() {
   });
 });
 
-describe("Takeback behavior", function(){
+function checkLastAction(gamerecord, reverse_index, type, issuer, parameter) {
+  const action =
+    gamerecord.actions[gamerecord.actions.length - 1 - reverse_index];
+  if (type) chai.assert.equal(action.type, type);
+  if (issuer) chai.assert.equal(action.issuer, issuer);
+  if (parameter) chai.assert.equal(action.parameter, parameter);
+}
+
+function checkOneTakeback(pendingcolor, takeback) {
+  chai.assert.equal(pendingcolor.draw, "0");
+  chai.assert.equal(pendingcolor.adjourn, "0");
+  chai.assert.equal(pendingcolor.abort, "0");
+  chai.assert.equal(
+    pendingcolor.takeback.number,
+    takeback === null || takeback === undefined ? 0 : takeback
+  );
+}
+
+function checkTakeback(gamerecord, wtakeback, btakeback) {
+  chai.assert.isDefined(gamerecord);
+  chai.assert.isDefined(gamerecord.pending);
+  chai.assert.isDefined(gamerecord.pending.white);
+  chai.assert.isDefined(gamerecord.pending.black);
+  checkOneTakeback(gamerecord.pending.white, wtakeback);
+  checkOneTakeback(gamerecord.pending.black, btakeback);
+}
+
+describe("Takeback behavior", function() {
+  const self = setupDescribe.apply(this);
+
   // giver_request  -> giver_request(same)        -> message, already pending
-  it("will write a client message when takeback asker asks for another takeback with the same ply count", function(){chai.assert.fail("do me")});
+  it("will write a client message when takeback asker asks for another takeback with the same ply count", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi3", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "TAKEBACK_ALREADY_PENDING"
+    );
+
+    const game = Game.collection.findOne();
+    const takeback = game.actions[game.actions.length - 1];
+    const lastmove = game.actions[game.actions.length - 2];
+
+    checkOneTakeback(game.pending.white, 4);
+    checkOneTakeback(game.pending.black, 0);
+    chai.assert.equal(takeback.type, "takeback_requested");
+    chai.assert.equal(takeback.parameter, 4);
+    chai.assert.equal(lastmove.type, "move");
+    chai.assert.equal(lastmove.parameter, "c6");
+  });
+
   //                -> giver_request(different)   -> message, already pending
-  it("will write a client message when takeback asker asks for another takeback with a different ply count", function(){chai.assert.fail("do me")});
+  it("will write a client message when takeback asker asks for another takeback with a different ply count", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi3", game_id, 2)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "TAKEBACK_ALREADY_PENDING"
+    );
+
+    const game = Game.collection.findOne();
+    const takeback = game.actions[game.actions.length - 1];
+    const lastmove = game.actions[game.actions.length - 2];
+
+    checkOneTakeback(game.pending.white, 4);
+    checkOneTakeback(game.pending.black, 0);
+    chai.assert.equal(takeback.type, "takeback_requested");
+    chai.assert.equal(takeback.parameter, 4);
+    chai.assert.equal(lastmove.type, "move");
+    chai.assert.equal(lastmove.parameter, "c6");
+  });
   //                -> taker_request(same)        -> same as an accept
-  it("will behave like a takeback accept when takeback receiver asks for takeback with the same ply count", function(){chai.assert.fail("do me")});
+  it("will behave like a takeback accept when takeback receiver asks for takeback with the same ply count", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi3", game_id, 4)
+    );
+    chai.assert.equal(self.clientMessagesFake.args[0][0], p1._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "TAKEBACK_ACCEPTED");
+    const game = Game.collection.findOne();
+    checkTakeback(game);
+
+    const takebacka = game.actions[game.actions.length - 1];
+    const takebackr = game.actions[game.actions.length - 2];
+
+    chai.assert.equal(takebackr.type, "takeback_requested");
+    chai.assert.equal(takebackr.parameter, 4);
+    chai.assert.equal(takebacka.type, "takeback_accepted");
+    chai.assert.isUndefined(takebacka.parameter);
+
+    self.loggedonuser = p1;
+    chai.assert.doesNotThrow(() => Game.saveLocalMove("mi5", game_id, "c3")); // A move now replacing c4
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+  });
+
   //                -> taker_request(different)   -> Invalidates givers, then functions as a giver_request
-  it("will invalidate askers takeback, and create one owned by the giver (as the asker) when the giver requests a takeback with a different ply count", function(){chai.assert.fail("do me")});
+  it("will create a takeback owned by the giver (as the asker) when the giver requests a takeback with a different ply count", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi3", game_id, 5)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+
+    const game = Game.collection.findOne();
+    checkTakeback(game, 4, 5);
+
+    const takebackr2 = game.actions[game.actions.length - 1];
+    const takebackr1 = game.actions[game.actions.length - 2];
+
+    chai.assert.equal(takebackr2.type, "takeback_requested");
+    chai.assert.equal(takebackr2.parameter, 5);
+    chai.assert.equal(takebackr1.type, "takeback_requested");
+    chai.assert.equal(takebackr1.parameter, 4);
+  });
   //                -> giver_decline              -> message, not pending
-  it("will send a client message to the asker if the asker tries to decline his own takeback request", function(){chai.assert.fail("do me")});
+  it("will send a client message to the asker if the asker tries to decline his own takeback request", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    chai.assert.doesNotThrow(() => Game.declineLocalTakeback("mi3", game_id));
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "NO_TAKEBACK_PENDING"
+    );
+    checkTakeback(Game.collection.findOne(), 4, 0);
+  });
   //                -> taker_decline              -> declines
-  it("will decline a takeback and send a client message to the asker if the giver declines the takeback", function(){chai.assert.fail("do me")});
+  it("will decline a takeback and send a client message to the asker if the giver declines the takeback", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() => Game.declineLocalTakeback("mi3", game_id));
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0], p1._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "TAKEBACK_DECLINED");
+    checkTakeback(Game.collection.findOne(), 4, 0);
+  });
   //                -> giver_accept               -> message, not pending
-  it("will send a client message to the asker if the asker tries to accept his own takeback request", function(){chai.assert.fail("do me")});
+  it("will send a client message to the asker if the asker tries to accept his own takeback request", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    chai.assert.doesNotThrow(() => Game.acceptLocalTakeback("mi3", game_id));
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi3");
+    chai.assert.equal(
+      self.clientMessagesFake.args[0][2],
+      "NO_TAKEBACK_PENDING"
+    );
+    checkTakeback(Game.collection.findOne(), 4, 0);
+  });
   //                -> taker_accept               -> do it!
-  it("will accept a takeback and send a client message to the asker if the giver accepts the takeback", function(){chai.assert.fail("do me")});
+  it("will accept a takeback and send a client message to the asker if the giver accepts the takeback", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+    chai.assert.doesNotThrow(() =>
+      Game.requestLocalTakeback("mi2", game_id, 4)
+    );
+    chai.assert.isTrue(self.clientMessagesFake.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() => Game.acceptLocalTakeback("mi3", game_id));
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0], p1._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "TAKEBACK_ACCEPTED");
+    checkTakeback(Game.collection.findOne());
+  });
 });
 
 describe("Game.requestLocalTakeback", function() {
-  it("sends a client message if user is not playing a game", function () {
-    chai.assert.fail("do me");
+  const self = setupDescribe.apply(this);
+
+  it("sends a client message if user is not playing a game", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    Game.requestLocalTakeback("mi1", "somegame", 5);
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
   });
-  it("works on their move", function () {
-    chai.assert.fail("do me");
+
+  it("works on their move", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    let other = them;
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    Game.requestLocalTakeback("mi2", game_id, 4);
+    const game1 = Game.collection.findOne();
+    checkTakeback(game1, 4, 0);
+    Game.saveLocalMove("mi3", game_id, "b4");
+    const game2 = Game.collection.findOne();
+    checkTakeback(game2, 5, 0);
+    checkLastAction(game2, 0, "move", us._id, "b4");
+    checkLastAction(game2, 1, "takeback_requested", us._id, 4);
   });
-  it("works on their opponents move", function () {
-    chai.assert.fail("do me");
+
+  it("works on their opponents move", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    let other = them;
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is blacks move here.
+    self.loggedonuser = us;
+    Game.requestLocalTakeback("mi2", game_id, 4);
+    const game1 = Game.collection.findOne();
+    checkTakeback(game1, 4, 0);
+    self.loggedonuser = them;
+    Game.saveLocalMove("mi3", game_id, "b5");
+    const game2 = Game.collection.findOne();
+    checkTakeback(game2);
+    checkLastAction(game2, 0, "move", them._id, "b5");
+    checkLastAction(game2, 1, "takeback_requested", us._id, 4);
   });
-  it("stays pending if asker makes a move", function () {
-    chai.assert.fail("do me");
-  });
-  it("removes pending if taker makes a move instead", function () {
-    chai.assert.fail("do me");
-  });
-  it("fails if number is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("fails if number is not a number", function () {
-    chai.assert.fail("do me");
-  });
-  it("fails if number is less than 1", function () {
-    chai.assert.fail("do me");
-  });
-  it("fails if number is greater than the limit in the ICC configuration", function () {
-    chai.assert.fail("do me");
+
+  it("fails if number is null", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0
+    );
+    chai.assert.throws(
+      () => Game.requestLocalTakeback("mi2", game_id),
+      Match.Error
+    );
+    chai.assert.throws(
+      () => Game.requestLocalTakeback("mi2", game_id, null),
+      Match.Error
+    );
+    chai.assert.throws(
+      () => Game.requestLocalTakeback("mi2", game_id, -1),
+      Match.Error
+    );
+    chai.assert.throws(
+      () => Game.requestLocalTakeback("mi2", game_id, 0),
+      Match.Error
+    );
+    chai.assert.throws(
+      () => Game.requestLocalTakeback("mi2", game_id, "four"),
+      Match.Error
+    );
   });
 });
 
 describe("Game.acceptLocalTakeback", function() {
-  it("sends a client message if user is not playing a game", function () {
-    chai.assert.fail("do me");
-  });
-  it("sends a client_message if a takeback request is not pending", function () {
-    chai.assert.fail("do me");
-  });
-  it("does not write an action if there is not a valid takeback accept", function () {
-    chai.assert.fail("do me");
-  });
-  it("writes an action if there is a valid takeback accept", function () {
-    chai.assert.fail("do me");
-  });
-  it("moves the chess.js moves back if it's a local game (prove with fen/a different move)", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds", function () {
-    chai.assert.fail("do me");
+  const self = setupDescribe.apply(this);
+
+  it("sends a client message if user is not playing a game", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    Game.acceptLocalTakeback("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
   });
 });
 
 describe("Game.declineLocalTakeback", function() {
-  it("should send a client message if a game is not being played", function () {
-    chai.assert.fail("do me");
-  });
-  it("writes a client_message if their opponent has not requested a takeback", function () {
-    chai.assert.fail("do me");
-  });
-  it("does not write an action if there is not a valid takeback accept", function () {
-    chai.assert.fail("do me");
-  });
-  it("writes an action if there is a valid takeback decline", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action and removes the pending state when it succeeds", function () {
-    chai.assert.fail("do me");
+  const self = setupDescribe.apply(this);
+
+  it("sends a client message if user is not playing a game", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    Game.declineLocalTakeback("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesFake.calledOnce);
+    chai.assert.equal(self.clientMessagesFake.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesFake.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesFake.args[0][2], "NOT_PLAYING_A_GAME");
   });
 });

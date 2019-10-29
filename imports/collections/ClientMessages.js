@@ -7,6 +7,7 @@ import { Users } from "./users";
 import { Logger } from "../../lib/server/Logger";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 
+// eslint-disable-next-line no-unused-vars
 let log = new Logger("clientMessages_js");
 const ClientMessagesCollection = new Mongo.Collection("client_messages");
 const ClientMessageSchema = {
@@ -37,6 +38,7 @@ export const DefinedClientMessagesMap = {
   NOT_AN_OBSERVER: {},
   ALREADY_AN_EXAMINER: {},
   NOT_AN_EXAMINER: {},
+  NOT_PLAYING_A_GAME: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

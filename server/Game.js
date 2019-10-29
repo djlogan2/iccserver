@@ -58,7 +58,7 @@ function parameterCheck() {
     case "whisper":
       if (!parameter.isSet || typeof parameter.value !== "string") return nope;
       else return;
-    case "takeback_request":
+    case "takeback_requested":
       if (parameter.isSet && parameter.value === parseInt(parameter.value))
         return;
       else return nope;
@@ -68,10 +68,12 @@ function parameterCheck() {
 }
 
 const OneColorPendingSchema = new SimpleSchema({
-  draw: Boolean,
-  abort: Boolean,
-  adjourn: Boolean,
-  takeback: Number
+  draw: String,
+  abort: String,
+  adjourn: String,
+  takeback: Object,
+  "takeback.number": Number,
+  "takeback.mid": String
 });
 
 const PendingSchema = new SimpleSchema({
@@ -261,13 +263,19 @@ GameCollection.attachSchema(GameSchema);
 function getAndCheck(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
+  check(game_id, String);
 
   const game = GameCollection.findOne({ _id: game_id });
-  if (!game)
-    throw new ICCMeteorError(
+
+  if (!game) {
+    ClientMessages.sendMessageToClient(
+      self,
       message_identifier,
-      "Unable to find a game to make a move for"
+      "NOT_PLAYING_A_GAME"
     );
+    return;
+  }
+
   if (game.legacy_game_number)
     throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
@@ -379,7 +387,20 @@ Game.startLocalGame = function(
   const game = {
     starttime: new Date(),
     result: "*",
-    pending: {white: {draw: false, abort: false, adjourn: false, takeback: 0}, black: {draw: false, abort: false, adjourn: false, takeback: 0}},
+    pending: {
+      white: {
+        draw: "0",
+        abort: "0",
+        adjourn: "0",
+        takeback: { number: 0, mid: "0" }
+      },
+      black: {
+        draw: "0",
+        abort: "0",
+        adjourn: "0",
+        takeback: { number: 0, mid: "0" }
+      }
+    },
     white: {
       id: white._id,
       name: white.username,
@@ -451,7 +472,20 @@ Game.startLocalExaminedGame = function(
   const game = {
     starttime: new Date(),
     result: "*",
-    pending: {white: {draw: false, abort: false, adjourn: false, takeback: 0}, black: {draw: false, abort: false, adjourn: false, takeback: 0}},
+    pending: {
+      white: {
+        draw: "0",
+        abort: "0",
+        adjourn: "0",
+        takeback: { number: 0, mid: "0" }
+      },
+      black: {
+        draw: "0",
+        abort: "0",
+        adjourn: "0",
+        takeback: { number: 0, mid: "0" }
+      }
+    },
     white: {
       name: white_name,
       rating: 1600
@@ -597,7 +631,20 @@ Game.startLegacyGame = function(
     },
     status: played_game ? "playing" : "examining",
     result: "*",
-    pending: {white: {draw: false, abort: false, adjourn: false, takeback: 0}, black: {draw: false, abort: false, adjourn: false, takeback: 0}},
+    pending: {
+      white: {
+        draw: "0",
+        abort: "0",
+        adjourn: "0",
+        takeback: { number: 0, mid: "0" }
+      },
+      black: {
+        draw: "0",
+        abort: "0",
+        adjourn: "0",
+        takeback: { number: 0, mid: "0" }
+      }
+    },
     actions: []
   };
 
@@ -704,10 +751,20 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   }
 
   const bw = self._id === game.white.id ? "black" : "white";
-  setobject["pending." + bw + ".draw"] = false;
-  setobject["pending." + bw + ".abort"] = false;
-  setobject["pending." + bw + ".adjourn"] = false;
-  setobject["pending." + bw + ".takeback"] = 0;
+  const color = bw === "white" ? "black" : "white";
+  setobject["pending." + bw + ".draw"] = "0";
+  setobject["pending." + bw + ".abort"] = "0";
+  setobject["pending." + bw + ".adjourn"] = "0";
+  setobject["pending." + bw + ".takeback.number"] = 0;
+  setobject["pending." + bw + ".takeback.mid"] = "0";
+
+  //
+  // Add a half move to the takeback request if the user requested a takeback and then
+  // made their own move.
+  //
+  if (game.pending[color].takeback.number)
+    setobject["pending." + color + ".takeback.number"] =
+      game.pending[color].takeback.number + 1;
 
   updateobject["$set"] = setobject;
 
@@ -974,11 +1031,15 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   check(game_id, String);
   check(number, Number);
 
+  if (number < 1)
+    throw new Match.Error("takeback half ply value must be greater than zero");
+
   const self = Meteor.user();
   check(self, Object);
 
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
+
   if (game.status !== "playing") {
     ClientMessages.sendMessageToClient(
       Meteor.user(),
@@ -988,14 +1049,50 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
     return;
   }
 
-  Meteor.update(
+  const color =
+    game.white.id === self._id
+      ? "white"
+      : game.black.id === self._id
+      ? "black"
+      : null;
+
+  if (!color)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to request takeback",
+      "User is not either player"
+    );
+
+  //
+  // If other player has a matching takeback requested, go ahead
+  // and treat this as an accepted takeback.
+  //
+  const othercolor = color === "white" ? "black" : "white";
+  if (game.pending[othercolor].takeback.number === number)
+    return this.acceptLocalTakeback(message_identifier, game_id);
+
+  if (game.pending[color].takeback.number !== 0) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "TAKEBACK_ALREADY_PENDING"
+    );
+    return;
+  }
+
+  const tbobject = {};
+  tbobject["pending." + color + ".takeback.number"] = number;
+  tbobject["pending." + color + ".takeback.mid"] = message_identifier;
+
+  GameCollection.update(
     { _id: game_id },
     {
+      $set: tbobject,
       $push: {
         actions: {
           type: "takeback_requested",
           issuer: self._id,
-          parameters: number
+          parameter: number
         }
       }
     }
@@ -1020,25 +1117,41 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     return;
   }
 
-  let takeback_legal;
-  for (
-    let x = game.actions.length - 1;
-    takeback_legal !== undefined && x >= 0;
-    x--
-  ) {
-    if (typeof game.actions[x] !== "object") takeback_legal = -1;
-    else if (typeof game.actions[x].takeback === "number")
-      takeback_legal = game.actions[x].takeback;
-  }
-  if (takeback_legal === undefined || takeback_legal === -1) {
-    ClientMessages.sendMessageToClient(Meteor.user(), "ILLEGAL_TAKEBACK");
+  const othercolor = self._id === game.white.id ? "black" : "white";
+  if (!game.pending[othercolor].takeback.number) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "NO_TAKEBACK_PENDING"
+    );
     return;
   }
-  Meteor.update(
+
+  GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "takeback_accepted", issuer: self._id } } }
+    {
+      $push: {
+        actions: {
+          type: "takeback_accepted",
+          issuer: self._id
+        }
+      },
+      $set: {
+        "pending.white.takeback": { number: 0, mid: "0" },
+        "pending.black.takeback": { number: 0, mid: "0" }
+      }
+    }
   );
-  for (let x = 0; x < takeback_legal; x++) active_games[game_id].undo();
+
+  for (let x = 0; x < game.pending[othercolor].takeback.number; x++)
+    active_games[game_id].undo();
+
+  const otheruser = othercolor === "white" ? game.white.id : game.black.id;
+  ClientMessages.sendMessageToClient(
+    otheruser,
+    game.pending[othercolor].takeback.mid,
+    "TAKEBACK_ACCEPTED"
+  );
 };
 
 Game.declineLocalTakeback = function(message_identifier, game_id) {
@@ -1052,31 +1165,40 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
   if (!game) return;
   if (game.status !== "playing") {
     ClientMessages.sendMessageToClient(
-      Meteor.user(),
+      self,
       message_identifier,
       "COMMAND_INVALID_NOT_PLAYING"
     );
     return;
   }
 
-  let takeback_legal;
-  for (
-    let x = game.actions.length - 1;
-    takeback_legal !== undefined && x >= 0;
-    x--
-  ) {
-    if (typeof game.actions[x] !== "object") takeback_legal = -1;
-    else if (typeof game.actions[x].takeback === "number")
-      takeback_legal = game.actions[x].takeback;
-  }
-  if (takeback_legal === undefined || takeback_legal === -1) {
-    ClientMessages.sendMessageToClient(Meteor.user(), "ILLEGAL_TAKEBACK");
+  const othercolor = self._id === game.white.id ? "black" : "white";
+  if (!game.pending[othercolor].takeback.number) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "NO_TAKEBACK_PENDING"
+    );
     return;
   }
 
-  Meteor.update(
+  const setobject = {};
+  setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: null };
+  GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "takeback_declined", issuer: self._id } } }
+    {
+      $push: {
+        actions: { type: "takeback_declined", issuer: self._id },
+        $set: setobject
+      }
+    }
+  );
+
+  const otherplayer = othercolor === "white" ? game.white.id : game.black.id;
+  ClientMessages.sendMessageToClient(
+    otherplayer,
+    game.pending[othercolor].takeback.mid,
+    "TAKEBACK_DECLINED"
   );
 };
 
@@ -1090,6 +1212,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
 
   if (game.legacy_game_number)
     throw new ICCMeteorError(
+      self,
       message_identifier,
       "Unable to request draw",
       "Cannot request a local draw on a legacy game"
@@ -1097,7 +1220,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
 
   if (!game || game.status !== "playing") {
     ClientMessages.sendMessageToClient(
-      Meteor.user(),
+      self,
       message_identifier,
       "COMMAND_INVALID_NOT_PLAYING"
     );
@@ -1136,7 +1259,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   if (!game) return;
   if (game.status !== "playing") {
     ClientMessages.sendMessageToClient(
-      Meteor.user(),
+      self,
       message_identifier,
       "COMMAND_INVALID_NOT_PLAYING"
     );
@@ -1167,7 +1290,7 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
   if (!game) return;
   if (game.status !== "playing") {
     ClientMessages.sendMessageToClient(
-      Meteor.user(),
+      self,
       message_identifier,
       "COMMAND_INVALID_NOT_PLAYING"
     );
@@ -1190,7 +1313,7 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   if (!game) return;
   if (game.status !== "playing") {
     ClientMessages.sendMessageToClient(
-      Meteor.user(),
+      self,
       message_identifier,
       "COMMAND_INVALID_NOT_PLAYING"
     );
