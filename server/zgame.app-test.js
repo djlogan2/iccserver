@@ -1842,6 +1842,18 @@ function checkAbort(gameRecord, white, black) {
   );
 }
 
+function checkAdjourn(gameRecord, white, black) {
+  checkxxx(gameRecord);
+  chai.assert.equal(
+    gameRecord.pending.white.adjourn,
+    white === undefined ? "0" : white
+  );
+  chai.assert.equal(
+    gameRecord.pending.black.adjourn,
+    black === undefined ? "0" : black
+  );
+}
+
 describe("Takeback behavior", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
@@ -2360,7 +2372,17 @@ describe("Game.declineLocalTakeback", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, 15, 0);
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0
+    );
     Game.declineLocalTakeback("mi1", game_id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
@@ -2712,9 +2734,187 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client message to the asker if a no game is being played when requesting a abort", function() {
+  it("should write a client message to the asker if a no game is being played when requesting an abort", function() {
     self.loggedonuser = TestHelpers.createUser();
     Game.requestLocalAbort("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+});
+
+describe("Local game adjourn behavior", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should allow a adjourn request on your move, record the adjourn, and leave it in effect after you make your move for your opponent to accept or decline", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAdjourn(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAdjourn("mi2", game_id);
+    checkAdjourn(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkAdjourn(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi4", game_id, "e5");
+
+    const game = Game.collection.findOne();
+    checkAdjourn(game, "0", "0");
+    checkLastAction(game, 0, "move", opp._id, "e5");
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "adjourn_requested", us._id);
+  });
+
+  it("should explicitly decline the adjourn with a client message if a adjourn request is declined", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAdjourn(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAdjourn("mi2", game_id);
+    checkAdjourn(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkAdjourn(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.declineLocalAdjourn("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    checkAdjourn(game, "0", "0");
+    checkLastAction(game, 0, "adjourn_declined", opp._id);
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "adjourn_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ADJOURN_DECLINED");
+  });
+
+  it("should explicitly accept the adjourn with a client message, and end the game, if a adjourn request is accepted", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAdjourn(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAdjourn("mi2", game_id);
+    checkAdjourn(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkAdjourn(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.acceptLocalAdjourn("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    checkAdjourn(game, "0", "0");
+    checkLastAction(game, 0, "adjourn_accepted", opp._id);
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "adjourn_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ADJOURN_ACCEPTED");
+
+    chai.assert.equal(game.status, "examining");
+  });
+
+  it("should write a client message to the asker if a adjourn request is already pending", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAdjourn(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAdjourn("mi2", game_id);
+    checkAdjourn(Game.collection.findOne(), "mi2", "0");
+    Game.requestLocalAdjourn("mi3", game_id);
+
+    const game = Game.collection.findOne();
+    checkAdjourn(game, "mi2", "0");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][2],
+      "ADJOURN_ALREADY_PENDING"
+    );
+    chai.assert.equal(game.actions.length, 1);
+    checkLastAction(game, 0, "adjourn_requested", us._id);
+  });
+
+  it("should write a client message to the asker if a no game is being played when accepting a adjourn", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.acceptLocalAdjourn("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("should write a client message to the asker if a no game is being played when declining a adjourn", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.declineLocalAdjourn("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("should write a client message to the asker if a no game is being played when requesting an adjourn", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.requestLocalAdjourn("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(
       self.clientMessagesSpy.args[0][0]._id,
