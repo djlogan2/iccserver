@@ -1248,8 +1248,12 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
 
   const color = self._id === game.white.id ? "white" : "black";
 
-  if(game.pending[color].draw !== "0") {
-    ClientMessages.sendMessageToClient(self._id, message_identifier, "DRAW_ALREADY_PENDING");
+  if (game.pending[color].draw !== "0") {
+    ClientMessages.sendMessageToClient(
+      self._id,
+      message_identifier,
+      "DRAW_ALREADY_PENDING"
+    );
     return;
   }
 
@@ -1260,6 +1264,55 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     { _id: game_id },
     {
       $push: { actions: { type: "draw_requested", issuer: self._id } },
+      $set: setobject
+    }
+  );
+};
+
+Game.requestLocalAbort = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+
+  if (game.legacy_game_number)
+    throw new ICCMeteorError(
+      self,
+      message_identifier,
+      "Unable to request abort",
+      "Cannot request a local draw on a legacy game"
+    );
+
+  if (!game || game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
+
+  const color = self._id === game.white.id ? "white" : "black";
+
+  if (game.pending[color].abort !== "0") {
+    ClientMessages.sendMessageToClient(
+      self._id,
+      message_identifier,
+      "ABORT_ALREADY_PENDING"
+    );
+    return;
+  }
+
+  const setobject = {};
+  setobject["pending." + color + ".abort"] = message_identifier;
+
+  GameCollection.update(
+    { _id: game_id },
+    {
+      $push: { actions: { type: "abort_requested", issuer: self._id } },
       $set: setobject
     }
   );
@@ -1319,6 +1372,60 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   );
 };
 
+Game.acceptLocalAbort = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
+
+  const setobject = {
+    status: "examining",
+    result: "aborted",
+    examiners: [game.white.id, game.black.id]
+  };
+  const colors = ["white", "black"];
+  const actions = [".draw", ".abort", ".adjourn", ".takeback.mid"];
+  colors.forEach(color =>
+    actions.forEach(action => (setobject["pending." + color + action] = "0"))
+  );
+  setobject["pending.white.takeback.number"] = 0;
+  setobject["pending.black.takeback.number"] = 0;
+
+  GameCollection.update(
+    { _id: game_id },
+    {
+      $set: setobject,
+      $push: {
+        actions: {
+          type: "abort_accepted",
+          issuer: self._id
+        },
+        observers: { $each: [game.white.id, game.black.id] }
+      }
+    }
+  );
+
+  const othercolor = self._id === game.white.id ? "black" : "white";
+  const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
+  ClientMessages.sendMessageToClient(
+    otheruser,
+    game.pending[othercolor].abort,
+    "ABORT_ACCEPTED"
+  );
+};
+
 Game.declineLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
@@ -1354,6 +1461,44 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
     otheruser,
     game.pending[othercolor].draw,
     "DRAW_DECLINED"
+  );
+};
+
+Game.declineLocalAbort = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  const game = getAndCheck(message_identifier, game_id);
+
+  if (!game) return;
+
+  if (game.status !== "playing") {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "COMMAND_INVALID_NOT_PLAYING"
+    );
+    return;
+  }
+
+  const othercolor = self._id === game.white.id ? "black" : "white";
+  const setobject = {};
+  const otheruser = othercolor === "white" ? game.white.id : game.black.id;
+
+  setobject["pending." + othercolor + ".abort"] = "0";
+  GameCollection.update(
+    { _id: game_id },
+    {
+      $push: { actions: { type: "abort_declined", issuer: self._id } },
+      $set: setobject
+    }
+  );
+
+  ClientMessages.sendMessageToClient(
+    otheruser,
+    game.pending[othercolor].abort,
+    "ABORT_DECLINED"
   );
 };
 

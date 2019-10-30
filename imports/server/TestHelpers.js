@@ -60,19 +60,23 @@ if (Meteor.isTest || Meteor.isAppTest) {
     const self = this;
 
     beforeEach.call(this, function(done) {
-      self.meteorUsersFake = sinon.fake(() =>
+      self.sandbox = sinon.createSandbox();
+      self.meteorUsersFake = self.sandbox.fake(() =>
         Meteor.users.findOne({
           _id: self.loggedonuser ? self.loggedonuser._id : ""
         })
       );
-      sinon.replace(Meteor, "user", self.meteorUsersFake);
+      self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
 
-      self.clientMessagesSpy = sinon.spy(ClientMessages, "sendMessageToClient");
+      self.clientMessagesSpy = self.sandbox.spy(
+        ClientMessages,
+        "sendMessageToClient"
+      );
 
-      sinon.replace(
+      self.sandbox.replace(
         i18n,
         "localizeMessage",
-        sinon.fake(function(locale, i18nvalue, parameters) {
+          self.sandbox.fake(function(locale, i18nvalue, parameters) {
           return "i18n: " + locale + ", " + i18nvalue + ", " + parameters;
         })
       );
@@ -82,7 +86,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
     afterEach.call(this, function() {
       ClientMessages.sendMessageToClient.restore();
-      sinon.restore();
+      self.sandbox.restore();
       delete self.meteorUsersFake;
       delete self.clientMessagesSpy;
     });
