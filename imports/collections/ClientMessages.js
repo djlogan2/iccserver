@@ -46,6 +46,8 @@ export const DefinedClientMessagesMap = {
   TAKEBACK_ACCEPTED: {},
   TAKEBACK_DECLINED: {},
   MATCH_DECLINED: {},
+  DRAW_ACCEPTED: {},
+  DRAW_DECLINED: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

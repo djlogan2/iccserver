@@ -1209,6 +1209,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
   check(self, Object);
 
   const game = getAndCheck(message_identifier, game_id);
+  if (!game) return;
 
   if (game.legacy_game_number)
     throw new ICCMeteorError(
@@ -1244,17 +1245,27 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     );
     return;
   }
+
+  const color = self._id === game.white.id ? "white" : "black";
+  const setobject = {};
+  setobject["pending." + color + ".draw"] = message_identifier;
+
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "draw_requested", issuer: self._id } } }
+    {
+      $push: { actions: { type: "draw_requested", issuer: self._id } },
+      $set: setobject
+    }
   );
 };
 
 Game.acceptLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+
   const self = Meteor.user();
-  check(self);
+  check(self, Object);
+
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -1266,10 +1277,23 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
     return;
   }
 
+  const setobject = {
+    status: "examining",
+    result: "1/2-1-2",
+    examiners: [game.white.id, game.black.id]
+  };
+  const colors = ["white", "black"];
+  const actions = [".draw", ".abort", ".adjourn", ".takeback.mid"];
+  colors.forEach(color =>
+    actions.forEach(action => (setobject["pending." + color + action] = "0"))
+  );
+  setobject["pending.white.takeback.number"] = 0;
+  setobject["pending.black.takeback.number"] = 0;
+
   GameCollection.update(
     { _id: game_id },
     {
-      $set: { examiners: [game.white.id, game.black.id] },
+      $set: setobject,
       $push: {
         actions: {
           type: "draw_accepted",
@@ -1279,6 +1303,14 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
       }
     }
   );
+
+  const othercolor = self._id === game.white.id ? "black" : "white";
+  const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
+  ClientMessages.sendMessageToClient(
+    otheruser,
+    game.pending[othercolor].draw,
+    "DRAW_ACCEPTED"
+  );
 };
 
 Game.declineLocalDraw = function(message_identifier, game_id) {
@@ -1287,7 +1319,9 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
   check(game_id, String);
   const self = Meteor.user();
   const game = getAndCheck(message_identifier, game_id);
+
   if (!game) return;
+
   if (game.status !== "playing") {
     ClientMessages.sendMessageToClient(
       self,
@@ -1297,9 +1331,23 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
     return;
   }
 
+  const othercolor = self._id === game.white.id ? "black" : "white";
+  const setobject = {};
+  const otheruser = othercolor === "white" ? game.white.id : game.black.id;
+
+  setobject["pending." + othercolor + ".draw"] = "0";
   GameCollection.update(
     { _id: game_id },
-    { $push: { actions: { type: "decline_draw", issuer: self._id } } }
+    {
+      $push: { actions: { type: "draw_declined", issuer: self._id } },
+      $set: setobject
+    }
+  );
+
+  ClientMessages.sendMessageToClient(
+    otheruser,
+    game.pending[othercolor].draw,
+    "DRAW_DECLINED"
   );
 };
 

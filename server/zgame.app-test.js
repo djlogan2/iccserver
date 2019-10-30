@@ -1794,13 +1794,29 @@ function checkOneTakeback(pendingcolor, takeback) {
   );
 }
 
-function checkTakeback(gamerecord, wtakeback, btakeback) {
+function checkxxx(gamerecord) {
   chai.assert.isDefined(gamerecord);
   chai.assert.isDefined(gamerecord.pending);
   chai.assert.isDefined(gamerecord.pending.white);
   chai.assert.isDefined(gamerecord.pending.black);
+}
+
+function checkTakeback(gamerecord, wtakeback, btakeback) {
+  checkxxx(gamerecord);
   checkOneTakeback(gamerecord.pending.white, wtakeback);
   checkOneTakeback(gamerecord.pending.black, btakeback);
+}
+
+function checkDraw(gameRecord, white, black) {
+  checkxxx(gameRecord);
+  chai.assert.equal(
+    gameRecord.pending.white.draw,
+    white === undefined ? "0" : white
+  );
+  chai.assert.equal(
+    gameRecord.pending.black.draw,
+    black === undefined ? "0" : black
+  );
 }
 
 describe("Takeback behavior", function() {
@@ -2316,4 +2332,117 @@ describe("Game.declineLocalTakeback", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
+});
+
+describe("Local game draw behavior", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should allow a draw request on your move, record the draw, and leave it in effect after you make your move for your opponent to accept or decline", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkDraw(Game.collection.findOne(), "0", "0");
+    Game.requestLocalDraw("mi2", game_id);
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi4", game_id, "e5");
+
+    const game = Game.collection.findOne();
+    checkDraw(game, "0", "0");
+    checkLastAction(game, 0, "move", opp._id, "e5");
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "draw_requested", us._id);
+  });
+
+  it("should explicitly decline the draw with a client message if a draw request is declined", function() {
+    this.timeout(500000);
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkDraw(Game.collection.findOne(), "0", "0");
+    Game.requestLocalDraw("mi2", game_id);
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.declineLocalDraw("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    checkDraw(game, "0", "0");
+    checkLastAction(game, 0, "draw_declined", opp._id);
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "draw_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "DRAW_DECLINED");
+  });
+
+  it("should explicitly accept the draw with a client message, and end the game, if a draw request is accepted", function() {
+    this.timeout(500000);
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkDraw(Game.collection.findOne(), "0", "0");
+    Game.requestLocalDraw("mi2", game_id);
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.acceptLocalDraw("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    checkDraw(game, "0", "0");
+    checkLastAction(game, 0, "draw_accepted", opp._id);
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "draw_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "DRAW_ACCEPTED");
+
+    chai.assert.equal(game.status, "examining");
+  });
+
+  it("should write a client message to the asker if a draw request is already pending", function() {});
+  it("should write a client message to the asker if a no game is being played", function() {});
 });
