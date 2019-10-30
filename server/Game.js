@@ -1247,6 +1247,12 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
   }
 
   const color = self._id === game.white.id ? "white" : "black";
+
+  if(game.pending[color].draw !== "0") {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "DRAW_ALREADY_PENDING");
+    return;
+  }
+
   const setobject = {};
   setobject["pending." + color + ".draw"] = message_identifier;
 

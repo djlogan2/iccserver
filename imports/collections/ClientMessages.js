@@ -48,6 +48,7 @@ export const DefinedClientMessagesMap = {
   MATCH_DECLINED: {},
   DRAW_ACCEPTED: {},
   DRAW_DECLINED: {},
+  DRAW_ALREADY_PENDING: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

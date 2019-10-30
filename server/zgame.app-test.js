@@ -2368,7 +2368,6 @@ describe("Local game draw behavior", function() {
   });
 
   it("should explicitly decline the draw with a client message if a draw request is declined", function() {
-    this.timeout(500000);
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2405,7 +2404,6 @@ describe("Local game draw behavior", function() {
   });
 
   it("should explicitly accept the draw with a client message, and end the game, if a draw request is accepted", function() {
-    this.timeout(500000);
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2443,6 +2441,64 @@ describe("Local game draw behavior", function() {
     chai.assert.equal(game.status, "examining");
   });
 
-  it("should write a client message to the asker if a draw request is already pending", function() {});
-  it("should write a client message to the asker if a no game is being played", function() {});
+  it("should write a client message to the asker if a draw request is already pending", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkDraw(Game.collection.findOne(), "0", "0");
+    Game.requestLocalDraw("mi2", game_id);
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    Game.requestLocalDraw("mi3", game_id);
+
+    const game = Game.collection.findOne();
+    checkDraw(game, "mi2", "0");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][2],
+      "DRAW_ALREADY_PENDING"
+    );
+    chai.assert.equal(game.actions.length, 1);
+    checkLastAction(game, 0, "draw_requested", us._id);
+  });
+
+  it("should write a client message to the asker if a no game is being played when accepting a draw", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.acceptLocalDraw("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("should write a client message to the asker if a no game is being played when declining a draw", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.declineLocalDraw("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("should write a client message to the asker if a no game is being played when requesting a draw", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.requestLocalDraw("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
 });
