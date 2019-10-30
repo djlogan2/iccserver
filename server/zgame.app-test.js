@@ -1,5 +1,4 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
-import sinon from "sinon";
 import { Game } from "./Game";
 import { Match } from "meteor/check";
 import chai from "chai";
@@ -290,10 +289,10 @@ describe("Game.startLocalGame", function() {
   });
   //   black/white_initial/increment
   it("should error out if times fail validation", function() {
-    sinon.replace(
+    self.sandbox.replace(
       SystemConfiguration,
       "meetsTimeAndIncRules",
-      sinon.fake.returns(false)
+      self.sandbox.fake.returns(false)
     );
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
@@ -1799,6 +1798,18 @@ function checkxxx(gamerecord) {
   chai.assert.isDefined(gamerecord.pending);
   chai.assert.isDefined(gamerecord.pending.white);
   chai.assert.isDefined(gamerecord.pending.black);
+  chai.assert.isDefined(gamerecord.pending.white.draw);
+  chai.assert.isDefined(gamerecord.pending.white.abort);
+  chai.assert.isDefined(gamerecord.pending.white.adjourn);
+  chai.assert.isDefined(gamerecord.pending.white.takeback);
+  chai.assert.isDefined(gamerecord.pending.white.takeback.number);
+  chai.assert.isDefined(gamerecord.pending.white.takeback.mid);
+  chai.assert.isDefined(gamerecord.pending.black.draw);
+  chai.assert.isDefined(gamerecord.pending.black.abort);
+  chai.assert.isDefined(gamerecord.pending.black.adjourn);
+  chai.assert.isDefined(gamerecord.pending.black.takeback);
+  chai.assert.isDefined(gamerecord.pending.black.takeback.number);
+  chai.assert.isDefined(gamerecord.pending.black.takeback.mid);
 }
 
 function checkTakeback(gamerecord, wtakeback, btakeback) {
@@ -1815,6 +1826,18 @@ function checkDraw(gameRecord, white, black) {
   );
   chai.assert.equal(
     gameRecord.pending.black.draw,
+    black === undefined ? "0" : black
+  );
+}
+
+function checkAbort(gameRecord, white, black) {
+  checkxxx(gameRecord);
+  chai.assert.equal(
+    gameRecord.pending.white.abort,
+    white === undefined ? "0" : white
+  );
+  chai.assert.equal(
+    gameRecord.pending.black.abort,
     black === undefined ? "0" : black
   );
 }
@@ -2332,6 +2355,18 @@ describe("Game.declineLocalTakeback", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
+
+  it("sends a client message if a takeback is not pending", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, 15, 0);
+    Game.declineLocalTakeback("mi1", game_id);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NO_TAKEBACK_PENDING");
+  });
 });
 
 describe("Local game draw behavior", function() {
@@ -2479,7 +2514,10 @@ describe("Local game draw behavior", function() {
     self.loggedonuser = TestHelpers.createUser();
     Game.acceptLocalDraw("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
@@ -2488,7 +2526,10 @@ describe("Local game draw behavior", function() {
     self.loggedonuser = TestHelpers.createUser();
     Game.declineLocalDraw("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
@@ -2497,7 +2538,188 @@ describe("Local game draw behavior", function() {
     self.loggedonuser = TestHelpers.createUser();
     Game.requestLocalDraw("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+});
+
+describe("Local game abort behavior", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should allow a abort request on your move, record the abort, and leave it in effect after you make your move for your opponent to accept or decline", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAbort(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAbort("mi2", game_id);
+    checkAbort(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkAbort(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi4", game_id, "e5");
+
+    const game = Game.collection.findOne();
+    checkAbort(game, "0", "0");
+    checkLastAction(game, 0, "move", opp._id, "e5");
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "abort_requested", us._id);
+  });
+
+  it("should explicitly decline the abort with a client message if a abort request is declined", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAbort(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAbort("mi2", game_id);
+    checkAbort(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkAbort(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.declineLocalAbort("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    checkAbort(game, "0", "0");
+    checkLastAction(game, 0, "abort_declined", opp._id);
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "abort_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_DECLINED");
+  });
+
+  it("should explicitly accept the abort with a client message, and end the game, if a abort request is accepted", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAbort(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAbort("mi2", game_id);
+    checkAbort(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkAbort(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.acceptLocalAbort("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    checkAbort(game, "0", "0");
+    checkLastAction(game, 0, "abort_accepted", opp._id);
+    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 2, "abort_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_ACCEPTED");
+
+    chai.assert.equal(game.status, "examining");
+  });
+
+  it("should write a client message to the asker if a abort request is already pending", function() {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    checkAbort(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAbort("mi2", game_id);
+    checkAbort(Game.collection.findOne(), "mi2", "0");
+    Game.requestLocalAbort("mi3", game_id);
+
+    const game = Game.collection.findOne();
+    checkAbort(game, "mi2", "0");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][2],
+      "ABORT_ALREADY_PENDING"
+    );
+    chai.assert.equal(game.actions.length, 1);
+    checkLastAction(game, 0, "abort_requested", us._id);
+  });
+
+  it("should write a client message to the asker if a no game is being played when accepting a abort", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.acceptLocalAbort("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("should write a client message to the asker if a no game is being played when declining a abort", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.declineLocalAbort("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("should write a client message to the asker if a no game is being played when requesting a abort", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.requestLocalAbort("mi1", "somegame");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][0]._id,
+      self.loggedonuser._id
+    );
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });

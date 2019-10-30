@@ -1,10 +1,10 @@
 import chai from "chai";
-import sinon from "sinon";
 
 import { Meteor } from "meteor/meteor";
 import { Match } from "meteor/check";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { Roles } from "meteor/alanning:roles";
+import sinon from "sinon";
 
 import { GameRequests } from "./GameRequest";
 import { Game } from "./Game";
@@ -340,10 +340,10 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
 
-    sinon.replace(
+    self.sandbox.replace(
       SystemConfiguration,
       "meetsMinimumAndMaximumRatingRules",
-      sinon.fake.returns(false)
+      self.sandbox.fake.returns(false)
     );
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
@@ -379,10 +379,10 @@ describe("GameRequests.addLocalGameSeek", function() {
       );
     }, Match.Error);
 
-    sinon.replace(
+    self.sandbox.replace(
       SystemConfiguration,
       "meetsMinimumAndMaximumRatingRules",
-      sinon.fake.returns(false)
+      self.sandbox.fake.returns(false)
     );
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
@@ -398,7 +398,6 @@ describe("GameRequests.addLocalGameSeek", function() {
         true
       );
     }, ICCMeteorError);
-    sinon.restore();
   });
 
   //   autoaccept,
@@ -438,7 +437,6 @@ describe("GameRequests.addLocalGameSeek", function() {
         "Not yet supported"
       );
     }, ICCMeteorError);
-    sinon.restore();
   });
 
   it("should should add a record to the database if all is well and good", function() {
@@ -593,8 +591,8 @@ describe("GameRequests.acceptGameSeek", function() {
 
   it("should delete the seek and insert a new game if all is well", function() {
     const grc = GameRequests.collection;
-    const gr = sinon.mock(grc);
-    const gm = sinon.mock(Game);
+    const gr = self.sandbox.mock(grc);
+    const gm = self.sandbox.mock(Game);
 
     gr.expects("remove").once();
     gm.expects("startLocalGame").once();
@@ -955,10 +953,10 @@ describe("GameRequests.addLocalMatchRequest", function() {
 
   it("should fail if time/inc invalid/not within ICC configuration", function() {
     self.loggedonuser = TestHelpers.createUser();
-    sinon.replace(
+    self.sandbox.replace(
       SystemConfiguration,
       "meetsTimeAndIncRules",
-      sinon.fake.returns(false)
+      self.sandbox.fake.returns(false)
     );
     chai.assert.throws(() => {
       GameRequests.addLocalMatchRequest(
@@ -1167,8 +1165,8 @@ describe("GameRequests.acceptMatchRequest", function() {
 
     self.loggedonuser = receiver;
 
-    const fake = sinon.fake.returns("id");
-    sinon.replace(Game, "startLocalGame", fake);
+    const fake = self.sandbox.fake.returns("id");
+    self.sandbox.replace(Game, "startLocalGame", fake);
     GameRequests.acceptMatchRequest("mi2", match_id);
 
     chai.assert.equal(GameRequests.collection.find().count(), 0);
@@ -1213,8 +1211,8 @@ describe("GameRequests.acceptMatchRequest", function() {
 
     self.loggedonuser = receiver;
 
-    const fake = sinon.fake.returns("id");
-    sinon.replace(Game, "startLocalGame", fake);
+    const fake = self.sandbox.fake.returns("id");
+    self.sandbox.replace(Game, "startLocalGame", fake);
     GameRequests.acceptMatchRequest("mi2", match_id);
 
     chai.assert.equal(GameRequests.collection.find().count(), 0);
@@ -1252,8 +1250,8 @@ describe("GameRequests.acceptMatchRequest", function() {
 
     self.loggedonuser = receiver;
 
-    const fake = sinon.fake.returns("id");
-    sinon.replace(Game, "startLocalGame", fake);
+    const fake = self.sandbox.fake.returns("id");
+    self.sandbox.replace(Game, "startLocalGame", fake);
     GameRequests.acceptMatchRequest("mi2", match_id);
 
     chai.assert.equal(GameRequests.collection.find().count(), 0);
@@ -1760,12 +1758,18 @@ function add15(self, challenger, receiver, otherguy) {
 }
 
 describe("GameRequests.seekMatchesUser", function() {
+  const self = this;
   beforeEach(function() {
-    sinon.replace(Roles, "userIsInRole", sinon.fake.returns(true));
+    self.sandbox = sinon.createSandbox();
+    self.sandbox.replace(
+      Roles,
+      "userIsInRole",
+      self.sandbox.fake.returns(true)
+    );
   });
 
   afterEach(function() {
-    sinon.restore();
+    self.sandbox.restore();
   });
 
   it("needs to work in all cases", function() {
