@@ -222,15 +222,14 @@ describe("Users", function() {
   it("should only get logged on users with the loggedOnUsers subscription", function(done) {
     const user1 = TestHelpers.createUser({ login: false });
     const user2 = TestHelpers.createUser({ login: true });
-    const user3 = TestHelpers.createUser({ login: false });
-    const user4 = TestHelpers.createUser({ login: true });
+    const user3 = TestHelpers.createUser({ login: true });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("loggedOnUsers", collections => {
       chai.assert.equal(collections.users.length, 2);
       chai.assert.sameMembers(
-        [user2.username, user4.username],
+        [user2.username, user3.username],
         collections.users.map(u => u.username)
       );
       done();

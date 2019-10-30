@@ -6,5 +6,7 @@ describe("Server side i18n", function() {
     resetDatabase(null, done);
   });
 
-  it("still needs to be written", function() { chai.assert.fail("do me") });
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
+  });
 });

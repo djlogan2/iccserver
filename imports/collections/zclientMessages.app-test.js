@@ -1,4 +1,3 @@
-import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import chai from "chai";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Meteor } from "meteor/meteor";
@@ -75,16 +74,8 @@ describe("Client Messages", function() {
       "id1",
       "FOR_TESTING"
     );
-    const id2 = ClientMessages.sendMessageToClient(
-      user1._id,
-      "id2",
-      "FOR_TESTING"
-    );
-    const id3 = ClientMessages.sendMessageToClient(
-      user2._id,
-      "id3",
-      "FOR_TESTING"
-    );
+    ClientMessages.sendMessageToClient(user1._id, "id2", "FOR_TESTING");
+    ClientMessages.sendMessageToClient(user2._id, "id3", "FOR_TESTING");
     let method = Meteor.server.method_handlers["acknowledge.client.message"];
     method.apply({ userId: user1._id }, [id1]);
     const remainder = ClientMessages.collection.find().fetch();
@@ -102,11 +93,7 @@ describe("Client Messages", function() {
       "id1",
       "FOR_TESTING"
     );
-    const id2 = ClientMessages.sendMessageToClient(
-      user2._id,
-      "id2",
-      "FOR_TESTING"
-    );
+    ClientMessages.sendMessageToClient(user2._id, "id2", "FOR_TESTING");
     let method = Meteor.server.method_handlers["acknowledge.client.message"];
     chai.assert.throws(
       () => method.apply({ userId: user2._id }, [id1]),

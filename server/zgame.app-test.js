@@ -1,15 +1,11 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import sinon from "sinon";
-import { Meteor } from "meteor/meteor";
-import { ClientMessages } from "../imports/collections/ClientMessages";
-import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Game } from "./Game";
 import { Match } from "meteor/check";
 import chai from "chai";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
-import { i18n } from "../imports/collections/i18n";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
@@ -1231,10 +1227,7 @@ describe("Game.localAddExaminer", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(
-      self.clientMessagesSpy.args[0][2],
-      "ALREADY_AN_EXAMINER"
-    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_AN_EXAMINER");
   });
 
   it("should succeed if everything else is well", function() {
@@ -2057,10 +2050,7 @@ describe("Takeback behavior", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
-    chai.assert.equal(
-      self.clientMessagesSpy.args[0][2],
-      "NO_TAKEBACK_PENDING"
-    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NO_TAKEBACK_PENDING");
     checkTakeback(Game.collection.findOne(), 4, 0);
   });
   //                -> taker_decline              -> declines
@@ -2137,10 +2127,7 @@ describe("Takeback behavior", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
-    chai.assert.equal(
-      self.clientMessagesSpy.args[0][2],
-      "NO_TAKEBACK_PENDING"
-    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NO_TAKEBACK_PENDING");
     checkTakeback(Game.collection.findOne(), 4, 0);
   });
   //                -> taker_accept               -> do it!
