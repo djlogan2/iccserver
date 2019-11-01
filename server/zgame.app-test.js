@@ -1795,31 +1795,37 @@ function checkOneTakeback(pendingcolor, takeback) {
 
 function checkxxx(gamerecord) {
   chai.assert.isDefined(gamerecord);
-  chai.assert.isDefined(gamerecord.pending);
-  chai.assert.isDefined(gamerecord.pending.white);
-  chai.assert.isDefined(gamerecord.pending.black);
-  chai.assert.isDefined(gamerecord.pending.white.draw);
-  chai.assert.isDefined(gamerecord.pending.white.abort);
-  chai.assert.isDefined(gamerecord.pending.white.adjourn);
-  chai.assert.isDefined(gamerecord.pending.white.takeback);
-  chai.assert.isDefined(gamerecord.pending.white.takeback.number);
-  chai.assert.isDefined(gamerecord.pending.white.takeback.mid);
-  chai.assert.isDefined(gamerecord.pending.black.draw);
-  chai.assert.isDefined(gamerecord.pending.black.abort);
-  chai.assert.isDefined(gamerecord.pending.black.adjourn);
-  chai.assert.isDefined(gamerecord.pending.black.takeback);
-  chai.assert.isDefined(gamerecord.pending.black.takeback.number);
-  chai.assert.isDefined(gamerecord.pending.black.takeback.mid);
+  if (gamerecord.status === "examining") {
+    chai.assert.isUndefined(gamerecord.pending);
+  } else {
+    chai.assert.isDefined(gamerecord.pending);
+    chai.assert.isDefined(gamerecord.pending.white);
+    chai.assert.isDefined(gamerecord.pending.black);
+    chai.assert.isDefined(gamerecord.pending.white.draw);
+    chai.assert.isDefined(gamerecord.pending.white.abort);
+    chai.assert.isDefined(gamerecord.pending.white.adjourn);
+    chai.assert.isDefined(gamerecord.pending.white.takeback);
+    chai.assert.isDefined(gamerecord.pending.white.takeback.number);
+    chai.assert.isDefined(gamerecord.pending.white.takeback.mid);
+    chai.assert.isDefined(gamerecord.pending.black.draw);
+    chai.assert.isDefined(gamerecord.pending.black.abort);
+    chai.assert.isDefined(gamerecord.pending.black.adjourn);
+    chai.assert.isDefined(gamerecord.pending.black.takeback);
+    chai.assert.isDefined(gamerecord.pending.black.takeback.number);
+    chai.assert.isDefined(gamerecord.pending.black.takeback.mid);
+  }
 }
 
 function checkTakeback(gamerecord, wtakeback, btakeback) {
   checkxxx(gamerecord);
+  if (gamerecord.status === "examining") return;
   checkOneTakeback(gamerecord.pending.white, wtakeback);
   checkOneTakeback(gamerecord.pending.black, btakeback);
 }
 
 function checkDraw(gameRecord, white, black) {
   checkxxx(gameRecord);
+  if (gameRecord.status === "examining") return;
   chai.assert.equal(
     gameRecord.pending.white.draw,
     white === undefined ? "0" : white
@@ -1832,6 +1838,7 @@ function checkDraw(gameRecord, white, black) {
 
 function checkAbort(gameRecord, white, black) {
   checkxxx(gameRecord);
+  if (gameRecord.status === "examining") return;
   chai.assert.equal(
     gameRecord.pending.white.abort,
     white === undefined ? "0" : white
@@ -1844,6 +1851,7 @@ function checkAbort(gameRecord, white, black) {
 
 function checkAdjourn(gameRecord, white, black) {
   checkxxx(gameRecord);
+  if (gameRecord.status === "examining") return;
   chai.assert.equal(
     gameRecord.pending.white.adjourn,
     white === undefined ? "0" : white
@@ -2389,6 +2397,24 @@ describe("Game.declineLocalTakeback", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NO_TAKEBACK_PENDING");
   });
+
+  it("send a client message if the game is examined", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.requestLocalTakeback("mi2", game_id, 5);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
 });
 
 describe("Local game draw behavior", function() {
@@ -2565,6 +2591,24 @@ describe("Local game draw behavior", function() {
       self.loggedonuser._id
     );
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("send a client message if the game is examined", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.requestLocalDraw("mi2", game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 });
@@ -2745,6 +2789,24 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
+
+  it("send a client message if the game is examined", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.requestLocalAbort("mi2", game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
 });
 
 describe("Local game adjourn behavior", function() {
@@ -2817,6 +2879,7 @@ describe("Local game adjourn behavior", function() {
   });
 
   it("should explicitly accept the adjourn with a client message, and end the game, if a adjourn request is accepted", function() {
+    this.timeout(500000);
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2923,4 +2986,373 @@ describe("Local game adjourn behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
+
+  it("send a client message if the game is examined", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.requestLocalAdjourn("mi2", game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+});
+
+describe("Game.resignLocalGame", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("send a client message if user is not playing a game", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    Game.resignLocalGame("mi2", "somegame");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("send a client message if the game is examined", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.resignLocalGame("mi2", game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
+  });
+
+  it("works on their move", function() {
+    this.timeout(500000);
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game1_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    Game.resignLocalGame("mi2", game1_id);
+    const game1 = Game.collection.findOne({ _id: game1_id });
+    checkLastAction(game1, 0, "resign", us._id);
+    chai.assert.equal(game1.status, "examining");
+    chai.assert.equal(game1.result, "0-1");
+
+    self.loggedonuser = us;
+    const game2_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    Game.saveLocalMove("mi2", game2_id, "e4");
+    self.loggedonuser = them;
+    Game.resignLocalGame("mi3", game2_id);
+    const game2 = Game.collection.findOne({ _id: game2_id });
+    checkLastAction(game2, 0, "resign", them._id);
+    chai.assert.equal(game2.status, "examining");
+    chai.assert.equal(game2.result, "1-0");
+  });
+
+  it("works on their opponents move", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game1_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    self.loggedonuser = them;
+    Game.resignLocalGame("mi2", game1_id);
+    const game1 = Game.collection.findOne({ _id: game1_id });
+    checkLastAction(game1, 0, "resign", them._id);
+    chai.assert.equal(game1.status, "examining");
+    chai.assert.equal(game1.result, "1-0");
+
+    self.loggedonuser = us;
+    const game2_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    Game.saveLocalMove("mi2", game2_id, "e4");
+    Game.resignLocalGame("mi3", game2_id);
+    const game2 = Game.collection.findOne({ _id: game2_id });
+    checkLastAction(game2, 0, "resign", us._id);
+    chai.assert.equal(game2.status, "examining");
+    chai.assert.equal(game2.result, "0-1");
+  });
+
+  it("should, on a resign", function() {
+    it("should reset a pending draws", function() {
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game1_id = Game.startLocalGame(
+        "mi1",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        15,
+        0,
+        "white"
+      );
+      Game.requestLocalDraw("mi2", game1_id);
+      self.loggedonuser = them;
+      Game.resignLocalGame("mi2", game1_id);
+      checkDraw(Game.collection.findOne());
+    });
+
+    it("should reset a pending aborts", function() {
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game1_id = Game.startLocalGame(
+        "mi1",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        15,
+        0,
+        "white"
+      );
+      Game.requestLocalAbort("mi2", game1_id);
+      self.loggedonuser = them;
+      Game.resignLocalGame("mi2", game1_id);
+      checkAbort(Game.collection.findOne());
+    });
+
+    it("should reset a pending adjourns", function() {
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game1_id = Game.startLocalGame(
+        "mi1",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        15,
+        0,
+        "white"
+      );
+      Game.requestLocalAdjourn("mi2", game1_id);
+      self.loggedonuser = them;
+      Game.resignLocalGame("mi2", game1_id);
+      checkAdjourn(Game.collection.findOne());
+    });
+    it("should reset a pending takebacks", function() {
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game1_id = Game.startLocalGame(
+        "mi1",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        15,
+        0,
+        "white"
+      );
+      Game.requestLocalTakeback("mi2", game1_id, 5);
+      self.loggedonuser = them;
+      Game.resignLocalGame("mi2", game1_id);
+      checkTakeback(Game.collection.findOne());
+    });
+  });
+});
+
+describe.only("Game.moveBackward", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("fails if game is not an examined game", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const examiner = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0
+    );
+    Game.collection.update(
+      { _id: game_id },
+      { $push: { examiners: examiner._id } }
+    );
+    Game.moveBackward("mi2", game_id, 1);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
+  });
+
+  it("fails if user is not an examiner", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const examiner = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0
+    );
+    Game.moveBackward("mi2", game_id, 1);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
+  });
+
+  it("writes an action and undoes the move if possible", function() {
+    this.timeout(500000);
+    const examiner = TestHelpers.createUser();
+    self.loggedonuser = examiner;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.moveBackward("mi3", game_id);
+    const game = Game.collection.findOne({ _id: game_id });
+    checkLastAction(game, 0, "move_backward", examiner._id, 1);
+    checkLastAction(game, 1, "move", examiner._id, "e4");
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.moveBackward("mi3", game_id, 1);
+    checkLastAction(game, 0, "move_backward", examiner._id, 1);
+    checkLastAction(game, 1, "move", examiner._id, "e4");
+  });
+
+  it("move back multiple moves if a number > 1 i specified", function() {
+    const examiner = TestHelpers.createUser();
+    self.loggedonuser = examiner;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    ["e4", "e5", "Nf3", "Nc6", "Be2", "Be7"].forEach(move =>
+      Game.saveLocalMove("mi2", game_id, move)
+    );
+    Game.moveBackward("mi3", game_id, 3);
+    const game = Game.collection.findOne({ _id: game_id });
+    checkLastAction(game, 0, "move_backward", examiner._id, 1);
+    checkLastAction(game, 1, "move", examiner._id, "e4");
+    Game.saveLocalMove("mi2", game_id, "Na6");
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    const game2 = Game.collection.findOne({ _id: game_id });
+    checkLastAction(game2, 0, "move", examiner._id, "Na6");
+    checkLastAction(game2, 1, "move_backward", examiner._id, 2);
+  });
+
+  it("writes a client message if there is no move to undo", function() {
+    chai.assert.fail("do me");
+  });
+  it("fails if the move is an illegal move", function() {
+    chai.assert.fail("do me");
+  });
+  it("moves up to the previous variation and continues on", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+describe.only("Game.moveForward", function() {
+  it("fails if game is not an examined game", function() {
+    chai.assert.fail("do me");
+  });
+  it("fails if user is not an examiner", function() {
+    chai.assert.fail("do me");
+  });
+  it("writes an action and moves forward if there is no variation", function() {
+    chai.assert.fail("do me");
+  });
+  it("writes a client message if there is no move to go to", function() {
+    chai.assert.fail("do me");
+  });
+  it("writes a client message if there is a variation and none is specified", function() {
+    chai.assert.fail("do me");
+  });
+  it("moves to the correct variation, and future forwards follow the new variation, when one is specified", function() {
+    chai.assert.fail("do me");
+  });
+  it("allows zero to be the default variation when there is no variation", function() {
+    chai.assert.fail("do me");
+  });
+  it("requires zero to be the first variation, and 1+ to be subsequent variations (i.e. zero based)", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+describe("When a user disconnects while playing a game", function() {
+  it("should adjourn the game and write an action", function() {});
+  it("should write a connect and disconnect action to the adjourned game every time they connect and disconnect", function() {});
 });

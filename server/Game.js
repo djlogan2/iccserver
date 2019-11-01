@@ -1,5 +1,4 @@
 import Chess from "chess.js";
-import SimpleSchema from "simpl-schema";
 import { Match, check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Roles } from "meteor/alanning:roles";
@@ -8,6 +7,9 @@ import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { PlayedGameSchema } from "./PlayedGameSchema";
+import { ExaminedGameSchema } from "./ExaminedGameSchema";
+
 export const Game = {};
 
 const GameCollection = new Mongo.Collection("game");
@@ -16,250 +18,12 @@ let log = new Logger("server/Game_js");
 
 let active_games = {};
 
-function examinerCheck() {
-  //
-  // Basically, this says:
-  // If status=playing, examiners has to not exist or be empty
-  // Otherwise, examiners has to exist and not be empty
-  //
-  const examiners = this.field("examiners");
-  const status = this.field("status");
-  const nope = [
-    {
-      name: "examiners",
-      type: SimpleSchema.ErrorTypes.EXPECTED_TYPE,
-      value: examiners.value
-    }
-  ];
-  if (!status.isSet) return; // We'll let somebody else complain about this.
-  if (status.value === "playing") {
-    if (!examiners.isSet) return;
-    if (!examiners.value.length) return;
-    return nope;
-  } else {
-    if (examiners.isSet && examiners.value.length > 0) return;
-    return nope;
-  }
-}
-
-function parameterCheck() {
-  const parameter = this.field("parameter");
-  const nope = [
-    {
-      name: "parameter",
-      type: SimpleSchema.ErrorTypes.EXPECTED_TYPE,
-      value: parameter.value
-    }
-  ];
-
-  switch (this.field("type")) {
-    case "move":
-    case "kibitz":
-    case "whisper":
-      if (!parameter.isSet || typeof parameter.value !== "string") return nope;
-      else return;
-    case "takeback_requested":
-      if (parameter.isSet && parameter.value === parseInt(parameter.value))
-        return;
-      else return nope;
-    default:
-      if (parameter.isSet) return nope;
-  }
-}
-
-const OneColorPendingSchema = new SimpleSchema({
-  draw: String,
-  abort: String,
-  adjourn: String,
-  takeback: Object,
-  "takeback.number": Number,
-  "takeback.mid": String
+GameCollection.attachSchema(ExaminedGameSchema, {
+  selector: { status: "examining" }
 });
-
-const PendingSchema = new SimpleSchema({
-  white: OneColorPendingSchema,
-  black: OneColorPendingSchema
+GameCollection.attachSchema(PlayedGameSchema, {
+  selector: { status: "playing" }
 });
-
-const actionSchema = new SimpleSchema({
-  // TODO: I don't think we xare going to be able to use new Date() as an autovalue for this. I think we are going
-  //       going to have to use some type of normal integer/long (millisecond since start of game or millisecond
-  //       since last action) type of thing. Why? Because we are going to have to deal with lag. lag is subtracted
-  //       from the users time to take a move. Well, that means we can't use new Date(). We have to save some type
-  //       of number that can be adjusted for the current users lag.
-  time: {
-    type: Date,
-    autoValue: function() {
-      return new Date();
-    }
-  },
-  issuer: String,
-  type: {
-    type: String,
-    allowedValues: [
-      "move", // Obviously a normal move
-      "kibitz", // A kibitz
-      "whisper", // A whisper
-      "disconnect", // When a user disconnects during a game
-      "connect", // When a user reconnects (TODO: Like anytime? Some type of courtesy wait?")
-      "adjourned", // When the game is adjourned, either by accepting, or by a disconnect adjourn
-      "resumed", // Obviously, resumed
-      "adjourn_requested", // When an adjourn is requested
-      "adjourn_declined", // and declined
-      "adjourn_accepted", // and accpted
-      "takeback_requested", // etc.
-      "takeback_accepted",
-      "takeback_declined",
-      "draw",
-      "draw_requested",
-      "draw_accepted",
-      "draw_declined",
-      "resign",
-      "abort_requested",
-      "abort_accepted",
-      "abort_declined"
-    ]
-  },
-  parameter: {
-    type: SimpleSchema.oneOf(String, Number),
-    optional: true,
-    custom: parameterCheck
-  }
-});
-
-const GameSchema = new SimpleSchema({
-  startTime: {
-    type: Date,
-    autoValue: function() {
-      return new Date();
-    }
-  },
-  pending: PendingSchema,
-  result: String,
-  legacy_game_number: {
-    type: Number,
-    required: false,
-    custom() {
-      if (
-        this.field("legacy_game_number").isSet !==
-        this.field("legacy_game_id").isSet
-      )
-        return [
-          {
-            name: "legacy_game_number and legacy_game_id",
-            type: SimpleSchema.ErrorTypes.REQUIRED
-          }
-        ];
-    }
-  },
-  legacy_game_id: {
-    type: String,
-    required: false,
-    custom() {
-      if (
-        this.field("legacy_game_number").isSet !==
-        this.field("legacy_game_id").isSet
-      )
-        return [
-          {
-            name: "legacy_game_number and legacy_game_id",
-            type: SimpleSchema.ErrorTypes.REQUIRED
-          }
-        ];
-    }
-  },
-  wild: Number,
-  rating_type: String,
-  rated: {
-    type: Boolean,
-    required: false,
-    custom() {
-      if (this.field("status").value === "examining") return;
-      if (!this.field("rated").isSet)
-        return [{ name: "rated", type: SimpleSchema.ErrorTypes.REQUIRED }];
-    }
-  },
-  status: String,
-  clocks: new SimpleSchema({
-    white: new SimpleSchema({
-      initial: SimpleSchema.Integer,
-      inc: Number,
-      current: {
-        type: SimpleSchema.Integer,
-        required: false,
-        custom() {
-          if (this.field("status").value === "examining") return;
-          if (!this.field("clocks.white.current").isSet)
-            return [
-              {
-                name: "clocks.white.current",
-                type: SimpleSchema.ErrorTypes.REQUIRED
-              }
-            ];
-        }
-      }
-    }),
-    black: new SimpleSchema({
-      initial: SimpleSchema.Integer,
-      inc: Number,
-      current: {
-        type: SimpleSchema.Integer,
-        required: false,
-        custom() {
-          if (this.field("status").value === "examining") return;
-          if (!this.field("clocks.black.current").isSet)
-            return [
-              {
-                name: "clocks.black.current",
-                type: SimpleSchema.ErrorTypes.REQUIRED
-              }
-            ];
-        }
-      }
-    })
-  }),
-  white: new SimpleSchema({
-    name: String,
-    id: {
-      type: String,
-      required: false,
-      custom() {
-        let set = 0;
-        if (this.field("status").value === "examining") return;
-        if (this.field("white.id").isSet) set += 4;
-        if (this.field("black.id").isSet) set += 2;
-        if (this.field("legacy_game_number").isSet) set += 1;
-        if (set === 5 || set === 3 || set === 6 || set === 7) return;
-        return [{ name: "white.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
-      }
-    },
-    rating: SimpleSchema.Integer
-  }),
-  black: new SimpleSchema({
-    name: String,
-    id: {
-      type: String,
-      required: false,
-      custom() {
-        let set = 0;
-        if (this.field("status").value === "examining") return;
-        if (this.field("white.id").isSet) set += 4;
-        if (this.field("black.id").isSet) set += 2;
-        if (this.field("legacy_game_number").isSet) set += 1;
-        if (set === 5 || set === 3 || set === 6 || set === 7) return;
-        return [{ name: "black.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
-      }
-    },
-    rating: SimpleSchema.Integer
-  }),
-  tags: { type: Object, required: false },
-  actions: [actionSchema],
-  examiners: { type: Array, required: false, custom: examinerCheck },
-  "examiners.$": String,
-  observers: { type: Array, defaultValue: [] },
-  "observers.$": String
-});
-GameCollection.attachSchema(GameSchema);
 
 function getAndCheck(message_identifier, game_id) {
   const self = Meteor.user();
@@ -689,7 +453,7 @@ Game.saveLegacyMove = function(message_identifier, game_id, move) {
     );
 
   GameCollection.update(
-    { _id: game._id },
+    { _id: game._id, status: "playing" },
     { $push: { actions: { type: "move", issuer: "legacy", parameter: move } } }
   );
 };
@@ -706,12 +470,21 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   if (!game) return;
 
   const chessObject = active_games[game_id];
-  const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
-  if (self._id !== turn_id) {
+  if (game.status === "playing") {
+    const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
+    if (self._id !== turn_id) {
+      ClientMessages.sendMessageToClient(
+        Meteor.user(),
+        message_identifier,
+        "COMMAND_INVALID_NOT_YOUR_MOVE"
+      );
+      return;
+    }
+  } else if (game.examiners.indexOf(self._id) === -1) {
     ClientMessages.sendMessageToClient(
-      Meteor.user(),
+      self._id,
       message_identifier,
-      "COMMAND_INVALID_NOT_YOUR_MOVE"
+      "NOT_AN_EXAMINER"
     );
     return;
   }
@@ -733,43 +506,43 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   const setobject = {};
 
-  if (
-    active_games[game_id].in_draw() &&
-    !active_games[game_id].in_threefold_repetition()
-  ) {
-    setobject.result = "1/2-1/2";
-  } else if (active_games[game_id].in_stalemate()) {
-    setobject.result = "1/2-1/2";
-  } else if (active_games[game_id].in_checkmate()) {
-    setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
-  } else if (active_games[game_id].insufficient_material()) {
-    setobject.result = "1/2-1/2";
+  if (game.status === "playing") {
+    if (
+      active_games[game_id].in_draw() &&
+      !active_games[game_id].in_threefold_repetition()
+    ) {
+      setobject.result = "1/2-1/2";
+    } else if (active_games[game_id].in_stalemate()) {
+      setobject.result = "1/2-1/2";
+    } else if (active_games[game_id].in_checkmate()) {
+      setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
+    } else if (active_games[game_id].insufficient_material()) {
+      setobject.result = "1/2-1/2";
+    }
+    if (!!setobject.result) {
+      setobject.status = "examining";
+      setobject.examining = [game.white.id, game.black.id];
+      updateobject["$unset"] = { pending: "" };
+    }
+    const bw = self._id === game.white.id ? "black" : "white";
+    const color = bw === "white" ? "black" : "white";
+    setobject["pending." + bw + ".draw"] = "0";
+    setobject["pending." + bw + ".abort"] = "0";
+    setobject["pending." + bw + ".adjourn"] = "0";
+    setobject["pending." + bw + ".takeback.number"] = 0;
+    setobject["pending." + bw + ".takeback.mid"] = "0";
+    //
+    // Add a half move to the takeback request if the user requested a takeback and then
+    // made their own move.
+    //
+    if (!setobject.result && game.pending[color].takeback.number)
+      setobject["pending." + color + ".takeback.number"] =
+        game.pending[color].takeback.number + 1;
+
+    updateobject["$set"] = setobject;
   }
 
-  if (!!setobject.result) {
-    setobject.status = "examining";
-    setobject.examining = [game.white.id, game.black.id];
-  }
-
-  const bw = self._id === game.white.id ? "black" : "white";
-  const color = bw === "white" ? "black" : "white";
-  setobject["pending." + bw + ".draw"] = "0";
-  setobject["pending." + bw + ".abort"] = "0";
-  setobject["pending." + bw + ".adjourn"] = "0";
-  setobject["pending." + bw + ".takeback.number"] = 0;
-  setobject["pending." + bw + ".takeback.mid"] = "0";
-
-  //
-  // Add a half move to the takeback request if the user requested a takeback and then
-  // made their own move.
-  //
-  if (game.pending[color].takeback.number)
-    setobject["pending." + color + ".takeback.number"] =
-      game.pending[color].takeback.number + 1;
-
-  updateobject["$set"] = setobject;
-
-  GameCollection.update({ _id: game_id }, updateobject);
+  GameCollection.update({ _id: game_id, status: game.status }, updateobject);
 };
 
 //	There are three outcome codes, given in the following order:
@@ -819,7 +592,7 @@ Game.legacyGameEnded = function(
     if (game.white.id) examiners.push(game.white.id);
     if (game.black.id) examiners.push(game.black.id);
     GameCollection.update(
-      { _id: game._id },
+      { _id: game._id, status: "playing" },
       {
         $set: {
           result: score_string2,
@@ -872,7 +645,7 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
     return;
   }
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "examining" },
     { $pull: { examiners: id_to_remove } }
   );
 };
@@ -920,7 +693,10 @@ Game.localAddExamainer = function(message_identifier, game_id, id_to_add) {
     return;
   }
 
-  GameCollection.update({ _id: game_id }, { $push: { examiners: id_to_add } });
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $push: { examiners: id_to_add } }
+  );
 };
 
 Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
@@ -965,7 +741,7 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     GameCollection.remove({ _id: game_id });
   else
     GameCollection.update(
-      { _id: game_id },
+      { _id: game_id, status: game.status },
       { $pull: { examiners: id_to_remove, observers: id_to_remove } }
     );
 };
@@ -1003,7 +779,10 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
       "Unable to add observer",
       "Currently no support for adding another observer"
     );
-  GameCollection.update({ _id: game_id }, { $push: { observers: id_to_add } });
+  GameCollection.update(
+    { _id: game_id, status: game.status },
+    { $push: { observers: id_to_add } }
+  );
 };
 
 Game.removeLegacyGame = function(message_identifier, game_id) {
@@ -1045,7 +824,7 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
     ClientMessages.sendMessageToClient(
       Meteor.user(),
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1086,7 +865,7 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   tbobject["pending." + color + ".takeback.mid"] = message_identifier;
 
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $set: tbobject,
       $push: {
@@ -1113,7 +892,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       Meteor.user(),
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1129,7 +908,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
   }
 
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: {
         actions: {
@@ -1168,7 +947,7 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1186,7 +965,7 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
   const setobject = {};
   setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: null };
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: {
         actions: { type: "takeback_declined", issuer: self._id },
@@ -1224,19 +1003,20 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
 
   if (active_games[game_id].in_threefold_repetition()) {
     GameCollection.update(
-      { _id: game_id },
+      { _id: game_id, status: "playing" },
       {
         $push: {
           actions: { type: "draw", issuer: self._id },
           observers: { $each: [game.white.id, game.black.id] }
         },
+        $unset: { pending: "" },
         $set: {
           status: "examining",
           result: "1/2-1/2",
@@ -1262,7 +1042,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
   setobject["pending." + color + ".draw"] = message_identifier;
 
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: { actions: { type: "draw_requested", issuer: self._id } },
       $set: setobject
@@ -1291,7 +1071,7 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1311,7 +1091,7 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
   setobject["pending." + color + ".abort"] = message_identifier;
 
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: { actions: { type: "abort_requested", issuer: self._id } },
       $set: setobject
@@ -1340,7 +1120,7 @@ Game.requestLocalAdjourn = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1360,7 +1140,7 @@ Game.requestLocalAdjourn = function(message_identifier, game_id) {
   setobject["pending." + color + ".adjourn"] = message_identifier;
 
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: { actions: { type: "adjourn_requested", issuer: self._id } },
       $set: setobject
@@ -1381,28 +1161,20 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
 
-  const setobject = {
-    status: "examining",
-    result: "1/2-1-2",
-    examiners: [game.white.id, game.black.id]
-  };
-  const colors = ["white", "black"];
-  const actions = [".draw", ".abort", ".adjourn", ".takeback.mid"];
-  colors.forEach(color =>
-    actions.forEach(action => (setobject["pending." + color + action] = "0"))
-  );
-  setobject["pending.white.takeback.number"] = 0;
-  setobject["pending.black.takeback.number"] = 0;
-
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
-      $set: setobject,
+      $set: {
+        status: "examining",
+        result: "1/2-1-2",
+        examiners: [game.white.id, game.black.id]
+      },
+      $unset: { pending: "" },
       $push: {
         actions: {
           type: "draw_accepted",
@@ -1435,28 +1207,20 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
 
-  const setobject = {
-    status: "examining",
-    result: "aborted",
-    examiners: [game.white.id, game.black.id]
-  };
-  const colors = ["white", "black"];
-  const actions = [".draw", ".abort", ".adjourn", ".takeback.mid"];
-  colors.forEach(color =>
-    actions.forEach(action => (setobject["pending." + color + action] = "0"))
-  );
-  setobject["pending.white.takeback.number"] = 0;
-  setobject["pending.black.takeback.number"] = 0;
-
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
-      $set: setobject,
+      $set: {
+        status: "examining",
+        result: "aborted",
+        examiners: [game.white.id, game.black.id]
+      },
+      $unset: { pending: "" },
       $push: {
         actions: {
           type: "abort_accepted",
@@ -1489,28 +1253,20 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
 
-  const setobject = {
-    status: "examining",
-    result: "adjourned",
-    examiners: [game.white.id, game.black.id]
-  };
-  const colors = ["white", "black"];
-  const actions = [".draw", ".abort", ".adjourn", ".takeback.mid"];
-  colors.forEach(color =>
-    actions.forEach(action => (setobject["pending." + color + action] = "0"))
-  );
-  setobject["pending.white.takeback.number"] = 0;
-  setobject["pending.black.takeback.number"] = 0;
-
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
-      $set: setobject,
+      $set: {
+        status: "examining",
+        result: "adjourned",
+        examiners: [game.white.id, game.black.id]
+      },
+      $unset: { pending: "" },
       $push: {
         actions: {
           type: "adjourn_accepted",
@@ -1543,7 +1299,7 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1554,7 +1310,7 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
 
   setobject["pending." + othercolor + ".draw"] = "0";
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: { actions: { type: "draw_declined", issuer: self._id } },
       $set: setobject
@@ -1581,7 +1337,7 @@ Game.declineLocalAbort = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1592,7 +1348,7 @@ Game.declineLocalAbort = function(message_identifier, game_id) {
 
   setobject["pending." + othercolor + ".abort"] = "0";
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: { actions: { type: "abort_declined", issuer: self._id } },
       $set: setobject
@@ -1619,7 +1375,7 @@ Game.declineLocalAdjourn = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
@@ -1630,7 +1386,7 @@ Game.declineLocalAdjourn = function(message_identifier, game_id) {
 
   setobject["pending." + othercolor + ".adjourn"] = "0";
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: { actions: { type: "adjourn_declined", issuer: self._id } },
       $set: setobject
@@ -1656,19 +1412,25 @@ Game.resignLocalGame = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "COMMAND_INVALID_NOT_PLAYING"
+      "NOT_PLAYING_A_GAME"
     );
     return;
   }
 
+  const result = self._id === game.white.id ? "0-1" : "1-0";
   GameCollection.update(
-    { _id: game_id },
+    { _id: game_id, status: "playing" },
     {
       $push: {
         actions: { type: "resign", issuer: self._id },
         observers: { $each: [game.white.id, game.black.id] }
       },
-      $set: { status: "examining", examiners: [game.white.id, game.black.id] }
+      $unset: { pending: "" },
+      $set: {
+        status: "examining",
+        examiners: [game.white.id, game.black.id],
+        result: result
+      }
     }
   );
 };
@@ -1743,6 +1505,59 @@ Game.isPlayingGame = function(user_or_id) {
         { $or: [{ "white.id": id }, { "black.id": id }] }
       ]
     }).count() !== 0
+  );
+};
+
+Game.moveBackward = function(messaage_identifier, game_id, move_count) {
+  const movecount = move_count || 1;
+  check(game_id, String);
+  check(movecount, Match.Maybe(Number));
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({
+    _id: game_id,
+    status: "examining",
+    examiners: self._id
+  });
+  if (!game) {
+    ClientMessages.sendMessageToClient(
+      self,
+      messaage_identifier,
+      "NOT_AN_EXAMINER"
+    );
+  }
+
+  if (!active_games[game_id])
+    throw new ICCMeteorError(
+      messaage_identifier,
+      "Unable to move backwards",
+      "Unable to find active game"
+    );
+
+  if (move_count > active_games[game_id].history().length) {
+    ClientMessages.sendMessageToClient(
+      self,
+      messaage_identifier,
+      "TOO_MANY_MOVES_BACKWARD"
+    );
+    return;
+  }
+
+  for (let x = 0; x < move_count; x++) active_games[game_id].undo();
+
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: {
+          type: "move_backward",
+          issuer: self._id,
+          parameter: movecount
+        }
+      }
+    }
   );
 };
 
@@ -1834,4 +1649,36 @@ function updateGameRecordWithPGNTag(gamerecord, tag, value) {
     case "PlyCount":
       break;
   }
+}
+
+function buildMoveListFromActions(gamerecord) {
+  const parent = -1;
+  const currentmoveset = [];
+  let hmtb = 0;
+  let cmi = 0;
+
+  gamerecord.actions.forEach(action => {
+    switch(action.type) {
+      case "move":
+        if(cmi === currentmoveset.length)
+          currentmoveset.push({parent: parent, move: action.parameter, variations: []});
+        else
+          console.log("do what here?");
+        break;
+      case "takeback_requested":
+        hmtb = action.parameter;
+        break;
+      case "takeback_accepted":
+        let child;
+        for(let x = 0 ; x < hmtb ; x++) {
+          child = cmi;
+          cmi = currentmoveset[cmi].parent;
+        }
+        currentmoveset[cmi].variations.push(child);
+        currentmoveset[child].parent = cmi;
+        break;
+      default:
+        break;
+    }
+  });
 }

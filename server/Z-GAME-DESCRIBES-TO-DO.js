@@ -1,97 +1,4 @@
 
-describe("Game.requestLocalDraw", function() {
-  it("fails if user is not playing a game", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the game is examined", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on their move", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on their opponents move", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a local game", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-  it("calls legacy user 'draw' if it's a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.acceptLocalDraw", function() {
-  it("fails if user is not playing a game", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the game is examined", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on their move", function () {
-    chai.assert.fail("do me");
-  });
-  it("fails on their opponents move", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a local game", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-  it("calls legacy user 'draw' if it's a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.declineLocalDraw", function() {
-  it("fails if user is not playing a game", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the game is examined", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on their move", function () {
-    chai.assert.fail("do me");
-  });
-  it("fails on their opponents move", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a local game", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-  it("calls legacy user 'decline' if it's a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.resignLocalGame", function() {
-  it("fails if user is not playing a game", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the game is examined", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on their move", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on their opponents move", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a local game", function () {
-    chai.assert.fail("do me");
-  });
-  it("pushes an action when it succeeds as a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-  it("calls legacy user 'resign' if it's a legacy game", function () {
-    chai.assert.fail("do me");
-  });
-});
-
 describe("Game.offerMoreTime", function() {
   it("fails if user is not playing a game", function () {
     chai.assert.fail("do me");
@@ -151,54 +58,6 @@ describe("Game.acceptMoretime", function() {
   });
 });
 
-describe("Game.moveBackward", function() {
-  it("fails if user is not examining a game", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the game is being played", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on either whites or blacks move", function () {
-    chai.assert.fail("do me");
-  });
-  it("moves up to the previous variation and continues on", function () {
-    chai.assert.fail("do me");
-  });
-});
-
-describe("Game.moveForward", function() {
-  it("fails if user is not examining a game", function () {
-    chai.assert.fail("do me");
-  });
-  it("should error out if the game is being played", function () {
-    chai.assert.fail("do me");
-  });
-  it("works on either whites or blacks move", function () {
-    chai.assert.fail("do me");
-  });
-  it("moves forward if there is no variation", function () {
-    chai.assert.fail("do me");
-  });
-  it("errors out if there is a variation starting at the current move and 'variation' is null", function () {
-    chai.assert.fail("do me");
-  });
-  it("errors out if there is a variation starting at the current move and 'variation' is invalid", function () {
-    chai.assert.fail("do me");
-  });
-  it("errors out if there is no variation starting at the current move and 'variation' not undefined or zero", function () {
-    chai.assert.fail("do me");
-  });
-  it("errors out if there is no variation starting at the current move and 'variation' not undefined or zero", function () {
-    chai.assert.fail("do me");
-  });
-  it("follows the correct variation when specified", function () {
-    chai.assert.fail("do me");
-  });
-  it("errors out if there is a variation at a future move and halfmoves would move past it", function () {
-    chai.assert.fail("do me");
-  });
-});
-
 describe("Game.updateClock", function() {
   it("still needs to be written", function () {
     chai.assert.fail("do me");
@@ -229,26 +88,6 @@ describe("getLegacyUser", function() {
   });
 });
 describe("getAndCheck", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.addVariation", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.deleteVariation", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.startVariation", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.endVariation", function() {
   it("still needs to be written", function () {
     chai.assert.fail("do me");
   });
