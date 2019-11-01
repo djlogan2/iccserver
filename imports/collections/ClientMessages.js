@@ -55,6 +55,7 @@ export const DefinedClientMessagesMap = {
   ADJOURN_ACCEPTED: {},
   ADJOURN_DECLINED: {},
   ADJOURN_ALREADY_PENDING: {},
+  TOO_MANY_MOVES_BACKWARD: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

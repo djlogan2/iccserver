@@ -3231,7 +3231,7 @@ describe.only("Game.moveBackward", function() {
       0
     );
     Game.collection.update(
-      { _id: game_id },
+      { _id: game_id, status: "examining" },
       { $push: { examiners: examiner._id } }
     );
     Game.moveBackward("mi2", game_id, 1);
@@ -3305,33 +3305,91 @@ describe.only("Game.moveBackward", function() {
     );
     Game.moveBackward("mi3", game_id, 3);
     const game = Game.collection.findOne({ _id: game_id });
-    checkLastAction(game, 0, "move_backward", examiner._id, 1);
-    checkLastAction(game, 1, "move", examiner._id, "e4");
+    checkLastAction(game, 0, "move_backward", examiner._id, 3);
+    checkLastAction(game, 1, "move", examiner._id, "Be7");
     Game.saveLocalMove("mi2", game_id, "Na6");
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game2 = Game.collection.findOne({ _id: game_id });
     checkLastAction(game2, 0, "move", examiner._id, "Na6");
-    checkLastAction(game2, 1, "move_backward", examiner._id, 2);
+    checkLastAction(game2, 1, "move_backward", examiner._id, 3);
   });
 
   it("writes a client message if there is no move to undo", function() {
-    chai.assert.fail("do me");
+    const examiner = TestHelpers.createUser();
+    self.loggedonuser = examiner;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.moveBackward("mi3", game_id);
+    Game.moveBackward("mi2", game_id, 1);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(
+      self.clientMessagesSpy.args[0][2],
+      "TOO_MANY_MOVES_BACKWARD"
+    );
   });
-  it("fails if the move is an illegal move", function() {
-    chai.assert.fail("do me");
-  });
+
   it("moves up to the previous variation and continues on", function() {
     chai.assert.fail("do me");
   });
 });
 
 describe.only("Game.moveForward", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
   it("fails if game is not an examined game", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const examiner = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        15,
+        0
+    );
+    Game.collection.update(
+        { _id: game_id, status: "examining" },
+        { $push: { examiners: examiner._id } }
+    );
+    Game.moveForward("mi2", game_id, 1);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
+
   it("fails if user is not an examiner", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const examiner = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        15,
+        0
+    );
+    Game.moveForward("mi2", game_id, 1);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
+
   it("writes an action and moves forward if there is no variation", function() {
     chai.assert.fail("do me");
   });
