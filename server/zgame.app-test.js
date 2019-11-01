@@ -3242,7 +3242,6 @@ describe.only("Game.moveBackward", function() {
   it("fails if user is not an examiner", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    const examiner = TestHelpers.createUser();
     self.loggedonuser = p1;
     const game_id = Game.startLocalGame(
       "mi1",
@@ -3342,6 +3341,73 @@ describe.only("Game.moveBackward", function() {
   });
 });
 
+describe.only("Game.buildMoveListFromActions", function() {
+  it("needs to work correctly", function() {
+    const game = {
+      actions: [
+        { type: "move", parameter: "e4" },
+        { type: "move", parameter: "e5" },
+        { type: "move", parameter: "Nf3" },
+        { type: "move", parameter: "Nc6" },
+        { type: "move", parameter: "Bc4" },
+        { type: "move", parameter: "Be7" },
+        { type: "move", parameter: "d4" },
+        { type: "move", parameter: "Nxd4" },
+        { type: "move", parameter: "c3" },
+        { type: "move", parameter: "d5" },
+        { type: "move", parameter: "exd5" },
+        { type: "move", parameter: "b5" },
+        { type: "move", parameter: "cxd4" },
+        { type: "move", parameter: "bxc4" },
+        { type: "takeback_requested", parameter: 8 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "c3" },
+        { type: "move", parameter: "d6" },
+        { type: "move", parameter: "d4" },
+        { type: "move", parameter: "exd4" },
+        { type: "move", parameter: "cxd4" },
+        { type: "takeback_requested", parameter: 7 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "Be2" },
+        { type: "move", parameter: "Be7" },
+        { type: "move", parameter: "O-O" },
+        { type: "move", parameter: "d5" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "c3" },
+        { type: "move", parameter: "d6" },
+        { type: "move", parameter: "d4" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "d5" },
+        { type: "move", parameter: "d4" },
+        { type: "takeback_requested", parameter: 7 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "f4" },
+        { type: "move", parameter: "Nc6" },
+        { type: "move", parameter: "Nf3" },
+        { type: "takeback_requested", parameter: 3 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "Nf3" },
+        { type: "move", parameter: "Nc6" },
+        { type: "move", parameter: "Bc4" },
+        { type: "move", parameter: "Be7" },
+        { type: "move", parameter: "d4" },
+        { type: "move", parameter: "Nxd4" },
+        { type: "move", parameter: "c3" },
+        { type: "move", parameter: "d5" },
+        { type: "move", parameter: "exd5" },
+        { type: "move", parameter: "b5" },
+        { type: "move", parameter: "cxd4" },
+        { type: "move", parameter: "bxc4" }
+      ]
+    };
+    const movelist = Game.buildMoveListFromActions(game);
+    const pgn = Game.buildPgnFromMovelist(movelist);
+    console.log("here");
+  });
+});
+
 describe.only("Game.moveForward", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("fails if game is not an examined game", function() {
@@ -3350,19 +3416,19 @@ describe.only("Game.moveForward", function() {
     const examiner = TestHelpers.createUser();
     self.loggedonuser = p1;
     const game_id = Game.startLocalGame(
-        "mi1",
-        p2,
-        0,
-        "standard",
-        true,
-        15,
-        0,
-        15,
-        0
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0
     );
     Game.collection.update(
-        { _id: game_id, status: "examining" },
-        { $push: { examiners: examiner._id } }
+      { _id: game_id, status: "examining" },
+      { $push: { examiners: examiner._id } }
     );
     Game.moveForward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -3375,15 +3441,15 @@ describe.only("Game.moveForward", function() {
     const examiner = TestHelpers.createUser();
     self.loggedonuser = p1;
     const game_id = Game.startLocalGame(
-        "mi1",
-        p2,
-        0,
-        "standard",
-        true,
-        15,
-        0,
-        15,
-        0
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0
     );
     Game.moveForward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");

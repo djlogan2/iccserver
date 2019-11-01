@@ -1561,13 +1561,6 @@ Game.moveBackward = function(messaage_identifier, game_id, move_count) {
   );
 };
 
-Meteor.startup(function() {
-  GameCollection.remove();
-  if (Meteor.isTest || Meteor.isAppTest) {
-    Game.collection = GameCollection;
-  }
-});
-
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
   switch (tag) {
     case "Event":
@@ -1651,34 +1644,92 @@ function updateGameRecordWithPGNTag(gamerecord, tag, value) {
   }
 }
 
+function findVariation(move, idx, movelist) {
+  if (
+    !move ||
+    !movelist ||
+    !idx ||
+    idx >= movelist.length ||
+    !movelist[idx].variations
+  )
+    return;
+
+  for (let x = 0; x < movelist[idx].variations.length; x++) {
+    const vi = movelist[idx].variations[x];
+    if (movelist[vi].move === move) return vi;
+  }
+}
+
+function addmove(move_number, variations, white_to_move, movelist, idx) {
+  let string = "";
+
+  if(!movelist[idx].variations || !movelist[idx].variations.length) return "";
+
+  if(white_to_move) {
+    string += move_number + ".";
+  } else {
+    if(variations)
+      string = move_number + "...";
+    else string = "4";
+  }
+  string += movelist[movelist[idx].variations[0]].move;
+
+  let next_move_number = move_number;
+  let next_white_to_move = !white_to_move;
+  if(next_white_to_move)
+    next_move_number++;
+
+  for(let x = 1 ; x < movelist[idx].variations.length ; x++) {
+    string += " (" + move_number + (white_to_move ? "." : "...") + movelist[movelist[idx].variations[x]].move + " ";
+    string += addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]) + ") ";
+  }
+
+  string += " " + addmove(next_move_number, movelist[idx].variations.length > 1, next_white_to_move, movelist, movelist[idx].variations[0]);
+  return string;
+}
+
+function buildPgnFromMovelist(movelist) {
+  let string = addmove(1, false, true, movelist, 0);
+  return string;
+}
+
 function buildMoveListFromActions(gamerecord) {
-  const parent = -1;
-  const currentmoveset = [];
   let hmtb = 0;
   let cmi = 0;
+  let movelist = [{}];
 
   gamerecord.actions.forEach(action => {
-    switch(action.type) {
+    switch (action.type) {
       case "move":
-        if(cmi === currentmoveset.length)
-          currentmoveset.push({parent: parent, move: action.parameter, variations: []});
-        else
-          console.log("do what here?");
+        const move = action.parameter;
+        const exists = findVariation(move, cmi, movelist);
+        if (exists) cmi = exists;
+        else {
+          const newi = movelist.length;
+          movelist.push({ move: move, prev: cmi });
+          if (!movelist[cmi].variations) movelist[cmi].variations = [newi];
+          else movelist[cmi].variations.push(newi);
+          cmi = newi;
+        }
         break;
       case "takeback_requested":
         hmtb = action.parameter;
         break;
       case "takeback_accepted":
-        let child;
-        for(let x = 0 ; x < hmtb ; x++) {
-          child = cmi;
-          cmi = currentmoveset[cmi].parent;
-        }
-        currentmoveset[cmi].variations.push(child);
-        currentmoveset[child].parent = cmi;
+        for (let x = 0; x < hmtb; x++) cmi = movelist[cmi].prev;
         break;
       default:
         break;
     }
   });
+  return movelist;
 }
+
+Meteor.startup(function() {
+  GameCollection.remove();
+  if (Meteor.isTest || Meteor.isAppTest) {
+    Game.collection = GameCollection;
+    Game.buildMoveListFromActions = buildMoveListFromActions;
+    Game.buildPgnFromMovelist = buildPgnFromMovelist;
+  }
+});
