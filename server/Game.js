@@ -1663,28 +1663,46 @@ function findVariation(move, idx, movelist) {
 function addmove(move_number, variations, white_to_move, movelist, idx) {
   let string = "";
 
-  if(!movelist[idx].variations || !movelist[idx].variations.length) return "";
+  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
 
-  if(white_to_move) {
+  if (white_to_move) {
     string += move_number + ".";
   } else {
-    if(variations)
-      string = move_number + "...";
-    else string = "4";
+    if (variations) string = move_number + "...";
+    else string = " ";
   }
   string += movelist[movelist[idx].variations[0]].move;
 
   let next_move_number = move_number;
   let next_white_to_move = !white_to_move;
-  if(next_white_to_move)
-    next_move_number++;
+  if (next_white_to_move) next_move_number++;
 
-  for(let x = 1 ; x < movelist[idx].variations.length ; x++) {
-    string += " (" + move_number + (white_to_move ? "." : "...") + movelist[movelist[idx].variations[x]].move + " ";
-    string += addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]) + ") ";
+  for (let x = 1; x < movelist[idx].variations.length; x++) {
+    string +=
+      " (" +
+      move_number +
+      (white_to_move ? "." : "...") +
+      movelist[movelist[idx].variations[x]].move +
+      " ";
+    string +=
+      addmove(
+        next_move_number,
+        false,
+        next_white_to_move,
+        movelist,
+        movelist[idx].variations[x]
+      ) + ") ";
   }
 
-  string += " " + addmove(next_move_number, movelist[idx].variations.length > 1, next_white_to_move, movelist, movelist[idx].variations[0]);
+  string +=
+    " " +
+    addmove(
+      next_move_number,
+      movelist[idx].variations.length > 1,
+      next_white_to_move,
+      movelist,
+      movelist[idx].variations[0]
+    );
   return string;
 }
 
@@ -1723,6 +1741,10 @@ function buildMoveListFromActions(gamerecord) {
     }
   });
   return movelist;
+}
+
+function buildMoveListFromPgn(pgnString) {
+  const movelist = [];
 }
 
 Meteor.startup(function() {
