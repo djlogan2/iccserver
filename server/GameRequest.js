@@ -7,11 +7,11 @@ import { Match, check } from "meteor/check";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
-import { LegacyUser } from "./LegacyUser";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
 import { Users } from "../imports/collections/users";
+import { LegacyUser } from "../lib/server/LegacyUsers";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
@@ -195,8 +195,8 @@ GameRequests.addLegacyGameSeek = function(
 
   const self = Meteor.user();
   check(self, Object);
-  if (color !== "white" && color !== "black")
-    throw new Match.Error("Color must be 'white' or 'black'");
+  if (!!color && color !== "white" && color !== "black")
+    throw new Match.Error("Color must be null, 'white' or 'black'");
 
   const upsertReturn = GameRequestCollection.upsert(
     { type: "legacyseek", legacy_index: index, owner: self._id },
@@ -323,9 +323,14 @@ GameRequests.addLocalGameSeek = function(
   return GameRequestCollection.insert(game);
 };
 
-GameRequests.removeLegacySeek = function(message_identifier, seek_index) {
+GameRequests.removeLegacySeek = function(
+  message_identifier,
+  seek_index,
+  reason_code
+) {
   check(message_identifier, String);
   check(seek_index, Number);
+  check(reason_code, Number);
   const self = Meteor.user();
   check(self, Object);
 
@@ -864,15 +869,7 @@ Meteor.methods({
       throw new ICCMeteorError(message_identifier, "not-authorized");
     }
 
-    const our_legacy_user = LegacyUser.find(us._id);
-
-    if (!our_legacy_user)
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to find a legacy user object for " + us.name
-      );
-
-    our_legacy_user.match(
+    LegacyUser.match(
       message_identifier,
       name,
       time,
