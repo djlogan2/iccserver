@@ -246,6 +246,7 @@ GameRequests.addLocalGameSeek = function(
   check(autoaccept, Boolean);
   check(formula, Match.Maybe(String));
   const self = Meteor.user();
+
   if (!self) throw new ICCMeteorError(message_identifier, "self is null");
   if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
   if (color !== null && color !== "white" && color !== "black")
@@ -493,7 +494,11 @@ GameRequests.addLegacyMatchRequest = function(
       message_identifier,
       "addLegacyMatch where neither challenger nor receiver is the logged on user"
     );
-
+  if (challenger_color_request === 1 || challenger_color_request === "white") {
+    challenger_color_request = "white";
+  } else {
+    challenger_color_request = "black";
+  }
   const record = {
     type: "legacymatch",
     challenger: challenger_name,
@@ -699,6 +704,7 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
       );
     white_initial = black_initial = match.challenger_time;
     white_inc = black_inc = match.challenger_inc;
+    color = "black";
   } else if (match.challenger_color_request === "white") {
     white_initial = match.challenger_time;
     white_inc = match.challenger_inc;
@@ -723,12 +729,9 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
     white_inc,
     black_initial,
     black_inc,
-    true,
     color
   );
-
   GameRequestCollection.remove({ _id: game_id });
-
   return started_id;
 };
 
@@ -816,73 +819,115 @@ GameRequests.removeLegacyMatchRequest = function(
 };
 
 Meteor.methods({
-  "game.requestlegacymatch"(
+  addLocalMatchRequest(
     message_identifier,
-    name,
-    time,
-    increment,
-    time2,
-    increment2,
-    rated,
-    wild,
-    color
+    receiver_user,
+    wild_number,
+    rating_type,
+    is_it_rated,
+    is_it_adjourned,
+    challenger_time,
+    challenger_inc,
+    receiver_time,
+    receiver_inc,
+    challenger_color_request,
+    fancy_time_control
   ) {
-    /*
-    log.debug(
-      "inside request" +
-        message_identifier +
-        " -- " +
-        name +
-        " -- " +
-        time +
-        " -- " +
-        increment +
-        " -- " +
-        time2 +
-        " -- " +
-        increment2 +
-        " -- " +
-        rated +
-        " -- " +
-        wild +
-        " -- " +
-        color
-    );
-    */
     check(message_identifier, String);
-    check(name, String);
-    check(time, Number);
-    check(increment, Number);
-    check(time2, Number);
-    check(increment2, Number);
-    check(rated, Boolean);
-    check(wild, Number);
-    check(color, String);
+    check(receiver_user, String);
+    check(wild_number, Number);
+    check(rating_type, String);
+    check(is_it_rated, Boolean);
+    check(is_it_adjourned, Boolean);
+    check(challenger_time, Number);
+    check(challenger_inc, Number);
+    check(receiver_time, Number);
+    check(receiver_inc, Number);
+    check(challenger_color_request, Match.Maybe(String));
+    check(fancy_time_control, Match.Maybe(String));
+
     const us = Meteor.user();
 
     if (!us) {
       throw new ICCMeteorError(message_identifier, "not-authorized");
     }
+    const receiver_userData = Meteor.users.findOne({ username: receiver_user });
 
-    const our_legacy_user = LegacyUser.find(us._id);
-
-    if (!our_legacy_user)
+    if (!receiver_userData)
       throw new ICCMeteorError(
         message_identifier,
-        "Unable to find a legacy user object for " + us.name
+        "Unable to find reciver user object for " + receiver_user
       );
 
-    our_legacy_user.match(
+    GameRequests.addLocalMatchRequest(
       message_identifier,
-      name,
-      time,
-      increment,
-      time2,
-      increment2,
-      rated,
-      wild,
-      color
+      receiver_userData,
+      wild_number,
+      rating_type,
+      is_it_rated,
+      is_it_adjourned,
+      challenger_time,
+      challenger_inc,
+      receiver_time,
+      receiver_inc,
+      challenger_color_request,
+      fancy_time_control
     );
+  },
+  gameRequestAccept(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+
+    GameRequests.acceptMatchRequest(message_identifier, game_id);
+  },
+  gameRequestDecline(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    GameRequests.declineMatchRequest(message_identifier, game_id);
+  },
+  createLocalGameSeek(
+    message_identifier,
+    wild,
+    rating_type,
+    time,
+    inc,
+    rated,
+    color,
+    minrating,
+    maxrating,
+    autoaccept,
+    formula
+  ) {
+    check(message_identifier, String);
+    check(wild, Number);
+    check(rating_type, String);
+    check(time, Number);
+    check(inc, Number);
+    check(rated, Boolean);
+    check(color, Match.Maybe(String));
+    check(minrating, Match.Maybe(Number));
+    check(maxrating, Match.Maybe(Number));
+    check(autoaccept, Boolean);
+    check(formula, Match.Maybe(String));
+    GameRequests.addLocalGameSeek(
+      message_identifier,
+      wild,
+      rating_type,
+      time,
+      inc,
+      rated,
+      color,
+      minrating,
+      maxrating,
+      autoaccept,
+      formula
+    );
+  },
+  acceptLocalGameSeek(message_identifier) {
+    check(message_identifier, String);
+    let seek = GameRequestCollection.findOne({}, { fields: { _id: 1 } });
+    check(seek, Object);
+    GameRequests.acceptGameSeek(message_identifier, seek._id);
   }
 });
 

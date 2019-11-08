@@ -93,10 +93,10 @@ export default class MainPage extends Component {
             Accept
           </button>
           <button
-            onClick={this.hideInformativePopup.bind(this, "startgame")}
+            onClick={this.gameDecline.bind(this, param)}
             style={this.props.cssmanager.innerPopupMain()}
           >
-            close me
+           Decline
           </button>
         </div>
       </div>
@@ -173,15 +173,18 @@ export default class MainPage extends Component {
       default:
     }
   };
-
+  
+/* 
   gameDecline = (actionType, action) => {
     Meteor.call("game.decline", this.gameId, action);
-  };
+  }; */
 
-  gameAccept = name => {
-    Meteor.call("game.accept", name);
+  gameAccept = gameRequestData => {
+    Meteor.call("gameRequestAccept", "gameAccept", gameRequestData["_id"]);
   };
-
+  gameDecline = gameRequestData => {
+    Meteor.call("gameRequestDecline", "gameDecline", gameRequestData["_id"]);
+  };
   tackBack = actionType => {
     Meteor.call("game.takeback", this.gameId, actionType);
   };
@@ -265,9 +268,16 @@ export default class MainPage extends Component {
   render() {
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
+    const gameRequest = this.props.gameRequest;
     let informativePopup = null;
     let actionPopup = null;
     let position = {};
+    if (gameRequest !== undefined) {
+      informativePopup = this.gameRequest(
+        "Opponent has requested for a game",
+        gameRequest
+      );
+    }
     if (game !== undefined) {
       if (game.black.name === Meteor.user().username) {
         Object.assign(position, { top: "w" });
@@ -285,7 +295,7 @@ export default class MainPage extends Component {
           game.requestBy
         );
         this.intializeBoard();
-      } else if (game.status === "started") {
+      } else if (game.status === "playing") {
         this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
         this.Main.MiddleSection.BlackPlayer.Rating = game.black.rating;
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;

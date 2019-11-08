@@ -171,7 +171,7 @@ class LegacyUserConnection {
       Meteor.bindEnvironment(
         function(data) {
           self.databuffer += data;
-          log_rawlegacy.debug("LegacyUser::(self.socket.on.data)", {
+            log_rawlegacy.debug("LegacyUser::(self.socket.on.data)", {
             state: self.state,
             databuffer: self.databuffer,
             ctrl: self.ctrl,
@@ -218,7 +218,7 @@ class LegacyUserConnection {
   }
 
   logout() {
-    log.debug("LegacyUser::logout");
+     log.debug("LegacyUser::logout");
     this.socket.write("quit\n");
     this.socket.destroy();
   }
@@ -392,7 +392,7 @@ class LegacyUserConnection {
     check(wild, Match.Maybe(Number));
     check(color, Match.Maybe(String));
 
-    log.debug("inside match legacyUser");
+    // log.debug("inside match legacyUser");
     let matchString = "match " + name + " " + time;
     if (increment) matchString += " " + increment;
     if (time2) matchString += " " + time2;
@@ -454,15 +454,16 @@ class LegacyUserConnection {
           }
           break;
         case L2.MATCH:
+    
           GameRequests.addLegacyMatchRequest(
-            p.l1messageidentifier,
+            "p.l1messageidentifier",
             p2[0],
             parseInt(p2[1]),
-            p2[2] === "1",
+            parseInt(p2[2]),
             p2[3].split(" "),
             p2[4],
             parseInt(p2[5]),
-            p2[6] === "1",
+            parseInt(p2[6]),
             p2[7].split(" "),
             parseInt(p2[8]),
             p2[9],
@@ -487,8 +488,7 @@ class LegacyUserConnection {
           );
           break;
         case L2.MUGSHOT:
-          log.debug("L2.MUGSHOT");
-          // (Player URL gamenumber)
+           // (Player URL gamenumber)
           if (p2[0] === "W" || p2[0] === "B") return;
           legacyUsers.update({ username: p2[0] }, { $set: { mugshot: p2[1] } });
           break;
@@ -513,7 +513,7 @@ class LegacyUserConnection {
           // index, from, time, date, message
           break;
         case L2.SEND_MOVES:
-          Game.saveLegacyMove(
+           Game.saveLegacyMove(
             p.l1messageidentifier,
             Meteor.user(),
             parseInt(p2[0]),
@@ -543,8 +543,8 @@ class LegacyUserConnection {
           legacyUsers.remove({ username: p2[0] });
           break;
         case L2.SEEK:
-          GameRequests.addLegacyGameSeek(
-            p.l1messageidentifier,
+            GameRequests.addLegacyGameSeek(
+            "p.l1messageidentifier",
             parseInt(p2[0]),
             p2[1],
             Array.isArray(p2[2]) ? p2[2] : [],
@@ -563,14 +563,17 @@ class LegacyUserConnection {
           );
           break;
         case L2.SEEK_REMOVED:
-          GameRequests.removeLegacySeek(p.l1messageidentifier, parseInt(p2[0]));
+          GameRequests.removeLegacySeek(
+            "p.l1messageidentifier",
+            parseInt(p2[0])
+          );
           break;
         case L2.STARTED_OBSERVING:
         case L2.MY_GAME_STARTED:
           log.debug("Game started");
           // TODO: Do we want MY_GAME_STARTED, or GAME_STARTED?
           Game.startLegacyGame(
-            p.l1messageidentifier,
+            "p.l1messageidentifier",
             parseInt(p2[0]),
             p2[1],
             p2[2],
@@ -584,7 +587,7 @@ class LegacyUserConnection {
             p2[10] === "1",
             parseInt(p2[12]),
             parseInt(p2[13]),
-            parseInt(p2[14]),
+            p2[14],
             Array.isArray(p2[15]) ? p2[15] : [],
             Array.isArray(p2[16]) ? p2[16] : [],
             p2[11],
@@ -603,7 +606,7 @@ class LegacyUserConnection {
           Game.removeLegacyGame(p.l1messageidentifier, parseInt(p2[0]));
           break;
         case L2.MY_GAME_RESULT:
-          Game.legacyGameEnded(
+            Game.legacyGameEnded(
             p.l1messageidentifier,
             parseInt(p2[0]),
             p2[1] === "1",
@@ -774,7 +777,7 @@ const LegacyUser = {
       !user.profile.legacy.password ||
       !user.profile.legacy.autologin
     ) {
-      log.debug("Not legacy logging in", null, user._id);
+     log.debug("Not legacy logging in", null, user._id);
       throw new ICCMeteorError(
         message_identifier,
         "Unable to login to the legacy server",

@@ -83,7 +83,6 @@ Game.startLocalGame = function(
   check(black_initial, Number);
   check(black_increment, Number);
   check(color, Match.Maybe(String));
-
   if (!self.loggedOn) {
     throw new ICCMeteorError(
       message_identifier,
@@ -309,27 +308,49 @@ Game.startLegacyGame = function(
   promote_to_king
 ) {
   check(message_identifier, String);
+
   check(gamenumber, Number);
+
   check(whitename, String);
+
   check(blackname, String);
+
   check(wild_number, Number);
+
   check(rating_type, String);
+
   check(rated, Boolean);
+
   check(white_initial, Number);
+
   check(white_increment, Number);
+
   check(black_initial, Number);
+
   check(black_increment, Number);
+
   check(played_game, Boolean);
+
   check(ex_string, String);
+
   check(white_rating, Number);
+
   check(black_rating, Number);
+
   check(game_id, String);
+
   check(white_titles, Array);
+
   check(black_titles, Array);
+
   check(irregular_legality, Match.Maybe(String));
+
   check(irregular_semantics, Match.Maybe(String));
+
   check(uses_plunkers, Match.Maybe(String));
+
   check(fancy_timecontrol, Match.Maybe(String));
+
   check(promote_to_king, Match.Maybe(String));
 
   const whiteuser = Meteor.users.findOne({
@@ -462,14 +483,14 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   check(message_identifier, String);
   check(game_id, String);
   check(move, String);
-
   const self = Meteor.user();
   check(self, Object);
-
+  /*
   const game = getAndCheck(message_identifier, game_id);
-  if (!game) return;
 
+  if (!game) return;
   const chessObject = active_games[game_id];
+
   if (game.status === "playing") {
     const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
     if (self._id !== turn_id) {
@@ -531,6 +552,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     setobject["pending." + bw + ".adjourn"] = "0";
     setobject["pending." + bw + ".takeback.number"] = 0;
     setobject["pending." + bw + ".takeback.mid"] = "0";
+
     //
     // Add a half move to the takeback request if the user requested a takeback and then
     // made their own move.
@@ -541,8 +563,30 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
     updateobject["$set"] = setobject;
   }
-
-  GameCollection.update({ _id: game_id, status: game.status }, updateobject);
+ // log.debug("udaodetObject---1", updateobject);
+ */
+  log.debug(
+    "Record Data",
+    GameCollection.update(
+      { _id: game_id, status: "playing" },
+      {
+        $push: {
+          actions: {
+            type: "move",
+            issuer: "8rdTGmZ3D6SNqXipN",
+            parameter: "b6"
+          }
+        },
+        $set: {
+          "pending.black.draw": "0",
+          "pending.black.abort": "0",
+          "pending.black.adjourn": "0",
+          "pending.black.takeback.number": 0,
+          "pending.black.takeback.mid": "0"
+        }
+      }
+    )
+  );
 };
 
 //	There are three outcome codes, given in the following order:
@@ -1507,7 +1551,22 @@ Game.isPlayingGame = function(user_or_id) {
     }).count() !== 0
   );
 };
+Meteor.methods({
+  addGameMove(message_identifier, game_id, move) {
+    check(message_identifier, String);
+    check(game_id, String);
+    check(move, String);
+    Game.saveLocalMove(message_identifier, game_id, move);
+  }
+});
 
+Meteor.publish("game", function() {
+  const user = Meteor.user();
+  if (!user || !user.loggedOn) return [];
+  return GameCollection.find({
+    $or: [{ "white.id": user._id }, { "black.id": user._id }]
+  });
+});
 Game.moveBackward = function(messaage_identifier, game_id, move_count) {
   const movecount = move_count || 1;
   check(game_id, String);
@@ -1663,28 +1722,46 @@ function findVariation(move, idx, movelist) {
 function addmove(move_number, variations, white_to_move, movelist, idx) {
   let string = "";
 
-  if(!movelist[idx].variations || !movelist[idx].variations.length) return "";
+  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
 
-  if(white_to_move) {
+  if (white_to_move) {
     string += move_number + ".";
   } else {
-    if(variations)
-      string = move_number + "...";
+    if (variations) string = move_number + "...";
     else string = "4";
   }
   string += movelist[movelist[idx].variations[0]].move;
 
   let next_move_number = move_number;
   let next_white_to_move = !white_to_move;
-  if(next_white_to_move)
-    next_move_number++;
+  if (next_white_to_move) next_move_number++;
 
-  for(let x = 1 ; x < movelist[idx].variations.length ; x++) {
-    string += " (" + move_number + (white_to_move ? "." : "...") + movelist[movelist[idx].variations[x]].move + " ";
-    string += addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]) + ") ";
+  for (let x = 1; x < movelist[idx].variations.length; x++) {
+    string +=
+      " (" +
+      move_number +
+      (white_to_move ? "." : "...") +
+      movelist[movelist[idx].variations[x]].move +
+      " ";
+    string +=
+      addmove(
+        next_move_number,
+        false,
+        next_white_to_move,
+        movelist,
+        movelist[idx].variations[x]
+      ) + ") ";
   }
 
-  string += " " + addmove(next_move_number, movelist[idx].variations.length > 1, next_white_to_move, movelist, movelist[idx].variations[0]);
+  string +=
+    " " +
+    addmove(
+      next_move_number,
+      movelist[idx].variations.length > 1,
+      next_white_to_move,
+      movelist,
+      movelist[idx].variations[0]
+    );
   return string;
 }
 

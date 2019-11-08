@@ -6,7 +6,6 @@ import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("CreateGameComponent_js");
 const legacyUsersC = new Mongo.Collection("legacyUsers");
 
-const GameRequestCollection = new Mongo.Collection("game_requests");
 // TODO: What do we do when a user is logged on local AND legacy? They currently show up twice, as in localuser and legacyuser(L).
 //   I would assume we want to remove them from one of the lists...
 // TODO: Do users that are not logged on to legacy see legacy users? I think not, but at the moment, everyone will.
@@ -18,8 +17,7 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
       trial: 0,
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        legacyUsers: Meteor.subscribe("legacyUsers"),
-        gameRequests: Meteor.subscribe("game_requests")
+        legacyUsers: Meteor.subscribe("legacyUsers")
       }
     };
   }
@@ -27,35 +25,53 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   componentWillUnmount() {
     this.state.subscription.loggedOnUsers.stop();
     this.state.subscription.legacyUsers.stop();
-    this.state.subscription.gameRequests.stop();
   }
 
   gameStart(user) {
     Meteor.call(
-      "game.requestlegacymatch",
-      "match",
-      "uiuxtest2",
-      5,
+      "addLocalMatchRequest",
+      "mid",
+      user,
       0,
-      5,
-      0,
+      "standard",
+      true,
       false,
+      15,
       0,
-      "white"
+      15,
+      0
     );
+  }
+  createLocalGameSeek() {
+    Meteor.call(
+      "createLocalGameSeek",
+      "gameseek",
+      0,
+      "standard",
+      15,
+      0,
+      true,
+      null,
+      null,
+      null,
+      true
+    );
+  }
+  acceptGameSeek() {
+    Meteor.call("acceptLocalGameSeek", "gameSeek");
   }
 
   render() {
     if (Meteor.userId() == null) return;
-    /*     const gameRquest = GameRequestCollection.find({}).fetch();
-    log.debug(gameRquest); */
-    const localUsers = Meteor.users.find({}).fetch();
+    const localUsers = Meteor.users
+      .find({ _id: { $ne: Meteor.userId() } })
+      .fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
     const _userdata = localUsers.map(user => user.username);
     const userdata = _userdata.concat(
       legacyUsers.map(user => user.username + "(L)")
     );
-    userdata.sort();
+    //  userdata.sort();
 
     return (
       <div className="play-tab-content">
@@ -94,7 +110,42 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
             </ul>
           </div>
         </nav>
-
+        <div>
+          {/* TODO : THIS IS TEMPORARY WRITE HERE  */}
+          <button
+            onClick={this.createLocalGameSeek.bind(this)}
+            style={{
+              backgroundColor: "#1565c0",
+              border: "none",
+              color: "white",
+              padding: "5px 10px",
+              textAign: "center",
+              textDecoration: "none",
+              display: "inline-block",
+              fontSize: "12px",
+              borderRadius: "5px"
+            }}
+          >
+            GAME SEEK
+          </button>
+          {/* TODO : THIS IS ALSO TEMPORARY WRITE HERE  */}
+          <button
+            onClick={this.acceptGameSeek.bind(this)}
+            style={{
+              backgroundColor: "#1565c0",
+              border: "none",
+              color: "white",
+              padding: "5px 10px",
+              textAign: "center",
+              textDecoration: "none",
+              display: "inline-block",
+              fontSize: "12px",
+              borderRadius: "5px"
+            }}
+          >
+            Accept Game seek
+          </button>
+        </div>
         <div style={{ height: "250px", overflowX: "Scroll" }}>
           {userdata
             ? userdata.map((user, index) => (

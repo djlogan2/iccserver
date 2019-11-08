@@ -12,6 +12,7 @@ const log = new Logger("client/AppContainer");
 const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const Game = new Mongo.Collection("game");
+const GameRequestCollection = new Mongo.Collection("game_requests");
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   // log.error(errorMsg + "::" + url + "::" + lineNumber);
@@ -44,7 +45,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
       to: null,
       subscription: {
         css: Meteor.subscribe("css"),
-        game: Meteor.subscribe("game")
+        game: Meteor.subscribe("game"),
+        gameRequests: Meteor.subscribe("game_requests")
       },
       move: "",
       player: {
@@ -57,9 +59,18 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   renderGameMessages() {
-    const game = Game.find({}).fetch();
-    log.debug("Game Collection  find", game);
-    return game[0];
+    const game = Game.findOne({
+      $and: [
+        { status: "playing" },
+        {
+          $or: [
+            { "white.id": Meteor.userId() },
+            { "black.id": Meteor.userId() }
+          ]
+        }
+      ]
+    });
+    return game;
   }
 
   _systemCSS() {
@@ -83,6 +94,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   componentWillUnmount() {
     this.state.subscription.css.stop();
     this.state.subscription.game.stop();
+    this.state.subscription.gameRequests.stop();
   }
 
   componentWillMount() {
@@ -167,11 +179,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
       if (result !== null) {
         let history = this._board.history();
+
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
-        Meteor.call("game.move", this.gameId, move, true);
-        log.debug("insert new move in mongo" + move + " GameID" + this.gameId);
+        Meteor.call("addGameMove", "addmove", this.gameId, move);
         return true;
       }
     }
@@ -194,6 +206,15 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   render() {
+    // const gameRequest = GameRequestCollection.find({}).fetch()[0];
+    const gameRequest = GameRequestCollection.findOne(
+      {
+        receiver_id: Meteor.userId()
+      },
+      {
+        sort: { create_date: -1 }
+      }
+    );
     const game = this.renderGameMessages();
 
     const systemCSS = this._systemCSS();
@@ -220,9 +241,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
           move={this.state.move}
           capture={capture}
           game={game}
+          gameRequest={gameRequest}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
-        />
         />
       </div>
     );
