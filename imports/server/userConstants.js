@@ -2,16 +2,29 @@ export const standard_guest_roles = ["login"];
 
 export const UserConstants = {};
 
-export const titles = ["C", "*", "H", "FM", "IM", "GM"];
+export const titles = [
+  "C",
+  "*",
+  "H",
+  "FM",
+  "IM",
+  "GM",
+  "WGM",
+  "WIM",
+  "WFM",
+  "DM",
+  "TD",
+  "U"
+];
 
 export const all_roles = [
-    "login",
-    "send_messages",
-    "play_rated_games",
-    "play_unrated_games",
-    "legacy_login",
-    "administrator",
-    "developer"
+  "login",
+  "send_messages",
+  "play_rated_games",
+  "play_unrated_games",
+  "legacy_login",
+  "administrator",
+  "developer"
 ];
 
 export const standard_member_roles = [
