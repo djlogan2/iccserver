@@ -1225,8 +1225,7 @@ describe("GameRequests.acceptMatchRequest", function() {
     chai.assert.equal(fake.args[0][6], 15);
     chai.assert.equal(fake.args[0][7], 25);
     chai.assert.equal(fake.args[0][8], 25);
-    chai.assert.equal(fake.args[0][9], true);
-    chai.assert.equal(fake.args[0][10], "black");
+    chai.assert.equal(fake.args[0][9], "black");
   });
 
   it("should set the game record black correctly when color is specified in the game request", function() {
@@ -1264,8 +1263,7 @@ describe("GameRequests.acceptMatchRequest", function() {
     chai.assert.equal(fake.args[0][6], 25);
     chai.assert.equal(fake.args[0][7], 15);
     chai.assert.equal(fake.args[0][8], 15);
-    chai.assert.equal(fake.args[0][9], true);
-    chai.assert.equal(fake.args[0][10], "white");
+    chai.assert.equal(fake.args[0][9], "white");
   });
 });
 

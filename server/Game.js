@@ -485,7 +485,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   check(move, String);
   const self = Meteor.user();
   check(self, Object);
-  /*
+
   const game = getAndCheck(message_identifier, game_id);
 
   if (!game) return;
@@ -563,8 +563,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
     updateobject["$set"] = setobject;
   }
- // log.debug("udaodetObject---1", updateobject);
- */
+
   log.debug(
     "Record Data",
     GameCollection.update(
@@ -1807,7 +1806,7 @@ function buildMoveListFromPgn(pgnString) {
 }
 
 Meteor.startup(function() {
-  GameCollection.remove();
+  GameCollection.remove({});
   if (Meteor.isTest || Meteor.isAppTest) {
     Game.collection = GameCollection;
     Game.buildMoveListFromActions = buildMoveListFromActions;

@@ -3221,7 +3221,7 @@ describe("Game.resignLocalGame", function() {
   });
 });
 
-describe.only("Game.moveBackward", function() {
+describe("Game.moveBackward", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("fails if game is not an examined game", function() {
     const p1 = TestHelpers.createUser();
@@ -3350,7 +3350,7 @@ describe.only("Game.moveBackward", function() {
   });
 });
 
-describe.only("Game.buildMoveListFromActions", function() {
+describe("Game.buildMoveListFromActions", function() {
   it("needs to work correctly", function() {
     const game = {
       actions: [
@@ -3426,7 +3426,7 @@ describe("Game.buildMovelistFromPgn", function(){
   });
 });
 
-describe.only("Game.moveForward", function() {
+describe("Game.moveForward", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("fails if game is not an examined game", function() {
     const p1 = TestHelpers.createUser();

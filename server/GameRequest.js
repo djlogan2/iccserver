@@ -1002,7 +1002,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
 }
 
 Meteor.startup(function() {
-  GameRequestCollection.remove(); // Truncate this table on Meteor startup.
+  GameRequestCollection.remove({}); // Truncate this table on Meteor startup.
   Users.addLogoutHook(logoutHook);
   Users.addLoginHook(loginHook);
 });
