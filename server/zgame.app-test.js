@@ -1865,6 +1865,15 @@ function checkAdjourn(gameRecord, white, black) {
 describe("Takeback behavior", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
+  it("restores both clocks to the same time as the move taken back to", function(){
+    // So if say:
+    // move 20, white clock: 25:00, black clock: 15:00,
+    // at move 22, white clock: 5:00, black clock: 2:00,
+    // if we takeback 2, then we are back at the position after move 19,
+    //   with white clock at 25:00 and black clock at 15:00!
+    chai.assert.fail("do me");
+  });
+
   // giver_request  -> giver_request(same)        -> message, already pending
   it("will write a client message when takeback asker asks for another takeback with the same ply count", function() {
     const p1 = TestHelpers.createUser();
@@ -3404,7 +3413,16 @@ describe.only("Game.buildMoveListFromActions", function() {
     };
     const movelist = Game.buildMoveListFromActions(game);
     const pgn = Game.buildPgnFromMovelist(movelist);
-    console.log("here");
+    const expectedpgn = "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
+    const actualpgn = pgn.replace(/\s/g, "");
+    chai.assert.equal(actualpgn, expectedpgn);
+  });
+});
+
+describe("Game.buildMovelistFromPgn", function(){
+  it("needs to be written", function(){
+    const pgn = "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
+    chai.assert.fail("do me");
   });
 });
 
@@ -3438,7 +3456,6 @@ describe.only("Game.moveForward", function() {
   it("fails if user is not an examiner", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    const examiner = TestHelpers.createUser();
     self.loggedonuser = p1;
     const game_id = Game.startLocalGame(
       "mi1",

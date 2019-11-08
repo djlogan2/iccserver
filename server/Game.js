@@ -1728,7 +1728,7 @@ function addmove(move_number, variations, white_to_move, movelist, idx) {
     string += move_number + ".";
   } else {
     if (variations) string = move_number + "...";
-    else string = "4";
+    else string = " ";
   }
   string += movelist[movelist[idx].variations[0]].move;
 
@@ -1800,6 +1800,10 @@ function buildMoveListFromActions(gamerecord) {
     }
   });
   return movelist;
+}
+
+function buildMoveListFromPgn(pgnString) {
+  const movelist = [];
 }
 
 Meteor.startup(function() {
