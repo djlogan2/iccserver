@@ -1865,6 +1865,15 @@ function checkAdjourn(gameRecord, white, black) {
 describe("Takeback behavior", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
+  it("restores both clocks to the same time as the move taken back to", function(){
+    // So if say:
+    // move 20, white clock: 25:00, black clock: 15:00,
+    // at move 22, white clock: 5:00, black clock: 2:00,
+    // if we takeback 2, then we are back at the position after move 19,
+    //   with white clock at 25:00 and black clock at 15:00!
+    chai.assert.fail("do me");
+  });
+
   // giver_request  -> giver_request(same)        -> message, already pending
   it("will write a client message when takeback asker asks for another takeback with the same ply count", function() {
     const p1 = TestHelpers.createUser();
