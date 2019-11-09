@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/iccserver.iml" filepath="$PROJECT_DIR$/.idea/iccserver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../legacy/.idea/legacy.iml" filepath="$PROJECT_DIR$/../legacy/.idea/legacy.iml" />
     </modules>
   </component>
 </project>
