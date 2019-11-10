@@ -6,6 +6,12 @@
         <entryData>
           <resourceRoots>
             <path value="file://$PROJECT_DIR$/public" />
+            <path value="file://$PROJECT_DIR$/lib" />
+            <path value="file://$PROJECT_DIR$/imports" />
+            <path value="file://$PROJECT_DIR$/client" />
+            <path value="file://$PROJECT_DIR$/both" />
+            <path value="file://$PROJECT_DIR$/private" />
+            <path value="file://$PROJECT_DIR$/server" />
           </resourceRoots>
         </entryData>
       </entry>
