@@ -1047,7 +1047,7 @@ describe("GameRequests.addLocalMatchRequest", function() {
 });
 
 // GameRequests.acceptMatchRequest = function(game_id) {};
-describe.only("GameRequests.acceptMatchRequest", function() {
+describe("GameRequests.acceptMatchRequest", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("should start a white game if the match request was white", function(){
