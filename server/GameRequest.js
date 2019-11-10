@@ -709,7 +709,6 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
       );
     white_initial = black_initial = match.challenger_time;
     white_inc = black_inc = match.challenger_inc;
-    color = "black";
   } else if (match.challenger_color_request === "white") {
     white_initial = match.challenger_time;
     white_inc = match.challenger_inc;

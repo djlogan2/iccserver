@@ -1047,9 +1047,57 @@ describe("GameRequests.addLocalMatchRequest", function() {
 });
 
 // GameRequests.acceptMatchRequest = function(game_id) {};
-describe("GameRequests.acceptMatchRequest", function() {
+describe.only("GameRequests.acceptMatchRequest", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
+  it("should start a white game if the match request was white", function(){
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    for (let x = 0 ; x < 10 ; x++) {
+      self.loggedonuser = us;
+      const match_id = GameRequests.addLocalMatchRequest("mi1", them, 0, "standard", true, false, 15, 0, 15, 0, "white");
+      self.loggedonuser = them;
+      GameRequests.acceptMatchRequest("accept", match_id);
+      const game = Game.collection.findOne({});
+      chai.assert.isDefined(game);
+      chai.assert.isTrue(game.white.id === us._id);
+      chai.assert.isTrue(game.black.id === them._id);
+      Game.collection.remove({});
+    }
+  });
+  it("should start a black game if the match request was black", function(){
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    for (let x = 0 ; x < 10 ; x++) {
+      self.loggedonuser = us;
+      const match_id = GameRequests.addLocalMatchRequest("mi1", them, 0, "standard", true, false, 15, 0, 15, 0, "black");
+      self.loggedonuser = them;
+      GameRequests.acceptMatchRequest("accept", match_id);
+      const game = Game.collection.findOne({});
+      chai.assert.isDefined(game);
+      chai.assert.isTrue(game.black.id === us._id);
+      chai.assert.isTrue(game.white.id === them._id);
+      Game.collection.remove({});
+    }
+  });
+  it("should start a randomly colored game if the match request did not specify a color", function(){
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    let white = 0;
+    let black = 0;
+    for (let x = 0 ; x < 10 ; x++) {
+      self.loggedonuser = us;
+      const match_id = GameRequests.addLocalMatchRequest("mi1", them, 0, "standard", true, false, 15, 0, 15, 0);
+      self.loggedonuser = them;
+      GameRequests.acceptMatchRequest("accept", match_id);
+      const game = Game.collection.findOne({});
+      chai.assert.isDefined(game);
+      if(game.white.id === us._id) white++; else black++;
+      Game.collection.remove({});
+    }
+    chai.assert.isTrue(white > 0);
+    chai.assert.isTrue(black > 0);
+  });
   it("should fail if self is null or invalid", function() {
     self.loggedonuser = TestHelpers.createUser();
     const match_id = GameRequests.addLocalMatchRequest(
