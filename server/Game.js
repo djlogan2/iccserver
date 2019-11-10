@@ -564,28 +564,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     updateobject["$set"] = setobject;
   }
 
-  log.debug(
-    "Record Data",
-    GameCollection.update(
-      { _id: game_id, status: "playing" },
-      {
-        $push: {
-          actions: {
-            type: "move",
-            issuer: "8rdTGmZ3D6SNqXipN",
-            parameter: "b6"
-          }
-        },
-        $set: {
-          "pending.black.draw": "0",
-          "pending.black.abort": "0",
-          "pending.black.adjourn": "0",
-          "pending.black.takeback.number": 0,
-          "pending.black.takeback.mid": "0"
-        }
-      }
-    )
-  );
+  GameCollection.update({ _id: game_id, status: game.status }, updateobject);
 };
 
 //	There are three outcome codes, given in the following order:

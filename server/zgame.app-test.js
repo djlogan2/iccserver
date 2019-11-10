@@ -2887,8 +2887,7 @@ describe("Local game adjourn behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ADJOURN_DECLINED");
   });
 
-  it("should explicitly accept the adjourn with a client message, and end the game, if a adjourn request is accepted", function() {
-    this.timeout(500000);
+  it("should explicitly accept the adjourn with a client message, and end the game, if an adjourn request is accepted", function() {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -3043,7 +3042,6 @@ describe("Game.resignLocalGame", function() {
   });
 
   it("works on their move", function() {
-    this.timeout(500000);
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -3269,7 +3267,6 @@ describe("Game.moveBackward", function() {
   });
 
   it("writes an action and undoes the move if possible", function() {
-    this.timeout(500000);
     const examiner = TestHelpers.createUser();
     self.loggedonuser = examiner;
     const game_id = Game.startLocalExaminedGame(

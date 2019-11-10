@@ -459,14 +459,14 @@ describe("GameRequests.removeLegacySeek", function() {
     );
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.removeLegacySeek("message_identifier", 0);
+      GameRequests.removeLegacySeek("message_identifier", 0, 10);
     }, Match.Error);
   });
 
   it("should succeed if we try to remove a non-existant index", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.doesNotThrow(() => {
-      GameRequests.removeLegacySeek("message_identifier", 0);
+      GameRequests.removeLegacySeek("message_identifier", 0, 10);
     });
   });
 
@@ -477,7 +477,7 @@ describe("GameRequests.removeLegacySeek", function() {
       legacySeekParameters(self.loggedonuser)
     );
     chai.assert.equal(GameRequests.collection.find().count(), 1);
-    GameRequests.removeLegacySeek("message_identifier", 999);
+    GameRequests.removeLegacySeek("message_identifier", 999, 10);
     chai.assert.equal(GameRequests.collection.find().count(), 0);
   });
 
@@ -490,7 +490,7 @@ describe("GameRequests.removeLegacySeek", function() {
     chai.assert.equal(GameRequests.collection.find().count(), 1);
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.removeLegacySeek("message_identifier", 999);
+      GameRequests.removeLegacySeek("message_identifier", 999, 10);
     }, ICCMeteorError);
   });
 });
@@ -1179,7 +1179,6 @@ describe("GameRequests.acceptMatchRequest", function() {
     chai.assert.equal(fake.args[0][6], 0);
     chai.assert.equal(fake.args[0][7], 15);
     chai.assert.equal(fake.args[0][8], 0);
-    chai.assert.equal(fake.args[0][9], true);
     chai.assert.isTrue(
       fake.args[0][10] === undefined || fake.args[0][10] === null
     );
