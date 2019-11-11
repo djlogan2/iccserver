@@ -1,14 +1,14 @@
 import Chess from "chess.js";
-import { Match, check } from "meteor/check";
-import { Mongo } from "meteor/mongo";
-import { Roles } from "meteor/alanning:roles";
-import { Logger } from "../lib/server/Logger";
-import { Meteor } from "meteor/meteor";
-import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { ClientMessages } from "../imports/collections/ClientMessages";
-import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
-import { PlayedGameSchema } from "./PlayedGameSchema";
-import { ExaminedGameSchema } from "./ExaminedGameSchema";
+import {check, Match} from "meteor/check";
+import {Mongo} from "meteor/mongo";
+import {Roles} from "meteor/alanning:roles";
+import {Logger} from "../lib/server/Logger";
+import {Meteor} from "meteor/meteor";
+import {ICCMeteorError} from "../lib/server/ICCMeteorError";
+import {ClientMessages} from "../imports/collections/ClientMessages";
+import {SystemConfiguration} from "../imports/collections/SystemConfiguration";
+import {PlayedGameSchema} from "./PlayedGameSchema";
+import {ExaminedGameSchema} from "./ExaminedGameSchema";
 
 export const Game = {};
 
@@ -17,6 +17,7 @@ const GameCollection = new Mongo.Collection("game");
 let log = new Logger("server/Game_js");
 
 let active_games = {};
+let variations = {};
 
 GameCollection.attachSchema(ExaminedGameSchema, {
   selector: { status: "examining" }
@@ -45,6 +46,11 @@ function getAndCheck(message_identifier, game_id) {
     throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
   if (!active_games[game_id])
+    throw new ICCMeteorError(
+      "server",
+      "Unable to find chessboard validator for game"
+    );
+  if (!variations[game_id])
     throw new ICCMeteorError(
       "server",
       "Unable to find chessboard validator for game"
@@ -196,6 +202,7 @@ Game.startLocalGame = function(
   };
   const game_id = GameCollection.insert(game);
   active_games[game_id] = new Chess.Chess();
+  variations[game_id] = { hmtb: 0, cmi: 0, movelist: [{}] };
   return game_id;
 };
 
@@ -279,6 +286,7 @@ Game.startLocalExaminedGame = function(
   if (!!other_headers) game.tags = other_headers;
   const game_id = GameCollection.insert(game);
   active_games[game_id] = new Chess.Chess();
+  variations[game_id] = { hmtb: 0, cmi: 0, movelist: [{}] };
   return game_id;
 };
 
@@ -490,6 +498,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   if (!game) return;
   const chessObject = active_games[game_id];
+  const variation = variations[game_id];
 
   if (game.status === "playing") {
     const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
@@ -520,9 +529,11 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     );
     return;
   }
+  const action = { type: "move", issuer: self._id, parameter: move };
+  addActionToMoveList(variation, action);
 
   const updateobject = {
-    $push: { actions: { type: "move", issuer: self._id, parameter: move } }
+    $push: { actions: action }
   };
 
   const setobject = {};
@@ -759,9 +770,11 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     !!game.examiners &&
     game.examiners.length === 1 &&
     game.examiners[0] === id_to_remove
-  )
+  ) {
     GameCollection.remove({ _id: game_id });
-  else
+    delete active_games[game_id];
+    delete variations[game_id];
+  } else
     GameCollection.update(
       { _id: game_id, status: game.status },
       { $pull: { examiners: id_to_remove, observers: id_to_remove } }
@@ -886,16 +899,20 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   tbobject["pending." + color + ".takeback.number"] = number;
   tbobject["pending." + color + ".takeback.mid"] = message_identifier;
 
+  const variation = variations[game_id];
+  const action = {
+    type: "takeback_requested",
+    issuer: self._id,
+    parameter: number
+  };
+  addActionToMoveList(variation, action);
+
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
       $set: tbobject,
       $push: {
-        actions: {
-          type: "takeback_requested",
-          issuer: self._id,
-          parameter: number
-        }
+        actions: action
       }
     }
   );
@@ -929,15 +946,13 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     return;
   }
 
+  const variation = variations[game_id];
+  const action = { type: "takeback_accepted", issuer: self._id };
+  addActionToMoveList(variation, action);
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
-      $push: {
-        actions: {
-          type: "takeback_accepted",
-          issuer: self._id
-        }
-      },
+      $push: { actions: action },
       $set: {
         "pending.white.takeback": { number: 0, mid: "0" },
         "pending.black.takeback": { number: 0, mid: "0" }
@@ -1545,6 +1560,7 @@ Meteor.publish("game", function() {
     $or: [{ "white.id": user._id }, { "black.id": user._id }]
   });
 });
+
 Game.moveBackward = function(messaage_identifier, game_id, move_count) {
   const movecount = move_count || 1;
   check(game_id, String);
@@ -1744,51 +1760,50 @@ function addmove(move_number, variations, white_to_move, movelist, idx) {
 }
 
 function buildPgnFromMovelist(movelist) {
-  let string = addmove(1, false, true, movelist, 0);
-  return string;
+  return addmove(1, false, true, movelist, 0);
 }
 
-function buildMoveListFromActions(gamerecord) {
-  let hmtb = 0;
-  let cmi = 0;
-  let movelist = [{}];
-
-  gamerecord.actions.forEach(action => {
-    switch (action.type) {
-      case "move":
-        const move = action.parameter;
-        const exists = findVariation(move, cmi, movelist);
-        if (exists) cmi = exists;
-        else {
-          const newi = movelist.length;
-          movelist.push({ move: move, prev: cmi });
-          if (!movelist[cmi].variations) movelist[cmi].variations = [newi];
-          else movelist[cmi].variations.push(newi);
-          cmi = newi;
-        }
-        break;
-      case "takeback_requested":
-        hmtb = action.parameter;
-        break;
-      case "takeback_accepted":
-        for (let x = 0; x < hmtb; x++) cmi = movelist[cmi].prev;
-        break;
-      default:
-        break;
-    }
-  });
-  return movelist;
-}
-
-function buildMoveListFromPgn(pgnString) {
-  const movelist = [];
+function addActionToMoveList(variation_object, action) {
+  switch (action.type) {
+    case "move":
+      const move = action.parameter;
+      const exists = findVariation(
+        move,
+        variation_object.cmi,
+        variation_object.movelist
+      );
+      if (exists) variation_object.cmi = exists;
+      else {
+        const newi = variation_object.movelist.length;
+        variation_object.movelist.push({
+          move: move,
+          prev: variation_object.cmi
+        });
+        if (!variation_object.movelist[variation_object.cmi].variations)
+          variation_object.movelist[variation_object.cmi].variations = [newi];
+        else
+          variation_object.movelist[variation_object.cmi].variations.push(newi);
+        variation_object.cmi = newi;
+      }
+      break;
+    case "takeback_requested":
+      variation_object.hmtb = action.parameter;
+      break;
+    case "takeback_accepted":
+      for (let x = 0; x < variation_object.hmtb; x++)
+        variation_object.cmi =
+          variation_object.movelist[variation_object.cmi].prev;
+      break;
+    default:
+      break;
+  }
 }
 
 Meteor.startup(function() {
   GameCollection.remove({});
   if (Meteor.isTest || Meteor.isAppTest) {
     Game.collection = GameCollection;
-    Game.buildMoveListFromActions = buildMoveListFromActions;
+    Game.addActionToMoveList = addActionToMoveList;
     Game.buildPgnFromMovelist = buildPgnFromMovelist;
   }
 });

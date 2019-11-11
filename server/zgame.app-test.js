@@ -1865,7 +1865,7 @@ function checkAdjourn(gameRecord, white, black) {
 describe("Takeback behavior", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("restores both clocks to the same time as the move taken back to", function(){
+  it("restores both clocks to the same time as the move taken back to", function() {
     // So if say:
     // move 20, white clock: 25:00, black clock: 15:00,
     // at move 22, white clock: 5:00, black clock: 2:00,
@@ -3320,8 +3320,7 @@ describe("Game.moveBackward", function() {
   });
 
   it("writes a client message if there is no move to undo", function() {
-    const examiner = TestHelpers.createUser();
-    self.loggedonuser = examiner;
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame(
       "mi1",
       "whiteguy",
@@ -3348,6 +3347,10 @@ describe("Game.moveBackward", function() {
 });
 
 describe("Game.buildMoveListFromActions", function() {
+  // eslint-disable-next-line no-undef
+  before(function(done) {
+    Meteor.startup(() => done());
+  });
   it("needs to work correctly", function() {
     const game = {
       actions: [
@@ -3408,17 +3411,23 @@ describe("Game.buildMoveListFromActions", function() {
         { type: "move", parameter: "bxc4" }
       ]
     };
-    const movelist = Game.buildMoveListFromActions(game);
-    const pgn = Game.buildPgnFromMovelist(movelist);
-    const expectedpgn = "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
+    const variation_object = { hmtb: 0, cmi: 0, movelist: [{}] };
+    game.actions.forEach(action =>
+      Game.addActionToMoveList(variation_object, action)
+    );
+
+    const pgn = Game.buildPgnFromMovelist(variation_object.movelist);
+    const expectedpgn =
+      "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
     const actualpgn = pgn.replace(/\s/g, "");
     chai.assert.equal(actualpgn, expectedpgn);
   });
 });
 
-describe("Game.buildMovelistFromPgn", function(){
-  it("needs to be written", function(){
-    const pgn = "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
+describe("Game.buildMovelistFromPgn", function() {
+  it("needs to be written", function() {
+    const pgn =
+      "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
     chai.assert.fail("do me");
   });
 });
