@@ -1,7 +1,7 @@
 import chai from "chai";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 
-describe("Server side i18n", function() {
+describe.skip("Server side i18n", function() {
   beforeEach(function(done) {
     resetDatabase(null, done);
   });
