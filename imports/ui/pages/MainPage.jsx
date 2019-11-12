@@ -96,7 +96,7 @@ export default class MainPage extends Component {
             onClick={this.gameDecline.bind(this, param)}
             style={this.props.cssmanager.innerPopupMain()}
           >
-           Decline
+            Decline
           </button>
         </div>
       </div>
@@ -173,8 +173,8 @@ export default class MainPage extends Component {
       default:
     }
   };
-  
-/* 
+
+  /* 
   gameDecline = (actionType, action) => {
     Meteor.call("game.decline", this.gameId, action);
   }; */
@@ -273,10 +273,14 @@ export default class MainPage extends Component {
     let actionPopup = null;
     let position = {};
     if (gameRequest !== undefined) {
-      informativePopup = this.gameRequest(
-        "Opponent has requested for a game",
-        gameRequest
-      );
+      if (
+        gameRequest.type === "match" &&
+        gameRequest.receiver_id === Meteor.userId()
+      )
+        informativePopup = this.gameRequest(
+          "Opponent has requested for a game",
+          gameRequest
+        );
     }
     if (game !== undefined) {
       if (game.black.name === Meteor.user().username) {
@@ -414,7 +418,7 @@ export default class MainPage extends Component {
     } else {
       buttonStyle = "toggleOpen";
     }
-    log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
+    // log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;
@@ -479,6 +483,7 @@ export default class MainPage extends Component {
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
+              gameRequest={this.props.gameRequest}
               ref="right_sidebar"
             />
           </div>

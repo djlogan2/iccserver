@@ -57,10 +57,6 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
       true
     );
   }
-  acceptGameSeek() {
-    Meteor.call("acceptLocalGameSeek", "gameSeek");
-  }
-
   render() {
     if (Meteor.userId() == null) return;
     const localUsers = Meteor.users
@@ -127,23 +123,6 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
             }}
           >
             GAME SEEK
-          </button>
-          {/* TODO : THIS IS ALSO TEMPORARY WRITE HERE  */}
-          <button
-            onClick={this.acceptGameSeek.bind(this)}
-            style={{
-              backgroundColor: "#1565c0",
-              border: "none",
-              color: "white",
-              padding: "5px 10px",
-              textAign: "center",
-              textDecoration: "none",
-              display: "inline-block",
-              fontSize: "12px",
-              borderRadius: "5px"
-            }}
-          >
-            Accept Game seek
           </button>
         </div>
         <div style={{ height: "250px", overflowX: "Scroll" }}>

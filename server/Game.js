@@ -50,6 +50,7 @@ function getAndCheck(message_identifier, game_id) {
       "server",
       "Unable to find chessboard validator for game"
     );
+
   if (!variations[game_id])
     throw new ICCMeteorError(
       "server",
@@ -463,8 +464,6 @@ Game.saveLegacyMove = function(message_identifier, game_id, move) {
   const self = Meteor.user();
   check(self, Object);
 
-  log.debug("Game Move", move);
-
   const game = GameCollection.findOne({ legacy_game_number: game_id });
 
   if (!game)
@@ -574,7 +573,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
     updateobject["$set"] = setobject;
   }
-
   GameCollection.update({ _id: game_id, status: game.status }, updateobject);
 };
 

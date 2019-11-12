@@ -173,9 +173,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         let status = "Game over, " + moveColor + " is in checkmate.";
         alert(status);
       }
-      log.debug(
-        "Game Turn" + gameTurn + " Move from " + raf.from + " to " + raf.to
-      );
 
       if (result !== null) {
         let history = this._board.history();
@@ -183,6 +180,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
+        log.debug("Move pass from appcontainer", move);
         Meteor.call("addGameMove", "addmove", this.gameId, move);
         return true;
       }
@@ -190,13 +188,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
   };
 
   _boardFromMongoMessages(game) {
+    //log.debug("Game", game);
     this._board = new Chess.Chess();
-    let moves = game.moves;
+    let moves = game.actions;
     let clocks = game.clocks;
     if (moves !== undefined) {
-      // this._board.clear();
-      for (let i = 0; i < moves.length; i++) {
-        this._board.move(moves[i]);
+      for (var move of moves) {
+        this._board.move(move["parameter"]);
       }
     }
     if (clocks !== undefined) {
@@ -209,12 +207,18 @@ export default class AppContainer extends TrackerReact(React.Component) {
     // const gameRequest = GameRequestCollection.find({}).fetch()[0];
     const gameRequest = GameRequestCollection.findOne(
       {
-        receiver_id: Meteor.userId()
+        $or: [
+          {
+            receiver_id: Meteor.userId()
+          },
+          { type: "seek" }
+        ]
       },
       {
         sort: { create_date: -1 }
       }
     );
+
     const game = this.renderGameMessages();
 
     const systemCSS = this._systemCSS();
