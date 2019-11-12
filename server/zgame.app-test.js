@@ -1,5 +1,6 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
+import { Meteor } from "meteor/meteor";
 import { Match } from "meteor/check";
 import chai from "chai";
 import { standard_member_roles } from "../imports/server/userConstants";
@@ -3480,7 +3481,22 @@ describe("Game.moveForward", function() {
   });
 
   it("writes an action and moves forward if there is no variation", function() {
-    chai.assert.fail("do me");
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0, "standard", 15, 0, 15, 0);
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.saveLocalMove("mi3", game_id, "e5");
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    Game.saveLocalMove("mi5", game_id, "Nc6");
+    Game.moveBackward("mi6", game_id, 3);
+    Game.moveForward("mi7", game_id, 3);
+    const game = Game.collection.find({});
+    checkLastAction(game, 0, "forward", us._id, 3);
+    checkLastAction(game, 1, "backward", us._id, 3);
+    checkLastAction(game, 2, "move", us._id, "Nc6");
+    checkLastAction(game, 3, "move", us._id, "Nf3");
+    checkLastAction(game, 4, "move", us._id, "e5");
+    checkLastAction(game, 5, "move", us._id, "e4");
   });
   it("writes a client message if there is no move to go to", function() {
     chai.assert.fail("do me");

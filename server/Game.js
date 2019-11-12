@@ -1,14 +1,14 @@
 import Chess from "chess.js";
-import {check, Match} from "meteor/check";
-import {Mongo} from "meteor/mongo";
-import {Roles} from "meteor/alanning:roles";
-import {Logger} from "../lib/server/Logger";
-import {Meteor} from "meteor/meteor";
-import {ICCMeteorError} from "../lib/server/ICCMeteorError";
-import {ClientMessages} from "../imports/collections/ClientMessages";
-import {SystemConfiguration} from "../imports/collections/SystemConfiguration";
-import {PlayedGameSchema} from "./PlayedGameSchema";
-import {ExaminedGameSchema} from "./ExaminedGameSchema";
+import { check, Match } from "meteor/check";
+import { Mongo } from "meteor/mongo";
+import { Roles } from "meteor/alanning:roles";
+import { Logger } from "../lib/server/Logger";
+import { Meteor } from "meteor/meteor";
+import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { ClientMessages } from "../imports/collections/ClientMessages";
+import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { PlayedGameSchema } from "./PlayedGameSchema";
+import { ExaminedGameSchema } from "./ExaminedGameSchema";
 
 export const Game = {};
 
@@ -1561,10 +1561,16 @@ Meteor.publish("game", function() {
   });
 });
 
-Game.moveBackward = function(messaage_identifier, game_id, move_count) {
+Game.moveFoward = function(
+  message_identifier,
+  game_id,
+  move_count,
+  variation_index
+) {
   const movecount = move_count || 1;
   check(game_id, String);
-  check(movecount, Match.Maybe(Number));
+  check(movecount, Number);
+  check(variation_index, Match.maybe(Number));
 
   const self = Meteor.user();
   check(self, Object);
@@ -1577,22 +1583,130 @@ Game.moveBackward = function(messaage_identifier, game_id, move_count) {
   if (!game) {
     ClientMessages.sendMessageToClient(
       self,
-      messaage_identifier,
+      message_identifier,
       "NOT_AN_EXAMINER"
     );
   }
 
   if (!active_games[game_id])
     throw new ICCMeteorError(
-      messaage_identifier,
+      message_identifier,
+      "Unable to move forward",
+      "Unable to find active game"
+    );
+
+  if (!variations[game_id])
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to move forward",
+      "Unable to find variations object"
+    );
+
+  const variation = variations[game_id];
+
+  for (let x = 0; x < move_count; x++) {
+    if (
+      !variation[variation.cmi].variations ||
+      !variation[variation.cmi].variations.length
+    ) {
+      ClientMessages.sendMessageToClient(
+        self,
+        message_identifier,
+        "END_OF_GAME"
+      );
+      return;
+    } else if (variation[variation.cmi].variations.length === 1) {
+      if (!!variation_index) {
+        ClientMessages.sendMessageToClient(
+          self,
+          message_identifier,
+          "INVALID_VARIATION"
+        );
+        return;
+      }
+    } else if (variation_index === undefined || variation_index === null) {
+      ClientMessages.sendMessageToClient(
+        self,
+        message_identifier,
+        "VARIATION_REQUIRED"
+      );
+      return;
+    } else if (variation_index >= variation[variation.cmi].variations.length) {
+      ClientMessages.sendMessageToClient(
+        self,
+        message_identifier,
+        "INVALID_VARIATION"
+      );
+      return;
+    } else {
+      variation.cmi = variation[variation.cmi].variations[variation_index];
+    }
+    variation_index = undefined;
+  }
+  if (move_count > active_games[game_id].history().length) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "TOO_MANY_MOVES_BACKWARD"
+    );
+    return;
+  }
+
+  for (let x = 0; x < move_count; x++) active_games[game_id].undo();
+
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: {
+          type: "move_backward",
+          issuer: self._id,
+          parameter: movecount
+        }
+      }
+    }
+  );
+};
+
+Game.moveBackward = function(message_identifier, game_id, move_count) {
+  const movecount = move_count || 1;
+  check(game_id, String);
+  check(movecount, Number);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({
+    _id: game_id,
+    status: "examining",
+    examiners: self._id
+  });
+  if (!game) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "NOT_AN_EXAMINER"
+    );
+  }
+
+  if (!active_games[game_id])
+    throw new ICCMeteorError(
+      message_identifier,
       "Unable to move backwards",
       "Unable to find active game"
+    );
+
+  if (!variations[game_id])
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to move backwards",
+      "Unable to find variations object"
     );
 
   if (move_count > active_games[game_id].history().length) {
     ClientMessages.sendMessageToClient(
       self,
-      messaage_identifier,
+      message_identifier,
       "TOO_MANY_MOVES_BACKWARD"
     );
     return;
