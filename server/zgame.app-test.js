@@ -3342,8 +3342,43 @@ describe("Game.moveBackward", function() {
     );
   });
 
-  it.skip("moves up to the previous variation and continues on", function() {
-    chai.assert.fail("do me");
+  it.only("moves up to the previous variation and continues on", function() {
+    this.timeout(500000);
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame(
+      "mi0",
+      "whiteguy",
+      "blackguy",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.saveLocalMove("mi1", game_id, "e4");
+    Game.saveLocalMove("mi2", game_id, "e5");
+    Game.saveLocalMove("mi3", game_id, "Nf3");
+    Game.saveLocalMove("mi4", game_id, "Nc6");
+    Game.moveBackward("mi5", game_id, 2);
+    Game.saveLocalMove("mi6", game_id, "Nf6");
+    Game.saveLocalMove("mi7", game_id, "Nc6");
+    Game.moveBackward("mi8", game_id, 3);
+    Game.saveLocalMove("mi9", game_id, "Nh3"); // Should be on what used to be Nf3
+
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    const game = Game.collection.find({});
+
+    checkLastAction(game, 0, "move", self.loggedonuser._id, "Nh3");
+    checkLastAction(game, 1, "move", self.loggedonuser._id, "Nh3");
+    checkLastAction(game, 2, "move_backward", self.loggedonuser._id, 3);
+    checkLastAction(game, 3, "move", self.loggedonuser._id, "Nc6");
+    checkLastAction(game, 4, "move", self.loggedonuser._id, "Nf6");
+    checkLastAction(game, 5, "move_backward", self.loggedonuser._id, 2);
+    checkLastAction(game, 6, "move", self.loggedonuser._id, "Nc6");
+    checkLastAction(game, 7, "move", self.loggedonuser._id, "Nf3");
+    checkLastAction(game, 8, "move", self.loggedonuser._id, "e5");
+    checkLastAction(game, 9, "move", self.loggedonuser._id, "e4");
   });
 });
 
@@ -3433,7 +3468,7 @@ describe("Game.buildMovelistFromPgn", function() {
   });
 });
 
-describe.skip("Game.moveForward", function() {
+describe("Game.moveForward", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("fails if game is not an examined game", function() {
     const p1 = TestHelpers.createUser();
@@ -3483,7 +3518,17 @@ describe.skip("Game.moveForward", function() {
   it("writes an action and moves forward if there is no variation", function() {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0, "standard", 15, 0, 15, 0);
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
     Game.saveLocalMove("mi2", game_id, "e4");
     Game.saveLocalMove("mi3", game_id, "e5");
     Game.saveLocalMove("mi4", game_id, "Nf3");
@@ -3498,6 +3543,7 @@ describe.skip("Game.moveForward", function() {
     checkLastAction(game, 4, "move", us._id, "e5");
     checkLastAction(game, 5, "move", us._id, "e4");
   });
+
   it.skip("writes a client message if there is no move to go to", function() {
     chai.assert.fail("do me");
   });

@@ -530,7 +530,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     return;
   }
   const action = { type: "move", issuer: self._id, parameter: move };
-  addActionToMoveList(variation, action);
+  addMoveToMoveList(variation, move);
 
   const updateobject = {
     $push: { actions: action }
@@ -899,20 +899,18 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   tbobject["pending." + color + ".takeback.number"] = number;
   tbobject["pending." + color + ".takeback.mid"] = message_identifier;
 
-  const variation = variations[game_id];
-  const action = {
-    type: "takeback_requested",
-    issuer: self._id,
-    parameter: number
-  };
-  addActionToMoveList(variation, action);
+  variations[game_id].hmtb = number;
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
       $set: tbobject,
       $push: {
-        actions: action
+        actions: {
+          type: "takeback_requested",
+          issuer: self._id,
+          parameter: number
+        }
       }
     }
   );
@@ -948,7 +946,28 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
 
   const variation = variations[game_id];
   const action = { type: "takeback_accepted", issuer: self._id };
-  addActionToMoveList(variation, action);
+
+  for (let x = 0; x < variation.hmtb; x++) {
+    const undone = active_games[game_id].undo();
+    const current = variation.movelist[variation.cmi];
+    log.debug(
+      "takeback_accepted move=" +
+        undone.san +
+        ", current=" +
+        current.move +
+        ", cmi=" +
+        variation.cmi
+    );
+    if (undone.san !== current.move)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to takeback",
+        "Mismatch between chess object and variation object"
+      );
+    variation.cmi = variation.movelist[variation.cmi].prev;
+    log.debug("takeback_accepted complete, cmi=" + variation.cmi);
+  }
+
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
@@ -1712,7 +1731,27 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
     return;
   }
 
-  for (let x = 0; x < move_count; x++) active_games[game_id].undo();
+  const variation = variations[game_id];
+  for (let x = 0; x < move_count; x++) {
+    const undone = active_games[game_id].undo();
+    const current = variation.movelist[variation.cmi];
+    log.debug(
+      "moveBackward move=" +
+        undone.san +
+        ", current=" +
+        current.move +
+        ", cmi=" +
+        variation.cmi
+    );
+    if (undone.san !== current.move)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to move backward",
+        "Mismatch between chess object and variation object"
+      );
+    variation.cmi = variation.movelist[variation.cmi].prev;
+    log.debug("moveBackward complete, cmi=" + variation.cmi);
+  }
 
   GameCollection.update(
     { _id: game_id, status: "examining" },
@@ -1877,47 +1916,41 @@ function buildPgnFromMovelist(movelist) {
   return addmove(1, false, true, movelist, 0);
 }
 
-function addActionToMoveList(variation_object, action) {
-  switch (action.type) {
-    case "move":
-      const move = action.parameter;
-      const exists = findVariation(
-        move,
-        variation_object.cmi,
-        variation_object.movelist
-      );
-      if (exists) variation_object.cmi = exists;
-      else {
-        const newi = variation_object.movelist.length;
-        variation_object.movelist.push({
-          move: move,
-          prev: variation_object.cmi
-        });
-        if (!variation_object.movelist[variation_object.cmi].variations)
-          variation_object.movelist[variation_object.cmi].variations = [newi];
-        else
-          variation_object.movelist[variation_object.cmi].variations.push(newi);
-        variation_object.cmi = newi;
-      }
-      break;
-    case "takeback_requested":
-      variation_object.hmtb = action.parameter;
-      break;
-    case "takeback_accepted":
-      for (let x = 0; x < variation_object.hmtb; x++)
-        variation_object.cmi =
-          variation_object.movelist[variation_object.cmi].prev;
-      break;
-    default:
-      break;
+function addMoveToMoveList(variation_object, move) {
+  log.debug(
+    "addMoveToMoveList move=" +
+      move +
+      ", variation_object cmi=" +
+      variation_object.cmi
+  );
+  const exists = findVariation(
+    move,
+    variation_object.cmi,
+    variation_object.movelist
+  );
+  if (exists) variation_object.cmi = exists;
+  else {
+    const newi = variation_object.movelist.length;
+    variation_object.movelist.push({
+      move: move,
+      prev: variation_object.cmi
+    });
+    if (!variation_object.movelist[variation_object.cmi].variations)
+      variation_object.movelist[variation_object.cmi].variations = [newi];
+    else variation_object.movelist[variation_object.cmi].variations.push(newi);
+    variation_object.cmi = newi;
   }
+
+  log.debug(
+    "addMoveToMoveList end of action, variation_object cmi=" +
+      variation_object.cmi
+  );
 }
 
 Meteor.startup(function() {
   GameCollection.remove({});
   if (Meteor.isTest || Meteor.isAppTest) {
     Game.collection = GameCollection;
-    Game.addActionToMoveList = addActionToMoveList;
     Game.buildPgnFromMovelist = buildPgnFromMovelist;
   }
 });
