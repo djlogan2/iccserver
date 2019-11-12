@@ -27,7 +27,6 @@ class Tabs extends Component {
   };
 
   mouseOut = label => {
-    log.debug("hoverOut: " + label);
     this.setState({ hoverOut: label });
   };
   render() {

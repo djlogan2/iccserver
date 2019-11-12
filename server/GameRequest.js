@@ -424,7 +424,6 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     request.inc,
     request.time,
     request.inc,
-    true,
     request.challenger_color_request
   );
   GameRequestCollection.remove({ _id: seek_id });
@@ -821,7 +820,6 @@ GameRequests.removeLegacyMatchRequest = function(
     [explanation_string]
   );
 };
-
 Meteor.methods({
   addLocalMatchRequest(
     message_identifier,
@@ -960,7 +958,8 @@ Meteor.publish("game_requests", function() {
         { challenger_id: id },
         { receiver_id: id },
         { owner: id },
-        { matchingusers: id }
+        { matchingusers: id },
+        { type: "seek" }
       ]
     },
     { fields: { matchingusers: 0 } }

@@ -29,7 +29,10 @@ class RightBarBottom extends Component {
           imgsrc="images/chat-icon-white.png"
           hoverSrc="images/chat-icon-blue.png"
         >
-          <Chat cssmanager={this.props.cssmanager} />
+          <Chat
+            cssmanager={this.props.cssmanager}
+            gameRequest={this.props.gameRequest}
+          />
         </div>
         {/* 
         <div
