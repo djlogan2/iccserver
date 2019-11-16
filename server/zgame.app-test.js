@@ -3471,7 +3471,7 @@ describe("Game.buildMovelistFromPgn", function() {
    });
 });
 
-describe.skip("Game.moveForward", function() {
+describe("Game.moveForward", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("fails if game is not an examined game", function() {
     const p1 = TestHelpers.createUser();
@@ -3538,9 +3538,9 @@ describe.skip("Game.moveForward", function() {
     Game.saveLocalMove("mi5", game_id, "Nc6");
     Game.moveBackward("mi6", game_id, 3);
     Game.moveForward("mi7", game_id, 3);
-    const game = Game.collection.find({});
-    checkLastAction(game, 0, "forward", us._id, 3);
-    checkLastAction(game, 1, "backward", us._id, 3);
+    const game = Game.collection.findOne({});
+    checkLastAction(game, 0, "move_forward", us._id, 3);
+    checkLastAction(game, 1, "move_backward", us._id, 3);
     checkLastAction(game, 2, "move", us._id, "Nc6");
     checkLastAction(game, 3, "move", us._id, "Nf3");
     checkLastAction(game, 4, "move", us._id, "e5");

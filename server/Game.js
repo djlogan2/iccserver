@@ -317,49 +317,27 @@ Game.startLegacyGame = function(
   promote_to_king
 ) {
   check(message_identifier, String);
-
   check(gamenumber, Number);
-
   check(whitename, String);
-
   check(blackname, String);
-
   check(wild_number, Number);
-
   check(rating_type, String);
-
   check(rated, Boolean);
-
   check(white_initial, Number);
-
   check(white_increment, Number);
-
   check(black_initial, Number);
-
   check(black_increment, Number);
-
   check(played_game, Boolean);
-
   check(ex_string, String);
-
   check(white_rating, Number);
-
   check(black_rating, Number);
-
   check(game_id, String);
-
   check(white_titles, Array);
-
   check(black_titles, Array);
-
   check(irregular_legality, Match.Maybe(String));
-
   check(irregular_semantics, Match.Maybe(String));
-
   check(uses_plunkers, Match.Maybe(String));
-
   check(fancy_timecontrol, Match.Maybe(String));
-
   check(promote_to_king, Match.Maybe(String));
 
   const whiteuser = Meteor.users.findOne({
@@ -1598,7 +1576,7 @@ Meteor.publish("game", function() {
   });
 });
 
-Game.moveFoward = function(
+Game.moveForward = function(
   message_identifier,
   game_id,
   move_count,
@@ -1607,7 +1585,7 @@ Game.moveFoward = function(
   const movecount = move_count || 1;
   check(game_id, String);
   check(movecount, Number);
-  check(variation_index, Match.maybe(Number));
+  check(variation_index, Match.Maybe(Number));
 
   const self = Meteor.user();
   check(self, Object);
@@ -1623,6 +1601,7 @@ Game.moveFoward = function(
       message_identifier,
       "NOT_AN_EXAMINER"
     );
+    return;
   }
 
   if (!active_games[game_id])
@@ -1639,64 +1618,58 @@ Game.moveFoward = function(
       "Unable to find variations object"
     );
 
+  const chessObject = active_games[game_id];
   const variation = variations[game_id];
 
   for (let x = 0; x < move_count; x++) {
-    if (
-      !variation[variation.cmi].variations ||
-      !variation[variation.cmi].variations.length
-    ) {
+    const move = variation.movelist[variation.cmi];
+    if (!move.variations || !move.variations.length) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
         "END_OF_GAME"
       );
       return;
-    } else if (variation[variation.cmi].variations.length === 1) {
-      if (!!variation_index) {
-        ClientMessages.sendMessageToClient(
-          self,
-          message_identifier,
-          "INVALID_VARIATION"
-        );
-        return;
-      }
-    } else if (variation_index === undefined || variation_index === null) {
-      ClientMessages.sendMessageToClient(
-        self,
-        message_identifier,
-        "VARIATION_REQUIRED"
-      );
-      return;
-    } else if (variation_index >= variation[variation.cmi].variations.length) {
+    } else if (move.variations.length === 1 && !!variation_index) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
         "INVALID_VARIATION"
       );
       return;
+    } else if (
+      move.variations.length > 1 &&
+      (variation_index === undefined ||
+        variation_index === null ||
+        variation_index >= move.variations.length)
+    ) {
+      ClientMessages.sendMessageToClient(
+        self,
+        message_identifier,
+        "VARIATION_REQUIRED"
+      );
+      return;
     } else {
-      variation.cmi = variation[variation.cmi].variations[variation_index];
+      variation.cmi =
+        variation.movelist[variation.cmi].variations[variation_index || 0];
+      const forwardmove = variation.movelist[variation.cmi];
+      const result = chessObject.move(forwardmove.move);
+      if (!result)
+        throw new ICCMeteorError(
+          message_identifier,
+          "Unable to movr forward",
+          "Somehow we have an illegal move in the variation tree"
+        );
     }
     variation_index = undefined;
   }
-  if (move_count > active_games[game_id].history().length) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "TOO_MANY_MOVES_BACKWARD"
-    );
-    return;
-  }
-
-  for (let x = 0; x < move_count; x++) active_games[game_id].undo();
 
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
       $push: {
         actions: {
-          type: "move_backward",
+          type: "move_forward",
           issuer: self._id,
           parameter: movecount
         }
@@ -1706,6 +1679,10 @@ Game.moveFoward = function(
 };
 
 Game.moveBackward = function(message_identifier, game_id, move_count) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(move_count, Match.Maybe(Number));
+
   const movecount = move_count || 1;
   check(game_id, String);
   check(movecount, Number);
