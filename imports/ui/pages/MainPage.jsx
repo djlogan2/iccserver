@@ -110,23 +110,13 @@ export default class MainPage extends Component {
           <h3>{title}</h3>
 
           <button
-            onClick={this._performAction.bind(
-              this,
-              "accepted",
-              action,
-              this.userId
-            )}
+            onClick={this._performAction.bind(this, "accepted", action)}
             style={this.props.cssmanager.innerPopupMain()}
           >
             Accept
           </button>
           <button
-            onClick={this.gameDecline.bind(
-              this,
-              "rejected",
-              action,
-              this.userId
-            )}
+            onClick={this._performAction.bind(this, "rejected", action)}
             style={this.props.cssmanager.innerPopupMain()}
           >
             cancel
@@ -153,10 +143,12 @@ export default class MainPage extends Component {
     }
   }
   _performAction = (actionType, action) => {
-    //alert(action);
     switch (action) {
+      case "takeBackRequest":
+        this.takeBackRequest();
+        break;
       case "takeBack":
-        this.tackBack(actionType);
+        this.takeBack(actionType);
         break;
       case "draw":
         this.draw(actionType);
@@ -165,7 +157,7 @@ export default class MainPage extends Component {
         this.abort(actionType);
         break;
       case "resign":
-        this.resign(actionType);
+        this.resignGame();
         break;
       case "pgnview":
         this._gamePgnView(actionType);
@@ -185,10 +177,14 @@ export default class MainPage extends Component {
   gameDecline = gameRequestData => {
     Meteor.call("gameRequestDecline", "gameDecline", gameRequestData["_id"]);
   };
-  tackBack = actionType => {
-    Meteor.call("game.takeback", this.gameId, actionType);
+  takeBackRequest = () => {
+    Meteor.call("requestTakeback", "takeback", this.gameId, 1);
   };
-
+  takeBack = isAccept => {
+    if (isAccept === "accepted")
+      Meteor.call("takeBackAccept", "takeback", this.gameId);
+    else Meteor.call("declineTakeback", "takbackdecline", this.gameId);
+  };
   draw = actionType => {
     Meteor.call("game.draw", this.gameId, actionType);
   };
@@ -197,8 +193,8 @@ export default class MainPage extends Component {
     Meteor.call("game.abort", this.gameId, actionType);
   };
 
-  resign = (actionType, action) => {
-    Meteor.call("game.resign", this.gameId, actionType);
+  resignGame = () => {
+    Meteor.call("resignGame", "resign", this.gameId);
   };
 
   toggleMenu() {
@@ -283,23 +279,14 @@ export default class MainPage extends Component {
         );
     }
     if (game !== undefined) {
+      this.gameId = game._id;
       if (game.black.name === Meteor.user().username) {
         Object.assign(position, { top: "w" });
       }
       if (game.white.name === Meteor.user().username) {
         Object.assign(position, { top: "b" });
       }
-      if (
-        game.requestBy !== this.userId &&
-        game.status === "pending" &&
-        this.state.startgame === false
-      ) {
-        informativePopup = this.gameRequest(
-          "Opponent has requested for a game",
-          game.requestBy
-        );
-        this.intializeBoard();
-      } else if (game.status === "playing") {
+      if (game.status === "playing") {
         this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
         this.Main.MiddleSection.BlackPlayer.Rating = game.black.rating;
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
@@ -323,6 +310,26 @@ export default class MainPage extends Component {
         this.Main.RightSection.Action.blackPlayer = game.black.name;
         this.Main.RightSection.Action.gameId = game._id;
         let actions = game.actions;
+        let userpending =
+          gameTurn === "b"
+            ? game.pending.white.takeback.number
+            : game.pending.black.takeback.number;
+
+        if (actions !== undefined && actions.length !== 0) {
+          let action = actions[actions.length - 1];
+          const bw = this.userId === game.white.id ? "w" : "b";
+          if (
+            bw === gameTurn &&
+            userpending > 0 &&
+            action["type"] === "takeback_requested"
+          ) {
+            actionPopup = this.actionPopup(
+              "Oppenent has requested to Take Back",
+              "takeBack"
+            );
+          }
+        }
+        /*
         if (actions !== undefined && actions.length !== 0) {
           let action = actions[actions.length - 1];
           if (action["type"] === "takeBack" && action["value"] === "request") {
@@ -408,8 +415,7 @@ export default class MainPage extends Component {
             }
           } else if (action["value"] === "accepted") {
             this.intializeBoard();
-          }
-        }
+          }*/
       }
     }
     let buttonStyle;
@@ -483,7 +489,7 @@ export default class MainPage extends Component {
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
-              gameRequest={this.props.gameRequest}
+              gameRequest={game !== undefined ? game : this.props.gameRequest}
               ref="right_sidebar"
             />
           </div>

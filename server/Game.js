@@ -994,7 +994,6 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
 
   const self = Meteor.user();
   check(self, Object);
-
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -1567,6 +1566,27 @@ Meteor.methods({
     check(game_id, String);
     check(move, String);
     Game.saveLocalMove(message_identifier, game_id, move);
+  },
+  requestTakeback(message_identifier, game_id, number) {
+    check(message_identifier, String);
+    check(game_id, String);
+    check(number, Number);
+    Game.requestLocalTakeback(message_identifier, game_id, number);
+  },
+  takeBackAccept(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.acceptLocalTakeback(message_identifier, game_id);
+  },
+  declineTakeback(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.declineLocalTakeback(message_identifier, game_id);
+  },
+  resignGame(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.resignLocalGame(message_identifier, game_id);
   }
 });
 

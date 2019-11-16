@@ -21,14 +21,8 @@ class ActionComponent extends Component {
       "en-US"
     );
   }
-  _takeBackAction = (actionType, action) => {
-    var isValid =
-      (this.gameTurn === "b" && this.whitePlayer === this.username) ||
-      (this.gameTurn === "w" && this.blackPlayer === this.username)
-        ? true
-        : false;
-    if (isValid) this.props.performAction(actionType, action, this.userId);
-    return;
+  _takeBackAction = () => {
+    this.props.performAction("request", "takeBackRequest");
   };
 
   _drawAction = (actionType, action) => {
@@ -39,13 +33,8 @@ class ActionComponent extends Component {
     }
     return;
   };
-  _resignAction = (actionType, action) => {
-    if (this.gameTurn === "w" && this.whitePlayer === this.username) {
-      this.props.performAction(actionType, action, this.userId);
-    } else if (this.gameTurn === "b" && this.blackPlayer === this.username) {
-      this.props.performAction(actionType, action, this.userId);
-    }
-    return;
+  _resignAction = () => {
+    this.props.performAction("request", "resign");
   };
   _abortAction = (actionType, action) => {
     if (this.gameTurn === "w" && this.whitePlayer === this.username) {
@@ -76,7 +65,7 @@ class ActionComponent extends Component {
           <li style={this.props.cssmanager.drawSectionList()}>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this._takeBackAction.bind(this, "request", "takeBack")}
+              onClick={this._takeBackAction.bind(this)}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("takeBack")}

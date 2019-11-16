@@ -40,12 +40,14 @@ export default class ChatComponent extends Component {
       </div>
     );
   };
+
   render() {
     let gameSeekPopup = null;
-    const gameSeek = this.props.gameRequest;
-    if (gameSeek !== undefined) {
+    const request = this.props.gameRequest;
+
+    if (request !== undefined) {
       // eslint-disable-next-line no-const-assign
-      if (gameSeek.type === "seek" && gameSeek.owner !== Meteor.userId()) {
+      if (request.type === "seek" && request.owner !== Meteor.userId()) {
         gameSeekPopup = this.gameSeekRequest();
       }
     }
