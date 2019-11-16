@@ -36,11 +36,7 @@ Meteor.publish("userData", function() {
 
   this.onStop(function() {
     log.debug("User left: " + self.userId);
-    const legacyuser = legacy_users[self.userId];
-    if(!!legacyuser) {
-      legacyuser.logout();
-      delete legacy_users[self.userId];
-    }
+    LegacyUser.logout(self.userId);
 
     Meteor.users.update({ _id: self.userId }, { $set: { loggedOn: false } });
     runLogoutHooks(this, self.userId);
