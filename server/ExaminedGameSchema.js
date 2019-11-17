@@ -1,31 +1,5 @@
 import SimpleSchema from "simpl-schema";
 
-function parameterCheck() {
-  const parameter = this.field("parameter");
-  const nope = [
-    {
-      name: "parameter",
-      type: SimpleSchema.ErrorTypes.EXPECTED_TYPE,
-      value: parameter.value
-    }
-  ];
-
-  switch (this.field("type")) {
-    case "move":
-    case "kibitz":
-    case "whisper":
-      if (!parameter.isSet || typeof parameter.value !== "string") return nope;
-      else return;
-    case "move_backward":
-    case "move_forward":
-      if (parameter.isSet && parameter.value === parseInt(parameter.value))
-        return;
-      else return nope;
-    default:
-      if (parameter.isSet) return nope;
-  }
-}
-
 const actionSchema = new SimpleSchema({
   time: {
     type: Date,
@@ -65,10 +39,11 @@ const actionSchema = new SimpleSchema({
     ]
   },
   parameter: {
-    type: SimpleSchema.oneOf(String, Number),
-    optional: true,
-    custom: parameterCheck
-  }
+    type: SimpleSchema.oneOf(String, Number, Object),
+    optional: true
+  },
+  "parameter.movecount": { type: Number, required: false },
+  "parameter.variation": { type: Number, required: false }
 });
 
 export const ExaminedGameSchema = new SimpleSchema({

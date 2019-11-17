@@ -1,30 +1,5 @@
 import SimpleSchema from "simpl-schema";
 
-function parameterCheck() {
-  const parameter = this.field("parameter");
-  const nope = [
-    {
-      name: "parameter",
-      type: SimpleSchema.ErrorTypes.EXPECTED_TYPE,
-      value: parameter.value
-    }
-  ];
-
-  switch (this.field("type")) {
-    case "move":
-    case "kibitz":
-    case "whisper":
-      if (!parameter.isSet || typeof parameter.value !== "string") return nope;
-      else return;
-    case "takeback_requested":
-      if (parameter.isSet && parameter.value === parseInt(parameter.value))
-        return;
-      else return nope;
-    default:
-      if (parameter.isSet) return nope;
-  }
-}
-
 const OneColorPendingSchema = new SimpleSchema({
   draw: String,
   abort: String,
@@ -61,8 +36,8 @@ const actionSchema = new SimpleSchema({
       "disconnect", // When a user disconnects during a game, or disconnects while this game is adjourned
       "connect", // When a user reconnects while this game is adjourned (we can see how many sessions we have had with this game adjourned, and comparing it to his opponent, we can see how many opportunities there were to resume.)
       "adjourned", // When the game is adjourned, either by accepting, or by a disconnect adjourn
-        "resume_requested", // When one player offers to resume the game
-        "resume_declined", // When the other player explicitly declines
+      "resume_requested", // When one player offers to resume the game
+      "resume_declined", // When the other player explicitly declines
       "resumed", // Obviously, resumed
       "adjourn_requested", // When an adjourn is requested
       "adjourn_declined", // and declined
@@ -82,8 +57,7 @@ const actionSchema = new SimpleSchema({
   },
   parameter: {
     type: SimpleSchema.oneOf(String, Number),
-    optional: true,
-    custom: parameterCheck
+    optional: true
   }
 });
 

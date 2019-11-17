@@ -9,6 +9,7 @@ import { ClientMessages } from "../imports/collections/ClientMessages";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { PlayedGameSchema } from "./PlayedGameSchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
+import {LegacyUser} from "../lib/server/LegacyUsers";
 
 export const Game = {};
 
@@ -341,11 +342,13 @@ Game.startLegacyGame = function(
   check(promote_to_king, Match.Maybe(String));
 
   const whiteuser = Meteor.users.findOne({
-    "profile.legacy.username": whitename
+    "profile.legacy.username": whitename,
+    "profile.legacy.validated": true
   });
 
   const blackuser = Meteor.users.findOne({
-    "profile.legacy.username": blackname
+    "profile.legacy.username": blackname,
+    "profile.legacy.validated": true
   });
 
   const self = Meteor.user();
@@ -373,6 +376,13 @@ Game.startLegacyGame = function(
       message_identifier,
       "Unable to start game",
       "There is already a game in the database with the same game number"
+    );
+
+  if(!!whiteuser && !!blackuser && LegacyUser.isLoggedOn(whiteuser) && LegacyUser.isLoggedOn(blackuser))
+    throw new ICCMeteorError(
+        message_identifier,
+        "Unable to start game",
+        "Both players are logged on locally. Begin a local game"
     );
 
   const game = {
@@ -1590,6 +1600,7 @@ Game.moveForward = function(
   const self = Meteor.user();
   check(self, Object);
 
+  let vi = variation_index;
   const game = GameCollection.findOne({
     _id: game_id,
     status: "examining",
@@ -1630,7 +1641,7 @@ Game.moveForward = function(
         "END_OF_GAME"
       );
       return;
-    } else if (move.variations.length === 1 && !!variation_index) {
+    } else if (move.variations.length === 1 && !!vi) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -1639,9 +1650,7 @@ Game.moveForward = function(
       return;
     } else if (
       move.variations.length > 1 &&
-      (variation_index === undefined ||
-        variation_index === null ||
-        variation_index >= move.variations.length)
+      (vi === undefined || vi === null || vi >= move.variations.length)
     ) {
       ClientMessages.sendMessageToClient(
         self,
@@ -1650,8 +1659,7 @@ Game.moveForward = function(
       );
       return;
     } else {
-      variation.cmi =
-        variation.movelist[variation.cmi].variations[variation_index || 0];
+      variation.cmi = variation.movelist[variation.cmi].variations[vi || 0];
       const forwardmove = variation.movelist[variation.cmi];
       const result = chessObject.move(forwardmove.move);
       if (!result)
@@ -1661,7 +1669,7 @@ Game.moveForward = function(
           "Somehow we have an illegal move in the variation tree"
         );
     }
-    variation_index = undefined;
+    vi = undefined;
   }
 
   GameCollection.update(
@@ -1671,7 +1679,7 @@ Game.moveForward = function(
         actions: {
           type: "move_forward",
           issuer: self._id,
-          parameter: movecount
+          parameter: { movecount: movecount, variation: variation_index }
         }
       }
     }
@@ -1717,24 +1725,24 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
       "Unable to find variations object"
     );
 
-  if (move_count > active_games[game_id].history().length) {
+  if (movecount > active_games[game_id].history().length) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "TOO_MANY_MOVES_BACKWARD"
+      "BEGINNING_OF_GAME"
     );
     return;
   }
 
   const variation = variations[game_id];
-  for (let x = 0; x < move_count; x++) {
+  for (let x = 0; x < movecount; x++) {
     const undone = active_games[game_id].undo();
     const current = variation.movelist[variation.cmi];
     log.debug(
       "moveBackward move=" +
-        undone.san +
+        (!!undone ? undone.san : "no move") +
         ", current=" +
-        current.move +
+        (!!current ? current.move : "no move") +
         ", cmi=" +
         variation.cmi
     );

@@ -6,6 +6,7 @@ import chai from "chai";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { LegacyUser } from "../lib/server/LegacyUsers";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
@@ -400,14 +401,28 @@ describe("Game.startLocalGame", function() {
 describe("Game.startLegacyGame", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it.skip("should error if we try to start a legacy game when both players are actually logged on here", function() {
+  it("should error if we try to start a legacy game when both players are actually logged on here", function() {
+    const legacy1 = TestHelpers.createUser();
+    const legacy2 = TestHelpers.createUser();
+    self.sandbox.replace(
+      LegacyUser,
+      "isLoggedOn",
+      self.sandbox.fake.returns(true)
+    );
     //
     // OK, so here's the deal. If a user is logged on here, they can play a legacy user.
     // But I assert that if both players are logged on here, don't go through legacy. Just play local.
     // TODO: I also say that in the list of logged on users, it doesn't show legacy users that are also logged on here. Only legacy users that aren't also logged on here.
     // By the way, I think this will error out by default due to the duplicate game number, but we should do something more specific.
     //
-    chai.assert.fail("do me");
+    self.loggedonuser = legacy1;
+    chai.assert.throws(
+        () => Game.startLegacyGame.apply(
+        null,
+        startLegacyGameParameters(legacy1, legacy2, true)
+      ),
+      ICCMeteorError
+    );
   });
 
   it("should error out if the user isn't logged on", function() {
@@ -1781,7 +1796,11 @@ function checkLastAction(gamerecord, reverse_index, type, issuer, parameter) {
     gamerecord.actions[gamerecord.actions.length - 1 - reverse_index];
   if (type) chai.assert.equal(action.type, type);
   if (issuer) chai.assert.equal(action.issuer, issuer);
-  if (parameter) chai.assert.equal(action.parameter, parameter);
+  if (parameter) {
+    if (typeof parameter === "object")
+      chai.assert.deepEqual(action.parameter, parameter);
+    else chai.assert.equal(action.parameter, parameter);
+  }
 }
 
 function checkOneTakeback(pendingcolor, takeback) {
@@ -3334,16 +3353,11 @@ describe("Game.moveBackward", function() {
       0
     );
     Game.moveBackward("mi3", game_id);
-    Game.moveBackward("mi2", game_id, 1);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(
-      self.clientMessagesSpy.args[0][2],
-      "TOO_MANY_MOVES_BACKWARD"
-    );
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "BEGINNING_OF_GAME");
   });
 
   it("moves up to the previous variation and continues on", function() {
-    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame(
       "mi0",
@@ -3468,7 +3482,7 @@ describe("Game.buildMovelistFromPgn", function() {
     const pgn =
       "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
     chai.assert.fail("do me");
-   });
+  });
 });
 
 describe("Game.moveForward", function() {
@@ -3539,7 +3553,9 @@ describe("Game.moveForward", function() {
     Game.moveBackward("mi6", game_id, 3);
     Game.moveForward("mi7", game_id, 3);
     const game = Game.collection.findOne({});
-    checkLastAction(game, 0, "move_forward", us._id, 3);
+    checkLastAction(game, 0, "move_forward", us._id, {
+      movecount: 3
+    });
     checkLastAction(game, 1, "move_backward", us._id, 3);
     checkLastAction(game, 2, "move", us._id, "Nc6");
     checkLastAction(game, 3, "move", us._id, "Nf3");
@@ -3547,20 +3563,150 @@ describe("Game.moveForward", function() {
     checkLastAction(game, 5, "move", us._id, "e4");
   });
 
-  it.skip("writes a client message if there is no move to go to", function() {
-    chai.assert.fail("do me");
+  it("writes a client message if there is no move to go to", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.moveBackward("mi2", game_id, 3);
+    Game.moveForward("mi3", game_id, 3);
+
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.actions.length, 0);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "BEGINNING_OF_GAME");
+    chai.assert.equal(self.clientMessagesSpy.args[1][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[1][1], "mi3");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "END_OF_GAME");
   });
-  it.skip("writes a client message if there is a variation and none is specified", function() {
-    chai.assert.fail("do me");
+
+  it("writes a client message if there is a variation and none is specified", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.saveLocalMove("mi3", game_id, "e5");
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    Game.saveLocalMove("mi5", game_id, "Nc6");
+    Game.moveBackward("mi6", game_id, 3);
+    Game.saveLocalMove("mi7", game_id, "c5");
+    Game.moveBackward("mi8", game_id);
+    Game.moveForward("mi9", game_id, 2);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi9");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "VARIATION_REQUIRED");
   });
-  it.skip("moves to the correct variation, and future forwards follow the new variation, when one is specified", function() {
-    chai.assert.fail("do me");
+
+  it("moves to the correct variation, and future forwards follow the new variation, when one is specified", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.saveLocalMove("mi3", game_id, "e5");
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    Game.saveLocalMove("mi5", game_id, "Nc6");
+    Game.moveBackward("mi6", game_id, 3);
+    Game.saveLocalMove("mi7", game_id, "c5");
+    Game.moveBackward("mi8", game_id);
+    Game.moveForward("mi9", game_id, 1, 1);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    const game = Game.collection.findOne({});
+    checkLastAction(game, 0, "move_forward", us._id, {
+      movecount: 1,
+      variation: 1
+    });
   });
-  it.skip("allows zero to be the default variation when there is no variation", function() {
-    chai.assert.fail("do me");
+
+  it("allows zero to be the default variation when there is no variation", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.saveLocalMove("mi3", game_id, "e5");
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    Game.saveLocalMove("mi5", game_id, "Nc6");
+    Game.moveBackward("mi6", game_id, 4);
+    Game.moveForward("mi7", game_id, 4);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    const game = Game.collection.findOne({});
+    checkLastAction(game, 0, "move_forward", us._id, {
+      movecount: 4
+    });
+    checkLastAction(game, 1, "move_backward", us._id, 4);
   });
-  it.skip("requires zero to be the first variation, and 1+ to be subsequent variations (i.e. zero based)", function() {
-    chai.assert.fail("do me");
+
+  it("requires zero to be the first variation, and 1+ to be subsequent variations (i.e. zero based)", function() {
+    const us = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalExaminedGame(
+      "mi1",
+      "white",
+      "black",
+      0,
+      "standard",
+      15,
+      0,
+      15,
+      0
+    );
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.saveLocalMove("mi3", game_id, "e5");
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    Game.saveLocalMove("mi5", game_id, "Nc6");
+    Game.moveBackward("mi6", game_id, 3);
+    Game.saveLocalMove("mi7", game_id, "c5");
+    Game.moveBackward("mi8", game_id);
+    Game.moveForward("mi9", game_id, 1, 1);
+    Game.saveLocalMove("mi10", game_id, "d4");
+    Game.saveLocalMove("mi11", game_id, "c4"); // Will fail if not for the previous c5
+    Game.moveBackward("mi12", game_id, 3);
+    Game.moveForward("mi13", game_id, 3, 0);
+    Game.saveLocalMove("mi14", game_id, "c4");
+    Game.saveLocalMove("mi15", game_id, "a5");
+    Game.saveLocalMove("mi16", game_id, "c5"); // Will fail if we are still on the c5 branch
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 });
 
