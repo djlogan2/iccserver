@@ -532,7 +532,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   addActionToMoveList(variation, action);
 
   const updateobject = {
-    $push: { actions: action }
+    $push: { actions: action, moves: move }
   };
 
   const setobject = {};
@@ -943,6 +943,9 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     );
     return;
   }
+  const pendingTakeback = game.pending[othercolor].takeback.number;
+  let moveList = game.moves;
+  const updateMoves = moveList.splice(0, moveList.length - pendingTakeback);
 
   const variation = variations[game_id];
   const action = { type: "takeback_accepted", issuer: self._id };
@@ -953,7 +956,8 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
       $push: { actions: action },
       $set: {
         "pending.white.takeback": { number: 0, mid: "0" },
-        "pending.black.takeback": { number: 0, mid: "0" }
+        "pending.black.takeback": { number: 0, mid: "0" },
+        moves: updateMoves
       }
     }
   );
@@ -1554,7 +1558,7 @@ Meteor.methods({
     check(number, Number);
     Game.requestLocalTakeback(message_identifier, game_id, number);
   },
-  takeBackAccept(message_identifier, game_id) {
+  acceptTakeBack(message_identifier, game_id) {
     check(message_identifier, String);
     check(game_id, String);
     Game.acceptLocalTakeback(message_identifier, game_id);
@@ -1568,6 +1572,51 @@ Meteor.methods({
     check(message_identifier, String);
     check(game_id, String);
     Game.resignLocalGame(message_identifier, game_id);
+  },
+  requestToDraw(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.requestLocalDraw(message_identifier, game_id);
+  },
+  acceptDraw(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.acceptLocalDraw(message_identifier, game_id);
+  },
+  declineDraw(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.declineLocalDraw(message_identifier, game_id);
+  },
+  requestToAbort(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.requestLocalAbort(message_identifier, game_id);
+  },
+  acceptAbort(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.acceptLocalAbort(message_identifier, game_id);
+  },
+  declineAbort(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.declineLocalAbort(message_identifier, game_id);
+  },
+  requestToAdjourn(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.requestLocalAdjourn(message_identifier, game_id);
+  },
+  acceptAdjourn(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.acceptLocalAdjourn(message_identifier, game_id);
+  },
+  declineAdjourn(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+    Game.declineLocalAdjourn(message_identifier, game_id);
   }
 });
 

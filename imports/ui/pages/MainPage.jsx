@@ -150,11 +150,23 @@ export default class MainPage extends Component {
       case "takeBack":
         this.takeBack(actionType);
         break;
+      case "drawRequest":
+        this.drawRequest();
+        break;
       case "draw":
         this.draw(actionType);
         break;
+      case "abortRequest":
+        this.abortRequest();
+        break;
       case "abort":
         this.abort(actionType);
+        break;
+      case "adjurnRequest":
+        this.adjurnRequest();
+        break;
+      case "adjurn":
+        this.adjurn(actionType);
         break;
       case "resign":
         this.resignGame();
@@ -165,34 +177,44 @@ export default class MainPage extends Component {
       default:
     }
   };
-
-  /* 
-  gameDecline = (actionType, action) => {
-    Meteor.call("game.decline", this.gameId, action);
-  }; */
-
+  takeBackRequest = () => {
+    Meteor.call("requestTakeback", "takeback", this.gameId, 1);
+  };
+  takeBack = isAccept => {
+    if (isAccept === "accepted")
+      Meteor.call("acceptTakeBack", "takeback", this.gameId);
+    else Meteor.call("declineTakeback", "takbackdecline", this.gameId);
+  };
   gameAccept = gameRequestData => {
     Meteor.call("gameRequestAccept", "gameAccept", gameRequestData["_id"]);
   };
   gameDecline = gameRequestData => {
     Meteor.call("gameRequestDecline", "gameDecline", gameRequestData["_id"]);
   };
-  takeBackRequest = () => {
-    Meteor.call("requestTakeback", "takeback", this.gameId, 1);
+  drawRequest = () => {
+    Meteor.call("requestToDraw", "draw", this.gameId);
   };
-  takeBack = isAccept => {
+  draw = isAccept => {
     if (isAccept === "accepted")
-      Meteor.call("takeBackAccept", "takeback", this.gameId);
-    else Meteor.call("declineTakeback", "takbackdecline", this.gameId);
+      Meteor.call("acceptDraw", "acceptDraw", this.gameId);
+    else Meteor.call("declineDraw", "declineDraw", this.gameId);
   };
-  draw = actionType => {
-    Meteor.call("game.draw", this.gameId, actionType);
+  abortRequest = () => {
+    Meteor.call("requestToAbort", "abort", this.gameId);
   };
-
-  abort = actionType => {
-    Meteor.call("game.abort", this.gameId, actionType);
+  abort = isAccept => {
+    if (isAccept === "accepted")
+      Meteor.call("acceptAbort", "acceptAbort", this.gameId);
+    else Meteor.call("declineAbort", "declineAbort", this.gameId);
   };
-
+  adjurnRequest = () => {
+    Meteor.call("requestToAdjurn", "abort", this.gameId);
+  };
+  adjurn = isAccept => {
+    if (isAccept === "accepted")
+      Meteor.call("acceptAdjurn", "acceptAdjurn", this.gameId);
+    else Meteor.call("declineAdjurn", "declineAdjurn", this.gameId);
+  };
   resignGame = () => {
     Meteor.call("resignGame", "resign", this.gameId);
   };
@@ -309,115 +331,55 @@ export default class MainPage extends Component {
         this.Main.RightSection.Action.whitePlayer = game.white.name;
         this.Main.RightSection.Action.blackPlayer = game.black.name;
         this.Main.RightSection.Action.gameId = game._id;
-        let actions = game.actions;
-        let userpending =
-          gameTurn === "b"
-            ? game.pending.white.takeback.number
-            : game.pending.black.takeback.number;
+        const othercolor = this.userId === game.white.id ? "black" : "white";
 
+        const actions = game.actions;
         if (actions !== undefined && actions.length !== 0) {
-          let action = actions[actions.length - 1];
-          const bw = this.userId === game.white.id ? "w" : "b";
-          if (
-            bw === gameTurn &&
-            userpending > 0 &&
-            action["type"] === "takeback_requested"
-          ) {
-            actionPopup = this.actionPopup(
-              "Oppenent has requested to Take Back",
-              "takeBack"
-            );
+          for (const action of actions) {
+            //  const action = actions[actions.length - 1];
+            const issuer = action["issuer"];
+            switch (action["type"]) {
+              case "takeback_requested":
+                if (
+                  issuer !== this.userId &&
+                  game.pending[othercolor].takeback.number > 0
+                ) {
+                  actionPopup = this.actionPopup(
+                    "Oppenent has requested to Take Back",
+                    "takeBack"
+                  );
+                }
+                break;
+              case "draw_requested":
+                if (
+                  issuer !== this.userId &&
+                  game.pending[othercolor].draw !== "0"
+                ) {
+                  actionPopup = this.actionPopup(
+                    "Oppenent has requested to Draw",
+                    "draw"
+                  );
+                }
+                break;
+              case "abort_requested":
+                if (
+                  issuer !== this.userId &&
+                  game.pending[othercolor].abort !== "0"
+                ) {
+                  actionPopup = this.actionPopup(
+                    "Oppenent has requested to Abort",
+                    "abort"
+                  );
+                }
+                break;
+              default:
+                break;
+            }
           }
         }
-        /*
-        if (actions !== undefined && actions.length !== 0) {
-          let action = actions[actions.length - 1];
-          if (action["type"] === "takeBack" && action["value"] === "request") {
-            if (
-              gameTurn === "w" &&
-              game.white.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.black.name + " has requested to Take Back",
-                "takeBack"
-              );
-            } else if (
-              gameTurn === "b" &&
-              game.black.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.white.name + " has requested to Take Back",
-                "takeBack"
-              );
-            }
-          } else if (
-            action["type"] === "draw" &&
-            action["value"] === "request"
-          ) {
-            if (
-              gameTurn === "b" &&
-              game.white.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.black.name + " has requested to draw",
-                "draw"
-              );
-            } else if (
-              gameTurn === "w" &&
-              game.black.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.white.name + " has requested to draw",
-                "draw"
-              );
-            }
-          } else if (
-            action["type"] === "resign" &&
-            action["value"] === "request"
-          ) {
-            if (
-              gameTurn === "b" &&
-              game.white.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.black.name + " has requested to resign",
-                "resign"
-              );
-            } else if (
-              gameTurn === "w" &&
-              game.black.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.white.name + " has requested to resign",
-                "resign"
-              );
-            }
-          } else if (
-            action["type"] === "abort" &&
-            action["value"] === "request"
-          ) {
-            if (
-              gameTurn === "b" &&
-              game.white.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.black.name + " has requested to abort",
-                "abort"
-              );
-            } else if (
-              gameTurn === "w" &&
-              game.black.name === Meteor.user().username
-            ) {
-              actionPopup = this.actionPopup(
-                game.white.name + " has requested to abort",
-                "abort"
-              );
-            }
-          } else if (action["value"] === "accepted") {
-            this.intializeBoard();
-          }*/
       }
     }
+
     let buttonStyle;
     if (this.state.visible === true) {
       buttonStyle = "toggleClose";

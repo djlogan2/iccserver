@@ -39,6 +39,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       White: { name: "abc", rating: "123" },
       Black: { name: "xyz", rating: "456" }
     };
+    this.userpending = null;
     this.state = {
       gameClock: null,
       from: null,
@@ -49,10 +50,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         gameRequests: Meteor.subscribe("game_requests")
       },
       move: "",
-      player: {
-        White: { name: "abc", rating: "123" },
-        Black: { name: "xyz", rating: "456" }
-      },
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
@@ -147,8 +144,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     if (!game) {
       return false;
-    } else if (game.status === "pending") {
-      return false;
     } else {
       let result = null;
       let gameTurn = this._board.turn();
@@ -180,26 +175,19 @@ export default class AppContainer extends TrackerReact(React.Component) {
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
-        log.debug("Move pass from appcontainer", move);
         Meteor.call("addGameMove", "addmove", this.gameId, move);
         return true;
       }
     }
   };
-
   _boardFromMongoMessages(game) {
     //log.debug("Game", game);
     this._board = new Chess.Chess();
-    let moves = game.actions;
-    let clocks = game.clocks;
-    if (moves !== undefined) {
-      for (var move of moves) {
-        this._board.move(move["parameter"]);
+    let actions = game.moves;
+    if (actions !== undefined) {
+      for (const action of actions) {
+        this._board.move(action);
       }
-    }
-    if (clocks !== undefined) {
-      game.clocks.white = clocks.white;
-      game.clocks.black = clocks.black;
     }
   }
 

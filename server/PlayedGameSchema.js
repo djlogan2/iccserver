@@ -61,8 +61,8 @@ const actionSchema = new SimpleSchema({
       "disconnect", // When a user disconnects during a game, or disconnects while this game is adjourned
       "connect", // When a user reconnects while this game is adjourned (we can see how many sessions we have had with this game adjourned, and comparing it to his opponent, we can see how many opportunities there were to resume.)
       "adjourned", // When the game is adjourned, either by accepting, or by a disconnect adjourn
-        "resume_requested", // When one player offers to resume the game
-        "resume_declined", // When the other player explicitly declines
+      "resume_requested", // When one player offers to resume the game
+      "resume_declined", // When the other player explicitly declines
       "resumed", // Obviously, resumed
       "adjourn_requested", // When an adjourn is requested
       "adjourn_declined", // and declined
@@ -178,6 +178,8 @@ export const PlayedGameSchema = new SimpleSchema({
   }),
   tags: { type: Object, required: false },
   actions: [actionSchema],
+  moves: { type: Array, optional: true },
+  "moves.$": String,
   observers: { type: Array, defaultValue: [] },
   "observers.$": String
 });
