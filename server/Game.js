@@ -10,6 +10,7 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { PlayedGameSchema } from "./PlayedGameSchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
+import { UCI } from "./UCI";
 
 export const Game = {};
 
@@ -520,7 +521,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     actions: { type: "move", issuer: self._id, parameter: move }
   };
   const unsetobject = {};
-  addMoveToMoveList(variation, move);
+  const analyze = addMoveToMoveList(variation, move);
 
   if (game.status === "playing") {
     if (
@@ -563,6 +564,29 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     { _id: game_id, status: game.status },
     { $unset: unsetobject, $set: setobject, $push: pushobject }
   );
+  if (analyze) {
+    UCI.getScoreForFen(active_games[game_id].fen())
+      .then(score => {
+        const setobject = {};
+        setobject[
+          "variations.movelist." + (variation.movelist.length - 1) + ".score"
+        ] = score;
+        const result = GameCollection.update(
+          { _id: game_id, status: game.status },
+          { $set: setobject }
+        );
+        if (!result && game.status === "playing") {
+          const result2 = GameCollection.update(
+            { _id: game_id, status: "examining" },
+            { $set: setobject }
+          );
+          if (!result2) log.error("Unable to update computer score");
+        }
+      })
+      .catch(error => {
+        log.error("Error setting score for game move", error);
+      });
+  }
 };
 
 //	There are three outcome codes, given in the following order:
@@ -1923,6 +1947,7 @@ function addMoveToMoveList(variation_object, move) {
     }
     variation_object.cmi = newi;
   }
+  return !exists;
 }
 
 Meteor.startup(function() {

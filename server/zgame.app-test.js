@@ -3715,3 +3715,12 @@ describe.skip("When a user disconnects while playing a game", function() {
   it("should adjourn the game and write an action", function() {});
   it("should write a connect and disconnect action to the adjourned game every time they connect and disconnect", function() {});
 });
+
+describe.skip("When adding engine scores to the variation object in a game record", function(){
+  it("should not send these scores to either player if a game is being played", function(){
+    chai.assert.fail("do me");
+  });
+  it("should send the scores to all observers if the game in any state", function(){
+    chai.assert.fail("do me");
+  });
+});

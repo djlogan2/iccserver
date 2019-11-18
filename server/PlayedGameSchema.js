@@ -161,6 +161,7 @@ export const PlayedGameSchema = new SimpleSchema({
   "variations.movelist.$": Object,
   "variations.movelist.$.prev": { type: Number, required: false },
   "variations.movelist.$.move": { type: String, required: false },
+  "variations.movelist.$.score": { type: Number, required: false },
   "variations.movelist.$.variations": { type: Array, required: false },
   "variations.movelist.$.variations.$": Number
 });
