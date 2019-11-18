@@ -3287,6 +3287,7 @@ describe("Game.moveBackward", function() {
   });
 
   it("writes an action and undoes the move if possible", function() {
+    this.timeout(500000);
     const examiner = TestHelpers.createUser();
     self.loggedonuser = examiner;
     const game_id = Game.startLocalExaminedGame(

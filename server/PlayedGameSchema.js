@@ -153,5 +153,14 @@ export const PlayedGameSchema = new SimpleSchema({
   tags: { type: Object, required: false },
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },
-  "observers.$": String
+  "observers.$": String,
+  variations: Object,
+  "variations.hmtb": Number,
+  "variations.cmi": Number,
+  "variations.movelist": Array,
+  "variations.movelist.$": Object,
+  "variations.movelist.$.prev": { type: Number, required: false },
+  "variations.movelist.$.move": { type: String, required: false },
+  "variations.movelist.$.variations": { type: Array, required: false },
+  "variations.movelist.$.variations.$": Number
 });

@@ -9,7 +9,7 @@ import { ClientMessages } from "../imports/collections/ClientMessages";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { PlayedGameSchema } from "./PlayedGameSchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
-import {LegacyUser} from "../lib/server/LegacyUsers";
+import { LegacyUser } from "../lib/server/LegacyUsers";
 
 export const Game = {};
 
@@ -18,7 +18,6 @@ const GameCollection = new Mongo.Collection("game");
 let log = new Logger("server/Game_js");
 
 let active_games = {};
-let variations = {};
 
 GameCollection.attachSchema(ExaminedGameSchema, {
   selector: { status: "examining" }
@@ -47,12 +46,6 @@ function getAndCheck(message_identifier, game_id) {
     throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
   if (!active_games[game_id])
-    throw new ICCMeteorError(
-      "server",
-      "Unable to find chessboard validator for game"
-    );
-
-  if (!variations[game_id])
     throw new ICCMeteorError(
       "server",
       "Unable to find chessboard validator for game"
@@ -200,11 +193,11 @@ Game.startLocalGame = function(
     },
     status: "playing",
     actions: [],
-    observers: []
+    observers: [],
+    variations: { hmtb: 0, cmi: 0, movelist: [{}] }
   };
   const game_id = GameCollection.insert(game);
   active_games[game_id] = new Chess.Chess();
-  variations[game_id] = { hmtb: 0, cmi: 0, movelist: [{}] };
   return game_id;
 };
 
@@ -282,13 +275,13 @@ Game.startLocalExaminedGame = function(
     status: "examining",
     actions: [],
     observers: [self._id],
-    examiners: [self._id]
+    examiners: [self._id],
+    variations: { hmtb: 0, cmi: 0, movelist: [{}] }
   };
 
   if (!!other_headers) game.tags = other_headers;
   const game_id = GameCollection.insert(game);
   active_games[game_id] = new Chess.Chess();
-  variations[game_id] = { hmtb: 0, cmi: 0, movelist: [{}] };
   return game_id;
 };
 
@@ -378,11 +371,16 @@ Game.startLegacyGame = function(
       "There is already a game in the database with the same game number"
     );
 
-  if(!!whiteuser && !!blackuser && LegacyUser.isLoggedOn(whiteuser) && LegacyUser.isLoggedOn(blackuser))
+  if (
+    !!whiteuser &&
+    !!blackuser &&
+    LegacyUser.isLoggedOn(whiteuser) &&
+    LegacyUser.isLoggedOn(blackuser)
+  )
     throw new ICCMeteorError(
-        message_identifier,
-        "Unable to start game",
-        "Both players are logged on locally. Begin a local game"
+      message_identifier,
+      "Unable to start game",
+      "Both players are logged on locally. Begin a local game"
     );
 
   const game = {
@@ -428,7 +426,8 @@ Game.startLegacyGame = function(
         takeback: { number: 0, mid: "0" }
       }
     },
-    actions: []
+    actions: [],
+    variations: { hmtb: 0, cmi: 0, movelist: [{}] }
   };
 
   game.examiners = [];
@@ -485,7 +484,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   if (!game) return;
   const chessObject = active_games[game_id];
-  const variation = variations[game_id];
+  const variation = game.variations;
 
   if (game.status === "playing") {
     const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
@@ -516,14 +515,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     );
     return;
   }
-  const action = { type: "move", issuer: self._id, parameter: move };
-  addMoveToMoveList(variation, move);
-
-  const updateobject = {
-    $push: { actions: action }
-  };
-
   const setobject = {};
+  const pushobject = {
+    actions: { type: "move", issuer: self._id, parameter: move }
+  };
+  const unsetobject = {};
+  addMoveToMoveList(variation, move);
 
   if (game.status === "playing") {
     if (
@@ -541,8 +538,9 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     if (!!setobject.result) {
       setobject.status = "examining";
       setobject.examining = [game.white.id, game.black.id];
-      updateobject["$unset"] = { pending: "" };
+      unsetobject.pending = "";
     }
+
     const bw = self._id === game.white.id ? "black" : "white";
     const color = bw === "white" ? "black" : "white";
     setobject["pending." + bw + ".draw"] = "0";
@@ -550,7 +548,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     setobject["pending." + bw + ".adjourn"] = "0";
     setobject["pending." + bw + ".takeback.number"] = 0;
     setobject["pending." + bw + ".takeback.mid"] = "0";
-
     //
     // Add a half move to the takeback request if the user requested a takeback and then
     // made their own move.
@@ -558,10 +555,14 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     if (!setobject.result && game.pending[color].takeback.number)
       setobject["pending." + color + ".takeback.number"] =
         game.pending[color].takeback.number + 1;
-
-    updateobject["$set"] = setobject;
   }
-  GameCollection.update({ _id: game_id, status: game.status }, updateobject);
+
+  setobject["variations"] = variation;
+
+  GameCollection.update(
+    { _id: game_id, status: game.status },
+    { $unset: unsetobject, $set: setobject, $push: pushobject }
+  );
 };
 
 //	There are three outcome codes, given in the following order:
@@ -759,7 +760,6 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   ) {
     GameCollection.remove({ _id: game_id });
     delete active_games[game_id];
-    delete variations[game_id];
   } else
     GameCollection.update(
       { _id: game_id, status: game.status },
@@ -884,8 +884,7 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   const tbobject = {};
   tbobject["pending." + color + ".takeback.number"] = number;
   tbobject["pending." + color + ".takeback.mid"] = message_identifier;
-
-  variations[game_id].hmtb = number;
+  tbobject["variations.hmtb"] = number;
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -930,20 +929,12 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     return;
   }
 
-  const variation = variations[game_id];
+  const variation = game.variations;
   const action = { type: "takeback_accepted", issuer: self._id };
 
   for (let x = 0; x < variation.hmtb; x++) {
     const undone = active_games[game_id].undo();
     const current = variation.movelist[variation.cmi];
-    log.debug(
-      "takeback_accepted move=" +
-        undone.san +
-        ", current=" +
-        current.move +
-        ", cmi=" +
-        variation.cmi
-    );
     if (undone.san !== current.move)
       throw new ICCMeteorError(
         message_identifier,
@@ -951,17 +942,19 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
         "Mismatch between chess object and variation object"
       );
     variation.cmi = variation.movelist[variation.cmi].prev;
-    log.debug("takeback_accepted complete, cmi=" + variation.cmi);
   }
+
+  const setobject = {
+    "pending.white.takeback": { number: 0, mid: "0" },
+    "pending.black.takeback": { number: 0, mid: "0" },
+    "variations.cmi": variation.cmi
+  };
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
       $push: { actions: action },
-      $set: {
-        "pending.white.takeback": { number: 0, mid: "0" },
-        "pending.black.takeback": { number: 0, mid: "0" }
-      }
+      $set: setobject
     }
   );
 
@@ -1622,15 +1615,8 @@ Game.moveForward = function(
       "Unable to find active game"
     );
 
-  if (!variations[game_id])
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to move forward",
-      "Unable to find variations object"
-    );
-
   const chessObject = active_games[game_id];
-  const variation = variations[game_id];
+  const variation = game.variations;
 
   for (let x = 0; x < move_count; x++) {
     const move = variation.movelist[variation.cmi];
@@ -1675,6 +1661,7 @@ Game.moveForward = function(
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
+      $set: { "variations.cmi": variation.cmi },
       $push: {
         actions: {
           type: "move_forward",
@@ -1718,13 +1705,6 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
       "Unable to find active game"
     );
 
-  if (!variations[game_id])
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to move backwards",
-      "Unable to find variations object"
-    );
-
   if (movecount > active_games[game_id].history().length) {
     ClientMessages.sendMessageToClient(
       self,
@@ -1734,7 +1714,8 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
     return;
   }
 
-  const variation = variations[game_id];
+  const variation = game.variations;
+
   for (let x = 0; x < movecount; x++) {
     const undone = active_games[game_id].undo();
     const current = variation.movelist[variation.cmi];
@@ -1759,6 +1740,7 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
+      $set: { "variations.cmi": variation.cmi },
       $push: {
         actions: {
           type: "move_backward",
@@ -1857,7 +1839,8 @@ function findVariation(move, idx, movelist) {
   if (
     !move ||
     !movelist ||
-    !idx ||
+    idx === undefined ||
+    idx === null ||
     idx >= movelist.length ||
     !movelist[idx].variations
   )
@@ -1920,34 +1903,26 @@ function buildPgnFromMovelist(movelist) {
 }
 
 function addMoveToMoveList(variation_object, move) {
-  log.debug(
-    "addMoveToMoveList move=" +
-      move +
-      ", variation_object cmi=" +
-      variation_object.cmi
-  );
   const exists = findVariation(
     move,
     variation_object.cmi,
     variation_object.movelist
   );
-  if (exists) variation_object.cmi = exists;
-  else {
+  if (exists) {
+    variation_object.cmi = exists;
+  } else {
     const newi = variation_object.movelist.length;
     variation_object.movelist.push({
       move: move,
       prev: variation_object.cmi
     });
-    if (!variation_object.movelist[variation_object.cmi].variations)
+    if (!variation_object.movelist[variation_object.cmi].variations) {
       variation_object.movelist[variation_object.cmi].variations = [newi];
-    else variation_object.movelist[variation_object.cmi].variations.push(newi);
+    } else {
+      variation_object.movelist[variation_object.cmi].variations.push(newi);
+    }
     variation_object.cmi = newi;
   }
-
-  log.debug(
-    "addMoveToMoveList end of action, variation_object cmi=" +
-      variation_object.cmi
-  );
 }
 
 Meteor.startup(function() {

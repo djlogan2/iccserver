@@ -113,5 +113,14 @@ export const ExaminedGameSchema = new SimpleSchema({
   observers: { type: Array, defaultValue: [] },
   "observers.$": String,
   examiners: { type: Array, defaultValue: [] },
-  "examiners.$": String
+  "examiners.$": String,
+  variations: { type: Object, required: false },
+  "variations.hmtb": Number,
+  "variations.cmi": Number,
+  "variations.movelist": Array,
+  "variations.movelist.$": Object,
+  "variations.movelist.$.prev": { type: Number, required: false },
+  "variations.movelist.$.move": { type: String, required: false },
+  "variations.movelist.$.variations": { type: Array, required: false },
+  "variations.movelist.$.variations.$": Number
 });
