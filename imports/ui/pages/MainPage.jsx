@@ -67,7 +67,7 @@ export default class MainPage extends Component {
   intializeBoard = () => {
     this.Main.MiddleSection.BlackPlayer.IsActive = false;
     this.Main.MiddleSection.WhitePlayer.IsActive = false;
-    /* 
+    /*
   this.Main.MiddleSection.BlackPlayer.Rating="0000";
   this.Main.MiddleSection.BlackPlayer.Name="Player-1";
   this.Main.MiddleSection.BlackPlayer.Flag= "us";
@@ -162,11 +162,11 @@ export default class MainPage extends Component {
       case "abort":
         this.abort(actionType);
         break;
-      case "adjurnRequest":
-        this.adjurnRequest();
+      case "adjurnRequest": // TODO: misspelled
+        this.adjurnRequest(); // TODO: misspelled
         break;
-      case "adjurn":
-        this.adjurn(actionType);
+      case "adjurn": // TODO: misspelled
+        this.adjurn(actionType); // TODO: misspelled
         break;
       case "resign":
         this.resignGame();
@@ -202,18 +202,19 @@ export default class MainPage extends Component {
   abortRequest = () => {
     Meteor.call("requestToAbort", "abort", this.gameId);
   };
+  // TODO: I'm not sure what this is doing, but you need to look at game.pending and/or of course game.actions
   abort = isAccept => {
     if (isAccept === "accepted")
       Meteor.call("acceptAbort", "acceptAbort", this.gameId);
     else Meteor.call("declineAbort", "declineAbort", this.gameId);
   };
-  adjurnRequest = () => {
-    Meteor.call("requestToAdjurn", "abort", this.gameId);
+  adjurnRequest = () => { // TODO: misspelled
+    Meteor.call("requestToAdjurn", "abort", this.gameId); // TODO: misspelled
   };
-  adjurn = isAccept => {
+  adjurn = isAccept => { // TODO: misspelled
     if (isAccept === "accepted")
-      Meteor.call("acceptAdjurn", "acceptAdjurn", this.gameId);
-    else Meteor.call("declineAdjurn", "declineAdjurn", this.gameId);
+      Meteor.call("acceptAdjurn", "acceptAdjurn", this.gameId);  // TODO: misspelled
+    else Meteor.call("declineAdjurn", "declineAdjurn", this.gameId);  // TODO: misspelled
   };
   resignGame = () => {
     Meteor.call("resignGame", "resign", this.gameId);
@@ -278,7 +279,7 @@ export default class MainPage extends Component {
       currentPos: currentPos,
       history: history,
       mode: "view"
-    });  
+    });
      */
   };
   // If Next button clicked, move forward one
@@ -337,6 +338,7 @@ export default class MainPage extends Component {
         if (actions !== undefined && actions.length !== 0) {
           for (const action of actions) {
             //  const action = actions[actions.length - 1];
+            // TODO: Why are we scanning actions? Isn't just checking the game.pending values enough for display and decisions?
             const issuer = action["issuer"];
             switch (action["type"]) {
               case "takeback_requested":

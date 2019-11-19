@@ -4,16 +4,16 @@ import { Random } from "meteor/random";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 
-const log = new Logger("client/RightSidebar");
+const log = new Logger("server/UCI");
 export const UCI = {};
 
 const engines = {};
 
-const _ready_engines = [];
-const _busy_engines = [];
+const ready_engines = [];
+const busy_engines = [];
 const waiting_for_an_engine = [];
 
-UCI.getScoreForFen = function(fen) {
+UCI.getScoreForFen = async function(fen) {
   const automatic_score_parameters = SystemConfiguration.automaticScoreParameters();
   return obtainEngine().then(engine_id => {
     engines[engine_id]
@@ -28,24 +28,24 @@ UCI.getScoreForFen = function(fen) {
   });
 };
 
-function obtainEngine() {
+async function obtainEngine() {
   return new Promise((resolve, reject) => {
-    if (_ready_engines.length) {
-      const engine_id = _ready_engines.shift();
-      _busy_engines.push(engine_id);
+    if (ready_engines.length) {
+      const engine_id = ready_engines.shift();
+      busy_engines.push(engine_id);
       resolve(engine_id);
       return;
     }
 
     if (
-      _ready_engines.length + _busy_engines.length <
+      ready_engines.length + busy_engines.length <
       SystemConfiguration.maximumRunningEngines()
     ) {
       const new_id = Random.id();
       const new_engine = (engines[new_id] = new Engine(
         SystemConfiguration.enginePath()
       ));
-      _busy_engines.push(new_id);
+      busy_engines.push(new_id);
       new_engine
         .init()
         .then(() => resolve(new_id))
@@ -58,7 +58,7 @@ function obtainEngine() {
 }
 
 function releaseEngine(engine_id) {
-  const idx = _busy_engines.indexOf(engine_id);
+  const idx = busy_engines.indexOf(engine_id);
   if (idx === -1)
     throw new Meteor.Error("Unable to find engine id " + engine_id);
 
@@ -67,6 +67,6 @@ function releaseEngine(engine_id) {
     resolve(engine_id);
     return;
   }
-  _busy_engines.splice(idx, 1);
-  _ready_engines.push(engine_id);
+  busy_engines.splice(idx, 1);
+  ready_engines.push(engine_id);
 }

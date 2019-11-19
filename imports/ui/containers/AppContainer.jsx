@@ -46,6 +46,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       to: null,
       subscription: {
         css: Meteor.subscribe("css"),
+        // TODO: There are now "playing_games" and "observing_games" collections, and just "game" is no longer
         game: Meteor.subscribe("game"),
         gameRequests: Meteor.subscribe("game_requests")
       },
@@ -183,7 +184,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _boardFromMongoMessages(game) {
     //log.debug("Game", game);
     this._board = new Chess.Chess();
-    let actions = game.moves;
+    let actions = game.moves; // TODO: use either game.actions or game.variations
     if (actions !== undefined) {
       for (const action of actions) {
         this._board.move(action);

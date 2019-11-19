@@ -1644,11 +1644,25 @@ Meteor.methods({
   }
 });
 
-Meteor.publish("game", function() {
+Meteor.publish("playing_games", function() {
+  const user = Meteor.user();
+  if (!user || !user.loggedOn) return [];
+  return GameCollection.find(
+    {
+      $and: [
+        { status: "playing" },
+        { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
+      ]
+    },
+    { fields: { "variations.movelist.$.score": 0 } }
+  );
+});
+
+Meteor.publish("observing_games", function() {
   const user = Meteor.user();
   if (!user || !user.loggedOn) return [];
   return GameCollection.find({
-    $or: [{ "white.id": user._id }, { "black.id": user._id }]
+    observers: user._id
   });
 });
 

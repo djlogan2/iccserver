@@ -76,7 +76,7 @@ SystemConfiguration.maximumRunningEngines = function() {
 };
 
 SystemConfiguration.enginePath = function() {
-  return "/Users/davidlogan/stockfish-9-mac/Mac/stockfish-9-64";
+  return process.env.DEVELOPER_UCI_ENGINE;
 };
 
 SystemConfiguration.automaticScoreParameters = function() {

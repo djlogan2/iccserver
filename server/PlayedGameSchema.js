@@ -151,9 +151,7 @@ export const PlayedGameSchema = new SimpleSchema({
     rating: SimpleSchema.Integer
   }),
   tags: { type: Object, required: false },
-  actions: [actionSchema],
-  moves: { type: Array, optional: true },
-  "moves.$": String,
+  actions: [actionSchema], // TODO: Removed "moves" -- Use either the actions or the variations object below please
   observers: { type: Array, defaultValue: [] },
   "observers.$": String,
   variations: Object,
