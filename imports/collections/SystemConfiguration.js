@@ -70,3 +70,15 @@ SystemConfiguration.meetsMinimumAndMaximumRatingRules = function(
     (maxrating === undefined || maxrating == null || maxrating > 0)
   );
 };
+
+SystemConfiguration.maximumRunningEngines = function() {
+  return 5;
+};
+
+SystemConfiguration.enginePath = function() {
+  return "/Users/davidlogan/stockfish-9-mac/Mac/stockfish-9-64";
+};
+
+SystemConfiguration.automaticScoreParameters = function() {
+  return {movetime: 10};
+}

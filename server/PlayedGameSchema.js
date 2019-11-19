@@ -1,30 +1,5 @@
 import SimpleSchema from "simpl-schema";
 
-function parameterCheck() {
-  const parameter = this.field("parameter");
-  const nope = [
-    {
-      name: "parameter",
-      type: SimpleSchema.ErrorTypes.EXPECTED_TYPE,
-      value: parameter.value
-    }
-  ];
-
-  switch (this.field("type")) {
-    case "move":
-    case "kibitz":
-    case "whisper":
-      if (!parameter.isSet || typeof parameter.value !== "string") return nope;
-      else return;
-    case "takeback_requested":
-      if (parameter.isSet && parameter.value === parseInt(parameter.value))
-        return;
-      else return nope;
-    default:
-      if (parameter.isSet) return nope;
-  }
-}
-
 const OneColorPendingSchema = new SimpleSchema({
   draw: String,
   abort: String,
@@ -82,8 +57,7 @@ const actionSchema = new SimpleSchema({
   },
   parameter: {
     type: SimpleSchema.oneOf(String, Number),
-    optional: true,
-    custom: parameterCheck
+    optional: true
   }
 });
 
@@ -181,5 +155,15 @@ export const PlayedGameSchema = new SimpleSchema({
   moves: { type: Array, optional: true },
   "moves.$": String,
   observers: { type: Array, defaultValue: [] },
-  "observers.$": String
+  "observers.$": String,
+  variations: Object,
+  "variations.hmtb": Number,
+  "variations.cmi": Number,
+  "variations.movelist": Array,
+  "variations.movelist.$": Object,
+  "variations.movelist.$.prev": { type: Number, required: false },
+  "variations.movelist.$.move": { type: String, required: false },
+  "variations.movelist.$.score": { type: Number, required: false },
+  "variations.movelist.$.variations": { type: Array, required: false },
+  "variations.movelist.$.variations.$": Number
 });
