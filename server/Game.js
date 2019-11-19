@@ -199,6 +199,7 @@ Game.startLocalGame = function(
   };
   const game_id = GameCollection.insert(game);
   active_games[game_id] = new Chess.Chess();
+
   return game_id;
 };
 
@@ -518,7 +519,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   }
   const setobject = {};
   const pushobject = {
-    actions: { type: "move", issuer: self._id, parameter: move,moves: move }
+    actions: { type: "move", issuer: self._id, parameter: move }
   };
   const unsetobject = {};
   const analyze = addMoveToMoveList(variation, move);
@@ -557,7 +558,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       setobject["pending." + color + ".takeback.number"] =
         game.pending[color].takeback.number + 1;
   }
-
   setobject["variations"] = variation;
 
   GameCollection.update(
@@ -952,10 +952,11 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     );
     return;
   }
+  /* 
   const pendingTakeback = game.pending[othercolor].takeback.number;
   let moveList = game.moves;
   const updateMoves = moveList.splice(0, moveList.length - pendingTakeback);
-
+ */
   const variation = game.variations;
   const action = { type: "takeback_accepted", issuer: self._id };
 
@@ -968,14 +969,14 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
         "Unable to takeback",
         "Mismatch between chess object and variation object"
       );
+    //DOUBT : You have maintain variations array under variations.movelist.$, what is it for?
     variation.cmi = variation.movelist[variation.cmi].prev;
   }
-
+  log.debug("Variation cmi", variation.cmi);
   const setobject = {
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
-    "variations.cmi": variation.cmi,
-    moves: updateMoves
+    "variations.cmi": variation.cmi
   };
 
   GameCollection.update(
@@ -1653,8 +1654,9 @@ Meteor.publish("playing_games", function() {
         { status: "playing" },
         { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
       ]
-    },
-    { fields: { "variations.movelist.$.score": 0 } }
+    }
+    // ,//DOUBT : We are not able to see any published games until we remove below line, can you explain what it is for?
+    //  { fields: { "variations.movelist.$.score": 0 } }
   );
 });
 

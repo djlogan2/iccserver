@@ -47,8 +47,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
       subscription: {
         css: Meteor.subscribe("css"),
         // TODO: There are now "playing_games" and "observing_games" collections, and just "game" is no longer
-        game: Meteor.subscribe("game"),
-        gameRequests: Meteor.subscribe("game_requests")
+        game: Meteor.subscribe("playing_games"),
+        gameRequests: Meteor.subscribe("game_requests") //TODO soon we will use "observing_games" subscribe,
       },
       move: "",
       isAuthenticated: Meteor.userId() !== null
@@ -182,16 +182,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
   };
   _boardFromMongoMessages(game) {
-    //log.debug("Game", game);
     this._board = new Chess.Chess();
-    let actions = game.moves; // TODO: use either game.actions or game.variations
-    if (actions !== undefined) {
-      for (const action of actions) {
-        this._board.move(action);
-      }
+    let variations = game.variations.movelist; // TODO: use either game.actions or game.variations
+
+    for (const variation of variations) {
+      this._board.move(variation.move);
     }
   }
-
   render() {
     // const gameRequest = GameRequestCollection.find({}).fetch()[0];
     const gameRequest = GameRequestCollection.findOne(

@@ -162,11 +162,11 @@ export default class MainPage extends Component {
       case "abort":
         this.abort(actionType);
         break;
-      case "adjurnRequest": // TODO: misspelled
-        this.adjurnRequest(); // TODO: misspelled
+      case "adjournRequest": // TODO: misspelled Adjourn
+        this.adjournRequest(); // TODO: misspelled
         break;
-      case "adjurn": // TODO: misspelled
-        this.adjurn(actionType); // TODO: misspelled
+      case "adjourn": // TODO: misspelled
+        this.adjourn(actionType); // TODO: misspelled
         break;
       case "resign":
         this.resignGame();
@@ -208,13 +208,16 @@ export default class MainPage extends Component {
       Meteor.call("acceptAbort", "acceptAbort", this.gameId);
     else Meteor.call("declineAbort", "declineAbort", this.gameId);
   };
-  adjurnRequest = () => { // TODO: misspelled
-    Meteor.call("requestToAdjurn", "abort", this.gameId); // TODO: misspelled
+  adjournRequest = () => {
+    // TODO: misspelled
+    Meteor.call("requestToAdjourn", "abort", this.gameId); // TODO: misspelled
   };
-  adjurn = isAccept => { // TODO: misspelled
+  adjourn = isAccept => {
+    // TODO: misspelled
     if (isAccept === "accepted")
-      Meteor.call("acceptAdjurn", "acceptAdjurn", this.gameId);  // TODO: misspelled
-    else Meteor.call("declineAdjurn", "declineAdjurn", this.gameId);  // TODO: misspelled
+      Meteor.call("acceptAdjourn", "acceptAdjourn", this.gameId);
+    // TODO: misspelled
+    else Meteor.call("declineAdjourn", "declineAdjourn", this.gameId); // TODO: misspelled
   };
   resignGame = () => {
     Meteor.call("resignGame", "resign", this.gameId);
