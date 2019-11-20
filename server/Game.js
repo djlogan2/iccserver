@@ -952,11 +952,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     );
     return;
   }
-  /* 
-  const pendingTakeback = game.pending[othercolor].takeback.number;
-  let moveList = game.moves;
-  const updateMoves = moveList.splice(0, moveList.length - pendingTakeback);
- */
+
   const variation = game.variations;
   const action = { type: "takeback_accepted", issuer: self._id };
 
@@ -969,14 +965,20 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
         "Unable to takeback",
         "Mismatch between chess object and variation object"
       );
-    //DOUBT : You have maintain variations array under variations.movelist.$, what is it for?
+
     variation.cmi = variation.movelist[variation.cmi].prev;
+    variation.movelist = variation.movelist.splice(
+      0,
+      variation.movelist.length - 1
+    );
+    delete variation.movelist[variation.cmi].variations;
   }
-  log.debug("Variation cmi", variation.cmi);
+
   const setobject = {
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
-    "variations.cmi": variation.cmi
+    "variations.cmi": variation.cmi,
+    "variations.movelist": variation.movelist
   };
 
   GameCollection.update(
@@ -986,10 +988,11 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
       $set: setobject
     }
   );
+  //DOUBT : I don't know why did do active_games[game_id].undo(); again.?
 
-  for (let x = 0; x < game.pending[othercolor].takeback.number; x++)
+  /*  for (let x = 0; x < game.pending[othercolor].takeback.number; x++)
     active_games[game_id].undo();
-
+ */
   const otheruser = othercolor === "white" ? game.white.id : game.black.id;
   ClientMessages.sendMessageToClient(
     otheruser,
