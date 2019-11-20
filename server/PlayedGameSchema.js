@@ -56,9 +56,12 @@ const actionSchema = new SimpleSchema({
     ]
   },
   parameter: {
-    type: SimpleSchema.oneOf(String, Number),
+    type: SimpleSchema.oneOf(String, Number, Object),
     optional: true
-  }
+  },
+  "parameter.move": { type: String, required: false },
+  "parameter.lag": { type: Number, required: false },
+  "parameter.ping": { type: Number, required: false }
 });
 
 export const PlayedGameSchema = new SimpleSchema({
@@ -70,6 +73,7 @@ export const PlayedGameSchema = new SimpleSchema({
   },
   pending: PendingSchema,
   result: String,
+  fen: String,
   legacy_game_number: {
     type: Number,
     required: false,

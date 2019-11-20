@@ -79,6 +79,10 @@ SystemConfiguration.enginePath = function() {
   return process.env.DEVELOPER_UCI_ENGINE;
 };
 
-SystemConfiguration.automaticScoreParameters = function() {
-  return {movetime: 10};
-}
+SystemConfiguration.uciSecondsToPonderPerMoveScore = function() {
+  return 10;
+};
+
+SystemConfiguration.uciThreadsPerEngine = function() {
+    return 4;
+};

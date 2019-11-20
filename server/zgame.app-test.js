@@ -2301,7 +2301,7 @@ describe("Game.requestLocalTakeback", function() {
     Game.saveLocalMove("mi3", game_id, "b4");
     const game2 = Game.collection.findOne();
     checkTakeback(game2, 5, 0);
-    checkLastAction(game2, 0, "move", us._id, "b4");
+    checkLastAction(game2, 0, "move", us._id, {move: "b4", ping: 456, lag: 123});
     checkLastAction(game2, 1, "takeback_requested", us._id, 4);
   });
 
@@ -2336,7 +2336,7 @@ describe("Game.requestLocalTakeback", function() {
     Game.saveLocalMove("mi3", game_id, "b5");
     const game2 = Game.collection.findOne();
     checkTakeback(game2);
-    checkLastAction(game2, 0, "move", them._id, "b5");
+    checkLastAction(game2, 0, "move", them._id, {move: "b5", ping: 456, lag: 123});
     checkLastAction(game2, 1, "takeback_requested", us._id, 4);
   });
 
@@ -2474,8 +2474,8 @@ describe("Local game draw behavior", function() {
 
     const game = Game.collection.findOne();
     checkDraw(game, "0", "0");
-    checkLastAction(game, 0, "move", opp._id, "e5");
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 0, "move", opp._id, {move: "e5", ping: 456, lag: 123});
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "draw_requested", us._id);
   });
 
@@ -2506,7 +2506,7 @@ describe("Local game draw behavior", function() {
     const game = Game.collection.findOne();
     checkDraw(game, "0", "0");
     checkLastAction(game, 0, "draw_declined", opp._id);
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "draw_requested", us._id);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2542,7 +2542,7 @@ describe("Local game draw behavior", function() {
     const game = Game.collection.findOne();
     checkDraw(game, "0", "0");
     checkLastAction(game, 0, "draw_accepted", opp._id);
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "draw_requested", us._id);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2670,8 +2670,8 @@ describe("Local game abort behavior", function() {
 
     const game = Game.collection.findOne();
     checkAbort(game, "0", "0");
-    checkLastAction(game, 0, "move", opp._id, "e5");
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 0, "move", opp._id, {move: "e5", ping: 456, lag: 123});
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "abort_requested", us._id);
   });
 
@@ -2702,7 +2702,7 @@ describe("Local game abort behavior", function() {
     const game = Game.collection.findOne();
     checkAbort(game, "0", "0");
     checkLastAction(game, 0, "abort_declined", opp._id);
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "abort_requested", us._id);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2738,7 +2738,7 @@ describe("Local game abort behavior", function() {
     const game = Game.collection.findOne();
     checkAbort(game, "0", "0");
     checkLastAction(game, 0, "abort_accepted", opp._id);
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "abort_requested", us._id);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2866,8 +2866,8 @@ describe("Local game adjourn behavior", function() {
 
     const game = Game.collection.findOne();
     checkAdjourn(game, "0", "0");
-    checkLastAction(game, 0, "move", opp._id, "e5");
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 0, "move", opp._id, {move: "e5", ping: 456, lag: 123});
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "adjourn_requested", us._id);
   });
 
@@ -2898,7 +2898,7 @@ describe("Local game adjourn behavior", function() {
     const game = Game.collection.findOne();
     checkAdjourn(game, "0", "0");
     checkLastAction(game, 0, "adjourn_declined", opp._id);
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "adjourn_requested", us._id);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2934,7 +2934,7 @@ describe("Local game adjourn behavior", function() {
     const game = Game.collection.findOne();
     checkAdjourn(game, "0", "0");
     checkLastAction(game, 0, "adjourn_accepted", opp._id);
-    checkLastAction(game, 1, "move", us._id, "e4");
+    checkLastAction(game, 1, "move", us._id, {move: "e4", ping: 456, lag: 123});
     checkLastAction(game, 2, "adjourn_requested", us._id);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -3396,7 +3396,7 @@ describe("Game.moveBackward", function() {
     checkLastAction(game, 7, "move", self.loggedonuser._id, "Nc6");
     checkLastAction(game, 8, "move", self.loggedonuser._id, "Nf3");
     checkLastAction(game, 9, "move", self.loggedonuser._id, "e5");
-    checkLastAction(game, 10, "move", self.loggedonuser._id, "e4");
+    checkLastAction(game, 10, "move", self.loggedonuser._id,"e4");
   });
 });
 

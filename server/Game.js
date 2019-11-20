@@ -11,6 +11,7 @@ import { PlayedGameSchema } from "./PlayedGameSchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
+import { Timestamp } from "../lib/server/timestamp";
 
 export const Game = {};
 
@@ -147,12 +148,15 @@ Game.startLocalGame = function(
     );
   }
 
+  const chess = new Chess.Chess();
+
   const white = determineWhite(self, other_user, color);
   const black = white._id === self._id ? other_user : self;
 
   const game = {
     starttime: new Date(),
     result: "*",
+    fen: chess.fen(),
     pending: {
       white: {
         draw: "0",
@@ -198,7 +202,7 @@ Game.startLocalGame = function(
     variations: { hmtb: 0, cmi: 0, movelist: [{}] }
   };
   const game_id = GameCollection.insert(game);
-  active_games[game_id] = new Chess.Chess();
+  active_games[game_id] = chess;
 
   return game_id;
 };
@@ -237,9 +241,12 @@ Game.startLocalExaminedGame = function(
     );
   }
 
+  const chess = new Chess.Chess();
+
   const game = {
     starttime: new Date(),
     result: "*",
+    fen: chess.fen(),
     pending: {
       white: {
         draw: "0",
@@ -283,7 +290,7 @@ Game.startLocalExaminedGame = function(
 
   if (!!other_headers) game.tags = other_headers;
   const game_id = GameCollection.insert(game);
-  active_games[game_id] = new Chess.Chess();
+  active_games[game_id] = chess;
   return game_id;
 };
 
@@ -387,6 +394,7 @@ Game.startLegacyGame = function(
 
   const game = {
     starttime: new Date(),
+    fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     legacy_game_number: gamenumber,
     legacy_game_id: game_id,
     white: {
@@ -517,9 +525,18 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     );
     return;
   }
-  const setobject = {};
+  const setobject = { fen: chessObject.fen() };
+
+  const move_parameter =
+    game.status === "playing"
+      ? {
+          move: move,
+          lag: Timestamp.averageLag(self._id),
+          ping: Timestamp.pingTime(self._id)
+        }
+      : move;
   const pushobject = {
-    actions: { type: "move", issuer: self._id, parameter: move }
+    actions: { type: "move", issuer: self._id, parameter: move_parameter }
   };
   const unsetobject = {};
   const analyze = addMoveToMoveList(variation, move);
@@ -952,7 +969,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     );
     return;
   }
-  /* 
+  /*
   const pendingTakeback = game.pending[othercolor].takeback.number;
   let moveList = game.moves;
   const updateMoves = moveList.splice(0, moveList.length - pendingTakeback);
@@ -974,6 +991,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
   }
   log.debug("Variation cmi", variation.cmi);
   const setobject = {
+    fen: active_games[game_id].fen(),
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
     "variations.cmi": variation.cmi
@@ -1570,6 +1588,7 @@ Game.isPlayingGame = function(user_or_id) {
     }).count() !== 0
   );
 };
+
 Meteor.methods({
   addGameMove(message_identifier, game_id, move) {
     check(message_identifier, String);
@@ -1654,9 +1673,12 @@ Meteor.publish("playing_games", function() {
         { status: "playing" },
         { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
       ]
-    }
+    },
+      //TODO: Yes, players cannot see their computer scores during a played game. It should publish all fields EXCEPT for the computer score.
+      //      I think the error was the .$. According to the all-knowing google, the below is actually the correct syntax.
+      //      Apologies, I haven't written tests to test this publication yet, so I didn't discover the error yet.
     // ,//DOUBT : We are not able to see any published games until we remove below line, can you explain what it is for?
-    //  { fields: { "variations.movelist.$.score": 0 } }
+    { fields: { "variations.movelist.score": 0 } }
   );
 });
 
@@ -1722,7 +1744,7 @@ Game.moveForward = function(
         message_identifier,
         "INVALID_VARIATION"
       );
-      return;
+      break;
     } else if (
       move.variations.length > 1 &&
       (vi === undefined || vi === null || vi >= move.variations.length)
@@ -1732,7 +1754,7 @@ Game.moveForward = function(
         message_identifier,
         "VARIATION_REQUIRED"
       );
-      return;
+      break;
     } else {
       variation.cmi = variation.movelist[variation.cmi].variations[vi || 0];
       const forwardmove = variation.movelist[variation.cmi];
@@ -1747,10 +1769,16 @@ Game.moveForward = function(
     vi = undefined;
   }
 
+  // TODO: We had to update the fen, so now we are here.
+  //       But, the actual forward move count is incorrect! We need to do what?
+  //       Either record the requested AND actual move count, or
+  //       just record the actual, throwing away the requested move count.
+  //       OR, figure out how to undo what was done to the chess object
+  //       and the variations.cmi
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
-      $set: { "variations.cmi": variation.cmi },
+      $set: { "variations.cmi": variation.cmi, fen: chessObject.fen() },
       $push: {
         actions: {
           type: "move_forward",
@@ -1808,14 +1836,6 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
   for (let x = 0; x < movecount; x++) {
     const undone = active_games[game_id].undo();
     const current = variation.movelist[variation.cmi];
-    log.debug(
-      "moveBackward move=" +
-        (!!undone ? undone.san : "no move") +
-        ", current=" +
-        (!!current ? current.move : "no move") +
-        ", cmi=" +
-        variation.cmi
-    );
     if (undone.san !== current.move)
       throw new ICCMeteorError(
         message_identifier,
@@ -1823,13 +1843,15 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
         "Mismatch between chess object and variation object"
       );
     variation.cmi = variation.movelist[variation.cmi].prev;
-    log.debug("moveBackward complete, cmi=" + variation.cmi);
   }
 
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
-      $set: { "variations.cmi": variation.cmi },
+      $set: {
+        "variations.cmi": variation.cmi,
+        fen: active_games[game_id].fen()
+      },
       $push: {
         actions: {
           type: "move_backward",

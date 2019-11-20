@@ -54,6 +54,7 @@ export const ExaminedGameSchema = new SimpleSchema({
     }
   },
   result: String,
+  fen: String,
   legacy_game_number: {
     type: Number,
     required: false,

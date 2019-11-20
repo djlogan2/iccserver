@@ -7,6 +7,8 @@ import sinon from "sinon";
 import { ClientMessages } from "../collections/ClientMessages";
 import { i18n } from "../collections/i18n";
 import { resetDatabase } from "meteor/xolvio:cleaner";
+import { UCI } from "../../server/UCI";
+import { Timestamp } from "../../lib/server/timestamp";
 
 export const TestHelpers = {};
 
@@ -74,9 +76,27 @@ if (Meteor.isTest || Meteor.isAppTest) {
       );
 
       self.sandbox.replace(
+        Timestamp,
+        "averageLag",
+        self.sandbox.fake.returns(123)
+      );
+
+      self.sandbox.replace(
+        Timestamp,
+        "pingTime",
+        self.sandbox.fake.returns(456)
+      );
+
+      self.sandbox.replace(
+        UCI,
+        "getScoreForFen",
+        self.sandbox.fake(() => Promise.resolve(234))
+      );
+
+      self.sandbox.replace(
         i18n,
         "localizeMessage",
-          self.sandbox.fake(function(locale, i18nvalue, parameters) {
+        self.sandbox.fake(function(locale, i18nvalue, parameters) {
           return "i18n: " + locale + ", " + i18nvalue + ", " + parameters;
         })
       );
