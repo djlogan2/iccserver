@@ -13,6 +13,7 @@ const mongoCss = new Mongo.Collection("css");
 const mongoUser = new Mongo.Collection("userData");
 const Game = new Mongo.Collection("game");
 const GameRequestCollection = new Mongo.Collection("game_requests");
+const ClientMessagesCollection = new Mongo.Collection("client_messages");
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   // log.error(errorMsg + "::" + url + "::" + lineNumber);
@@ -45,10 +46,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
       from: null,
       to: null,
       subscription: {
-        css: Meteor.subscribe("css"),
-        // TODO: There are now "playing_games" and "observing_games" collections, and just "game" is no longer
+        css: Meteor.subscribe("css"), // TODO: There are now "playing_games" and "observing_games" collections, and just "game" is no longer
         game: Meteor.subscribe("playing_games"),
-        gameRequests: Meteor.subscribe("game_requests") //TODO soon we will use "observing_games" subscribe,
+        gameRequests: Meteor.subscribe("game_requests"), //TODO soon we will use "observing_games" subscribe,
+        clientMessages: Meteor.subscribe("client_messages")
       },
       move: "",
       isAuthenticated: Meteor.userId() !== null
@@ -69,6 +70,26 @@ export default class AppContainer extends TrackerReact(React.Component) {
       ]
     });
     return game;
+  }
+  renderGameRequest() {
+    return GameRequestCollection.findOne(
+      {
+        $or: [
+          {
+            receiver_id: Meteor.userId()
+          },
+          { type: "seek" }
+        ]
+      },
+      {
+        sort: { create_date: -1 }
+      }
+    );
+  }
+  clientMessages() {
+    return ClientMessagesCollection.findOne({
+      to: Meteor.userId()
+    });
   }
 
   _systemCSS() {
@@ -93,6 +114,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.css.stop();
     this.state.subscription.game.stop();
     this.state.subscription.gameRequests.stop();
+    this.state.subscription.clientMessages.stop();
   }
 
   componentWillMount() {
@@ -191,25 +213,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
   render() {
     // const gameRequest = GameRequestCollection.find({}).fetch()[0];
-    const gameRequest = GameRequestCollection.findOne(
-      {
-        $or: [
-          {
-            receiver_id: Meteor.userId()
-          },
-          { type: "seek" }
-        ]
-      },
-      {
-        sort: { create_date: -1 }
-      }
-    );
-
+    const gameRequest = this.renderGameRequest();
     const game = this.renderGameMessages();
-
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
-
+    const clientMessage = this.clientMessages();
+    log.debug("clientMessage", clientMessage);
     if (
       systemCSS === undefined ||
       boardCSS === undefined ||
@@ -232,6 +241,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           capture={capture}
           game={game}
           gameRequest={gameRequest}
+          clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
         />

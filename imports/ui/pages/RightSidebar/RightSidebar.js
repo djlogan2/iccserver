@@ -8,7 +8,6 @@ const log = new Logger("client/RightSidebar");
 
 class RightSidebar extends Component {
   render() {
-    //log.debug("legacyMessage=" + this.props.legacymessages);
     return (
       <div className="right-content-desktop">
         <div style={this.props.cssmanager.rightTopContent()}>
@@ -25,6 +24,7 @@ class RightSidebar extends Component {
           <RightBarBottom
             cssmanager={this.props.cssmanager}
             gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
           />
         </div>
       </div>

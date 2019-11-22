@@ -6,6 +6,8 @@ import PGN from "./PGNComponent";
 import Friends from "./FriendsComponent";
 import History from "./HistoryComponent";
 import "./Tabs/BottomStyles";
+import i18n from "meteor/universe:i18n";
+
 class RightBarBottom extends Component {
   getLang() {
     return (
@@ -22,6 +24,7 @@ class RightBarBottom extends Component {
       "Common.rightBarBottom",
       this.getLang()
     );
+
     return (
       <Tabs cssmanager={this.props.cssmanager} tabName="bottom">
         <div
@@ -32,6 +35,7 @@ class RightBarBottom extends Component {
           <Chat
             cssmanager={this.props.cssmanager}
             gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
           />
         </div>
         {/* 

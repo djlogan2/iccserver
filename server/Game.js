@@ -1667,9 +1667,9 @@ Meteor.publish("playing_games", function() {
         { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
       ]
     },
-      //TODO: Yes, players cannot see their computer scores during a played game. It should publish all fields EXCEPT for the computer score.
-      //      I think the error was the .$. According to the all-knowing google, the below is actually the correct syntax.
-      //      Apologies, I haven't written tests to test this publication yet, so I didn't discover the error yet.
+    //TODO: Yes, players cannot see their computer scores during a played game. It should publish all fields EXCEPT for the computer score.
+    //      I think the error was the .$. According to the all-knowing google, the below is actually the correct syntax.
+    //      Apologies, I haven't written tests to test this publication yet, so I didn't discover the error yet.
     // ,//DOUBT : We are not able to see any published games until we remove below line, can you explain what it is for?
     { fields: { "variations.movelist.score": 0 } }
   );

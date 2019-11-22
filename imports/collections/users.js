@@ -9,7 +9,7 @@ import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
 import { i18n } from "./i18n";
-import {LegacyUser} from "../../lib/server/LegacyUsers";
+import { LegacyUser } from "../../lib/server/LegacyUsers";
 
 let log = new Logger("server/users_js");
 
@@ -37,7 +37,6 @@ Meteor.publish("userData", function() {
   this.onStop(function() {
     log.debug("User left: " + self.userId);
     LegacyUser.logout(self.userId);
-
     Meteor.users.update({ _id: self.userId }, { $set: { loggedOn: false } });
     runLogoutHooks(this, self.userId);
   });

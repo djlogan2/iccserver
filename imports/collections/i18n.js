@@ -1,6 +1,6 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
-
+import { i18nCollectionMessageDoc } from "./i18nCollectionMessageDoc";
 export const i18n = {};
 const i18nCollection = new Mongo.Collection("i18n");
 //
@@ -46,7 +46,6 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
     messagid: i8nvalue,
     type: "server"
   });
-
   if (!i8nrecord) {
     throw new Meteor.Error(
       "Unable to find an internationalization record of type server with identifier " +
@@ -72,7 +71,12 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
       i8nvalue
   );
 };
-
+function firstAddI18nMessage() {
+  if (i18nCollection.find().count() === 0) {
+    i18nCollection.insert(i18nCollectionMessageDoc);
+  }
+}
 Meteor.startup(function() {
+  firstAddI18nMessage();
   if (Meteor.isTest || Meteor.isAppTest) i18n.collection = i18nCollection;
 });

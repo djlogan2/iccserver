@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import i18n from "meteor/universe:i18n";
+
 export default class ChatComponent extends Component {
   acceptGameSeek() {
     Meteor.call("acceptLocalGameSeek", "gameSeek");
@@ -40,22 +42,49 @@ export default class ChatComponent extends Component {
       </div>
     );
   };
-
+  getLang() {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
   render() {
+    let translator = i18n.createTranslator(
+      "Common.chatBoxMessage",
+      this.getLang()
+    );
     let gameSeekPopup = null;
     const request = this.props.gameRequest;
-
-    if (request !== undefined) {
-      // eslint-disable-next-line no-const-assign
-      if (request.type === "seek" && request.owner !== Meteor.userId()) {
-        gameSeekPopup = this.gameSeekRequest();
-      }
+    const newClientMessage = this.props.clientMessage;
+    let message = null;
+    if (newClientMessage !== undefined) {
+      message = translator(newClientMessage.message);
     }
+    if (request !== undefined)
+      if (request.type === "seek" && request.owner !== Meteor.userId())
+        gameSeekPopup = this.gameSeekRequest();
 
     return (
       <div>
         {gameSeekPopup}
         <div style={this.props.cssmanager.chatContent()}>
+          {newClientMessage ? (
+            <div className="user-1">
+              <h6>{translator("NEW_MESSAGE")}</h6>
+              <p>{message}</p>
+            </div>
+          ) : null}
+          <div className="user-1">
+            <h6>NEW GAME</h6>
+            <p>
+              <a href="#/">jack833</a> (639) vs. <a href="#/">York-Duvenhage</a>
+              (657) (10 min) win +85 / draw +4 / lose -77
+              <a href="#/">Try Focus Mode</a>
+            </p>
+          </div>
           <div className="user-1">
             <h6>NEW GAME</h6>
             <p>

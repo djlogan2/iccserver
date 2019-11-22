@@ -397,7 +397,6 @@ export default class MainPage extends Component {
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
     w /= 2;
-
     return (
       <div className="main">
         <div className="row">
@@ -456,7 +455,8 @@ export default class MainPage extends Component {
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
-              gameRequest={game !== undefined ? game : this.props.gameRequest}
+              gameRequest={this.props.gameRequest}
+              clientMessage={this.props.clientMessage}
               ref="right_sidebar"
             />
           </div>

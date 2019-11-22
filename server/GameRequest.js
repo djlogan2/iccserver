@@ -967,6 +967,28 @@ Meteor.publish("game_requests", function() {
 });
 
 function logoutHook(userId) {
+  let GameRequests = GameRequestCollection.findOne({
+    $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
+  });
+  if (GameRequests !== undefined) {
+    if (
+      GameRequests.challenger_id === userId ||
+      GameRequests.owner === userId
+    ) {
+      ClientMessages.sendMessageToClient(
+        GameRequests.receiver_id,
+        "message_identifier",
+        "CANNOT_MATCH_LOGGED_OFF_USER"
+      );
+    } else if (GameRequests.receiver_id === userId) {
+      ClientMessages.sendMessageToClient(
+        GameRequests.challenger_id,
+        "message_identifier",
+        "CANNOT_MATCH_LOGGED_OFF_USER"
+      );
+    }
+  }
+
   GameRequestCollection.remove({
     $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
   });
@@ -988,7 +1010,6 @@ function loginHook(user) {
       { $push: { matchingusers: user._id } },
       { multi: true }
     );
-    log.debug(updated + " records updated in loginHook for " + user._id);
   }
 }
 

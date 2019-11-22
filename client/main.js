@@ -48,6 +48,30 @@ Meteor.startup(() => {
         friends: "Friends",
         fen_pgn: "FEN/PGN",
         history: "History"
+      },
+      chatBoxMessage: {
+        NEW_MESSAGE: "NEW MESSAGE",
+        MATCH_DECLINED: "MATCH DECLINED",
+        CANNOT_MATCH_LOGGED_OFF_USER: "CANNOT MATCH LOGGED OFF USER",
+        NO_MATCH_FOUND: "NO MATCH FOUND",
+        TAKEBACK_ACCEPTED: "TAKEBACK ACCEPTED",
+        NOT_PLAYING_A_GAME: "NOT PLAYING A GAME",
+        NO_TAKEBACK_PENDING: "NO TAKEBACK PENDING",
+        TAKEBACK_DECLINED: "TAKEBACK DECLINED",
+        DRAW_ALREADY_PENDING: "DRAW ALREADY PENDING",
+        ABORT_ALREADY_PENDING: "ABORT ALREADY PENDING",
+        ADJOURN_ALREADY_PENDING: "ADJOURN ALREADY PENDING",
+        DRAW_ACCEPTED: "DRAW ACCEPTED",
+        DRAW_DECLINED: "DRAW DECLINED",
+        ABORT_ACCEPTED: "ABORT ACCEPTED",
+        ADJOURN_ACCEPTED: "ADJOURN ACCEPTED",
+        ABORT_DECLINED: "ABORT DECLINED",
+        ADJOURN_DECLINED: "ADJOURN DECLINED",
+        NOT_AN_EXAMINER: "NOT AN EXAMINER",
+        END_OF_GAME: "END OF GAME",
+        INVALID_VARIATION: "INVALID VARIATION",
+        VARIATION_REQUIRED: "VARIATION REQUIRED",
+        UNABLE_TO_PLAY_OPPONENT: "UNABLE TO PLAY OPPONENT"
       }
     }
   });
@@ -65,6 +89,31 @@ Meteor.startup(() => {
         email: "пожаловать",
         password: "passwпожаxc",
         submit: "ать"
+      },
+      chatBoxMessage: {
+        NEW_MESSAGE: "НОВОЕ СООБЩЕНИЕ",
+        MATCH_DECLINED: "МАТЧ ОТКЛОНЕН",
+        CANNOT_MATCH_LOGGED_OFF_USER:
+          "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ",
+        NO_MATCH_FOUND: "НЕ НАЙДЕНО",
+        TAKEBACK_ACCEPTED: "ПРИНЯТЬ ОБРАТНО ПРИНЯТО",
+        NOT_PLAYING_A_GAME: "НЕ ИГРАТЬ В ИГРУ",
+        NO_TAKEBACK_PENDING: "НЕТ ВЕРНУТЬ В ОЖИДАНИИ",
+        TAKEBACK_DECLINED: "TAKEBACK DECLINED",
+        DRAW_ALREADY_PENDING: "ВЕРНУТЬСЯ ОТКЛОНЕНО",
+        ABORT_ALREADY_PENDING: "АБОРТ УЖЕ В ОЖИДАНИИ",
+        ADJOURN_ALREADY_PENDING: "ADJOURN УЖЕ В ОЖИДАНИИ",
+        DRAW_ACCEPTED: "РИСУНОК ПРИНЯТО",
+        DRAW_DECLINED: "РИСУНОК ОТКЛОНЕН",
+        ABORT_ACCEPTED: "АБОРТ ПРИНЯТ",
+        ADJOURN_ACCEPTED: "ПРИЛОЖЕНИЕ ПРИНЯТО",
+        ABORT_DECLINED: "АБОРТ ОТКЛОНЕН",
+        ADJOURN_DECLINED: "ADJOURN ОТКЛОНЕН",
+        NOT_AN_EXAMINER: "НЕ ЭКСПЕРТ",
+        END_OF_GAME: "конец игры",
+        INVALID_VARIATION: "недопустимый вариант изменения",
+        VARIATION_REQUIRED: "ВАРИАЦИЯ ТРЕБУЕТСЯ",
+        UNABLE_TO_PLAY_OPPONENT: "Невозможно играть противником"
       }
     }
   });
@@ -110,6 +159,28 @@ Meteor.startup(() => {
         draw: "とあ片そ",
         resign: "とあ事",
         abort: "とあ片そ"
+      },
+      chatBoxMessage: {
+        MATCH_DECLINED: "MATCH DECLINED",
+        CANNOT_MATCH_LOGGED_OFF_USER: "CANNOT MATCH LOGGED OFF USER",
+        NO_MATCH_FOUND: "NO MATCH FOUND",
+        TAKEBACK_ACCEPTED: "TAKEBACK ACCEPTED",
+        NOT_PLAYING_A_GAME: "NOT PLAYING A GAME",
+        NO_TAKEBACK_PENDING: "NO TAKEBACK PENDING",
+        TAKEBACK_DECLINED: "TAKEBACK DECLINED",
+        DRAW_ALREADY_PENDING: "DRAW ALREADY PENDING",
+        ABORT_ALREADY_PENDING: "ABORT ALREADY PENDING",
+        ADJOURN_ALREADY_PENDING: "ADJOURN ALREADY PENDING",
+        DRAW_ACCEPTED: "DRAW ACCEPTED",
+        ABORT_ACCEPTED: "ABORT_ACCEPTED",
+        ADJOURN_ACCEPTED: "ADJOURN ACCEPTED",
+        ABORT_DECLINED: "ABORT DECLINED",
+        ADJOURN_DECLINED: "ADJOURN DECLINED",
+        NOT_AN_EXAMINER: "NOT AN EXAMINER",
+        END_OF_GAME: "END OF GAME",
+        INVALID_VARIATION: "INVALID VARIATION",
+        VARIATION_REQUIRED: "VARIATION REQUIRED",
+        UNABLE_TO_PLAY_OPPONENT: "UNABLE_TO_PLAY_OPPONENT"
       }
     }
   });

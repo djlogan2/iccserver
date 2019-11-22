@@ -124,11 +124,13 @@ ClientMessages.sendMessageToClient = function(
     })
   ); // It has to be a known and supported message to the client
   const parms = [];
+  //DOUBT :  what is arguments and where comes from?
   for (let x = 3; x < arguments.length; x++)
     if (Array.isArray(arguments[x]))
       arguments[x].forEach(arg => parms.push(arg));
     else parms.push(arguments[x]);
 
+  //DOUBT : what actully do DefinedClientMessagesMap[i18n_message] ?
   const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
     ? 0
     : DefinedClientMessagesMap[i18n_message].parameters.length;
@@ -148,11 +150,15 @@ ClientMessages.sendMessageToClient = function(
   if (!touser) return;
   // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
   const locale = touser.locale || "en-us";
-  const message = i18n.localizeMessage(locale, i18n_message, parms);
+  //DOUBT: i have got message undefined from i18n collection so temporary put in comment and pass static i18n_message.
+  // i am not sure may be you shoud pass these message to user native language. second thing is that how to auto remove message from collection. 
+
+  // const message = i18n.localizeMessage(locale, i18n_message, parms);
+
   return ClientMessagesCollection.insert({
     to: id,
     client_identifier: client_identifier,
-    message: message
+    message: i18n_message
   });
 };
 
