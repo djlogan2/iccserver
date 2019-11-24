@@ -49,6 +49,8 @@ Meteor.startup(() => {
         fen_pgn: "FEN/PGN",
         history: "History"
       },
+      // TODO: Why are these in the client? The server i18n converts these into messages, so you should
+      //       never get them directly. So what's up here?
       chatBoxMessage: {
         NEW_MESSAGE: "NEW MESSAGE",
         MATCH_DECLINED: "MATCH DECLINED",
@@ -90,6 +92,8 @@ Meteor.startup(() => {
         password: "passwпожаxc",
         submit: "ать"
       },
+      // TODO: Why are these in the client? The server i18n converts these into messages, so you should
+      //       never get them directly. So what's up here?
       chatBoxMessage: {
         NEW_MESSAGE: "НОВОЕ СООБЩЕНИЕ",
         MATCH_DECLINED: "МАТЧ ОТКЛОНЕН",
@@ -160,6 +164,8 @@ Meteor.startup(() => {
         resign: "とあ事",
         abort: "とあ片そ"
       },
+      // TODO: Why are these in the client? The server i18n converts these into messages, so you should
+      //       never get them directly. So what's up here?
       chatBoxMessage: {
         MATCH_DECLINED: "MATCH DECLINED",
         CANNOT_MATCH_LOGGED_OFF_USER: "CANNOT MATCH LOGGED OFF USER",

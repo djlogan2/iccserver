@@ -967,6 +967,9 @@ Meteor.publish("game_requests", function() {
 });
 
 function logoutHook(userId) {
+  // TODO: I'm not sure what you're trying to do here, notify the client I guess when somebody leaves?
+  //       If so, findOne isn't going to work. A user can match any number of other users, and any number
+  //       of other users can match one user, so you need to do a find().fetch() and do this in a loop, yes?
   let GameRequests = GameRequestCollection.findOne({
     $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
   });

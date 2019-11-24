@@ -114,6 +114,7 @@ Accounts.onCreateUser(function(options, user) {
 
 Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;
+  const connection = user_parameter.connection;
 
   Meteor.users.update({ _id: user._id }, { $set: { loggedOn: true } });
 
@@ -134,7 +135,7 @@ Accounts.onLogin(function(user_parameter) {
     LegacyUser.login(user);
   }
 
-  runLoginHooks(this, user);
+  runLoginHooks(this, user, connection);
 });
 
 const loginHooks = [];
@@ -152,8 +153,8 @@ Users.addLogoutHook = function(f) {
   });
 };
 
-function runLoginHooks(context, user) {
-  loginHooks.forEach(f => f.call(context, user));
+function runLoginHooks(context, user, connection) {
+  loginHooks.forEach(f => f.call(context, user, connection));
 }
 
 function runLogoutHooks(context, user) {

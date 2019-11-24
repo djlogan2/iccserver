@@ -1,6 +1,6 @@
 import { Engine } from "node-uci";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
-import { Random } from "meteor/random";
+import Random from "meteor/random";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 
