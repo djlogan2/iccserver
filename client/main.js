@@ -94,6 +94,7 @@ Meteor.startup(() => {
       },
       // TODO: Why are these in the client? The server i18n converts these into messages, so you should
       //       never get them directly. So what's up here?
+      //Yes. we have remove soon
       chatBoxMessage: {
         NEW_MESSAGE: "НОВОЕ СООБЩЕНИЕ",
         MATCH_DECLINED: "МАТЧ ОТКЛОНЕН",
@@ -166,6 +167,8 @@ Meteor.startup(() => {
       },
       // TODO: Why are these in the client? The server i18n converts these into messages, so you should
       //       never get them directly. So what's up here?
+
+      //yes. we have remove soon
       chatBoxMessage: {
         MATCH_DECLINED: "MATCH DECLINED",
         CANNOT_MATCH_LOGGED_OFF_USER: "CANNOT MATCH LOGGED OFF USER",

@@ -178,12 +178,12 @@ export default class MainPage extends Component {
     }
   };
   takeBackRequest = () => {
-    Meteor.call("requestTakeback", "takeback", this.gameId, 1);
+    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, 1);
   };
   takeBack = isAccept => {
     if (isAccept === "accepted")
-      Meteor.call("acceptTakeBack", "takeback", this.gameId);
-    else Meteor.call("declineTakeback", "takbackdecline", this.gameId);
+      Meteor.call("acceptTakeBack", "takeBackAccept", this.gameId);
+    else Meteor.call("declineTakeback", "takeBackDecline", this.gameId);
   };
   gameAccept = gameRequestData => {
     Meteor.call("gameRequestAccept", "gameAccept", gameRequestData["_id"]);
@@ -192,35 +192,35 @@ export default class MainPage extends Component {
     Meteor.call("gameRequestDecline", "gameDecline", gameRequestData["_id"]);
   };
   drawRequest = () => {
-    Meteor.call("requestToDraw", "draw", this.gameId);
+    Meteor.call("requestToDraw", "drawRequest", this.gameId);
   };
   draw = isAccept => {
     if (isAccept === "accepted")
-      Meteor.call("acceptDraw", "acceptDraw", this.gameId);
-    else Meteor.call("declineDraw", "declineDraw", this.gameId);
+      Meteor.call("acceptDraw", "drawAccept", this.gameId);
+    else Meteor.call("declineDraw", "drawDecline", this.gameId);
   };
   abortRequest = () => {
-    Meteor.call("requestToAbort", "abort", this.gameId);
+    Meteor.call("requestToAbort", "abortRequest", this.gameId);
   };
   // TODO: I'm not sure what this is doing, but you need to look at game.pending and/or of course game.actions
   abort = isAccept => {
     if (isAccept === "accepted")
-      Meteor.call("acceptAbort", "acceptAbort", this.gameId);
-    else Meteor.call("declineAbort", "declineAbort", this.gameId);
+      Meteor.call("acceptAbort", "abortAccept", this.gameId);
+    else Meteor.call("declineAbort", "abortDecline", this.gameId);
   };
   adjournRequest = () => {
     // TODO: misspelled
-    Meteor.call("requestToAdjourn", "abort", this.gameId); // TODO: misspelled
+    Meteor.call("requestToAdjourn", "adjournRequest", this.gameId); // TODO: misspelled
   };
   adjourn = isAccept => {
     // TODO: misspelled
     if (isAccept === "accepted")
-      Meteor.call("acceptAdjourn", "acceptAdjourn", this.gameId);
+      Meteor.call("acceptAdjourn", "adjournAccept", this.gameId);
     // TODO: misspelled
-    else Meteor.call("declineAdjourn", "declineAdjourn", this.gameId); // TODO: misspelled
+    else Meteor.call("declineAdjourn", "adjournDecline", this.gameId); // TODO: misspelled
   };
   resignGame = () => {
-    Meteor.call("resignGame", "resign", this.gameId);
+    Meteor.call("resignGame", "resignGame", this.gameId);
   };
 
   toggleMenu() {

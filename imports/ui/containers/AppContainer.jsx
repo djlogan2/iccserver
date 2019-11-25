@@ -198,7 +198,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
-        Meteor.call("addGameMove", "addmove", this.gameId, move);
+        Meteor.call("addGameMove", "gameMove", this.gameId, move);
         return true;
       }
     }

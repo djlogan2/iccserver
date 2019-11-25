@@ -2,7 +2,7 @@ import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
 // TODO: Why is this hard coded? Just put these into the database with the first run code. If these are the documents
 //       to be added on first run, then like below, move them to the first run file / directory.
-import { i18nCollectionMessageDoc } from "./i18nCollectionMessageDoc";
+
 export const i18n = {};
 const i18nCollection = new Mongo.Collection("i18n");
 //
@@ -44,10 +44,12 @@ i18n.standardizeLocale = function(locale) {
 };
 
 i18n.localizeMessage = function(locale, i8nvalue, parameters) {
+  //DOUBT : i have stuck in this. why findone is not working here?
   const i8nrecord = i18nCollection.findOne({
     messagid: i8nvalue,
     type: "server"
   });
+
   if (!i8nrecord) {
     throw new Meteor.Error(
       "Unable to find an internationalization record of type server with identifier " +
@@ -73,14 +75,10 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
       i8nvalue
   );
 };
+export default i18nCollection;
 // TODO: Please put first run code into a first run file by itself and put it in the same directory
 //       as all of the other first run files.
-function firstAddI18nMessage() {
-  if (i18nCollection.find().count() === 0) {
-    i18nCollection.insert(i18nCollectionMessageDoc);
-  }
-}
+
 Meteor.startup(function() {
-  firstAddI18nMessage();
   if (Meteor.isTest || Meteor.isAppTest) i18n.collection = i18nCollection;
 });

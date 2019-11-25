@@ -134,7 +134,6 @@ ClientMessages.sendMessageToClient = function(
     if (Array.isArray(arguments[x]))
       arguments[x].forEach(arg => parms.push(arg));
     else parms.push(arguments[x]);
-
   //DOUBT : what actully do DefinedClientMessagesMap[i18n_message] ?
   const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
     ? 0
@@ -149,7 +148,6 @@ ClientMessages.sendMessageToClient = function(
         parms.length +
         " parameters"
     );
-
   const id = typeof user === "object" ? user._id : user;
   const touser = Meteor.users.findOne({ _id: id, loggedOn: true });
   if (!touser) return;

@@ -3,6 +3,7 @@ import { Logger } from "../lib/server/Logger";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
+import firstAddI18nMessage from "../imports/startup/server/firstI18nMessage";
 import fs from "fs";
 
 import "../imports/collections/css";
@@ -30,4 +31,5 @@ process.on("uncaughtException", (err, origin) => {
 Meteor.startup(() => {
   firstRunCSS();
   firstRunUsers();
+  firstAddI18nMessage();
 });

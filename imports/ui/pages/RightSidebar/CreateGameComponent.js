@@ -30,7 +30,7 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   gameStart(user) {
     Meteor.call(
       "addLocalMatchRequest",
-      "mid",
+      "matchRequest",
       user,
       0,
       "standard",
@@ -45,7 +45,7 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
   createLocalGameSeek() {
     Meteor.call(
       "createLocalGameSeek",
-      "gameseek",
+      "seekRequest",
       0,
       "standard",
       15,

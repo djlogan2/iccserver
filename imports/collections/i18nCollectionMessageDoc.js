@@ -3,7 +3,7 @@
 const i18nCollectionMessageDoc = [
   {
     type: "server",
-    messageid: "CANNOT_MATCH_LOGGED_OFF_USER",
+    messageid: "cannotMatchUser",
     text: {
       en_us: "CANNOT MATCH LOGGED OFF USER",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -12,6 +12,24 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
+    messageid: "gameDecline",
+    text: {
+      en_us: "MATCH DECLINED",
+      es: "El mensaje con el valor {1} como valor de parámetro",
+      fr_xx: "МАТЧ ОТКЛОНЕН"
+    }
+  },
+  {
+    type: "ClientServer",
+    messageid: "matchRequest",
+    text: {
+      en_us: "CANNOT MATCH LOGGED OFF USER",
+      es: "El mensaje con el valor {1} como valor de parámetro",
+      fr_xx: "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ"
+    }
+  },
+  {
+    type: "OnlyClient",
     messageid: "MATCH_DECLINED",
     text: {
       en_us: "MATCH DECLINED",
