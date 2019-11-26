@@ -974,6 +974,10 @@ function logoutHook(userId) {
     $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
   }).fetch();
 
+  // TODO: This is failing a test, so this needs to be fixed.
+  //       Also, you shouldn't hard code client_identifier here. If you want to do this,
+  //       you should put the client_identifier, also known as the message_identifier,
+  //       into the match request record from the meteor method, and then use that here.
   if (GameRequests && GameRequests.length > 0) {
     GameRequests.forEach(request => {
       if (request.challenger_id === userId || request.owner === userId) {
