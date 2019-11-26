@@ -37,14 +37,18 @@ i18n.standardizeLocale = function(locale) {
       all.push(lower.substr(0, idx));
     }
   }
-  if (lower === "en" || lower === "en-us") return all;
+  //DOUBT: In our message collection we have 3 language: en_us,es,ru, and you have entered in database and
+  //here below the wrong string of language so I'm passing here the correct code for language to get the message
+  if (lower === "en" || lower === "en-us") {
+    all.push("en_us");
+    return all;
+  }
   all.push("en-us");
   all.push("en");
   return all;
 };
 
 i18n.localizeMessage = function(locale, i8nvalue, parameters) {
-  //DOUBT : i have stuck in this. why findone is not working here?
   const i8nrecord = i18nCollection.findOne({
     messagid: i8nvalue,
     type: "server"
@@ -56,20 +60,20 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
         i8nvalue
     );
   }
-
   const locale_array = i18n.standardizeLocale(locale);
-
+  let a;
   locale_array.forEach(ll => {
     if (i8nrecord.text[ll]) {
-      let a = i8nrecord.text[ll];
-
+      a = i8nrecord.text[ll];
       for (let k in parameters) {
         a = a.replace("{" + k + "}", parameters[k]);
       }
-      return a;
+      // return a;
     }
   });
-
+  if (a !== undefined) {
+    return a;
+  }
   throw new Meteor.Error(
     "Unable to find an internationalization record of type server with a suitable locale for identifier " +
       i8nvalue

@@ -6,7 +6,9 @@ export default class ChatComponent extends Component {
   acceptGameSeek() {
     Meteor.call("acceptLocalGameSeek", "gameSeek");
   }
-
+  removeAcknowledgeMessage(messageId) {
+    Meteor.call("acknowledge.client.message", messageId);
+  }
   gameSeekRequest = () => {
     return (
       <div
@@ -58,10 +60,9 @@ export default class ChatComponent extends Component {
     );
     let gameSeekPopup = null;
     const request = this.props.gameRequest;
-    const newClientMessage = this.props.clientMessage;
     let message = null;
-    if (newClientMessage !== undefined) {
-      message = translator(newClientMessage.message);
+    if (this.props.clientMessage !== undefined) {
+      message = this.props.clientMessage;
     }
     if (request !== undefined)
       if (request.type === "seek" && request.owner !== Meteor.userId())
@@ -71,10 +72,21 @@ export default class ChatComponent extends Component {
       <div>
         {gameSeekPopup}
         <div style={this.props.cssmanager.chatContent()}>
-          {newClientMessage ? (
+          {message ? (
             <div className="user-1">
               <h6>{translator("NEW_MESSAGE")}</h6>
-              <p>{message}</p>
+              <p>
+                {message.message}
+                <button
+                  style={this.props.cssmanager.buttonStyle()}
+                  onClick={this.removeAcknowledgeMessage.bind(
+                    this,
+                    message._id
+                  )}
+                >
+                  <img src="images/delete-sign.png" />
+                </button>
+              </p>
             </div>
           ) : null}
           <div className="user-1">

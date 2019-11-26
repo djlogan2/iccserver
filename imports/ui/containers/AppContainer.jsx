@@ -87,9 +87,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
     );
   }
   clientMessages() {
-    return ClientMessagesCollection.findOne({
-      to: Meteor.userId()
-    });
+    return ClientMessagesCollection.findOne(
+      {
+        to: Meteor.userId()
+      },
+      { sort: { createDate: -1, limit: 1 } }
+    );
   }
 
   _systemCSS() {

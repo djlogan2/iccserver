@@ -175,6 +175,12 @@ function logoutHook(userId) {
 }
 
 Meteor.startup(function() {
+  //DOUBT: I am not sure that I have create an index on createDate for automatically discard a document in 1 minute.
+  // if it is not required then I will remove later.
+  ClientMessagesCollection.rawCollection().createIndex(
+    { createDate: 1 },
+    { expireAfterSeconds: 60 }
+  );
   Users.addLogoutHook(logoutHook);
 
   if (Meteor.isTest || Meteor.isAppTest) {
