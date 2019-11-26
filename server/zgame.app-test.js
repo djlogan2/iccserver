@@ -409,12 +409,7 @@ describe("Game.startLegacyGame", function() {
       "isLoggedOn",
       self.sandbox.fake.returns(true)
     );
-    //
-    // OK, so here's the deal. If a user is logged on here, they can play a legacy user.
-    // But I assert that if both players are logged on here, don't go through legacy. Just play local.
-    // TODO: I also say that in the list of logged on users, it doesn't show legacy users that are also logged on here. Only legacy users that aren't also logged on here.
-    // By the way, I think this will error out by default due to the duplicate game number, but we should do something more specific.
-    //
+
     self.loggedonuser = legacy1;
     chai.assert.throws(
       () =>
@@ -705,8 +700,6 @@ describe("Game.startLegacyGame", function() {
   //   promote_to_king
 });
 
-// TODO: It occurs to me that if we are just getting legacy moves, how do we know what the board looks like?
-//       Think a wild, like atomic or something. Hmmm...
 describe("Game.saveLegacyMove", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 

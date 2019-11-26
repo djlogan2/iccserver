@@ -15,7 +15,6 @@ import { TestHelpers } from "../server/TestHelpers";
 //      TODO: The method should fail if the calling user isn't in the appropriate role
 //      TODO: The method should success if the calling user IS in the appropriate role
 //
-// TODO: Create a collection for online legacy users and do that instead of realtime
 // TODO: See if we can prevent creating a user, and prevent logging on, from an IP (i.e. IP range)
 //
 const logged_on_user_fields = {

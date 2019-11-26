@@ -1,9 +1,7 @@
-//TODO : i am not sure can we define all i18n message in collection
-// then required message we can find
 const i18nCollectionMessageDoc = [
   {
     type: "server",
-    messagid: "MATCH_DECLINED",
+    messageid: "MATCH_DECLINED",
     text: {
       en_us: "MATCH DECLINED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -12,7 +10,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "CANNOT_MATCH_LOGGED_OFF_USER",
+    messageid: "CANNOT_MATCH_LOGGED_OFF_USER",
     text: {
       en_us: "CANNOT MATCH LOGGED OFF USER",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -21,7 +19,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "NO_MATCH_FOUND",
+    messageid: "NO_MATCH_FOUND",
     text: {
       en_us: "NO MATCH FOUND",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -30,7 +28,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "TAKEBACK_ACCEPTED",
+    messageid: "TAKEBACK_ACCEPTED",
     text: {
       en_us: "TAKEBACK ACCEPTED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -39,7 +37,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "NOT_PLAYING_A_GAME",
+    messageid: "NOT_PLAYING_A_GAME",
     text: {
       en_us: "NOT PLAYING A GAME",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -48,7 +46,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "NO_TAKEBACK_PENDING",
+    messageid: "NO_TAKEBACK_PENDING",
     text: {
       en_us: "NO TAKEBACK PENDING",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -57,7 +55,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "TAKEBACK_DECLINED",
+    messageid: "TAKEBACK_DECLINED",
     text: {
       en_us: "TAKEBACK DECLINED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -66,7 +64,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "DRAW_ALREADY_PENDING",
+    messageid: "DRAW_ALREADY_PENDING",
     text: {
       en_us: "DRAW ALREADY PENDING",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -75,7 +73,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "ABORT_ALREADY_PENDING",
+    messageid: "ABORT_ALREADY_PENDING",
     text: {
       en_us: "ABORT ALREADY PENDING",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -84,7 +82,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "ADJOURN_ALREADY_PENDING",
+    messageid: "ADJOURN_ALREADY_PENDING",
     text: {
       en_us: "ADJOURN ALREADY PENDING",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -93,7 +91,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "DRAW_ACCEPTED",
+    messageid: "DRAW_ACCEPTED",
     text: {
       en_us: "DRAW ACCEPTED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -102,7 +100,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "DRAW_DECLINED",
+    messageid: "DRAW_DECLINED",
     text: {
       en_us: "DRAW DECLINED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -111,7 +109,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "ABORT_ACCEPTED",
+    messageid: "ABORT_ACCEPTED",
     text: {
       en_us: "ABORT ACCEPTED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -120,7 +118,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "ADJOURN_ACCEPTED",
+    messageid: "ADJOURN_ACCEPTED",
     text: {
       en_us: "ADJOURN ACCEPTED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -129,7 +127,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "ABORT_DECLINED",
+    messageid: "ABORT_DECLINED",
     text: {
       en_us: "ABORT DECLINED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -138,7 +136,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "ADJOURN_DECLINED",
+    messageid: "ADJOURN_DECLINED",
     text: {
       en_us: "ADJOURN DECLINED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -147,7 +145,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "NOT_AN_EXAMINER",
+    messageid: "NOT_AN_EXAMINER",
     text: {
       en_us: "NOT AN EXAMINER",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -156,7 +154,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "END_OF_GAME",
+    messageid: "END_OF_GAME",
     text: {
       en_us: "END OF GAME",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -165,7 +163,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "INVALID_VARIATION",
+    messageid: "INVALID_VARIATION",
     text: {
       en_us: "INVALID VARIATION",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -174,7 +172,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "VARIATION_REQUIRED",
+    messageid: "VARIATION_REQUIRED",
     text: {
       en_us: "VARIATION REQUIRED",
       es: "El mensaje con el valor {1} como valor de parámetro",
@@ -183,7 +181,7 @@ const i18nCollectionMessageDoc = [
   },
   {
     type: "server",
-    messagid: "UNABLE_TO_PLAY_OPPONENT",
+    messageid: "UNABLE_TO_PLAY_OPPONENT",
     text: {
       en_us: "UNABLE TO PLAY OPPONENT",
       es: "El mensaje con el valor {1} como valor de parámetro",

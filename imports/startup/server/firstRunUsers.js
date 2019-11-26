@@ -31,48 +31,8 @@ export default function firstRunUsers() {
     });
     Roles.addUsersToRoles(id, "administrator");
     Roles.addUsersToRoles(id, standard_member_roles);
-    //TODO: Remove this too
-    const id3 = Accounts.createUser({
-      username: "djlogan",
-      locale: "en-us",
-      board_css: "developmentcss",
-      email: "djlogan@chessclub.com",
-      password: "ca014dedjl",
-      profile: {
-        firstname: "David",
-        lastname: "Logan",
-        legacy: {
-          username: "stcbot",
-          password: "ca014dedjl",
-          autologin: true,
-          validated: true
-        }
-      },
-      settings: {
-        autoaccept: true
-      }
-    });
 
-    Roles.addUsersToRoles(id3, ["administrator", "legacy_login", "developer"]);
-    Roles.addUsersToRoles(id3, standard_member_roles);
-    //TODO: Remove this too
-    const id2 = Accounts.createUser({
-      username: "d",
-      locale: "en-us",
-      board_css: "developmentcss",
-      email: "d@c.com",
-      password: "d",
-      profile: {
-        firstname: "David",
-        lastname: "Logan"
-      },
-      settings: {
-        autoaccept: true
-      }
-    });
-    Roles.addUsersToRoles(id2, ["administrator", "developer"]);
-    Roles.addUsersToRoles(id2, standard_member_roles);
-
+    // TODO: Remove this after we are done with development
     for (let x = 1; x < 3; x++) {
       const idx = Accounts.createUser({
         username: "uiuxtest" + x,

@@ -162,11 +162,11 @@ export default class MainPage extends Component {
       case "abort":
         this.abort(actionType);
         break;
-      case "adjournRequest": // TODO: misspelled Adjourn
-        this.adjournRequest(); // TODO: misspelled
+      case "adjournRequest":
+        this.adjournRequest();
         break;
-      case "adjourn": // TODO: misspelled
-        this.adjourn(actionType); // TODO: misspelled
+      case "adjourn":
+        this.adjourn(actionType);
         break;
       case "resign":
         this.resignGame();
@@ -202,22 +202,19 @@ export default class MainPage extends Component {
   abortRequest = () => {
     Meteor.call("requestToAbort", "abortRequest", this.gameId);
   };
-  // TODO: I'm not sure what this is doing, but you need to look at game.pending and/or of course game.actions
+
   abort = isAccept => {
     if (isAccept === "accepted")
       Meteor.call("acceptAbort", "abortAccept", this.gameId);
     else Meteor.call("declineAbort", "abortDecline", this.gameId);
   };
   adjournRequest = () => {
-    // TODO: misspelled
-    Meteor.call("requestToAdjourn", "adjournRequest", this.gameId); // TODO: misspelled
+    Meteor.call("requestToAdjourn", "adjournRequest", this.gameId);
   };
   adjourn = isAccept => {
-    // TODO: misspelled
     if (isAccept === "accepted")
       Meteor.call("acceptAdjourn", "adjournAccept", this.gameId);
-    // TODO: misspelled
-    else Meteor.call("declineAdjourn", "adjournDecline", this.gameId); // TODO: misspelled
+    else Meteor.call("declineAdjourn", "adjournDecline", this.gameId);
   };
   resignGame = () => {
     Meteor.call("resignGame", "resignGame", this.gameId);

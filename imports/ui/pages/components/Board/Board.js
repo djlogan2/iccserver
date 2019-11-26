@@ -229,48 +229,6 @@ export default class Board extends React.Component {
     this.fileFrom = filefromList[this.fileFrom];
     this.fileTo = filefromList[this.fileTo];
 
-    //
-    // TODO: Yea, this isn't really good  . First of all, if there is going to be a gigantic IF statement, it shouldn't be replicated, it should be a function.
-    //       Secondly, aren't there far more efficient ways to do this?
-    //       For example: this.fileFrom = String.fromCharCode(97 + this.fileFrom);
-    //       For Example: const array = ['a','b','c','d','e','f','g','h']; this.fileFrom = array[this.fileFrom];
-    //       And then the code is duplicated again? Please clean this up.
-    //
-   /*  if (this.fileFrom === 0) {
-      this.fileFrom = "a";
-    } else if (this.fileFrom === 1) {
-      this.fileFrom = "b";
-    } else if (this.fileFrom === 2) {
-      this.fileFrom = "c";
-    } else if (this.fileFrom === 3) {
-      this.fileFrom = "d";
-    } else if (this.fileFrom === 4) {
-      this.fileFrom = "e";
-    } else if (this.fileFrom === 5) {
-      this.fileFrom = "f";
-    } else if (this.fileFrom === 6) {
-      this.fileFrom = "g";
-    } else {
-      this.fileFrom = "h";
-    }
-    if (this.fileTo === 0) {
-      this.fileTo = "a";
-    } else if (this.fileTo === 1) {
-      this.fileTo = "b";
-    } else if (this.fileTo === 2) {
-      this.fileTo = "c";
-    } else if (this.fileTo === 3) {
-      this.fileTo = "d";
-    } else if (this.fileTo === 4) {
-      this.fileTo = "e";
-    } else if (this.fileTo === 5) {
-      this.fileTo = "f";
-    } else if (this.fileTo === 6) {
-      this.fileTo = "g";
-    } else {
-      this.fileTo = "h";
-    } */
-
     let moveFrom = this.fileFrom + this.rankFrom;
     let moveTo = this.fileTo + this.rankTo;
     let isMove = this.props.onDrop({

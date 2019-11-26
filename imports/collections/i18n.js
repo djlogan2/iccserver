@@ -1,7 +1,5 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
-// TODO: Why is this hard coded? Just put these into the database with the first run code. If these are the documents
-//       to be added on first run, then like below, move them to the first run file / directory.
 
 export const i18n = {};
 const i18nCollection = new Mongo.Collection("i18n");
@@ -50,7 +48,7 @@ i18n.standardizeLocale = function(locale) {
 
 i18n.localizeMessage = function(locale, i8nvalue, parameters) {
   const i8nrecord = i18nCollection.findOne({
-    messagid: i8nvalue,
+    messageid: i8nvalue,
     type: "server"
   });
 
@@ -79,9 +77,6 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
       i8nvalue
   );
 };
-export default i18nCollection;
-// TODO: Please put first run code into a first run file by itself and put it in the same directory
-//       as all of the other first run files.
 
 Meteor.startup(function() {
   if (Meteor.isTest || Meteor.isAppTest) i18n.collection = i18nCollection;

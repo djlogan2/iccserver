@@ -46,9 +46,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
       from: null,
       to: null,
       subscription: {
-        css: Meteor.subscribe("css"), // TODO: There are now "playing_games" and "observing_games" collections, and just "game" is no longer
+        css: Meteor.subscribe("css"),
         game: Meteor.subscribe("playing_games"),
-        gameRequests: Meteor.subscribe("game_requests"), //TODO soon we will use "observing_games" subscribe,
+        gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages")
       },
       move: "",
@@ -208,7 +208,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   };
   _boardFromMongoMessages(game) {
     this._board = new Chess.Chess();
-    let variations = game.variations.movelist; // TODO: use either game.actions or game.variations
+    let variations = game.variations.movelist;
 
     for (const variation of variations) {
       this._board.move(variation.move);

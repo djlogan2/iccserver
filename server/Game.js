@@ -12,6 +12,7 @@ import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
+import { TimestampServer } from "../lib/Timestamp";
 
 export const Game = {};
 
@@ -1667,10 +1668,6 @@ Meteor.publish("playing_games", function() {
         { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
       ]
     },
-    //TODO: Yes, players cannot see their computer scores during a played game. It should publish all fields EXCEPT for the computer score.
-    //      I think the error was the .$. According to the all-knowing google, the below is actually the correct syntax.
-    //      Apologies, I haven't written tests to test this publication yet, so I didn't discover the error yet.
-    // ,//DOUBT : We are not able to see any published games until we remove below line, can you explain what it is for?
     { fields: { "variations.movelist.score": 0 } }
   );
 });
@@ -2029,6 +2026,48 @@ function addMoveToMoveList(variation_object, move) {
   }
   return !exists;
 }
+
+const game_pings = {};
+
+function startGamePing(game_id) {
+  game_pings[game_id] = new TimestampServer(
+    (key, msg) => {
+      if (key === "pong") {
+        GameCollection.update(
+          { _id: game_id, status: "playing" },
+          { $push: { ping_requests: { key: msg } } }
+        );
+      } else { //pingresult
+        console.log("We have to save lag for white or black here, depending upon who we got it for");
+//        GameCollection.update;
+      }
+    },
+    () => {}
+  );
+}
+
+function endGamePing(game_id) {
+  if (!game_pings[game_id])
+    throw new Meteor.Error(
+      "Unable to update game ping",
+      "Unable to locate game to ping"
+    );
+  game_pings[game_id].stop();
+  delete game_pings[game_id];
+}
+
+Meteor.methods({
+  gamepong: function(game_id, pong) {
+    check(game_id, String);
+    check(pong, Object);
+    if (!game_pings[game_id])
+      throw new Meteor.Error(
+        "Unable to update game ping",
+        "Unable to locate game to ping"
+      );
+    game_pings[game_id].pongArrived(pong);
+  }
+});
 
 Meteor.startup(function() {
   GameCollection.remove({});

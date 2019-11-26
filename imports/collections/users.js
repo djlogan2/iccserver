@@ -24,11 +24,6 @@ Meteor.publish("loggedOnUsers", function() {
 
 // TODO: Add a method that is draining the server (i.e. not allowing anyone to login)
 //       and add this to the login attempt method below.
-// TODO: legacy username has to be "pending" until it's validated.
-//       The problem: Anyone can set themselves to any legacy username and instantly start getting all of the legacy messages, and even play games, chat, etc.(!!)
-//       I'm thinking that we don't write legacy.username, but we write legacy.pending_username
-//       In the L2.WHO_AM_I, if we have a pending, we change it to just username.
-
 Meteor.publish("userData", function() {
   if (!this.userId) return [];
 

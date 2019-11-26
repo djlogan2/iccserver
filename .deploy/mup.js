@@ -8,7 +8,6 @@ module.exports = {
   },
 
   app: {
-    // TODO: change app name and path
     name: 'iccserver',
     path: '../',
 

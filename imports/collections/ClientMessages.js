@@ -124,17 +124,10 @@ ClientMessages.sendMessageToClient = function(
     })
   ); // It has to be a known and supported message to the client
   const parms = [];
-  //DOUBT :  what is arguments and where comes from?
-  // TODO: They come from the issuer. I'm trying to avoid arguments in general, but when they are necessaray, they
-  //       have to be specified in an array of arguments so that they can be incorporated into the users native
-  //       language. For example, if we had a message that said something like "user djlogan is not logged on",
-  //       the user is an argument, and each language message would be things like "user {1} is not logged on",
-  //       or "upayogakarta {1} log on nahin hai".
   for (let x = 3; x < arguments.length; x++)
     if (Array.isArray(arguments[x]))
       arguments[x].forEach(arg => parms.push(arg));
     else parms.push(arguments[x]);
-  //DOUBT : what actully do DefinedClientMessagesMap[i18n_message] ?
   const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
     ? 0
     : DefinedClientMessagesMap[i18n_message].parameters.length;
@@ -153,13 +146,6 @@ ClientMessages.sendMessageToClient = function(
   if (!touser) return;
   // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
   const locale = touser.locale || "en-us";
-  //DOUBT: i have got message undefined from i18n collection so temporary put in comment and pass static i18n_message.
-  // TODO: Yea, that's because we haven't created the collection or put the messages into the database yet.
-  // i am not sure may be you shoud pass these message to user native language. second thing is that how to auto remove message from collection.
-  // TODO: Yea, I'm kind of on the fence about it, but I'm not sure why the client should do it. The less the client
-  //       has to do, the better.
-  // TODO: It will have to be a meteor method that just deletes the message. I thought I already had the meteor method
-  //       defined, but if I don't (or lost it), it's just a matter of deleting the message from the collection.
 
   const message = i18n.localizeMessage(locale, i18n_message, parms);
 

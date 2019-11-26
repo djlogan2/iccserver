@@ -620,7 +620,7 @@ GameRequests.addLocalMatchRequest = function(
     type: "match",
     challenger: challenger_user.username,
     challenger_rating: challenger_user.ratings[rating_type].rating,
-    challenger_titles: [], // TODO: ditto
+    challenger_titles: [],
     challenger_established: established(challenger_user.ratings[rating_type]),
     challenger_id: challenger_user._id,
     message_identifier: message_identifier,
@@ -628,20 +628,20 @@ GameRequests.addLocalMatchRequest = function(
     receiver_rating: receiver_user.ratings[rating_type].rating,
     receiver_established: established(receiver_user.ratings[rating_type]),
     receiver_id: receiver_user._id,
-    receiver_titles: [], // TODO: ditto
+    receiver_titles: [],
     wild_number: wild_number,
     rating_type: rating_type,
     rated: is_it_rated,
-    adjourned: is_it_adjourned, // TODO: We have to figure this out too
+    adjourned: is_it_adjourned,
     challenger_time: challenger_time,
     challenger_inc: challenger_inc,
     receiver_time: receiver_time,
     receiver_inc: receiver_inc,
-    challenger_color_request: challenger_color_request, // TODO: We have to figure this out too
+    challenger_color_request: challenger_color_request,
     assess_loss: assess.loss,
     assess_draw: assess.draw,
     assess_win: assess.win,
-    fancy_time_control: fancy_time_control // TODO: We have to figure this out too
+    fancy_time_control: fancy_time_control
   };
 
   return GameRequestCollection.insert(record);
