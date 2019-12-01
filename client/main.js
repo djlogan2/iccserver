@@ -8,6 +8,9 @@ import "../lib/client/timestamp";
 Meteor.startup(() => {
   i18n.addTranslations("en-US", {
     Common: {
+      HomeContainer: {
+        mainContent: "xxxx"
+      },
       loginForm: {
         login: "Login",
         email: "email",
@@ -24,7 +27,10 @@ Meteor.startup(() => {
       rightBarTop: {
         game: "Game",
         play: "Play",
-        tournaments: "Tournaments"
+        tournaments: "Tournaments",
+        quikpairing: "Quick Pairing",
+        seekgame: "Seek a Game",
+        matchuser: "Match User"
       },
       menuLinkLabel: {
         play: "Play",
@@ -34,7 +40,8 @@ Meteor.startup(() => {
         topPlayers: "Top Players",
         logIn: "Log in",
         singUp: "Sign up",
-        help: "Help"
+        help: "Help",
+        logout: "Logout"
       },
       actionButtonLabel: {
         takeBack: "Take Back",
@@ -49,6 +56,11 @@ Meteor.startup(() => {
         fen_pgn: "FEN/PGN",
         history: "History"
       },
+      MatchUserSubTab: {
+        friends: "Friends",
+        recentOpponent: "Recent Opponent"
+      },
+
       // TODO: Why are these in the client? The server i18n converts these into messages, so you should
       //       never get them directly. So what's up here?
       chatBoxMessage: {
@@ -79,6 +91,9 @@ Meteor.startup(() => {
   });
   i18n.addTranslations("ru-RU", {
     Common: {
+      HomeContainer: {
+        mainContent: "xxxx"
+      },
       loginForm: {
         login: "Добро пожаловать в пожа пожаxc ловатьлов ать !",
         email: "пожаловать",
@@ -91,6 +106,10 @@ Meteor.startup(() => {
         email: "пожаловать",
         password: "passwпожаxc",
         submit: "ать"
+      },
+      MatchUserSubTab: {
+        friends: "Friends",
+        recentOpponent: "Recent Opponent"
       },
       // TODO: Why are these in the client? The server i18n converts these into messages, so you should
       //       never get them directly. So what's up here?
@@ -124,6 +143,9 @@ Meteor.startup(() => {
   });
   i18n.addTranslations("ja", {
     Common: {
+      HomeContainer: {
+        mainContent: "お忘れ"
+      },
       loginForm: {
         login: "お忘れでですか",
         email: "パスワードをお忘れですか",
@@ -140,7 +162,10 @@ Meteor.startup(() => {
       rightBarTop: {
         game: "ドを",
         play: "ドをay",
-        tournaments: "ドをドを"
+        tournaments: "ドをドを",
+        quikpairing: "ドをドを",
+        seekgame: "ドをドをドをドを",
+        matchuser: "ドドド"
       },
       rightBarBottom: {
         chat: "ドを",

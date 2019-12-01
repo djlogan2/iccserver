@@ -274,29 +274,7 @@ const systemcss = {
     }
   },
   tabListItem1: {
-    Game: {
-      color: " #495057",
-      background: "#efefef",
-      borderColor: " #1565c0",
-      borderTop: " 2px #1565c0 solid",
-      fontSize: "18px",
-      textAlign: "center",
-      WebkitFlex: "1",
-      flex: "1",
-      padding: "8px 0"
-    },
-    Play: {
-      color: " #495057",
-      background: "#efefef",
-      borderColor: " #1565c0",
-      borderTop: " 2px #1565c0 solid",
-      fontSize: "18px",
-      textAlign: "center",
-      WebkitFlex: "1",
-      flex: "1",
-      padding: "8px 0"
-    },
-    Tournaments: {
+    all: {
       color: " #495057",
       background: "#efefef",
       borderColor: " #1565c0",
@@ -311,6 +289,43 @@ const systemcss = {
   tabContent: {
     all: {
       padding: "0px"
+    }
+  },
+  tabSeparator: {
+    all: {
+      backgroundColor: "#efefef",
+      padding: "15px"
+    }
+  },
+  subTabHeader: {
+    all: {
+      border: "#ccc 1px solid",
+      borderTop: "0px"
+    }
+  },
+  matchUserScroll: {
+    all: {
+      padding: "20px",
+      overflowX: "hidden",
+      height: "280px",
+      overflowY: "scroll"
+    }
+  },
+  matchUserButton: {
+    all: {
+      backgroundColor: "transparent",
+      width: "100%",
+      display: "block",
+      height: "auto",
+      margin: "0",
+      borderRadius: "0px",
+      color: "#000",
+      textAlign: "left",
+      border: "0px",
+      borderBottom: "#ccc 1px solid",
+      padding: "8px 15px",
+      fontSize: "14px",
+      fontWeight: "bold"
     }
   },
   TabIcon: {
@@ -343,7 +358,6 @@ const systemcss = {
       borderRadius: " 0 0 3px 3px",
       background: "#fff",
       marginTop: "0px",
-
       padding: "0 15px"
     }
   },

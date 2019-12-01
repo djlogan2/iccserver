@@ -3,6 +3,8 @@ import Tabs from "./Tabs/Tabs";
 import GameHistory from "./GameComponent";
 import CreateGame from "./CreateGameComponent";
 import TournamentsList from "./TournamentsListComponent";
+import SeekGame from "./SeekGameComponent";
+import MatchUser from "./MatchUserComponent";
 import i18n from "meteor/universe:i18n";
 import "./Tabs/styles";
 import { Logger } from "../../../../lib/client/Logger";
@@ -29,12 +31,7 @@ export default class RightBarTop extends Component {
 
     return (
       <Tabs cssmanager={this.props.cssmanager}>
-        {/* 
-		    GameHistory is the dynamic component and loads as Player
-		  	starts the game.
-		  	also these component with 
-	    	*/}
-        <div label={translator("game")} imgsrc="images/game-icon-gray.png">
+        {/*   <div label={translator("game")} imgsrc="images/game-icon-gray.png">
           <GameHistory
             cssmanager={this.props.cssmanager}
             MoveHistory={this.props.RightBarTopData.MoveList.GameMove}
@@ -52,12 +49,18 @@ export default class RightBarTop extends Component {
           label={translator("tournaments")}
           imgsrc="images/tournament-icon-gray.png"
         >
-          <TournamentsList
-            cssmanager={this.props.cssmanager}
-            TournamentsList={
-              this.props.RightBarTopData.TournamentList.Tournaments
-            }
-          />
+          <MatchUser cssmanager={this.props.cssmanager} />
+        </div>
+      */}
+        <div label={translator("quikpairing")}>
+          <SeekGame cssmanager={this.props.cssmanager} />
+        </div>
+
+        <div label={translator("seekgame")}>
+          <SeekGame cssmanager={this.props.cssmanager} />
+        </div>
+        <div label={translator("matchuser")}>
+          <MatchUser cssmanager={this.props.cssmanager} />
         </div>
       </Tabs>
     );

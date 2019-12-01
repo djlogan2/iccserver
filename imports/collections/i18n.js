@@ -77,7 +77,7 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
       i8nvalue
   );
 };
-
+export default i18nCollection;
 Meteor.startup(function() {
   if (Meteor.isTest || Meteor.isAppTest) i18n.collection = i18nCollection;
 });

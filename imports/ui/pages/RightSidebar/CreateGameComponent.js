@@ -1,74 +1,21 @@
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import React from "react";
-import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("CreateGameComponent_js");
-const legacyUsersC = new Mongo.Collection("legacyUsers");
-
 // TODO: What do we do when a user is logged on local AND legacy? They currently show up twice, as in localuser and legacyuser(L).
 //   I would assume we want to remove them from one of the lists...
 // TODO: Do users that are not logged on to legacy see legacy users? I think not, but at the moment, everyone will.
-export default class CreateGameComponent extends TrackerReact(React.Component) {
+export default class CreateGameComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       error: null,
-      trial: 0,
-      subscription: {
-        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        legacyUsers: Meteor.subscribe("legacyUsers")
-      }
+      trial: 0
     };
   }
 
-  componentWillUnmount() {
-    this.state.subscription.loggedOnUsers.stop();
-    this.state.subscription.legacyUsers.stop();
-  }
-
-  gameStart(user) {
-    Meteor.call(
-      "addLocalMatchRequest",
-      "matchRequest",
-      user,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      0,
-      15,
-      0
-    );
-  }
-  createLocalGameSeek() {
-    Meteor.call(
-      "createLocalGameSeek",
-      "seekRequest",
-      0,
-      "standard",
-      15,
-      0,
-      true,
-      null,
-      null,
-      null,
-      true
-    );
-  }
   render() {
-    if (Meteor.userId() == null) return;
-    const localUsers = Meteor.users
-      .find({ _id: { $ne: Meteor.userId() } })
-      .fetch();
-    const legacyUsers = legacyUsersC.find({}).fetch();
-    const _userdata = localUsers.map(user => user.username);
-    const userdata = _userdata.concat(
-      legacyUsers.map(user => user.username + "(L)")
-    );
-    //  userdata.sort();
-
     return (
       <div className="play-tab-content">
         <nav>
@@ -106,65 +53,6 @@ export default class CreateGameComponent extends TrackerReact(React.Component) {
             </ul>
           </div>
         </nav>
-        <div>
-          {/* TODO : THIS IS TEMPORARY WRITE HERE  */}
-          <button
-            onClick={this.createLocalGameSeek.bind(this)}
-            style={{
-              backgroundColor: "#1565c0",
-              border: "none",
-              color: "white",
-              padding: "5px 10px",
-              textAign: "center",
-              textDecoration: "none",
-              display: "inline-block",
-              fontSize: "12px",
-              borderRadius: "5px"
-            }}
-          >
-            GAME SEEK
-          </button>
-        </div>
-        <div style={{ height: "250px", overflowX: "Scroll" }}>
-          {userdata
-            ? userdata.map((user, index) => (
-                <div style={{ margin: "5px" }} key={index}>
-                  <div
-                    style={{
-                      backgroundColor: "#00BFFF",
-                      width: "100px",
-                      display: "inline-block",
-                      height: "auto",
-                      margin: "5px",
-                      borderRadius: "2px",
-                      color: "white",
-                      textAlign: "center"
-                    }}
-                  >
-                    {user}
-                  </div>
-                  <div style={{ width: "48%", display: "inline-block" }}>
-                    <button
-                      onClick={this.gameStart.bind(this, user)}
-                      style={{
-                        backgroundColor: "#1565c0",
-                        border: "none",
-                        color: "white",
-                        padding: "5px 10px",
-                        textAign: "center",
-                        textDecoration: "none",
-                        display: "inline-block",
-                        fontSize: "12px",
-                        borderRadius: "5px"
-                      }}
-                    >
-                      Start Game
-                    </button>
-                  </div>
-                </div>
-              ))
-            : null}
-        </div>
       </div>
     );
   }

@@ -356,7 +356,9 @@ background: #efefef;
 		padding: 0 15px;
 		width: 100%;
 	}
-
+	.home {
+	height: 100vh;
+	}
 	.white span.notation-322f9.numeric-fc462,
 	.blue .alpha-d2270 {
 		color: #fff;

@@ -424,6 +424,7 @@ export default class MainPage extends Component {
                 <LeftSidebar
                   cssmanager={this.props.cssmanager}
                   LefSideBoarData={this.Main.LeftSection}
+                  history={this.props.history}
                 />
               </div>
             </aside>
@@ -495,14 +496,9 @@ let links = [
     src: "../../../images/top-player-icon-white.png"
   },
   {
-    label: "logIn",
-    link: "#log-in",
+    label: "logout",
+    link: "#",
     src: "../../../images/login-icon-white.png"
-  },
-  {
-    label: "singUp",
-    link: "#sign-up",
-    src: "../../../images/signup-icon-white.png"
   },
   {
     label: "help",
