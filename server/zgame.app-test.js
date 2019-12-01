@@ -7,6 +7,8 @@ import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { LegacyUser } from "../lib/server/LegacyUsers";
+import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+import {TimestampClient} from "../lib/Timestamp";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
@@ -3337,7 +3339,6 @@ describe("Game.moveBackward", function() {
   });
 
   it("writes an action and undoes the move if possible", function() {
-    this.timeout(500000);
     const examiner = TestHelpers.createUser();
     self.loggedonuser = examiner;
     const game_id = Game.startLocalExaminedGame(
@@ -3766,20 +3767,202 @@ describe.skip("When a user disconnects while playing a game", function() {
   it("should write a connect and disconnect action to the adjourned game every time they connect and disconnect", function() {});
 });
 
-describe.skip("When adding engine scores to the variation object in a game record", function() {
-  it("should not send these scores to either player if a game is being played", function() {
-    chai.assert.fail("do me");
-  });
-  it("should send the scores to all observers if the game in any state", function() {
-    chai.assert.fail("do me");
+describe.skip("Game publication", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+
+  it("should not send engine scores to either player, but should send to all observers in a played game", function(done) {
+    this.timeout(5000);
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const o1 = TestHelpers.createUser();
+    const o2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      "white"
+    );
+    self.loggedonuser = o1;
+    Game.localAddObserver("mi2", game_id, o1._id);
+    self.loggedonuser = o2;
+    Game.localAddObserver("mi3", game_id, o2._id);
+    chai.assert.equal(Game.collection.find().count(), 1);
+    self.loggedonuser = p1;
+    Game.saveLocalMove("mi4", game_id, "e4");
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi5", game_id, "e5");
+    self.loggedonuser = p1;
+    Game.saveLocalMove("mi4", game_id, "e4");
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi5", game_id, "e5");
+    const game = Game.collection.findOne({});
+    chai.assert.equal(game.white.id, p1._id);
+    chai.assert.equal(game.black.id, p2._id);
+    chai.assert.sameMembers(game.observers, [o1._id, o2._id]);
+
+    function check(user, hasComputerMoves) {
+      return new Promise((resolve, reject) => {
+        self.loggedonuser = user;
+        const playing_collector = new PublicationCollector({
+          userId: user._id
+        });
+        const observing_collector = new PublicationCollector({
+          userId: user._id
+        });
+
+        playing_collector.collect("playing_games", playing_collection => {
+          observing_collector.collect(
+            "observing_games",
+            observing_collection => {
+              if (playing_collection.game.length)
+                if (observing_collection.game.length)
+                  if (hasComputerMoves) {
+                    chai.assert.equal(playing_collection.game.length, 0);
+                    chai.assert.equal(observing_collection.game.length, 1);
+                    chai.assert.isDefined(
+                      observing_collection.game[0].variations.movelist[1].score
+                    );
+                  } else {
+                    chai.assert.equal(playing_collection.game.length, 1);
+                    chai.assert.equal(observing_collection.game.length, 0);
+                    chai.assert.isUndefined(
+                      playing_collection.game[0].variations.movelist[1].score
+                    );
+                  }
+              resolve();
+            }
+          );
+        });
+      });
+    }
+
+    check(p1, false)
+      .then(check(p2, false))
+      .then(check(o1, true))
+      .then(check(o2, true))
+      .then(done);
   });
 });
 
-describe.skip("Game publication", function() {
-  it("should not send engine scores to either player, but should send to all observers in a played game", function() {
-    chai.assert.fail("do me ");
+describe("When making a move in a game being played", function(){
+  const self = TestHelpers.setupDescribe.apply(this);
+
+  it("needs to update the users time correctly after a move", function() {
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+    self.loggedonuser = player1;
+    const game_id = Game.startLocalGame("mi1", player2, 0, "standard", true, 15, 0, 15, 0, "white");
+
+    const game0 = Game.collection.findOne({});
+    chai.assert.equal(game0.clocks.white.current, 900000);
+    chai.assert.equal(game0.clocks.black.current, 900000);
+
+    self.clock.tick(2356);
+    Game.saveLocalMove("mi2", game_id, "e4");
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 897644);
+    chai.assert.equal(game1.clocks.black.current, 900000);
+
+    self.loggedonuser = player2;
+    self.clock.tick(5454);
+    Game.saveLocalMove("mi3", game_id, "e5");
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 897644);
+    chai.assert.equal(game2.clocks.black.current, 894546);
+
+    self.loggedonuser = player1;
+    self.clock.tick(8569);
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    const game3 = Game.collection.findOne({});
+    chai.assert.equal(game3.clocks.white.current, 889075);
+    chai.assert.equal(game3.clocks.black.current, 894546);
   });
-  it("should send to all observers in an examined game (basically, everybody.) ", function() {
-    chai.assert.fail("do me ");
+
+  it("needs to compensate for the move makers lag", function(){
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+    self.loggedonuser = player1;
+    const game_id = Game.startLocalGame("mi1", player2, 0, "standard", true, 15, 0, 15, 0, "white");
+
+    const game0 = Game.collection.findOne({});
+    chai.assert.equal(game0.clocks.white.current, 900000);
+    chai.assert.equal(game0.clocks.black.current, 900000);
+
+    self.clock.tick(2356);
+    Game.saveLocalMove("mi2", game_id, "e4");
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 897644);
+    chai.assert.equal(game1.clocks.black.current, 900000);
+
+    self.loggedonuser = player2;
+    self.clock.tick(5454);
+    Game.saveLocalMove("mi3", game_id, "e5");
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 897644);
+    chai.assert.equal(game2.clocks.black.current, 894546);
+
+    self.loggedonuser = player1;
+    self.clock.tick(8569);
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    const game3 = Game.collection.findOne({});
+    chai.assert.equal(game3.clocks.white.current, 889075);
+    chai.assert.equal(game3.clocks.black.current, 894546);
   });
+});
+
+describe("when playing a game", function(){
+  const self = TestHelpers.setupDescribe.apply(this);
+
+  it("should write a ping to the record each second, and record both blacks and whites responses", function(done) {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, 15, 0, "white");
+
+    const game0 = Game.collection.findOne({});
+    chai.assert.equal(game0.lag.white.active.length, 0);
+    chai.assert.equal(game0.lag.black.active.length, 0);
+    chai.assert.equal(game0.lag.white.pings.length, 0);
+    chai.assert.equal(game0.lag.black.pings.length, 0);
+
+    self.clock.tick(1000);
+
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.lag.white.active.length, 1);
+    chai.assert.equal(game1.lag.black.active.length, 1);
+    chai.assert.equal(game1.lag.white.pings.length, 0);
+    chai.assert.equal(game1.lag.black.pings.length, 0);
+    chai.assert.equal(game1.lag.white.active[0].originate, 1000);
+    chai.assert.equal(game1.lag.black.active[0].originate, 1000);
+
+    self.clock.tick(150);
+
+    const client = new TimestampClient((key, msg) => {
+      Meteor.call("gamepong", game_id, msg, error => {
+        if (!!error) chai.assert.fail(error);
+        const game2 = Game.collection.findOne({});
+        chai.assert.equal(game2.lag.white.active.length, 0);
+        chai.assert.equal(game2.lag.black.active.length, 1);
+        chai.assert.equal(game2.lag.white.pings.length, 1);
+        chai.assert.equal(game2.lag.black.pings.length, 0);
+        chai.assert.equal(game2.lag.white.pings[0], 150);
+        done();
+      });
+    });
+
+    client.pingArrived(game1.lag.white.active[0]);
+
+  });
+  it("should throw an error if the meteor method is called with a valid game id but a non-player", function(){chai.assert.fail("do me")});
+  it("should throw an error if the meteor method is called with a an invalid game id", function(){chai.assert.fail("do me")});
+  it("should throw an error if the meteor method is called with a valid game but it's examined", function(){chai.assert.fail("do me")});
+  it("should throw an error if the meteor method is called with a valid game but a non-active ping id", function(){chai.assert.fail("do me")});
 });

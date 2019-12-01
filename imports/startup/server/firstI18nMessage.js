@@ -1,5 +1,5 @@
 import { i18nCollectionMessageDoc } from "./../../collections/i18nCollectionMessageDoc";
-import i18nCollection from "./../../collections/i18n";
+import { i18nCollection } from "./../../collections/i18n";
 import { Meteor } from "meteor/meteor";
 export default function firstAddI18nMessage() {
   if (

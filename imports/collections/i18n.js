@@ -2,7 +2,7 @@ import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
 
 export const i18n = {};
-const i18nCollection = new Mongo.Collection("i18n");
+export const i18nCollection = new Mongo.Collection("i18n");
 //
 // This one will have a schema something like this:
 //
@@ -46,16 +46,16 @@ i18n.standardizeLocale = function(locale) {
   return all;
 };
 
-i18n.localizeMessage = function(locale, i8nvalue, parameters) {
+i18n.localizeMessage = function(locale, i18nvalue, parameters) {
   const i8nrecord = i18nCollection.findOne({
-    messageid: i8nvalue,
+    messageid: i18nvalue,
     type: "server"
   });
 
   if (!i8nrecord) {
     throw new Meteor.Error(
       "Unable to find an internationalization record of type server with identifier " +
-        i8nvalue
+        i18nvalue
     );
   }
   const locale_array = i18n.standardizeLocale(locale);
@@ -74,7 +74,7 @@ i18n.localizeMessage = function(locale, i8nvalue, parameters) {
   }
   throw new Meteor.Error(
     "Unable to find an internationalization record of type server with a suitable locale for identifier " +
-      i8nvalue
+      i18nvalue
   );
 };
 export default i18nCollection;

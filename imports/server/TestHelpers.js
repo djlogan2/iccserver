@@ -63,6 +63,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
     beforeEach.call(this, function(done) {
       self.sandbox = sinon.createSandbox();
+      self.clock = self.sandbox.useFakeTimers();
       self.meteorUsersFake = self.sandbox.fake(() =>
         Meteor.users.findOne({
           _id: self.loggedonuser ? self.loggedonuser._id : ""
