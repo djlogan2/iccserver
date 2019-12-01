@@ -114,12 +114,14 @@ export const PlayedGameSchema = new SimpleSchema({
     white: new SimpleSchema({
       initial: SimpleSchema.Integer,
       inc: Number,
-      current: SimpleSchema.Integer
+      current: SimpleSchema.Integer,
+      starttime: SimpleSchema.Integer
     }),
     black: new SimpleSchema({
       initial: SimpleSchema.Integer,
       inc: Number,
-      current: SimpleSchema.Integer
+      current: SimpleSchema.Integer,
+      starttime: SimpleSchema.Integer
     })
   }),
   white: new SimpleSchema({
@@ -154,6 +156,17 @@ export const PlayedGameSchema = new SimpleSchema({
     },
     rating: SimpleSchema.Integer
   }),
+  lag: Object,
+  "lag.white": Object,
+  "lag.black": Object,
+  "lag.white.active": [Object],
+  "lag.white.active.$.id": String,
+  "lag.white.active.$.originate": Number,
+  "lag.black.active": [Object],
+  "lag.black.active.$.id": String,
+  "lag.black.active.$.originate": Number,
+  "lag.white.pings": [Number],
+  "lag.black.pings": [Number],
   tags: { type: Object, required: false },
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },

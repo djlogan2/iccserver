@@ -189,21 +189,34 @@ Game.startLocalGame = function(
       white: {
         initial: white_initial,
         inc: white_increment,
-        current: white_initial
+        current: white_initial * 60 * 1000, // milliseconds
+        starttime: new Date().getTime()
       },
       black: {
         initial: black_initial,
         inc: black_increment,
-        current: black_initial
+        current: black_initial * 60 * 1000, //milliseconds
+        starttime: 0
       }
     },
     status: "playing",
     actions: [],
     observers: [],
-    variations: { hmtb: 0, cmi: 0, movelist: [{}] }
+    variations: { hmtb: 0, cmi: 0, movelist: [{}] },
+    lag: {
+      white: {
+        active: [],
+        pings: []
+      },
+      black: {
+        active: [],
+        pings: []
+      }
+    }
   };
   const game_id = GameCollection.insert(game);
   active_games[game_id] = chess;
+  startGamePing(game_id);
 
   return game_id;
 };
@@ -413,12 +426,14 @@ Game.startLegacyGame = function(
       white: {
         initial: white_initial,
         inc: white_increment,
-        current: white_initial
+        current: white_initial,
+        starttime: 0
       },
       black: {
         initial: black_initial,
         inc: black_increment,
-        current: black_initial
+        current: black_initial,
+        starttime: 0
       }
     },
     status: played_game ? "playing" : "examining",
@@ -438,7 +453,17 @@ Game.startLegacyGame = function(
       }
     },
     actions: [],
-    variations: { hmtb: 0, cmi: 0, movelist: [{}] }
+    variations: { hmtb: 0, cmi: 0, movelist: [{}] },
+    lag: {
+      white: {
+        active: [],
+        pings: []
+      },
+      black: {
+        active: [],
+        pings: []
+      }
+    }
   };
 
   game.examiners = [];
@@ -561,20 +586,27 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       unsetobject.pending = "";
     }
 
-    const bw = self._id === game.white.id ? "black" : "white";
-    const color = bw === "white" ? "black" : "white";
-    setobject["pending." + bw + ".draw"] = "0";
-    setobject["pending." + bw + ".abort"] = "0";
-    setobject["pending." + bw + ".adjourn"] = "0";
-    setobject["pending." + bw + ".takeback.number"] = 0;
-    setobject["pending." + bw + ".takeback.mid"] = "0";
+    const bw = self._id === game.white.id ? "white" : "black";
+    const otherbw = bw === "white" ? "black" : "white";
+    setobject["pending." + otherbw + ".draw"] = "0";
+    setobject["pending." + otherbw + ".abort"] = "0";
+    setobject["pending." + otherbw + ".adjourn"] = "0";
+    setobject["pending." + otherbw + ".takeback.number"] = 0;
+    setobject["pending." + otherbw + ".takeback.mid"] = "0";
     //
     // Add a half move to the takeback request if the user requested a takeback and then
     // made their own move.
     //
-    if (!setobject.result && game.pending[color].takeback.number)
-      setobject["pending." + color + ".takeback.number"] =
-        game.pending[color].takeback.number + 1;
+    if (!setobject.result && game.pending[bw].takeback.number)
+      setobject["pending." + bw + ".takeback.number"] =
+        game.pending[bw].takeback.number + 1;
+
+    if (!setobject.result) {
+      const timenow = new Date().getTime();
+      const used = timenow - game.clocks[bw].starttime;
+      setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used;
+      setobject["clocks." + otherbw + ".starttime"] = timenow;
+    } else endGamePing(game_id);
   }
   setobject["variations"] = variation;
 
@@ -1241,6 +1273,8 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
     return;
   }
 
+  endGamePing(game_id);
+
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
@@ -1287,6 +1321,8 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
     return;
   }
 
+  endGamePing(game_id);
+
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
@@ -1332,6 +1368,8 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
     );
     return;
   }
+
+  endGamePing(game_id);
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -1491,6 +1529,8 @@ Game.resignLocalGame = function(message_identifier, game_id) {
     );
     return;
   }
+
+  endGamePing(game_id);
 
   const result = self._id === game.white.id ? "0-1" : "1-0";
   GameCollection.update(
@@ -2032,14 +2072,53 @@ const game_pings = {};
 function startGamePing(game_id) {
   game_pings[game_id] = new TimestampServer(
     (key, msg) => {
-      if (key === "pong") {
+      if (key === "ping") {
         GameCollection.update(
           { _id: game_id, status: "playing" },
-          { $push: { ping_requests: { key: msg } } }
+          { $push: { "lag.white.active": msg, "lag.black.active": msg } }
         );
-      } else { //pingresult
-        console.log("We have to save lag for white or black here, depending upon who we got it for");
-//        GameCollection.update;
+      } else {
+        //pingresult
+        const game = GameCollection.findOne({
+          _id: game_id,
+          status: "playing"
+        });
+        const user = Meteor.user();
+        if (!game)
+          throw new Meteor.Error(
+            "Unable to set ping information",
+            "game not found"
+          );
+        const color =
+          game.white.id === user._id
+            ? "white"
+            : game.black.id === user._id
+            ? "black"
+            : null;
+
+        if (!color)
+          throw new Meteor.Error(
+            "Unable to set ping information",
+            "cannot find users color (not a player?)"
+          );
+
+        const item = game.lag[color].active.filter(ping => ping.id === msg.id);
+        if (!item || item.length !== 1)
+          throw new Meteor.Error(
+            "Unable to set ping information",
+            "cannot find ping id in array of active pings"
+          );
+
+        const pushobject = {};
+        const pullobject = {};
+
+        pullobject["lag." + color + ".active"] = item[0];
+        pushobject["lag." + color + ".pings"] = msg.delay;
+
+        GameCollection.update(
+          { _id: game._id, status: game.status },
+          { $pull: pullobject, $push: pushobject }
+        );
       }
     },
     () => {}
@@ -2052,19 +2131,22 @@ function endGamePing(game_id) {
       "Unable to update game ping",
       "Unable to locate game to ping"
     );
-  game_pings[game_id].stop();
+  game_pings[game_id].end();
   delete game_pings[game_id];
 }
 
 Meteor.methods({
   gamepong: function(game_id, pong) {
+    const user = Meteor.user();
     check(game_id, String);
     check(pong, Object);
+    check(user, Object);
     if (!game_pings[game_id])
       throw new Meteor.Error(
         "Unable to update game ping",
         "Unable to locate game to ping"
       );
+    pong.userid = user._id;
     game_pings[game_id].pongArrived(pong);
   }
 });

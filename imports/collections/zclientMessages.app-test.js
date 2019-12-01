@@ -6,12 +6,54 @@ import { TestHelpers } from "../server/TestHelpers";
 import sinon from "sinon";
 import { i18n } from "./i18n";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
+import { Match } from "meteor/check";
+import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
 describe("Client Messages", function() {
   beforeEach(function(done) {
     resetDatabase(null, done);
   });
 
+  it("should throw an error if we call it with an unknown message identifier", function() {
+    const user = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        ClientMessages.sendMessageToClient(
+          user._id,
+          "mi1",
+          "UNKNOWN_I18N_MESSAGE"
+        ),
+      Match.Error
+    );
+  });
+
+  it("should throw an error if we call it with an known message identifier but with an incorrect number of parameters", function() {
+    const user = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        ClientMessages.sendMessageToClient(
+          user._id,
+          "mi1",
+          "FOR_TESTING_10",
+          1,
+          "2",
+          3,
+          "4",
+          5,
+          "6",
+          7,
+          "8",
+          9
+        ),
+      Match.Error
+    );
+  });
+
+  // it("should should format messages with many parameters successfully", function() {
+  //   const user = TestHelpers.createUser();
+  //   chai.assert.doesNotThrow(() => ClientMessages.sendMessageToClient(user._id, "mi1", "FOR_TESTING_10", 1, "2", 3, "4", 5, "6", 7, "8", 9, "10"));
+  // });
+  //
   it("should have a users messages deleted when they logoff", function() {
     const user1 = TestHelpers.createUser();
     const user2 = TestHelpers.createUser();
@@ -99,5 +141,47 @@ describe("Client Messages", function() {
       () => method.apply({ userId: user2._id }, [id1]),
       ICCMeteorError
     );
+    sinon.restore();
+  });
+});
+
+describe("Client Messages publication", function() {
+  beforeEach(function(done) {
+    resetDatabase(null, done);
+  });
+
+  it("should only publish messages belonging to the user", function(done) {
+    sinon.replace(i18n, "localizeMessage", sinon.fake.returns("the message"));
+    const user1 = TestHelpers.createUser();
+    const user2 = TestHelpers.createUser();
+    ClientMessages.sendMessageToClient(user1._id, "mi1", "FOR_TESTING");
+    ClientMessages.sendMessageToClient(
+      user2._id,
+      "mi2",
+      "FOR_TESTING_10",
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    );
+    chai.assert.equal(ClientMessages.collection.find().count(), 2);
+    const collector = new PublicationCollector({ userId: user1._id });
+    collector.collect("client_messages", collections => {
+      chai.assert.equal(collections.client_messages.length, 1);
+      chai.assert.equal(collections.client_messages[0].to, user1._id);
+      chai.assert.equal(
+        collections.client_messages[0].client_identifier,
+        "mi1"
+      );
+      chai.assert.equal(collections.client_messages[0].message, "the message");
+      sinon.restore();
+      done();
+    });
   });
 });

@@ -81,7 +81,8 @@ export const DefinedClientMessagesMap = {
   LOGIN_FAILED_20: {},
   LOGIN_FAILED_21: {},
   LOGIN_FAILED_22: {},
-  FOR_TESTING: {}
+  FOR_TESTING: {},
+  FOR_TESTING_10: {parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]}
 };
 
 Meteor.publish("client_messages", function() {

@@ -11,7 +11,6 @@ import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
 import { Users } from "../imports/collections/users";
-import { LegacyUser } from "../lib/server/LegacyUsers";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
