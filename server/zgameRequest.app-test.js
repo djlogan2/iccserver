@@ -1433,9 +1433,6 @@ describe("game_requests publication", function() {
 
     self.loggedonuser = challenger;
     let gameid;
-    function fuck(c) {
-      return c.collect("game_requests");
-    }
     const collector1 = new PublicationCollector({ userId: challenger._id });
     return collector1
       .collect("game_requests")
@@ -1447,7 +1444,7 @@ describe("game_requests publication", function() {
           console.log("here 3b");
         });
       })
-      .then(() => fuck(collector1))  //collector1.collect("game_requests"))
+      .then(() => collector1.collect("game_requests"))
       .then(collections => {
         console.log("here 4");
         chai.assert.equal(collections.game_requests.length, 0);
