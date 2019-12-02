@@ -145,6 +145,25 @@
 	width: 150px;
 	z-index: 100;
 }
+/* Home Container Css start */
+.home-middle-section {
+    padding: 50px 50px 20px 0px;
+}
+.home-slider {
+    height:380px;
+    margin-bottom: 30px;
+}
+.home-slider img {
+    max-width: 100%;
+    max-height: 100%;
+     width: 100%;
+}
+.home-description {
+    font-size: 16px;
+}
+
+
+/* Home Container Css End */
 
 @media (max-width: 1199px) {
 	.show-sm {

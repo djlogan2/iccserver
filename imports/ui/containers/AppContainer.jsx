@@ -7,13 +7,14 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
 import { Tracker } from "meteor/tracker";
-
+import {
+  mongoCss,
+  mongoUser,
+  Game,
+  GameRequestCollection,
+  ClientMessagesCollection
+} from "../../api/collections";
 const log = new Logger("client/AppContainer");
-const mongoCss = new Mongo.Collection("css");
-const mongoUser = new Mongo.Collection("userData");
-const Game = new Mongo.Collection("game");
-const GameRequestCollection = new Mongo.Collection("game_requests");
-const ClientMessagesCollection = new Mongo.Collection("client_messages");
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   // log.error(errorMsg + "::" + url + "::" + lineNumber);
@@ -125,10 +126,14 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this.props.history.push("/sign-up");
     }
   }
-
+  componentDidMount() {
+    if (!this.state.isAuthenticated) {
+      this.props.history.push("/home");
+    }
+  }
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
-      this.props.history.push("/login");
+      this.props.history.push("/home");
     }
   }
 
@@ -246,6 +251,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
+          history={this.props.history}
           ref="main_page"
         />
       </div>

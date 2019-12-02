@@ -8,11 +8,16 @@ export default class LoginPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: ""
+      error: "",
+      isAuthenticated: Meteor.userId() !== null
     };
     this.DoLogin = this.DoLogin.bind(this);
   }
-
+  componentDidMount() {
+    if (this.state.isAuthenticated) {
+      this.props.history.push("/home");
+    }
+  }
   DoLogin(e) {
     e.preventDefault();
     let email = document.getElementById("login-email").value;
@@ -24,7 +29,7 @@ export default class LoginPage extends Component {
           error: "Email and Password not match"
         });
       } else {
-        this.props.history.push("/");
+        this.props.history.push("/home");
       }
     });
   }
@@ -38,7 +43,6 @@ export default class LoginPage extends Component {
       "en-US"
     );
   }
-
   render() {
     let translator = i18n.createTranslator("Common.loginForm", this.getLang());
     const error = this.state.error;

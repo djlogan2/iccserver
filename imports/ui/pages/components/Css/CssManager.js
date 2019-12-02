@@ -240,19 +240,41 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.tabContent.all);
     return style;
   }
+  tabSeparator() {
+    var style = {};
+    Object.assign(style, this._systemStyle.tabSeparator.all);
+    return style;
+  }
+  subTabHeader() {
+    var style = {};
+    Object.assign(style, this._systemStyle.subTabHeader.all);
+    return style;
+  }
+  matchUserScroll() {
+    var style = {};
+    Object.assign(style, this._systemStyle.matchUserScroll.all);
+    return style;
+  }
+  matchUserButton() {
+    var style = {};
+    Object.assign(style, this._systemStyle.matchUserButton.all);
+    return style;
+  }
   tabListItem(tabActive, hover) {
     if (
-      tabActive != undefined &&
+      tabActive !== undefined &&
       (tabActive === "Game" ||
         tabActive === "Play" ||
-        tabActive === "Tournaments")
+        tabActive === "Tournaments" ||
+        tabActive === "Quick Pairing" ||
+        tabActive === "Seek a Game" ||
+        tabActive === "Match User")
     ) {
       var style = {};
-      Object.assign(style, this._systemStyle.tabListItem1[tabActive]);
+      Object.assign(style, this._systemStyle.tabListItem1.all);
       return style;
     } else {
       var style = {};
-
       if (tabActive) {
         if (tabActive === "FEN/PGN") tabActive = "PGN";
 
