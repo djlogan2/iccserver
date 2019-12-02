@@ -1416,10 +1416,9 @@ describe("game_requests collection", function() {
 });
 
 describe("game_requests publication", function() {
-  this.timeout(500000);
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it.only("should stop publishing records when played game is started", function() {
+  it("should stop publishing records when played game is started", function() {
 
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();

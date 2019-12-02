@@ -1515,7 +1515,7 @@ Meteor.publish("playing_games", function() {
     {
       $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
     },
-    { fields: { "variations.movelist.score": 0 } }
+    { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
   );
 });
 
@@ -1839,29 +1839,26 @@ function addMoveToMoveList(variation_object, move) {
 const game_pings = {};
 
 function startGamePing(game_id) {
-  game_pings[game_id] = new TimestampServer(
+  _startGamePing(game_id, "white");
+  _startGamePing(game_id, "black");
+}
+
+function _startGamePing(game_id, color) {
+  if (!game_pings[game_id]) game_pings[game_id] = {};
+  game_pings[game_id][color] = new TimestampServer(
     (key, msg) => {
       if (key === "ping") {
-        GameCollection.update(
-          { _id: game_id, status: "playing" },
-          { $push: { "lag.white.active": msg, "lag.black.active": msg } }
-        );
+        const pushobject = {};
+        pushobject["lag." + color + ".active"] = msg;
+        GameCollection.update({ _id: game_id, status: "playing" }, { $push: pushobject });
+        log.debug("Saving ping " + msg.id + " for " + color);
       } else {
         //pingresult
         const game = GameCollection.findOne({
           _id: game_id,
           status: "playing"
         });
-        const user = Meteor.user();
         if (!game) throw new Meteor.Error("Unable to set ping information", "game not found");
-        const color =
-          game.white.id === user._id ? "white" : game.black.id === user._id ? "black" : null;
-
-        if (!color)
-          throw new Meteor.Error(
-            "Unable to set ping information",
-            "cannot find users color (not a player?)"
-          );
 
         const item = game.lag[color].active.filter(ping => ping.id === msg.id);
         if (!item || item.length !== 1)
@@ -1876,6 +1873,7 @@ function startGamePing(game_id) {
         pullobject["lag." + color + ".active"] = item[0];
         pushobject["lag." + color + ".pings"] = msg.delay;
 
+        log.debug("Saving ping result " + msg.id + " for " + color + " and deleting from active array, delay=" + msg.delay);
         GameCollection.update(
           { _id: game._id, status: game.status },
           { $pull: pullobject, $push: pushobject }
@@ -1889,7 +1887,8 @@ function startGamePing(game_id) {
 function endGamePing(game_id) {
   if (!game_pings[game_id])
     throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
-  game_pings[game_id].end();
+  game_pings[game_id]["white"].end();
+  game_pings[game_id]["black"].end();
   delete game_pings[game_id];
 }
 
@@ -1901,8 +1900,15 @@ Meteor.methods({
     check(user, Object);
     if (!game_pings[game_id])
       throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
-    pong.userid = user._id;
-    game_pings[game_id].pongArrived(pong);
+    const game = GameCollection.findOne(
+      { _id: game_id, status: "playing" },
+      { fields: { "white.id": 1 } }
+    );
+    if (!game)
+      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+    const color = game.white.id === user._id ? "white" : "black";
+    log.debug("Meteor method gamepong called with game_id=" + game_id + ", msg.id=" + pong.id + ", color=" + color);
+    game_pings[game_id][color].pongArrived(pong);
   }
 });
 

@@ -1,5 +1,5 @@
 import { Logger } from "../../../../../lib/client/Logger";
-const log = new Logger("Css/CssManager_js");
+const log = new Logger("Css/TestContainerCssManager_js");
 /**
  * CssManager
  */

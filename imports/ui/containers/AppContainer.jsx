@@ -14,6 +14,7 @@ import {
   GameRequestCollection,
   ClientMessagesCollection
 } from "../../api/collections";
+import { TimestampClient } from "../../../lib/Timestamp";
 const log = new Logger("client/AppContainer");
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
@@ -63,15 +64,24 @@ export default class AppContainer extends TrackerReact(React.Component) {
       $and: [
         { status: "playing" },
         {
-          $or: [
-            { "white.id": Meteor.userId() },
-            { "black.id": Meteor.userId() }
-          ]
+          $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
         }
       ]
     });
+
+    if (!!game) {
+      const color = game.white.id === Meteor.userId() ? "white" : "black";
+
+      if (!this.game_timestamp_client)
+        this.game_timestamp_client = new TimestampClient((_, msg) =>
+          Meteor.call("gamepong", game._id, msg)
+        );
+      game.lag[color].active.forEach(ping => this.game_timestamp_client.pingArrived(ping));
+    }
+
     return game;
   }
+
   renderGameRequest() {
     return GameRequestCollection.findOne(
       {
@@ -183,12 +193,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
         return false;
       }
 
+      // TODO: FYI, I really prefer you use userid and not username when checking.
+      //       The server uses user._id or Meteor.userId() exclusively.
       if (game.white.name === Meteor.user().username && gameTurn === "w") {
         result = this._board.move({ from: raf.from, to: raf.to });
-      } else if (
-        game.black.name === Meteor.user().username &&
-        gameTurn === "b"
-      ) {
+      } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
         result = this._board.move({ from: raf.from, to: raf.to });
       }
       var moveColor = "White";
@@ -196,6 +205,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         moveColor = "Black";
       }
       if (this._board.in_checkmate()) {
+        // TODO: See, here we are already with overlooked non-internationalized strings
         let status = "Game over, " + moveColor + " is in checkmate.";
         alert(status);
       }
