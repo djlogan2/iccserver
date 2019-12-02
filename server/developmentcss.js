@@ -271,6 +271,20 @@ const systemcss = {
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
       color: "#1565c0"
+    },
+    Observers: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    RoomChat: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
     }
   },
   tabListItem1: {

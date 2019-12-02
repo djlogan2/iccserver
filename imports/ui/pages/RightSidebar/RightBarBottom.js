@@ -1,10 +1,13 @@
 import React, { Component } from "react";
 import Tabs from "./Tabs/Tabs";
 import Chat from "./ChatComponent";
-import Events from "./EventsComponent";
+/* import Events from "./EventsComponent";
 import PGN from "./PGNComponent";
 import Friends from "./FriendsComponent";
-import History from "./HistoryComponent";
+import History from "./HistoryComponent"; */
+import Observers from "./ObserversComponent";
+import RoomChat from "./RoomChatComponent";
+
 import "./Tabs/BottomStyles";
 import i18n from "meteor/universe:i18n";
 
@@ -38,6 +41,28 @@ class RightBarBottom extends Component {
             clientMessage={this.props.clientMessage}
           />
         </div>
+        <div
+          label="Observers"
+          imgsrc="images/event-icon-white.png"
+          hoverSrc="images/event-icon-blue.png"
+        >
+          <Observers
+            cssmanager={this.props.cssmanager}
+            gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
+          />
+        </div>
+        <div
+          label="Room Chat"
+          imgsrc="images/fen-pgn-white-icon.png"
+          hoverSrc="images/fen-pgn-blue-icon.png"
+        >
+          <RoomChat
+            cssmanager={this.props.cssmanager}
+            gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
+          />
+        </div>
         {/* 
         <div
           label={translator("events")}
@@ -45,7 +70,7 @@ class RightBarBottom extends Component {
           hoverSrc="images/event-icon-blue.png"
         >
           <Events />
-        </div> */}
+        </div> 
         <div
           label={translator("fen_pgn")}
           imgsrc="images/fen-pgn-white-icon.png"
@@ -67,6 +92,7 @@ class RightBarBottom extends Component {
         >
           <History />
         </div>
+        */}
       </Tabs>
     );
   }
