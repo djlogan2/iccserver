@@ -65,9 +65,9 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     //  userdata.sort();
     return (
       <div>
-        <div style={this.props.cssmanager.tabSeparator()}/>
-        <div style={this.props.cssmanager.matchUserScroll()} >
-{/*           <div style={{ fontSize: "16px", paddingBottom: "15px" }}>
+        <div style={this.props.cssmanager.tabSeparator()} />
+        <div style={this.props.cssmanager.matchUserScroll()}>
+          {/*           <div style={{ fontSize: "16px", paddingBottom: "15px" }}>
             option 1 - send a link for anyone to play
           </div>
           <div>
@@ -112,13 +112,10 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
               placeholder="search"
             />
           </div> */}
-         
+
           <SubTabs cssmanager={this.props.cssmanager}>
             <div label={translator("friends")}>
-              <div
-               style={this.props.cssmanager.subTabHeader()}
-                
-              >
+              <div style={this.props.cssmanager.subTabHeader()}>
                 {userdata
                   ? userdata.map((user, index) => (
                       <div key={index}>
@@ -135,20 +132,14 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
             </div>
 
             <div label={translator("recentOpponent")}>
-              <div
-                style={this.props.cssmanager.subTabHeader()}
-              >
+              <div style={this.props.cssmanager.subTabHeader()}>
                 <div>
-                  <button
-                     style={this.props.cssmanager.matchUserButton()}
-                  >
+                  <button style={this.props.cssmanager.matchUserButton()}>
                     User-1
                   </button>
                 </div>
                 <div>
-                  <button
-                     style={this.props.cssmanager.matchUserButton()}
-                  >
+                  <button style={this.props.cssmanager.matchUserButton()}>
                     User-2
                   </button>
                 </div>
@@ -231,7 +222,7 @@ class Tab extends Component {
       onClick,
       props: { activeTab, label }
     } = this;
-//TODO : Now we have working on.we will remove soon
+    //TODO : Now we have working on.we will remove soon
     let tablistItem = {
       display: "inline-block",
       listStyle: "none",

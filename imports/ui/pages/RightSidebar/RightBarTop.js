@@ -4,6 +4,7 @@ import GameHistory from "./GameComponent";
 import CreateGame from "./CreateGameComponent";
 import TournamentsList from "./TournamentsListComponent";
 import SeekGame from "./SeekGameComponent";
+import QuickPairing from "./QuickPairingGameComponent";
 import MatchUser from "./MatchUserComponent";
 import i18n from "meteor/universe:i18n";
 import "./Tabs/styles";
@@ -53,7 +54,7 @@ export default class RightBarTop extends Component {
         </div>
       */}
         <div label={translator("quikpairing")}>
-          <SeekGame cssmanager={this.props.cssmanager} />
+          <QuickPairing cssmanager={this.props.cssmanager} />
         </div>
 
         <div label={translator("seekgame")}>
