@@ -178,7 +178,3 @@ describe("When a played game ends", function(){
   it("should not delete the game record when examiners leave if they are not the last examiner", function(){chai.assert.fail("do me")});
   it("should delete the game record when the last examiner leaves", function(){chai.assert.fail("do me")});
 });
-
-describe("games collection", function(){
-  it("should publish all games for which a user is a player (white or black), an examiner, or an observer of", function(){});
-});

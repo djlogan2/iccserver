@@ -37,11 +37,7 @@ function getAndCheck(message_identifier, game_id) {
   const game = GameCollection.findOne({ _id: game_id });
 
   if (!game) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -49,10 +45,7 @@ function getAndCheck(message_identifier, game_id) {
     throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
   if (!active_games[game_id])
-    throw new ICCMeteorError(
-      "server",
-      "Unable to find chessboard validator for game"
-    );
+    throw new ICCMeteorError("server", "Unable to find chessboard validator for game");
 
   return game;
 }
@@ -99,17 +92,11 @@ Game.startLocalGame = function(
     throw new Match.Error("color must be undefined, 'white' or 'black");
 
   if (!other_user.loggedOn) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "UNABLE_TO_PLAY_OPPONENT"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
     return;
   }
 
-  if (
-    !Roles.userIsInRole(self, "play_" + (rated ? "" : "un") + "rated_games")
-  ) {
+  if (!Roles.userIsInRole(self, "play_" + (rated ? "" : "un") + "rated_games")) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -118,35 +105,16 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (
-    !Roles.userIsInRole(
-      other_user,
-      "play_" + (rated ? "" : "un") + "rated_games"
-    )
-  ) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "UNABLE_TO_PLAY_OPPONENT"
-    );
+  if (!Roles.userIsInRole(other_user, "play_" + (rated ? "" : "un") + "rated_games")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
     return;
   }
 
-  if (
-    !SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)
-  ) {
-    throw new ICCMeteorError(
-      "Unable to start game",
-      "White time/inc fails validation"
-    );
+  if (!SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)) {
+    throw new ICCMeteorError("Unable to start game", "White time/inc fails validation");
   }
-  if (
-    !SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)
-  ) {
-    throw new ICCMeteorError(
-      "Unable to start game",
-      "White time/inc fails validation"
-    );
+  if (!SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)) {
+    throw new ICCMeteorError("Unable to start game", "White time/inc fails validation");
   }
 
   const chess = new Chess.Chess();
@@ -533,22 +501,13 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       return;
     }
   } else if (game.examiners.indexOf(self._id) === -1) {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "NOT_AN_EXAMINER"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
 
   const result = chessObject.move(move);
   if (!result) {
-    ClientMessages.sendMessageToClient(
-      Meteor.user(),
-      message_identifier,
-      "ILLEGAL_MOVE",
-      [move]
-    );
+    ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
     return;
   }
   const setobject = { fen: chessObject.fen() };
@@ -568,10 +527,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   const analyze = addMoveToMoveList(variation, move);
 
   if (game.status === "playing") {
-    if (
-      active_games[game_id].in_draw() &&
-      !active_games[game_id].in_threefold_repetition()
-    ) {
+    if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
       setobject.result = "1/2-1/2";
     } else if (active_games[game_id].in_stalemate()) {
       setobject.result = "1/2-1/2";
@@ -598,8 +554,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     // made their own move.
     //
     if (!setobject.result && game.pending[bw].takeback.number)
-      setobject["pending." + bw + ".takeback.number"] =
-        game.pending[bw].takeback.number + 1;
+      setobject["pending." + bw + ".takeback.number"] = game.pending[bw].takeback.number + 1;
 
     if (!setobject.result) {
       const timenow = new Date().getTime();
@@ -618,9 +573,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     UCI.getScoreForFen(active_games[game_id].fen())
       .then(score => {
         const setobject = {};
-        setobject[
-          "variations.movelist." + (variation.movelist.length - 1) + ".score"
-        ] = score;
+        setobject["variations.movelist." + (variation.movelist.length - 1) + ".score"] = score;
         const result = GameCollection.update(
           { _id: game_id, status: game.status },
           { $set: setobject }
@@ -676,11 +629,7 @@ Game.legacyGameEnded = function(
       "User does not seem to be black or white"
     );
   if (game.status !== "playing")
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to end game",
-      "Game is not being played"
-    );
+    throw new ICCMeteorError(message_identifier, "Unable to end game", "Game is not being played");
   if (become_examined) {
     const examiners = [];
     if (game.white.id) examiners.push(game.white.id);
@@ -731,11 +680,7 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
     );
 
   if (!game.examiners || game.examiners.indexOf(id_to_remove) === -1) {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "NOT_AN_EXAMINER"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
   GameCollection.update(
@@ -761,36 +706,21 @@ Game.localAddExamainer = function(message_identifier, game_id, id_to_add) {
     );
 
   if (!game.examiners || game.examiners.indexOf(self._id) === -1) {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "NOT_AN_EXAMINER"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
 
   if (!game.observers || game.observers.indexOf(id_to_add) === -1) {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "NOT_AN_OBSERVER"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
     return;
   }
 
   if (!!game.examiners && game.examiners.indexOf(id_to_add) !== -1) {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "ALREADY_AN_EXAMINER"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "ALREADY_AN_EXAMINER");
     return;
   }
 
-  GameCollection.update(
-    { _id: game_id, status: "examining" },
-    { $push: { examiners: id_to_add } }
-  );
+  GameCollection.update({ _id: game_id, status: "examining" }, { $push: { examiners: id_to_add } });
 };
 
 Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
@@ -812,11 +742,7 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     );
 
   if (!game.observers || game.observers.indexOf(id_to_remove) === -1) {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "NOT_AN_OBSERVER"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
     return;
   }
 
@@ -827,11 +753,7 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
       "You can only remove yourself"
     );
 
-  if (
-    !!game.examiners &&
-    game.examiners.length === 1 &&
-    game.examiners[0] === id_to_remove
-  ) {
+  if (!!game.examiners && game.examiners.length === 1 && game.examiners[0] === id_to_remove) {
     GameCollection.remove({ _id: game_id });
     delete active_games[game_id];
   } else
@@ -863,21 +785,14 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
       "Unable to find user record for ID"
     );
   if (game.legacy_game_number)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to add observer",
-      "Game is a legacy game"
-    );
+    throw new ICCMeteorError(message_identifier, "Unable to add observer", "Game is a legacy game");
   if (self._id !== id_to_add)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to add observer",
       "Currently no support for adding another observer"
     );
-  GameCollection.update(
-    { _id: game_id, status: game.status },
-    { $push: { observers: id_to_add } }
-  );
+  GameCollection.update({ _id: game_id, status: game.status }, { $push: { observers: id_to_add } });
 };
 
 Game.removeLegacyGame = function(message_identifier, game_id) {
@@ -894,11 +809,7 @@ Game.removeLegacyGame = function(message_identifier, game_id) {
       "Game id not found"
     );
   else if (count !== 1)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Catastrophe!",
-      "Deleted more than one record!"
-    );
+    throw new ICCMeteorError(message_identifier, "Catastrophe!", "Deleted more than one record!");
 };
 
 Game.requestLocalTakeback = function(message_identifier, game_id, number) {
@@ -906,8 +817,7 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   check(game_id, String);
   check(number, Number);
 
-  if (number < 1)
-    throw new Match.Error("takeback half ply value must be greater than zero");
+  if (number < 1) throw new Match.Error("takeback half ply value must be greater than zero");
 
   const self = Meteor.user();
   check(self, Object);
@@ -916,20 +826,11 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
   if (!game) return;
 
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      Meteor.user(),
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
-  const color =
-    game.white.id === self._id
-      ? "white"
-      : game.black.id === self._id
-      ? "black"
-      : null;
+  const color = game.white.id === self._id ? "white" : game.black.id === self._id ? "black" : null;
 
   if (!color)
     throw new ICCMeteorError(
@@ -947,11 +848,7 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
     return this.acceptLocalTakeback(message_identifier, game_id);
 
   if (game.pending[color].takeback.number !== 0) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "TAKEBACK_ALREADY_PENDING"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "TAKEBACK_ALREADY_PENDING");
     return;
   }
 
@@ -985,21 +882,13 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      Meteor.user(),
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   if (!game.pending[othercolor].takeback.number) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NO_TAKEBACK_PENDING"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NO_TAKEBACK_PENDING");
     return;
   }
 
@@ -1051,21 +940,13 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   if (!game.pending[othercolor].takeback.number) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NO_TAKEBACK_PENDING"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NO_TAKEBACK_PENDING");
     return;
   }
 
@@ -1107,11 +988,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     );
 
   if (!game || game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1137,11 +1014,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
   const color = self._id === game.white.id ? "white" : "black";
 
   if (game.pending[color].draw !== "0") {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "DRAW_ALREADY_PENDING"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "DRAW_ALREADY_PENDING");
     return;
   }
 
@@ -1175,22 +1048,14 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
     );
 
   if (!game || game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
   const color = self._id === game.white.id ? "white" : "black";
 
   if (game.pending[color].abort !== "0") {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "ABORT_ALREADY_PENDING"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "ABORT_ALREADY_PENDING");
     return;
   }
 
@@ -1224,22 +1089,14 @@ Game.requestLocalAdjourn = function(message_identifier, game_id) {
     );
 
   if (!game || game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
   const color = self._id === game.white.id ? "white" : "black";
 
   if (game.pending[color].adjourn !== "0") {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "ADJOURN_ALREADY_PENDING"
-    );
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "ADJOURN_ALREADY_PENDING");
     return;
   }
 
@@ -1265,11 +1122,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1296,11 +1149,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
-  ClientMessages.sendMessageToClient(
-    otheruser,
-    game.pending[othercolor].draw,
-    "DRAW_ACCEPTED"
-  );
+  ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].draw, "DRAW_ACCEPTED");
 };
 
 Game.acceptLocalAbort = function(message_identifier, game_id) {
@@ -1313,11 +1162,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1344,11 +1189,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
-  ClientMessages.sendMessageToClient(
-    otheruser,
-    game.pending[othercolor].abort,
-    "ABORT_ACCEPTED"
-  );
+  ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].abort, "ABORT_ACCEPTED");
 };
 
 Game.acceptLocalAdjourn = function(message_identifier, game_id) {
@@ -1361,11 +1202,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1409,11 +1246,7 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
   if (!game) return;
 
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1430,11 +1263,7 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
     }
   );
 
-  ClientMessages.sendMessageToClient(
-    otheruser,
-    game.pending[othercolor].draw,
-    "DRAW_DECLINED"
-  );
+  ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].draw, "DRAW_DECLINED");
 };
 
 Game.declineLocalAbort = function(message_identifier, game_id) {
@@ -1447,11 +1276,7 @@ Game.declineLocalAbort = function(message_identifier, game_id) {
   if (!game) return;
 
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1468,11 +1293,7 @@ Game.declineLocalAbort = function(message_identifier, game_id) {
     }
   );
 
-  ClientMessages.sendMessageToClient(
-    otheruser,
-    game.pending[othercolor].abort,
-    "ABORT_DECLINED"
-  );
+  ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].abort, "ABORT_DECLINED");
 };
 
 Game.declineLocalAdjourn = function(message_identifier, game_id) {
@@ -1485,11 +1306,7 @@ Game.declineLocalAdjourn = function(message_identifier, game_id) {
   if (!game) return;
 
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1522,11 +1339,7 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_PLAYING_A_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
 
@@ -1615,10 +1428,7 @@ Game.isPlayingGame = function(user_or_id) {
   const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
   return (
     GameCollection.find({
-      $and: [
-        { status: "playing" },
-        { $or: [{ "white.id": id }, { "black.id": id }] }
-      ]
+      $and: [{ status: "playing" }, { $or: [{ "white.id": id }, { "black.id": id }] }]
     }).count() !== 0
   );
 };
@@ -1703,10 +1513,7 @@ Meteor.publish("playing_games", function() {
   if (!user || !user.loggedOn) return [];
   return GameCollection.find(
     {
-      $and: [
-        { status: "playing" },
-        { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
-      ]
+      $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
     },
     { fields: { "variations.movelist.score": 0 } }
   );
@@ -1720,12 +1527,7 @@ Meteor.publish("observing_games", function() {
   });
 });
 
-Game.moveForward = function(
-  message_identifier,
-  game_id,
-  move_count,
-  variation_index
-) {
+Game.moveForward = function(message_identifier, game_id, move_count, variation_index) {
   const movecount = move_count || 1;
   check(game_id, String);
   check(movecount, Number);
@@ -1741,11 +1543,7 @@ Game.moveForward = function(
     examiners: self._id
   });
   if (!game) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_AN_EXAMINER"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
 
@@ -1762,28 +1560,16 @@ Game.moveForward = function(
   for (let x = 0; x < move_count; x++) {
     const move = variation.movelist[variation.cmi];
     if (!move.variations || !move.variations.length) {
-      ClientMessages.sendMessageToClient(
-        self,
-        message_identifier,
-        "END_OF_GAME"
-      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "END_OF_GAME");
       return;
     } else if (move.variations.length === 1 && !!vi) {
-      ClientMessages.sendMessageToClient(
-        self,
-        message_identifier,
-        "INVALID_VARIATION"
-      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_VARIATION");
       break;
     } else if (
       move.variations.length > 1 &&
       (vi === undefined || vi === null || vi >= move.variations.length)
     ) {
-      ClientMessages.sendMessageToClient(
-        self,
-        message_identifier,
-        "VARIATION_REQUIRED"
-      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "VARIATION_REQUIRED");
       break;
     } else {
       variation.cmi = variation.movelist[variation.cmi].variations[vi || 0];
@@ -1838,11 +1624,7 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
     examiners: self._id
   });
   if (!game) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "NOT_AN_EXAMINER"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
   }
 
   if (!active_games[game_id])
@@ -1853,11 +1635,7 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
     );
 
   if (movecount > active_games[game_id].history().length) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "BEGINNING_OF_GAME"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "BEGINNING_OF_GAME");
     return;
   }
 
@@ -2018,13 +1796,8 @@ function addmove(move_number, variations, white_to_move, movelist, idx) {
       movelist[movelist[idx].variations[x]].move +
       " ";
     string +=
-      addmove(
-        next_move_number,
-        false,
-        next_white_to_move,
-        movelist,
-        movelist[idx].variations[x]
-      ) + ") ";
+      addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]) +
+      ") ";
   }
 
   string +=
@@ -2044,11 +1817,7 @@ function buildPgnFromMovelist(movelist) {
 }
 
 function addMoveToMoveList(variation_object, move) {
-  const exists = findVariation(
-    move,
-    variation_object.cmi,
-    variation_object.movelist
-  );
+  const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
   if (exists) {
     variation_object.cmi = exists;
   } else {
@@ -2084,17 +1853,9 @@ function startGamePing(game_id) {
           status: "playing"
         });
         const user = Meteor.user();
-        if (!game)
-          throw new Meteor.Error(
-            "Unable to set ping information",
-            "game not found"
-          );
+        if (!game) throw new Meteor.Error("Unable to set ping information", "game not found");
         const color =
-          game.white.id === user._id
-            ? "white"
-            : game.black.id === user._id
-            ? "black"
-            : null;
+          game.white.id === user._id ? "white" : game.black.id === user._id ? "black" : null;
 
         if (!color)
           throw new Meteor.Error(
@@ -2127,10 +1888,7 @@ function startGamePing(game_id) {
 
 function endGamePing(game_id) {
   if (!game_pings[game_id])
-    throw new Meteor.Error(
-      "Unable to update game ping",
-      "Unable to locate game to ping"
-    );
+    throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
   game_pings[game_id].end();
   delete game_pings[game_id];
 }
@@ -2142,10 +1900,7 @@ Meteor.methods({
     check(pong, Object);
     check(user, Object);
     if (!game_pings[game_id])
-      throw new Meteor.Error(
-        "Unable to update game ping",
-        "Unable to locate game to ping"
-      );
+      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
     pong.userid = user._id;
     game_pings[game_id].pongArrived(pong);
   }
