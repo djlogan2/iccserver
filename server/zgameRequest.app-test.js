@@ -1416,15 +1416,10 @@ describe("game_requests collection", function() {
 });
 
 describe("game_requests publication", function() {
+  this.timeout(500000);
   const self = TestHelpers.setupDescribe.apply(this);
 
   it.only("should stop publishing records when played game is started", function() {
-    function promise(func) {
-      return new Promise(resolve => {
-        func();
-        resolve();
-      });
-    }
 
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
@@ -1433,26 +1428,29 @@ describe("game_requests publication", function() {
 
     self.loggedonuser = challenger;
     let gameid;
-    const collector1 = new PublicationCollector({ userId: challenger._id });
+
+    let collector1 = new PublicationCollector({ userId: challenger._id });
     return collector1
       .collect("game_requests")
       .then(collections => {
-        console.log("here 3");
         chai.assert.equal(collections.game_requests.length, 11);
-        return promise(() => {
-          gameid = Game.startLocalGame("mi", otherguy, 0, "standard", true, 15, 0, 15, 0);
-          console.log("here 3b");
-        });
+        gameid = Game.startLocalGame("mi", otherguy, 0, "standard", true, 15, 0, 15, 0);
+        return Promise.resolve();
       })
-      .then(() => collector1.collect("game_requests"))
+      .then(() => {
+        const collector = new PublicationCollector({ userId: challenger._id });
+        return collector.collect("game_requests");
+      })
       .then(collections => {
-        console.log("here 4");
         chai.assert.equal(collections.game_requests.length, 0);
-        return promise(() => Game.resignLocalGame("mi2", gameid));
+        Game.resignLocalGame("mi2", gameid);
+        return Promise.resolve();
       })
-      .then(() => collector1.collect("game_requests"))
+      .then(() => {
+        const collector = new PublicationCollector({ userId: challenger._id });
+        return collector.collect("game_requests");
+      })
       .then(collections => {
-        console.log("here 6");
         chai.assert.equal(collections.game_requests.length, 11);
       });
   });

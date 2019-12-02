@@ -2795,7 +2795,7 @@ describe.skip("When a user disconnects while playing a game", function() {
   it("should write a connect and disconnect action to the adjourned game every time they connect and disconnect", function() {});
 });
 
-describe.skip("Game publication", function() {
+describe("Game publication", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("should not send engine scores to either player, but should send to all observers in a played game", function(done) {
@@ -2854,15 +2854,15 @@ describe.skip("Game publication", function() {
     }
 
     check(p1, false)
-      .then(check(p2, false))
-      .then(check(o1, true))
-      .then(check(o2, true))
-      .then(done);
+      .then(() => check(p2, false))
+      .then(() => check(o1, true))
+      .then(() => check(o2, true))
+      .then(() => done());
   });
 });
 
 describe("When making a move in a game being played", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.call(this, {timer: true});
 
   it("needs to update the users time correctly after a move", function() {
     const player1 = TestHelpers.createUser();
@@ -2928,7 +2928,7 @@ describe("When making a move in a game being played", function() {
 });
 
 describe("when playing a game", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.call(this, {timer: true});
 
   it("should write a ping to the record each second, and record both blacks and whites responses", function(done) {
     const p1 = TestHelpers.createUser();
