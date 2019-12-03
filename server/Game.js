@@ -1447,6 +1447,30 @@ Game.isPlayingGame = function(user_or_id) {
 };
 
 Meteor.methods({
+  gamepong(game_id, pong) {
+    const user = Meteor.user();
+    check(game_id, String);
+    check(pong, Object);
+    check(user, Object);
+    if (!game_pings[game_id])
+      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+    const game = GameCollection.findOne(
+      { _id: game_id, status: "playing" },
+      { fields: { "white.id": 1 } }
+    );
+    if (!game)
+      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+    const color = game.white.id === user._id ? "white" : "black";
+    log.debug(
+      "Meteor method gamepong called with game_id=" +
+        game_id +
+        ", msg.id=" +
+        pong.id +
+        ", color=" +
+        color
+    );
+    game_pings[game_id][color].pongArrived(pong);
+  },
   addGameMove(message_identifier, game_id, move) {
     check(message_identifier, String);
     check(game_id, String);
@@ -1911,33 +1935,6 @@ function endGamePing(game_id) {
   game_pings[game_id]["black"].end();
   delete game_pings[game_id];
 }
-
-Meteor.methods({
-  gamepong: function(game_id, pong) {
-    const user = Meteor.user();
-    check(game_id, String);
-    check(pong, Object);
-    check(user, Object);
-    if (!game_pings[game_id])
-      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
-    const game = GameCollection.findOne(
-      { _id: game_id, status: "playing" },
-      { fields: { "white.id": 1 } }
-    );
-    if (!game)
-      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
-    const color = game.white.id === user._id ? "white" : "black";
-    log.debug(
-      "Meteor method gamepong called with game_id=" +
-        game_id +
-        ", msg.id=" +
-        pong.id +
-        ", color=" +
-        color
-    );
-    game_pings[game_id][color].pongArrived(pong);
-  }
-});
 
 Meteor.startup(function() {
   GameCollection.remove({});

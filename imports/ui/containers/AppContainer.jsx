@@ -230,13 +230,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
   }
   render() {
-    // const gameRequest = GameRequestCollection.find({}).fetch()[0];
     const gameRequest = this.renderGameRequest();
     const game = this.renderGameMessages();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
-    log.debug("clientMessage", clientMessage);
     if (
       systemCSS === undefined ||
       boardCSS === undefined ||

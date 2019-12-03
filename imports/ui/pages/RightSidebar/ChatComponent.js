@@ -54,10 +54,7 @@ export default class ChatComponent extends Component {
     );
   }
   render() {
-    let translator = i18n.createTranslator(
-      "Common.chatBoxMessage",
-      this.getLang()
-    );
+    let translator = i18n.createTranslator("Common.chatBoxMessage", this.getLang());
     let gameSeekPopup = null;
     const request = this.props.gameRequest;
     let message = null;
@@ -79,10 +76,7 @@ export default class ChatComponent extends Component {
                 {message.message}
                 <button
                   style={this.props.cssmanager.buttonStyle()}
-                  onClick={this.removeAcknowledgeMessage.bind(
-                    this,
-                    message._id
-                  )}
+                  onClick={this.removeAcknowledgeMessage.bind(this, message._id)}
                 >
                   <img src="images/delete-sign.png" />
                 </button>
@@ -116,12 +110,7 @@ export default class ChatComponent extends Component {
         <div style={this.props.cssmanager.inputBoxStyle("chat")}>
           <input type="text" placeholder="Message..." />
           <button style={this.props.cssmanager.buttonStyle()} type="send">
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage(
-                "chatSendButton"
-              )}
-              alt="Send"
-            />
+            <img src={this.props.cssmanager.buttonBackgroundImage("chatSendButton")} alt="Send" />
           </button>
         </div>
       </div>
