@@ -42,57 +42,40 @@ if (Meteor.isTest || Meteor.isAppTest) {
     const id = Accounts.createUser(userRecord);
     userRecord._id = id;
     if (!!options.roles) {
-      options.roles.forEach(role =>
-        Roles.createRole(role, { unlessExists: true })
-      );
+      options.roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
       Roles.setUserRoles(id, options.roles);
     }
-    if (options.login === undefined || options.login) {
-      Meteor.users.update({ _id: id }, { $set: { loggedOn: true } });
-    }
+
+    Meteor.users.update(
+      { _id: id },
+      { $set: { "status.online": options.login === undefined || options.login } }
+    );
     if (userRecord.profile && userRecord.profile.legacy)
-      Meteor.users.update(
-        { _id: id },
-        { $set: { "profile.legacy.validated": true } }
-      );
+      Meteor.users.update({ _id: id }, { $set: { "profile.legacy.validated": true } });
     return Meteor.users.findOne({ _id: id });
   };
 
-  TestHelpers.setupDescribe = function() {
+  TestHelpers.setupDescribe = function(options) {
     const self = this;
 
     beforeEach.call(this, function(done) {
       self.sandbox = sinon.createSandbox();
-      self.clock = self.sandbox.useFakeTimers();
+      if (!!options && options.timer) self.clock = self.sandbox.useFakeTimers();
       self.meteorUsersFake = self.sandbox.fake(() =>
         Meteor.users.findOne({
           _id: self.loggedonuser ? self.loggedonuser._id : ""
         })
       );
+
       self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
 
-      self.clientMessagesSpy = self.sandbox.spy(
-        ClientMessages,
-        "sendMessageToClient"
-      );
+      self.clientMessagesSpy = self.sandbox.spy(ClientMessages, "sendMessageToClient");
 
-      self.sandbox.replace(
-        Timestamp,
-        "averageLag",
-        self.sandbox.fake.returns(123)
-      );
+      self.sandbox.replace(Timestamp, "averageLag", self.sandbox.fake.returns(123));
 
-      self.sandbox.replace(
-        Timestamp,
-        "pingTime",
-        self.sandbox.fake.returns(456)
-      );
+      self.sandbox.replace(Timestamp, "pingTime", self.sandbox.fake.returns(456));
 
-      self.sandbox.replace(
-        UCI,
-        "getScoreForFen",
-        self.sandbox.fake(() => Promise.resolve(234))
-      );
+      self.sandbox.replace(UCI, "getScoreForFen", self.sandbox.fake(() => Promise.resolve(234)));
 
       self.sandbox.replace(
         i18n,

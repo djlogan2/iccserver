@@ -78,7 +78,6 @@ const all_fields = {
   locale: 1,
   board_css: 1,
   createdAt: 1,
-  loggedOn: 1,
   emails: 1,
   services: {
     password: {

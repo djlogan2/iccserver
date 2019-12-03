@@ -275,15 +275,9 @@ GameRequests.addLocalGameSeek = function(
       message_identifier,
       "seek fails to meet minimum or maximum rating rules"
     );
-  if (!!formula)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Formula is not yet supported"
-    );
+  if (!!formula) throw new ICCMeteorError(message_identifier, "Formula is not yet supported");
 
-  if (
-    !Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")
-  ) {
+  if (!Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -311,23 +305,17 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
-  const users = Meteor.users.find({ loggedOn: true }).fetch();
+  const users = Meteor.users.find({ "status.online": true }).fetch();
   let matchingusers = [];
   if (!!users) {
-    matchingusers = users
-      .filter(user => seekMatchesUser(user, game))
-      .map(user => user._id);
+    matchingusers = users.filter(user => seekMatchesUser(user, game)).map(user => user._id);
   }
   game.matchingusers = matchingusers || [];
 
   return GameRequestCollection.insert(game);
 };
 
-GameRequests.removeLegacySeek = function(
-  message_identifier,
-  seek_index,
-  reason_code
-) {
+GameRequests.removeLegacySeek = function(message_identifier, seek_index, reason_code) {
   check(message_identifier, String);
   check(seek_index, Number);
   check(reason_code, Number);
@@ -338,10 +326,7 @@ GameRequests.removeLegacySeek = function(
   if (!request) return; // The doc says we could get removes for seeks we do not have.
 
   if (self._id !== request.owner)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot remove another users game seek"
-    );
+    throw new ICCMeteorError(message_identifier, "Cannot remove another users game seek");
 
   GameRequestCollection.remove({ _id: request._id });
 };
@@ -354,23 +339,15 @@ GameRequests.removeGameSeek = function(message_identifier, seek_id) {
 
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to find seek with id " + seek_id
-    );
+    throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
 
   if (self._id !== request.owner)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot remove another users game seek"
-    );
+    throw new ICCMeteorError(message_identifier, "Cannot remove another users game seek");
 
   if (request.type !== "seek")
     throw new ICCMeteorError(
       message_identifier,
-      "Cannot remove this seek. It is of type '" +
-        request.type +
-        "' and must be of type 'seek'"
+      "Cannot remove this seek. It is of type '" + request.type + "' and must be of type 'seek'"
     );
 
   GameRequestCollection.remove({ _id: seek_id });
@@ -384,26 +361,12 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
 
   const request = GameRequestCollection.findOne({ _id: seek_id });
   if (!request)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to find seek with id " + seek_id
-    );
+    throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
   if (self._id === request.owner)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot accept a seek from yourself"
-    );
+    throw new ICCMeteorError(message_identifier, "Cannot accept a seek from yourself");
   if (request.type !== "seek")
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot accept a non-local seek"
-    );
-  if (
-    !Roles.userIsInRole(
-      self,
-      request.rated ? "play_rated_games" : "play_unrated_games"
-    )
-  ) {
+    throw new ICCMeteorError(message_identifier, "Cannot accept a non-local seek");
+  if (!Roles.userIsInRole(self, request.rated ? "play_rated_games" : "play_unrated_games")) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -487,10 +450,8 @@ GameRequests.addLegacyMatchRequest = function(
     "profile.legacy.validated": true
   });
 
-  if (challenger_user && challenger_user._id === self._id)
-    challenger_or_receiver = true;
-  if (receiver_user && receiver_user._id === self._id)
-    challenger_or_receiver = true;
+  if (challenger_user && challenger_user._id === self._id) challenger_or_receiver = true;
+  if (receiver_user && receiver_user._id === self._id) challenger_or_receiver = true;
 
   if (!challenger_or_receiver)
     throw new ICCMeteorError(
@@ -523,8 +484,7 @@ GameRequests.addLegacyMatchRequest = function(
     challenger_color_request: challenger_color_request
   };
 
-  if (challenger_color_request)
-    record.challenger_color_request = challenger_color_request;
+  if (challenger_color_request) record.challenger_color_request = challenger_color_request;
 
   if (!!challenger_user) record.challenger_id = challenger_user._id;
   if (!!receiver_user) record.receiver_id = receiver_user._id;
@@ -565,8 +525,7 @@ GameRequests.addLocalMatchRequest = function(
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
 
-  if (wild_number !== 0)
-    throw new ICCMeteorError(message_identifier, "Wild must be zero");
+  if (wild_number !== 0) throw new ICCMeteorError(message_identifier, "Wild must be zero");
 
   if (
     !!challenger_color_request &&
@@ -589,10 +548,7 @@ GameRequests.addLocalMatchRequest = function(
   }
 
   if (challenger_user.ratings[rating_type] === undefined)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unknown rating type " + rating_type
-    );
+    throw new ICCMeteorError(message_identifier, "Unknown rating type " + rating_type);
 
   const role = is_it_rated ? "play_rated_games" : "play_unrated_games";
 
@@ -601,7 +557,7 @@ GameRequests.addLocalMatchRequest = function(
   if (!Roles.userIsInRole(receiver_user, role))
     throw new ICCMeteorError(message_identifier, "not_in_role", role);
 
-  if (!receiver_user.loggedOn) {
+  if (!receiver_user.status.online) {
     ClientMessages.sendMessageToClient(
       challenger_user,
       message_identifier,
@@ -655,11 +611,7 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
 
   const match = GameRequestCollection.findOne({ _id: game_id });
   if (!match) {
-    ClientMessages.sendMessageToClient(
-      receiver,
-      message_identifier,
-      "NO_MATCH_FOUND"
-    );
+    ClientMessages.sendMessageToClient(receiver, message_identifier, "NO_MATCH_FOUND");
     return;
   }
 
@@ -679,11 +631,7 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
   }
 
   if (receiver._id !== match.receiver_id) {
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot accept match",
-      "You are not the receiver"
-    );
+    throw new ICCMeteorError(message_identifier, "Cannot accept match", "You are not the receiver");
   }
 
   const challenger = Meteor.users.findOne({ _id: match.challenger_id });
@@ -745,11 +693,7 @@ GameRequests.declineMatchRequest = function(message_identifier, game_id) {
 
   const request = GameRequestCollection.findOne({ _id: game_id });
   if (!request)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to decline match",
-      "game id not found"
-    );
+    throw new ICCMeteorError(message_identifier, "Unable to decline match", "game id not found");
   if (request.challenger_id === self._id)
     throw new ICCMeteorError(
       message_identifier,
@@ -757,11 +701,7 @@ GameRequests.declineMatchRequest = function(message_identifier, game_id) {
       "challenger cannot decline a match"
     );
   if (request.receiver_id !== self._id)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to decline match",
-      "not the receiver"
-    );
+    throw new ICCMeteorError(message_identifier, "Unable to decline match", "not the receiver");
 
   GameRequestCollection.remove({ _id: game_id });
   ClientMessages.sendMessageToClient(
@@ -807,17 +747,11 @@ GameRequests.removeLegacyMatchRequest = function(
   });
 
   if (!result)
-    throw new ICCMeteorError(
-      message_identifier,
-      "No legacy match record found to remove"
-    );
+    throw new ICCMeteorError(message_identifier, "No legacy match record found to remove");
 
-  ClientMessages.sendMessageToClient(
-    self,
-    message_identifier,
-    "LEGACY_MATCH_REMOVED",
-    [explanation_string]
-  );
+  ClientMessages.sendMessageToClient(self, message_identifier, "LEGACY_MATCH_REMOVED", [
+    explanation_string
+  ]);
 };
 Meteor.methods({
   addLocalMatchRequest(
@@ -935,8 +869,7 @@ Meteor.methods({
 function seekMatchesUser(user, seek) {
   if (user._id === seek.owner) return false;
   if (!Roles.userIsInRole(user, "play_rated_games") && seek.rated) return false;
-  if (!Roles.userIsInRole(user, "play_unrated_games") && !seek.rated)
-    return false;
+  if (!Roles.userIsInRole(user, "play_unrated_games") && !seek.rated) return false;
   if (!seek.minrating && !seek.maxrating) return true;
 
   const myrating = user.ratings[seek.rating_type].rating;
@@ -946,8 +879,8 @@ function seekMatchesUser(user, seek) {
 
 Meteor.publish("game_requests", function() {
   const user = Meteor.user();
-  if (!user || !user.loggedOn) return [];
-  if (Game.isPlayingGame(user)) return [];
+  if (!user || !user.status.online) return [];
+  if (Game.isPlayingGame(user)) return GameRequestCollection.find({ _id: "0" }); //return [];
 
   const id = user._id;
   if (!id) return [];
@@ -979,13 +912,7 @@ function logoutHook(userId) {
   //       into the match request record from the meteor method, and then use that here.
   if (GameRequests && GameRequests.length > 0) {
     GameRequests.forEach(request => {
-      if (request.challenger_id === userId || request.owner === userId) {
-        ClientMessages.sendMessageToClient(
-          request.receiver_id,
-          "matchRequest",
-          "CANNOT_MATCH_LOGGED_OFF_USER"
-        );
-      } else if (request.receiver_id === userId) {
+      if (request.type === "match" && request.receiver_id === userId) {
         ClientMessages.sendMessageToClient(
           request.challenger_id,
           "matchRequest",
@@ -1007,9 +934,7 @@ function logoutHook(userId) {
 
 function loginHook(user) {
   const seeks = GameRequestCollection.find({ type: "seek" }).fetch();
-  const matchingseeks = seeks
-    .filter(seek => seekMatchesUser(user, seek))
-    .map(seek => seek._id);
+  const matchingseeks = seeks.filter(seek => seekMatchesUser(user, seek)).map(seek => seek._id);
   if (matchingseeks.length > 0) {
     const updated = GameRequestCollection.update(
       { type: "seek", _id: { $in: matchingseeks } },

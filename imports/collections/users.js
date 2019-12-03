@@ -16,10 +16,7 @@ let log = new Logger("server/users_js");
 export const Users = {};
 
 Meteor.publish("loggedOnUsers", function() {
-  return Meteor.users.find(
-    { loggedOn: true },
-    { fields: viewable_logged_on_user_fields }
-  );
+  return Meteor.users.find({ "status.online": true }, { fields: viewable_logged_on_user_fields });
 });
 
 // TODO: Add a method that is draining the server (i.e. not allowing anyone to login)
@@ -32,15 +29,11 @@ Meteor.publish("userData", function() {
   this.onStop(function() {
     log.debug("User left: " + self.userId);
     LegacyUser.logout(self.userId);
-    Meteor.users.update({ _id: self.userId }, { $set: { loggedOn: false } });
     runLogoutHooks(this, self.userId);
   });
 
   log.debug("User has arrived");
-  return Meteor.users.find(
-    { _id: this.userId },
-    { fields: fields_viewable_by_account_owner }
-  );
+  return Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner });
 });
 
 export const startingRatingObject = {
@@ -95,7 +88,6 @@ Accounts.onCreateUser(function(options, user) {
   // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
   user.ratings = user_ratings_object;
   user.settings = default_settings;
-  user.loggedOn = false;
   user.locale = "unknown";
   user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
   user.roles = [];
@@ -111,13 +103,8 @@ Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;
   const connection = user_parameter.connection;
 
-  Meteor.users.update({ _id: user._id }, { $set: { loggedOn: true } });
-
   log.debug("user record", user);
-  log.debug(
-    "User is in legacy_login role",
-    Roles.userIsInRole(user, "legacy_login")
-  );
+  log.debug("User is in legacy_login role", Roles.userIsInRole(user, "legacy_login"));
 
   if (
     Roles.userIsInRole(user, "legacy_login") &&
@@ -178,18 +165,12 @@ Accounts.validateLoginAttempt(function(params) {
       .split(/[,;]/)[0]
       .toLocaleLowerCase()
       .replace("_", "-");
-    Meteor.users.update(
-      { _id: params.user._id },
-      { $set: { locale: acceptLanguage } }
-    );
+    Meteor.users.update({ _id: params.user._id }, { $set: { locale: acceptLanguage } });
     params.user.locale = acceptLanguage;
   }
 
   if (!Roles.userIsInRole(params.user, "login")) {
-    const message = i18n.localizeMessage(
-      params.user.locale || "en-us",
-      "LOGIN_FAILED_12"
-    );
+    const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_12");
     throw new Meteor.Error(message);
   }
 

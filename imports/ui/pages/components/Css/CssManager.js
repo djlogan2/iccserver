@@ -277,13 +277,13 @@ export default class CssManager {
       var style = {};
       if (tabActive) {
         if (tabActive === "FEN/PGN") tabActive = "PGN";
-
+        if (tabActive === "Room Chat") tabActive = "RoomChat";
         Object.assign(style, this._systemStyle.tabListItem[tabActive]);
       }
       Object.assign(style, this._systemStyle.tabListItem.all);
-
       if (hover) {
         if (hover === "FEN/PGN") hover = "PGN";
+        if (hover === "Room Chat") hover = "RoomChat";
         Object.assign(style, this._systemStyle.tabListItem[hover]);
       }
       if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
