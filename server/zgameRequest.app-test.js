@@ -1392,7 +1392,7 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
 describe("game_requests collection", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it.only("should have match records for which the user is the challenger deleted when a user logs off", function(done) {
+  it("should have match records for which the user is the challenger deleted when a user logs off", function(done) {
     this.timeout(500000);
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();

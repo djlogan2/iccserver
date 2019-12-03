@@ -45,9 +45,11 @@ if (Meteor.isTest || Meteor.isAppTest) {
       options.roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
       Roles.setUserRoles(id, options.roles);
     }
-    if (options.login === undefined || options.login) {
-      Meteor.users.update({ _id: id }, { $set: { "status.online": true } });
-    }
+
+    Meteor.users.update(
+      { _id: id },
+      { $set: { "status.online": options.login === undefined || options.login } }
+    );
     if (userRecord.profile && userRecord.profile.legacy)
       Meteor.users.update({ _id: id }, { $set: { "profile.legacy.validated": true } });
     return Meteor.users.findOne({ _id: id });
