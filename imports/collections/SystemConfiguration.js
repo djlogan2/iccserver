@@ -5,9 +5,13 @@ export const SystemConfiguration = {};
 
 const SystemConfigurationCollection = new Mongo.Collection("system_configuration");
 
+SystemConfiguration.minimumMoveTime = function() {
+  return 10;
+};
+
 SystemConfiguration.minimumLag = function() {
   return 100;
-}
+};
 
 SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   //{ rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }

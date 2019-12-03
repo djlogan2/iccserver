@@ -477,6 +477,21 @@ Game.saveLegacyMove = function(message_identifier, game_id, move) {
   );
 };
 
+function calculateGameLag(lagobject) {
+  let gamelag;
+  let totallag = 0;
+  const lagvalues = lagobject.pings.slice(-2);
+  const now = new Date().getTime();
+  if (lagvalues.length) {
+    totallag = lagvalues.reduce((total, cur) => total + cur, 0);
+    totallag = totallag | 0; // convert double to int
+  }
+  let lastlag = lagobject.active.reduce((total, cur) => now - cur.originate + total, 0);
+  gamelag = (totallag + lastlag) / lagvalues.length;
+  if (gamelag > SystemConfiguration.minimumLag()) gamelag -= SystemConfiguration.minimumLag();
+  return gamelag;
+}
+
 Game.saveLocalMove = function(message_identifier, game_id, move) {
   check(message_identifier, String);
   check(game_id, String);
@@ -514,8 +529,8 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   const unsetobject = {};
   const analyze = addMoveToMoveList(variation, move);
-  let gamelag;
-  let gameping;
+  let gamelag = 0;
+  let gameping = 0;
 
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
@@ -549,19 +564,23 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
     if (!setobject.result) {
       const timenow = new Date().getTime();
-      const lagvalues = game.lag[bw].pings.slice(-2);
-      if (lagvalues.length) {
-        gamelag = lagvalues.reduce((total, cur) => total + cur, 0) / lagvalues.length;
-        gamelag = gamelag | 0; // convert double to int
-        if (gamelag > SystemConfiguration.minimumLag()) gamelag -= SystemConfiguration.minimumLag();
-        gameping = lagvalues.slice(-1);
-      }
-      const used = timenow - game.clocks[bw].starttime + (gamelag || 0);
+      gamelag = calculateGameLag(game.lag[bw]) | 0;
+      gameping = game.lag[bw].pings.slice(-1) | 0;
+      log.debug("timenow=" + timenow + ", gamelag=" + gamelag + ", gameping=" + gameping);
+      log.trace("lag=", game.lag);
+
+      let used = timenow - game.clocks[bw].starttime + gamelag;
+      log.debug("used=" + used);
+      if (used <= SystemConfiguration.minimumMoveTime())
+        used = SystemConfiguration.minimumMoveTime();
+      log.debug("used=" + used);
       setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used;
       setobject["clocks." + otherbw + ".starttime"] = timenow;
+      log.debug("setobject=" + setobject);
     } else endGamePing(game_id);
   }
 
+  log.debug("final gamelag=" + gamelag + ", gameping=" + gameping);
   const move_parameter =
     game.status === "playing"
       ? {
@@ -1941,5 +1960,6 @@ Meteor.startup(function() {
   if (Meteor.isTest || Meteor.isAppTest) {
     Game.collection = GameCollection;
     Game.buildPgnFromMovelist = buildPgnFromMovelist;
+    Game.calculateGameLag = calculateGameLag;
   }
 });

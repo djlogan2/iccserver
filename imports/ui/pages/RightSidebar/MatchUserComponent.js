@@ -17,7 +17,12 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
         legacyUsers: Meteor.subscribe("legacyUsers")
       },
       user: null,
-      wild_number: 0,   //DOUBT: what is wild_number and wher come from ?
+      wild_number: 0,
+      //DOUBT: what is wild_number and wher come from ?
+      // ANSWER: Wild is a type of chess in the legacy server. Currently v2 supports only wild 0,
+      //         but eventually we will write rules engines for the rest, and perhaps even support
+      //         playing them from v2 <-> v1 as well.
+      //         See this for more info: https://www.chessclub.com/help/wild
       type: "standard",
       rated: true,
       is_adjourned: false,
@@ -65,7 +70,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     this.setState({ rated: event.target.checked });
   };
   handleMatchSubmit() {
-   
+
     let color = this.state.color === "random" ? null : this.state.color;
 
     Meteor.call(
