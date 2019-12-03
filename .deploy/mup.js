@@ -26,7 +26,7 @@ module.exports = {
     },
 
     docker: {
-      image: 'abernix/meteord:node-8-binbuild',
+      image: 'iccserver_base' //'abernix/meteord:node-8-binbuild',
     },
 
     // Show progress bar while uploading bundle to server

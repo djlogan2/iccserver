@@ -1392,7 +1392,8 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
 describe("game_requests collection", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should have match records for which the user is the challenger deleted when a user logs off", function(done) {
+  it.only("should have match records for which the user is the challenger deleted when a user logs off", function(done) {
+    this.timeout(500000);
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
@@ -1405,13 +1406,12 @@ describe("game_requests collection", function() {
     const collector = new PublicationCollector({ userId: challenger._id });
     collector.collect("game_requests", collections => {
       chai.assert.equal(collections.game_requests.length, 11);
+      GameRequests.logoutHook(challenger._id);
+      chai.assert.equal(GameRequests.collection.find().count(), 6);
+      chai.assert.equal(GameRequests.collection.find({ matchingusers: challenger._id }).count(), 0);
+      chai.assert.equal(GameRequests.collection.find({ type: "seek" }).count(), 2);
       done();
     });
-
-    GameRequests.logoutHook(challenger._id);
-    chai.assert.equal(GameRequests.collection.find().count(), 6);
-    chai.assert.equal(GameRequests.collection.find({ matchingusers: challenger._id }).count(), 0);
-    chai.assert.equal(GameRequests.collection.find({ type: "seek" }).count(), 2);
   });
 });
 
@@ -1419,7 +1419,6 @@ describe("game_requests publication", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("should stop publishing records when played game is started", function() {
-
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();

@@ -46,7 +46,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
       Roles.setUserRoles(id, options.roles);
     }
     if (options.login === undefined || options.login) {
-      Meteor.users.update({ _id: id }, { $set: { loggedOn: true } });
+      Meteor.users.update({ _id: id }, { $set: { "status.online": true } });
     }
     if (userRecord.profile && userRecord.profile.legacy)
       Meteor.users.update({ _id: id }, { $set: { "profile.legacy.validated": true } });

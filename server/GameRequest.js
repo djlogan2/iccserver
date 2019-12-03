@@ -305,7 +305,7 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
-  const users = Meteor.users.find({ loggedOn: true }).fetch();
+  const users = Meteor.users.find({ "status.online": true }).fetch();
   let matchingusers = [];
   if (!!users) {
     matchingusers = users.filter(user => seekMatchesUser(user, game)).map(user => user._id);
@@ -557,7 +557,7 @@ GameRequests.addLocalMatchRequest = function(
   if (!Roles.userIsInRole(receiver_user, role))
     throw new ICCMeteorError(message_identifier, "not_in_role", role);
 
-  if (!receiver_user.loggedOn) {
+  if (!receiver_user.status.online) {
     ClientMessages.sendMessageToClient(
       challenger_user,
       message_identifier,
@@ -879,7 +879,7 @@ function seekMatchesUser(user, seek) {
 
 Meteor.publish("game_requests", function() {
   const user = Meteor.user();
-  if (!user || !user.loggedOn) return [];
+  if (!user || !user.status.online) return [];
   if (Game.isPlayingGame(user)) return GameRequestCollection.find({ _id: "0" }); //return [];
 
   const id = user._id;
@@ -912,13 +912,7 @@ function logoutHook(userId) {
   //       into the match request record from the meteor method, and then use that here.
   if (GameRequests && GameRequests.length > 0) {
     GameRequests.forEach(request => {
-      if (request.challenger_id === userId || request.owner === userId) {
-        ClientMessages.sendMessageToClient(
-          request.receiver_id,
-          "matchRequest",
-          "CANNOT_MATCH_LOGGED_OFF_USER"
-        );
-      } else if (request.receiver_id === userId) {
+      if (request.type === "match" && request.receiver_id === userId) {
         ClientMessages.sendMessageToClient(
           request.challenger_id,
           "matchRequest",

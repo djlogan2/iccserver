@@ -80,7 +80,7 @@ Game.startLocalGame = function(
   check(black_initial, Number);
   check(black_increment, Number);
   check(color, Match.Maybe(String));
-  if (!self.loggedOn) {
+  if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
       "Unable to start game",
@@ -91,7 +91,7 @@ Game.startLocalGame = function(
   if (!!color && color !== "white" && color !== "black")
     throw new Match.Error("color must be undefined, 'white' or 'black");
 
-  if (!other_user.loggedOn) {
+  if (!other_user.status.online) {
     ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
     return;
   }
@@ -215,7 +215,7 @@ Game.startLocalExaminedGame = function(
   check(black_increment, Number);
   check(other_headers, Match.Maybe(Object));
 
-  if (!self.loggedOn) {
+  if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
       "Unable to examine game",
@@ -345,7 +345,7 @@ Game.startLegacyGame = function(
       "Unable to find user"
     );
 
-  if (!self.loggedOn)
+  if (!self.status.online)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to start legacy game",
@@ -394,13 +394,13 @@ Game.startLegacyGame = function(
       white: {
         initial: white_initial,
         inc: white_increment,
-        current: white_initial,
+        current: white_initial * 60 * 1000,
         starttime: 0
       },
       black: {
         initial: black_initial,
         inc: black_increment,
-        current: black_initial,
+        current: black_initial * 60 * 1000,
         starttime: 0
       }
     },
@@ -512,19 +512,10 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   }
   const setobject = { fen: chessObject.fen() };
 
-  const move_parameter =
-    game.status === "playing"
-      ? {
-          move: move,
-          lag: Timestamp.averageLag(self._id),
-          ping: Timestamp.pingTime(self._id)
-        }
-      : move;
-  const pushobject = {
-    actions: { type: "move", issuer: self._id, parameter: move_parameter }
-  };
   const unsetobject = {};
   const analyze = addMoveToMoveList(variation, move);
+  let gamelag;
+  let gameping;
 
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
@@ -558,11 +549,33 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
     if (!setobject.result) {
       const timenow = new Date().getTime();
-      const used = timenow - game.clocks[bw].starttime;
+      const lagvalues = game.lag[bw].pings.slice(-2);
+      if (lagvalues.length) {
+        gamelag = lagvalues.reduce((total, cur) => total + cur, 0) / lagvalues.length;
+        gamelag = gamelag | 0; // convert double to int
+        if (gamelag > SystemConfiguration.minimumLag()) gamelag -= SystemConfiguration.minimumLag();
+        gameping = lagvalues.slice(-1);
+      }
+      const used = timenow - game.clocks[bw].starttime + (gamelag || 0);
       setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used;
       setobject["clocks." + otherbw + ".starttime"] = timenow;
     } else endGamePing(game_id);
   }
+
+  const move_parameter =
+    game.status === "playing"
+      ? {
+          move: move,
+          lag: Timestamp.averageLag(self._id),
+          ping: Timestamp.pingTime(self._id),
+          gamelag: gamelag,
+          gameping: gameping
+        }
+      : move;
+  const pushobject = {
+    actions: { type: "move", issuer: self._id, parameter: move_parameter }
+  };
+
   setobject["variations"] = variation;
 
   GameCollection.update(
@@ -1510,7 +1523,7 @@ Meteor.methods({
 
 Meteor.publish("playing_games", function() {
   const user = Meteor.user();
-  if (!user || !user.loggedOn) return [];
+  if (!user || !user.status.online) return [];
   return GameCollection.find(
     {
       $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
@@ -1521,7 +1534,7 @@ Meteor.publish("playing_games", function() {
 
 Meteor.publish("observing_games", function() {
   const user = Meteor.user();
-  if (!user || !user.loggedOn) return [];
+  if (!user || !user.status.online) return [];
   return GameCollection.find({
     observers: user._id
   });
@@ -1873,7 +1886,14 @@ function _startGamePing(game_id, color) {
         pullobject["lag." + color + ".active"] = item[0];
         pushobject["lag." + color + ".pings"] = msg.delay;
 
-        log.debug("Saving ping result " + msg.id + " for " + color + " and deleting from active array, delay=" + msg.delay);
+        log.debug(
+          "Saving ping result " +
+            msg.id +
+            " for " +
+            color +
+            " and deleting from active array, delay=" +
+            msg.delay
+        );
         GameCollection.update(
           { _id: game._id, status: game.status },
           { $pull: pullobject, $push: pushobject }
@@ -1907,7 +1927,14 @@ Meteor.methods({
     if (!game)
       throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
     const color = game.white.id === user._id ? "white" : "black";
-    log.debug("Meteor method gamepong called with game_id=" + game_id + ", msg.id=" + pong.id + ", color=" + color);
+    log.debug(
+      "Meteor method gamepong called with game_id=" +
+        game_id +
+        ", msg.id=" +
+        pong.id +
+        ", color=" +
+        color
+    );
     game_pings[game_id][color].pongArrived(pong);
   }
 });

@@ -82,7 +82,7 @@ export const DefinedClientMessagesMap = {
   LOGIN_FAILED_21: {},
   LOGIN_FAILED_22: {},
   FOR_TESTING: {},
-  FOR_TESTING_10: {parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]}
+  FOR_TESTING_10: { parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] }
 };
 
 Meteor.publish("client_messages", function() {
@@ -94,10 +94,7 @@ Meteor.methods({
     check(id, String);
     const rec = ClientMessagesCollection.findOne({ _id: id });
     if (!rec)
-      throw new ICCMeteorError(
-        "server",
-        "We should not be deleting a nonexistant client message"
-      );
+      throw new ICCMeteorError("server", "We should not be deleting a nonexistant client message");
     if (rec.to !== this.userId)
       throw new ICCMeteorError(
         "server",
@@ -109,11 +106,7 @@ Meteor.methods({
 
 export const ClientMessages = {};
 
-ClientMessages.sendMessageToClient = function(
-  user,
-  client_identifier,
-  i18n_message
-) {
+ClientMessages.sendMessageToClient = function(user, client_identifier, i18n_message) {
   check(user, Match.OneOf(Object, String));
   check(client_identifier, String);
   check(
@@ -126,8 +119,7 @@ ClientMessages.sendMessageToClient = function(
   ); // It has to be a known and supported message to the client
   const parms = [];
   for (let x = 3; x < arguments.length; x++)
-    if (Array.isArray(arguments[x]))
-      arguments[x].forEach(arg => parms.push(arg));
+    if (Array.isArray(arguments[x])) arguments[x].forEach(arg => parms.push(arg));
     else parms.push(arguments[x]);
   const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
     ? 0
@@ -143,7 +135,7 @@ ClientMessages.sendMessageToClient = function(
         " parameters"
     );
   const id = typeof user === "object" ? user._id : user;
-  const touser = Meteor.users.findOne({ _id: id, loggedOn: true });
+  const touser = Meteor.users.findOne({ _id: id, "status.online": true });
   if (!touser) return;
   // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
   const locale = touser.locale || "en-us";

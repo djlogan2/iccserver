@@ -2988,7 +2988,7 @@ describe("when playing a game", function() {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(
           error.message,
-          "cannot find users color (not a player?) [Unable to set ping information]"
+          "[Unable to find request for response]"
         );
         done();
       });

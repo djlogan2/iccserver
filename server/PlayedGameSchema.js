@@ -61,7 +61,9 @@ const actionSchema = new SimpleSchema({
   },
   "parameter.move": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },
-  "parameter.ping": { type: Number, required: false }
+  "parameter.ping": { type: Number, required: false },
+  "parameter.gamelag": { type: Number, required: false },
+  "parameter.gameping": { type: Number, required: false }
 });
 
 export const PlayedGameSchema = new SimpleSchema({
