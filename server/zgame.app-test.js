@@ -2862,7 +2862,7 @@ describe("Game publication", function() {
 });
 
 describe("When making a move in a game being played", function() {
-  const self = TestHelpers.setupDescribe.call(this, {timer: true});
+  const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   it("needs to update the users time correctly after a move", function() {
     const player1 = TestHelpers.createUser();
@@ -2928,7 +2928,7 @@ describe("When making a move in a game being played", function() {
 });
 
 describe("when playing a game", function() {
-  const self = TestHelpers.setupDescribe.call(this, {timer: true});
+  const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   it("should write a ping to the record each second, and record both blacks and whites responses", function(done) {
     const p1 = TestHelpers.createUser();
@@ -2986,10 +2986,7 @@ describe("when playing a game", function() {
 
     const client = new TimestampClient((key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
-        chai.assert.equal(
-          error.message,
-          "[Unable to find request for response]"
-        );
+        chai.assert.equal(error.message, "[Unable to find request for response]");
         done();
       });
     });
@@ -3058,4 +3055,213 @@ describe("when playing a game", function() {
     game1.lag.white.active[0].id = "invalidid";
     client.pingArrived(game1.lag.white.active[0]);
   });
+});
+
+describe.only("Game clocks", function() {
+  this.timeout(500000);
+  const self = TestHelpers.setupDescribe.call(this, { timer: true, averagelag: 0 });
+
+  it("should remove time as wall clock when lag is not involved", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, 15, 0, "white");
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+    chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+
+    self.clock.tick(6000);
+    Game.saveLocalMove("mi2", game_id, "e4");
+
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 15 * 60 * 1000 - 6000); // 15 minutes minus six seconds
+    chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
+  });
+
+  it("should remove a minimum of time as specified by the system configuration", function() {
+    self.sandbox.replace(SystemConfiguration, "minimumMoveTime", self.sandbox.fake.returns(500));
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, 15, 0, "white");
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+    chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+
+    self.clock.tick(6);
+    Game.saveLocalMove("mi2", game_id, "e4");
+
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 15 * 60 * 1000 - 500); // 15 minutes minus 500ms, the minimum move time
+    chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
+  });
+
+  it("should add the increment back in if specified", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 45, 15, 45, "white");
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+    chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+
+    self.clock.tick(6000);
+    Game.saveLocalMove("mi2", game_id, "e4");
+
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 15 * 60 * 1000 - 6000 + 45000); // 15 minutes minus 6s, plus 45s increment
+    chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
+  });
+
+  it("should not change the clock time if under the us delay when us delay is specified", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      { delay: 45, delaytype: "us" },
+      15,
+      { delay: 45, delaytype: "us" },
+      "white"
+    );
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+    chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+
+    self.clock.tick(6000);
+    Game.saveLocalMove("mi2", game_id, "e4");
+
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 15 * 60 * 1000); // 15 minutes, since 6s is less than the 45s delay
+    chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
+
+    self.loggedonuser = p2;
+
+    self.clock.tick(60000);
+    Game.saveLocalMove("mi2", game_id, "e5");
+
+    const game3 = Game.collection.findOne({});
+    chai.assert.equal(game3.clocks.white.current, 15 * 60 * 1000); // 15 minutes
+    chai.assert.equal(game3.clocks.black.current, 15 * 60 * 1000 - (60 - 45) * 1000); // 15 minutes minus the difference between the move time (60s) and the delay (45s), so 15s should be removed
+  });
+
+  it("should change the clock, by 'wall time minus delay' when move is over us delay time and us delay is specified", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      { delay: 45, delaytype: "us" },
+      15,
+      { delay: 45, delaytype: "us" },
+      "white"
+    );
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+    chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+
+    self.clock.tick(60000);
+    Game.saveLocalMove("mi2", game_id, "e4");
+
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 15 * 60 * 1000 - (60 - 45) * 1000); // 15 minutes minus the difference between the move time (60s) and the delay (45s), so 15s should be removed
+    chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
+  });
+
+  it("should automatically end the game when time expires", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "bullet",
+      true,
+      1,
+      { delay: 45, delaytype: "us" },
+      1,
+      { delay: 45, "delaytype": "us" },
+      "white"
+    );
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 60 * 1000);
+    chai.assert.equal(game1.clocks.black.current, 60 * 1000);
+
+    self.clock.tick(100000); // 60s + 40s
+
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.result, "*");
+    chai.assert.equal(game2.status, "playing");
+
+    self.clock.tick(5000); // the last 5s
+
+    const game3 = Game.collection.findOne({});
+    chai.assert.equal(game3.result, "0-1");
+    chai.assert.equal(game3.status, "examining");
+  });
+
+  it("should not end the game when time=5s and us delay=10s and player takes 8s to move", function(){
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+        "mi1",
+        p2,
+        0,
+        "bullet",
+        true,
+        1,
+        { delay: 10, delaytype: "us" },
+        1,
+        { delay: 10, delaytype: "us" },
+        "white"
+    );
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.clocks.white.current, 60 * 1000);
+    chai.assert.equal(game1.clocks.black.current, 60 * 1000);
+
+    self.clock.tick(65 * 1000); // 65s goes by -- Have to account for the 10s delay
+
+    Game.saveLocalMove("mi2", game_id, "e4");
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.clocks.white.current, 5000); // 5s left
+    chai.assert.equal(game2.clocks.black.current, 60 * 1000);
+
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi3", game_id, "e5");
+
+    self.loggedonuser = p1;
+    self.clock.tick(8000); // 8s delay
+
+    const game3 = Game.collection.findOne({});
+    chai.assert.equal(game3.clocks.white.current, 5000);
+    chai.assert.equal(game3.status, "playing");
+
+    Game.saveLocalMove("mi3", game_id, "Nf3");
+
+    const game4 = Game.collection.findOne({});
+    chai.assert.equal(game4.clocks.white.current, 5000);
+    chai.assert.equal(game4.status, "playing");
+  });
+
+  it("should end the game when time=5s and bronstien delay=10s and player takes 8s to move", function(){
+    chai.assert.equal("do me");
+  });
+
+  it("should set the clock to 15s left if starting time is 15s, us delay is 5s, and they take 3s to move", function(){chai.assert.equal("do me")});
+  it("should set the clock to 15s left if starting time is 15s, bronstein delay is 5s, and they take 3s to move", function(){chai.assert.equal("do me")});
+
+  it("should set the clock to 14s left if starting time is 15s, us delay is 5s, and they take 6s to move", function(){chai.assert.equal("do me")});
+  it("should set the clock to 14s left if starting time is 15s, bronstein delay is 5s, and they take 6s to move", function(){chai.assert.equal("do me")});
 });

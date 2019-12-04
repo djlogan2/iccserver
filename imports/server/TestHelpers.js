@@ -71,7 +71,13 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
       self.clientMessagesSpy = self.sandbox.spy(ClientMessages, "sendMessageToClient");
 
-      self.sandbox.replace(Timestamp, "averageLag", self.sandbox.fake.returns(123));
+      self.sandbox.replace(
+        Timestamp,
+        "averageLag",
+        self.sandbox.fake(() =>
+          !options || options.averagelag === undefined ? 0 : options.averagelag
+        )
+      ); //.returns(123));
 
       self.sandbox.replace(Timestamp, "pingTime", self.sandbox.fake.returns(456));
 

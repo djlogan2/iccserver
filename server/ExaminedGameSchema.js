@@ -94,11 +94,13 @@ export const ExaminedGameSchema = new SimpleSchema({
   clocks: new SimpleSchema({
     white: new SimpleSchema({
       initial: SimpleSchema.Integer,
-      inc: Number
+      inc: Number,
+      delay: Number
     }),
     black: new SimpleSchema({
       initial: SimpleSchema.Integer,
-      inc: Number
+      inc: Number,
+      delay: Number
     })
   }),
   white: new SimpleSchema({

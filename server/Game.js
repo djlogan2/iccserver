@@ -21,6 +21,8 @@ const GameCollection = new Mongo.Collection("game");
 let log = new Logger("server/Game_js");
 
 let active_games = {};
+const game_pings = {};
+const move_timers = {};
 
 GameCollection.attachSchema(ExaminedGameSchema, {
   selector: { status: "examining" }
@@ -76,10 +78,32 @@ Game.startLocalGame = function(
   check(rating_type, String);
   check(rated, Boolean);
   check(white_initial, Number);
-  check(white_increment, Number);
+  check(white_increment, Match.OneOf(Object, Number));
   check(black_initial, Number);
-  check(black_increment, Number);
+  check(black_increment, Match.OneOf(Object, Number));
   check(color, Match.Maybe(String));
+
+  if (typeof white_increment === "number") white_increment = { increment: white_increment };
+  if (typeof black_increment === "number") black_increment = { increment: black_increment };
+
+  check(white_increment.increment, Match.Maybe(Number));
+  check(black_increment.increment, Match.Maybe(Number));
+  check(black_increment.delay, Match.Maybe(Number));
+  check(black_increment.delay, Match.Maybe(Number));
+
+  if (white_increment.increment === undefined && white_increment.delay === undefined)
+    throw new Match.Error(
+      "Increment must either be a number, implying an increment, or an object containing the key 'increment' or 'delay'"
+    );
+  if (white_increment.increment && white_increment.delay)
+    throw new Match.Error("cannot specify both increment and delay");
+  if (black_increment.increment === undefined && black_increment.delay === undefined)
+    throw new Match.Error(
+      "Increment must either be a number, implying an increment, or an object containing the key 'increment' or 'delay'"
+    );
+  if (black_increment.increment && black_increment.delay)
+    throw new Match.Error("cannot specify both increment and delay");
+
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -111,10 +135,10 @@ Game.startLocalGame = function(
   }
 
   if (!SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)) {
-    throw new ICCMeteorError("Unable to start game", "White time/inc fails validation");
+    throw new ICCMeteorError("Unable to start game", "White time/inc/delay fails validation");
   }
   if (!SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)) {
-    throw new ICCMeteorError("Unable to start game", "White time/inc fails validation");
+    throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
   }
 
   const chess = new Chess.Chess();
@@ -156,13 +180,17 @@ Game.startLocalGame = function(
     clocks: {
       white: {
         initial: white_initial,
-        inc: white_increment,
+        inc: white_increment.increment || 0,
+        delay: white_increment.delay || 0,
+        delaytype: white_increment.delaytype,
         current: white_initial * 60 * 1000, // milliseconds
         starttime: new Date().getTime()
       },
       black: {
         initial: black_initial,
-        inc: black_increment,
+        inc: black_increment.increment || 0,
+        delay: black_increment.delay || 0,
+        delaytype: black_increment.delaytype,
         current: black_initial * 60 * 1000, //milliseconds
         starttime: 0
       }
@@ -185,6 +213,13 @@ Game.startLocalGame = function(
   const game_id = GameCollection.insert(game);
   active_games[game_id] = chess;
   startGamePing(game_id);
+  startMoveTimer(
+    game_id,
+    "white",
+    (game.clocks.white.delay | 0) * 1000,
+    game.clocks.white.delaytype,
+    game.clocks.white.current
+  );
 
   return game_id;
 };
@@ -194,11 +229,6 @@ Game.startLocalExaminedGame = function(
   white_name,
   black_name,
   wild_number,
-  rating_type,
-  white_initial,
-  white_increment,
-  black_initial,
-  black_increment,
   other_headers
 ) {
   const self = Meteor.user();
@@ -208,11 +238,6 @@ Game.startLocalExaminedGame = function(
   check(white_name, String);
   check(black_name, String);
   check(wild_number, Number);
-  check(rating_type, String);
-  check(white_initial, Number);
-  check(white_increment, Number);
-  check(black_initial, Number);
-  check(black_increment, Number);
   check(other_headers, Match.Maybe(Object));
 
   if (!self.status.online) {
@@ -229,20 +254,6 @@ Game.startLocalExaminedGame = function(
     starttime: new Date(),
     result: "*",
     fen: chess.fen(),
-    pending: {
-      white: {
-        draw: "0",
-        abort: "0",
-        adjourn: "0",
-        takeback: { number: 0, mid: "0" }
-      },
-      black: {
-        draw: "0",
-        abort: "0",
-        adjourn: "0",
-        takeback: { number: 0, mid: "0" }
-      }
-    },
     white: {
       name: white_name,
       rating: 1600
@@ -252,17 +263,6 @@ Game.startLocalExaminedGame = function(
       rating: 1600
     },
     wild: wild_number,
-    rating_type: rating_type,
-    clocks: {
-      white: {
-        initial: white_initial,
-        inc: white_increment
-      },
-      black: {
-        initial: black_initial,
-        inc: black_increment
-      }
-    },
     status: "examining",
     actions: [],
     observers: [self._id],
@@ -394,12 +394,14 @@ Game.startLegacyGame = function(
       white: {
         initial: white_initial,
         inc: white_increment,
+        delay: 0,
         current: white_initial * 60 * 1000,
         starttime: 0
       },
       black: {
         initial: black_initial,
         inc: black_increment,
+        delay: 0,
         current: black_initial * 60 * 1000,
         starttime: 0
       }
@@ -485,10 +487,10 @@ function calculateGameLag(lagobject) {
   if (lagvalues.length) {
     totallag = lagvalues.reduce((total, cur) => total + cur, 0);
     totallag = totallag | 0; // convert double to int
+    let lastlag = lagobject.active.reduce((total, cur) => now - cur.originate + total, 0);
+    gamelag = (totallag + lastlag) / lagvalues.length;
+    if (gamelag > SystemConfiguration.minimumLag()) gamelag -= SystemConfiguration.minimumLag();
   }
-  let lastlag = lagobject.active.reduce((total, cur) => now - cur.originate + total, 0);
-  gamelag = (totallag + lastlag) / lagvalues.length;
-  if (gamelag > SystemConfiguration.minimumLag()) gamelag -= SystemConfiguration.minimumLag();
   return gamelag;
 }
 
@@ -525,12 +527,18 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
     return;
   }
+
+  endMoveTimer(game_id);
+
   const setobject = { fen: chessObject.fen() };
 
   const unsetobject = {};
   const analyze = addMoveToMoveList(variation, move);
   let gamelag = 0;
   let gameping = 0;
+
+  const bw = self._id === game.white.id ? "white" : "black";
+  const otherbw = bw === "white" ? "black" : "white";
 
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
@@ -548,8 +556,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       unsetobject.pending = "";
     }
 
-    const bw = self._id === game.white.id ? "white" : "black";
-    const otherbw = bw === "white" ? "black" : "white";
     setobject["pending." + otherbw + ".draw"] = "0";
     setobject["pending." + otherbw + ".abort"] = "0";
     setobject["pending." + otherbw + ".adjourn"] = "0";
@@ -570,14 +576,35 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       log.trace("lag=", game.lag);
 
       let used = timenow - game.clocks[bw].starttime + gamelag;
-      log.debug("used=" + used);
+      let addback = 0;
+
+      if (game.clocks[bw].inc) {
+        addback = game.clocks[bw].inc * 1000;
+      } else if (game.clocks[bw].delay * 1000 >= used) {
+        addback = used;
+      } else if (game.clocks[bw].delay * 1000 < used) {
+        addback = game.clocks[bw].delay * 1000;
+      }
+
+      //
+      // Add the expected lag to the oppnents clock for the receiving of this move
+      //
+      let opponentlag = calculateGameLag(game.lag[otherbw]) || 0;
+      if (!opponentlag) opponentlag = Timestamp.averageLag(game[otherbw].id);
+      if (!opponentlag) opponentlag = 0;
+      setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
+
+      log.debug("used=" + used + ", addback=" + addback);
       if (used <= SystemConfiguration.minimumMoveTime())
         used = SystemConfiguration.minimumMoveTime();
       log.debug("used=" + used);
-      setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used;
+      setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
+      // TODO: check for current <= 0 and end the game, yes?
       setobject["clocks." + otherbw + ".starttime"] = timenow;
       log.debug("setobject=" + setobject);
-    } else endGamePing(game_id);
+    } else {
+      endGamePing(game_id);
+    }
   }
 
   log.debug("final gamelag=" + gamelag + ", gameping=" + gameping);
@@ -622,6 +649,14 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
         log.error("Error setting score for game move", error);
       });
   }
+
+  startMoveTimer(
+    game_id,
+    bw,
+    (game.clocks[bw].delay | 0) * 1000,
+    game.clocks[bw].delaytype,
+    game.clocks[bw].current
+  );
 };
 
 //	There are three outcome codes, given in the following order:
@@ -1159,6 +1194,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -1199,6 +1235,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -1239,6 +1276,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -1376,6 +1414,7 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   const result = self._id === game.white.id ? "0-1" : "1-0";
   GameCollection.update(
@@ -1892,8 +1931,6 @@ function addMoveToMoveList(variation_object, move) {
   return !exists;
 }
 
-const game_pings = {};
-
 function startGamePing(game_id) {
   _startGamePing(game_id, "white");
   _startGamePing(game_id, "black");
@@ -1963,3 +2000,47 @@ Meteor.startup(function() {
     Game.calculateGameLag = calculateGameLag;
   }
 });
+
+//
+// This is for simple US delay and not Bronstein delay
+// In US delay, we delay countdown for the delay
+// In Bronstein delay, we count down, but then add the delay back in when they make their move
+//
+function startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds) {
+  if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
+
+  move_timers[game_id] = Meteor.setInterval(() => {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+    startMoveTimer(game_id, color, 0, "", actual_milliseconds);
+  }, delay_milliseconds);
+}
+
+function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_milliseconds) {
+  if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
+
+  if (delay_milliseconds && delaytype === "us") {
+    startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds);
+    return;
+  }
+
+  move_timers[game_id] = Meteor.setInterval(() => {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+    const game = GameCollection.findOne({ _id: game_id, status: "playing" });
+    if (!game) throw new Meteor.Error("Unable to find a game to expire time on");
+    const setobject = {};
+    setobject["clocks." + color + ".current"] = 0;
+    setobject.result = color === "white" ? "0-1" : "1-0";
+    setobject.status = "examining";
+    setobject.examiners = [game.white.id, game.black.id];
+    GameCollection.update({ _id: game_id }, { $set: setobject, $unset: { pending: 1 } });
+  }, actual_milliseconds);
+}
+
+function endMoveTimer(game_id) {
+  const interval_id = move_timers[game_id];
+  if (!interval_id) return;
+  Meteor.clearInterval(interval_id);
+  delete move_timers[game_id];
+}

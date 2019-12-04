@@ -40,8 +40,13 @@ const defaultRatingRules = {
 
 SystemConfiguration.meetsTimeAndIncRules = function(time, inc) {
   check(time, Number);
-  check(inc, Number);
-  return time > 0 || inc > 0;
+  check(inc, Object);
+  if (time <= 0) return false;
+  if (inc.inc !== undefined && inc.delay !== undefined) return false;
+  if (inc.delay !== undefined && inc.delaytype === undefined) return false;
+  if (inc.delaytype !== undefined && inc.delay === undefined) return false;
+  if (inc.delay !== undefined && (inc.delaytype !== "us" && inc.delaytype !== "bronstien")) return false;
+  return (inc.delay === undefined || inc.delay >= 0) && (inc.increment === undefined || inc.increment >= 0);
 };
 
 function docheck(thecheck, thevalue) {
