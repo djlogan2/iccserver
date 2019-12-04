@@ -145,6 +145,14 @@ const systemcss = {
       position: "absolute",
       top: "0px",
       zIndex: "99"
+    },
+    formButton: {
+      backgroundColor: "#1565c0",
+      textAlign: "center",
+      padding: "10px 20px",
+      border: "none",
+      color: "#FFF",
+      borderRadius: "5px"
     }
   },
   chatContent: {
@@ -365,6 +373,9 @@ const systemcss = {
       width: "30px",
       textAlign: "right",
       marginRight: "15px"
+    },
+    form: {
+      paddingRight: "9px"
     }
   },
   challengeContent: {
@@ -412,6 +423,29 @@ const systemcss = {
       display: "inline-block",
       listStyle: "none",
       marginRight: "5px"
+    }
+  },
+  formMain: {
+    all: {
+      width: "100%",
+      marginBottom: "15px",
+      float: "left"
+    }
+  },
+  formMainHalf: {
+    all: {
+      width: "50%",
+      float: "left"
+    }
+  },
+  formLabelStyle: {
+    all: {
+      fontWeight: "300",
+      paddingRight: "9px"
+    },
+    radio: {
+      paddingLeft: "5px",
+      verticalAlign: "top"
     }
   }
 };

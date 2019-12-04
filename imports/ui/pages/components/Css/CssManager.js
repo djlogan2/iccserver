@@ -64,8 +64,7 @@ export default class CssManager {
   }
   squareStyle(squareColor, side) {
     var style = { width: side, height: side };
-    if (this._boardStyle.square.all)
-      Object.assign(style, this._boardStyle.square.all);
+    if (this._boardStyle.square.all) Object.assign(style, this._boardStyle.square.all);
     Object.assign(style, this._boardStyle.square[squareColor]);
     return style;
   }
@@ -75,12 +74,10 @@ export default class CssManager {
   }
   fSquareStyle(squareColor, piece, side) {
     var style = { width: side, height: side };
-    if (this._boardStyle.fsquare.all)
-      Object.assign(style, this._boardStyle.fsquare.all);
+    if (this._boardStyle.fsquare.all) Object.assign(style, this._boardStyle.fsquare.all);
     Object.assign(style, this._boardStyle.fsquare[squareColor]);
     if (!!piece && !!squareColor) {
-      if (this._boardStyle.pieces.all)
-        Object.assign(style, this._boardStyle.fallendpieces.all);
+      if (this._boardStyle.pieces.all) Object.assign(style, this._boardStyle.fallendpieces.all);
       Object.assign(style, this._boardStyle.fallendpieces[squareColor][piece]);
     }
     return style;
@@ -164,8 +161,7 @@ export default class CssManager {
 
   buttonStyle(buttonName) {
     var style = {};
-    if (this._systemStyle.button.all)
-      Object.assign(style, this._systemStyle.button.all);
+    if (this._systemStyle.button.all) Object.assign(style, this._systemStyle.button.all);
     Object.assign(style, this._systemStyle.button[buttonName]);
     return style;
   }
@@ -177,8 +173,7 @@ export default class CssManager {
   }
   inputBoxStyle(inputBoxName) {
     var style = {};
-    if (this._systemStyle.InputBox.all)
-      Object.assign(style, this._systemStyle.InputBox.all);
+    if (this._systemStyle.InputBox.all) Object.assign(style, this._systemStyle.InputBox.all);
     Object.assign(style, this._systemStyle.InputBox[inputBoxName]);
     return style;
   }
@@ -230,8 +225,7 @@ export default class CssManager {
   }
   tabList(tabName) {
     var style = {};
-    if (this._systemStyle.tab.all)
-      Object.assign(style, this._systemStyle.tabList.all);
+    if (this._systemStyle.tab.all) Object.assign(style, this._systemStyle.tabList.all);
     Object.assign(style, this._systemStyle.tabList[tabName]);
     return style;
   }
@@ -290,17 +284,37 @@ export default class CssManager {
       return style;
     }
   }
+  
+  /**This style for gameseek and match Request user form */
+  formMain() {
+    var style = {};
+    Object.assign(style, this._systemStyle.formMain.all);
+    return style;
+  }
+  formMainHalf() {
+    var style = {};
+    Object.assign(style, this._systemStyle.formMainHalf.all);
+    return style;
+  }
+  formLabelStyle(labelname) {
+    var style = {};
+    if (this._systemStyle.formLabelStyle.all)
+      Object.assign(style, this._systemStyle.formLabelStyle.all);
+    Object.assign(style, this._systemStyle.formLabelStyle[labelname]);
+    return style;
+  }
+
+  /**Endform style */
+
   TabIcon(tabName) {
     var style = {};
-    if (this._systemStyle.TabIcon.all)
-      Object.assign(style, this._systemStyle.TabIcon.all);
+    if (this._systemStyle.TabIcon.all) Object.assign(style, this._systemStyle.TabIcon.all);
     Object.assign(style, this._systemStyle.TabIcon[tabName]);
     return style;
   }
   spanStyle(spanName) {
     var style = {};
-    if (this._systemStyle.span.all)
-      Object.assign(style, this._systemStyle.span.all);
+    if (this._systemStyle.span.all) Object.assign(style, this._systemStyle.span.all);
     Object.assign(style, this._systemStyle.span[spanName]);
     return style;
   }
@@ -347,10 +361,7 @@ export default class CssManager {
       Object.assign(style, this._boardStyle.internal_rank_and_file.all);
 
     Object.assign(style, this._boardStyle.internal_rank_and_file.color[color]);
-    Object.assign(
-      style,
-      this._boardStyle.internal_rank_and_file.position[which]
-    );
+    Object.assign(style, this._boardStyle.internal_rank_and_file.position[which]);
 
     return style;
   }
