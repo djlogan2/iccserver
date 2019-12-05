@@ -1,9 +1,16 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
+import simpleSchema from "simpl-schema";
 
 export const i18n = {};
 export const i18nCollection = new Mongo.Collection("i18n");
-//
+const i18nSchema = new simpleSchema({
+  messageid: {type: String},
+  locale: {type: String},
+  text: {type: String},
+});
+i18nCollection.attachSchema(i18nSchema);
+
 // This one will have a schema something like this:
 //
 // {
@@ -17,6 +24,8 @@ export const i18nCollection = new Mongo.Collection("i18n");
 //    }
 // }
 //
+// update: type: server is no longer needed
+// update: locale has become its own field since simple-schema cannot handle multiple layers of types
 
 i18n.standardizeLocale = function(locale) {
   // We need an array of all of the possible locales.
@@ -35,6 +44,7 @@ i18n.standardizeLocale = function(locale) {
       all.push(lower.substr(0, idx));
     }
   }
+  //FIXME: filtering of locale missing
   //DOUBT: In our message collection we have 3 language: en_us,es,ru, and you have entered in database and
   //here below the wrong string of language so I'm passing here the correct code for language to get the message
   if (lower === "en" || lower === "en-us") {
@@ -48,8 +58,7 @@ i18n.standardizeLocale = function(locale) {
 
 i18n.localizeMessage = function(locale, i18nvalue, parameters) {
   const i8nrecord = i18nCollection.findOne({
-    messageid: i18nvalue,
-    type: "server"
+    messageid: i18nvalue
   });
 
   if (!i8nrecord) {
@@ -61,8 +70,8 @@ i18n.localizeMessage = function(locale, i18nvalue, parameters) {
   const locale_array = i18n.standardizeLocale(locale);
   let a;
   locale_array.forEach(ll => {
-    if (i8nrecord.text[ll]) {
-      a = i8nrecord.text[ll];
+    if (i8nrecord.text) {
+      a = i8nrecord.text;
       for (let k in parameters) {
         a = a.replace("{" + k + "}", parameters[k]);
       }
