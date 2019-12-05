@@ -44,7 +44,6 @@ i18n.standardizeLocale = function(locale) {
       all.push(lower.substr(0, idx));
     }
   }
-  //FIXME: filtering of locale missing
   //DOUBT: In our message collection we have 3 language: en_us,es,ru, and you have entered in database and
   //here below the wrong string of language so I'm passing here the correct code for language to get the message
   if (lower === "en" || lower === "en-us") {
