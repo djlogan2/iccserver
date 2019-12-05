@@ -18,8 +18,7 @@ SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   check(robject1, Object);
   check(robject2, Object);
   const oppgames = robject2.won + robject2.draw + robject2.lost;
-  const rightpart =
-    1 / (1 + Math.pow(10, (robject2.rating - robject1.rating) / 100));
+  const rightpart = 1 / (1 + Math.pow(10, (robject2.rating - robject1.rating) / 100));
   const K = oppgames >= 20 ? 32 : oppgames / 21;
   return {
     win: robject1.rating + K * (1 - rightpart),
@@ -45,8 +44,12 @@ SystemConfiguration.meetsTimeAndIncRules = function(time, inc) {
   if (inc.inc !== undefined && inc.delay !== undefined) return false;
   if (inc.delay !== undefined && inc.delaytype === undefined) return false;
   if (inc.delaytype !== undefined && inc.delay === undefined) return false;
-  if (inc.delay !== undefined && (inc.delaytype !== "us" && inc.delaytype !== "bronstien")) return false;
-  return (inc.delay === undefined || inc.delay >= 0) && (inc.increment === undefined || inc.increment >= 0);
+  if (inc.delay !== undefined && (inc.delaytype !== "us" && inc.delaytype !== "bronstein"))
+    return false;
+  return (
+    (inc.delay === undefined || inc.delay >= 0) &&
+    (inc.increment === undefined || inc.increment >= 0)
+  );
 };
 
 function docheck(thecheck, thevalue) {
@@ -60,8 +63,9 @@ function docheck(thecheck, thevalue) {
 SystemConfiguration.meetsRatingTypeRules = function(rating_type, time, inc) {
   check(rating_type, String);
   check(time, Number);
-  check(inc, Number);
-
+  check(inc, Object);
+  return true;
+  /*
   if (!defaultRatingRules[rating_type]) return true;
   const r_etime = defaultRatingRules[rating_type].etime;
   const r_time = defaultRatingRules[rating_type].time;
@@ -69,6 +73,7 @@ SystemConfiguration.meetsRatingTypeRules = function(rating_type, time, inc) {
   if (r_etime) return docheck(r_etime, time + (inc * 2) / 3);
   if (r_time) return docheck(r_time, time);
   if (r_inc) return docheck(r_inc, inc);
+ */
 };
 
 SystemConfiguration.meetsMinimumAndMaximumRatingRules = function(
@@ -100,5 +105,5 @@ SystemConfiguration.uciSecondsToPonderPerMoveScore = function() {
 };
 
 SystemConfiguration.uciThreadsPerEngine = function() {
-    return 4;
+  return 4;
 };

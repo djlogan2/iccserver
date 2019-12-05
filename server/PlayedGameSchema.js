@@ -76,14 +76,12 @@ export const PlayedGameSchema = new SimpleSchema({
   pending: PendingSchema,
   result: String,
   fen: String,
+  tomove: String,
   legacy_game_number: {
     type: Number,
     required: false,
     custom() {
-      if (
-        this.field("legacy_game_number").isSet !==
-        this.field("legacy_game_id").isSet
-      )
+      if (this.field("legacy_game_number").isSet !== this.field("legacy_game_id").isSet)
         return [
           {
             name: "legacy_game_number and legacy_game_id",
@@ -96,10 +94,7 @@ export const PlayedGameSchema = new SimpleSchema({
     type: String,
     required: false,
     custom() {
-      if (
-        this.field("legacy_game_number").isSet !==
-        this.field("legacy_game_id").isSet
-      )
+      if (this.field("legacy_game_number").isSet !== this.field("legacy_game_id").isSet)
         return [
           {
             name: "legacy_game_number and legacy_game_id",

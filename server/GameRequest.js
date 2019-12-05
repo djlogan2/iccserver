@@ -25,7 +25,12 @@ const LocalSeekSchema = new SimpleSchema({
   wild: Number,
   rating_type: String,
   time: Number,
-  inc: Number,
+  inc: Object,
+  "inc.increment": { type: Number, required: false },
+  "inc.delay": { type: Number, required: false },
+  "inc.delaytype": { type: Number, required: false },
+  delay: { type: Number, required: false },
+  delaytype: { type: String, required: false },
   rated: Boolean,
   autoaccept: Boolean,
   color: { type: String, optional: true, allowedValues: ["white", "black"] },
@@ -237,7 +242,7 @@ GameRequests.addLocalGameSeek = function(
   check(wild, Number);
   check(rating_type, String);
   check(time, Number);
-  check(inc, Number);
+  check(inc, Match.OneOf(Number, Object));
   check(rated, Boolean);
   check(color, Match.Maybe(String));
   check(minrating, Match.Maybe(Number));
@@ -245,6 +250,8 @@ GameRequests.addLocalGameSeek = function(
   check(autoaccept, Boolean);
   check(formula, Match.Maybe(String));
   const self = Meteor.user();
+
+  if (typeof inc === "number") inc = { increment: inc };
 
   if (!self) throw new ICCMeteorError(message_identifier, "self is null");
   if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
@@ -297,12 +304,25 @@ GameRequests.addLocalGameSeek = function(
     autoaccept: autoaccept
   };
 
+  const gamefind = {
+    type: "seek",
+    owner: self._id,
+    wild: wild,
+    rating_type: rating_type,
+    time: time,
+    inc: inc.increment,
+    delay: inc.delay,
+    delaytype: inc.delaytype,
+    rated: rated,
+    autoaccept: autoaccept
+  };
+
   if (!!color) game.color = color;
   if (!!minrating) game.minrating = minrating;
   if (!!maxrating) game.maxrating = maxrating;
   if (!!formula) game.formula = formula;
 
-  const existing_seek = GameRequestCollection.findOne(game);
+  const existing_seek = GameRequestCollection.findOne(gamefind);
   if (existing_seek) return existing_seek._id;
 
   const users = Meteor.users.find({ "status.online": true }).fetch();
@@ -936,7 +956,7 @@ function loginHook(user) {
   const seeks = GameRequestCollection.find({ type: "seek" }).fetch();
   const matchingseeks = seeks.filter(seek => seekMatchesUser(user, seek)).map(seek => seek._id);
   if (matchingseeks.length > 0) {
-    const updated = GameRequestCollection.update(
+    GameRequestCollection.update(
       { type: "seek", _id: { $in: matchingseeks } },
       { $push: { matchingusers: user._id } },
       { multi: true }

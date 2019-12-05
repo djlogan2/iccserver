@@ -1606,3 +1606,51 @@ describe("GameRequests.seekMatchesUser", function() {
     });
   });
 });
+
+describe.skip("Game requests increment and delay", function() {
+  it("should succeed if increment is the number zero", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed and set the increment if increment is a non-zero number", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed and set the delaay when delay is specified as a non-zero number", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delay is specified as zero", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delay and increment are both specified", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delay is specified and delaytype is not", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delaytype is specified and delay is not", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delay an increment are both specified", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if is delaytype is neither 'us' nor 'bronstein'", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if is delaytype 'us' or 'bronstein'", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed when a seek is issued with identical values except delay types differ", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed when a seek is issued with identical values except one is an increment and the other is a delay", function() {
+    chai.assert.fail("do me");
+  });
+  it("should copy no increment no delay correctly to a game record when a game starts", function() {
+    chai.assert.fail("do me");
+  });
+  it("should copy increment correctly to a game record when a game starts", function() {
+    chai.assert.fail("do me");
+  });
+  it("should copy delay correctly to a game record when a game starts", function() {
+    chai.assert.fail("do me");
+  });
+});

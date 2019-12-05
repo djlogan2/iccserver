@@ -150,6 +150,7 @@ Game.startLocalGame = function(
     starttime: new Date(),
     result: "*",
     fen: chess.fen(),
+    tomove: "white",
     pending: {
       white: {
         draw: "0",
@@ -254,6 +255,7 @@ Game.startLocalExaminedGame = function(
     starttime: new Date(),
     result: "*",
     fen: chess.fen(),
+    tomove: "white",
     white: {
       name: white_name,
       rating: 1600
@@ -377,6 +379,7 @@ Game.startLegacyGame = function(
   const game = {
     starttime: new Date(),
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    tomove: "white",
     legacy_game_number: gamenumber,
     legacy_game_id: game_id,
     white: {
@@ -550,23 +553,24 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     } else if (active_games[game_id].insufficient_material()) {
       setobject.result = "1/2-1/2";
     }
+
     if (!!setobject.result) {
       setobject.status = "examining";
       setobject.examining = [game.white.id, game.black.id];
       unsetobject.pending = "";
+    } else {
+      setobject["pending." + otherbw + ".draw"] = "0";
+      setobject["pending." + otherbw + ".abort"] = "0";
+      setobject["pending." + otherbw + ".adjourn"] = "0";
+      setobject["pending." + otherbw + ".takeback.number"] = 0;
+      setobject["pending." + otherbw + ".takeback.mid"] = "0";
+      //
+      // Add a half move to the takeback request if the user requested a takeback and then
+      // made their own move.
+      //
+      if (game.pending[bw].takeback.number)
+        setobject["pending." + bw + ".takeback.number"] = game.pending[bw].takeback.number + 1;
     }
-
-    setobject["pending." + otherbw + ".draw"] = "0";
-    setobject["pending." + otherbw + ".abort"] = "0";
-    setobject["pending." + otherbw + ".adjourn"] = "0";
-    setobject["pending." + otherbw + ".takeback.number"] = 0;
-    setobject["pending." + otherbw + ".takeback.mid"] = "0";
-    //
-    // Add a half move to the takeback request if the user requested a takeback and then
-    // made their own move.
-    //
-    if (!setobject.result && game.pending[bw].takeback.number)
-      setobject["pending." + bw + ".takeback.number"] = game.pending[bw].takeback.number + 1;
 
     if (!setobject.result) {
       const timenow = new Date().getTime();
@@ -592,7 +596,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       let opponentlag = calculateGameLag(game.lag[otherbw]) || 0;
       if (!opponentlag) opponentlag = Timestamp.averageLag(game[otherbw].id);
       if (!opponentlag) opponentlag = 0;
-      setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
 
       log.debug("used=" + used + ", addback=" + addback);
       if (used <= SystemConfiguration.minimumMoveTime())
@@ -600,7 +603,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       log.debug("used=" + used);
       setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
       // TODO: check for current <= 0 and end the game, yes?
-      setobject["clocks." + otherbw + ".starttime"] = timenow;
+      setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
       log.debug("setobject=" + setobject);
     } else {
       endGamePing(game_id);
@@ -622,12 +625,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     actions: { type: "move", issuer: self._id, parameter: move_parameter }
   };
 
-  setobject["variations"] = variation;
+  setobject.variations = variation;
+  setobject.tomove = otherbw;
+  setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
 
   GameCollection.update(
     { _id: game_id, status: game.status },
     { $unset: unsetobject, $set: setobject, $push: pushobject }
   );
+
   if (analyze) {
     UCI.getScoreForFen(active_games[game_id].fen())
       .then(score => {
@@ -650,13 +656,14 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       });
   }
 
-  startMoveTimer(
-    game_id,
-    bw,
-    (game.clocks[bw].delay | 0) * 1000,
-    game.clocks[bw].delaytype,
-    game.clocks[bw].current
-  );
+  if (game.status === "playing")
+    startMoveTimer(
+      game_id,
+      otherbw,
+      (game.clocks[otherbw].delay | 0) * 1000,
+      game.clocks[otherbw].delaytype,
+      game.clocks[otherbw].current
+    );
 };
 
 //	There are three outcome codes, given in the following order:
@@ -750,6 +757,7 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
+
   GameCollection.update(
     { _id: game_id, status: "examining" },
     { $pull: { examiners: id_to_remove } }
@@ -823,11 +831,12 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   if (!!game.examiners && game.examiners.length === 1 && game.examiners[0] === id_to_remove) {
     GameCollection.remove({ _id: game_id });
     delete active_games[game_id];
-  } else
+  } else {
     GameCollection.update(
       { _id: game_id, status: game.status },
       { $pull: { examiners: id_to_remove, observers: id_to_remove } }
     );
+  }
 };
 
 Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
@@ -919,15 +928,15 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
     return;
   }
 
-  const tbobject = {};
-  tbobject["pending." + color + ".takeback.number"] = number;
-  tbobject["pending." + color + ".takeback.mid"] = message_identifier;
-  tbobject["variations.hmtb"] = number;
+  const setobject = {};
+  setobject["pending." + color + ".takeback.number"] = number;
+  setobject["pending." + color + ".takeback.mid"] = message_identifier;
+  setobject["variations.hmtb"] = number;
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
-      $set: tbobject,
+      $set: setobject,
       $push: {
         actions: {
           type: "takeback_requested",
@@ -1992,15 +2001,6 @@ function endGamePing(game_id) {
   delete game_pings[game_id];
 }
 
-Meteor.startup(function() {
-  GameCollection.remove({});
-  if (Meteor.isTest || Meteor.isAppTest) {
-    Game.collection = GameCollection;
-    Game.buildPgnFromMovelist = buildPgnFromMovelist;
-    Game.calculateGameLag = calculateGameLag;
-  }
-});
-
 //
 // This is for simple US delay and not Bronstein delay
 // In US delay, we delay countdown for the delay
@@ -2044,3 +2044,20 @@ function endMoveTimer(game_id) {
   Meteor.clearInterval(interval_id);
   delete move_timers[game_id];
 }
+
+function testingCleanupMoveTimers() {
+  Object.keys(move_timers).forEach(game_id => {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+  });
+}
+
+Meteor.startup(function() {
+  GameCollection.remove({});
+  if (Meteor.isTest || Meteor.isAppTest) {
+    Game.collection = GameCollection;
+    Game.buildPgnFromMovelist = buildPgnFromMovelist;
+    Game.calculateGameLag = calculateGameLag;
+    Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
+  }
+});
