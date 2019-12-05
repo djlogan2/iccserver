@@ -67,7 +67,4 @@ describe("Server side i18n", function() {
     });
     chai.assert.equal(i18n.localizeMessage("en_us", "i8nvalue", "a"), "a valid message of a");
   });
-  it("write more language-specific text tests", function() {
-    chai.assert.fail();
-  });
 });
