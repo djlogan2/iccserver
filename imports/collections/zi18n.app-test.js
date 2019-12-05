@@ -4,7 +4,7 @@ import i18nCollection from "../../imports/collections/i18n";
 import { Meteor } from "meteor/meteor";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 
-describe.only("Server side i18n", function() {
+describe("Server side i18n", function() {
   beforeEach(function(done) {
     resetDatabase(null, done);
   });
@@ -51,15 +51,23 @@ describe.only("Server side i18n", function() {
       "a valid message"
     );
   });
+  it("if language is valid but region is not, return closest region", function() {
+    i18nCollection.insert({
+      messageid: "i8nvalue",
+      locale: "en_us",
+      text: "a valid message"
+    });
+    chai.assert.equal(i18n.localizeMessage("en_xx", "i8nvalue"), "a valid message");
+  });
   it("replaces optional fields of message", function() {
     i18nCollection.insert({
       messageid: "i8nvalue",
       locale: "en_us",
       text: "a valid message of {0}"
     });
-    chai.assert.equal(
-      i18n.localizeMessage("en_us", "i8nvalue", "a"),
-      "a valid message of a"
-    );
+    chai.assert.equal(i18n.localizeMessage("en_us", "i8nvalue", "a"), "a valid message of a");
+  });
+  it("write more language-specific text tests", function() {
+    chai.assert.fail();
   });
 });
