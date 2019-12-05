@@ -15,7 +15,7 @@ export default class SeekGameComponent extends React.Component {
       rated: true,
       is_adjourned: false,
       minute: 15,
-      inc: 0,
+      inc: 1,
       color: "random"
     };
   }
@@ -27,7 +27,7 @@ export default class SeekGameComponent extends React.Component {
       rated: false,
       is_adjourned: false,
       minute: 10,
-      inc: 0,
+      inc: 1,
       color: "random"
     });
   }

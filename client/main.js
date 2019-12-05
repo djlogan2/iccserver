@@ -71,6 +71,9 @@ Meteor.startup(() => {
         black: "Black",
         random: "Random",
         submit: "Submit"
+      },
+      chatBoxMessage: {
+        NEW_MESSAGE: "NEW MESSAGE"
       }
     }
   });
@@ -107,6 +110,9 @@ Meteor.startup(() => {
         black: "пожвать",
         random: "пожа ловать",
         submit: "пожаx"
+      },
+      chatBoxMessage: {
+        NEW_MESSAGE: "пожа ловать"
       }
     }
   });

@@ -57,8 +57,9 @@ export default class MainPage extends Component {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove: ""
+          GameMove: {}
         },
+        status: "other",
         Action: {}
       }
     };
@@ -281,6 +282,8 @@ export default class MainPage extends Component {
   // If Next button clicked, move forward one
 
   render() {
+    this.Main.RightSection1 = {};
+    Object.assign(this.Main.RightSection1, { status: "other" });
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
     const gameRequest = this.props.gameRequest;
@@ -316,6 +319,7 @@ export default class MainPage extends Component {
         this.userId = Meteor.userId();
         this.gameId = game._id;
         this.Main.RightSection.MoveList.GameMove = game;
+        Object.assign(this.Main.RightSection1, { status: game.status });
         this.Main.RightSection.Action.userId = this.userId;
         this.Main.RightSection.Action.user = Meteor.user().username;
         this.Main.RightSection.Action.gameTurn = gameTurn;
@@ -415,6 +419,7 @@ export default class MainPage extends Component {
             <RightSidebar
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
+              RightSidebarData1={this.Main.RightSection1}
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
@@ -436,7 +441,7 @@ MainPage.propTypes = {
 let links = [
   {
     label: "play",
-    link: "#home",
+    link: "play",
     src: "../../../images/play-icon-white.png",
     active: true
   },

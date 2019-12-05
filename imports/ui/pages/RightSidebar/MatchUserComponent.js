@@ -24,7 +24,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       rated: true,
       is_adjourned: false,
       minute: 10,
-      inc: 0,
+      inc: 1,
       color: "random"
     };
   }
@@ -42,7 +42,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       rated: false,
       is_adjourned: false,
       minute: 10,
-      inc: 0,
+      inc: 1,
       color: "random"
     });
   }
@@ -90,7 +90,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       rated: false,
       is_adjourned: false,
       minute: 10,
-      inc: 0,
+      inc: 1,
       color: "random"
     });
   }
@@ -132,13 +132,13 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     } else {
       matchForm = (
         <div style={this.props.cssmanager.subTabHeader()}>
-          <div style={{ width: "100%", margin: "15px 0px", float: "left" }}>
-            <div style={{ width: "75%", float: "left" }}>
-              <label style={{ fontWeight: "300", paddingRight: "10px" }}>
+          <div style={this.props.cssmanager.formMain()}>
+            <div style={{ width: "75%", float: "left", paddingTop: "10px" }}>
+              <label style={this.props.cssmanager.formLabelStyle()}>
                 User Name : {this.state.user}
               </label>
             </div>
-            <div style={{ width: "25%", float: "left", textAlign: "right" }}>
+            <div style={{ width: "25%", float: "left", textAlign: "right", paddingTop: "10px" }}>
               <button
                 style={this.props.cssmanager.buttonStyle()}
                 onClick={this.removeUser.bind(this)}
@@ -170,39 +170,8 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       <div>
         <div style={this.props.cssmanager.tabSeparator()} />
         <div style={this.props.cssmanager.matchUserScroll()}>
-          {/*           <div style={{ fontSize: "16px", paddingBottom: "15px" }}>
-            option 1 - send a link for anyone to play
-          </div>
-          <div>
-            <div style={{ display: "inline-block" }}>
-              <button
-                style={{
-                  background: "#1565c0",
-                  border: "0px",
-                  color: "#fff",
-                  padding: "10px 20px",
-                  borderRadius: "6px"
-                }}
-              >
-                Create chellange Link
-              </button>
-            </div>
-            <div style={{ display: "inline-block", paddingLeft: "20px" }}>
-              10 min
-            </div>
-          </div>
-          <div
-            style={{
-              background: "#ccc",
-              width: "100%",
-              height: "2px",
-              margin: "15px 0px"
-            }}
-          />
-          <div style={{ fontSize: "16px", paddingBottom: "15px" }}>
-            option 2 - Choose a Member
-          </div>
-          <div style={{ marginBottom: "20px" }}>
+          <div style={{ fontSize: "16px", padding: "15px 0px" }}>option 1 - Choose a Member</div>
+          {/*   <div style={{ marginBottom: "20px" }}>
             <input
               style={{
                 borderRadius: "5px",
@@ -230,6 +199,33 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
               </div>
             </div>
           </SubTabs>
+          {/*   <div
+            style={{
+              background: "#ccc",
+              width: "100%",
+              height: "2px",
+              margin: "15px 0px"
+            }}
+          /> */}
+          <div style={{ fontSize: "16px", padding: "15px 0px" }}>
+            option 2 - Send a link for anyone to play
+          </div>
+          <div>
+            <div style={{ display: "inline-block" }}>
+              <button
+                style={{
+                  background: "#1565c0",
+                  border: "0px",
+                  color: "#fff",
+                  padding: "10px 20px",
+                  borderRadius: "6px"
+                }}
+              >
+                Create chellange Link
+              </button>
+            </div>
+            <div style={{ display: "inline-block", paddingLeft: "20px" }}>10 min</div>
+          </div>
         </div>
       </div>
     );
@@ -248,6 +244,7 @@ class SubTabs extends Component {
     this.state = {
       activeTab: this.props.children[0].props.label
     };
+    console.log(this.props.children[0]);
   }
 
   onClickTabItem = tab => {
