@@ -25,12 +25,8 @@ const LocalSeekSchema = new SimpleSchema({
   wild: Number,
   rating_type: String,
   time: Number,
-  inc: Object,
-  "inc.increment": { type: Number, required: false },
-  "inc.delay": { type: Number, required: false },
-  "inc.delaytype": { type: Number, required: false },
-  delay: { type: Number, required: false },
-  delaytype: { type: String, required: false },
+  inc_or_delay: Number,
+  delaytype: String,
   rated: Boolean,
   autoaccept: Boolean,
   color: { type: String, optional: true, allowedValues: ["white", "black"] },
@@ -108,9 +104,11 @@ const LocalMatchSchema = {
   rated: Boolean,
   adjourned: Boolean,
   challenger_time: Number,
-  challenger_inc: Number,
+  challenger_inc_or_delay: Number,
+  challenger_delaytype: String,
   receiver_time: Number,
-  receiver_inc: Number,
+  receiver_inc_or_delay: Number,
+  receiver_delaytype: String,
   challenger_color_request: {
     type: String,
     allowedValues: ["white", "black"],
@@ -230,7 +228,8 @@ GameRequests.addLocalGameSeek = function(
   wild,
   rating_type,
   time,
-  inc,
+  inc_or_delay,
+  inc_or_delay_type,
   rated,
   color,
   minrating,
@@ -242,29 +241,28 @@ GameRequests.addLocalGameSeek = function(
   check(wild, Number);
   check(rating_type, String);
   check(time, Number);
-  check(inc, Match.OneOf(Number, Object));
+  check(inc_or_delay, Number);
+  check(inc_or_delay_type, String);
   check(rated, Boolean);
   check(color, Match.Maybe(String));
   check(minrating, Match.Maybe(Number));
   check(maxrating, Match.Maybe(Number));
-  check(autoaccept, Boolean);
+  check(autoaccept, Match.Maybe(Boolean));
   check(formula, Match.Maybe(String));
   const self = Meteor.user();
 
-  if (typeof inc === "number") inc = { increment: inc };
-
   if (!self) throw new ICCMeteorError(message_identifier, "self is null");
   if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
-  if (color !== null && color !== "white" && color !== "black")
+  if (color !== null && color !== undefined && color !== "white" && color !== "black")
     throw new Match.Error("Invalid color specification");
-  if (!SystemConfiguration.meetsTimeAndIncRules(time, inc))
+  if (!SystemConfiguration.meetsTimeAndIncRules(time, inc_or_delay, inc_or_delay_type))
     throw new ICCMeteorError(
       message_identifier,
       "seek fails to meet time and increment configuration rules"
     );
   if (!self.ratings[rating_type])
     throw new ICCMeteorError(message_identifier, "Invalid rating type");
-  if (!SystemConfiguration.meetsRatingTypeRules(rating_type, time, inc))
+  if (!SystemConfiguration.meetsRatingTypeRules(rating_type, time, inc_or_delay, inc_or_delay_type))
     throw new ICCMeteorError(
       message_identifier,
       "seek fails to meet rating type rules for time and inc"
@@ -299,22 +297,10 @@ GameRequests.addLocalGameSeek = function(
     wild: wild,
     rating_type: rating_type,
     time: time,
-    inc: inc,
+    inc_or_delay: inc_or_delay,
+    delaytype: inc_or_delay_type,
     rated: rated,
-    autoaccept: autoaccept
-  };
-
-  const gamefind = {
-    type: "seek",
-    owner: self._id,
-    wild: wild,
-    rating_type: rating_type,
-    time: time,
-    inc: inc.increment,
-    delay: inc.delay,
-    delaytype: inc.delaytype,
-    rated: rated,
-    autoaccept: autoaccept
+    autoaccept: autoaccept || false
   };
 
   if (!!color) game.color = color;
@@ -322,7 +308,7 @@ GameRequests.addLocalGameSeek = function(
   if (!!maxrating) game.maxrating = maxrating;
   if (!!formula) game.formula = formula;
 
-  const existing_seek = GameRequestCollection.findOne(gamefind);
+  const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
   const users = Meteor.users.find({ "status.online": true }).fetch();
@@ -403,9 +389,9 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     request.rating_type,
     request.rated,
     request.time,
-    request.inc,
+    { inc: request.inc, delay: request.delay, delaytype: request.delaytype }, //request.inc,
     request.time,
-    request.inc,
+    { inc: request.inc, delay: request.delay, delaytype: request.delaytype }, //request.inc,
     request.challenger_color_request
   );
   GameRequestCollection.remove({ _id: seek_id });
@@ -524,9 +510,11 @@ GameRequests.addLocalMatchRequest = function(
   is_it_rated,
   is_it_adjourned,
   challenger_time,
-  challenger_inc,
+  challenger_inc_or_delay,
+  challenger_inc_or_delay_type,
   receiver_time,
-  receiver_inc,
+  receiver_inc_or_delay,
+  receiver_inc_or_delay_type,
   challenger_color_request,
   fancy_time_control
 ) {
@@ -539,11 +527,39 @@ GameRequests.addLocalMatchRequest = function(
   check(is_it_rated, Boolean);
   check(is_it_adjourned, Boolean);
   check(challenger_time, Number);
-  check(challenger_inc, Number);
+  check(challenger_inc_or_delay, Number);
+  check(challenger_inc_or_delay_type, String);
   check(receiver_time, Number);
-  check(receiver_inc, Number);
+  check(receiver_inc_or_delay, Number);
+  check(receiver_inc_or_delay_type, String);
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
+
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(
+      challenger_time,
+      challenger_inc_or_delay,
+      challenger_inc_or_delay_type
+    )
+  )
+    throw new ICCMeteorError(
+      message_identifier,
+      "Cannot add match request",
+      "Failed time and inc rules for challenger"
+    );
+
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(
+      challenger_time,
+      challenger_inc_or_delay,
+      challenger_inc_or_delay_type
+    )
+  )
+    throw new ICCMeteorError(
+      message_identifier,
+      "Cannot add match request",
+      "Failed time and inc rules for challenger"
+    );
 
   if (wild_number !== 0) throw new ICCMeteorError(message_identifier, "Wild must be zero");
 
@@ -559,7 +575,11 @@ GameRequests.addLocalMatchRequest = function(
   }
 
   if (!challenger_color_request) {
-    if (challenger_time !== receiver_time || challenger_inc !== receiver_inc)
+    if (
+      challenger_time !== receiver_time ||
+      challenger_inc_or_delay !== receiver_inc_or_delay ||
+      challenger_inc_or_delay_type !== receiver_inc_or_delay_type
+    )
       throw new ICCMeteorError(
         message_identifier,
         "Cannot add match request",
@@ -609,9 +629,11 @@ GameRequests.addLocalMatchRequest = function(
     rated: is_it_rated,
     adjourned: is_it_adjourned,
     challenger_time: challenger_time,
-    challenger_inc: challenger_inc,
+    challenger_inc_or_delay: challenger_inc_or_delay,
+    challenger_delaytype: challenger_inc_or_delay_type,
     receiver_time: receiver_time,
-    receiver_inc: receiver_inc,
+    receiver_inc_or_delay: receiver_inc_or_delay,
+    receiver_delaytype: receiver_inc_or_delay_type,
     challenger_color_request: challenger_color_request,
     assess_loss: assess.loss,
     assess_draw: assess.draw,
@@ -659,14 +681,19 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
 
   let white_initial;
   let black_initial;
-  let white_inc;
-  let black_inc;
+  //let white_incobj;
+  //let black_incobj;
+  let white_inc_or_delay;
+  let black_inc_or_delay;
+  let white_delaytype;
+  let black_delaytype;
   let color = null;
 
   if (!match.challenger_color_request) {
     if (
       match.challenger_time !== match.receiver_time ||
-      match.challenger_inc !== match.receiver_inc
+      match.challenger_inc_or_delay !== match.receiver_inc_or_delay ||
+      match.challenger_delaytype !== match.receiver_delaytype
     )
       throw new ICCMeteorError(
         message_identifier,
@@ -674,18 +701,23 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
         "No color specified and time/inc mismatch"
       );
     white_initial = black_initial = match.challenger_time;
-    white_inc = black_inc = match.challenger_inc;
+    white_inc_or_delay = black_inc_or_delay = match.challenger_inc_or_delay;
+    white_delaytype = black_delaytype = match.challenger_delaytype;
   } else if (match.challenger_color_request === "white") {
     white_initial = match.challenger_time;
-    white_inc = match.challenger_inc;
+    white_inc_or_delay = match.challenger_inc_or_delay;
+    white_delaytype = match.challenger_delaytype;
     black_initial = match.receiver_time;
-    black_inc = match.receiver_inc;
+    black_inc_or_delay = match.receiver_inc_or_delay;
+    black_delaytype = match.receiver_delaytype;
     color = "black";
   } else {
     white_initial = match.receiver_time;
-    white_inc = match.receiver_inc;
+    white_inc_or_delay = match.receiver_inc_or_delay;
+    white_delaytype = match.receiver_delaytype;
     black_initial = match.challenger_time;
-    black_inc = match.challenger_inc;
+    black_inc_or_delay = match.challenger_inc_or_delay;
+    black_delaytype = match.challenger_delaytype;
     color = "white";
   }
 
@@ -696,9 +728,11 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
     match.rating_type,
     match.rated,
     white_initial,
-    white_inc,
+    white_inc_or_delay,
+    white_delaytype,
     black_initial,
-    black_inc,
+    black_inc_or_delay,
+    black_delaytype,
     color
   );
   GameRequestCollection.remove({ _id: game_id });
@@ -782,9 +816,11 @@ Meteor.methods({
     is_it_rated,
     is_it_adjourned,
     challenger_time,
-    challenger_inc,
+    challenger_inc_or_delay,
+    challenger_inc_or_delay_type,
     receiver_time,
-    receiver_inc,
+    receiver_inc_or_delay,
+    receiver_inc_or_delay_type,
     challenger_color_request,
     fancy_time_control
   ) {
@@ -795,9 +831,11 @@ Meteor.methods({
     check(is_it_rated, Boolean);
     check(is_it_adjourned, Boolean);
     check(challenger_time, Number);
-    check(challenger_inc, Number);
-    check(receiver_time, Number);
-    check(receiver_inc, Number);
+    check(challenger_inc_or_delay, Number);
+    check(challenger_inc_or_delay_type, String);
+    check(receiver_time, Match.OneOf(Number, Object));
+    check(receiver_inc_or_delay, Number);
+    check(receiver_inc_or_delay_type, String);
     check(challenger_color_request, Match.Maybe(String));
     check(fancy_time_control, Match.Maybe(String));
 
@@ -822,9 +860,11 @@ Meteor.methods({
       is_it_rated,
       is_it_adjourned,
       challenger_time,
-      challenger_inc,
+      challenger_inc_or_delay,
+      challenger_inc_or_delay_type,
       receiver_time,
-      receiver_inc,
+      receiver_inc_or_delay,
+      receiver_inc_or_delay_type,
       challenger_color_request,
       fancy_time_control
     );
@@ -845,7 +885,8 @@ Meteor.methods({
     wild,
     rating_type,
     time,
-    inc,
+    inc_or_delay,
+    inc_or_delay_type,
     rated,
     color,
     minrating,
@@ -857,7 +898,8 @@ Meteor.methods({
     check(wild, Number);
     check(rating_type, String);
     check(time, Number);
-    check(inc, Number);
+    check(inc_or_delay, Number);
+    check(inc_or_delay_type, String);
     check(rated, Boolean);
     check(color, Match.Maybe(String));
     check(minrating, Match.Maybe(Number));
@@ -869,7 +911,8 @@ Meteor.methods({
       wild,
       rating_type,
       time,
-      inc,
+      inc_or_delay,
+      inc_or_delay_type,
       rated,
       color,
       minrating,

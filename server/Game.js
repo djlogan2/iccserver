@@ -59,9 +59,11 @@ Game.startLocalGame = function(
   rating_type,
   rated,
   white_initial,
-  white_increment,
+  white_increment_or_delay,
+  white_increment_or_delay_type,
   black_initial,
-  black_increment,
+  black_increment_or_delay,
+  black_increment_or_delay_type,
   color /*,
   irregular_legality,
   irregular_semantics,
@@ -78,31 +80,17 @@ Game.startLocalGame = function(
   check(rating_type, String);
   check(rated, Boolean);
   check(white_initial, Number);
-  check(white_increment, Match.OneOf(Object, Number));
+  check(white_increment_or_delay, Number);
+  check(white_increment_or_delay_type, String);
   check(black_initial, Number);
-  check(black_increment, Match.OneOf(Object, Number));
+  check(black_increment_or_delay, Number);
+  check(black_increment_or_delay_type, String);
   check(color, Match.Maybe(String));
 
-  if (typeof white_increment === "number") white_increment = { increment: white_increment };
-  if (typeof black_increment === "number") black_increment = { increment: black_increment };
-
-  check(white_increment.increment, Match.Maybe(Number));
-  check(black_increment.increment, Match.Maybe(Number));
-  check(black_increment.delay, Match.Maybe(Number));
-  check(black_increment.delay, Match.Maybe(Number));
-
-  if (white_increment.increment === undefined && white_increment.delay === undefined)
-    throw new Match.Error(
-      "Increment must either be a number, implying an increment, or an object containing the key 'increment' or 'delay'"
-    );
-  if (white_increment.increment && white_increment.delay)
-    throw new Match.Error("cannot specify both increment and delay");
-  if (black_increment.increment === undefined && black_increment.delay === undefined)
-    throw new Match.Error(
-      "Increment must either be a number, implying an increment, or an object containing the key 'increment' or 'delay'"
-    );
-  if (black_increment.increment && black_increment.delay)
-    throw new Match.Error("cannot specify both increment and delay");
+  check(white_increment_or_delay, Number);
+  check(black_increment_or_delay, Number);
+  check(black_increment_or_delay_type, String);
+  check(black_increment_or_delay_type, String);
 
   if (!self.status.online) {
     throw new ICCMeteorError(
@@ -134,10 +122,22 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (!SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)) {
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(
+      white_initial,
+      white_increment_or_delay,
+      white_increment_or_delay_type
+    )
+  ) {
     throw new ICCMeteorError("Unable to start game", "White time/inc/delay fails validation");
   }
-  if (!SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)) {
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(
+      black_initial,
+      black_increment_or_delay,
+      black_increment_or_delay_type
+    )
+  ) {
     throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
   }
 
@@ -181,17 +181,15 @@ Game.startLocalGame = function(
     clocks: {
       white: {
         initial: white_initial,
-        inc: white_increment.increment || 0,
-        delay: white_increment.delay || 0,
-        delaytype: white_increment.delaytype,
+        inc_or_delay: white_increment_or_delay,
+        delaytype: white_increment_or_delay_type,
         current: white_initial * 60 * 1000, // milliseconds
         starttime: new Date().getTime()
       },
       black: {
         initial: black_initial,
-        inc: black_increment.increment || 0,
-        delay: black_increment.delay || 0,
-        delaytype: black_increment.delaytype,
+        inc_or_delay: black_increment_or_delay,
+        delaytype: black_increment_or_delay_type,
         current: black_initial * 60 * 1000, //milliseconds
         starttime: 0
       }
@@ -217,7 +215,7 @@ Game.startLocalGame = function(
   startMoveTimer(
     game_id,
     "white",
-    (game.clocks.white.delay | 0) * 1000,
+    (game.clocks.white.inc_or_delay | 0) * 1000,
     game.clocks.white.delaytype,
     game.clocks.white.current
   );
@@ -396,15 +394,15 @@ Game.startLegacyGame = function(
     clocks: {
       white: {
         initial: white_initial,
-        inc: white_increment,
-        delay: 0,
+        inc_or_delay: white_increment,
+        delaytype: "inc",
         current: white_initial * 60 * 1000,
         starttime: 0
       },
       black: {
         initial: black_initial,
-        inc: black_increment,
-        delay: 0,
+        inc_or_delay: black_increment,
+        delaytype: "inc",
         current: black_initial * 60 * 1000,
         starttime: 0
       }
@@ -582,12 +580,14 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       let used = timenow - game.clocks[bw].starttime + gamelag;
       let addback = 0;
 
-      if (game.clocks[bw].inc) {
-        addback = game.clocks[bw].inc * 1000;
-      } else if (game.clocks[bw].delay * 1000 >= used) {
-        addback = used;
-      } else if (game.clocks[bw].delay * 1000 < used) {
-        addback = game.clocks[bw].delay * 1000;
+      if(game.clocks[bw].delaytype !== "none") {
+        if (game.clocks[bw].delaytype === "inc") {
+          addback = game.clocks[bw].inc_or_delay * 1000;
+        } else if (game.clocks[bw].inc_or_delay * 1000 >= used) {
+          addback = used;
+        } else if (game.clocks[bw].inc_or_delay * 1000 < used) {
+          addback = game.clocks[bw].inc_or_delay * 1000;
+        }
       }
 
       //
@@ -660,7 +660,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     startMoveTimer(
       game_id,
       otherbw,
-      (game.clocks[otherbw].delay | 0) * 1000,
+      (game.clocks[otherbw].inc_or_delay | 0) * 1000,
       game.clocks[otherbw].delaytype,
       game.clocks[otherbw].current
     );

@@ -59,7 +59,7 @@ function legacySeekParameters(user) {
 }
 
 function localSeekParameters() {
-  return ["id1", 0, "standard", 15, 0, true, null, null, null, true];
+  return ["id1", 0, "standard", 15, 0, "none", true, null, null, null, true];
 }
 
 //GameRequests.addLegacyGameSeek = function(
@@ -109,6 +109,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         null,
@@ -128,6 +129,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "bogus",
         5,
         0,
+        "none",
         true,
         null,
         null,
@@ -195,14 +197,15 @@ describe("GameRequests.addLocalGameSeek", function() {
         0,
         "standard",
         15,
-        null,
+        -1,
+        "none",
         true,
         null,
         null,
         null,
         true
       );
-    }, Match.Error);
+    }, ICCMeteorError);
 
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
@@ -211,6 +214,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         "five",
+        "inc",
         true,
         null,
         null,
@@ -230,6 +234,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "inc",
         "something",
         null,
         null,
@@ -249,6 +254,7 @@ describe("GameRequests.addLocalGameSeek", function() {
       "standard",
       15,
       0,
+      "inc",
       true,
       null,
       null,
@@ -269,6 +275,7 @@ describe("GameRequests.addLocalGameSeek", function() {
       "standard",
       15,
       0,
+      "inc",
       false,
       null,
       null,
@@ -289,6 +296,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         "something",
         null,
@@ -308,6 +316,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         "1200",
@@ -328,6 +337,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         1200,
@@ -347,6 +357,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         null,
@@ -367,6 +378,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         null,
@@ -386,6 +398,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         null,
@@ -405,6 +418,7 @@ describe("GameRequests.addLocalGameSeek", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         null,
@@ -538,6 +552,7 @@ describe("GameRequests.acceptGameSeek", function() {
       "standard",
       15,
       0,
+      "none",
       false,
       null,
       null,
@@ -565,6 +580,7 @@ describe("GameRequests.acceptGameSeek", function() {
       "standard",
       15,
       0,
+      "none",
       false,
       null,
       null,
@@ -605,6 +621,7 @@ describe("GameRequests.acceptGameSeek", function() {
       "standard",
       15,
       0,
+      "none",
       true,
       null,
       null,
@@ -629,6 +646,7 @@ describe("GameRequests.acceptGameSeek", function() {
       "standard",
       15,
       0,
+      "none",
       false,
       null,
       null,
@@ -690,20 +708,59 @@ describe("GameRequests.addLocalMatchRequest", function() {
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", otherguy, 0, "standard", true, false, 15, 0, 15, 0);
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        otherguy,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
   //   receiver_user,
   it("should fail if receiver_user is null or invalid", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, false, 15, 0, 15, 0);
+      GameRequests.addLocalMatchRequest(
+        "mi2",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
   it("should return a client message if receiver_user is not logged on", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({ login: false });
-    GameRequests.addLocalMatchRequest("mid", otherguy, 0, "standard", true, false, 15, 0, 15, 0);
+    GameRequests.addLocalMatchRequest(
+      "mi3",
+      otherguy,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "CANNOT_MATCH_LOGGED_OFF_USER");
   });
@@ -711,7 +768,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   it("should fail if wild is not zero", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 1, "standard", true, false, 15, 0, 15, 0);
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        1,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
 
@@ -719,7 +789,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   it("should fail if rating_type is not a valid rating type", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "bogus", true, false, 15, 0, 15, 0);
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "bogus",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
 
@@ -736,8 +819,10 @@ describe("GameRequests.addLocalMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
-        0
+        0,
+        "none"
       );
     }, Match.Error);
   });
@@ -746,7 +831,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   it("should fail if is_it_adjourned is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, "yep", 15, 0, 15, 0);
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        "yep",
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   }); // TODO: Where are we keeping adjourned games? We should connect this
 
@@ -758,12 +856,38 @@ describe("GameRequests.addLocalMatchRequest", function() {
     self.loggedonuser = challenger;
     chai.assert.throws(
       () =>
-        GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, 11, 0),
+        GameRequests.addLocalMatchRequest(
+          "mi",
+          receiver,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          0,
+          "none",
+          11,
+          0,
+          "none"
+        ),
       ICCMeteorError
     );
     chai.assert.throws(
       () =>
-        GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, 15, 5),
+        GameRequests.addLocalMatchRequest(
+          "mi",
+          receiver,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          0,
+          "none",
+          15,
+          5,
+          "inc"
+        ),
       ICCMeteorError
     );
   });
@@ -783,8 +907,10 @@ describe("GameRequests.addLocalMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         11,
         0,
+        "none",
         "black"
       )
     );
@@ -798,8 +924,10 @@ describe("GameRequests.addLocalMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
         5,
+        "none",
         "white"
       )
     );
@@ -813,7 +941,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
       self.sandbox.fake.returns(false)
     );
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, false, 15, 0, 15, 0);
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
 
@@ -829,8 +970,10 @@ describe("GameRequests.addLocalMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
         0,
+        "none",
         "yep"
       );
     }, Match.Error);
@@ -839,7 +982,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   //   assess_loss,
   it("should fail if assess_loss is null, not an number, < 0, or loss + win > ICC configuration maximum", function() {
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, false, 15, 0, 15, 0);
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
     chai.assert.throws(() => {
       GameRequests.addLocalMatchRequest(
@@ -851,8 +1007,10 @@ describe("GameRequests.addLocalMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
         0,
+        "none",
         "yep"
       );
     }, Match.Error);
@@ -869,8 +1027,10 @@ describe("GameRequests.addLocalMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
         0,
+        "none",
         null,
         "fancy"
       );
@@ -896,8 +1056,10 @@ describe("GameRequests.acceptMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
         0,
+        "none",
         "white"
       );
       self.loggedonuser = them;
@@ -923,8 +1085,10 @@ describe("GameRequests.acceptMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
         0,
+        "none",
         "black"
       );
       self.loggedonuser = them;
@@ -952,8 +1116,10 @@ describe("GameRequests.acceptMatchRequest", function() {
         false,
         15,
         0,
+        "none",
         15,
-        0
+        0,
+        "none"
       );
       self.loggedonuser = them;
       GameRequests.acceptMatchRequest("accept", match_id);
@@ -977,8 +1143,10 @@ describe("GameRequests.acceptMatchRequest", function() {
       false,
       15,
       0,
+      "none",
       15,
-      0
+      0,
+      "none"
     );
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
@@ -998,8 +1166,10 @@ describe("GameRequests.acceptMatchRequest", function() {
       false,
       15,
       0,
+      "none",
       15,
-      0
+      0,
+      "none"
     );
     chai.assert.throws(() => {
       GameRequests.acceptMatchRequest("message_identifier", match_id);
@@ -1018,8 +1188,10 @@ describe("GameRequests.acceptMatchRequest", function() {
       false,
       15,
       0,
+      "none",
       15,
-      0
+      0,
+      "none"
     );
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
@@ -1072,8 +1244,10 @@ describe("GameRequests.acceptMatchRequest", function() {
       false,
       15,
       0,
+      "none",
       15,
-      0
+      0,
+      "none"
     );
 
     chai.assert.equal(GameRequests.collection.find().count(), 1);
@@ -1093,9 +1267,11 @@ describe("GameRequests.acceptMatchRequest", function() {
     chai.assert.equal(fake.args[0][4], true);
     chai.assert.equal(fake.args[0][5], 15);
     chai.assert.equal(fake.args[0][6], 0);
-    chai.assert.equal(fake.args[0][7], 15);
-    chai.assert.equal(fake.args[0][8], 0);
-    chai.assert.isTrue(fake.args[0][10] === undefined || fake.args[0][10] === null);
+    chai.assert.equal(fake.args[0][7], "none");
+    chai.assert.equal(fake.args[0][8], 15);
+    chai.assert.equal(fake.args[0][9], 0);
+    chai.assert.equal(fake.args[0][10], "none");
+    chai.assert.isTrue(fake.args[0][11] === undefined || fake.args[0][11] === null);
   });
 
   // that is, if color=white, time=15 inc=0  otherguy time=10 inc=5, the game record should have:
@@ -1117,8 +1293,10 @@ describe("GameRequests.acceptMatchRequest", function() {
       false,
       15,
       15,
+      "inc",
       25,
       25,
+      "inc",
       "white"
     );
 
@@ -1136,9 +1314,11 @@ describe("GameRequests.acceptMatchRequest", function() {
     chai.assert.equal(fake.args[0][4], true);
     chai.assert.equal(fake.args[0][5], 15);
     chai.assert.equal(fake.args[0][6], 15);
-    chai.assert.equal(fake.args[0][7], 25);
+    chai.assert.equal(fake.args[0][7], "inc");
     chai.assert.equal(fake.args[0][8], 25);
-    chai.assert.equal(fake.args[0][9], "black");
+    chai.assert.equal(fake.args[0][9], 25);
+    chai.assert.equal(fake.args[0][10], "inc");
+    chai.assert.equal(fake.args[0][11], "black");
   });
 
   it("should set the game record black correctly when color is specified in the game request", function() {
@@ -1155,8 +1335,10 @@ describe("GameRequests.acceptMatchRequest", function() {
       false,
       15,
       15,
+      "inc",
       25,
       25,
+      "inc",
       "black"
     );
 
@@ -1174,9 +1356,11 @@ describe("GameRequests.acceptMatchRequest", function() {
     chai.assert.equal(fake.args[0][4], true);
     chai.assert.equal(fake.args[0][5], 25);
     chai.assert.equal(fake.args[0][6], 25);
-    chai.assert.equal(fake.args[0][7], 15);
+    chai.assert.equal(fake.args[0][7], "inc");
     chai.assert.equal(fake.args[0][8], 15);
-    chai.assert.equal(fake.args[0][9], "white");
+    chai.assert.equal(fake.args[0][9], 15);
+    chai.assert.equal(fake.args[0][10], "inc");
+    chai.assert.equal(fake.args[0][11], "white");
   });
 });
 
@@ -1197,8 +1381,10 @@ describe("GameRequests.declineMatchRequest", function() {
       false,
       15,
       15,
+      "inc",
       15,
-      15
+      15,
+      "inc"
     );
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
@@ -1219,8 +1405,10 @@ describe("GameRequests.declineMatchRequest", function() {
       false,
       15,
       15,
+      "inc",
       15,
-      15
+      15,
+      "inc"
     );
     self.loggedonuser = challenger;
     chai.assert.throws(() => {
@@ -1242,8 +1430,10 @@ describe("GameRequests.declineMatchRequest", function() {
       false,
       15,
       15,
+      "inc",
       15,
-      15
+      15,
+      "inc"
     );
     self.loggedonuser = somebodyelse;
     chai.assert.throws(() => {
@@ -1284,8 +1474,10 @@ describe("GameRequests.declineMatchRequest", function() {
       false,
       15,
       15,
+      "inc",
       15,
-      15
+      15,
+      "inc"
     );
     self.loggedonuser = receiver;
     chai.assert.equal(1, GameRequests.collection.find().count());
@@ -1432,7 +1624,19 @@ describe("game_requests publication", function() {
       .collect("game_requests")
       .then(collections => {
         chai.assert.equal(collections.game_requests.length, 11);
-        gameid = Game.startLocalGame("mi", otherguy, 0, "standard", true, 15, 0, 15, 0);
+        gameid = Game.startLocalGame(
+          "mi",
+          otherguy,
+          0,
+          "standard",
+          true,
+          15,
+          0,
+          "none",
+          15,
+          0,
+          "none"
+        );
         return Promise.resolve();
       })
       .then(() => {
@@ -1458,6 +1662,7 @@ describe("Local seeks", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("Should not add a duplicate seek. At least one of the seeking parameters needs to be different (i.e. 'autoaccept' isn't a seeking parameter)", function() {
+    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id_1 = GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
     const game_id_2 = GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
@@ -1482,6 +1687,7 @@ describe("Local seeks", function() {
         "standard",
         15,
         0,
+        "none",
         true,
         null,
         onerating[0],
@@ -1510,6 +1716,7 @@ describe("Local seeks", function() {
       "standard",
       15,
       0,
+      "none",
       true,
       null,
       1500,
@@ -1531,22 +1738,100 @@ describe("Local seeks", function() {
 
 function add15(self, challenger, receiver, otherguy) {
   self.loggedonuser = challenger;
-  GameRequests.addLocalMatchRequest("mi1", receiver, 0, "standard", true, false, 15, 0, 15, 0);
-  GameRequests.addLocalMatchRequest("mi1", otherguy, 0, "standard", true, false, 15, 0, 15, 0);
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    receiver,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    otherguy,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
   GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, otherguy));
 
   self.loggedonuser = receiver;
-  GameRequests.addLocalMatchRequest("mi1", challenger, 0, "standard", true, false, 15, 0, 15, 0);
-  GameRequests.addLocalMatchRequest("mi1", otherguy, 0, "standard", true, false, 15, 0, 15, 0);
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    challenger,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    otherguy,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
   GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(receiver, challenger));
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(receiver, otherguy));
 
   self.loggedonuser = otherguy;
-  GameRequests.addLocalMatchRequest("mi1", challenger, 0, "standard", true, false, 15, 0, 15, 0);
-  GameRequests.addLocalMatchRequest("mi1", receiver, 0, "standard", true, false, 15, 0, 15, 0);
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    challenger,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    receiver,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
   GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(otherguy, challenger));
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(otherguy, receiver));
@@ -1607,35 +1892,206 @@ describe("GameRequests.seekMatchesUser", function() {
   });
 });
 
-describe.skip("Game requests increment and delay", function() {
-  it("should succeed if increment is the number zero", function() {
+describe("normal increment", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should work in a seek", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "inc", true)
+    );
+    const gamereq = GameRequests.collection.findOne({});
+    chai.assert.equal(gamereq.inc_or_delay, 15);
+    chai.assert.equal(gamereq.delaytype, "inc");
+  });
+
+  it("should work in a match", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "inc"
+      )
+    );
+    const gamereq = GameRequests.collection.findOne({});
+    chai.assert.equal(gamereq.challenger_inc_or_delay, 15);
+    chai.assert.equal(gamereq.challenger_delaytype, "inc");
+    chai.assert.equal(gamereq.receiver_inc_or_delay, 15);
+    chai.assert.equal(gamereq.receiver_delaytype, "inc");
+  });
+
+  it("should be converted to a local game start correctly", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc"
+    );
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
+    const game = Game.collection.findOne({});
+    chai.assert.equal(game.clocks.white.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.white.delaytype, "inc");
+    chai.assert.equal(game.clocks.black.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.black.delaytype, "inc");
+  });
+});
+
+describe("us delay", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should work in a seek", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "us", true)
+    );
+    const gamereq = GameRequests.collection.findOne({});
+    chai.assert.equal(gamereq.inc_or_delay, 15);
+    chai.assert.equal(gamereq.delaytype, "us");
+  });
+
+  it("should work in a match", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        15,
+        "us"
+      )
+    );
+    const gamereq = GameRequests.collection.findOne({});
+    chai.assert.equal(gamereq.challenger_inc_or_delay, 15);
+    chai.assert.equal(gamereq.challenger_delaytype, "us");
+    chai.assert.equal(gamereq.receiver_inc_or_delay, 15);
+    chai.assert.equal(gamereq.receiver_delaytype, "us");
+  });
+
+  it("should be converted to a local game start correctly from a match", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "us",
+      15,
+      15,
+      "us"
+    );
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
+    const game = Game.collection.findOne({});
+    chai.assert.equal(game.clocks.white.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.white.delaytype, "us");
+    chai.assert.equal(game.clocks.black.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.black.delaytype, "us");
+  });
+  it("should be converted to a local game start correctly from a seek", function() {
     chai.assert.fail("do me");
   });
-  it("should succeed and set the increment if increment is a non-zero number", function() {
-    chai.assert.fail("do me");
+});
+
+describe("bronstein delay", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should work in a seek", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "bronstein", true)
+    );
+    const gamereq = GameRequests.collection.findOne({});
+    chai.assert.equal(gamereq.inc_or_delay, 15);
+    chai.assert.equal(gamereq.delaytype, "bronstein");
   });
-  it("should succeed and set the delaay when delay is specified as a non-zero number", function() {
-    chai.assert.fail("do me");
+
+  it("should work in a match", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        15,
+        "bronstein"
+      )
+    );
+    const gamereq = GameRequests.collection.findOne({});
+    chai.assert.equal(gamereq.challenger_inc_or_delay, 15);
+    chai.assert.equal(gamereq.challenger_delaytype, "bronstein");
+    chai.assert.equal(gamereq.receiver_inc_or_delay, 15);
+    chai.assert.equal(gamereq.receiver_delaytype, "bronstein");
   });
-  it("should fail if delay is specified as zero", function() {
-    chai.assert.fail("do me");
+  it("should be converted to a local game start correctly", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "bronstein",
+      15,
+      15,
+      "bronstein"
+    );
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
+    const game = Game.collection.findOne({});
+    chai.assert.equal(game.clocks.white.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.white.delaytype, "bronstein");
+    chai.assert.equal(game.clocks.black.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.black.delaytype, "bronstein");
   });
-  it("should fail if delay and increment are both specified", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if delay is specified and delaytype is not", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if delaytype is specified and delay is not", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if delay an increment are both specified", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if is delaytype is neither 'us' nor 'bronstein'", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if is delaytype 'us' or 'bronstein'", function() {
+});
+
+describe("Local seeks", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should fail if delaytype is not 'none', 'inc', 'us' or 'bronstein'", function() {
     chai.assert.fail("do me");
   });
   it("should succeed when a seek is issued with identical values except delay types differ", function() {
@@ -1644,13 +2100,32 @@ describe.skip("Game requests increment and delay", function() {
   it("should succeed when a seek is issued with identical values except one is an increment and the other is a delay", function() {
     chai.assert.fail("do me");
   });
-  it("should copy no increment no delay correctly to a game record when a game starts", function() {
+  it("should fail if delay is specified as zero", function() {
     chai.assert.fail("do me");
   });
-  it("should copy increment correctly to a game record when a game starts", function() {
+});
+
+describe("Local matches", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should fail if inc and delay are both specified", function() {
     chai.assert.fail("do me");
   });
-  it("should copy delay correctly to a game record when a game starts", function() {
+  it("should fail if delay is specified and delaytype is not", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delay not is specified and delaytype is", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delaytype is not 'us' or 'bronstein'", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed when a match is issued with identical values except delay types differ", function() {
+    chai.assert.fail("do me");
+  });
+  it("should succeed when a match is issued with identical values except one is an increment and the other is a delay", function() {
+    chai.assert.fail("do me");
+  });
+  it("should fail if delay is specified as zero", function() {
     chai.assert.fail("do me");
   });
 });

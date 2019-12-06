@@ -110,17 +110,15 @@ export const PlayedGameSchema = new SimpleSchema({
   clocks: new SimpleSchema({
     white: new SimpleSchema({
       initial: SimpleSchema.Integer,
-      inc: { type: Number, defaultValue: 0 },
-      delay: { type: Number, defaultValue: 0 },
-      delaytype: { type: String, defaultValue: "none" },
+      inc_or_delay: Number,
+      delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
       current: SimpleSchema.Integer,
       starttime: SimpleSchema.Integer
     }),
     black: new SimpleSchema({
       initial: SimpleSchema.Integer,
-      inc: { type: Number, defaultValue: 0 },
-      delay: { type: Number, defaultValue: 0 },
-      delaytype: { type: String, defaultValue: "none" },
+      inc_or_delay: Number,
+      delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
       current: SimpleSchema.Integer,
       starttime: SimpleSchema.Integer
     })

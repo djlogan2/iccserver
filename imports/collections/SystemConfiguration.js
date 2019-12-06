@@ -37,19 +37,13 @@ const defaultRatingRules = {
   threeminute: { time: 3, inc: 0 }
 };
 
-SystemConfiguration.meetsTimeAndIncRules = function(time, inc) {
+SystemConfiguration.meetsTimeAndIncRules = function(time, inc_or_delay, inc_or_delay_type) {
   check(time, Number);
-  check(inc, Object);
-  if (time <= 0) return false;
-  if (inc.inc !== undefined && inc.delay !== undefined) return false;
-  if (inc.delay !== undefined && inc.delaytype === undefined) return false;
-  if (inc.delaytype !== undefined && inc.delay === undefined) return false;
-  if (inc.delay !== undefined && (inc.delaytype !== "us" && inc.delaytype !== "bronstein"))
-    return false;
-  return (
-    (inc.delay === undefined || inc.delay >= 0) &&
-    (inc.increment === undefined || inc.increment >= 0)
-  );
+  check(inc_or_delay, Number);
+  check(inc_or_delay_type, String);
+  if (time <= 0 || inc_or_delay < 0) return false;
+  return !(inc_or_delay > 0 && inc_or_delay_type !== "inc" && inc_or_delay_type !== "us" && inc_or_delay_type !== "bronstein");
+
 };
 
 function docheck(thecheck, thevalue) {
@@ -60,10 +54,11 @@ function docheck(thecheck, thevalue) {
   return thevalue === thecheck;
 }
 
-SystemConfiguration.meetsRatingTypeRules = function(rating_type, time, inc) {
+SystemConfiguration.meetsRatingTypeRules = function(rating_type, time, inc_or_delay, inc_or_delay_type) {
   check(rating_type, String);
   check(time, Number);
-  check(inc, Object);
+  check(inc_or_delay, Number);
+  check(inc_or_delay_type, String);
   return true;
   /*
   if (!defaultRatingRules[rating_type]) return true;
