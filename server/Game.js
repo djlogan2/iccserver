@@ -938,13 +938,16 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
       );
 
     variation.cmi = variation.movelist[variation.cmi].prev;
+    variation.movelist = variation.movelist.splice(0, variation.movelist.length - 1); //TODO :This remove move list so display takeback in front side
+    delete variation.movelist[variation.cmi].variations;
   }
 
   const setobject = {
     fen: active_games[game_id].fen(),
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
-    "variations.cmi": variation.cmi
+    "variations.cmi": variation.cmi,
+    "variations.movelist": variation.movelist
   };
 
   GameCollection.update(
@@ -983,14 +986,23 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
   }
 
   const setobject = {};
-  setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: null };
+  setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: "0" };
+
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
       $push: {
-        actions: { type: "takeback_declined", issuer: self._id },
-        $set: setobject
+        actions: { type: "takeback_declined", issuer: self._id }
       }
+    }
+  );
+  //TODO: i know this is not good thing but i have many tries to update record both action and player pending not work together so
+  // i have write this code later i will remove it
+
+  GameCollection.update(
+    { _id: game_id, status: "playing" },
+    {
+      $set: setobject
     }
   );
 
