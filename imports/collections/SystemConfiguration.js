@@ -42,8 +42,10 @@ SystemConfiguration.meetsTimeAndIncRules = function(time, inc_or_delay, inc_or_d
   check(inc_or_delay, Number);
   check(inc_or_delay_type, String);
   if (time <= 0 || inc_or_delay < 0) return false;
-  return !(inc_or_delay > 0 && inc_or_delay_type !== "inc" && inc_or_delay_type !== "us" && inc_or_delay_type !== "bronstein");
-
+  if (inc_or_delay === 0 && inc_or_delay_type !== "none") return false;
+  if (inc_or_delay !== 0 && inc_or_delay_type === "none") return false;
+  if (["none", "us", "inc", "bronstein"].indexOf(inc_or_delay_type) === -1) return false;
+  return true;
 };
 
 function docheck(thecheck, thevalue) {
@@ -54,7 +56,12 @@ function docheck(thecheck, thevalue) {
   return thevalue === thecheck;
 }
 
-SystemConfiguration.meetsRatingTypeRules = function(rating_type, time, inc_or_delay, inc_or_delay_type) {
+SystemConfiguration.meetsRatingTypeRules = function(
+  rating_type,
+  time,
+  inc_or_delay,
+  inc_or_delay_type
+) {
   check(rating_type, String);
   check(time, Number);
   check(inc_or_delay, Number);

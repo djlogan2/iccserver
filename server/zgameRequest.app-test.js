@@ -254,7 +254,7 @@ describe("GameRequests.addLocalGameSeek", function() {
       "standard",
       15,
       0,
-      "inc",
+      "none",
       true,
       null,
       null,
@@ -275,7 +275,7 @@ describe("GameRequests.addLocalGameSeek", function() {
       "standard",
       15,
       0,
-      "inc",
+      "none",
       false,
       null,
       null,
@@ -927,10 +927,11 @@ describe("GameRequests.addLocalMatchRequest", function() {
         "none",
         15,
         5,
-        "none",
+        "inc",
         "white"
       )
     );
+    chai.assert.equal(GameRequests.collection.find().count(), 2);
   });
 
   it("should fail if time/inc invalid/not within ICC configuration", function() {
@@ -2020,8 +2021,31 @@ describe("us delay", function() {
     chai.assert.equal(game.clocks.black.inc_or_delay, 15);
     chai.assert.equal(game.clocks.black.delaytype, "us");
   });
+
   it("should be converted to a local game start correctly from a seek", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "us",
+      15,
+      15,
+      "us"
+    );
+    self.loggedonuser = p2;
+    chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
+    const game = Game.collection.findOne({});
+    chai.assert.equal(game.clocks.white.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.white.delaytype, "us");
+    chai.assert.equal(game.clocks.black.inc_or_delay, 15);
+    chai.assert.equal(game.clocks.black.delaytype, "us");
   });
 });
 
@@ -2091,41 +2115,457 @@ describe("bronstein delay", function() {
 
 describe("Local seeks", function() {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should fail if delaytype is not 'none', 'inc', 'us' or 'bronstein'", function() {
-    chai.assert.fail("do me");
-  });
   it("should succeed when a seek is issued with identical values except delay types differ", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 15, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 15, "inc", true)
+    );
+    chai.assert.equal(GameRequests.collection.find().count(), 3);
   });
-  it("should succeed when a seek is issued with identical values except one is an increment and the other is a delay", function() {
-    chai.assert.fail("do me");
+  it("should succeed when a seek is issued with identical values except delay values differ", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 5, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 10, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 15, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi4", 0, "standard", 15, 5, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi5", 0, "standard", 15, 10, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi6", 0, "standard", 15, 15, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi7", 0, "standard", 15, 5, "inc", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi8", 0, "standard", 15, 10, "inc", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi9", 0, "standard", 15, 15, "inc", true)
+    );
+    chai.assert.equal(GameRequests.collection.find().count(), 9);
   });
+
   it("should fail if delay is specified as zero", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(
+      () => GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 0, "us", true),
+      ICCMeteorError
+    );
+    chai.assert.throws(
+      () => GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 0, "bronstein", true),
+      ICCMeteorError
+    );
+    chai.assert.throws(
+      () => GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 0, "inc", true),
+      ICCMeteorError
+    );
   });
 });
 
 describe("Local matches", function() {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should fail if inc and delay are both specified", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if delay is specified and delaytype is not", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if delay not is specified and delaytype is", function() {
-    chai.assert.fail("do me");
-  });
-  it("should fail if delaytype is not 'us' or 'bronstein'", function() {
-    chai.assert.fail("do me");
+  it("should fail if delaytype is not 'none', 'inc', 'us' or 'bronstein'", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi1",
+          p2,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          15,
+          "bogus",
+          15,
+          15,
+          "inc"
+        ),
+      ICCMeteorError
+    );
   });
   it("should succeed when a match is issued with identical values except delay types differ", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi2",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi3",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi4",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi5",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "us",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi6",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "bronstein",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi7",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        0,
+        "none",
+        "white"
+      )
+    );
+    chai.assert.equal(GameRequests.collection.find().count(), 7);
   });
-  it("should succeed when a match is issued with identical values except one is an increment and the other is a delay", function() {
-    chai.assert.fail("do me");
+
+  it("should succeed when a match is issued with identical values except delay values differ", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        14,
+        "inc",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        14,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        14,
+        "us",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        14,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        14,
+        "bronstein",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        14,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.equal(GameRequests.collection.find().count(), 9);
   });
-  it("should fail if delay is specified as zero", function() {
-    chai.assert.fail("do me");
+
+  it("should fail if delay is specified as zero and delaytype is not 'none'", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi1",
+          p2,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          0,
+          "inc",
+          15,
+          15,
+          "inc",
+          "white"
+        ),
+      ICCMeteorError
+    );
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi1",
+          p2,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          15,
+          "inc",
+          15,
+          0,
+          "inc",
+          "white"
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should fail if delay is specified as non zero and delaytype is 'none'", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi1",
+          p2,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          15,
+          "none",
+          15,
+          15,
+          "inc"
+        ),
+      ICCMeteorError
+    );
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi1",
+          p2,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          15,
+          "inc",
+          15,
+          15,
+          "none"
+        ),
+      ICCMeteorError
+    );
   });
 });

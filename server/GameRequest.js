@@ -550,15 +550,15 @@ GameRequests.addLocalMatchRequest = function(
 
   if (
     !SystemConfiguration.meetsTimeAndIncRules(
-      challenger_time,
-      challenger_inc_or_delay,
-      challenger_inc_or_delay_type
+      receiver_time,
+      receiver_inc_or_delay,
+      receiver_inc_or_delay_type
     )
   )
     throw new ICCMeteorError(
       message_identifier,
       "Cannot add match request",
-      "Failed time and inc rules for challenger"
+      "Failed time and inc rules for receiver"
     );
 
   if (wild_number !== 0) throw new ICCMeteorError(message_identifier, "Wild must be zero");

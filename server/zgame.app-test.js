@@ -3985,7 +3985,41 @@ describe("Game clocks", function() {
 });
 
 describe("tomove in the game record", function() {
+  const self = TestHelpers.setupDescribe.call(this, { timer: true, averagelag: 0 });
   it("needs to match the side it is to move", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "bullet",
+      true,
+      1,
+      5,
+      "bronstein",
+      1,
+      5,
+      "bronstein",
+      "white"
+    );
+
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(game1.tomove, "white");
+
+    Game.saveLocalMove("mi2", game_id, "e4");
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(game2.tomove, "black");
+
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi3", game_id, "e5");
+    const game3 = Game.collection.findOne({});
+    chai.assert.equal(game3.tomove, "white");
+
+    self.loggedonuser = p1;
+    Game.saveLocalMove("mi4", game_id, "d5");
+    const game4 = Game.collection.findOne({});
+    chai.assert.equal(game4.tomove, "white");
   });
 });
