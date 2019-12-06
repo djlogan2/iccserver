@@ -1,122 +1,101 @@
 import React from "react";
+import { Meteor } from "meteor/meteor";
+import i18n from "meteor/universe:i18n";
+import GameForm from "./GameForm";
+
 export default class SeekGameComponent extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectValue: "Radish"
+      error: null,
+      trial: 0,
+      user: null,
+      wild_number: 0,
+      type: "standard",
+      rated: true,
+      is_adjourned: false,
+      minute: 15,
+      inc: 1,
+      color: "random"
     };
   }
-  handleDropdown(e) {
-    alert(e.target.value);
-    this.setState({ selectValue: e.target.value });
+  removeUser() {
+    this.setState({
+      user: null,
+      wild_number: 0,
+      type: "standard",
+      rated: false,
+      is_adjourned: false,
+      minute: 10,
+      inc: 1,
+      color: "random"
+    });
   }
+
+  handleChangeMinute = minute => {
+    this.setState({ minute: minute });
+  };
+  handleChangeSecond = inc => {
+    this.setState({ inc: inc });
+  };
+  handleChangeGameType = type => {
+    this.setState({ type: type });
+  };
+  handleChangeColor = color => {
+    this.setState({ color: color });
+  };
+  handleRatedChange = rate => {
+    this.setState({ rated: rate });
+  };
+
+  handleMatchSubmit() {
+    let color = this.state.color === "random" ? null : this.state.color;
+    /**TODO minrating and maxrating and formula not mention in form so we pass as it if any changes we will make */
+
+    Meteor.call(
+      "createLocalGameSeek",
+      "seekRequest",
+      this.state.wild_number,
+      this.state.type,
+      this.state.minute,
+      this.state.inc,
+      this.state.rated,
+      color,
+      null,
+      null,
+      true
+    );
+  }
+
+  getLang() {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
+
   render() {
     return (
       <div>
         <div style={this.props.cssmanager.tabSeparator()} />
         <div style={this.props.cssmanager.matchUserScroll()}>
-          <div style={{ width: "100%", marginBottom: "15px", float: "left" }}>
-            <div style={{ width: "50%", float: "left" }}>
-              <label style={{ fontWeight: "300", paddingRight: "10px" }}>Time Controll</label>
-              <span style={{ paddingRight: "10px" }}>
-                <select onChange={() => this.handleDropdown.bind(this)}>
-                  <option value="10">10</option>
-                  <option value="15">15</option>
-                  <option value="20">20</option>
-                  <option value="25">25</option>
-                  <option value="30">30</option>
-                </select>
-              </span>
-              <label style={{ fontWeight: "300", paddingRight: "10px" }}>Minute</label>
-            </div>
-            <div style={{ width: "50%", float: "left" }}>
-              <span style={{ paddingRight: "10px" }}>
-                <select onChange={() => this.handleDropdown.bind(this)}>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </select>
-              </span>
-              <label style={{ fontWeight: "300", paddingRight: "10px" }}>Seconds per move</label>
-            </div>
-          </div>
-          <div style={{ width: "100%", marginBottom: "15px", float: "left" }}>
-            <div style={{ width: "50%", float: "left" }}>
-              <label style={{ fontWeight: "300", paddingRight: "10px" }}>Type of Game</label>
-              <span style={{ paddingRight: "10px" }}>
-                <select
-                  value={this.state.selectValue}
-                  onChange={() => this.handleDropdown.bind(this)}
-                >
-                  <option value="chess">Chess</option>
-                  <option value="king">KingHills</option>
-                  <option value="rapid">Rapid</option>
-                </select>
-              </span>
-            </div>
-            <div style={{ width: "50%", float: "left" }}>
-              <span style={{ paddingRight: "10px" }}>
-                <input type="checkbox" value="Rated" />
-                <label style={{ fontWeight: "300", paddingRight: "10px" }}>Rated</label>
-              </span>
-            </div>
-          </div>
-          <div style={{ width: "100%", marginBottom: "15px", float: "left" }}>
-            <div style={{ width: "100%", float: "left" }}>
-              <label style={{ fontWeight: "300", paddingRight: "10px" }}>Pick a color</label>
-              <input type="radio" name="color" value="white" key={1} />
-              <label
-                style={{
-                  fontWeight: "300",
-                  paddingRight: "10px",
-                  paddingLeft: "5px",
-                  verticalAlign: "top"
-                }}
-              >
-                white
-              </label>
-              <input type="radio" name="color" value="Black" key={2} />
-              <label
-                style={{
-                  fontWeight: "300",
-                  paddingRight: "10px",
-                  paddingLeft: "5px",
-                  verticalAlign: "top"
-                }}
-              >
-                Black
-              </label>
-              <input type="radio" name="color" value="Random" key={3} />
-              <label
-                style={{
-                  fontWeight: "300",
-                  paddingRight: "10px",
-                  paddingLeft: "5px",
-                  verticalAlign: "top"
-                }}
-              >
-                Random
-              </label>
-            </div>
-          </div>
-          <div style={{ width: "100%", marginBottom: "15px", float: "left" }}>
-            <div style={{ textAlign: "center" }}>
-              <button
-                style={{
-                  backgroundColor: "#1565c0",
-                  textAlign: "center",
-                  padding: "10px 20px",
-                  border: "none",
-                  color: "#FFF",
-                  borderRadius: "5px"
-                }}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
+          <GameForm
+            cssmanager={this.props.cssmanager}
+            handleChangeMinute={this.handleChangeMinute}
+            handleChangeSecond={this.handleChangeSecond}
+            handleChangeGameType={this.handleChangeGameType}
+            handleChangeColor={this.handleChangeColor}
+            handleRatedChange={this.handleRatedChange}
+            handleSubmit={this.handleMatchSubmit.bind(this)}
+            type={this.state.type}
+            rated={this.state.rated}
+            minute={this.state.minute}
+            inc={this.state.inc}
+            color={this.state.color}
+          />
         </div>
       </div>
     );

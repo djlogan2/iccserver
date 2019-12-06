@@ -57,8 +57,9 @@ export default class MainPage extends Component {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove: ""
+          GameMove: {}
         },
+        status: "other",
         Action: {}
       }
     };
@@ -181,8 +182,7 @@ export default class MainPage extends Component {
     Meteor.call("requestTakeback", "takeBackRequest", this.gameId, 1);
   };
   takeBack = isAccept => {
-    if (isAccept === "accepted")
-      Meteor.call("acceptTakeBack", "takeBackAccept", this.gameId);
+    if (isAccept === "accepted") Meteor.call("acceptTakeBack", "takeBackAccept", this.gameId);
     else Meteor.call("declineTakeback", "takeBackDecline", this.gameId);
   };
   gameAccept = gameRequestData => {
@@ -195,8 +195,7 @@ export default class MainPage extends Component {
     Meteor.call("requestToDraw", "drawRequest", this.gameId);
   };
   draw = isAccept => {
-    if (isAccept === "accepted")
-      Meteor.call("acceptDraw", "drawAccept", this.gameId);
+    if (isAccept === "accepted") Meteor.call("acceptDraw", "drawAccept", this.gameId);
     else Meteor.call("declineDraw", "drawDecline", this.gameId);
   };
   abortRequest = () => {
@@ -204,16 +203,14 @@ export default class MainPage extends Component {
   };
 
   abort = isAccept => {
-    if (isAccept === "accepted")
-      Meteor.call("acceptAbort", "abortAccept", this.gameId);
+    if (isAccept === "accepted") Meteor.call("acceptAbort", "abortAccept", this.gameId);
     else Meteor.call("declineAbort", "abortDecline", this.gameId);
   };
   adjournRequest = () => {
     Meteor.call("requestToAdjourn", "adjournRequest", this.gameId);
   };
   adjourn = isAccept => {
-    if (isAccept === "accepted")
-      Meteor.call("acceptAdjourn", "adjournAccept", this.gameId);
+    if (isAccept === "accepted") Meteor.call("acceptAdjourn", "adjournAccept", this.gameId);
     else Meteor.call("declineAdjourn", "adjournDecline", this.gameId);
   };
   resignGame = () => {
@@ -285,6 +282,8 @@ export default class MainPage extends Component {
   // If Next button clicked, move forward one
 
   render() {
+    this.Main.RightSection1 = {};
+    Object.assign(this.Main.RightSection1, { status: "other" });
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
     const gameRequest = this.props.gameRequest;
@@ -292,14 +291,8 @@ export default class MainPage extends Component {
     let actionPopup = null;
     let position = {};
     if (gameRequest !== undefined) {
-      if (
-        gameRequest.type === "match" &&
-        gameRequest.receiver_id === Meteor.userId()
-      )
-        informativePopup = this.gameRequest(
-          "Opponent has requested for a game",
-          gameRequest
-        );
+      if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
+        informativePopup = this.gameRequest("Opponent has requested for a game", gameRequest);
     }
     if (game !== undefined) {
       this.gameId = game._id;
@@ -314,8 +307,8 @@ export default class MainPage extends Component {
         this.Main.MiddleSection.BlackPlayer.Rating = game.black.rating;
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
         this.Main.MiddleSection.WhitePlayer.Rating = game.white.rating;
-        this.Main.MiddleSection.BlackPlayer.Timer = game.clocks.black.time;
-        this.Main.MiddleSection.WhitePlayer.Timer = game.clocks.white.time;
+        this.Main.MiddleSection.BlackPlayer.Timer = game.clocks.black.current;
+        this.Main.MiddleSection.WhitePlayer.Timer = game.clocks.white.current;
         if (gameTurn === "w") {
           this.Main.MiddleSection.BlackPlayer.IsActive = false;
           this.Main.MiddleSection.WhitePlayer.IsActive = true;
@@ -326,6 +319,7 @@ export default class MainPage extends Component {
         this.userId = Meteor.userId();
         this.gameId = game._id;
         this.Main.RightSection.MoveList.GameMove = game;
+        Object.assign(this.Main.RightSection1, { status: game.status });
         this.Main.RightSection.Action.userId = this.userId;
         this.Main.RightSection.Action.user = Meteor.user().username;
         this.Main.RightSection.Action.gameTurn = gameTurn;
@@ -342,36 +336,18 @@ export default class MainPage extends Component {
             const issuer = action["issuer"];
             switch (action["type"]) {
               case "takeback_requested":
-                if (
-                  issuer !== this.userId &&
-                  game.pending[othercolor].takeback.number > 0
-                ) {
-                  actionPopup = this.actionPopup(
-                    "Oppenent has requested to Take Back",
-                    "takeBack"
-                  );
+                if (issuer !== this.userId && game.pending[othercolor].takeback.number > 0) {
+                  actionPopup = this.actionPopup("Oppenent has requested to Take Back", "takeBack");
                 }
                 break;
               case "draw_requested":
-                if (
-                  issuer !== this.userId &&
-                  game.pending[othercolor].draw !== "0"
-                ) {
-                  actionPopup = this.actionPopup(
-                    "Oppenent has requested to Draw",
-                    "draw"
-                  );
+                if (issuer !== this.userId && game.pending[othercolor].draw !== "0") {
+                  actionPopup = this.actionPopup("Oppenent has requested to Draw", "draw");
                 }
                 break;
               case "abort_requested":
-                if (
-                  issuer !== this.userId &&
-                  game.pending[othercolor].abort !== "0"
-                ) {
-                  actionPopup = this.actionPopup(
-                    "Oppenent has requested to Abort",
-                    "abort"
-                  );
+                if (issuer !== this.userId && game.pending[othercolor].abort !== "0") {
+                  actionPopup = this.actionPopup("Oppenent has requested to Abort", "abort");
                 }
                 break;
               default:
@@ -401,9 +377,7 @@ export default class MainPage extends Component {
             <aside>
               <div
                 className={
-                  this.state.visible
-                    ? "sidebar left device-menu fliph"
-                    : "sidebar left device-menu"
+                  this.state.visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"
                 }
               >
                 <div className="pull-left image">
@@ -414,9 +388,7 @@ export default class MainPage extends Component {
                   onClick={this.toggleMenu}
                 >
                   <img
-                    src={this.props.cssmanager.buttonBackgroundImage(
-                      "toggleMenu"
-                    )}
+                    src={this.props.cssmanager.buttonBackgroundImage("toggleMenu")}
                     style={this.props.cssmanager.toggleMenuHeight()}
                     alt="toggle menu"
                   />
@@ -430,10 +402,7 @@ export default class MainPage extends Component {
             </aside>
           </div>
 
-          <div
-            className="col-sm-6 col-md-6"
-            style={this.props.cssmanager.parentPopup(h, w)}
-          >
+          <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
             {informativePopup}
             {actionPopup}
             <MiddleBoard
@@ -450,6 +419,7 @@ export default class MainPage extends Component {
             <RightSidebar
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
+              RightSidebarData1={this.Main.RightSection1}
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
@@ -471,7 +441,7 @@ MainPage.propTypes = {
 let links = [
   {
     label: "play",
-    link: "#home",
+    link: "play",
     src: "../../../images/play-icon-white.png",
     active: true
   },

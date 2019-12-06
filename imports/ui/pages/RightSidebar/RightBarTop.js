@@ -9,11 +9,21 @@ import MatchUser from "./MatchUserComponent";
 import i18n from "meteor/universe:i18n";
 import "./Tabs/styles";
 import { Logger } from "../../../../lib/client/Logger";
-import MiddleBoard from "../MiddleSection/MiddleBoard";
 
 const log = new Logger("client/RightBarTop");
 
 export default class RightBarTop extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      status: "others"
+    };
+  }
+  componentWillReceiveProps(prevProps) {
+    if (prevProps.RightBarTopData1.status !== this.props.RightBarTopData1.status) {
+      if (this.props.RightBarTopData1.status === "playing") this.setState({ status: "playing" });
+    }
+  }
   getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -25,14 +35,17 @@ export default class RightBarTop extends Component {
   }
 
   render() {
-    let translator = i18n.createTranslator(
-      "Common.rightBarTop",
-      this.getLang()
-    );
+    let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
+    let tabitem1 = null;
+    let tabitem2 = null;
+    let tabitem3 = null;
+    let status = false;
+    if (!!this.props.RightBarTopData1.status && this.props.RightBarTopData1.status === "playing")
+      status = true;
 
-    return (
-      <Tabs cssmanager={this.props.cssmanager}>
-        {/*   <div label={translator("game")} imgsrc="images/game-icon-gray.png">
+    if (status) {
+      tabitem1 = (
+        <div label={translator("game")} imgsrc="images/game-icon-gray.png">
           <GameHistory
             cssmanager={this.props.cssmanager}
             MoveHistory={this.props.RightBarTopData.MoveList.GameMove}
@@ -41,28 +54,46 @@ export default class RightBarTop extends Component {
             actionData={this.props.actionData}
           />
         </div>
-
+      );
+      tabitem2 = (
         <div label={translator("play")} imgsrc="images/play-icon-gray.png">
           <CreateGame cssmanager={this.props.cssmanager} ref="create_game" />
         </div>
-
-        <div
-          label={translator("tournaments")}
-          imgsrc="images/tournament-icon-gray.png"
-        >
-          <MatchUser cssmanager={this.props.cssmanager} />
+      );
+      tabitem3 = (
+        <div label={translator("tournaments")} imgsrc="images/tournament-icon-gray.png">
+          <TournamentsList
+            cssmanager={this.props.cssmanager}
+            TournamentsList={this.props.RightBarTopData.TournamentList.Tournaments}
+          />
         </div>
-      */}
+      );
+    } else {
+      tabitem1 = (
         <div label={translator("quikpairing")}>
           <QuickPairing cssmanager={this.props.cssmanager} />
         </div>
-
+      );
+      tabitem2 = (
         <div label={translator("seekgame")}>
           <SeekGame cssmanager={this.props.cssmanager} />
         </div>
+      );
+      tabitem3 = (
         <div label={translator("matchuser")}>
           <MatchUser cssmanager={this.props.cssmanager} />
         </div>
+      );
+    }
+    return (
+      <Tabs cssmanager={this.props.cssmanager}>
+        {/*   
+
+
+      */}
+        {tabitem1}
+        {tabitem2}
+        {tabitem3}
       </Tabs>
     );
   }
