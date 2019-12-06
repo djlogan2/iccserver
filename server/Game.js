@@ -21,6 +21,8 @@ const GameCollection = new Mongo.Collection("game");
 let log = new Logger("server/Game_js");
 
 let active_games = {};
+const game_pings = {};
+const move_timers = {};
 
 GameCollection.attachSchema(ExaminedGameSchema, {
   selector: { status: "examining" }
@@ -57,9 +59,11 @@ Game.startLocalGame = function(
   rating_type,
   rated,
   white_initial,
-  white_increment,
+  white_increment_or_delay,
+  white_increment_or_delay_type,
   black_initial,
-  black_increment,
+  black_increment_or_delay,
+  black_increment_or_delay_type,
   color /*,
   irregular_legality,
   irregular_semantics,
@@ -76,10 +80,18 @@ Game.startLocalGame = function(
   check(rating_type, String);
   check(rated, Boolean);
   check(white_initial, Number);
-  check(white_increment, Number);
+  check(white_increment_or_delay, Number);
+  check(white_increment_or_delay_type, String);
   check(black_initial, Number);
-  check(black_increment, Number);
+  check(black_increment_or_delay, Number);
+  check(black_increment_or_delay_type, String);
   check(color, Match.Maybe(String));
+
+  check(white_increment_or_delay, Number);
+  check(black_increment_or_delay, Number);
+  check(black_increment_or_delay_type, String);
+  check(black_increment_or_delay_type, String);
+
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -110,11 +122,23 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (!SystemConfiguration.meetsTimeAndIncRules(white_initial, white_increment)) {
-    throw new ICCMeteorError("Unable to start game", "White time/inc fails validation");
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(
+      white_initial,
+      white_increment_or_delay,
+      white_increment_or_delay_type
+    )
+  ) {
+    throw new ICCMeteorError("Unable to start game", "White time/inc/delay fails validation");
   }
-  if (!SystemConfiguration.meetsTimeAndIncRules(black_initial, black_increment)) {
-    throw new ICCMeteorError("Unable to start game", "White time/inc fails validation");
+  if (
+    !SystemConfiguration.meetsTimeAndIncRules(
+      black_initial,
+      black_increment_or_delay,
+      black_increment_or_delay_type
+    )
+  ) {
+    throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
   }
 
   const chess = new Chess.Chess();
@@ -126,6 +150,7 @@ Game.startLocalGame = function(
     starttime: new Date(),
     result: "*",
     fen: chess.fen(),
+    tomove: "white",
     pending: {
       white: {
         draw: "0",
@@ -156,13 +181,15 @@ Game.startLocalGame = function(
     clocks: {
       white: {
         initial: white_initial,
-        inc: white_increment,
+        inc_or_delay: white_increment_or_delay,
+        delaytype: white_increment_or_delay_type,
         current: white_initial * 60 * 1000, // milliseconds
         starttime: new Date().getTime()
       },
       black: {
         initial: black_initial,
-        inc: black_increment,
+        inc_or_delay: black_increment_or_delay,
+        delaytype: black_increment_or_delay_type,
         current: black_initial * 60 * 1000, //milliseconds
         starttime: 0
       }
@@ -185,6 +212,13 @@ Game.startLocalGame = function(
   const game_id = GameCollection.insert(game);
   active_games[game_id] = chess;
   startGamePing(game_id);
+  startMoveTimer(
+    game_id,
+    "white",
+    (game.clocks.white.inc_or_delay | 0) * 1000,
+    game.clocks.white.delaytype,
+    game.clocks.white.current
+  );
 
   return game_id;
 };
@@ -194,11 +228,6 @@ Game.startLocalExaminedGame = function(
   white_name,
   black_name,
   wild_number,
-  rating_type,
-  white_initial,
-  white_increment,
-  black_initial,
-  black_increment,
   other_headers
 ) {
   const self = Meteor.user();
@@ -208,11 +237,6 @@ Game.startLocalExaminedGame = function(
   check(white_name, String);
   check(black_name, String);
   check(wild_number, Number);
-  check(rating_type, String);
-  check(white_initial, Number);
-  check(white_increment, Number);
-  check(black_initial, Number);
-  check(black_increment, Number);
   check(other_headers, Match.Maybe(Object));
 
   if (!self.status.online) {
@@ -229,20 +253,7 @@ Game.startLocalExaminedGame = function(
     starttime: new Date(),
     result: "*",
     fen: chess.fen(),
-    pending: {
-      white: {
-        draw: "0",
-        abort: "0",
-        adjourn: "0",
-        takeback: { number: 0, mid: "0" }
-      },
-      black: {
-        draw: "0",
-        abort: "0",
-        adjourn: "0",
-        takeback: { number: 0, mid: "0" }
-      }
-    },
+    tomove: "white",
     white: {
       name: white_name,
       rating: 1600
@@ -252,17 +263,6 @@ Game.startLocalExaminedGame = function(
       rating: 1600
     },
     wild: wild_number,
-    rating_type: rating_type,
-    clocks: {
-      white: {
-        initial: white_initial,
-        inc: white_increment
-      },
-      black: {
-        initial: black_initial,
-        inc: black_increment
-      }
-    },
     status: "examining",
     actions: [],
     observers: [self._id],
@@ -377,6 +377,7 @@ Game.startLegacyGame = function(
   const game = {
     starttime: new Date(),
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    tomove: "white",
     legacy_game_number: gamenumber,
     legacy_game_id: game_id,
     white: {
@@ -393,13 +394,15 @@ Game.startLegacyGame = function(
     clocks: {
       white: {
         initial: white_initial,
-        inc: white_increment,
+        inc_or_delay: white_increment,
+        delaytype: "inc",
         current: white_initial * 60 * 1000,
         starttime: 0
       },
       black: {
         initial: black_initial,
-        inc: black_increment,
+        inc_or_delay: black_increment,
+        delaytype: "inc",
         current: black_initial * 60 * 1000,
         starttime: 0
       }
@@ -485,10 +488,10 @@ function calculateGameLag(lagobject) {
   if (lagvalues.length) {
     totallag = lagvalues.reduce((total, cur) => total + cur, 0);
     totallag = totallag | 0; // convert double to int
+    let lastlag = lagobject.active.reduce((total, cur) => now - cur.originate + total, 0);
+    gamelag = (totallag + lastlag) / lagvalues.length;
+    if (gamelag > SystemConfiguration.minimumLag()) gamelag -= SystemConfiguration.minimumLag();
   }
-  let lastlag = lagobject.active.reduce((total, cur) => now - cur.originate + total, 0);
-  gamelag = (totallag + lastlag) / lagvalues.length;
-  if (gamelag > SystemConfiguration.minimumLag()) gamelag -= SystemConfiguration.minimumLag();
   return gamelag;
 }
 
@@ -525,12 +528,18 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
     return;
   }
+
+  endMoveTimer(game_id);
+
   const setobject = { fen: chessObject.fen() };
 
   const unsetobject = {};
   const analyze = addMoveToMoveList(variation, move);
   let gamelag = 0;
   let gameping = 0;
+
+  const bw = self._id === game.white.id ? "white" : "black";
+  const otherbw = bw === "white" ? "black" : "white";
 
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
@@ -542,25 +551,24 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     } else if (active_games[game_id].insufficient_material()) {
       setobject.result = "1/2-1/2";
     }
+
     if (!!setobject.result) {
       setobject.status = "examining";
       setobject.examining = [game.white.id, game.black.id];
       unsetobject.pending = "";
+    } else {
+      setobject["pending." + otherbw + ".draw"] = "0";
+      setobject["pending." + otherbw + ".abort"] = "0";
+      setobject["pending." + otherbw + ".adjourn"] = "0";
+      setobject["pending." + otherbw + ".takeback.number"] = 0;
+      setobject["pending." + otherbw + ".takeback.mid"] = "0";
+      //
+      // Add a half move to the takeback request if the user requested a takeback and then
+      // made their own move.
+      //
+      if (game.pending[bw].takeback.number)
+        setobject["pending." + bw + ".takeback.number"] = game.pending[bw].takeback.number + 1;
     }
-
-    const bw = self._id === game.white.id ? "white" : "black";
-    const otherbw = bw === "white" ? "black" : "white";
-    setobject["pending." + otherbw + ".draw"] = "0";
-    setobject["pending." + otherbw + ".abort"] = "0";
-    setobject["pending." + otherbw + ".adjourn"] = "0";
-    setobject["pending." + otherbw + ".takeback.number"] = 0;
-    setobject["pending." + otherbw + ".takeback.mid"] = "0";
-    //
-    // Add a half move to the takeback request if the user requested a takeback and then
-    // made their own move.
-    //
-    if (!setobject.result && game.pending[bw].takeback.number)
-      setobject["pending." + bw + ".takeback.number"] = game.pending[bw].takeback.number + 1;
 
     if (!setobject.result) {
       const timenow = new Date().getTime();
@@ -570,14 +578,36 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       log.trace("lag=", game.lag);
 
       let used = timenow - game.clocks[bw].starttime + gamelag;
-      log.debug("used=" + used);
+      let addback = 0;
+
+      if(game.clocks[bw].delaytype !== "none") {
+        if (game.clocks[bw].delaytype === "inc") {
+          addback = game.clocks[bw].inc_or_delay * 1000;
+        } else if (game.clocks[bw].inc_or_delay * 1000 >= used) {
+          addback = used;
+        } else if (game.clocks[bw].inc_or_delay * 1000 < used) {
+          addback = game.clocks[bw].inc_or_delay * 1000;
+        }
+      }
+
+      //
+      // Add the expected lag to the oppnents clock for the receiving of this move
+      //
+      let opponentlag = calculateGameLag(game.lag[otherbw]) || 0;
+      if (!opponentlag) opponentlag = Timestamp.averageLag(game[otherbw].id);
+      if (!opponentlag) opponentlag = 0;
+
+      log.debug("used=" + used + ", addback=" + addback);
       if (used <= SystemConfiguration.minimumMoveTime())
         used = SystemConfiguration.minimumMoveTime();
       log.debug("used=" + used);
-      setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used;
-      setobject["clocks." + otherbw + ".starttime"] = timenow;
+      setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
+      // TODO: check for current <= 0 and end the game, yes?
+      setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
       log.debug("setobject=" + setobject);
-    } else endGamePing(game_id);
+    } else {
+      endGamePing(game_id);
+    }
   }
 
   log.debug("final gamelag=" + gamelag + ", gameping=" + gameping);
@@ -595,12 +625,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     actions: { type: "move", issuer: self._id, parameter: move_parameter }
   };
 
-  setobject["variations"] = variation;
+  setobject.variations = variation;
+  setobject.tomove = otherbw;
+  setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
 
   GameCollection.update(
     { _id: game_id, status: game.status },
     { $unset: unsetobject, $set: setobject, $push: pushobject }
   );
+
   if (analyze) {
     UCI.getScoreForFen(active_games[game_id].fen())
       .then(score => {
@@ -622,6 +655,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
         log.error("Error setting score for game move", error);
       });
   }
+
+  if (game.status === "playing")
+    startMoveTimer(
+      game_id,
+      otherbw,
+      (game.clocks[otherbw].inc_or_delay | 0) * 1000,
+      game.clocks[otherbw].delaytype,
+      game.clocks[otherbw].current
+    );
 };
 
 //	There are three outcome codes, given in the following order:
@@ -715,6 +757,7 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
+
   GameCollection.update(
     { _id: game_id, status: "examining" },
     { $pull: { examiners: id_to_remove } }
@@ -788,11 +831,12 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   if (!!game.examiners && game.examiners.length === 1 && game.examiners[0] === id_to_remove) {
     GameCollection.remove({ _id: game_id });
     delete active_games[game_id];
-  } else
+  } else {
     GameCollection.update(
       { _id: game_id, status: game.status },
       { $pull: { examiners: id_to_remove, observers: id_to_remove } }
     );
+  }
 };
 
 Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
@@ -884,15 +928,15 @@ Game.requestLocalTakeback = function(message_identifier, game_id, number) {
     return;
   }
 
-  const tbobject = {};
-  tbobject["pending." + color + ".takeback.number"] = number;
-  tbobject["pending." + color + ".takeback.mid"] = message_identifier;
-  tbobject["variations.hmtb"] = number;
+  const setobject = {};
+  setobject["pending." + color + ".takeback.number"] = number;
+  setobject["pending." + color + ".takeback.mid"] = message_identifier;
+  setobject["variations.hmtb"] = number;
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
-      $set: tbobject,
+      $set: setobject,
       $push: {
         actions: {
           type: "takeback_requested",
@@ -938,13 +982,16 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
       );
 
     variation.cmi = variation.movelist[variation.cmi].prev;
+    variation.movelist = variation.movelist.splice(0, variation.movelist.length - 1); //TODO :This remove move list so display takeback in front side
+    delete variation.movelist[variation.cmi].variations;
   }
 
   const setobject = {
     fen: active_games[game_id].fen(),
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
-    "variations.cmi": variation.cmi
+    "variations.cmi": variation.cmi,
+    "variations.movelist": variation.movelist
   };
 
   GameCollection.update(
@@ -983,14 +1030,23 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
   }
 
   const setobject = {};
-  setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: null };
+  setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: "0" };
+
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
       $push: {
-        actions: { type: "takeback_declined", issuer: self._id },
-        $set: setobject
+        actions: { type: "takeback_declined", issuer: self._id }
       }
+    }
+  );
+  //TODO: i know this is not good thing but i have many tries to update record both action and player pending not work together so
+  // i have write this code later i will remove it
+
+  GameCollection.update(
+    { _id: game_id, status: "playing" },
+    {
+      $set: setobject
     }
   );
 
@@ -1159,6 +1215,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -1199,6 +1256,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -1239,6 +1297,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
@@ -1376,6 +1435,7 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   }
 
   endGamePing(game_id);
+  endMoveTimer(game_id);
 
   const result = self._id === game.white.id ? "0-1" : "1-0";
   GameCollection.update(
@@ -1892,8 +1952,6 @@ function addMoveToMoveList(variation_object, move) {
   return !exists;
 }
 
-const game_pings = {};
-
 function startGamePing(game_id) {
   _startGamePing(game_id, "white");
   _startGamePing(game_id, "black");
@@ -1955,11 +2013,63 @@ function endGamePing(game_id) {
   delete game_pings[game_id];
 }
 
+//
+// This is for simple US delay and not Bronstein delay
+// In US delay, we delay countdown for the delay
+// In Bronstein delay, we count down, but then add the delay back in when they make their move
+//
+function startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds) {
+  if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
+
+  move_timers[game_id] = Meteor.setInterval(() => {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+    startMoveTimer(game_id, color, 0, "", actual_milliseconds);
+  }, delay_milliseconds);
+}
+
+function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_milliseconds) {
+  if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
+
+  if (delay_milliseconds && delaytype === "us") {
+    startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds);
+    return;
+  }
+
+  move_timers[game_id] = Meteor.setInterval(() => {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+    const game = GameCollection.findOne({ _id: game_id, status: "playing" });
+    if (!game) throw new Meteor.Error("Unable to find a game to expire time on");
+    const setobject = {};
+    setobject["clocks." + color + ".current"] = 0;
+    setobject.result = color === "white" ? "0-1" : "1-0";
+    setobject.status = "examining";
+    setobject.examiners = [game.white.id, game.black.id];
+    GameCollection.update({ _id: game_id }, { $set: setobject, $unset: { pending: 1 } });
+  }, actual_milliseconds);
+}
+
+function endMoveTimer(game_id) {
+  const interval_id = move_timers[game_id];
+  if (!interval_id) return;
+  Meteor.clearInterval(interval_id);
+  delete move_timers[game_id];
+}
+
+function testingCleanupMoveTimers() {
+  Object.keys(move_timers).forEach(game_id => {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+  });
+}
+
 Meteor.startup(function() {
   GameCollection.remove({});
   if (Meteor.isTest || Meteor.isAppTest) {
     Game.collection = GameCollection;
     Game.buildPgnFromMovelist = buildPgnFromMovelist;
     Game.calculateGameLag = calculateGameLag;
+    Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
   }
 });

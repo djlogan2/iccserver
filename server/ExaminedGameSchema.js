@@ -55,14 +55,12 @@ export const ExaminedGameSchema = new SimpleSchema({
   },
   result: String,
   fen: String,
+  tomove: String,
   legacy_game_number: {
     type: Number,
     required: false,
     custom() {
-      if (
-        this.field("legacy_game_number").isSet !==
-        this.field("legacy_game_id").isSet
-      )
+      if (this.field("legacy_game_number").isSet !== this.field("legacy_game_id").isSet)
         return [
           {
             name: "legacy_game_number and legacy_game_id",
@@ -75,10 +73,7 @@ export const ExaminedGameSchema = new SimpleSchema({
     type: String,
     required: false,
     custom() {
-      if (
-        this.field("legacy_game_number").isSet !==
-        this.field("legacy_game_id").isSet
-      )
+      if (this.field("legacy_game_number").isSet !== this.field("legacy_game_id").isSet)
         return [
           {
             name: "legacy_game_number and legacy_game_id",
@@ -91,16 +86,25 @@ export const ExaminedGameSchema = new SimpleSchema({
   rating_type: { type: String, required: false },
   rated: { type: Boolean, required: false },
   status: String,
-  clocks: new SimpleSchema({
-    white: new SimpleSchema({
-      initial: SimpleSchema.Integer,
-      inc: Number
+  clocks: {
+    type: new SimpleSchema({
+      white: new SimpleSchema({
+        initial: SimpleSchema.Integer,
+        inc_or_delay: Number,
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
+        current: SimpleSchema.Integer,
+        starttime: SimpleSchema.Integer
+      }),
+      black: new SimpleSchema({
+        initial: SimpleSchema.Integer,
+        inc_or_delay: Number,
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
+        current: SimpleSchema.Integer,
+        starttime: SimpleSchema.Integer
+      })
     }),
-    black: new SimpleSchema({
-      initial: SimpleSchema.Integer,
-      inc: Number
-    })
-  }),
+    required: false
+  },
   white: new SimpleSchema({
     name: String,
     rating: SimpleSchema.Integer

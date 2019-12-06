@@ -18,8 +18,7 @@ SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   check(robject1, Object);
   check(robject2, Object);
   const oppgames = robject2.won + robject2.draw + robject2.lost;
-  const rightpart =
-    1 / (1 + Math.pow(10, (robject2.rating - robject1.rating) / 100));
+  const rightpart = 1 / (1 + Math.pow(10, (robject2.rating - robject1.rating) / 100));
   const K = oppgames >= 20 ? 32 : oppgames / 21;
   return {
     win: robject1.rating + K * (1 - rightpart),
@@ -38,10 +37,15 @@ const defaultRatingRules = {
   threeminute: { time: 3, inc: 0 }
 };
 
-SystemConfiguration.meetsTimeAndIncRules = function(time, inc) {
+SystemConfiguration.meetsTimeAndIncRules = function(time, inc_or_delay, inc_or_delay_type) {
   check(time, Number);
-  check(inc, Number);
-  return time > 0 || inc > 0;
+  check(inc_or_delay, Number);
+  check(inc_or_delay_type, String);
+  if (time <= 0 || inc_or_delay < 0) return false;
+  if (inc_or_delay === 0 && inc_or_delay_type !== "none") return false;
+  if (inc_or_delay !== 0 && inc_or_delay_type === "none") return false;
+  if (["none", "us", "inc", "bronstein"].indexOf(inc_or_delay_type) === -1) return false;
+  return true;
 };
 
 function docheck(thecheck, thevalue) {
@@ -52,11 +56,18 @@ function docheck(thecheck, thevalue) {
   return thevalue === thecheck;
 }
 
-SystemConfiguration.meetsRatingTypeRules = function(rating_type, time, inc) {
+SystemConfiguration.meetsRatingTypeRules = function(
+  rating_type,
+  time,
+  inc_or_delay,
+  inc_or_delay_type
+) {
   check(rating_type, String);
   check(time, Number);
-  check(inc, Number);
-
+  check(inc_or_delay, Number);
+  check(inc_or_delay_type, String);
+  return true;
+  /*
   if (!defaultRatingRules[rating_type]) return true;
   const r_etime = defaultRatingRules[rating_type].etime;
   const r_time = defaultRatingRules[rating_type].time;
@@ -64,6 +75,7 @@ SystemConfiguration.meetsRatingTypeRules = function(rating_type, time, inc) {
   if (r_etime) return docheck(r_etime, time + (inc * 2) / 3);
   if (r_time) return docheck(r_time, time);
   if (r_inc) return docheck(r_inc, inc);
+ */
 };
 
 SystemConfiguration.meetsMinimumAndMaximumRatingRules = function(
@@ -95,5 +107,5 @@ SystemConfiguration.uciSecondsToPonderPerMoveScore = function() {
 };
 
 SystemConfiguration.uciThreadsPerEngine = function() {
-    return 4;
+  return 4;
 };

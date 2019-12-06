@@ -17,12 +17,7 @@ describe("Client Messages", function() {
   it("should throw an error if we call it with an unknown message identifier", function() {
     const user = TestHelpers.createUser();
     chai.assert.throws(
-      () =>
-        ClientMessages.sendMessageToClient(
-          user._id,
-          "mi1",
-          "UNKNOWN_I18N_MESSAGE"
-        ),
+      () => ClientMessages.sendMessageToClient(user._id, "mi1", "UNKNOWN_I18N_MESSAGE"),
       Match.Error
     );
   });
@@ -111,11 +106,7 @@ describe("Client Messages", function() {
     const user1 = TestHelpers.createUser({ login: true });
     const user2 = TestHelpers.createUser({ login: true });
     //sinon.replace(Meteor, "userId", () => {return user1._id});
-    const id1 = ClientMessages.sendMessageToClient(
-      user1._id,
-      "id1",
-      "FOR_TESTING"
-    );
+    const id1 = ClientMessages.sendMessageToClient(user1._id, "id1", "FOR_TESTING");
     ClientMessages.sendMessageToClient(user1._id, "id2", "FOR_TESTING");
     ClientMessages.sendMessageToClient(user2._id, "id3", "FOR_TESTING");
     let method = Meteor.server.method_handlers["acknowledge.client.message"];
@@ -130,17 +121,10 @@ describe("Client Messages", function() {
     sinon.replace(i18n, "localizeMessage", sinon.fake.returns("the message"));
     const user1 = TestHelpers.createUser({ login: true });
     const user2 = TestHelpers.createUser({ login: true });
-    const id1 = ClientMessages.sendMessageToClient(
-      user1._id,
-      "id1",
-      "FOR_TESTING"
-    );
+    const id1 = ClientMessages.sendMessageToClient(user1._id, "id1", "FOR_TESTING");
     ClientMessages.sendMessageToClient(user2._id, "id2", "FOR_TESTING");
     let method = Meteor.server.method_handlers["acknowledge.client.message"];
-    chai.assert.throws(
-      () => method.apply({ userId: user2._id }, [id1]),
-      ICCMeteorError
-    );
+    chai.assert.throws(() => method.apply({ userId: user2._id }, [id1]), ICCMeteorError);
     sinon.restore();
   });
 });
@@ -175,10 +159,7 @@ describe("Client Messages publication", function() {
     collector.collect("client_messages", collections => {
       chai.assert.equal(collections.client_messages.length, 1);
       chai.assert.equal(collections.client_messages[0].to, user1._id);
-      chai.assert.equal(
-        collections.client_messages[0].client_identifier,
-        "mi1"
-      );
+      chai.assert.equal(collections.client_messages[0].client_identifier, "mi1");
       chai.assert.equal(collections.client_messages[0].message, "the message");
       sinon.restore();
       done();

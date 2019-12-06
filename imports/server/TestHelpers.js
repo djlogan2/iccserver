@@ -9,6 +9,7 @@ import { i18n } from "../collections/i18n";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { UCI } from "../../server/UCI";
 import { Timestamp } from "../../lib/server/timestamp";
+import { Game } from "../../server/Game";
 
 export const TestHelpers = {};
 
@@ -71,7 +72,13 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
       self.clientMessagesSpy = self.sandbox.spy(ClientMessages, "sendMessageToClient");
 
-      self.sandbox.replace(Timestamp, "averageLag", self.sandbox.fake.returns(123));
+      self.sandbox.replace(
+        Timestamp,
+        "averageLag",
+        self.sandbox.fake(() =>
+          !options || options.averagelag === undefined ? 0 : options.averagelag
+        )
+      ); //.returns(123));
 
       self.sandbox.replace(Timestamp, "pingTime", self.sandbox.fake.returns(456));
 
@@ -93,6 +100,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
       self.sandbox.restore();
       delete self.meteorUsersFake;
       delete self.clientMessagesSpy;
+      Game.testingCleanupMoveTimers();
     });
 
     return self;

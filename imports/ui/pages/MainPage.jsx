@@ -103,26 +103,38 @@ export default class MainPage extends Component {
       </div>
     );
   };
-
+//TODO we have remove later
   actionPopup = (title, action) => {
     return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
-        <div className="popup_inner">
-          <h3>{title}</h3>
-
-          <button
-            onClick={this._performAction.bind(this, "accepted", action)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Accept
-          </button>
-          <button
-            onClick={this._performAction.bind(this, "rejected", action)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            cancel
-          </button>
-        </div>
+      <div style={{position:"relative"}}>
+      <div
+        style={{
+          display: "flex",
+          marginTop: "0",
+          alignItems: "center",
+          padding: "0.25rem 0.75rem",
+          color: "rgb(108, 117, 125)",
+          border: "1px solid rgb(206, 204, 204)",
+          position: "absolute",
+          right: "8px",
+          background: "#efefef",
+          width: "190px",
+          top: "6px",
+          zIndex: "9"
+           
+        }}
+      >
+        <img src="images/info-icon.png" style={{ width: "15px", marginRight: "10px",
+      
+      }} />
+        <strong style={{width:"100px",marginRight:"15px"}}>{title}</strong>
+        <button onClick={this._performAction.bind(this, "accepted", action)} style={{backgroundColor:"transparent",border:"0px"}}>
+          <img src="images/checked.png" style={{ width: "15px" }} />
+        </button>
+        <button onClick={this._performAction.bind(this, "rejected", action)}  style={{backgroundColor:"transparent",border:"0px"}}>
+          <img src="images/close.png" style={{ width: "13px" }} />
+        </button>
+      </div>
       </div>
     );
   };
@@ -282,13 +294,12 @@ export default class MainPage extends Component {
   // If Next button clicked, move forward one
 
   render() {
-    this.Main.RightSection1 = {};
-    Object.assign(this.Main.RightSection1, { status: "other" });
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
     const gameRequest = this.props.gameRequest;
     let informativePopup = null;
     let actionPopup = null;
+    
     let position = {};
     if (gameRequest !== undefined) {
       if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
@@ -319,7 +330,8 @@ export default class MainPage extends Component {
         this.userId = Meteor.userId();
         this.gameId = game._id;
         this.Main.RightSection.MoveList.GameMove = game;
-        Object.assign(this.Main.RightSection1, { status: game.status });
+        Object.assign(this.Main.RightSection, { status: game.status });
+        //this.Main.RightSection.status = game.status;
         this.Main.RightSection.Action.userId = this.userId;
         this.Main.RightSection.Action.user = Meteor.user().username;
         this.Main.RightSection.Action.gameTurn = gameTurn;
@@ -337,17 +349,17 @@ export default class MainPage extends Component {
             switch (action["type"]) {
               case "takeback_requested":
                 if (issuer !== this.userId && game.pending[othercolor].takeback.number > 0) {
-                  actionPopup = this.actionPopup("Oppenent has requested to Take Back", "takeBack");
+                  actionPopup = this.actionPopup("Take Back", "takeBack");
                 }
                 break;
               case "draw_requested":
                 if (issuer !== this.userId && game.pending[othercolor].draw !== "0") {
-                  actionPopup = this.actionPopup("Oppenent has requested to Draw", "draw");
+                  actionPopup = this.actionPopup("Draw", "draw");
                 }
                 break;
               case "abort_requested":
                 if (issuer !== this.userId && game.pending[othercolor].abort !== "0") {
-                  actionPopup = this.actionPopup("Oppenent has requested to Abort", "abort");
+                  actionPopup = this.actionPopup("Abort", "abort");
                 }
                 break;
               default:
@@ -404,7 +416,6 @@ export default class MainPage extends Component {
 
           <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
             {informativePopup}
-            {actionPopup}
             <MiddleBoard
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
@@ -416,10 +427,10 @@ export default class MainPage extends Component {
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
+            {actionPopup}
             <RightSidebar
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
-              RightSidebarData1={this.Main.RightSection1}
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
