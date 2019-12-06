@@ -113,7 +113,7 @@ export const ExaminedGameSchema = new SimpleSchema({
     name: String,
     rating: SimpleSchema.Integer
   }),
-  tags: { type: Object, required: false },
+  tags: { type: Object, required: false, blackbox: true },
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },
   "observers.$": String,
@@ -126,7 +126,11 @@ export const ExaminedGameSchema = new SimpleSchema({
   "variations.movelist.$": Object,
   "variations.movelist.$.prev": { type: Number, required: false },
   "variations.movelist.$.move": { type: String, required: false },
+  "variations.movelist.$.lag": { type: Number, required: false },
+  "variations.movelist.$.ping": { type: Number, required: false },
   "variations.movelist.$.score": { type: Number, required: false },
+  "variations.movelist.$.gamelag": { type: Number, required: false },
+  "variations.movelist.$.gameping": { type: Number, required: false },
   "variations.movelist.$.variations": { type: Array, required: false },
   "variations.movelist.$.variations.$": Number
 });

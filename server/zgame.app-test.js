@@ -639,7 +639,6 @@ describe("Game.saveLocalMove", function() {
   });
 
   it("should end the game if the move results in a stalemate", function() {
-    this.timeout(500000);
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -3425,6 +3424,38 @@ describe("when playing a game", function() {
     client.pingArrived(game1.lag.white.active[0]);
   });
 
+  it("needs to calculate game lag correctly (by using the last two game pings)", function(){
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+    );
+    Game.collection.update({_id: game_id, status: "playing"},{
+      $set: {"lag.white.pings": [1,2,3,4,5,6,7,8,9,10], "lag.black.pings": [11,12,13,14,15,16,17,18,19,20]}
+    });
+    Game.saveLocalMove("mi2", game_id, "e4");
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi2", game_id, "e5");
+
+    const game = Game.collection.findOne({});
+    chai.assert.equal(game.actions[0].parameter.gameping, 10);
+    chai.assert.equal(game.actions[0].parameter.gamelag, 9);
+    chai.assert.equal(game.actions[1].parameter.gameping, 20);
+    chai.assert.equal(game.actions[1].parameter.gamelag, 19);
+  });
+
   it("should throw an error if the meteor method is called with a valid game id but a non-player", function(done) {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -4021,5 +4052,82 @@ describe("tomove in the game record", function() {
     Game.saveLocalMove("mi4", game_id, "d5");
     const game4 = Game.collection.findOne({});
     chai.assert.equal(game4.tomove, "white");
+  });
+});
+
+describe("Starting a game", function(){
+  const self = TestHelpers.setupDescribe.call(this);
+  it("should fail if the players opponent is not online with a client message", function(){
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser({login: false});
+    self.loggedonuser = p1;
+    Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
+  });
+
+  it("should fail if blacks time/inc/delay fails to meet the rules", function(){
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    chai.assert.throws(() => Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 0, 0, "none"), ICCMeteorError);
+  });
+});
+
+describe("Starting an examined game", function(){
+  const self = TestHelpers.setupDescribe.call(this);
+  it("should fail if the user starting an examined game is not online", function(){
+    const p1 = TestHelpers.createUser({login: false});
+    self.loggedonuser = p1;
+    chai.assert.throws(() => Game.startLocalExaminedGame("mi1", "white", "black", 0), ICCMeteorError);
+  });
+
+  it("should save any other headers we pass in", function(){
+    const coolheaders = {
+      "Event": "event",
+      "Site": "site",
+      "Date": "2015-12-25",
+      "Round": "1",
+      "White": "coolguy jones",
+      "Black": "badguy bob",
+      "Result": "1-0",
+      "WhiteTitle": "Mister master",
+      "BlackTitle": "Miss mater",
+      "WhiteUSCF": "1234",
+      "WhiteElo": "5678",
+      "BlackUSCF": "2345",
+      "BlackElo": "6789",
+      "WhiteNA": "what?",
+      "BlackNA": "no idea",
+      "WhiteType": "still no",
+      "BlackType": "nope",
+      "EventDate": "2010-01-25",
+      "EventSponsor": "icc or course",
+      "Section": "open",
+      "Stage": "left",
+      "Board": "10",
+      "Opening": "Sicilian",
+      "Variation": "dunno",
+      "SubVariation": "maybe",
+      "ECO": "B00",
+      "NIC": "123",
+      "Time": "23:56",
+      "UTCTime": "12:14",
+      "UTCDate": "1998-12-24",
+      "TimeControl": "45/45 G30",
+      "SetUp": "?",
+      "FEN": "4K3/k3p1P1/2P1p3/1Bpq2Bn/8/5pP1/1b1N4/2Q5 w - - 0 1",
+      "Termination": "robocop",
+      "Annotator": "David Logan",
+      "Mode": "dialog",
+      "PlyCount": "500"
+    };
+    const p1 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    Game.startLocalExaminedGame("mi1", "white", "black", 0, coolheaders);
+    const game = Game.collection.findOne({});
+    chai.assert.deepEqual(game.tags, coolheaders);
   });
 });

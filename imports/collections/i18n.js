@@ -5,9 +5,9 @@ import simpleSchema from "simpl-schema";
 export const i18n = {};
 export const i18nCollection = new Mongo.Collection("i18n");
 const i18nSchema = new simpleSchema({
-  messageid: {type: String},
-  locale: {type: String},
-  text: {type: String},
+  messageid: String,
+  locale: String,
+  text: String
 });
 i18nCollection.attachSchema(i18nSchema);
 
@@ -62,8 +62,7 @@ i18n.localizeMessage = function(locale, i18nvalue, parameters) {
 
   if (!i8nrecord) {
     throw new Meteor.Error(
-      "Unable to find an internationalization record of type server with identifier " +
-        i18nvalue
+      "Unable to find an internationalization record of type server with identifier " + i18nvalue
     );
   }
   const locale_array = i18n.standardizeLocale(locale);

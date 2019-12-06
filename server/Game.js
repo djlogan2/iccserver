@@ -89,7 +89,7 @@ Game.startLocalGame = function(
 
   check(white_increment_or_delay, Number);
   check(black_increment_or_delay, Number);
-  check(black_increment_or_delay_type, String);
+  check(white_increment_or_delay_type, String);
   check(black_increment_or_delay_type, String);
 
   if (!self.status.online) {
@@ -544,12 +544,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
       setobject.result = "1/2-1/2";
-    } else if (active_games[game_id].in_stalemate()) {
-      setobject.result = "1/2-1/2";
+      // } else if (active_games[game_id].in_stalemate()) {
+      //   setobject.result = "1/2-1/2";
     } else if (active_games[game_id].in_checkmate()) {
       setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
-    } else if (active_games[game_id].insufficient_material()) {
-      setobject.result = "1/2-1/2";
+      // } else if (active_games[game_id].insufficient_material()) {
+      //   setobject.result = "1/2-1/2";
     }
 
     if (!!setobject.result) {
@@ -580,7 +580,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       let used = timenow - game.clocks[bw].starttime + gamelag;
       let addback = 0;
 
-      if(game.clocks[bw].delaytype !== "none") {
+      if (game.clocks[bw].delaytype !== "none") {
         if (game.clocks[bw].delaytype === "inc") {
           addback = game.clocks[bw].inc_or_delay * 1000;
         } else if (game.clocks[bw].inc_or_delay * 1000 >= used) {
@@ -593,8 +593,8 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       //
       // Add the expected lag to the oppnents clock for the receiving of this move
       //
-      let opponentlag = calculateGameLag(game.lag[otherbw]) || 0;
-      if (!opponentlag) opponentlag = Timestamp.averageLag(game[otherbw].id);
+      let opponentlag = calculateGameLag(game.lag[otherbw]) | 0;
+      if (!opponentlag) opponentlag = Timestamp.averageLag(game[otherbw].id) | 0;
       if (!opponentlag) opponentlag = 0;
 
       log.debug("used=" + used + ", addback=" + addback);
@@ -982,16 +982,13 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
       );
 
     variation.cmi = variation.movelist[variation.cmi].prev;
-    variation.movelist = variation.movelist.splice(0, variation.movelist.length - 1); //TODO :This remove move list so display takeback in front side
-    delete variation.movelist[variation.cmi].variations;
   }
 
   const setobject = {
     fen: active_games[game_id].fen(),
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
-    "variations.cmi": variation.cmi,
-    "variations.movelist": variation.movelist
+    "variations.cmi": variation.cmi
   };
 
   GameCollection.update(
@@ -1030,22 +1027,14 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
   }
 
   const setobject = {};
-  setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: "0" };
+  setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: null };
 
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
       $push: {
         actions: { type: "takeback_declined", issuer: self._id }
-      }
-    }
-  );
-  //TODO: i know this is not good thing but i have many tries to update record both action and player pending not work together so
-  // i have write this code later i will remove it
-
-  GameCollection.update(
-    { _id: game_id, status: "playing" },
-    {
+      },
       $set: setobject
     }
   );

@@ -1586,7 +1586,6 @@ describe("game_requests collection", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("should have match records for which the user is the challenger deleted when a user logs off", function(done) {
-    this.timeout(500000);
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
@@ -1663,7 +1662,6 @@ describe("Local seeks", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("Should not add a duplicate seek. At least one of the seeking parameters needs to be different (i.e. 'autoaccept' isn't a seeking parameter)", function() {
-    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id_1 = GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
     const game_id_2 = GameRequests.addLocalGameSeek.apply(null, localSeekParameters());

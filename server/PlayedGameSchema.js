@@ -177,7 +177,11 @@ export const PlayedGameSchema = new SimpleSchema({
   "variations.movelist.$": Object,
   "variations.movelist.$.prev": { type: Number, required: false },
   "variations.movelist.$.move": { type: String, required: false },
+  "variations.movelist.$.lag": { type: Number, required: false },
+  "variations.movelist.$.ping": { type: Number, required: false },
   "variations.movelist.$.score": { type: Number, required: false },
+  "variations.movelist.$.gamelag": { type: Number, required: false },
+  "variations.movelist.$.gameping": { type: Number, required: false },
   "variations.movelist.$.variations": { type: Array, required: false },
   "variations.movelist.$.variations.$": Number
 });
