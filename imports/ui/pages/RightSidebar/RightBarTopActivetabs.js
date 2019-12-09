@@ -33,13 +33,12 @@ export default class RightBarTopActivetabs extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
-
     return (
       <Tabs cssmanager={this.props.cssmanager}>
         <div label={translator("game")} imgsrc="images/game-icon-gray.png">
           <GameHistory
             cssmanager={this.props.cssmanager}
-            MoveHistory={this.props.RightBarTopData.MoveList.GameMove}
+            MoveHistory={this.props.RightBarTopData.MoveList}
             flip={this.props.flip}
             performAction={this.props.performAction}
             actionData={this.props.actionData}

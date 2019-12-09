@@ -9,19 +9,23 @@ import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("client/RightSidebar");
 
 class RightSidebar extends Component {
-  /* componentWillReceiveProps(prevProps) {
-    if (prevProps.RightSidebarData.status !== this.props.RightSidebarData.status) {
-      
+  constructor(props) {
+    super(props);
+    this.state = {
+      status: props.gameStatus
+    };
+  }
+/*   componentWillReceiveProps(prevProps) {
+    if (prevProps.gameStatus !== this.props.gameStatus) {
+    //  alert(prevProps.gameStatus);
+      this.setState({ status: this.props.gameStatus });
     }
   } */
   render() {
-    let status = true;
-    let tabitem1 = null;
-    if (!!this.props.RightSidebarData.status && this.props.RightSidebarData.status === "playing")
-      status = false;
-    if (status) {
-      tabitem1 = (
-        <RightBarTabs
+    let tabitem = null;
+    if (this.props.gameStatus === "playing") {
+      tabitem = (
+        <RightBarActiveTabs
           RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
@@ -31,8 +35,8 @@ class RightSidebar extends Component {
         />
       );
     } else {
-      tabitem1 = (
-        <RightBarActiveTabs
+      tabitem = (
+        <RightBarTabs
           RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
@@ -44,7 +48,7 @@ class RightSidebar extends Component {
     }
     return (
       <div className="right-content-desktop">
-        <div style={this.props.cssmanager.rightTopContent()}>{tabitem1}</div>
+        <div style={this.props.cssmanager.rightTopContent()}>{tabitem}</div>
         <div style={this.props.cssmanager.rightBottomContent()}>
           <RightBarBottom
             cssmanager={this.props.cssmanager}

@@ -57,7 +57,7 @@ export default class MainPage extends Component {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove: {}
+        
         },
         status: "other",
         Action: {}
@@ -68,19 +68,17 @@ export default class MainPage extends Component {
   intializeBoard = () => {
     this.Main.MiddleSection.BlackPlayer.IsActive = false;
     this.Main.MiddleSection.WhitePlayer.IsActive = false;
-    /*
-  this.Main.MiddleSection.BlackPlayer.Rating="0000";
-  this.Main.MiddleSection.BlackPlayer.Name="Player-1";
-  this.Main.MiddleSection.BlackPlayer.Flag= "us";
-  this.Main.MiddleSection.BlackPlayer.Timer= 1000;
-  this.Main.MiddleSection.BlackPlayer.UserPicture="player-img-top.png";
-  this.Main.MiddleSection.BlackPlayer.IsActive= false;
-  this.Main.MiddleSection.WhitePlayer.Rating= "0000";
-  this.Main.MiddleSection.WhitePlayer.Name="Player-2";
-  this.Main.MiddleSection.WhitePlayer.Flag= "us";
-  this.Main.MiddleSection.WhitePlayer.Timer=1000;
-  this.Main.MiddleSection.WhitePlayer.UserPicture="player-img-bottom.png";
-  this.Main.MiddleSection.WhitePlayer.IsActive= false; */
+    this.Main.MiddleSection.BlackPlayer.Rating = "0000";
+    this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
+    this.Main.MiddleSection.BlackPlayer.Flag = "us";
+//this.Main.MiddleSection.BlackPlayer.Timer = 1000;
+    this.Main.MiddleSection.BlackPlayer.UserPicture = "player-img-top.png";
+    this.Main.MiddleSection.WhitePlayer.Rating = "0000";
+    this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
+    this.Main.MiddleSection.WhitePlayer.Flag = "us";
+    // this.Main.MiddleSection.WhitePlayer.Timer=1000;
+    this.Main.MiddleSection.WhitePlayer.UserPicture = "player-img-bottom.png";
+    // this.Main.MiddleSection.WhitePlayer.IsActive= false;
   };
   gameRequest = (title, param) => {
     return (
@@ -103,38 +101,41 @@ export default class MainPage extends Component {
       </div>
     );
   };
-//TODO we have remove later
+  //TODO we have remove later
   actionPopup = (title, action) => {
     return (
-      <div style={{position:"relative"}}>
-      <div
-        style={{
-          display: "flex",
-          marginTop: "0",
-          alignItems: "center",
-          padding: "0.25rem 0.75rem",
-          color: "rgb(108, 117, 125)",
-          border: "1px solid rgb(206, 204, 204)",
-          position: "absolute",
-          right: "8px",
-          background: "#efefef",
-          width: "190px",
-          top: "6px",
-          zIndex: "9"
-           
-        }}
-      >
-        <img src="images/info-icon.png" style={{ width: "15px", marginRight: "10px",
-      
-      }} />
-        <strong style={{width:"100px",marginRight:"15px"}}>{title}</strong>
-        <button onClick={this._performAction.bind(this, "accepted", action)} style={{backgroundColor:"transparent",border:"0px"}}>
-          <img src="images/checked.png" style={{ width: "15px" }} />
-        </button>
-        <button onClick={this._performAction.bind(this, "rejected", action)}  style={{backgroundColor:"transparent",border:"0px"}}>
-          <img src="images/close.png" style={{ width: "13px" }} />
-        </button>
-      </div>
+      <div style={{ position: "relative" }}>
+        <div
+          style={{
+            display: "flex",
+            marginTop: "0",
+            alignItems: "center",
+            padding: "0.25rem 0.75rem",
+            color: "rgb(108, 117, 125)",
+            border: "1px solid rgb(206, 204, 204)",
+            position: "absolute",
+            right: "8px",
+            background: "#efefef",
+            width: "190px",
+            top: "6px",
+            zIndex: "9"
+          }}
+        >
+          <img src="images/info-icon.png" style={{ width: "15px", marginRight: "10px" }} />
+          <strong style={{ width: "100px", marginRight: "15px" }}>{title}</strong>
+          <button
+            onClick={this._performAction.bind(this, "accepted", action)}
+            style={{ backgroundColor: "transparent", border: "0px" }}
+          >
+            <img src="images/checked.png" style={{ width: "15px" }} />
+          </button>
+          <button
+            onClick={this._performAction.bind(this, "rejected", action)}
+            style={{ backgroundColor: "transparent", border: "0px" }}
+          >
+            <img src="images/close.png" style={{ width: "13px" }} />
+          </button>
+        </div>
       </div>
     );
   };
@@ -155,10 +156,10 @@ export default class MainPage extends Component {
       default:
     }
   }
-  _performAction = (actionType, action) => {
+  _performAction = (actionType, action, param = "none") => {
     switch (action) {
       case "takeBackRequest":
-        this.takeBackRequest();
+        this.takeBackRequest(param);
         break;
       case "takeBack":
         this.takeBack(actionType);
@@ -190,8 +191,8 @@ export default class MainPage extends Component {
       default:
     }
   };
-  takeBackRequest = () => {
-    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, 1);
+  takeBackRequest = num => {
+    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, num);
   };
   takeBack = isAccept => {
     if (isAccept === "accepted") Meteor.call("acceptTakeBack", "takeBackAccept", this.gameId);
@@ -299,7 +300,7 @@ export default class MainPage extends Component {
     const gameRequest = this.props.gameRequest;
     let informativePopup = null;
     let actionPopup = null;
-    
+    let status = "others";
     let position = {};
     if (gameRequest !== undefined) {
       if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
@@ -314,6 +315,7 @@ export default class MainPage extends Component {
         Object.assign(position, { top: "b" });
       }
       if (game.status === "playing") {
+        status = "playing";
         this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
         this.Main.MiddleSection.BlackPlayer.Rating = game.black.rating;
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
@@ -329,9 +331,7 @@ export default class MainPage extends Component {
         }
         this.userId = Meteor.userId();
         this.gameId = game._id;
-        this.Main.RightSection.MoveList.GameMove = game;
-        Object.assign(this.Main.RightSection, { status: game.status });
-        //this.Main.RightSection.status = game.status;
+        this.Main.RightSection.MoveList = game.variations.movelist;
         this.Main.RightSection.Action.userId = this.userId;
         this.Main.RightSection.Action.user = Meteor.user().username;
         this.Main.RightSection.Action.gameTurn = gameTurn;
@@ -368,6 +368,8 @@ export default class MainPage extends Component {
           }
         }
       }
+    } else {
+      this.intializeBoard();
     }
 
     let buttonStyle;
@@ -431,6 +433,7 @@ export default class MainPage extends Component {
             <RightSidebar
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
+              gameStatus={status}
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}

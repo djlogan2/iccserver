@@ -22,6 +22,9 @@ class GameForm extends Component {
   handleChangeColor = event => {
     this.props.handleChangeColor(event.target.value);
   };
+  handleIncOrDelayTypeChange = event => {
+    this.props.handleIncOrDelayTypeChange(event.target.value);
+  };
   handleRatedChange = event => {
     this.props.handleRatedChange(event.target.checked);
   };
@@ -75,6 +78,36 @@ class GameForm extends Component {
           </div>
         </div>
         <div style={this.props.cssmanager.formMain()}>
+          <div style={{ width: "100%", float: "left" }}>
+            <label style={this.props.cssmanager.formLabelStyle("radio")}>
+              {translator("incementOrDelayType")}
+            </label>
+            <input
+              type="radio"
+              value="us"
+              checked={this.props.incOrdelayType === "us"}
+              onChange={this.handleIncOrDelayTypeChange}
+            />
+            <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("us")}</label>
+            <input
+              type="radio"
+              value="inc"
+              checked={this.props.incOrdelayType === "inc"}
+              onChange={this.handleIncOrDelayTypeChange}
+            />
+            <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("inc")}</label>
+            <input
+              type="radio"
+              value="bronstein"
+              checked={this.props.incOrdelayType === "bronstein"}
+              onChange={this.handleIncOrDelayTypeChange}
+            />
+            <label style={this.props.cssmanager.formLabelStyle("radio")}>
+              {translator("bronstein")}
+            </label>
+          </div>
+        </div>
+        <div style={this.props.cssmanager.formMain()}>
           <div style={this.props.cssmanager.formMainHalf()}>
             <label style={this.props.cssmanager.formLabelStyle()}>{translator("typeOfGame")}</label>
             <span style={this.props.cssmanager.spanStyle("form")}>
@@ -91,39 +124,33 @@ class GameForm extends Component {
             </span>
           </div>
         </div>
-        <div style={this.props.cssmanager.formMain()}>
-          <div style={{ width: "100%", float: "left" }}>
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>
-              {translator("pickAcolor")}
-            </label>
-            <input
-              type="radio"
-              value="white"
-              checked={this.props.color === "white"}
-              onChange={this.handleChangeColor}
-            />
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>
-              {translator("white")}
-            </label>
-            <input
-              type="radio"
-              value="black"
-              checked={this.props.color === "black"}
-              onChange={this.handleChangeColor}
-            />
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>
-              {translator("black")}
-            </label>
-            <input
-              type="radio"
-              value="random"
-              checked={this.props.color === "random"}
-              onChange={this.handleChangeColor}
-            />
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>
-              {translator("random")}
-            </label>
-          </div>
+        <div style={{ width: "100%", float: "left" }}>
+          <label style={this.props.cssmanager.formLabelStyle("radio")}>
+            {translator("pickAcolor")}
+          </label>
+          <input
+            type="radio"
+            value="white"
+            checked={this.props.color === "white"}
+            onChange={this.handleChangeColor}
+          />
+          <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("white")}</label>
+          <input
+            type="radio"
+            value="black"
+            checked={this.props.color === "black"}
+            onChange={this.handleChangeColor}
+          />
+          <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("black")}</label>
+          <input
+            type="radio"
+            value="random"
+            checked={this.props.color === "random"}
+            onChange={this.handleChangeColor}
+          />
+          <label style={this.props.cssmanager.formLabelStyle("radio")}>
+            {translator("random")}
+          </label>
         </div>
         <div style={this.props.cssmanager.formMain()}>
           <div style={{ textAlign: "center" }}>
