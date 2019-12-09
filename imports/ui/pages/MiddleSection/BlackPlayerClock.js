@@ -33,8 +33,7 @@ export default class BlackPlayerClock extends Component {
   render() {
     const { time } = this.state;
 
-    let minutes =
-      "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
+    let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);
 
     if (isNaN(minutes) || isNaN(seconds)) {

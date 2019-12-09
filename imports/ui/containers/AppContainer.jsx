@@ -1,7 +1,6 @@
 import React from "react";
 import MainPage from "./../pages/MainPage";
 import { Meteor } from "meteor/meteor";
-import { Mongo } from "meteor/mongo";
 import { Logger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
@@ -37,6 +36,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     super(props);
     this.gameId = null;
     this.userId = null;
+    // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this.player = {
       White: { name: "abc", rating: "123" },

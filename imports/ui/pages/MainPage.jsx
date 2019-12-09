@@ -3,7 +3,6 @@ import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
-import Chess from "chess.js";
 import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
@@ -103,38 +102,41 @@ export default class MainPage extends Component {
       </div>
     );
   };
-//TODO we have remove later
+  //TODO we have remove later
   actionPopup = (title, action) => {
     return (
-      <div style={{position:"relative"}}>
-      <div
-        style={{
-          display: "flex",
-          marginTop: "0",
-          alignItems: "center",
-          padding: "0.25rem 0.75rem",
-          color: "rgb(108, 117, 125)",
-          border: "1px solid rgb(206, 204, 204)",
-          position: "absolute",
-          right: "8px",
-          background: "#efefef",
-          width: "190px",
-          top: "6px",
-          zIndex: "9"
-           
-        }}
-      >
-        <img src="images/info-icon.png" style={{ width: "15px", marginRight: "10px",
-      
-      }} />
-        <strong style={{width:"100px",marginRight:"15px"}}>{title}</strong>
-        <button onClick={this._performAction.bind(this, "accepted", action)} style={{backgroundColor:"transparent",border:"0px"}}>
-          <img src="images/checked.png" style={{ width: "15px" }} />
-        </button>
-        <button onClick={this._performAction.bind(this, "rejected", action)}  style={{backgroundColor:"transparent",border:"0px"}}>
-          <img src="images/close.png" style={{ width: "13px" }} />
-        </button>
-      </div>
+      <div style={{ position: "relative" }}>
+        <div
+          style={{
+            display: "flex",
+            marginTop: "0",
+            alignItems: "center",
+            padding: "0.25rem 0.75rem",
+            color: "rgb(108, 117, 125)",
+            border: "1px solid rgb(206, 204, 204)",
+            position: "absolute",
+            right: "8px",
+            background: "#efefef",
+            width: "190px",
+            top: "6px",
+            zIndex: "9"
+          }}
+        >
+          <img src="images/info-icon.png" style={{ width: "15px", marginRight: "10px" }} />
+          <strong style={{ width: "100px", marginRight: "15px" }}>{title}</strong>
+          <button
+            onClick={this._performAction.bind(this, "accepted", action)}
+            style={{ backgroundColor: "transparent", border: "0px" }}
+          >
+            <img src="images/checked.png" style={{ width: "15px" }} />
+          </button>
+          <button
+            onClick={this._performAction.bind(this, "rejected", action)}
+            style={{ backgroundColor: "transparent", border: "0px" }}
+          >
+            <img src="images/close.png" style={{ width: "13px" }} />
+          </button>
+        </div>
       </div>
     );
   };
@@ -299,7 +301,7 @@ export default class MainPage extends Component {
     const gameRequest = this.props.gameRequest;
     let informativePopup = null;
     let actionPopup = null;
-    
+
     let position = {};
     if (gameRequest !== undefined) {
       if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
@@ -345,6 +347,8 @@ export default class MainPage extends Component {
           for (const action of actions) {
             //  const action = actions[actions.length - 1];
             // TODO: Why are we scanning actions? Isn't just checking the game.pending values enough for display and decisions?
+            //       Besides, this won't work anyway. Once a user attempts to draw, abort, adjourn, etc. more than once,
+            //       this code is going to invalidly show the popps each render.
             const issuer = action["issuer"];
             switch (action["type"]) {
               case "takeback_requested":

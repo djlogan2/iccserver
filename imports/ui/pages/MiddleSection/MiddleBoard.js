@@ -63,18 +63,12 @@ export default class MiddleBoard extends Component {
 
   circleLineWidthChange = event => {
     this._circle.lineWidth = event.target.value;
-    this.refs.board.setCircleParameters(
-      this._circle.lineWidth,
-      this._circle.color
-    );
+    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
   circleColorChange = event => {
     this._circle.color = event.target.value;
-    this.refs.board.setCircleParameters(
-      this._circle.lineWidth,
-      this._circle.color
-    );
+    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
   nextRAF() {
@@ -120,10 +114,8 @@ export default class MiddleBoard extends Component {
 
     const raf = this.nextRAF()[1];
 
-    const topPlayer =
-      this.state.top === "w" ? this.state.whitePlayer : this.state.blackPlayer;
-    const bottomPlayer =
-      this.state.top === "b" ? this.state.whitePlayer : this.state.blackPlayer;
+    const topPlayer = this.state.top === "w" ? this.state.whitePlayer : this.state.blackPlayer;
+    const bottomPlayer = this.state.top === "b" ? this.state.whitePlayer : this.state.blackPlayer;
     const topPlayerFallenSoldier =
       this.state.top === "w" ? this.props.capture.b : this.props.capture.w;
     const bottomPlayerFallenSoldier =
@@ -138,10 +130,7 @@ export default class MiddleBoard extends Component {
           onClick={this.switchSides.bind(this)}
           style={this.props.cssmanager.buttonStyle("middleBoard")}
         >
-          <img
-            src={this.props.cssmanager.buttonBackgroundImage("fullScreen")}
-            alt="full-screen"
-          />
+          <img src={this.props.cssmanager.buttonBackgroundImage("fullScreen")} alt="full-screen" />
         </button>
 
         <div style={{ width: size }}>
@@ -153,11 +142,7 @@ export default class MiddleBoard extends Component {
             FallenSoldiers={topPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
           />
-          <BlackPlayerClock
-            cssmanager={this.props.cssmanager}
-            ClockData1={topPlayer}
-            side={size}
-          />
+          <BlackPlayerClock cssmanager={this.props.cssmanager} ClockData1={topPlayer} side={size} />
         </div>
         <div style={this.props.cssmanager.fullWidth()}>
           <div

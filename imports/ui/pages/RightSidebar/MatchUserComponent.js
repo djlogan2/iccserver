@@ -79,8 +79,10 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       this.state.is_adjourned,
       this.state.minute,
       this.state.inc,
+      this.state.inc ? "inc" : "none",
       this.state.minute,
       this.state.inc,
+        this.state.inc ? "inc" : "none",
       color
     );
     this.setState({
