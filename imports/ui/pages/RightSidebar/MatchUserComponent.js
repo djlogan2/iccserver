@@ -25,6 +25,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       is_adjourned: false,
       minute: 10,
       inc: 1,
+      incOrdelayType: "inc",
       color: "random"
     };
   }
@@ -43,6 +44,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       is_adjourned: false,
       minute: 10,
       inc: 1,
+      incOrdelayType: "inc",
       color: "random"
     });
   }
@@ -50,7 +52,6 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     this.setState({ user: user });
   };
   handleChangeMinute = minute => {
-    alert(minute);
     this.setState({ minute: minute });
   };
   handleChangeSecond = inc => {
@@ -58,6 +59,9 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   };
   handleChangeGameType = type => {
     this.setState({ type: type });
+  };
+  handleIncOrDelayTypeChange = incOrDelay => {
+    this.setState({ incOrdelayType: incOrDelay });
   };
   handleChangeColor = color => {
     this.setState({ color: color });
@@ -79,10 +83,10 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       this.state.is_adjourned,
       this.state.minute,
       this.state.inc,
-      this.state.inc ? "inc" : "none",
+      this.state.incOrdelayType,
       this.state.minute,
       this.state.inc,
-        this.state.inc ? "inc" : "none",
+      this.state.incOrdelayType,
       color
     );
     this.setState({
@@ -93,6 +97,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       is_adjourned: false,
       minute: 10,
       inc: 1,
+      incOrdelayType: "inc",
       color: "random"
     });
   }
@@ -157,11 +162,13 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
             handleChangeGameType={this.handleChangeGameType}
             handleChangeColor={this.handleChangeColor}
             handleRatedChange={this.handleRatedChange}
+            handleIncOrDelayTypeChange={this.handleIncOrDelayTypeChange}
             handleSubmit={this.handleMatchSubmit.bind(this)}
             type={this.state.type}
             rated={this.state.rated}
             minute={this.state.minute}
             inc={this.state.inc}
+            incOrdelayType={this.state.incOrdelayType}
             color={this.state.color}
           />
         </div>
@@ -172,7 +179,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       <div>
         <div style={this.props.cssmanager.tabSeparator()} />
         <div style={this.props.cssmanager.matchUserScroll()}>
-          <div style={{ fontSize: "16px", padding: "15px 0px" }}>option 1 - Choose a Member</div>
+          <div style={{ fontSize: "16px", padding: "15px 0px" }}>Option 1 - Choose a Member</div>
           {/*   <div style={{ marginBottom: "20px" }}>
             <input
               style={{
@@ -210,7 +217,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
             }}
           /> */}
           <div style={{ fontSize: "16px", padding: "15px 0px" }}>
-            option 2 - Send a link for anyone to play
+            Option 2 - Send a link for anyone to play
           </div>
           <div>
             <div style={{ display: "inline-block" }}>

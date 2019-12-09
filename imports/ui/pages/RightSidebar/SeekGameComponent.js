@@ -16,6 +16,7 @@ export default class SeekGameComponent extends React.Component {
       is_adjourned: false,
       minute: 15,
       inc: 1,
+      incOrdelayType: "inc",
       color: "random"
     };
   }
@@ -28,6 +29,7 @@ export default class SeekGameComponent extends React.Component {
       is_adjourned: false,
       minute: 10,
       inc: 1,
+      incOrdelayType: "inc",
       color: "random"
     });
   }
@@ -40,6 +42,9 @@ export default class SeekGameComponent extends React.Component {
   };
   handleChangeGameType = type => {
     this.setState({ type: type });
+  };
+  handleIncOrDelayTypeChange = incOrDelay => {
+    this.setState({ incOrdelayType: incOrDelay });
   };
   handleChangeColor = color => {
     this.setState({ color: color });
@@ -59,6 +64,7 @@ export default class SeekGameComponent extends React.Component {
       this.state.type,
       this.state.minute,
       this.state.inc,
+      this.state.incOrdelayType,
       this.state.rated,
       color,
       null,
@@ -89,11 +95,13 @@ export default class SeekGameComponent extends React.Component {
             handleChangeGameType={this.handleChangeGameType}
             handleChangeColor={this.handleChangeColor}
             handleRatedChange={this.handleRatedChange}
+            handleIncOrDelayTypeChange={this.handleIncOrDelayTypeChange}
             handleSubmit={this.handleMatchSubmit.bind(this)}
             type={this.state.type}
             rated={this.state.rated}
             minute={this.state.minute}
             inc={this.state.inc}
+            incOrdelayType={this.state.incOrdelayType}
             color={this.state.color}
           />
         </div>

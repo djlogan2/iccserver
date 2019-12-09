@@ -444,7 +444,6 @@ const systemcss = {
       paddingRight: "9px"
     },
     radio: {
-      paddingLeft: "5px",
       verticalAlign: "top"
     }
   }

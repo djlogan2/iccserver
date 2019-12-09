@@ -5,6 +5,9 @@ import i18n from "meteor/universe:i18n";
 class ActionComponent extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      action: "action"
+    };
     this.username = "";
     this.gameId = "";
     this.userId = "";
@@ -21,8 +24,25 @@ class ActionComponent extends Component {
       "en-US"
     );
   }
-  _takeBackAction = () => {
-    this.props.performAction("request", "takeBackRequest");
+  handleChangeSecond = event => {
+    let action = event.target.value;
+    this.setState({ action: "action" });
+    switch (action) {
+      case "halfMove":
+        this._takeBackAction(1);
+        break;
+      case "fullMove":
+        this._takeBackAction(2);
+        break;
+      case "abort":
+        this._abortAction();
+        break;
+      default:
+    }
+    //this.props.handleChangeSecond(parseInt(event.target.value));
+  };
+  _takeBackAction = number => {
+    this.props.performAction("request", "takeBackRequest", number);
   };
 
   _drawAction = () => {
@@ -41,18 +61,13 @@ class ActionComponent extends Component {
     this.gameTurn = this.props.actionData.gameTurn;
     this.whitePlayer = this.props.actionData.whitePlayer;
     this.blackPlayer = this.props.actionData.blackPlayer;
-    let translator = i18n.createTranslator(
-      "Common.actionButtonLabel",
-      ActionComponent.getLang()
-    );
+    let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
 
     return (
       <div className="draw-section">
-        <div style={this.props.cssmanager.drawActionSection()}>
-          Current User : {this.username}
-        </div>
+        <div style={this.props.cssmanager.drawActionSection()}>Current User : {this.username}</div>
         <ul>
-          <li style={this.props.cssmanager.drawSectionList()}>
+          {/*     <li style={this.props.cssmanager.drawSectionList()}>
             <button
               style={this.props.cssmanager.buttonStyle()}
               onClick={this._takeBackAction.bind(this)}
@@ -65,7 +80,7 @@ class ActionComponent extends Component {
               {translator("takeBack")}
             </button>
           </li>
-
+ */}
           <li style={this.props.cssmanager.drawSectionList()}>
             <button
               style={this.props.cssmanager.buttonStyle()}
@@ -93,7 +108,25 @@ class ActionComponent extends Component {
               {translator("resign")}
             </button>
           </li>
+          <li style={this.props.cssmanager.drawSectionList()}>
+            <span style={this.props.cssmanager.spanStyle("form")}>
+              <select
+                onChange={this.handleChangeSecond}
+                style={{ border: "none", outline: "none", padding: "9px 0px" }}
+                value={this.state.action}
+              >
+                <option value="action">Action</option>
+                <option value="abort">Abort</option>
+                <option value="halfMove">TakeBack 1 Move</option>
+                <option value="fullMove">TakeBack 2 Moves</option>
+                <option value="flag">Flag</option>
+                <option value="moretime">Moretime</option>
+                <option value="adjourn">Adjourn</option>
+              </select>
+            </span>
+          </li>
 
+          {/* 
           <li style={this.props.cssmanager.drawSectionList()}>
             <button
               style={this.props.cssmanager.buttonStyle()}
@@ -108,6 +141,7 @@ class ActionComponent extends Component {
               {translator("abort")}
             </button>
           </li>
+ */}
         </ul>
       </div>
     );

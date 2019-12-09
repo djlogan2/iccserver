@@ -3,6 +3,7 @@ import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
+import Chess from "chess.js";
 import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
@@ -56,7 +57,7 @@ export default class MainPage extends Component {
           Tournaments: Tournament
         },
         MoveList: {
-          GameMove: {}
+        
         },
         status: "other",
         Action: {}
@@ -67,19 +68,17 @@ export default class MainPage extends Component {
   intializeBoard = () => {
     this.Main.MiddleSection.BlackPlayer.IsActive = false;
     this.Main.MiddleSection.WhitePlayer.IsActive = false;
-    /*
-  this.Main.MiddleSection.BlackPlayer.Rating="0000";
-  this.Main.MiddleSection.BlackPlayer.Name="Player-1";
-  this.Main.MiddleSection.BlackPlayer.Flag= "us";
-  this.Main.MiddleSection.BlackPlayer.Timer= 1000;
-  this.Main.MiddleSection.BlackPlayer.UserPicture="player-img-top.png";
-  this.Main.MiddleSection.BlackPlayer.IsActive= false;
-  this.Main.MiddleSection.WhitePlayer.Rating= "0000";
-  this.Main.MiddleSection.WhitePlayer.Name="Player-2";
-  this.Main.MiddleSection.WhitePlayer.Flag= "us";
-  this.Main.MiddleSection.WhitePlayer.Timer=1000;
-  this.Main.MiddleSection.WhitePlayer.UserPicture="player-img-bottom.png";
-  this.Main.MiddleSection.WhitePlayer.IsActive= false; */
+    this.Main.MiddleSection.BlackPlayer.Rating = "0000";
+    this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
+    this.Main.MiddleSection.BlackPlayer.Flag = "us";
+//this.Main.MiddleSection.BlackPlayer.Timer = 1000;
+    this.Main.MiddleSection.BlackPlayer.UserPicture = "player-img-top.png";
+    this.Main.MiddleSection.WhitePlayer.Rating = "0000";
+    this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
+    this.Main.MiddleSection.WhitePlayer.Flag = "us";
+    // this.Main.MiddleSection.WhitePlayer.Timer=1000;
+    this.Main.MiddleSection.WhitePlayer.UserPicture = "player-img-bottom.png";
+    // this.Main.MiddleSection.WhitePlayer.IsActive= false;
   };
   gameRequest = (title, param) => {
     return (
@@ -157,10 +156,10 @@ export default class MainPage extends Component {
       default:
     }
   }
-  _performAction = (actionType, action) => {
+  _performAction = (actionType, action, param = "none") => {
     switch (action) {
       case "takeBackRequest":
-        this.takeBackRequest();
+        this.takeBackRequest(param);
         break;
       case "takeBack":
         this.takeBack(actionType);
@@ -192,8 +191,8 @@ export default class MainPage extends Component {
       default:
     }
   };
-  takeBackRequest = () => {
-    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, 1);
+  takeBackRequest = num => {
+    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, num);
   };
   takeBack = isAccept => {
     if (isAccept === "accepted") Meteor.call("acceptTakeBack", "takeBackAccept", this.gameId);
@@ -301,7 +300,7 @@ export default class MainPage extends Component {
     const gameRequest = this.props.gameRequest;
     let informativePopup = null;
     let actionPopup = null;
-
+    let status = "others";
     let position = {};
     if (gameRequest !== undefined) {
       if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
@@ -316,6 +315,7 @@ export default class MainPage extends Component {
         Object.assign(position, { top: "b" });
       }
       if (game.status === "playing") {
+        status = "playing";
         this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
         this.Main.MiddleSection.BlackPlayer.Rating = game.black.rating;
         this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
@@ -331,9 +331,7 @@ export default class MainPage extends Component {
         }
         this.userId = Meteor.userId();
         this.gameId = game._id;
-        this.Main.RightSection.MoveList.GameMove = game;
-        Object.assign(this.Main.RightSection, { status: game.status });
-        //this.Main.RightSection.status = game.status;
+        this.Main.RightSection.MoveList = game.variations.movelist;
         this.Main.RightSection.Action.userId = this.userId;
         this.Main.RightSection.Action.user = Meteor.user().username;
         this.Main.RightSection.Action.gameTurn = gameTurn;
@@ -347,8 +345,6 @@ export default class MainPage extends Component {
           for (const action of actions) {
             //  const action = actions[actions.length - 1];
             // TODO: Why are we scanning actions? Isn't just checking the game.pending values enough for display and decisions?
-            //       Besides, this won't work anyway. Once a user attempts to draw, abort, adjourn, etc. more than once,
-            //       this code is going to invalidly show the popps each render.
             const issuer = action["issuer"];
             switch (action["type"]) {
               case "takeback_requested":
@@ -372,6 +368,8 @@ export default class MainPage extends Component {
           }
         }
       }
+    } else {
+      this.intializeBoard();
     }
 
     let buttonStyle;
@@ -435,6 +433,7 @@ export default class MainPage extends Component {
             <RightSidebar
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
+              gameStatus={status}
               flip={this._flipboard}
               performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
