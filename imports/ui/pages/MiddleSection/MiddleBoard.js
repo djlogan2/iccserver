@@ -10,17 +10,18 @@ import WhitePlayerClock from "./WhitePlayerClock";
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
-
     this._circle = { lineWidth: 2, color: "red" };
 
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       draw_rank_and_file: "bl",
       top: props.top,
-      whitePlayer: props.MiddleBoardData.WhitePlayer,
-      blackPlayer: props.MiddleBoardData.BlackPlayer,
+      white: props.MiddleBoardData.white,
+      black: props.MiddleBoardData.black,
       height: 500,
-      width: 1000
+      width: 1000,
+      isactive: true,
+      current: 600000
     };
   }
   _flipboard() {
@@ -36,17 +37,17 @@ export default class MiddleBoard extends Component {
   /**
    * Add event listener
    */
-  componentDidMount() {
+    componentDidMount() {
     this.updateDimensions();
     window.addEventListener("resize", this.updateDimensions.bind(this));
   }
-
+ 
   /**
    * Remove event listener
    */
-  componentWillUnmount() {
+   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
-  }
+  } 
   componentDidUpdate(prevProps) {
     if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
@@ -63,18 +64,12 @@ export default class MiddleBoard extends Component {
 
   circleLineWidthChange = event => {
     this._circle.lineWidth = event.target.value;
-    this.refs.board.setCircleParameters(
-      this._circle.lineWidth,
-      this._circle.color
-    );
+    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
   circleColorChange = event => {
     this._circle.color = event.target.value;
-    this.refs.board.setCircleParameters(
-      this._circle.lineWidth,
-      this._circle.color
-    );
+    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
   nextRAF() {
@@ -103,6 +98,15 @@ export default class MiddleBoard extends Component {
     });
     return isMove;
   };
+ /*  
+ TODO:now we have working on so comment belowe code.
+ componentDidMount() {
+    this.interval = setInterval(() => this.setState({ isactive: !this.state.isactive }), 10000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+   */
   render() {
     let w = this.state.width;
     let h = this.state.height;
@@ -121,9 +125,19 @@ export default class MiddleBoard extends Component {
     const raf = this.nextRAF()[1];
 
     const topPlayer =
-      this.state.top === "w" ? this.state.whitePlayer : this.state.blackPlayer;
+      this.state.top === "w" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
     const bottomPlayer =
-      this.state.top === "b" ? this.state.whitePlayer : this.state.blackPlayer;
+      this.state.top === "b" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
+
+    const topPlayerClock =
+      this.state.top === "w"
+        ? this.props.MiddleBoardData.clocks.white
+        : this.props.MiddleBoardData.clocks.black;
+    const bottomPlayerClock =
+      this.state.top === "b"
+        ? this.props.MiddleBoardData.clocks.white
+        : this.props.MiddleBoardData.clocks.black;
+
     const topPlayerFallenSoldier =
       this.state.top === "w" ? this.props.capture.b : this.props.capture.w;
     const bottomPlayerFallenSoldier =
@@ -132,16 +146,18 @@ export default class MiddleBoard extends Component {
     const bc = this.state.top === "b" ? "b" : "w";
     const board = this.props.board || new Chess.Chess();
 
+  /*   this.clockdata = {
+      current: this.state.current,
+      isactive: this.state.isactive
+    }; */
+   
     return (
       <div>
         <button
           onClick={this.switchSides.bind(this)}
           style={this.props.cssmanager.buttonStyle("middleBoard")}
         >
-          <img
-            src={this.props.cssmanager.buttonBackgroundImage("fullScreen")}
-            alt="full-screen"
-          />
+          <img src={this.props.cssmanager.buttonBackgroundImage("fullScreen")} alt="full-screen" />
         </button>
 
         <div style={{ width: size }}>
@@ -155,7 +171,7 @@ export default class MiddleBoard extends Component {
           />
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
-            ClockData1={topPlayer}
+            ClockData={topPlayerClock}
             side={size}
           />
         </div>
@@ -189,7 +205,7 @@ export default class MiddleBoard extends Component {
           />
           <WhitePlayerClock
             cssmanager={this.props.cssmanager}
-            ClockData2={bottomPlayer}
+            ClockData={this.props.MiddleBoardData.clocks.white}
             side={size}
           />
         </div>

@@ -35,30 +35,30 @@ export default class MainPage extends Component {
         MenuLinks: links
       },
       MiddleSection: {
-        BlackPlayer: {
-          Rating: "0000",
-          Name: "Player-1",
-          Flag: "us",
-          Timer: 1000,
-          UserPicture: "player-img-top.png",
-          IsActive: false
+        white: {
+          name: "Player-1",
+          rating: 1600
         },
-        WhitePlayer: {
-          Rating: "0000",
-          Name: "Player-2",
-          Flag: "us",
-          Timer: 1000,
-          UserPicture: "player-img-bottom.png",
-          IsActive: false
+        black: {
+          name: "Player-2",
+          rating: 1600
+        },
+        clocks: {
+          white: {
+            isactive: false,
+            current: 600000
+          },
+          black: {
+            isactive: true,
+            current: 600000
+          }
         }
       },
       RightSection: {
         TournamentList: {
           Tournaments: Tournament
         },
-        MoveList: {
-        
-        },
+        MoveList: {},
         status: "other",
         Action: {}
       }
@@ -66,19 +66,26 @@ export default class MainPage extends Component {
   }
 
   intializeBoard = () => {
-    this.Main.MiddleSection.BlackPlayer.IsActive = false;
-    this.Main.MiddleSection.WhitePlayer.IsActive = false;
-    this.Main.MiddleSection.BlackPlayer.Rating = "0000";
-    this.Main.MiddleSection.BlackPlayer.Name = "Player-1";
-    this.Main.MiddleSection.BlackPlayer.Flag = "us";
-//this.Main.MiddleSection.BlackPlayer.Timer = 1000;
-    this.Main.MiddleSection.BlackPlayer.UserPicture = "player-img-top.png";
-    this.Main.MiddleSection.WhitePlayer.Rating = "0000";
-    this.Main.MiddleSection.WhitePlayer.Name = "Player-2";
-    this.Main.MiddleSection.WhitePlayer.Flag = "us";
-    // this.Main.MiddleSection.WhitePlayer.Timer=1000;
-    this.Main.MiddleSection.WhitePlayer.UserPicture = "player-img-bottom.png";
-    // this.Main.MiddleSection.WhitePlayer.IsActive= false;
+    Object.assign(this.Main.MiddleSection, {
+      white: {
+        name: "Player-1",
+        rating: 1600
+      },
+      black: {
+        name: "Player-2",
+        rating: 1600
+      },
+      clocks: {
+        white: {
+          isactive: true,
+          current: 600000
+        },
+        black: {
+          isactive: false,
+          current: 600000
+        }
+      }
+    });
   };
   gameRequest = (title, param) => {
     return (
@@ -316,18 +323,17 @@ export default class MainPage extends Component {
       }
       if (game.status === "playing") {
         status = "playing";
-        this.Main.MiddleSection.BlackPlayer.Name = game.black.name;
-        this.Main.MiddleSection.BlackPlayer.Rating = game.black.rating;
-        this.Main.MiddleSection.WhitePlayer.Name = game.white.name;
-        this.Main.MiddleSection.WhitePlayer.Rating = game.white.rating;
-        this.Main.MiddleSection.BlackPlayer.Timer = game.clocks.black.current;
-        this.Main.MiddleSection.WhitePlayer.Timer = game.clocks.white.current;
+        // this.Main.MiddleSection.black = game.black;
+        Object.assign(this.Main.MiddleSection, { black: game.black });
+        Object.assign(this.Main.MiddleSection, { white: game.white });
+        Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
+
         if (gameTurn === "w") {
-          this.Main.MiddleSection.BlackPlayer.IsActive = false;
-          this.Main.MiddleSection.WhitePlayer.IsActive = true;
+          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
+          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
         } else {
-          this.Main.MiddleSection.BlackPlayer.IsActive = true;
-          this.Main.MiddleSection.WhitePlayer.IsActive = false;
+          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
+          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
         }
         this.userId = Meteor.userId();
         this.gameId = game._id;

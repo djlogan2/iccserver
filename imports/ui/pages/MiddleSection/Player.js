@@ -1,15 +1,7 @@
 import React, { Component } from "react";
 import FallenSoldier from "./FallenSoldier";
 export default class Player extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      time: props.PlayerData.Timer,
-      isActive: props.PlayerData.IsActive
-    };
-  }
-
+ 
   render() {
     /* 
     const ph = this.props.side / 9;
@@ -20,10 +12,8 @@ export default class Player extends Component {
     if (this.props.rank_and_file.charAt(1) === "l") this._rankline = "l";
     else if (this.props.rank_and_file.charAt(1) === "r") this._rankline = "r";
 
-    this._rank_squares =
-      this._fileline === "t" || this._fileline === "b" ? 8.7 : 9;
-    this._file_squares =
-      this._rankline === "l" || this._rankline === "r" ? 8.7 : 9;
+    this._rank_squares = this._fileline === "t" || this._fileline === "b" ? 8.7 : 9;
+    this._file_squares = this._rankline === "l" || this._rankline === "r" ? 8.7 : 9;
 
     const ph = this.props.side / this._file_squares;
     const pw = this.props.side / this._rank_squares;
@@ -43,7 +33,8 @@ export default class Player extends Component {
         <div style={{ width: pw * 3.7, display: "inline-block" }}>
           <img
             style={this.props.cssmanager.userPicture(_user_side)}
-            src={`images/${this.props.PlayerData.UserPicture}`}
+            //src={`images/${this.props.PlayerData.UserPicture}`}
+            src="images/player-img-top.png"
             alt="user"
           />
           <div style={this.props.cssmanager.tagLine()}>
@@ -57,12 +48,12 @@ export default class Player extends Component {
                 marginRight: "15px"
               }}
             >
-              {this.props.PlayerData.Name}({this.props.PlayerData.Rating})
+              {this.props.PlayerData.name}({this.props.PlayerData.rating}) 
             </a>
             <img
               style={this.props.cssmanager.userFlag(_user_side)}
-              src={this.props.cssmanager.flags(this.props.PlayerData.Flag)}
-              alt={this.props.PlayerData.Flag}
+              src={this.props.cssmanager.flags("us")}
+              alt="us"
             />
           </div>
         </div>

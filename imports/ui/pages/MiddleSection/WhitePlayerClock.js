@@ -4,18 +4,18 @@ export default class WhitePlayerClock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: props.ClockData2.Timer,
-      isActive: props.ClockData2.IsActive
+      time: props.ClockData.current,
+      isActive: props.ClockData.isactive
     };
   }
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.ClockData2.IsActive === true) {
+    if (this.props.ClockData.isactive === true) {
       clearInterval(this.intervalId);
       this.intervalId = setInterval(() => {
         const { time } = this.state;
         if (time > 0) {
           this.setState({
-            time: time - 1
+            time: time - 1000
           });
         }
       }, 1000);
@@ -25,13 +25,12 @@ export default class WhitePlayerClock extends Component {
   }
   componentWillReceiveProps() {
     this.setState({
-      time: this.props.ClockData2.Timer
+      time: this.props.ClockData.current
     });
   }
   render() {
     const { time } = this.state;
-    let minutes =
-      "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
+    let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);
 
     if (isNaN(minutes) || isNaN(seconds)) {
