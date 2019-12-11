@@ -5,12 +5,13 @@ export default class BlackPlayerClock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: props.ClockData1.Timer,
-      isActive: props.ClockData1.IsActive
+      time: this.millisToSeconds(props.ClockData.current),
+      isactive: props.ClockData.isactive
     };
   }
+  /*
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.ClockData1.IsActive === true) {
+    if (this.props.ClockData.isactive === true) {
       clearInterval(this.intervalId);
       this.intervalId = setInterval(() => {
         const { time } = this.state;
@@ -23,15 +24,20 @@ export default class BlackPlayerClock extends Component {
     } else {
       clearInterval(this.intervalId);
     }
-  }
-  componentWillReceiveProps() {
-    this.setState({
-      time: this.props.ClockData1.Timer
-    });
-  }
+  } 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.ClockData.isactive !== this.props.ClockData.isactive) {
+      let seconds = this.millisToSeconds(this.props.ClockData.current);
 
+      console.log("Block Clock", seconds);
+    }
+  }
+  */
+  millisToSeconds(millis) {
+    return ((millis % 60000) / 1000).toFixed(0);
+  }
   render() {
-    const { time } = this.state;
+    const { time } = this.props.ClockData.current;
 
     let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);

@@ -1,39 +1,22 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 export default class MoveListComponent extends Component {
-  constructor(props) {
-    super(props);
-    //this.state.moves = props.Moves;
-
-    this.Moves = [];
-  }
   _pgnView = (actionType, action) => {
     this.props.performAction(action, actionType);
   };
   render() {
-    let gameId = this.props.Moves._id;
-    var moveslist = this.props.Moves;
-    let moves = [];
-    for (const variation of moveslist) {
-      if (variation.move !== undefined) {
-        moves.push(variation.move);
-      }
-    }
-
-    var movesString = [];
-    let count = 1;
+    let moves = this.props.Moves;
+    let movesString = [];
     if (moves != null || moves !== undefined) {
-      for (let i = 0; i < moves.length; ) {
+      for (let i = 1; i < moves.length; ) {
         if (i + 1 < moves.length) {
-          movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
+          movesString.push(" " + moves[i].move + " " + moves[i + 1].move + " ");
         } else {
-          movesString.push(" " + moves[i] + " ");
+          movesString.push(" " + moves[i].move + " ");
         }
-        count = count + 1;
         i = i + 2;
       }
     }
-
     return (
       <div>
         <div style={this.props.cssmanager.gameMoveList()}>
