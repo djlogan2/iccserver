@@ -1,6 +1,6 @@
 import chai from "chai";
 
-describe.skip("Game timestamp", function() {
+describe("Game timestamp", function() {
   it("should write a unique ping to active for white once a second", function() {
     chai.assert.fail("do me ");
   });

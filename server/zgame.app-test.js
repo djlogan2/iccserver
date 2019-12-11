@@ -1,6 +1,7 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
+import { Random } from "meteor/random";
 import { Match } from "meteor/check";
 import chai from "chai";
 import { standard_member_roles } from "../imports/server/userConstants";
@@ -1441,16 +1442,58 @@ function checkAdjourn(gameRecord, white, black) {
   chai.assert.equal(gameRecord.pending.black.adjourn, black === undefined ? "0" : black);
 }
 
-describe.skip("Takeback behavior", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
+describe("Takeback behavior", function() {
+  const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-  it.skip("restores both clocks to the same time as the move taken back to", function() {
+  it("restores both clocks to the same time as the move taken back to", function() {
     // So if say:
     // move 20, white clock: 25:00, black clock: 15:00,
     // at move 22, white clock: 5:00, black clock: 2:00,
     // if we takeback 2, then we are back at the position after move 19,
     //   with white clock at 25:00 and black clock at 15:00!
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    const current = [];
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+      const game = Game.collection.findOne();
+      current.push(game.clocks[game.tomove].current);
+      self.clock.tick((Random.fraction() * 60000) | 0); // Wait a 0-60s
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is whites move here.
+    checkTakeback(Game.collection.findOne());
+
+    self.clock.tick((Random.fraction() * 60000) | 0); // Wait a 0-60s
+    self.loggedonuser = p1;
+    Game.requestLocalTakeback("mi4", game_id, 4);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    checkTakeback(Game.collection.findOne(), 4, 0);
+
+    self.clock.tick((Random.fraction() * 60000) | 0); // Wait a 0-60s
+    self.loggedonuser = p2;
+    Game.acceptLocalTakeback("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    chai.assert.equal(game.clocks["white"].current, current[2]);
+    chai.assert.equal(game.clocks["black"].current, current[3]);
   });
 
   // giver_request  -> giver_request(same)        -> message, already pending
@@ -1499,7 +1542,13 @@ describe.skip("Takeback behavior", function() {
     chai.assert.equal(takeback.type, "takeback_requested");
     chai.assert.equal(takeback.parameter, 4);
     chai.assert.equal(lastmove.type, "move");
-    chai.assert.equal(lastmove.parameter, "c6");
+    chai.assert.deepEqual(lastmove.parameter, {
+      move: "c6",
+      ping: 456,
+      lag: 0,
+      gamelag: 0,
+      gameping: 0
+    });
   });
 
   //                -> giver_request(different)   -> message, already pending
@@ -1548,7 +1597,13 @@ describe.skip("Takeback behavior", function() {
     chai.assert.equal(takeback.type, "takeback_requested");
     chai.assert.equal(takeback.parameter, 4);
     chai.assert.equal(lastmove.type, "move");
-    chai.assert.equal(lastmove.parameter, "c6");
+    chai.assert.deepEqual(lastmove.parameter, {
+      move: "c6",
+      ping: 456,
+      lag: 0,
+      gamelag: 0,
+      gameping: 0
+    });
   });
   //                -> taker_request(same)        -> same as an accept
   it("will behave like a takeback accept when takeback receiver asks for takeback with the same ply count", function() {
@@ -1723,7 +1778,7 @@ describe.skip("Takeback behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][0], p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "TAKEBACK_DECLINED");
-    checkTakeback(Game.collection.findOne(), 4, 0);
+    checkTakeback(Game.collection.findOne());
   });
   //                -> giver_accept               -> message, not pending
   it("will send a client message to the asker if the asker tries to accept his own takeback request", function() {
@@ -1844,10 +1899,10 @@ describe("Game.requestLocalTakeback", function() {
     }); // It is whites move here.
     Game.requestLocalTakeback("mi2", game_id, 4);
     const game1 = Game.collection.findOne();
-    checkTakeback(game1, 4, 0);
+    checkTakeback(game1, 3, 0);
     Game.saveLocalMove("mi3", game_id, "b4");
     const game2 = Game.collection.findOne();
-    checkTakeback(game2, 5, 0);
+    checkTakeback(game2, 4, 0);
     checkLastAction(game2, 0, "move", us._id, {
       move: "b4",
       ping: 456,
@@ -1855,7 +1910,7 @@ describe("Game.requestLocalTakeback", function() {
       gamelag: 0,
       gameping: 0
     });
-    checkLastAction(game2, 1, "takeback_requested", us._id, 4);
+    checkLastAction(game2, 1, "takeback_requested", us._id, 3);
   });
 
   it("works on their opponents move", function() {
@@ -1923,6 +1978,135 @@ describe("Game.requestLocalTakeback", function() {
     chai.assert.throws(() => Game.requestLocalTakeback("mi2", game_id, -1), Match.Error);
     chai.assert.throws(() => Game.requestLocalTakeback("mi2", game_id, 0), Match.Error);
     chai.assert.throws(() => Game.requestLocalTakeback("mi2", game_id, "four"), Match.Error);
+  });
+
+  it("should make it accepters move if tomove requests takeback with an odd number", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    let other = them;
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is blacks move here.
+    self.loggedonuser = us;
+    Game.requestLocalTakeback("mi2", game_id, 5);
+    const game1 = Game.collection.findOne();
+    self.loggedonuser = them;
+    Game.acceptLocalTakeback("mi3", game_id);
+    chai.assert.equal(game1.tomove, "white");
+  });
+
+  it("should leave it requesters move if tomove requests takeback with an even number", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    let other = them;
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is blacks move here.
+    self.loggedonuser = us;
+    Game.requestLocalTakeback("mi2", game_id, 4);
+    const game1 = Game.collection.findOne();
+    chai.assert.equal(game1.tomove, "black");
+  });
+  it("should make it accepters move if tomove requests takeback with an odd number and requestor makes a move (it should also takeback + 1, taking back requesters move plus accepters move)", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    let other = them;
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is blacks move here.
+    self.loggedonuser = them;
+    Game.requestLocalTakeback("mi2", game_id, 5);
+    Game.saveLocalMove("mi3", game_id, "Bg7");
+    self.loggedonuser = us;
+    Game.acceptLocalTakeback("mi4", game_id);
+    const game1 = Game.collection.findOne();
+    chai.assert.equal(game1.fen, "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 2");
+  });
+
+  it("should revoke the takeback if requester requests an even takeback but then makes a move (i.e. if you are requesting taking back your own half move, you cannot make a move afterwards)", function() {
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    let other = them;
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+      Game.saveLocalMove("mi2", game_id, move);
+      const temp = self.loggedonuser;
+      self.loggedonuser = other;
+      other = temp;
+    }); // It is blacks move here.
+    self.loggedonuser = them;
+    Game.requestLocalTakeback("mi2", game_id, 4);
+    Game.saveLocalMove("mi3", game_id, "Bg7");
+    const game1 = Game.collection.findOne();
+    checkTakeback(game1);
   });
 });
 
@@ -2939,7 +3123,117 @@ describe("Game.moveBackward", function() {
   });
 });
 
-describe.skip("Game.buildMoveListFromActions", function() {
+describe("Takebacks", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+
+  it("Must always keep the entire variation tree in the record, forever", function() {
+    const player = {
+      white: TestHelpers.createUser(),
+      black: TestHelpers.createUser()
+    };
+
+    self.loggedonuser = player.white;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      player.black,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+
+    const actions = [
+      { type: "move", parameter: "e4" },
+      { type: "move", parameter: "e5" },
+      { type: "move", parameter: "Nf3" },
+      { type: "move", parameter: "Nc6" },
+      { type: "move", parameter: "Bc4" },
+      { type: "move", parameter: "Be7" },
+      { type: "move", parameter: "d4" },
+      { type: "move", parameter: "Nxd4" },
+      { type: "move", parameter: "c3" },
+      { type: "move", parameter: "d5" },
+      { type: "move", parameter: "exd5" },
+      { type: "move", parameter: "b5" },
+      { type: "move", parameter: "cxd4" },
+      { type: "move", parameter: "bxc4" },
+      { type: "takeback_requested", parameter: 8 },
+      { type: "takeback_accepted" },
+      { type: "move", parameter: "c3" },
+      { type: "move", parameter: "d6" },
+      { type: "move", parameter: "d4" },
+      { type: "move", parameter: "exd4" },
+      { type: "move", parameter: "cxd4" },
+      { type: "takeback_requested", parameter: 7 },
+      { type: "takeback_accepted" },
+      { type: "move", parameter: "Be2" },
+      { type: "move", parameter: "Be7" },
+      { type: "move", parameter: "O-O" },
+      { type: "move", parameter: "d5" },
+      { type: "takeback_requested", parameter: 2 },
+      { type: "takeback_accepted" },
+      { type: "move", parameter: "c3" },
+      { type: "move", parameter: "d6" },
+      { type: "move", parameter: "d4" },
+      { type: "takeback_requested", parameter: 2 },
+      { type: "takeback_accepted" },
+      { type: "move", parameter: "d5" },
+      { type: "move", parameter: "d4" },
+      { type: "takeback_requested", parameter: 7 },
+      { type: "takeback_accepted" },
+      { type: "move", parameter: "f4" },
+      { type: "move", parameter: "Nc6" },
+      { type: "move", parameter: "Nf3" },
+      { type: "takeback_requested", parameter: 3 },
+      { type: "takeback_accepted" },
+      { type: "move", parameter: "Nf3" },
+      { type: "move", parameter: "Nc6" },
+      { type: "move", parameter: "Bc4" },
+      { type: "move", parameter: "Be7" },
+      { type: "move", parameter: "c3" },
+      { type: "move", parameter: "d6" },
+      { type: "move", parameter: "d4" },
+      { type: "move", parameter: "exd4" },
+      { type: "move", parameter: "cxd4" }
+    ];
+
+    actions.forEach(action => {
+      const tomove = Game.collection.findOne({}).tomove;
+      switch (action.type) {
+        case "move":
+          self.loggedonuser = player[tomove];
+          Game.saveLocalMove(action.parameter, game_id, action.parameter);
+          break;
+        case "takeback_requested":
+          self.loggedonuser = player[tomove];
+          Game.requestLocalTakeback("requst takeback", game_id, action.parameter);
+          break;
+        case "takeback_accepted":
+          const tbcolor = tomove === "white" ? "black" : "white";
+          self.loggedonuser = player[tbcolor];
+          Game.acceptLocalTakeback("accept takeback", game_id);
+          break;
+        default:
+          chai.assert.fail("Unknown action: " + action);
+      }
+    });
+
+    const game = Game.collection.findOne({});
+
+    const pgn = Game.buildPgnFromMovelist(game.variations.movelist);
+    const expectedpgn =
+      "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
+    const actualpgn = pgn.replace(/\s/g, "");
+    chai.assert.equal(actualpgn, expectedpgn);
+  });
+});
+describe("Game.buildMoveListFromActions", function() {
   // eslint-disable-next-line no-undef
   before(function(done) {
     Meteor.startup(() => done());
@@ -3016,7 +3310,7 @@ describe.skip("Game.buildMoveListFromActions", function() {
 });
 
 describe("Game.buildMovelistFromPgn", function() {
-  it.skip("needs to be written", function() {
+  it("needs to be written", function() {
     const pgn =
       "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
     chai.assert.fail("do me");
@@ -3191,7 +3485,7 @@ describe("Game.moveForward", function() {
   });
 });
 
-describe.skip("When a user disconnects while playing a game", function() {
+describe("When a user disconnects while playing a game", function() {
   it("should adjourn the game and write an action", function() {});
   it("should write a connect and disconnect action to the adjourned game every time they connect and disconnect", function() {});
 });
@@ -3424,27 +3718,33 @@ describe("when playing a game", function() {
     client.pingArrived(game1.lag.white.active[0]);
   });
 
-  it("needs to calculate game lag correctly (by using the last two game pings)", function(){
+  it("needs to calculate game lag correctly (by using the last two game pings)", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     const game_id = Game.startLocalGame(
-        "mi1",
-        p2,
-        0,
-        "standard",
-        true,
-        15,
-        0,
-        "none",
-        15,
-        0,
-        "none",
-        "white"
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
     );
-    Game.collection.update({_id: game_id, status: "playing"},{
-      $set: {"lag.white.pings": [1,2,3,4,5,6,7,8,9,10], "lag.black.pings": [11,12,13,14,15,16,17,18,19,20]}
-    });
+    Game.collection.update(
+      { _id: game_id, status: "playing" },
+      {
+        $set: {
+          "lag.white.pings": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+          "lag.black.pings": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        }
+      }
+    );
     Game.saveLocalMove("mi2", game_id, "e4");
     self.loggedonuser = p2;
     Game.saveLocalMove("mi2", game_id, "e5");
@@ -4055,11 +4355,11 @@ describe("tomove in the game record", function() {
   });
 });
 
-describe("Starting a game", function(){
+describe("Starting a game", function() {
   const self = TestHelpers.setupDescribe.call(this);
-  it("should fail if the players opponent is not online with a client message", function(){
+  it("should fail if the players opponent is not online with a client message", function() {
     const p1 = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser({login: false});
+    const p2 = TestHelpers.createUser({ login: false });
     self.loggedonuser = p1;
     Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -4068,61 +4368,67 @@ describe("Starting a game", function(){
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
   });
 
-  it("should fail if blacks time/inc/delay fails to meet the rules", function(){
+  it("should fail if blacks time/inc/delay fails to meet the rules", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    chai.assert.throws(() => Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 0, 0, "none"), ICCMeteorError);
+    chai.assert.throws(
+      () => Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 0, 0, "none"),
+      ICCMeteorError
+    );
   });
 });
 
-describe("Starting an examined game", function(){
+describe("Starting an examined game", function() {
   const self = TestHelpers.setupDescribe.call(this);
-  it("should fail if the user starting an examined game is not online", function(){
-    const p1 = TestHelpers.createUser({login: false});
+  it("should fail if the user starting an examined game is not online", function() {
+    const p1 = TestHelpers.createUser({ login: false });
     self.loggedonuser = p1;
-    chai.assert.throws(() => Game.startLocalExaminedGame("mi1", "white", "black", 0), ICCMeteorError);
+    chai.assert.throws(
+      () => Game.startLocalExaminedGame("mi1", "white", "black", 0),
+      ICCMeteorError
+    );
   });
 
-  it("should save any other headers we pass in", function(){
+  it("should save any other headers we pass in", function() {
     const coolheaders = {
-      "Event": "event",
-      "Site": "site",
-      "Date": "2015-12-25",
-      "Round": "1",
-      "White": "coolguy jones",
-      "Black": "badguy bob",
-      "Result": "1-0",
-      "WhiteTitle": "Mister master",
-      "BlackTitle": "Miss mater",
-      "WhiteUSCF": "1234",
-      "WhiteElo": "5678",
-      "BlackUSCF": "2345",
-      "BlackElo": "6789",
-      "WhiteNA": "what?",
-      "BlackNA": "no idea",
-      "WhiteType": "still no",
-      "BlackType": "nope",
-      "EventDate": "2010-01-25",
-      "EventSponsor": "icc or course",
-      "Section": "open",
-      "Stage": "left",
-      "Board": "10",
-      "Opening": "Sicilian",
-      "Variation": "dunno",
-      "SubVariation": "maybe",
-      "ECO": "B00",
-      "NIC": "123",
-      "Time": "23:56",
-      "UTCTime": "12:14",
-      "UTCDate": "1998-12-24",
-      "TimeControl": "45/45 G30",
-      "SetUp": "?",
-      "FEN": "4K3/k3p1P1/2P1p3/1Bpq2Bn/8/5pP1/1b1N4/2Q5 w - - 0 1",
-      "Termination": "robocop",
-      "Annotator": "David Logan",
-      "Mode": "dialog",
-      "PlyCount": "500"
+      Event: "event",
+      Site: "site",
+      Date: "2015-12-25",
+      Round: "1",
+      White: "coolguy jones",
+      Black: "badguy bob",
+      Result: "1-0",
+      WhiteTitle: "Mister master",
+      BlackTitle: "Miss mater",
+      WhiteUSCF: "1234",
+      WhiteElo: "5678",
+      BlackUSCF: "2345",
+      BlackElo: "6789",
+      WhiteNA: "what?",
+      BlackNA: "no idea",
+      WhiteType: "still no",
+      BlackType: "nope",
+      EventDate: "2010-01-25",
+      EventSponsor: "icc or course",
+      Section: "open",
+      Stage: "left",
+      Board: "10",
+      Opening: "Sicilian",
+      Variation: "dunno",
+      SubVariation: "maybe",
+      ECO: "B00",
+      NIC: "123",
+      Time: "23:56",
+      UTCTime: "12:14",
+      UTCDate: "1998-12-24",
+      TimeControl: "45/45 G30",
+      SetUp: "?",
+      FEN: "4K3/k3p1P1/2P1p3/1Bpq2Bn/8/5pP1/1b1N4/2Q5 w - - 0 1",
+      Termination: "robocop",
+      Annotator: "David Logan",
+      Mode: "dialog",
+      PlyCount: "500"
     };
     const p1 = TestHelpers.createUser();
     self.loggedonuser = p1;
