@@ -1,35 +1,41 @@
 import React, { Component } from "react";
+import { Logger } from "../../../../lib/client/Logger";
 const TOTAL_MINUTES = 60;
+let log = new Logger("server/WhitePlayerClock_JS");
 export default class WhitePlayerClock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: props.ClockData.current,
+      time: Math.floor(props.ClockData.current / 1000),
       isActive: props.ClockData.isactive
     };
   }
   componentDidUpdate(prevProps, prevState) {
+    //log.debug("white", this.props.ClockData);
     if (this.props.ClockData.isactive === true) {
       clearInterval(this.intervalId);
       this.intervalId = setInterval(() => {
+        //log.debug("white inside setinterval: ", this.state.time);
         const { time } = this.state;
+        //  console.log("state current time for white: " + time);
         if (time > 0) {
           this.setState({
-            time: time - 1000
+            time: time - 1
           });
         }
       }, 1000);
     } else {
+      //    console.log("NOT ACTIVE WHITE");
       clearInterval(this.intervalId);
     }
   }
-  componentWillReceiveProps() {
-    this.setState({
-      time: this.props.ClockData.current
-    });
-  }
+  // componentWillReceiveProps() {
+  //   this.setState({
+  //     time: this.props.ClockData.current
+  //   });
+  // }
   render() {
-    const { time } = this.state;
+    const { time } = this.state.time;
     let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);
 

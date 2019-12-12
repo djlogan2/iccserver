@@ -1,43 +1,42 @@
 import React, { Component } from "react";
-
+import { Logger } from "../../../../lib/client/Logger";
 const TOTAL_MINUTES = 60;
+let log = new Logger("server/BlackPlayerClock_JS");
 export default class BlackPlayerClock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: this.millisToSeconds(props.ClockData.current),
-      isactive: props.ClockData.isactive
+      time: Math.floor(props.ClockData.current / 1000),
+      isActive: props.ClockData.isactive,
+      initial: 0
     };
   }
-  /*
-  componentDidUpdate(prevProps, prevState) {
-    if (this.props.ClockData.isactive === true) {
-      clearInterval(this.intervalId);
-      this.intervalId = setInterval(() => {
-        const { time } = this.state;
-        if (time > 0) {
-          this.setState({
-            time: time - 1
-          });
-        }
-      }, 1000);
-    } else {
-      clearInterval(this.intervalId);
-    }
-  } 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.ClockData.isactive !== this.props.ClockData.isactive) {
-      let seconds = this.millisToSeconds(this.props.ClockData.current);
 
-      console.log("Block Clock", seconds);
+  componentDidUpdate(prevProps, prevState) {
+    /*  log.debug("This props Black", this.props.ClockData);
+    log.debug("This prevProps Black", prevProps.ClockData);
+  */
+    if (prevState.isactive !== this.state.isactive) {
+      if (this.state.isactive) {
+        this.intervalId = setInterval(() => {
+          //log.debug("Black inside setinterval: ", this.state.time);
+          const { time } = this.state;
+          if (time > 0) {
+            this.setState({
+              time: time - 1
+            });
+          }
+        }, 1000);
+      } else clearInterval(this.intervalId);
     }
   }
-  */
-  millisToSeconds(millis) {
-    return ((millis % 60000) / 1000).toFixed(0);
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.ClockData.isactive !== prevState.isactive) {
+      return { isactive: nextProps.ClockData.isactive };
+    } else return null;
   }
   render() {
-    const { time } = this.props.ClockData.current;
+    const { time } = this.state;
 
     let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);

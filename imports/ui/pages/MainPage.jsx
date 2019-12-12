@@ -46,11 +46,11 @@ export default class MainPage extends Component {
         clocks: {
           white: {
             isactive: false,
-            current: 600000
+            current: 300000
           },
           black: {
-            isactive: true,
-            current: 600000
+            isactive: false,
+            current: 300000
           }
         }
       },
@@ -77,12 +77,12 @@ export default class MainPage extends Component {
       },
       clocks: {
         white: {
-          isactive: true,
-          current: 600000
+          isactive: false,
+          current: 480000
         },
         black: {
           isactive: false,
-          current: 600000
+          current: 480000
         }
       }
     });
@@ -308,7 +308,7 @@ export default class MainPage extends Component {
     let informativePopup = null;
     let actionPopup = null;
     let status = "others";
-    let position = {};
+    let position = { top: "w" };
     if (gameRequest !== undefined) {
       if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
         informativePopup = this.gameRequest("Opponent has requested for a game", gameRequest);
