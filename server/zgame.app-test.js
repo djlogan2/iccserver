@@ -1897,12 +1897,12 @@ describe("Game.requestLocalTakeback", function() {
       self.loggedonuser = other;
       other = temp;
     }); // It is whites move here.
-    Game.requestLocalTakeback("mi2", game_id, 4);
+    Game.requestLocalTakeback("mi2", game_id, 3);
     const game1 = Game.collection.findOne();
     checkTakeback(game1, 3, 0);
     Game.saveLocalMove("mi3", game_id, "b4");
     const game2 = Game.collection.findOne();
-    checkTakeback(game2, 4, 0);
+    checkTakeback(game2, 3, 0);
     checkLastAction(game2, 0, "move", us._id, {
       move: "b4",
       ping: 456,
@@ -2010,7 +2010,8 @@ describe("Game.requestLocalTakeback", function() {
     const game1 = Game.collection.findOne();
     self.loggedonuser = them;
     Game.acceptLocalTakeback("mi3", game_id);
-    chai.assert.equal(game1.tomove, "white");
+    const game2 = Game.collection.findOne();
+    chai.assert.equal(game2.tomove, "white");
   });
 
   it("should leave it requesters move if tomove requests takeback with an even number", function() {
@@ -3233,83 +3234,8 @@ describe("Takebacks", function() {
     chai.assert.equal(actualpgn, expectedpgn);
   });
 });
-describe("Game.buildMoveListFromActions", function() {
-  // eslint-disable-next-line no-undef
-  before(function(done) {
-    Meteor.startup(() => done());
-  });
-  it("needs to work correctly", function() {
-    const game = {
-      actions: [
-        { type: "move", parameter: "e4" },
-        { type: "move", parameter: "e5" },
-        { type: "move", parameter: "Nf3" },
-        { type: "move", parameter: "Nc6" },
-        { type: "move", parameter: "Bc4" },
-        { type: "move", parameter: "Be7" },
-        { type: "move", parameter: "d4" },
-        { type: "move", parameter: "Nxd4" },
-        { type: "move", parameter: "c3" },
-        { type: "move", parameter: "d5" },
-        { type: "move", parameter: "exd5" },
-        { type: "move", parameter: "b5" },
-        { type: "move", parameter: "cxd4" },
-        { type: "move", parameter: "bxc4" },
-        { type: "takeback_requested", parameter: 8 },
-        { type: "takeback_accepted" },
-        { type: "move", parameter: "c3" },
-        { type: "move", parameter: "d6" },
-        { type: "move", parameter: "d4" },
-        { type: "move", parameter: "exd4" },
-        { type: "move", parameter: "cxd4" },
-        { type: "takeback_requested", parameter: 7 },
-        { type: "takeback_accepted" },
-        { type: "move", parameter: "Be2" },
-        { type: "move", parameter: "Be7" },
-        { type: "move", parameter: "O-O" },
-        { type: "move", parameter: "d5" },
-        { type: "takeback_requested", parameter: 2 },
-        { type: "takeback_accepted" },
-        { type: "move", parameter: "c3" },
-        { type: "move", parameter: "d6" },
-        { type: "move", parameter: "d4" },
-        { type: "takeback_requested", parameter: 2 },
-        { type: "takeback_accepted" },
-        { type: "move", parameter: "d5" },
-        { type: "move", parameter: "d4" },
-        { type: "takeback_requested", parameter: 7 },
-        { type: "takeback_accepted" },
-        { type: "move", parameter: "f4" },
-        { type: "move", parameter: "Nc6" },
-        { type: "move", parameter: "Nf3" },
-        { type: "takeback_requested", parameter: 3 },
-        { type: "takeback_accepted" },
-        { type: "move", parameter: "Nf3" },
-        { type: "move", parameter: "Nc6" },
-        { type: "move", parameter: "Bc4" },
-        { type: "move", parameter: "Be7" },
-        { type: "move", parameter: "d4" },
-        { type: "move", parameter: "Nxd4" },
-        { type: "move", parameter: "c3" },
-        { type: "move", parameter: "d5" },
-        { type: "move", parameter: "exd5" },
-        { type: "move", parameter: "b5" },
-        { type: "move", parameter: "cxd4" },
-        { type: "move", parameter: "bxc4" }
-      ]
-    };
-    const variation_object = { hmtb: 0, cmi: 0, movelist: [{}] };
-    game.actions.forEach(action => Game.addActionToMoveList(variation_object, action));
 
-    const pgn = Game.buildPgnFromMovelist(variation_object.movelist);
-    const expectedpgn =
-      "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
-    const actualpgn = pgn.replace(/\s/g, "");
-    chai.assert.equal(actualpgn, expectedpgn);
-  });
-});
-
-describe("Game.buildMovelistFromPgn", function() {
+describe.skip("Game.buildMovelistFromPgn", function() {
   it("needs to be written", function() {
     const pgn =
       "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
