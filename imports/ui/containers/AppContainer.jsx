@@ -226,7 +226,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     let variations = game.variations.movelist;
 
     for (const variation of variations) {
-      this._board.move(variation.move);
+      if (variation.move !== undefined) this._board.move(variation.move);
     }
   }
   render() {

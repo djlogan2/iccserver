@@ -6,6 +6,7 @@ import "../css/developmentboard.css";
 import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
 import WhitePlayerClock from "./WhitePlayerClock";
+import { Meteor } from "meteor/meteor";
 
 export default class MiddleBoard extends Component {
   constructor(props) {
@@ -37,17 +38,17 @@ export default class MiddleBoard extends Component {
   /**
    * Add event listener
    */
-    componentDidMount() {
+  componentDidMount() {
     this.updateDimensions();
     window.addEventListener("resize", this.updateDimensions.bind(this));
   }
- 
+
   /**
    * Remove event listener
    */
-   componentWillUnmount() {
+  componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
-  } 
+  }
   componentDidUpdate(prevProps) {
     if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
@@ -98,15 +99,6 @@ export default class MiddleBoard extends Component {
     });
     return isMove;
   };
- /*  
- TODO:now we have working on so comment belowe code.
- componentDidMount() {
-    this.interval = setInterval(() => this.setState({ isactive: !this.state.isactive }), 10000);
-  }
-  componentWillUnmount() {
-    clearInterval(this.interval);
-  }
-   */
   render() {
     let w = this.state.width;
     let h = this.state.height;
@@ -138,6 +130,19 @@ export default class MiddleBoard extends Component {
         ? this.props.MiddleBoardData.clocks.white
         : this.props.MiddleBoardData.clocks.black;
 
+    /* let bottomPlayerClock;
+    let topPlayerClock;
+    if (Meteor.userId() === this.state.white.id) {
+      bottomPlayerClock = this.props.MiddleBoardData.clocks.white;
+    } else {
+      topPlayerClock = this.props.MiddleBoardData.clocks.black;
+    }
+    if (Meteor.userId() === this.state.black.id) {
+      bottomPlayerClock = this.props.MiddleBoardData.clocks.black;
+    } else {
+      topPlayerClock = this.props.MiddleBoardData.clocks.white;
+    } */
+
     const topPlayerFallenSoldier =
       this.state.top === "w" ? this.props.capture.b : this.props.capture.w;
     const bottomPlayerFallenSoldier =
@@ -145,12 +150,6 @@ export default class MiddleBoard extends Component {
     const tc = this.state.top === "w" ? "b" : "w";
     const bc = this.state.top === "b" ? "b" : "w";
     const board = this.props.board || new Chess.Chess();
-
-  /*   this.clockdata = {
-      current: this.state.current,
-      isactive: this.state.isactive
-    }; */
-   
     return (
       <div>
         <button
@@ -169,6 +168,7 @@ export default class MiddleBoard extends Component {
             FallenSoldiers={topPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
           />
+
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
             ClockData={topPlayerClock}
@@ -203,9 +203,10 @@ export default class MiddleBoard extends Component {
             FallenSoldiers={bottomPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
           />
-          <WhitePlayerClock
+
+          <BlackPlayerClock
             cssmanager={this.props.cssmanager}
-            ClockData={this.props.MiddleBoardData.clocks.white}
+            ClockData={bottomPlayerClock}
             side={size}
           />
         </div>
