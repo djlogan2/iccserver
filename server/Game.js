@@ -523,6 +523,22 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     return;
   }
 
+  log.debug(
+    "Trying to make move " +
+      move +
+      " for user " +
+      self._id +
+      ", username=" +
+      self.username +
+      ", white=" +
+      game.white.id +
+      "," +
+      game.white.name +
+      ", black=" +
+      game.black.id +
+      "," +
+      game.black.name
+  );
   const result = chessObject.move(move);
   if (!result) {
     ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
@@ -534,12 +550,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   const setobject = { fen: chessObject.fen() };
 
   const unsetobject = {};
-  const analyze = addMoveToMoveList(variation, move);
   let gamelag = 0;
   let gameping = 0;
-
   const bw = self._id === game.white.id ? "white" : "black";
   const otherbw = bw === "white" ? "black" : "white";
+  const analyze = addMoveToMoveList(
+    variation,
+    move,
+    game.status === "playing" ? game.clocks[bw].current : null
+  );
 
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
@@ -562,12 +581,17 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       setobject["pending." + otherbw + ".adjourn"] = "0";
       setobject["pending." + otherbw + ".takeback.number"] = 0;
       setobject["pending." + otherbw + ".takeback.mid"] = "0";
-      //
-      // Add a half move to the takeback request if the user requested a takeback and then
-      // made their own move.
-      //
-      if (game.pending[bw].takeback.number)
-        setobject["pending." + bw + ".takeback.number"] = game.pending[bw].takeback.number + 1;
+      // If user made an even-number takeback request, that means they are requesting that they take take
+      // their own previous move(s), making it their move. If they do this, and then move, we revoke the
+      // takeback request.
+      // However, if they make an odd-number takeback request, they are requesting to take back their
+      // opponents move. In this case, if they then make a move, we increment the half moves so that if
+      // their opponent acccepts, it takes back their last move(s) and continues.
+      if (game.pending[bw].takeback.number && game.pending[bw].takeback.number % 2 === 0) {
+        setobject["pending." + bw + ".takeback.number"] = 0;
+        setobject["pending." + bw + ".takeback.mid"] = "0";
+        game.variations.hmtb = 0;
+      } else if (game.variations.hmtb) setobject.variations = { hmtb: game.variations.hmtb + 1 };
     }
 
     if (!setobject.result) {
@@ -621,6 +645,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
           gameping: gameping
         }
       : move;
+
   const pushobject = {
     actions: { type: "move", issuer: self._id, parameter: move_parameter }
   };
@@ -963,6 +988,8 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
   }
 
   const othercolor = self._id === game.white.id ? "black" : "white";
+  let tomove = game.tomove;
+
   if (!game.pending[othercolor].takeback.number) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NO_TAKEBACK_PENDING");
     return;
@@ -970,6 +997,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
 
   const variation = game.variations;
   const action = { type: "takeback_accepted", issuer: self._id };
+  const clock_reset = {};
 
   for (let x = 0; x < variation.hmtb; x++) {
     const undone = active_games[game_id].undo();
@@ -980,17 +1008,20 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
         "Unable to takeback",
         "Mismatch between chess object and variation object"
       );
+
+    tomove = tomove === "white" ? "black" : "white";
+    clock_reset[tomove] = variation.movelist[variation.cmi].current;
     variation.cmi = variation.movelist[variation.cmi].prev;
-    variation.movelist = variation.movelist.splice(0, variation.movelist.length - 1); //TODO :This remove move list so display takeback in front side
-    delete variation.movelist[variation.cmi].variations;
   }
 
   const setobject = {
     fen: active_games[game_id].fen(),
+    tomove: tomove,
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
     "variations.cmi": variation.cmi,
-    "variations.movelist": variation.movelist
+    "clocks.white.current": clock_reset.white,
+    "clocks.black.current": clock_reset.black
   };
 
   GameCollection.update(
@@ -1538,14 +1569,6 @@ Meteor.methods({
     if (!game)
       throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
     const color = game.white.id === user._id ? "white" : "black";
-    log.debug(
-      "Meteor method gamepong called with game_id=" +
-        game_id +
-        ", msg.id=" +
-        pong.id +
-        ", color=" +
-        color
-    );
     game_pings[game_id][color].pongArrived(pong);
   },
   addGameMove(message_identifier, game_id, move) {
@@ -1930,7 +1953,7 @@ function buildPgnFromMovelist(movelist) {
   return addmove(1, false, true, movelist, 0);
 }
 
-function addMoveToMoveList(variation_object, move) {
+function addMoveToMoveList(variation_object, move, current) {
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
   if (exists) {
     variation_object.cmi = exists;
@@ -1938,7 +1961,8 @@ function addMoveToMoveList(variation_object, move) {
     const newi = variation_object.movelist.length;
     variation_object.movelist.push({
       move: move,
-      prev: variation_object.cmi
+      prev: variation_object.cmi,
+      current: current
     });
     if (!variation_object.movelist[variation_object.cmi].variations) {
       variation_object.movelist[variation_object.cmi].variations = [newi];
@@ -1958,12 +1982,12 @@ function startGamePing(game_id) {
 function _startGamePing(game_id, color) {
   if (!game_pings[game_id]) game_pings[game_id] = {};
   game_pings[game_id][color] = new TimestampServer(
+      "server game",
     (key, msg) => {
       if (key === "ping") {
         const pushobject = {};
         pushobject["lag." + color + ".active"] = msg;
         GameCollection.update({ _id: game_id, status: "playing" }, { $push: pushobject });
-        log.debug("Saving ping " + msg.id + " for " + color);
       } else {
         //pingresult
         const game = GameCollection.findOne({
@@ -1985,14 +2009,6 @@ function _startGamePing(game_id, color) {
         pullobject["lag." + color + ".active"] = item[0];
         pushobject["lag." + color + ".pings"] = msg.delay;
 
-        log.debug(
-          "Saving ping result " +
-            msg.id +
-            " for " +
-            color +
-            " and deleting from active array, delay=" +
-            msg.delay
-        );
         GameCollection.update(
           { _id: game._id, status: game.status },
           { $pull: pullobject, $push: pushobject }
@@ -2066,6 +2082,7 @@ Meteor.startup(function() {
   GameCollection.remove({});
   if (Meteor.isTest || Meteor.isAppTest) {
     Game.collection = GameCollection;
+    Game.addMoveToMoveList = addMoveToMoveList;
     Game.buildPgnFromMovelist = buildPgnFromMovelist;
     Game.calculateGameLag = calculateGameLag;
     Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
