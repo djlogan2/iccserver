@@ -705,6 +705,7 @@ describe("Game.saveLocalMove", function() {
   });
   //
   it("should end the game if the move results in an insufficient material draw", function() {
+    this.timeout(5000);
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
