@@ -3628,7 +3628,7 @@ describe("when playing a game", function() {
 
     self.clock.tick(150);
 
-    const client = new TimestampClient((key, msg) => {
+    const client = new TimestampClient("debug1", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         if (!!error) chai.assert.fail(error);
         const game2 = Game.collection.findOne({});
@@ -3708,7 +3708,7 @@ describe("when playing a game", function() {
     const game1 = Game.collection.findOne({});
     self.clock.tick(150);
 
-    const client = new TimestampClient((key, msg) => {
+    const client = new TimestampClient("debug2", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(error.message, "[Unable to find request for response]");
         done();
@@ -3757,7 +3757,7 @@ describe("when playing a game", function() {
 
     Game.resignLocalGame("mi2", game_id);
 
-    const client = new TimestampClient((key, msg) => {
+    const client = new TimestampClient("debug3", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(
           error.message,
@@ -3795,7 +3795,7 @@ describe("when playing a game", function() {
     const game1 = Game.collection.findOne({});
     self.clock.tick(150);
 
-    const client = new TimestampClient((key, msg) => {
+    const client = new TimestampClient("debug4", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(error.message, "[Unable to find request for response]");
         done();

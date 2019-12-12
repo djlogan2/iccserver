@@ -73,7 +73,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       const color = game.white.id === Meteor.userId() ? "white" : "black";
 
       if (!this.game_timestamp_client)
-        this.game_timestamp_client = new TimestampClient((_, msg) =>
+        this.game_timestamp_client = new TimestampClient("client game", (_, msg) =>
           Meteor.call("gamepong", game._id, msg)
         );
       game.lag[color].active.forEach(ping => this.game_timestamp_client.pingArrived(ping));

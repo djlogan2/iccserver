@@ -1982,6 +1982,7 @@ function startGamePing(game_id) {
 function _startGamePing(game_id, color) {
   if (!game_pings[game_id]) game_pings[game_id] = {};
   game_pings[game_id][color] = new TimestampServer(
+      "server game",
     (key, msg) => {
       if (key === "ping") {
         const pushobject = {};
