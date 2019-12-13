@@ -37,11 +37,13 @@ export default class MainPage extends Component {
       MiddleSection: {
         white: {
           name: "Player-1",
-          rating: 1600
+          rating: 1600,
+          userPicture: "player-img-top.png"
         },
         black: {
           name: "Player-2",
-          rating: 1600
+          rating: 1600,
+          userPicture: "player-img-bottom.png"
         },
         clocks: {
           white: {
@@ -69,11 +71,13 @@ export default class MainPage extends Component {
     Object.assign(this.Main.MiddleSection, {
       white: {
         name: "Player-1",
-        rating: 1600
+        rating: 1600,
+        userPicture: "player-img-top.png"
       },
       black: {
         name: "Player-2",
-        rating: 1600
+        rating: 1600,
+        userPicture: "player-img-bottom.png"
       },
       clocks: {
         white: {
@@ -337,7 +341,7 @@ export default class MainPage extends Component {
         }
         this.userId = Meteor.userId();
         this.gameId = game._id;
-        this.Main.RightSection.MoveList = game.variations.movelist;
+        this.Main.RightSection.MoveList = game.moves;
         this.Main.RightSection.Action.userId = this.userId;
         this.Main.RightSection.Action.user = Meteor.user().username;
         this.Main.RightSection.Action.gameTurn = gameTurn;

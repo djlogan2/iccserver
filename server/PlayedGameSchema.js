@@ -155,6 +155,8 @@ export const PlayedGameSchema = new SimpleSchema({
     },
     rating: SimpleSchema.Integer
   }),
+  moves: { type: Array, required: false },
+  "moves.$": String,
   lag: Object,
   "lag.white": Object,
   "lag.black": Object,

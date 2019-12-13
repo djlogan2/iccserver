@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import FallenSoldier from "./FallenSoldier";
 export default class Player extends Component {
- 
   render() {
     /* 
     const ph = this.props.side / 9;
     const pw = this.props.side / 9; */
-
+    let userpic;
+    if (!!this.props.PlayerData.userPicture && this.props.PlayerData.userPicture !== undefined)
+      userpic = this.props.PlayerData.userPicture;
+    else userpic = "player-img-top.png";
     if (this.props.rank_and_file.charAt(0) === "t") this._fileline = "t";
     else if (this.props.rank_and_file.charAt(0) === "b") this._fileline = "b";
     if (this.props.rank_and_file.charAt(1) === "l") this._rankline = "l";
@@ -33,8 +35,8 @@ export default class Player extends Component {
         <div style={{ width: pw * 3.7, display: "inline-block" }}>
           <img
             style={this.props.cssmanager.userPicture(_user_side)}
-            //src={`images/${this.props.PlayerData.UserPicture}`}
-            src="images/player-img-top.png"
+            src={`images/${userpic}`}
+            //src="images/player-img-top.png"
             alt="user"
           />
           <div style={this.props.cssmanager.tagLine()}>
@@ -48,7 +50,7 @@ export default class Player extends Component {
                 marginRight: "15px"
               }}
             >
-              {this.props.PlayerData.name}({this.props.PlayerData.rating}) 
+              {this.props.PlayerData.name}({this.props.PlayerData.rating})
             </a>
             <img
               style={this.props.cssmanager.userFlag(_user_side)}

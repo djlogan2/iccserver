@@ -647,9 +647,9 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       : move;
 
   const pushobject = {
-    actions: { type: "move", issuer: self._id, parameter: move_parameter }
+    actions: { type: "move", issuer: self._id, parameter: move_parameter },
+    moves: move
   };
-
   setobject.variations = variation;
   setobject.tomove = otherbw;
   setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
@@ -989,7 +989,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   let tomove = game.tomove;
-
+  let moves = game.moves;
   if (!game.pending[othercolor].takeback.number) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NO_TAKEBACK_PENDING");
     return;
@@ -1012,11 +1012,13 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     tomove = tomove === "white" ? "black" : "white";
     clock_reset[tomove] = variation.movelist[variation.cmi].current;
     variation.cmi = variation.movelist[variation.cmi].prev;
+    moves.splice(-1, 1);
   }
 
   const setobject = {
     fen: active_games[game_id].fen(),
     tomove: tomove,
+    moves: moves,
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
     "variations.cmi": variation.cmi,
@@ -1982,7 +1984,7 @@ function startGamePing(game_id) {
 function _startGamePing(game_id, color) {
   if (!game_pings[game_id]) game_pings[game_id] = {};
   game_pings[game_id][color] = new TimestampServer(
-      "server game",
+    "server game",
     (key, msg) => {
       if (key === "ping") {
         const pushobject = {};

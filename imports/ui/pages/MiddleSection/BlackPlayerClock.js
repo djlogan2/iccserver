@@ -13,13 +13,9 @@ export default class BlackPlayerClock extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    /*  log.debug("This props Black", this.props.ClockData);
-    log.debug("This prevProps Black", prevProps.ClockData);
-  */
     if (prevState.isactive !== this.state.isactive) {
       if (this.state.isactive) {
         this.intervalId = setInterval(() => {
-          //log.debug("Black inside setinterval: ", this.state.time);
           const { time } = this.state;
           if (time > 0) {
             this.setState({
@@ -31,6 +27,10 @@ export default class BlackPlayerClock extends Component {
     }
   }
   static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.ClockData.current !== prevState.initial) {
+      let time = Math.floor(nextProps.ClockData.current / 1000);
+      return { time: time, initial: nextProps.ClockData.current };
+    }
     if (nextProps.ClockData.isactive !== prevState.isactive) {
       return { isactive: nextProps.ClockData.isactive };
     } else return null;
