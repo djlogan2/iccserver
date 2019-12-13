@@ -660,8 +660,10 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   );
 
   if (analyze) {
+    log.debug("Starting getting score for game " + game_id + " fen " + active_games[game_id].fen());
     UCI.getScoreForFen(active_games[game_id].fen())
       .then(score => {
+        log.debug("Score for game " + game_id + " is " + score);
         const setobject = {};
         setobject["variations.movelist." + (variation.movelist.length - 1) + ".score"] = score;
         const result = GameCollection.update(
