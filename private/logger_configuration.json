@@ -20,5 +20,5 @@
     "server/Game_js": "TRACE",
     "server/GameRequest_js": "ERROR",
     "server/main_js": "ERROR",
-    "server/UCI": "ERROR"
+    "server/UCI": "TRACE"
 }

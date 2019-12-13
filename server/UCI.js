@@ -1,6 +1,6 @@
 import { Engine } from "node-uci";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
-import Random from "meteor/random";
+import { Random } from "meteor/random";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 
@@ -61,7 +61,9 @@ function updateStat(which, addremove, ms) {
 }
 
 UCI.getScoreForFen = async function(fen) {
+  log.debug("getScoreForFen fen=" + fen);
   return obtainEngine().then(async function(engine_id) {
+    log.debug("game has an engine for fen " + fen);
     return new Promise(async function(resolve, reject) {
       const seconds = SystemConfiguration.uciSecondsToPonderPerMoveScore();
       const threads = SystemConfiguration.uciThreadsPerEngine();
@@ -77,6 +79,7 @@ UCI.getScoreForFen = async function(fen) {
         try {
           const bestmove = await engines[engine_id].stop();
           score = bestmove.info[bestmove.info.length - 1].score.value;
+          log.debug("Have score " + score + " for fen " + fen);
           releaseEngine(engine_id);
           resolve(score);
         } catch (e) {
@@ -88,52 +91,58 @@ UCI.getScoreForFen = async function(fen) {
 };
 
 async function obtainEngine() {
+  log.debug("obtainEngine");
   return new Promise((resolve, reject) => {
-    if (ready_engines.length) {
-      const engine_id = ready_engines.shift();
-      busy_engines.push({ engine: engine_id, start: new Date().getTime() });
-      updateStat("waiting", "remove");
-      updateStat("busy", "add");
-      resolve(engine_id);
-      return;
-    }
+    try {
+      if (ready_engines.length) {
+        const engine_id = ready_engines.shift();
+        log.debug("obtainEngine returning a ready engine, id=" + engine_id);
+        busy_engines.push({ engine: engine_id, start: new Date().getTime() });
+        updateStat("waiting", "remove");
+        updateStat("busy", "add");
+        resolve(engine_id);
+        return;
+      }
 
-    if (
-      ready_engines.length + busy_engines.length <
-      SystemConfiguration.maximumRunningEngines()
-    ) {
-      const new_id = Random.id();
-      const new_engine = (engines[new_id] = new Engine(
-        SystemConfiguration.enginePath()
-      ));
-      busy_engines.push({ engine: new_id, start: new Date().getTime() });
-      updateStat("started", "add");
-      updateStat("busy", "add");
-      new_engine
-        .init()
-        .then(() => resolve(new_id))
-        .catch(error => reject(error));
-      return;
-    }
+      if (
+        ready_engines.length + busy_engines.length <
+        SystemConfiguration.maximumRunningEngines()
+      ) {
+        const new_id = Random.id();
+        const new_engine = (engines[new_id] = new Engine(SystemConfiguration.enginePath()));
+        log.debug("obtainEngine starting a new engine, new engine id=" + new_id);
+        busy_engines.push({ engine: new_id, start: new Date().getTime() });
+        updateStat("started", "add");
+        updateStat("busy", "add");
+        new_engine
+          .init()
+          .then(() => resolve(new_id))
+          .catch(error => reject(error));
+        return;
+      }
 
-    updateStat("users_waiting", "add");
-    waiting_for_an_engine.push({
-      resolve: resolve,
-      start: new Date().getTime()
-    });
+      log.debug("obtainEngine waiting for a free engine");
+      updateStat("users_waiting", "add");
+      waiting_for_an_engine.push({
+        resolve: resolve,
+        start: new Date().getTime()
+      });
+    } catch (e) {
+      log.error("Error in UCI", e);
+      reject(new Error(e));
+    }
   });
 }
 
 function findBusyEngine(engine_id) {
-  for (let x = 0; x < busy_engines.length; x++)
-    if (busy_engines[x].engine === engine_id) return x;
+  for (let x = 0; x < busy_engines.length; x++) if (busy_engines[x].engine === engine_id) return x;
   return -1;
 }
 
 function releaseEngine(engine_id) {
+  log.debug("releaseEngine releasing " + engine_id);
   const idx = findBusyEngine(engine_id);
-  if (idx === -1)
-    throw new Meteor.Error("Unable to find engine id " + engine_id);
+  if (idx === -1) throw new Meteor.Error("Unable to find engine id " + engine_id);
 
   const engine_object = busy_engines[idx];
 
@@ -141,6 +150,7 @@ function releaseEngine(engine_id) {
   updateStat("busy", "remove", runtime);
 
   if (waiting_for_an_engine.length) {
+    log.debug("Giving released engine " + engine_id + " to waiting task");
     const obj = waiting_for_an_engine.shift();
     const waittime = new Date().getTime() - obj.start;
     updateStat("users_waiting", "remove", waittime);
@@ -148,6 +158,7 @@ function releaseEngine(engine_id) {
     busy_engines[idx].start = new Date().getTime();
     obj.resolve(engine_id);
   } else {
+    log.debug("Putting released engine " + engine_id + " on the ready engines list");
     updateStat("waiting", "add");
     ready_engines.push(engine_id);
     busy_engines.splice(idx, 1);
@@ -165,10 +176,7 @@ Meteor.setInterval(async () => {
     if (busy_engines[x].start < recovery_time) {
       const new_id = Random.id();
       log.error(
-        "We are recovering a lost engine! id=" +
-          busy_engines[x].engine +
-          ", new id=" +
-          new_id
+        "We are recovering a lost engine! id=" + busy_engines[x].engine + ", new id=" + new_id
       );
       engines[new_id] = engines[busy_engines[x].engine];
       delete engines[busy_engines[x].engine];
