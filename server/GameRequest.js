@@ -380,10 +380,10 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     );
     return;
   }
-  ////NOTE: I have changed below method calling since you were passing whole object with inc and delay but, at 
+  ////NOTE: I have changed below method calling since you were passing whole object with inc and delay but, at
   //// method definition, it is acceoting number and string means single element of delay, inc, and delaytype
   //// also changed the variable name for delay as there is no var named 'delay' in request object but it is
-  //// 'inc_or_delay'. and there is no variable like 'challenger_color_request' inrequest object but, its' not 
+  //// 'inc_or_delay'. and there is no variable like 'challenger_color_request' inrequest object but, its' not
   //// giving an error because it is optional
   const challenger = Meteor.users.findOne({ _id: request.owner });
   const game_id = Game.startLocalGame(
@@ -970,17 +970,10 @@ Meteor.publish("game_requests", function() {
 });
 
 function logoutHook(userId) {
-  // TODO: I'm not sure what you're trying to do here, notify the client I guess when somebody leaves?
-  //       If so, findOne isn't going to work. A user can match any number of other users, and any number
-  //       of other users can match one user, so you need to do a find().fetch() and do this in a loop, yes?
   let GameRequests = GameRequestCollection.find({
     $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
   }).fetch();
 
-  // TODO: This is failing a test, so this needs to be fixed.
-  //       Also, you shouldn't hard code client_identifier here. If you want to do this,
-  //       you should put the client_identifier, also known as the message_identifier,
-  //       into the match request record from the meteor method, and then use that here.
   if (GameRequests && GameRequests.length > 0) {
     GameRequests.forEach(request => {
       if (request.type === "match" && request.receiver_id === userId) {

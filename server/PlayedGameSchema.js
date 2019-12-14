@@ -15,11 +15,6 @@ const PendingSchema = new SimpleSchema({
 });
 
 const actionSchema = new SimpleSchema({
-  // TODO: I don't think we are going to be able to use new Date() as an autovalue for this. I think we are going
-  //       going to have to use some type of normal integer/long (millisecond since start of game or millisecond
-  //       since last action) type of thing. Why? Because we are going to have to deal with lag. lag is subtracted
-  //       from the users time to take a move. Well, that means we can't use new Date(). We have to save some type
-  //       of number that can be adjusted for the current users lag.
   time: {
     type: Date,
     autoValue: function() {

@@ -1066,18 +1066,10 @@ Game.declineLocalTakeback = function(message_identifier, game_id) {
   GameCollection.update(
     { _id: game_id, status: "playing" },
     {
+      $set: setobject,
       $push: {
         actions: { type: "takeback_declined", issuer: self._id }
       }
-    }
-  );
-  //TODO: i know this is not good thing but i have many tries to update record both action and player pending not work together so
-  // i have write this code later i will remove it
-
-  GameCollection.update(
-    { _id: game_id, status: "playing" },
-    {
-      $set: setobject
     }
   );
 
@@ -1534,17 +1526,6 @@ function determineWhite(p1, p2, color) {
   if (Math.random() <= 0.5) return p1;
   else return p2;
 }
-
-//TODO: Add to tests
-Game.opponentUserIdList = function(ofuser) {
-  check(ofuser, String);
-  const array = [];
-  const g1 = GameCollection.find({ "white.id": ofuser });
-  g1.fetch().forEach(game => array.push(game.black.id));
-  const g2 = GameCollection.find({ "black.id": ofuser });
-  g2.fetch().forEach(game => array.push(game.white.id));
-  return array;
-};
 
 Game.isPlayingGame = function(user_or_id) {
   check(user_or_id, Match.OneOf(Object, String));
