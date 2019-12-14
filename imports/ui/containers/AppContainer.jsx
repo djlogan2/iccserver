@@ -223,10 +223,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
   };
   _boardFromMongoMessages(game) {
     this._board = new Chess.Chess();
-    let variations = game.variations.movelist;
-
-    for (const variation of variations) {
-      if (variation.move !== undefined) this._board.move(variation.move);
+    let moves = game.moves;
+    for (const index in moves) {
+      this._board.move(moves[index]);
     }
   }
   render() {

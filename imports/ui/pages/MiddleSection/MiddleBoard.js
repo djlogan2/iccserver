@@ -203,7 +203,6 @@ export default class MiddleBoard extends Component {
             FallenSoldiers={bottomPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
           />
-
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
             ClockData={bottomPlayerClock}
