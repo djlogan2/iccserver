@@ -647,8 +647,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       : move;
 
   const pushobject = {
-    actions: { type: "move", issuer: self._id, parameter: move_parameter },
-    moves: move
+    actions: { type: "move", issuer: self._id, parameter: move_parameter }
   };
   setobject.variations = variation;
   setobject.tomove = otherbw;
@@ -1014,13 +1013,11 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
     tomove = tomove === "white" ? "black" : "white";
     clock_reset[tomove] = variation.movelist[variation.cmi].current;
     variation.cmi = variation.movelist[variation.cmi].prev;
-    moves.splice(-1, 1);
   }
 
   const setobject = {
     fen: active_games[game_id].fen(),
     tomove: tomove,
-    moves: moves,
     "pending.white.takeback": { number: 0, mid: "0" },
     "pending.black.takeback": { number: 0, mid: "0" },
     "variations.cmi": variation.cmi,
