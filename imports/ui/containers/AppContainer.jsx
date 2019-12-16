@@ -222,12 +222,14 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
   };
   _boardFromMongoMessages(game) {
+   /*  this._board = new Chess.Chess(game.fen);
+    var history = this._board.history({verbose: true});
+    log.debug("History",history); */
     this._board = new Chess.Chess();
-    let moves = game.moves;
-    for (const index in moves) {
-      this._board.move(moves[index]);
-    }
-  }
+    this._board.load(game.fen);
+    var history = this._board.history({verbose: true});
+    log.debug("History",history) 
+}
   render() {
     const gameRequest = this.renderGameRequest();
     const game = this.renderGameMessages();

@@ -66,7 +66,7 @@ Meteor.startup(() => {
         secondPerMove: "Seconds per move",
         typeOfGame: "Type of Game",
         rated: "Rated",
-        incementOrDelayType: "Incement Or DelayType",
+        incrementOrDelayType: "Increment Or DelayType",
         inc: "Inc",
         us: "Us",
         bronstein: "Bronstein",

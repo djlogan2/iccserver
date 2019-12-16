@@ -179,8 +179,9 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       <div>
         <div style={this.props.cssmanager.tabSeparator()} />
         <div style={this.props.cssmanager.matchUserScroll()}>
-          <div style={{ fontSize: "16px", padding: "15px 0px" }}>Option 1 - Choose a Member</div>
-        
+          <div style={{ fontSize: "16px", padding: "0px 0px 15px 0px" }}>
+            Option 1 - Choose a Member
+          </div>
 
           <SubTabs cssmanager={this.props.cssmanager}>
             <div label={translator("friends")}>{matchForm}</div>

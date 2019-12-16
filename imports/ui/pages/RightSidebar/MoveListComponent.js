@@ -8,11 +8,11 @@ export default class MoveListComponent extends Component {
     let moves = this.props.Moves;
     let movesString = [];
     if (moves != null || moves !== undefined) {
-      for (let i = 0; i < moves.length; ) {
+      for (let i = 1; i < moves.length; ) {
         if (i + 1 < moves.length) {
-          movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
+          movesString.push(" " + moves[i].move + " " + moves[i + 1].move + " ");
         } else {
-          movesString.push(" " + moves[i] + " ");
+          movesString.push(" " + moves[i].move + " ");
         }
         i = i + 2;
       }

@@ -15,7 +15,8 @@ export default class ObserversComponent extends Component {
   render() {
     return (
       <div>
-        <h2>Now we have working on</h2>
+        <div style={this.props.cssmanager.tabSeparator()} />
+        <p style={{ padingLeft: "15px" }}>Now we have working on</p>
       </div>
     );
   }

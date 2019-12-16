@@ -43,6 +43,7 @@ class GameForm extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.GameForm", this.getLang());
+    let radioStyle = this.props.cssmanager.formLabelStyle("radio");
     return (
       <div>
         <div style={this.props.cssmanager.formMain()}>
@@ -79,8 +80,8 @@ class GameForm extends Component {
         </div>
         <div style={this.props.cssmanager.formMain()}>
           <div style={{ width: "100%", float: "left" }}>
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>
-              {translator("incementOrDelayType")}
+            <label style={this.props.cssmanager.formLabelStyle("first")}>
+              {translator("incrementOrDelayType")}
             </label>
             <input
               type="radio"
@@ -88,23 +89,21 @@ class GameForm extends Component {
               checked={this.props.incOrdelayType === "us"}
               onChange={this.handleIncOrDelayTypeChange}
             />
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("us")}</label>
+            <label style={radioStyle}>{translator("us")}</label>
             <input
               type="radio"
               value="inc"
               checked={this.props.incOrdelayType === "inc"}
               onChange={this.handleIncOrDelayTypeChange}
             />
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("inc")}</label>
+            <label style={radioStyle}>{translator("inc")}</label>
             <input
               type="radio"
               value="bronstein"
               checked={this.props.incOrdelayType === "bronstein"}
               onChange={this.handleIncOrDelayTypeChange}
             />
-            <label style={this.props.cssmanager.formLabelStyle("radio")}>
-              {translator("bronstein")}
-            </label>
+            <label style={radioStyle}>{translator("bronstein")}</label>
           </div>
         </div>
         <div style={this.props.cssmanager.formMain()}>
@@ -120,12 +119,12 @@ class GameForm extends Component {
           <div style={this.props.cssmanager.formMainHalf()}>
             <span style={this.props.cssmanager.spanStyle("form")}>
               <input type="checkbox" checked={this.props.rated} onChange={this.handleRatedChange} />
-              <label style={this.props.cssmanager.formLabelStyle()}>{translator("rated")}</label>
+              <label style={radioStyle}>{translator("rated")}</label>
             </span>
           </div>
         </div>
         <div style={{ width: "100%", float: "left" }}>
-          <label style={this.props.cssmanager.formLabelStyle("radio")}>
+          <label style={this.props.cssmanager.formLabelStyle("first")}>
             {translator("pickAcolor")}
           </label>
           <input
@@ -134,23 +133,21 @@ class GameForm extends Component {
             checked={this.props.color === "white"}
             onChange={this.handleChangeColor}
           />
-          <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("white")}</label>
+          <label style={radioStyle}>{translator("white")}</label>
           <input
             type="radio"
             value="black"
             checked={this.props.color === "black"}
             onChange={this.handleChangeColor}
           />
-          <label style={this.props.cssmanager.formLabelStyle("radio")}>{translator("black")}</label>
+          <label style={radioStyle}>{translator("black")}</label>
           <input
             type="radio"
             value="random"
             checked={this.props.color === "random"}
             onChange={this.handleChangeColor}
           />
-          <label style={this.props.cssmanager.formLabelStyle("radio")}>
-            {translator("random")}
-          </label>
+          <label style={radioStyle}>{translator("random")}</label>
         </div>
         <div style={this.props.cssmanager.formMain()}>
           <div style={{ textAlign: "center" }}>

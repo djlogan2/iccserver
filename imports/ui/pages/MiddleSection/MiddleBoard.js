@@ -130,19 +130,6 @@ export default class MiddleBoard extends Component {
         ? this.props.MiddleBoardData.clocks.white
         : this.props.MiddleBoardData.clocks.black;
 
-    /* let bottomPlayerClock;
-    let topPlayerClock;
-    if (Meteor.userId() === this.state.white.id) {
-      bottomPlayerClock = this.props.MiddleBoardData.clocks.white;
-    } else {
-      topPlayerClock = this.props.MiddleBoardData.clocks.black;
-    }
-    if (Meteor.userId() === this.state.black.id) {
-      bottomPlayerClock = this.props.MiddleBoardData.clocks.black;
-    } else {
-      topPlayerClock = this.props.MiddleBoardData.clocks.white;
-    } */
-
     const topPlayerFallenSoldier =
       this.state.top === "w" ? this.props.capture.b : this.props.capture.w;
     const bottomPlayerFallenSoldier =
@@ -194,6 +181,7 @@ export default class MiddleBoard extends Component {
             />
           </div>
         </div>
+        <div style={{ clear: "Left" }} />
         <div style={{ width: size }}>
           <Player
             PlayerData={bottomPlayer}

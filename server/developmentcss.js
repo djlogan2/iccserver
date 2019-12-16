@@ -18,7 +18,8 @@ const systemcss = {
     }
   },
   fullWidth: {
-    width: "100%"
+    width: "100%",
+    height: "80vh"
   },
   drawActionSection: {
     height: "auto",
@@ -168,7 +169,7 @@ const systemcss = {
     all: {},
     chat: {
       position: "absolute",
-      padding: "0 0px",
+      padding: "0px 10px 10px 10px",
       borderTop: "#ccc solid 1px !important",
       maxWidth: "100%",
       width: "100%",
@@ -329,7 +330,7 @@ const systemcss = {
     all: {
       padding: "20px",
       overflowX: "hidden",
-      height: "280px",
+      height: "45vh",
       overflowY: "scroll"
     }
   },
@@ -441,10 +442,15 @@ const systemcss = {
   formLabelStyle: {
     all: {
       fontWeight: "300",
-      paddingRight: "9px"
+      paddingRight: "9px",
+      marginLeft: "0px"
+    },
+    first: {
+      marginLeft: "0px"
     },
     radio: {
-      verticalAlign: "top"
+      verticalAlign: "top",
+      marginLeft: "5px"
     }
   }
 };

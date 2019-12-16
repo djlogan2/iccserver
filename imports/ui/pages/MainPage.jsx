@@ -341,7 +341,7 @@ export default class MainPage extends Component {
         }
         this.userId = Meteor.userId();
         this.gameId = game._id;
-        this.Main.RightSection.MoveList = game.moves;
+        this.Main.RightSection.MoveList = game.variations.movelist;
         this.Main.RightSection.Action.userId = this.userId;
         this.Main.RightSection.Action.user = Meteor.user().username;
         this.Main.RightSection.Action.gameTurn = gameTurn;
