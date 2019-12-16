@@ -1349,6 +1349,21 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   );
 };
 
+//Fixme: add functionality, decide on parameters and protocols
+Game.drawCircle = function(game_id, square) {
+  if (!game_id || !square) {
+    throw "Passed incorrect arguments to Game.drawCircle";
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+        "Unable to add examiner",
+        "Unable to find game record"
+    );
+};
+
 Game.declineLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
