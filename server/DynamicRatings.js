@@ -2,6 +2,7 @@ import SimpleSchema from "simpl-schema";
 import { check, Match } from "meteor/check";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
+import { Roles } from "meteor/alanning:roles";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 const RatingSchema = new SimpleSchema({
@@ -158,6 +159,9 @@ DynamicRatings.addRatingType = function(
   can_match,
   starting_rating
 ) {
+  const self = Meteor.user();
+  check(self, Object);
+
   check(message_identifier, String);
   check(wild_number, Match.Maybe([Number]));
   check(rating_type, String);
@@ -175,6 +179,9 @@ DynamicRatings.addRatingType = function(
   check(can_seek, Boolean);
   check(can_match, Boolean);
   check(starting_rating, Match.Maybe(Number));
+
+  if (!Roles.userIsInRole(self, "add_dynamic_rating"))
+    throw new ICCMeteorError(message_identifier, "Unable to add rating", "User not authorized");
 
   if (!starting_rating) starting_rating = 1600;
   wild_number = wild_number || [0];
@@ -228,15 +235,22 @@ DynamicRatings.addRatingType = function(
   Meteor.users.update({}, { $set: setobject });
 };
 
-DynamicRatings.deleteRatingType = function(rating_type) {
+DynamicRatings.deleteRatingType = function(message_identifier, rating_type) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
   check(rating_type, String);
+
+  if (!Roles.userIsInRole(self, "delete_dynamic_rating"))
+    throw new ICCMeteorError(message_identifier, "Unable to add rating", "User not authorized");
+
   const unsetobject = {};
   unsetobject["rating" + rating_type] = 1;
   Meteor.users.update({}, { $unset: unsetobject });
 };
 
-DynamicRatings.updateCanSeek = function(rating_type, can_seek) {};
-DynamicRatings.updateCanMatch = function(rating_type, can_match) {};
+DynamicRatings.updateCanSeek = function(message_identifier, rating_type, can_seek) {};
+DynamicRatings.updateCanMatch = function(message_identifier, rating_type, can_match) {};
 
 DynamicRatings.getUserRatingsObject = function() {
   const ratingRecords = DynamicRatingsCollection.find(

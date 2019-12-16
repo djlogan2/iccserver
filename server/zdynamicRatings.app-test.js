@@ -7,10 +7,13 @@ import { Match } from "meteor/check";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 describe.only("Ratings", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
+  const self = TestHelpers.setupDescribe.call(this);
 
   //  wild_number,
   it("should require wild_number to be an array, but currently can only contain zero", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.throws(
       () =>
         DynamicRatings.addRatingType(
@@ -99,6 +102,9 @@ describe.only("Ratings", function() {
     );
   });
   it("should allow wild_number to not be specified", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -133,6 +139,9 @@ describe.only("Ratings", function() {
   // });
   //   rating_type,
   it("should always require rating_type, as this is it's name", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.throws(
       () =>
         DynamicRatings.addRatingType(
@@ -157,6 +166,9 @@ describe.only("Ratings", function() {
     );
   });
   it("should fail an add seek request if rating_type is invalid", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -185,6 +197,9 @@ describe.only("Ratings", function() {
   });
 
   it("should fail an add match request if rating_type is invalid", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -227,6 +242,9 @@ describe.only("Ratings", function() {
     );
   });
   it("should fail a start local game if rating_type is invalid", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -256,6 +274,9 @@ describe.only("Ratings", function() {
   });
   //   rated,
   it("should fail an add seek request if rated is false and seek rated is true", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -283,6 +304,9 @@ describe.only("Ratings", function() {
     );
   });
   it("should fail an add match request if rated is false and match rated is true", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -325,6 +349,9 @@ describe.only("Ratings", function() {
     );
   });
   it("should fail a start local game if rated is false and game rated is true", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -354,6 +381,9 @@ describe.only("Ratings", function() {
   });
   //   unrated
   it("should fail an add seek request if unrated is false and seek rated is false", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -381,6 +411,9 @@ describe.only("Ratings", function() {
     );
   });
   it("should fail an add match request if unrated is false and match rated is false", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -423,6 +456,9 @@ describe.only("Ratings", function() {
     );
   });
   it("should fail a start local game if unrated is false and game rated is false", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+    });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
         "mi1",
@@ -611,7 +647,7 @@ describe.only("Ratings", function() {
   it("should add all defined rating types to a user record when it is registered", function() {
     chai.assert.fail("do me");
   });
-  it("should fail if the user trying to add a rating does not have 'add_dynamic_rating' role", function() {
+  it("should fail if the user trying to add a rating does not have '`add_dynamic_rating`' role", function() {
     chai.assert.fail("do me");
   });
   it("should fail if the user trying to delete a rating does not have 'delete_dynamic_rating' role", function() {
