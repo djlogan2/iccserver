@@ -337,3 +337,7 @@ DynamicRatings.meetsRatingTypeRules = function(
   if (inctype.indexOf(inc_or_delay) === -1) return false;
   return !(game_etime < etime[0] || game_etime > etime[1]);
 };
+
+if (Meteor.isTest || Meteor.isAppTest) {
+  DynamicRatings.collection = DynamicRatingsCollection;
+}

@@ -6,7 +6,7 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { Match } from "meteor/check";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
-describe.only("Ratings", function() {
+describe("Ratings", function() {
   const self = TestHelpers.setupDescribe.call(this);
 
   //  wild_number,
@@ -19,7 +19,7 @@ describe.only("Ratings", function() {
         DynamicRatings.addRatingType(
           "mi1",
           0,
-          "standard",
+          "standard1",
           true,
           true,
           [1, 15],
@@ -41,7 +41,7 @@ describe.only("Ratings", function() {
         DynamicRatings.addRatingType(
           "mi1",
           [0, 1],
-          "standard",
+          "standard1",
           true,
           true,
           [1, 15],
@@ -63,7 +63,7 @@ describe.only("Ratings", function() {
         DynamicRatings.addRatingType(
           "mi1",
           [1],
-          "standard",
+          "standard1",
           true,
           true,
           [1, 15],
@@ -84,7 +84,7 @@ describe.only("Ratings", function() {
       DynamicRatings.addRatingType(
         "mi1",
         [0],
-        "standard",
+        "standard1",
         true,
         true,
         [1, 15],
@@ -109,7 +109,7 @@ describe.only("Ratings", function() {
       DynamicRatings.addRatingType(
         "mi1",
         null,
-        "standard",
+        "standard1",
         true,
         true,
         [1, 15],
@@ -173,7 +173,7 @@ describe.only("Ratings", function() {
       DynamicRatings.addRatingType(
         "mi1",
         [0],
-        "standard",
+        "standard1",
         true,
         true,
         [1, 15],
@@ -204,7 +204,7 @@ describe.only("Ratings", function() {
       DynamicRatings.addRatingType(
         "mi1",
         [0],
-        "standard",
+        "standard1",
         true,
         true,
         [1, 15],
@@ -249,7 +249,7 @@ describe.only("Ratings", function() {
       DynamicRatings.addRatingType(
         "mi1",
         [0],
-        "standard",
+        "standard1",
         true,
         true,
         [1, 15],

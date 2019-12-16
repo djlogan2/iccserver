@@ -252,20 +252,6 @@ describe("Game.startLocalGame", function() {
       ICCMeteorError
     );
   });
-  //   black/white_initial/increment
-  it("should error out if times fail validation", function() {
-    self.sandbox.replace(
-      SystemConfiguration,
-      "meetsTimeAndIncRules",
-      self.sandbox.fake.returns(false)
-    );
-    self.loggedonuser = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
-    chai.assert.throws(
-      () => Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none"),
-      ICCMeteorError
-    );
-  });
 
   it("should add a playing game to the database with a random(ish--it's actually an algorithm) color if null", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -4295,15 +4281,6 @@ describe("Starting a game", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
   });
 
-  it("should fail if blacks time/inc/delay fails to meet the rules", function() {
-    const p1 = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
-    self.loggedonuser = p1;
-    chai.assert.throws(
-      () => Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 0, 0, "none"),
-      ICCMeteorError
-    );
-  });
 });
 
 describe("Starting an examined game", function() {

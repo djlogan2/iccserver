@@ -10,6 +10,7 @@ import { resetDatabase } from "meteor/xolvio:cleaner";
 import { UCI } from "../../server/UCI";
 import { Timestamp } from "../../lib/server/timestamp";
 import { Game } from "../../server/Game";
+import { DynamicRatings } from "../../server/DynamicRatings";
 
 export const TestHelpers = {};
 
@@ -67,6 +68,17 @@ if (Meteor.isTest || Meteor.isAppTest) {
           _id: self.loggedonuser ? self.loggedonuser._id : ""
         })
       );
+
+      self.sandbox.replace(
+        DynamicRatings,
+        "getUserRatingsObject",
+        self.sandbox.fake.returns({
+          bullet: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
+          standard: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 }
+        })
+      );
+
+      self.sandbox.replace(DynamicRatings, "meetsRatingTypeRules", self.sandbox.fake.returns(true));
 
       self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
 

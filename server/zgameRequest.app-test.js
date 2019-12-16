@@ -188,42 +188,6 @@ describe("GameRequests.addLocalGameSeek", function() {
     }, Match.Error);
   });
 
-  //   inc,
-  it("should fail if inc is null or not a number or not within ICC configuration requirements", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        -1,
-        "none",
-        true,
-        null,
-        null,
-        null,
-        true
-      );
-    }, ICCMeteorError);
-
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        "five",
-        "inc",
-        true,
-        null,
-        null,
-        null,
-        true
-      );
-    }, Match.Error);
-  });
-
   //   rated,
   it("should fail if rated is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -307,7 +271,7 @@ describe("GameRequests.addLocalGameSeek", function() {
   });
 
   //   minrating,
-  it("should fail if minrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
+  it(" should fail if minrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.addLocalGameSeek(
@@ -2483,7 +2447,7 @@ describe("Local matches", function() {
     chai.assert.equal(GameRequests.collection.find().count(), 9);
   });
 
-  it("should fail if delay is specified as zero and delaytype is not 'none'", function() {
+     it("should fail if delay is specified as zero and delaytype is not 'none'", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     chai.assert.throws(

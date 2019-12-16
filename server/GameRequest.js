@@ -291,18 +291,6 @@ GameRequests.addLocalGameSeek = function(
       "seek fails to meet blacks rating type rules for time and inc"
     );
 
-  if (
-    !SystemConfiguration.meetsMinimumAndMaximumRatingRules(
-      rating_type,
-      self.ratings[rating_type],
-      minrating,
-      maxrating
-    )
-  )
-    throw new ICCMeteorError(
-      message_identifier,
-      "seek fails to meet minimum or maximum rating rules"
-    );
   if (!!formula) throw new ICCMeteorError(message_identifier, "Formula is not yet supported");
 
   if (!Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")) {
