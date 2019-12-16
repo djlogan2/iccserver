@@ -10,6 +10,7 @@ import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
 import { i18n } from "./i18n";
 import { LegacyUser } from "../../lib/server/LegacyUsers";
+import { DynamicRatings } from "../../server/DynamicRatings";
 
 let log = new Logger("server/users_js");
 
@@ -36,32 +37,6 @@ Meteor.publish("userData", function() {
   return Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner });
 });
 
-export const startingRatingObject = {
-  rating: 1600,
-  need: 0,
-  won: 0,
-  draw: 0,
-  lost: 0,
-  best: 0
-};
-
-export const user_ratings_object = {
-  bullet: startingRatingObject,
-  blitz: startingRatingObject,
-  standard: startingRatingObject,
-  wild: startingRatingObject,
-  bughouse: startingRatingObject,
-  losers: startingRatingObject,
-  crazyhouse: startingRatingObject,
-  fiveminute: startingRatingObject,
-  oneminute: startingRatingObject,
-  correspondence: startingRatingObject,
-  fifteenminute: startingRatingObject,
-  threeminute: startingRatingObject,
-  computerpool: startingRatingObject,
-  chess960: startingRatingObject
-};
-
 export const default_settings = {
   autoaccept: true
 };
@@ -86,7 +61,7 @@ Accounts.onCreateUser(function(options, user) {
   }
 
   // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
-  user.ratings = user_ratings_object;
+  user.ratings = DynamicRatings.getUserRatingsObject();
   user.settings = default_settings;
   user.locale = "unknown";
   user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!

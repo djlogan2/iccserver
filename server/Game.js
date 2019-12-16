@@ -13,6 +13,7 @@ import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
+import { DynamicRatings } from "./DynamicRatings";
 
 export const Game = {};
 
@@ -92,6 +93,8 @@ Game.startLocalGame = function(
   check(white_increment_or_delay_type, String);
   check(black_increment_or_delay_type, String);
 
+  check(self.ratings[rating_type], Object); // Rating type needs to be valid!
+
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -123,19 +126,30 @@ Game.startLocalGame = function(
   }
 
   if (
-    !SystemConfiguration.meetsTimeAndIncRules(
+    !DynamicRatings.meetsRatingTypeRules(
+      message_identifier,
+      "white",
+      rating_type,
       white_initial,
       white_increment_or_delay,
-      white_increment_or_delay_type
+      white_increment_or_delay_type,
+      rated,
+      "start"
     )
   ) {
     throw new ICCMeteorError("Unable to start game", "White time/inc/delay fails validation");
   }
+
   if (
-    !SystemConfiguration.meetsTimeAndIncRules(
+    !DynamicRatings.meetsRatingTypeRules(
+      message_identifier,
+      "black",
+      rating_type,
       black_initial,
       black_increment_or_delay,
-      black_increment_or_delay_type
+      black_increment_or_delay_type,
+      rated,
+      "start"
     )
   ) {
     throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
@@ -2062,11 +2076,12 @@ function testingCleanupMoveTimers() {
 
 Meteor.startup(function() {
   GameCollection.remove({});
-  if (Meteor.isTest || Meteor.isAppTest) {
-    Game.collection = GameCollection;
-    Game.addMoveToMoveList = addMoveToMoveList;
-    Game.buildPgnFromMovelist = buildPgnFromMovelist;
-    Game.calculateGameLag = calculateGameLag;
-    Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
-  }
 });
+
+if (Meteor.isTest || Meteor.isAppTest) {
+  Game.collection = GameCollection;
+  Game.addMoveToMoveList = addMoveToMoveList;
+  Game.buildPgnFromMovelist = buildPgnFromMovelist;
+  Game.calculateGameLag = calculateGameLag;
+  Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
+}
