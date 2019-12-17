@@ -264,6 +264,8 @@ Game.startLocalExaminedGame = function(
     );
   }
 
+  Game.localUnobserveAllGames(message_identifier, self._id);
+
   const chess = new Chess.Chess();
 
   const game = {
@@ -341,6 +343,8 @@ Game.startLegacyGame = function(
   check(uses_plunkers, Match.Maybe(String));
   check(fancy_timecontrol, Match.Maybe(String));
   check(promote_to_king, Match.Maybe(String));
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
 
   const whiteuser = Meteor.users.findOne({
     "profile.legacy.username": whitename,
