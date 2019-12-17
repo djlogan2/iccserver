@@ -59,6 +59,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.logout = this.logout.bind(this);
   }
 
+  // TODO: If we continue to allow a single user to login multiple times, we are going to have to
+  //       figure out how to keep game ids locally, or we will have to figure out how to add session
+  //       ids to the game record.
   renderGameMessages() {
     const game = Game.findOne({
       $and: [
@@ -73,9 +76,22 @@ export default class AppContainer extends TrackerReact(React.Component) {
       const color = game.white.id === Meteor.userId() ? "white" : "black";
 
       if (!this.game_timestamp_client)
-        this.game_timestamp_client = new TimestampClient("client game", (_, msg) =>
-          Meteor.call("gamepong", game._id, msg)
-        );
+        this.game_timestamp_client = new TimestampClient("client game", (_, msg) => {
+          const game_to_ping = Game.findOne(
+            {
+              $and: [
+                { status: "playing" },
+                {
+                  $or: [{ "lag.white.active.id": msg.id }, { "lag.black.active.id": msg.id }]
+                }
+              ]
+            },
+            { _id: 1 }
+          );
+
+          if (!!game_to_ping) Meteor.call("gamepong", game_to_ping._id, msg);
+          else log.error("Unable to find game to ping for message " + msg.id);
+        });
       game.lag[color].active.forEach(ping => this.game_timestamp_client.pingArrived(ping));
     }
 
@@ -222,14 +238,14 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
   };
   _boardFromMongoMessages(game) {
-   /*  this._board = new Chess.Chess(game.fen);
+    /*  this._board = new Chess.Chess(game.fen);
     var history = this._board.history({verbose: true});
     log.debug("History",history); */
     this._board = new Chess.Chess();
     this._board.load(game.fen);
-    var history = this._board.history({verbose: true});
-    log.debug("History",history) 
-}
+    var history = this._board.history({ verbose: true });
+    log.debug("History", history);
+  }
   render() {
     const gameRequest = this.renderGameRequest();
     const game = this.renderGameMessages();

@@ -14,6 +14,7 @@ import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
+import { Users } from "../imports/collections/users";
 
 export const Game = {};
 
@@ -2076,6 +2077,11 @@ function testingCleanupMoveTimers() {
 
 Meteor.startup(function() {
   GameCollection.remove({});
+  Users.addLogoutHook(userId => {
+    GameCollection.find({ observers: userId }, { _id: 1 })
+      .fetch()
+      .forEach(game => Game.localRemoveObserver("", game._id, userId));
+  });
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
