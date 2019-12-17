@@ -11,6 +11,7 @@ import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
 import { Users } from "../imports/collections/users";
+import { DynamicRatings } from "./DynamicRatings";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
@@ -255,31 +256,41 @@ GameRequests.addLocalGameSeek = function(
   if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
   if (color !== null && color !== undefined && color !== "white" && color !== "black")
     throw new Match.Error("Invalid color specification");
-  if (!SystemConfiguration.meetsTimeAndIncRules(time, inc_or_delay, inc_or_delay_type))
-    throw new ICCMeteorError(
-      message_identifier,
-      "seek fails to meet time and increment configuration rules"
-    );
   if (!self.ratings[rating_type])
     throw new ICCMeteorError(message_identifier, "Invalid rating type");
-  if (!SystemConfiguration.meetsRatingTypeRules(rating_type, time, inc_or_delay, inc_or_delay_type))
-    throw new ICCMeteorError(
-      message_identifier,
-      "seek fails to meet rating type rules for time and inc"
-    );
-
   if (
-    !SystemConfiguration.meetsMinimumAndMaximumRatingRules(
+    !DynamicRatings.meetsRatingTypeRules(
+      message_identifier,
+      "white",
       rating_type,
-      self.ratings[rating_type],
-      minrating,
-      maxrating
+      time,
+      inc_or_delay,
+      inc_or_delay_type,
+      rated,
+      "seek"
     )
   )
     throw new ICCMeteorError(
       message_identifier,
-      "seek fails to meet minimum or maximum rating rules"
+      "seek fails to meet whites rating type rules for time and inc"
     );
+  if (
+    !DynamicRatings.meetsRatingTypeRules(
+      message_identifier,
+      "black",
+      rating_type,
+      time,
+      inc_or_delay,
+      inc_or_delay_type,
+      rated,
+      "seek"
+    )
+  )
+    throw new ICCMeteorError(
+      message_identifier,
+      "seek fails to meet blacks rating type rules for time and inc"
+    );
+
   if (!!formula) throw new ICCMeteorError(message_identifier, "Formula is not yet supported");
 
   if (!Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")) {
@@ -543,33 +554,14 @@ GameRequests.addLocalMatchRequest = function(
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
 
-  if (
-    !SystemConfiguration.meetsTimeAndIncRules(
-      challenger_time,
-      challenger_inc_or_delay,
-      challenger_inc_or_delay_type
-    )
-  )
-    throw new ICCMeteorError(
+  if (!receiver_user.status.online) {
+    ClientMessages.sendMessageToClient(
+      challenger_user,
       message_identifier,
-      "Cannot add match request",
-      "Failed time and inc rules for challenger"
+      "CANNOT_MATCH_LOGGED_OFF_USER"
     );
-
-  if (
-    !SystemConfiguration.meetsTimeAndIncRules(
-      receiver_time,
-      receiver_inc_or_delay,
-      receiver_inc_or_delay_type
-    )
-  )
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot add match request",
-      "Failed time and inc rules for receiver"
-    );
-
-  if (wild_number !== 0) throw new ICCMeteorError(message_identifier, "Wild must be zero");
+    return;
+  }
 
   if (
     !!challenger_color_request &&
@@ -595,8 +587,78 @@ GameRequests.addLocalMatchRequest = function(
       );
   }
 
-  if (challenger_user.ratings[rating_type] === undefined)
-    throw new ICCMeteorError(message_identifier, "Unknown rating type " + rating_type);
+  if (challenger_color_request === "white") {
+    if (
+      !DynamicRatings.meetsRatingTypeRules(
+        message_identifier,
+        "white",
+        rating_type,
+        challenger_time,
+        challenger_inc_or_delay,
+        challenger_inc_or_delay_type,
+        is_it_rated,
+        "match"
+      )
+    )
+      throw new ICCMeteorError(
+        message_identifier,
+        "Cannot add match request",
+        "Failed time and inc rules for challenger"
+      );
+    if (
+      !DynamicRatings.meetsRatingTypeRules(
+        message_identifier,
+        "black",
+        rating_type,
+        receiver_time,
+        receiver_inc_or_delay,
+        receiver_inc_or_delay_type,
+        is_it_rated,
+        "match"
+      )
+    )
+      throw new ICCMeteorError(
+        message_identifier,
+        "Cannot add match request",
+        "Failed time and inc rules for challenger"
+      );
+  } else {
+    if (
+      !DynamicRatings.meetsRatingTypeRules(
+        message_identifier,
+        "black",
+        rating_type,
+        challenger_time,
+        challenger_inc_or_delay,
+        challenger_inc_or_delay_type,
+        is_it_rated,
+        "match"
+      )
+    )
+      throw new ICCMeteorError(
+        message_identifier,
+        "Cannot add match request",
+        "Failed time and inc rules for challenger"
+      );
+    if (
+      !DynamicRatings.meetsRatingTypeRules(
+        message_identifier,
+        "black",
+        rating_type,
+        rating_type,
+        receiver_time,
+        receiver_inc_or_delay,
+        receiver_inc_or_delay_type,
+        is_it_rated,
+        "match"
+      )
+    )
+      throw new ICCMeteorError(
+        message_identifier,
+        "Cannot add match request",
+        "Failed time and inc rules for challenger"
+      );
+  }
 
   const role = is_it_rated ? "play_rated_games" : "play_unrated_games";
 
@@ -605,14 +667,7 @@ GameRequests.addLocalMatchRequest = function(
   if (!Roles.userIsInRole(receiver_user, role))
     throw new ICCMeteorError(message_identifier, "not_in_role", role);
 
-  if (!receiver_user.status.online) {
-    ClientMessages.sendMessageToClient(
-      challenger_user,
-      message_identifier,
-      "CANNOT_MATCH_LOGGED_OFF_USER"
-    );
-    return;
-  }
+  if (wild_number !== 0) throw new ICCMeteorError(message_identifier, "Wild must be zero");
 
   const assess = SystemConfiguration.winDrawLossAssessValues(
     challenger_user.ratings[rating_type],
