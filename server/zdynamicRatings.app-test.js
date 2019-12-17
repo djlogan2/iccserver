@@ -6,8 +6,9 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { Match } from "meteor/check";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
-describe("Ratings", function() {
-  const self = TestHelpers.setupDescribe.call(this);
+describe.only("Ratings", function() {
+  this.timeout(500000);
+  const self = TestHelpers.setupDescribe.call(this, { dynamicratings: false });
 
   //  wild_number,
   it("should require wild_number to be an array, but currently can only contain zero", function() {

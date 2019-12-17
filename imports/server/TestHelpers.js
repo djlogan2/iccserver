@@ -69,16 +69,22 @@ if (Meteor.isTest || Meteor.isAppTest) {
         })
       );
 
-      self.sandbox.replace(
-        DynamicRatings,
-        "getUserRatingsObject",
-        self.sandbox.fake.returns({
-          bullet: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
-          standard: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 }
-        })
-      );
+      if (!options || options.dynamicratings === undefined || options.dynamicratings !== false) {
+        self.sandbox.replace(
+          DynamicRatings,
+          "getUserRatingsObject",
+          self.sandbox.fake.returns({
+            bullet: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
+            standard: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 }
+          })
+        );
 
-      self.sandbox.replace(DynamicRatings, "meetsRatingTypeRules", self.sandbox.fake.returns(true));
+        self.sandbox.replace(
+          DynamicRatings,
+          "meetsRatingTypeRules",
+          self.sandbox.fake.returns(true)
+        );
+      }
 
       self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
 
