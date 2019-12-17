@@ -96,6 +96,8 @@ Game.startLocalGame = function(
 
   check(self.ratings[rating_type], Object); // Rating type needs to be valid!
 
+  Game.localUnobserveAllGames(message_identifier, self._id);
+
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -1805,6 +1807,14 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
   );
 };
 
+Game.localUnobserveAllGames = function(message_identifier, user_id) {
+  check(message_identifier, String);
+  check(user_id, String);
+  GameCollection.find({ observers: user_id }, { _id: 1 })
+    .fetch()
+    .forEach(game => Game.localRemoveObserver("", game._id, user_id));
+};
+
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
   switch (tag) {
     case "Event":
@@ -2077,11 +2087,7 @@ function testingCleanupMoveTimers() {
 
 Meteor.startup(function() {
   GameCollection.remove({});
-  Users.addLogoutHook(userId => {
-    GameCollection.find({ observers: userId }, { _id: 1 })
-      .fetch()
-      .forEach(game => Game.localRemoveObserver("", game._id, userId));
-  });
+  Users.addLogoutHook(userId => Game.localUnobserveAllGames("", userId));
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
