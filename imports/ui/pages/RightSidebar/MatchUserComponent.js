@@ -12,6 +12,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.state = {
+      hover: false,
       error: null,
       trial: 0,
       subscription: {
@@ -73,7 +74,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   handleMatchSubmit() {
     let color = this.state.color === "random" ? null : this.state.color;
 
-    Meteor.call(
+    let submit = Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
       this.state.user,
@@ -111,8 +112,21 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       "en-US"
     );
   }
+  toggleHover() {
+    this.setState({ hover: true });
+  }
+  toggleHoverOut() {
+    this.setState({ hover: false });
+  }
 
   render() {
+    let linkStyle;
+    if (this.state.hover) {
+      alert("yes");
+      linkStyle = { color: "red", cursor: "pointer", background: "#ccc" };
+    } else {
+      linkStyle = { color: "#000", background: "blue" };
+    }
     let translator = i18n.createTranslator("Common.MatchUserSubTab", this.getLang());
     if (Meteor.userId() == null) return;
     const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
@@ -192,7 +206,13 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
                   <button style={this.props.cssmanager.matchUserButton()}>User-1</button>
                 </div>
                 <div>
-                  <button style={this.props.cssmanager.matchUserButton()}>User-2</button>
+                  <button
+                    style={linkStyle}
+                    onMouseOut={this.toggleHover}
+                    onMouseOver={this.toggleHoverOut}
+                  >
+                    User-2
+                  </button>
                 </div>
               </div>
             </div>
@@ -242,7 +262,6 @@ class SubTabs extends Component {
     this.state = {
       activeTab: this.props.children[0].props.label
     };
-    console.log(this.props.children[0]);
   }
 
   onClickTabItem = tab => {

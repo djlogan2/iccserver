@@ -225,34 +225,38 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _boardFromMongoMessages(game) {
     let moves = [];
     let variation = game.variations;
-    this._boardfallensolder = new Chess.Chess();
     if (this._board.fen() !== game.fen) {
       this._board.load(game.fen);
     }
-    let index = 0;
-    for (let i = 1; i < variation.cmi; i++) {
-      if (variation.movelist[i].variations !== undefined) {
-        let vi = variation.movelist[i].variations.length;
-        if (
-          !!variation.movelist[variation.movelist[i].variations] &&
-          variation.movelist[i].variations > index
-        ) {
-          moves.push(variation.movelist[variation.movelist[i].variations].move);
-        } else {
-          if (vi > 1) {
-            index = variation.movelist[i].variations[vi - 1];
-            moves.push(variation.movelist[index].move);
+    this._boardfallensolder = new Chess.Chess();
+    let itemToBeRemoved = [];
+    for (let i = 0; i < variation.cmi; i++) {
+      if (itemToBeRemoved.indexOf(i) === -1) {
+        var moveListItem = variation.movelist[i];
+        if (moveListItem !== undefined) {
+          var variationI = moveListItem.variations;
+          if (variationI !== undefined) {
+            var len = variationI.length;
+            if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
+              moves.push(variation.movelist[variationI[0]].move);
+            } else if (len > 1) {
+              if (variation.movelist[variationI[len - 1]] !== undefined) {
+                moves.push(variation.movelist[variationI[len - 1]].move);
+              }
+              if (variation.cmi === variationI[len - 1]) {
+                break;
+              }
+              for (let n = variationI[0]; n < variationI[len - 1]; n++) {
+                itemToBeRemoved.push(n);
+              }
+            }
           }
         }
       }
     }
-    //log.debug(moves);
-    for (index = 0; index < moves.length; index++) {
+    for (var index in moves) {
       this._boardfallensolder.move(moves[index]);
     }
-    // log.debug(moves);
-
-    //log.debug(this._board.history({ verbose: true }));
   }
   render() {
     const gameRequest = this.renderGameRequest();
@@ -269,7 +273,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (game !== undefined) this._boardFromMongoMessages(game);
-    else this._board = new Chess.Chess();
+    else this._boardfallensolder = new Chess.Chess();
 
     const capture = this._fallenSoldier();
     return (

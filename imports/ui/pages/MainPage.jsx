@@ -119,32 +119,37 @@ export default class MainPage extends Component {
         <div
           style={{
             display: "flex",
-            marginTop: "0",
+            marginTop: "0px",
             alignItems: "center",
             padding: "0.25rem 0.75rem",
-            color: "rgb(108, 117, 125)",
-            border: "1px solid rgb(206, 204, 204)",
+            color: "#fff",
+            border: "1px solid #f88117",
             position: "absolute",
             right: "8px",
-            background: "#efefef",
-            width: "190px",
-            top: "6px",
-            zIndex: "9"
+            background: "#f88117e0",
+            width: "180px",
+            top: "15px",
+            zIndex: "9",
+            webkitBoxShadow: "#949392 3px 2px 4px 0px",
+            mozBoxShadow: "#949392 3px 2px 4px 0px",
+            boxShadow: "#949392 3px 2px 4px 0px",
+            borderRadius: "4px",
+            padding: "10px 15px"
           }}
         >
-          <img src="images/info-icon.png" style={{ width: "15px", marginRight: "10px" }} />
-          <strong style={{ width: "100px", marginRight: "15px" }}>{title}</strong>
+          <img src="images/info-icon.png" style={{ width: "18px", marginRight: "10px" }} />
+          <strong style={{ width: "100px", marginRight: "6px", fontSize: "14px" }}>{title}</strong>
           <button
             onClick={this._performAction.bind(this, "accepted", action)}
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
-            <img src="images/checked.png" style={{ width: "15px" }} />
+            <img src="images/checked.png" style={{ width: "18px" }} />
           </button>
           <button
             onClick={this._performAction.bind(this, "rejected", action)}
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
-            <img src="images/close.png" style={{ width: "13px" }} />
+            <img src="images/close.png" style={{ width: "15px" }} />
           </button>
         </div>
       </div>

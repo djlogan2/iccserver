@@ -26,12 +26,14 @@ const systemcss = {
     width: "auto",
     alignItems: "center",
     backgroundColor: "#00BFFF",
-    fontSize: "25px",
-    color: "white"
+    fontSize: "16px",
+    color:"white",
+    padding: "2px 10px"
   },
   drawSectionButton: {
     margin: "0 auto",
-    display: "block"
+    display: "block",
+    paddingBottom:"5px"
   },
   moveListParent: {
     backgroundColor: "#00BFFF",
@@ -81,6 +83,7 @@ const systemcss = {
     takeBack: "images/take-forward-icon.png",
     draw: "images/draw-icon.png",
     resign: "images/resign-icon.png",
+    action: "images/action-icon.png",
     abort: "images/abort-icon.png",
     gameShare: "images/share-icon-gray.png",
     gameDownload: "images/download-icon-gray.png",
