@@ -38,6 +38,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.userId = null;
     // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
+    this._boardfallensolder = new Chess.Chess();
     this.player = {
       White: { name: "abc", rating: "123" },
       Black: { name: "xyz", rating: "456" }
@@ -160,7 +161,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _fallenSoldier() {
-    let history = this._board.history({ verbose: true });
+    let history = this._boardfallensolder.history({ verbose: true });
     let position = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
@@ -222,14 +223,37 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
   };
   _boardFromMongoMessages(game) {
-   /*  this._board = new Chess.Chess(game.fen);
-    var history = this._board.history({verbose: true});
-    log.debug("History",history); */
-    this._board = new Chess.Chess();
-    this._board.load(game.fen);
-    var history = this._board.history({verbose: true});
-    log.debug("History",history) 
-}
+    let moves = [];
+    let variation = game.variations;
+    this._boardfallensolder = new Chess.Chess();
+    if (this._board.fen() !== game.fen) {
+      this._board.load(game.fen);
+    }
+    let index = 0;
+    for (let i = 1; i < variation.cmi; i++) {
+      if (variation.movelist[i].variations !== undefined) {
+        let vi = variation.movelist[i].variations.length;
+        if (
+          !!variation.movelist[variation.movelist[i].variations] &&
+          variation.movelist[i].variations > index
+        ) {
+          moves.push(variation.movelist[variation.movelist[i].variations].move);
+        } else {
+          if (vi > 1) {
+            index = variation.movelist[i].variations[vi - 1];
+            moves.push(variation.movelist[index].move);
+          }
+        }
+      }
+    }
+    //log.debug(moves);
+    for (index = 0; index < moves.length; index++) {
+      this._boardfallensolder.move(moves[index]);
+    }
+    // log.debug(moves);
+
+    //log.debug(this._board.history({ verbose: true }));
+  }
   render() {
     const gameRequest = this.renderGameRequest();
     const game = this.renderGameMessages();
@@ -244,9 +268,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
     )
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
-    if (game !== undefined) {
-      this._boardFromMongoMessages(game);
-    }
+    if (game !== undefined) this._boardFromMongoMessages(game);
+    else this._board = new Chess.Chess();
 
     const capture = this._fallenSoldier();
     return (
