@@ -1350,18 +1350,18 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
 };
 
 //Fixme: add functionality, decide on parameters and protocols
-Game.drawCircle = function(game_id, square) {
-  if (!game_id || !square) {
-    throw "Passed incorrect arguments to Game.drawCircle";
-  }
-  const game = GameCollection.findOne({ _id: game_id });
+Game.drawCircle = function(message_identifier, game_id, user_id, square) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(square, String);
+  const game = Game.collection.find({ game_id: game_id });
+  if (!game) throw "Couldn't find game";
 
-  if (!game)
-    throw new ICCMeteorError(
-      message_identifier,
-        "Unable to add examiner",
-        "Unable to find game record"
-    );
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(user_id, message_identifier, "NOT_AN_EXAMINER");
+    throw "Game not examined";
+  }
+  return;
 };
 
 Game.declineLocalDraw = function(message_identifier, game_id) {
