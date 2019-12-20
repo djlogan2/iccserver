@@ -1950,7 +1950,9 @@ function buildPgnFromMovelist(movelist) {
 }
 
 function addMoveToMoveList(variation_object, move, current) {
+
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
+
   if (exists) {
     variation_object.cmi = exists;
   } else {
@@ -1960,6 +1962,7 @@ function addMoveToMoveList(variation_object, move, current) {
       prev: variation_object.cmi,
       current: current
     });
+
     if (!variation_object.movelist[variation_object.cmi].variations) {
       variation_object.movelist[variation_object.cmi].variations = [newi];
     } else {
