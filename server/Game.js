@@ -1349,16 +1349,21 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   );
 };
 
-//Fixme: add functionality, decide on parameters and protocols
-Game.drawCircle = function(message_identifier, game_id, user_id, square) {
+//TODO: add functionality, decide on parameters and protocols
+Game.drawCircle = function(message_identifier, game_id, square) {
   check(message_identifier, String);
   check(square, String);
+  const self = Meteor.user();
+  check(self, Object);
+
   const game = Game.collection.findOne({ _id: game_id });
-  if (!game) throw "Couldn't find game";
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
+  }
 
   if (game.status !== "examining") {
-    ClientMessages.sendMessageToClient(user_id, message_identifier, "NOT_AN_EXAMINER");
-    throw "Game not examined";
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
+    return;
   }
   return;
 };
