@@ -1,22 +1,51 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import { Logger } from "../../../../lib/client/Logger";
+const log = new Logger("MoveLIst_js");
 export default class MoveListComponent extends Component {
   _pgnView = (actionType, action) => {
     this.props.performAction(action, actionType);
   };
   render() {
-    let moves = this.props.Moves;
+    let moves = [];
+    let variation = this.props.Moves;
+    let itemToBeRemoved = [];
+    for (let i = 0; i < variation.cmi; i++) {
+      if (itemToBeRemoved.indexOf(i) === -1) {
+        var moveListItem = variation.movelist[i];
+        if (moveListItem !== undefined) {
+          var variationI = moveListItem.variations;
+          if (variationI !== undefined) {
+            var len = variationI.length;
+            if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
+              moves.push(variation.movelist[variationI[0]].move);
+            } else if (len > 1) {
+              if (variation.movelist[variationI[len - 1]] !== undefined) {
+                moves.push(variation.movelist[variationI[len - 1]].move);
+              }
+              if (variation.cmi === variationI[len - 1]) {
+                break;
+              }
+              for (let n = variationI[0]; n < variationI[len - 1]; n++) {
+                itemToBeRemoved.push(n);
+              }
+            }
+          }
+        }
+      }
+    }
     let movesString = [];
     if (moves != null || moves !== undefined) {
-      for (let i = 1; i < moves.length; ) {
+      for (let i = 0; i < moves.length; ) {
         if (i + 1 < moves.length) {
-          movesString.push(" " + moves[i].move + " " + moves[i + 1].move + " ");
+          movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
         } else {
-          movesString.push(" " + moves[i].move + " ");
+          movesString.push(" " + moves[i] + " ");
         }
         i = i + 2;
       }
     }
+
     return (
       <div>
         <div style={this.props.cssmanager.gameMoveList()}>
