@@ -96,8 +96,6 @@ Game.startLocalGame = function(
 
   check(self.ratings[rating_type], Object); // Rating type needs to be valid!
 
-  Game.localUnobserveAllGames(message_identifier, self._id);
-
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -157,6 +155,18 @@ Game.startLocalGame = function(
   ) {
     throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
   }
+
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
 
   const chess = new Chess.Chess();
 
@@ -264,6 +274,16 @@ Game.startLocalExaminedGame = function(
     );
   }
 
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
   Game.localUnobserveAllGames(message_identifier, self._id);
 
   const chess = new Chess.Chess();
@@ -344,8 +364,6 @@ Game.startLegacyGame = function(
   check(fancy_timecontrol, Match.Maybe(String));
   check(promote_to_king, Match.Maybe(String));
 
-  Game.localUnobserveAllGames(message_identifier, self._id);
-
   const whiteuser = Meteor.users.findOne({
     "profile.legacy.username": whitename,
     "profile.legacy.validated": true
@@ -359,6 +377,7 @@ Game.startLegacyGame = function(
   const self = Meteor.user();
   const iswhite = !!self && !!whiteuser && whiteuser._id === self._id;
   const isblack = !!self && !!blackuser && blackuser._id === self._id;
+
   if (!self || (!iswhite && !isblack))
     throw new ICCMeteorError(
       message_identifier,
@@ -394,6 +413,18 @@ Game.startLegacyGame = function(
       "Unable to start game",
       "Both players are logged on locally. Begin a local game"
     );
+
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
 
   const game = {
     starttime: new Date(),
@@ -1965,7 +1996,6 @@ function buildPgnFromMovelist(movelist) {
 }
 
 function addMoveToMoveList(variation_object, move, current) {
-
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
 
   if (exists) {
