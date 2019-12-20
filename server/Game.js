@@ -1352,9 +1352,8 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
 //Fixme: add functionality, decide on parameters and protocols
 Game.drawCircle = function(message_identifier, game_id, user_id, square) {
   check(message_identifier, String);
-  check(game_id, String);
   check(square, String);
-  const game = Game.collection.find({ game_id: game_id });
+  const game = Game.collection.findOne({ _id: game_id });
   if (!game) throw "Couldn't find game";
 
   if (game.status !== "examining") {

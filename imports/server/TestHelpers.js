@@ -100,7 +100,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
       self.sandbox.restore();
       delete self.meteorUsersFake;
       delete self.clientMessagesSpy;
-      //Game.testingCleanupMoveTimers(); FIXME: remove this comment slash
+      Game.testingCleanupMoveTimers();
     });
 
     return self;

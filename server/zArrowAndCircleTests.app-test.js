@@ -23,18 +23,19 @@ describe("Draw Methods", function() {
 
     it("should return client message if game is not examined", function() {
       self.loggedonuser = TestHelpers.createUser();
-      const game = Game.startLocalExaminedGame(
+      const game = Game.startLocalGame(
         "test_identifier",
-        0,
+        "stuff",
         "standard",
         15,
         0,
-        "inc",
-        "something",
-        null,
-        null,
-        null,
-        true
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        "white"
       );
       Game.drawCircle("test_identifier", game, "", "C1");
       chai.assert.equal("a", "?");
