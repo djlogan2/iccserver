@@ -17,19 +17,26 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     };
     this.state = {
       isAuthenticated: Meteor.userId() !== null,
-      visible: false,
       subscription: {
         css: Meteor.subscribe("css"),
         gameRequests: Meteor.subscribe("game_requests")
       }
     };
-    this.toggleMenu = this.toggleMenu.bind(this);
   }
   gameRequest = (title, param, css) => {
     return (
       <div style={css.outerPopupMain()}>
         <div className="popup_inner">
-          <h3>{title}</h3>
+          <h3
+            style={{
+              margin: "10px 0px 20px",
+              color: "#fff",
+              fontSize: "17px"
+            }}
+          >
+            {title}
+          </h3>
+
           <button onClick={this.gameAccept.bind(this, param)} style={css.innerPopupMain()}>
             Accept
           </button>
@@ -61,9 +68,6 @@ export default class HomeContainer extends TrackerReact(React.Component) {
         sort: { create_date: -1 }
       }
     );
-  }
-  toggleMenu() {
-    this.setState({ visible: !this.state.visible });
   }
   _systemCSS() {
     return mongoCss.findOne({ type: "system" });
@@ -118,12 +122,6 @@ export default class HomeContainer extends TrackerReact(React.Component) {
           css
         );
     }
-    let buttonStyle;
-    if (this.state.visible === true) {
-      buttonStyle = "toggleClose";
-    } else {
-      buttonStyle = "toggleOpen";
-    }
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;
@@ -132,37 +130,16 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     return (
       <div className="home">
         <div className="row1">
-          <div className="col-sm-2 left-col">
-            <aside>
-              <div
-                className={
-                  this.state.visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"
-                }
-              >
-                <div className="pull-left image">
-                  <img src="images/logo-white-lg.png" alt="" />
-                </div>
-                <button style={css.buttonStyle(buttonStyle)} onClick={this.toggleMenu}>
-                  <img
-                    src={css.buttonBackgroundImage("toggleMenu")}
-                    style={css.toggleMenuHeight()}
-                    alt="toggle menu"
-                  />
-                </button>
-                <LeftSidebar
-                  cssmanager={css}
-                  LefSideBoarData={this.Main.LeftSection}
-                  history={this.props.history}
-                />
-              </div>
-            </aside>
-          </div>
-
+          <LeftSidebar
+            cssmanager={css}
+            LefSideBoarData={this.Main.LeftSection}
+            history={this.props.history}
+          />
           <div className="col-sm-10 col-md-10" style={css.parentPopup(h, w)}>
             {informativePopup}
             <div className="home-middle-section">
               <div className="home-slider">
-                <img src="images/home-page/home-top.jpg" alt="toggle menu" />
+                <img src={css.buttonBackgroundImage("homeImage")} alt="Home" />
               </div>
               <div className="home-description">
                 {/* {translator("mainContent")} */}

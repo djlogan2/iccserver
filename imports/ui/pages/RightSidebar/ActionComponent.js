@@ -110,24 +110,14 @@ class ActionComponent extends Component {
           </li>
           <li style={this.props.cssmanager.drawSectionList()}>
             <span style={this.props.cssmanager.spanStyle("form")}>
-              <img
-                src={this.props.cssmanager.buttonBackgroundImage("action")}
-                alt="action"
-                style={{
-                  width: "18px",
-                  margin: "auto",
-                  display: "block",
-                  paddingBottom: "5px"
-                }}
-              />
-
               <select
                 onChange={this.handleChangeSecond}
                 style={{
                   outline: "none",
-                  border: "2px #9c9c9c solid",
-                  padding: "2px 3px",
-                  borderTop: "0px"
+                  border: "1px #9c9c9c solid",
+                  padding: "6px 3px",
+                  borderRadius: "5px",
+                  marginTop: "7px"
                 }}
                 value={this.state.action}
               >
