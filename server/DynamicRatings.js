@@ -44,44 +44,84 @@ DynamicRatingsCollection.attachSchema(RatingSchema);
 
 export const DynamicRatings = {};
 
+const allowed_increment_types = ["none", "us", "inc", "bronstein"];
+
 function validateAndFillRatingObject(message_identifier, obj) {
   check(message_identifier, String);
   check(obj, Object);
 
   if (obj.initial && (!Array.isArray(obj.initial) || obj.initial.length !== 2))
-    throw new ICCMeteorError(message_identifier, "Initial time must be an array of 'low, high'");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "Initial time must be an array of 'low, high'"
+    );
   if (obj.increment && (!Array.isArray(obj.increment) || obj.increment.length !== 2))
-    throw new ICCMeteorError(message_identifier, "Increment/delay must be an array of 'low, high'");
-  if (obj.etime && (!Array.isArray(obj.etime) || obj.etime.length !== 0))
-    throw new ICCMeteorError(message_identifier, "etime must be an array of 'low, high'");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "Increment/delay must be an array of 'low, high'"
+    );
+  if (obj.etime && (!Array.isArray(obj.etime) || obj.etime.length !== 2))
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "etime must be an array of 'low, high'"
+    );
 
   if (obj.increment && !obj.increment_type)
     throw new ICCMeteorError(
       message_identifier,
+      "Unable to add rating",
       "increment/delay type must be specified if increment/delay is specified"
     );
+
   if (obj.increment_type && !Array.isArray(obj.increment_type))
     throw new ICCMeteorError(
       message_identifier,
+      "Unable to add rating",
       "increment/delay type must be an array of allowed increment/delay types"
     );
 
   if (obj.initial && obj.initial[0] > obj.initial[1])
-    throw new ICCMeteorError(message_identifier, "Initial time must be an array of 'low, high'");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "Initial time must be an array of 'low, high'"
+    );
   if (obj.increment && obj.increment[0] > obj.increment[1])
-    throw new ICCMeteorError(message_identifier, "Increment/delay must be an array of 'low, high'");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "Increment/delay must be an array of 'low, high'"
+    );
   if (obj.etime && obj.etime[0] > obj.etime[1])
-    throw new ICCMeteorError(message_identifier, "etime must be an array of 'low, high'");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "etime must be an array of 'low, high'"
+    );
 
   const unique = [];
   const dups = [];
-  obj.increment_type.forEach(type => {
-    if (unique.indexOf(type) === -1) unique.push(type);
-    else dups.push(type);
-  });
+  if (obj.increment_type)
+    obj.increment_type.forEach(type => {
+      if (allowed_increment_types.indexOf(type) === -1)
+        throw new ICCMeteorError(
+          message_identifier,
+          "Unable to add rating",
+          type + " is not an allowed increment/delay type"
+        );
+      if (unique.indexOf(type) === -1) unique.push(type);
+      else dups.push(type);
+    });
 
   if (dups.length !== 0)
-    throw new ICCMeteorError(message_identifier, "increment/delay has duplicate entries.");
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "increment/delay has duplicate entries."
+    );
 
   if (
     (!obj.increment || obj.increment[1]) &&
@@ -89,6 +129,7 @@ function validateAndFillRatingObject(message_identifier, obj) {
   )
     throw new ICCMeteorError(
       message_identifier,
+      "Unable to add rating",
       "increment/delay type must have at least one option when increment is available"
     );
 
@@ -100,6 +141,7 @@ function validateAndFillRatingObject(message_identifier, obj) {
       if (calculated_low_etime < obj.etime[0])
         throw new ICCMeteorError(
           message_identifier,
+          "Unable to add rating",
           "etime does not match",
           "etime of " +
             calculated_low_etime +
@@ -109,6 +151,7 @@ function validateAndFillRatingObject(message_identifier, obj) {
       if (calculated_high_etime > obj.etime[0])
         throw new ICCMeteorError(
           message_identifier,
+          "Unable to add rating",
           "etime does not match",
           "etime of " +
             calculated_high_etime +
@@ -122,11 +165,11 @@ function validateAndFillRatingObject(message_identifier, obj) {
         Math.round(obj.initial[1] + (2 * obj.increment[1]) / 3)
       ];
     }
-  } else if (obj.time) {
+  } else if (obj.etime) {
     // !obj.initial && !obj.increment
     // initial and inc = etime
-    obj.initial = [0, obj.etime];
-    obj.increment = [0, Math.trunc(3 * obj.etime) / 2];
+    obj.initial = [0, obj.etime[1]];
+    obj.increment = [0, Math.trunc(3 * obj.etime[1]) / 2];
     if (!obj.increment_type) {
       if (obj.increment[1]) obj.increment_type = ["us", "inc", "bronstein"];
       if (!obj.increment[0]) obj.increment_type.push("none");
@@ -134,8 +177,41 @@ function validateAndFillRatingObject(message_identifier, obj) {
   } else {
     throw new ICCMeteorError(
       message_identifier,
+      "Unable to add rating",
       "Initial, increment, and etime cannot all be null"
     );
+  }
+  if (obj.increment[0]) {
+    if (obj.increment_type.indexOf("none") !== -1)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to add rating",
+        "'none' cannot be specified when inc/delay is required"
+      );
+  } else {
+    //!obj.increment[0]
+    if (obj.increment_type.indexOf("none") === -1)
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to add rating",
+        "'none' is required when inc/delay can be zero"
+      );
+  }
+  if (obj.increment[1]) {
+    if (obj.increment_type.length === 1 && obj.increment_type[0] === "none")
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to add rating",
+        "increment or delay types are required when inc/delay can be non-zero"
+      );
+  } else {
+    // !obj.increment[1]
+    if (obj.increment_type.length !== 1 || obj.increment_type[0] !== "none")
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to add rating",
+        "'none' must be the only rating type when inc/delay cannot be set"
+      );
   }
   return obj;
 }
@@ -183,6 +259,13 @@ DynamicRatings.addRatingType = function(
   if (!Roles.userIsInRole(self, "add_dynamic_rating"))
     throw new ICCMeteorError(message_identifier, "Unable to add rating", "User not authorized");
 
+  if (DynamicRatingsCollection.find({ rating_type: rating_type }).count() !== 0)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add rating",
+      "Rating type already exists"
+    );
+
   if (!starting_rating) starting_rating = 1600;
   wild_number = wild_number || [0];
   if (wild_number.length !== 1 || wild_number[0] !== 0)
@@ -211,11 +294,11 @@ DynamicRatings.addRatingType = function(
     unrated: unrated,
     white_initial: whiteRatingObject.initial,
     white_increment_or_delay: whiteRatingObject.increment,
-    white_increment_or_delay_type: white_increment_or_delay_type,
+    white_increment_or_delay_type: whiteRatingObject.increment_type,
     white_etime: whiteRatingObject.etime,
     black_initial: blackRatingObject.initial,
     black_increment_or_delay: blackRatingObject.increment,
-    black_increment_or_delay_type: white_increment_or_delay_type,
+    black_increment_or_delay_type: blackRatingObject.increment_type,
     black_etime: blackRatingObject.etime,
     specify_color: specify_color,
     can_seek: can_seek,

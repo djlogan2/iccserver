@@ -13,7 +13,7 @@ describe.only("Ratings", function() {
   //  wild_number,
   it("should require wild_number to be an array, but currently can only contain zero", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.throws(
       () =>
@@ -104,7 +104,7 @@ describe.only("Ratings", function() {
   });
   it("should allow wild_number to not be specified", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -141,7 +141,7 @@ describe.only("Ratings", function() {
   //   rating_type,
   it("should always require rating_type, as this is it's name", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.throws(
       () =>
@@ -168,7 +168,7 @@ describe.only("Ratings", function() {
   });
   it("should fail an add seek request if rating_type is invalid", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -199,7 +199,7 @@ describe.only("Ratings", function() {
 
   it("should fail an add match request if rating_type is invalid", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -244,7 +244,7 @@ describe.only("Ratings", function() {
   });
   it("should fail a start local game if rating_type is invalid", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -276,7 +276,7 @@ describe.only("Ratings", function() {
   //   rated,
   it("should fail an add seek request if rated is false and seek rated is true", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -306,7 +306,7 @@ describe.only("Ratings", function() {
   });
   it("should fail an add match request if rated is false and match rated is true", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -351,7 +351,7 @@ describe.only("Ratings", function() {
   });
   it("should fail a start local game if rated is false and game rated is true", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -383,7 +383,7 @@ describe.only("Ratings", function() {
   //   unrated
   it("should fail an add seek request if unrated is false and seek rated is false", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -413,7 +413,7 @@ describe.only("Ratings", function() {
   });
   it("should fail an add match request if unrated is false and match rated is false", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -458,7 +458,7 @@ describe.only("Ratings", function() {
   });
   it("should fail a start local game if unrated is false and game rated is false", function() {
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["add_dynamic_rating", "delete_dynamic_rating"]
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });
     chai.assert.doesNotThrow(() =>
       DynamicRatings.addRatingType(
@@ -489,47 +489,469 @@ describe.only("Ratings", function() {
   });
   //   white_initial,
   it("should allow white_initial be null (and require white_etime)", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    const other = TestHelpers.createUser();
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        null,
+        null,
+        null,
+        [1, 900],
+        null,
+        null,
+        null,
+        [1, 900],
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      Game.startLocalGame("mi1", other, 0, "standard3", false, 15, 0, "none", 15, 0, "none")
+    );
   });
+
   it("should fail an add seek request if white_initial fails to fall within range", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [25, 25],
+        [0, 0],
+        ["none"],
+        null,
+        [25, 25],
+        [0, 0],
+        ["none"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () => GameRequests.addLocalGameSeek("mi2", 0, "standard3", 20, 0, "none", true),
+      ICCMeteorError
+    );
   });
+
   it("should fail an add match request if white_initial fails to fall within range", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    const other = TestHelpers.createUser();
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [25, 25],
+        [0, 0],
+        ["none"],
+        null,
+        [25, 25],
+        [0, 0],
+        ["none"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi2",
+          other,
+          0,
+          "standard3",
+          true,
+          false,
+          20,
+          0,
+          "none",
+          20,
+          0,
+          "none"
+        ),
+      ICCMeteorError
+    );
   });
+
   it("should fail a start local game if white_initial fails to fall within range", function() {
-    chai.assert.fail("do me");
-  });
-  //   white_increment_or_delay,
-  it("should allow white_increment_or_delay be null (and require white_etime)", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    const other = TestHelpers.createUser();
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [25, 25],
+        [0, 0],
+        ["none"],
+        null,
+        [25, 25],
+        [0, 0],
+        ["none"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () => Game.startLocalGame("mi2", other, 0, "standard3", true, 20, 0, "none", 20, 0, "none"),
+      ICCMeteorError
+    );
   });
   it("should fail an add seek request if white_increment_or_delay fails to fall within range", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () => GameRequests.addLocalGameSeek("mi2", 0, "standard3", 20, 15, "inc", true),
+      ICCMeteorError
+    );
+  });
+  it("should fail an add match request if white_increment_or_delay fails to fall within range", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    const other = TestHelpers.createUser();
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi2",
+          other,
+          0,
+          "standard4",
+          true,
+          false,
+          20,
+          15,
+          "inc",
+          20,
+          30,
+          "inc"
+        ),
+      ICCMeteorError
+    );
+  });
+  it("should fail a start local game if white_increment_or_delay fails to fall within range", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    const other = TestHelpers.createUser();
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () => Game.startLocalGame("mi2", other, 0, "standard3", true, 20, 15, "inc", 20, 30, "inc"),
+      ICCMeteorError
+    );
+  });
+
+  for (let x = 0; x < 32; x++) {
+    let type = [];
+    if (x & 1) type.push("none");
+    if (x & 2) type.push("inc");
+    if (x & 4) type.push("us");
+    if (x & 8) type.push("bronstein");
+    if (x & 16) type.push("boogus");
+    const not = type.indexOf("boogus") !== -1 ? "" : " not";
+    it("should" + not + " throw with a type array of " + type + " correctly", function() {
+      self.loggedonuser = TestHelpers.createUser({
+        roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+      });
+      if (type.indexOf("boogus") !== -1) {
+        chai.assert.throws(
+          () =>
+            DynamicRatings.addRatingType(
+              "mi1",
+              [0],
+              "standard" + x,
+              true,
+              true,
+              [1, 15],
+              [0, 90],
+              type,
+              null,
+              [1, 15],
+              [0, 0],
+              ["none"],
+              null,
+              true,
+              true,
+              true
+            ),
+          ICCMeteorError
+        );
+      } else {
+        chai.assert.doesNotThrow(
+          () =>
+            DynamicRatings.addRatingType(
+              "mi1",
+              [0],
+              "standard" + x,
+              true,
+              true,
+              [1, 15],
+              [0, 90],
+              type,
+              null,
+              [1, 15],
+              [0, 0],
+              ["none"],
+              null,
+              true,
+              true,
+              true
+            ),
+          "Test with types of " + type + " failed"
+        );
+      }
+    });
+  }
+
+  it("should require 'none' in the list of increment_type if low inc is 0", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [5, 25],
+        [0, 60],
+        ["inc", "none"],
+        null,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () =>
+        DynamicRatings.addRatingType(
+          "mi1",
+          [0],
+          "standard4",
+          true,
+          false,
+          [5, 25],
+          [0, 60],
+          ["inc"],
+          null,
+          [5, 25],
+          [30, 60],
+          ["inc"],
+          null,
+          true,
+          true,
+          true
+        ),
+      ICCMeteorError
+    );
+  });
+
+  it("should require at least one 'not none' inc/delay type in the list of increment_type if high inc is not 0", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [5, 25],
+        [0, 60],
+        ["inc", "none"],
+        null,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () =>
+        DynamicRatings.addRatingType(
+          "mi1",
+          [0],
+          "standard4",
+          true,
+          false,
+          [5, 25],
+          [0, 60],
+          ["none"],
+          null,
+          [5, 25],
+          [30, 60],
+          ["inc"],
+          null,
+          true,
+          true,
+          true
+        ),
+      ICCMeteorError
+    );
+  });
+  it("should disallow 'none' in the list of increment_type if low inc is not 0", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+
+    chai.assert.doesNotThrow(() =>
+      DynamicRatings.addRatingType(
+        "mi1",
+        [0],
+        "standard3",
+        true,
+        false,
+        [5, 25],
+        [5, 60],
+        ["inc"],
+        null,
+        [5, 25],
+        [30, 60],
+        ["inc"],
+        null,
+        true,
+        true,
+        true
+      )
+    );
+    chai.assert.throws(
+      () =>
+        DynamicRatings.addRatingType(
+          "mi1",
+          [0],
+          "standard4",
+          true,
+          false,
+          [5, 25],
+          [5, 60],
+          ["inc", "none"],
+          null,
+          [5, 25],
+          [30, 60],
+          ["inc"],
+          null,
+          true,
+          true,
+          true
+        ),
+      ICCMeteorError
+    );
+  });
+  it("should fail an add seek request if white_increment_type fails to fall within range", function() {
     chai.assert.fail("do me");
   });
   it("should fail an add match request if white_increment_or_delay fails to fall within range", function() {
     chai.assert.fail("do me");
   });
   it("should fail a start local game if white_increment_or_delay fails to fall within range", function() {
-    chai.assert.fail("do me");
-  });
-  //   white_increment_or_delay_type,
-  it("should require this to be 'none', 'inc', 'us', or 'bronstein'", function() {
-    chai.assert.fail("do me");
-  });
-  it("should allow increment_type = undefined if inc is undefined or inc is [0,0], and should set the record to 'none'", function() {
-    chai.assert.fail("do me");
-  });
-  it("should allow increment_type = 'none' if inc is [0, 0]", function() {
-    chai.assert.fail("do me");
-  });
-  it("should require 'none' in the list of increment_type if low inc is 0 and increment_type is specified", function() {
-    chai.assert.fail("do me");
-  });
-  it("should require at least one 'not none' inc/delay type in the list of increment_type if high inc is not 0 and increment_type is specified", function() {
-    chai.assert.fail("do me");
-  });
-  it("should disallow 'none' in the list of increment_type if low inc is not 0 and increment_type is specified", function() {
     chai.assert.fail("do me");
   });
   //   black_initial,
