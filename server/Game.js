@@ -1355,14 +1355,20 @@ Game.drawCircle = function(message_identifier, game_id, square) {
   check(square, String);
   const self = Meteor.user();
   check(self, Object);
-
+  if (
+    !(square.charCodeAt(1) > 47 && square.charCodeAt(1) < 58) || // alpha numeric code if statements by stack overflow
+    !(square.charCodeAt(0) > 96 && square.charCodeAt(0) < 123)
+  ) {
+    // lower alpha (a-z) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ILLEGAL_MOVE", square);
+    return;
+  }
   const game = Game.collection.findOne({ _id: game_id });
   if (!game) {
     throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
   }
-
   if (game.status !== "examining") {
-    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
   return;
@@ -1955,7 +1961,6 @@ function buildPgnFromMovelist(movelist) {
 }
 
 function addMoveToMoveList(variation_object, move, current) {
-
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
 
   if (exists) {
@@ -2084,11 +2089,12 @@ function testingCleanupMoveTimers() {
 
 Meteor.startup(function() {
   GameCollection.remove({});
-  if (Meteor.isTest || Meteor.isAppTest) {
-    Game.collection = GameCollection;
-    Game.addMoveToMoveList = addMoveToMoveList;
-    Game.buildPgnFromMovelist = buildPgnFromMovelist;
-    Game.calculateGameLag = calculateGameLag;
-    Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
-  }
 });
+
+if (Meteor.isTest || Meteor.isAppTest) {
+  Game.collection = GameCollection;
+  Game.addMoveToMoveList = addMoveToMoveList;
+  Game.buildPgnFromMovelist = buildPgnFromMovelist;
+  Game.calculateGameLag = calculateGameLag;
+  Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
+}

@@ -9,7 +9,7 @@ describe.only("Game.drawCircle", function() {
   });
   it("should fail if game does not exist", function() {
     chai.assert.throws(() => {
-      Game.drawCircle("invalid_id", "invalid", "Dave", "C1");
+      Game.drawCircle("invalid_id", "invalid", "Dave", "c1");
     });
   });
 
@@ -31,14 +31,37 @@ describe.only("Game.drawCircle", function() {
       "white"
     );
     Game.drawCircle("test_identifier2", game, "c1");
-
-    chai.assert.fail("do me");
+    const message = self.clientMessagesSpy.args[0][2];
+    chai.assert.equal(message, "NOT_AN_EXAMINER");
   });
   it("should return client message if user is not an examiner", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const other = TestHelpers.createUser();
+    const game = Game.startLocalGame(
+      "test_identifier",
+      other,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    Game.drawCircle("test_identifier2", game, "c1");
+    const message = self.clientMessagesSpy.args[0][2];
+    chai.assert.equal(message, "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    chai.assert.fail("do me");
+    const newguy = TestHelpers.createUser({_id: "whiteguy"});
+    self.loggedonuser = newguy;
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.drawCircle("mi1", game_id, "za");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
   it("should not add the same square multiple times", function() {
     chai.assert.fail("do me");
