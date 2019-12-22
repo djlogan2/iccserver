@@ -59,18 +59,11 @@ class MenuLinks extends Component {
     );
   }
   render() {
-    let translator = i18n.createTranslator(
-      "Common.menuLinkLabel",
-      MenuLinks.getLang()
-    );
+    let translator = i18n.createTranslator("Common.menuLinkLabel", MenuLinks.getLang());
 
     let linksMarkup = this.props.links.map((link, index) => {
       let linkMarkup = link.active ? (
-        <a
-          href={link.link}
-          className="active"
-          onClick={this.handleClick.bind(this, link.label)}
-        >
+        <a href={link.link} className="active" onClick={this.handleClick.bind(this, link.label)}>
           <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
         </a>
       ) : (
@@ -87,9 +80,7 @@ class MenuLinks extends Component {
     });
 
     return (
-      <ul className="list-sidebar bg-defoult list-unstyled components desktop">
-        {linksMarkup}
-      </ul>
+      <ul className="list-sidebar bg-defoult list-unstyled components desktop">{linksMarkup}</ul>
     );
   }
 }

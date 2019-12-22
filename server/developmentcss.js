@@ -27,13 +27,13 @@ const systemcss = {
     alignItems: "center",
     backgroundColor: "#00BFFF",
     fontSize: "16px",
-    color:"white",
+    color: "white",
     padding: "2px 10px"
   },
   drawSectionButton: {
     margin: "0 auto",
     display: "block",
-    paddingBottom:"5px"
+    paddingBottom: "5px"
   },
   moveListParent: {
     backgroundColor: "#00BFFF",
@@ -53,10 +53,10 @@ const systemcss = {
     float: "left"
   },
   outerPopupMainPage: {
-    width: "400px",
+    width: "350px",
     height: "auto",
-    borderRadius: "5px",
-    background: "#b7bdc5",
+    borderRadius: "3px",
+    background: "#1565c0eb",
     position: "fixed",
     zIndex: "99",
     left: "0",
@@ -65,13 +65,14 @@ const systemcss = {
     top: "27%",
     padding: "20px",
     textAlign: "center",
-    border: "5px solid"
+    border: "4px solid",
+    borderColor: "#f9af6d"
   },
   innerPopupMainPage: {
-    backgroundColor: "#1565c0",
+    backgroundColor: "#ea9345",
     border: "none",
     color: "white",
-    padding: "5px 10px",
+    padding: "7px 20px",
     textAign: "center",
     textDecoration: "none",
     display: "inline-block",
@@ -99,7 +100,16 @@ const systemcss = {
     fullScreen: "images/full-screen-icon.png",
     tournamentUserIcon: "images/user-icon.png",
     chatSendButton: "images/send-btn.png",
-    toggleMenu: "images/menu-button-of-three-lines.svg"
+    toggleMenu: "images/menu-button-of-three-lines.svg",
+    deleteSign: "images/delete-sign.png",
+    /**Main Page.jsx */
+    infoIcon: "images/info-icon.png",
+    checkedIcon: "images/checked.png",
+    closeIcon: "images/close.png",
+    logoWhite: "images/logo-white-lg.png",
+
+    /**Home image */
+    homeImage: "images/home-page/home-top.jpg"
   },
 
   button: {

@@ -3,7 +3,6 @@ import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 import RightSidebar from "./RightSidebar/RightSidebar";
-import Chess from "chess.js";
 import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
@@ -27,7 +26,7 @@ export default class MainPage extends Component {
       currentPos: 0,
       history: null
     };
-    this.toggleMenu = this.toggleMenu.bind(this);
+
     this.userId = Meteor.userId();
 
     this.Main = {
@@ -95,7 +94,15 @@ export default class MainPage extends Component {
     return (
       <div style={this.props.cssmanager.outerPopupMain()}>
         <div className="popup_inner">
-          <h3>{title}</h3>
+          <h3
+            style={{
+              margin: "10px 0px 20px",
+              color: "#fff",
+              fontSize: "17px"
+            }}
+          >
+            {title}
+          </h3>
           <button
             onClick={this.gameAccept.bind(this, param)}
             style={this.props.cssmanager.innerPopupMain()}
@@ -121,13 +128,12 @@ export default class MainPage extends Component {
             display: "flex",
             marginTop: "0px",
             alignItems: "center",
-            padding: "0.25rem 0.75rem",
             color: "#fff",
             border: "1px solid #f88117",
             position: "absolute",
             right: "8px",
             background: "#f88117e0",
-            width: "180px",
+            width: "195px",
             top: "15px",
             zIndex: "9",
             webkitBoxShadow: "#949392 3px 2px 4px 0px",
@@ -137,19 +143,31 @@ export default class MainPage extends Component {
             padding: "10px 15px"
           }}
         >
-          <img src="images/info-icon.png" style={{ width: "18px", marginRight: "10px" }} />
+          <img
+            src={this.props.cssmanager.buttonBackgroundImage("infoIcon")}
+            style={{ width: "18px", marginRight: "10px" }}
+            alt="info"
+          />
           <strong style={{ width: "100px", marginRight: "6px", fontSize: "14px" }}>{title}</strong>
           <button
             onClick={this._performAction.bind(this, "accepted", action)}
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
-            <img src="images/checked.png" style={{ width: "18px" }} />
+            <img
+              src={this.props.cssmanager.buttonBackgroundImage("checkedIcon")}
+              style={{ width: "18px" }}
+              alt="accept"
+            />
           </button>
           <button
             onClick={this._performAction.bind(this, "rejected", action)}
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
-            <img src="images/close.png" style={{ width: "15px" }} />
+            <img
+              src={this.props.cssmanager.buttonBackgroundImage("closeIcon")}
+              style={{ width: "15px" }}
+              alt="close"
+            />
           </button>
         </div>
       </div>
@@ -245,10 +263,6 @@ export default class MainPage extends Component {
   resignGame = () => {
     Meteor.call("resignGame", "resignGame", this.gameId);
   };
-
-  toggleMenu() {
-    this.setState({ visible: !this.state.visible });
-  }
 
   hideInformativePopup(param) {
     this.setState({
@@ -358,8 +372,6 @@ export default class MainPage extends Component {
         const actions = game.actions;
         if (actions !== undefined && actions.length !== 0) {
           for (const action of actions) {
-            //  const action = actions[actions.length - 1];
-            // TODO: Why are we scanning actions? Isn't just checking the game.pending values enough for display and decisions?
             const issuer = action["issuer"];
             switch (action["type"]) {
               case "takeback_requested":
@@ -387,13 +399,6 @@ export default class MainPage extends Component {
       this.intializeBoard();
     }
 
-    let buttonStyle;
-    if (this.state.visible === true) {
-      buttonStyle = "toggleClose";
-    } else {
-      buttonStyle = "toggleOpen";
-    }
-    // log.debug("MainPage render, cssmanager=" + this.props.cssmanager);
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;
@@ -402,35 +407,11 @@ export default class MainPage extends Component {
     return (
       <div className="main">
         <div className="row">
-          <div className="col-sm-2 left-col">
-            <aside>
-              <div
-                className={
-                  this.state.visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"
-                }
-              >
-                <div className="pull-left image">
-                  <img src="../../../images/logo-white-lg.png" alt="" />
-                </div>
-                <button
-                  style={this.props.cssmanager.buttonStyle(buttonStyle)}
-                  onClick={this.toggleMenu}
-                >
-                  <img
-                    src={this.props.cssmanager.buttonBackgroundImage("toggleMenu")}
-                    style={this.props.cssmanager.toggleMenuHeight()}
-                    alt="toggle menu"
-                  />
-                </button>
-                <LeftSidebar
-                  cssmanager={this.props.cssmanager}
-                  LefSideBoarData={this.Main.LeftSection}
-                  history={this.props.history}
-                />
-              </div>
-            </aside>
-          </div>
-
+          <LeftSidebar
+            cssmanager={this.props.cssmanager}
+            LefSideBoarData={this.Main.LeftSection}
+            history={this.props.history}
+          />
           <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
             {informativePopup}
             <MiddleBoard
