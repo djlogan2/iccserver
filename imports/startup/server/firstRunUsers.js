@@ -3,8 +3,6 @@ import { Logger } from "../../../lib/server/Logger";
 import { Accounts } from "meteor/accounts-base";
 import { Roles } from "meteor/alanning:roles";
 import { all_roles, standard_member_roles } from "../../server/userConstants";
-//import { buildGameIndexes } from "../../../server/Game";
-//import { buildGameRequestIndexes } from "../../../server/GameRequest";
 
 let log = new Logger("server/firstRunUsers_js");
 
@@ -54,7 +52,5 @@ export default function firstRunUsers() {
       Roles.addUsersToRoles(idx, standard_member_roles);
       Roles.addUsersToRoles(idx, "legacy_login");
     }
-//    buildGameIndexes();
-//    buildGameRequestIndexes();
   }
 }

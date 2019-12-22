@@ -2,7 +2,7 @@ import chai from "chai";
 import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
-describe.only("When starting a game", function() {
+describe("When starting a game", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
   it("should remove you as an observer from all games when starting a local game", function() {
     const p1 = TestHelpers.createUser();

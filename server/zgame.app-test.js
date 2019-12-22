@@ -254,21 +254,39 @@ describe("Game.startLocalGame", function() {
   });
 
   it("should add a playing game to the database with a random(ish--it's actually an algorithm) color if null", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
+    let whites = 0;
+    let blacks = 0;
     for (let x = 0; x < 10; x++) {
-      Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+      self.loggedonuser = TestHelpers.createUser();
+      const otherguy = TestHelpers.createUser();
+      const game_id = Game.startLocalGame(
+        "mi1",
+        otherguy,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
+      const game = Game.collection.findOne({ _id: game_id });
+      if (game.white.id === self.loggedonuser._id) whites++;
+      else blacks++;
     }
     const game = Game.collection.find().fetch();
     chai.assert.equal(game.length, 10);
-    chai.assert.isTrue(game.filter(g => g.white.id === self.loggedonuser._id).length > 0);
-    chai.assert.isTrue(game.filter(g => g.black.id === self.loggedonuser._id).length > 0);
+    chai.assert.isTrue(whites > 0);
+    chai.assert.isTrue(blacks > 0);
   });
+
   it("should add a playing game with the player as white if white is specified", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
     for (let x = 0; x < 10; x++) {
-      Game.startLocalGame(
+      self.loggedonuser = TestHelpers.createUser();
+      const otherguy = TestHelpers.createUser();
+      const game_id = Game.startLocalGame(
         "mi1",
         otherguy,
         0,
@@ -282,17 +300,18 @@ describe("Game.startLocalGame", function() {
         "none",
         "white"
       );
+      const g = Game.collection.findOne({ _id: game_id });
+      chai.assert.equal(g.white.id, self.loggedonuser._id);
     }
     const game = Game.collection.find().fetch();
     chai.assert.equal(game.length, 10);
-    chai.assert.equal(game.filter(g => g.white.id === self.loggedonuser._id).length, 10);
-    chai.assert.equal(game.filter(g => g.black.id === self.loggedonuser._id).length, 0);
   });
+
   it("should add a playing game with the player as black if black is specified", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
     for (let x = 0; x < 10; x++) {
-      Game.startLocalGame(
+      self.loggedonuser = TestHelpers.createUser();
+      const otherguy = TestHelpers.createUser();
+      const game_id = Game.startLocalGame(
         "mi1",
         otherguy,
         0,
@@ -306,12 +325,13 @@ describe("Game.startLocalGame", function() {
         "none",
         "black"
       );
+      const g = Game.collection.findOne({ _id: game_id });
+      chai.assert.equal(g.black.id, self.loggedonuser._id);
     }
     const game = Game.collection.find().fetch();
     chai.assert.equal(game.length, 10);
-    chai.assert.equal(game.filter(g => g.white.id === self.loggedonuser._id).length, 0);
-    chai.assert.equal(game.filter(g => g.black.id === self.loggedonuser._id).length, 10);
   });
+
   it("should fail if color is not null, 'black' or 'white'", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
@@ -4280,7 +4300,6 @@ describe("Starting a game", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
   });
-
 });
 
 describe("Starting an examined game", function() {

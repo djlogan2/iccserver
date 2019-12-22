@@ -135,7 +135,8 @@ Game.startLocalGame = function(
       white_increment_or_delay,
       white_increment_or_delay_type,
       rated,
-      "start"
+      "start",
+      !!color
     )
   ) {
     throw new ICCMeteorError("Unable to start game", "White time/inc/delay fails validation");
@@ -150,7 +151,8 @@ Game.startLocalGame = function(
       black_increment_or_delay,
       black_increment_or_delay_type,
       rated,
-      "start"
+      "start",
+      !!color
     )
   ) {
     throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");

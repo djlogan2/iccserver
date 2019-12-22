@@ -125,7 +125,7 @@ function validateAndFillRatingObject(message_identifier, obj) {
 
   if (
     (!obj.increment || obj.increment[1]) &&
-    (obj.increment_type && obj.increment.length === 1 && obj.increment[0] === "none")
+    (obj.increment_type && obj.increment_type.length === 1 && obj.increment_type[0] === "none")
   )
     throw new ICCMeteorError(
       message_identifier,
@@ -138,24 +138,24 @@ function validateAndFillRatingObject(message_identifier, obj) {
       // validate initial+inc = etime
       const calculated_low_etime = Math.round(obj.initial[0] + (2 * obj.increment[0]) / 3);
       const calculated_high_etime = Math.round(obj.initial[1] + (2 * obj.increment[1]) / 3);
-      if (calculated_low_etime < obj.etime[0])
+      if (calculated_low_etime !== obj.etime[0])
         throw new ICCMeteorError(
           message_identifier,
           "Unable to add rating",
           "etime does not match",
           "etime of " +
             calculated_low_etime +
-            " is lower than specified low etime of " +
+            " is not equal to the specified low etime of " +
             obj.etime[0]
         );
-      if (calculated_high_etime > obj.etime[0])
+      if (calculated_high_etime !== obj.etime[1])
         throw new ICCMeteorError(
           message_identifier,
           "Unable to add rating",
           "etime does not match",
           "etime of " +
             calculated_high_etime +
-            " is lower than specified low etime of " +
+            " is is not equal to the specified high etime of " +
             obj.etime[1]
         );
     } else {
@@ -168,8 +168,13 @@ function validateAndFillRatingObject(message_identifier, obj) {
   } else if (obj.etime) {
     // !obj.initial && !obj.increment
     // initial and inc = etime
-    obj.initial = [0, obj.etime[1]];
-    obj.increment = [0, Math.trunc(3 * obj.etime[1]) / 2];
+    const require_increment = !!obj.increment_type && obj.increment_type.indexOf("none") === -1;
+    const increment_disallowed =
+      !!obj.increment_type && obj.increment_type.length === 1 && obj.increment_type[0] === "none";
+
+    obj.initial = [0, obj.etime[1] - (require_increment ? 1 : 0)];
+    if (increment_disallowed) obj.increment = [0, 0];
+    else obj.increment = [require_increment ? 1 : 0, Math.trunc((3 * obj.etime[1]) / 2)];
     if (!obj.increment_type) {
       if (obj.increment[1]) obj.increment_type = ["us", "inc", "bronstein"];
       if (!obj.increment[0]) obj.increment_type.push("none");
@@ -315,7 +320,7 @@ DynamicRatings.addRatingType = function(
     lost: 0,
     best: 0
   };
-  Meteor.users.update({}, { $set: setobject });
+  Meteor.users.update({}, { $set: setobject }, { multi: true });
 };
 
 DynamicRatings.deleteRatingType = function(message_identifier, rating_type) {
@@ -328,8 +333,8 @@ DynamicRatings.deleteRatingType = function(message_identifier, rating_type) {
     throw new ICCMeteorError(message_identifier, "Unable to add rating", "User not authorized");
 
   const unsetobject = {};
-  unsetobject["rating" + rating_type] = 1;
-  Meteor.users.update({}, { $unset: unsetobject });
+  unsetobject["ratings." + rating_type] = 1;
+  Meteor.users.update({}, { $unset: unsetobject }, { multi: true });
 };
 
 DynamicRatings.updateCanSeek = function(message_identifier, rating_type, can_seek) {};
@@ -363,7 +368,8 @@ DynamicRatings.meetsRatingTypeRules = function(
   inc_or_delay,
   inc_or_delay_type,
   rated,
-  check_type
+  check_type,
+  color_specified
 ) {
   const rating_object = DynamicRatingsCollection.findOne({ rating_type: rating_type });
 
@@ -375,6 +381,7 @@ DynamicRatings.meetsRatingTypeRules = function(
   check(inc_or_delay_type, String);
   check(rated, Boolean);
   check(check_type, String);
+  check(color_specified, Boolean);
 
   if (color !== "white" && color !== "black")
     throw new ICCMeteorError(message_identifier, "Invalid call", "Invalid color");
@@ -387,19 +394,22 @@ DynamicRatings.meetsRatingTypeRules = function(
   let etime;
   const game_etime = Math.round(time + (2 * (inc_or_delay || 0)) / 3);
 
+  if (color_specified && !rating_object.specify_color)
+    throw new ICCMeteorError(message_identifier, "Invalid call", "Cannot specify color");
+
   if (color === "white") {
     initial = rating_object.white_initial;
-    inc = rating_object.white_increment;
+    inc = rating_object.white_increment_or_delay;
     inctype = rating_object.white_increment_or_delay_type;
     etime = rating_object.white_etime;
   } else {
     initial = rating_object.black_initial;
-    inc = rating_object.black_increment;
+    inc = rating_object.black_increment_or_delay;
     inctype = rating_object.black_increment_or_delay_type;
     etime = rating_object.black_etime;
   }
 
-  if (inc === undefined) inc = 0;
+  if (inc === undefined) inc = [0, 0];
   if (inctype === undefined) inctype = "none";
 
   if (inc && inctype === "none")
@@ -416,11 +426,81 @@ DynamicRatings.meetsRatingTypeRules = function(
   if (check_type === "seek" && !rating_object.can_seek) return false;
 
   if (time < initial[0] || time > initial[1]) return false;
-  if (inc < inc[0] || time > inc[1]) return false;
-  if (inctype.indexOf(inc_or_delay) === -1) return false;
+  if (inc_or_delay < inc[0] || inc_or_delay > inc[1]) return false;
+  if (inctype.indexOf(inc_or_delay_type) === -1) return false;
   return !(game_etime < etime[0] || game_etime > etime[1]);
 };
 
 if (Meteor.isTest || Meteor.isAppTest) {
   DynamicRatings.collection = DynamicRatingsCollection;
 }
+
+Meteor.startup(function() {
+  if (DynamicRatingsCollection.find().count() === 0) {
+    DynamicRatingsCollection.insert({
+      wild_number: 0,
+      rating_type: "bullet",
+      rated: true,
+      unrated: true,
+      white_initial: [0, 2],
+      white_increment_or_delay: [0, 4],
+      white_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
+      white_etime: [0, 2],
+      black_initial: [0, 2],
+      black_increment_or_delay: [0, 4],
+      black_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
+      black_etime: [0, 2],
+      specify_color: true,
+      can_seek: true,
+      can_match: true,
+      default_rating: 1600
+    });
+    DynamicRatingsCollection.insert({
+      wild_number: 0,
+      rating_type: "blitz",
+      rated: true,
+      unrated: true,
+      white_initial: [0, 14],
+      white_increment_or_delay: [0, 21],
+      white_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
+      white_etime: [3, 14],
+      black_initial: [0, 14],
+      black_increment_or_delay: [0, 21],
+      black_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
+      black_etime: [3, 14],
+      specify_color: true,
+      can_seek: true,
+      can_match: true,
+      default_rating: 1600
+    });
+    DynamicRatingsCollection.insert({
+      wild_number: 0,
+      rating_type: "standard",
+      rated: true,
+      unrated: true,
+      white_initial: [0, 600],
+      white_increment_or_delay: [0, 900],
+      white_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
+      white_etime: [15, 600],
+      black_initial: [0, 14],
+      black_increment_or_delay: [0, 900],
+      black_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
+      black_etime: [15, 600],
+      specify_color: true,
+      can_seek: true,
+      can_match: true,
+      default_rating: 1600
+    });
+    Meteor.users.update(
+      {},
+      {
+        $set: {
+          "ratings.bullet": { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
+          "ratings.blitz": { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
+          "ratings.standard": { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 }
+        }
+      },
+      { multi: true }
+    );
+  }
+});
