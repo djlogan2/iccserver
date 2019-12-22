@@ -1404,38 +1404,31 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
 };
 
 //TODO: add functionality, decide on parameters and protocols
-Game.drawCircle = function(message_identifier, game_id, square) {
+Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   check(message_identifier, String);
   check(square, String);
+  check(color, String);
+  check(size, Number);
   const self = Meteor.user();
   check(self, Object);
 
-  if (!Game.validateSquare(self, message_identifier, square)) {
+  if (!Game.isSquareValid(square)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_SQUARE", square);
     return;
   }
-  const game = Game.collection.findOne({ _id: game_id });
+  const game = GameCollection.findOne({ _id: game_id });
   if (!game) {
     throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
   }
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-
-    // TODO: Learn how the hell collection handles new fields from dj/reading
-    //game.update(
-    //  { $push: { circles: square } }
-    // );
-    //return;
   }
+  GameCollection.update({ _id: game_id, status: "examining" }, { $push: { circles: {square: square, color: color, size: size} } });
 };
-Game.validateSquare = function(user, message_identifier, square) {
+Game.isSquareValid = function(square) {
   check(square, String);
-  if (square[0] < "a" || square[0] > "g" || square[1] < "1" || square[1] > "8") {
-    return false;
-  } else {
-    return true;
-  }
+  return !(square[0] < "a" || square[0] > "h" || square[1] < "1" || square[1] > "8");
 };
 
 Game.declineLocalDraw = function(message_identifier, game_id) {
