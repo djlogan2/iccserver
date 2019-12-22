@@ -233,7 +233,8 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
                     <button
                       onClick={this.handelUserClick.bind(this, user)}
                       style={this.props.cssmanager.matchUserButton()}
-                    >{user}
+                    >
+                      {user}
                     </button>
                   </div>
                 ))}

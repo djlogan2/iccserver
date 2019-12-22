@@ -143,19 +143,7 @@ describe("When starting a game", function() {
     const p2 = TestHelpers.createUser();
 
     self.loggedonuser = p1;
-    Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
 
     self.loggedonuser = p2;
 

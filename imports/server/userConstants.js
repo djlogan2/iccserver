@@ -2,20 +2,7 @@ export const standard_guest_roles = ["login"];
 
 export const UserConstants = {};
 
-export const titles = [
-  "C",
-  "*",
-  "H",
-  "FM",
-  "IM",
-  "GM",
-  "WGM",
-  "WIM",
-  "WFM",
-  "DM",
-  "TD",
-  "U"
-];
+export const titles = ["C", "*", "H", "FM", "IM", "GM", "WGM", "WIM", "WFM", "DM", "TD", "U"];
 
 export const all_roles = [
   "login",

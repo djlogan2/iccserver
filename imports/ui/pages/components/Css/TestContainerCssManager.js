@@ -25,8 +25,7 @@ export default class CssManager {
    */
   squareStyle(squareColor, side) {
     var style = { width: side, height: side };
-    if (this._boardStyle.square.all)
-      Object.assign(style, this._boardStyle.square.all);
+    if (this._boardStyle.square.all) Object.assign(style, this._boardStyle.square.all);
     Object.assign(style, this._boardStyle.square[squareColor]);
 
     return style;
@@ -44,12 +43,10 @@ export default class CssManager {
   }
   fSquareStyle(squareColor, piece, side) {
     var style = { width: side, height: side };
-    if (this._boardStyle.square.all)
-      Object.assign(style, this._boardStyle.fsquare.all);
+    if (this._boardStyle.square.all) Object.assign(style, this._boardStyle.fsquare.all);
     Object.assign(style, this._boardStyle.fsquare[squareColor]);
     if (!!piece && !!squareColor) {
-      if (this._boardStyle.pieces.all)
-        Object.assign(style, this._boardStyle.fallendpieces.all);
+      if (this._boardStyle.pieces.all) Object.assign(style, this._boardStyle.fallendpieces.all);
       Object.assign(style, this._boardStyle.fallendpieces[squareColor][piece]);
     }
 
@@ -57,8 +54,7 @@ export default class CssManager {
   }
   flags(country) {
     var style = {};
-    if (this._boardStyle.flags.all)
-      Object.assign(style, this._boardStyle.flags.all);
+    if (this._boardStyle.flags.all) Object.assign(style, this._boardStyle.flags.all);
     Object.assign(style, this._boardStyle.flags[country]);
 
     return style;
@@ -195,10 +191,7 @@ export default class CssManager {
       Object.assign(style, this._boardStyle.internal_rank_and_file.all);
 
     Object.assign(style, this._boardStyle.internal_rank_and_file.color[color]);
-    Object.assign(
-      style,
-      this._boardStyle.internal_rank_and_file.position[which]
-    );
+    Object.assign(style, this._boardStyle.internal_rank_and_file.position[which]);
 
     return style;
   }
@@ -459,29 +452,19 @@ const developmentcss = [
     },
     pieces: {
       w: {
-        r:
-          "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
-        b:
-          "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg",
-        n:
-          "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
-        q:
-          "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
-        k:
-          "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
+        r: "https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg",
+        b: "https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg",
+        n: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
+        q: "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
+        k: "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
         p: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg"
       },
       b: {
-        r:
-          "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
-        b:
-          "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg",
-        n:
-          "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
-        q:
-          "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
-        k:
-          "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
+        r: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
+        b: "https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg",
+        n: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
+        q: "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
+        k: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
         p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg"
       }
     },

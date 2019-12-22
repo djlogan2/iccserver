@@ -268,7 +268,7 @@ GameRequests.addLocalGameSeek = function(
       inc_or_delay_type,
       rated,
       "seek",
-        !!color
+      !!color
     )
   )
     throw new ICCMeteorError(
@@ -285,7 +285,7 @@ GameRequests.addLocalGameSeek = function(
       inc_or_delay_type,
       rated,
       "seek",
-        !!color
+      !!color
     )
   )
     throw new ICCMeteorError(
@@ -600,7 +600,7 @@ GameRequests.addLocalMatchRequest = function(
         challenger_inc_or_delay_type,
         is_it_rated,
         "match",
-          !!challenger_color_request
+        !!challenger_color_request
       )
     )
       throw new ICCMeteorError(
@@ -618,7 +618,7 @@ GameRequests.addLocalMatchRequest = function(
         receiver_inc_or_delay_type,
         is_it_rated,
         "match",
-          !!challenger_color_request
+        !!challenger_color_request
       )
     )
       throw new ICCMeteorError(
@@ -637,7 +637,7 @@ GameRequests.addLocalMatchRequest = function(
         challenger_inc_or_delay_type,
         is_it_rated,
         "match",
-          !!challenger_color_request
+        !!challenger_color_request
       )
     )
       throw new ICCMeteorError(
@@ -656,7 +656,7 @@ GameRequests.addLocalMatchRequest = function(
         receiver_inc_or_delay_type,
         is_it_rated,
         "match",
-          !!challenger_color_request
+        !!challenger_color_request
       )
     )
       throw new ICCMeteorError(

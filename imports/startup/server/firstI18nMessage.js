@@ -128,13 +128,7 @@ const messages = [
     "UNABLE TO PLAY OPPONENT",
     "El mensaje con el valor {1} como valor de parámetro",
     "Невозможно играть противником"
-  ]
-      [
-      "SERVER_ERROR",
-          "SERVER_ERROR. message={1} reason={2}",
-          "SERVER_ERROR",
-          "SERVER_ERROR"
-      ]
+  ][("SERVER_ERROR", "SERVER_ERROR. message={1} reason={2}", "SERVER_ERROR", "SERVER_ERROR")]
 ];
 
 export default function firstAddI18nMessage() {

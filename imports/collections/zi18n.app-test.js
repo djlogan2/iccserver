@@ -46,10 +46,7 @@ describe("Server side i18n", function() {
       locale: "en_us",
       text: "a valid message"
     });
-    chai.assert.equal(
-      i18n.localizeMessage("none_us", "i8nvalue"),
-      "a valid message"
-    );
+    chai.assert.equal(i18n.localizeMessage("none_us", "i8nvalue"), "a valid message");
   });
   it("if language is valid but region is not, return closest region", function() {
     i18nCollection.insert({

@@ -68,8 +68,7 @@ export default class Board extends React.Component {
     this._setup();
     let board = [];
 
-    if (this._fileline === "t")
-      board.push(this._renderFileRow(this.props.top === "b"));
+    if (this._fileline === "t") board.push(this._renderFileRow(this.props.top === "b"));
 
     if (this.props.top === "w") {
       for (let rank = 7; rank >= 0; rank--) {
@@ -81,14 +80,11 @@ export default class Board extends React.Component {
       }
     }
 
-    if (this._fileline === "b")
-      board.push(this._renderFileRow(this.props.top === "b"));
+    if (this._fileline === "b") board.push(this._renderFileRow(this.props.top === "b"));
 
-    const arrows =
-      this.state.arrows.map(arrow => this._renderArrow(arrow)) || "";
+    const arrows = this.state.arrows.map(arrow => this._renderArrow(arrow)) || "";
 
-    if (this.state.currentarrow)
-      arrows.push(this._renderArrow(this.state.currentarrow));
+    if (this.state.currentarrow) arrows.push(this._renderArrow(this.state.currentarrow));
 
     return (
       <div>
@@ -127,16 +123,12 @@ export default class Board extends React.Component {
         this._fileline = "";
       } else {
         this._frInSquare = "";
-        if (this.props.draw_rank_and_file.charAt(0) === "t")
-          this._fileline = "t";
-        else if (this.props.draw_rank_and_file.charAt(0) === "b")
-          this._fileline = "b";
+        if (this.props.draw_rank_and_file.charAt(0) === "t") this._fileline = "t";
+        else if (this.props.draw_rank_and_file.charAt(0) === "b") this._fileline = "b";
         else this._fileline = "";
 
-        if (this.props.draw_rank_and_file.charAt(1) === "l")
-          this._rankline = "l";
-        else if (this.props.draw_rank_and_file.charAt(1) === "r")
-          this._rankline = "r";
+        if (this.props.draw_rank_and_file.charAt(1) === "l") this._rankline = "l";
+        else if (this.props.draw_rank_and_file.charAt(1) === "r") this._rankline = "r";
         else this._rankline = "";
       }
     } else {
@@ -145,10 +137,8 @@ export default class Board extends React.Component {
       this._frInSquare = "";
     }
 
-    this._rank_squares =
-      this._fileline === "t" || this._fileline === "b" ? 9 : 8;
-    this._file_squares =
-      this._rankline === "l" || this._rankline === "r" ? 9 : 8;
+    this._rank_squares = this._fileline === "t" || this._fileline === "b" ? 9 : 8;
+    this._file_squares = this._rankline === "l" || this._rankline === "r" ? 9 : 8;
     const h = this.props.side / this._file_squares;
     const w = this.props.side / this._rank_squares;
     this._square_side = Math.min(h, w);
@@ -180,8 +170,7 @@ export default class Board extends React.Component {
 
   _pieceSquareIn = raf => {
     if (!this.mousedown) return;
-    if (this.mousein.rank === raf.rank && this.mousein.file === raf.file)
-      return;
+    if (this.mousein.rank === raf.rank && this.mousein.file === raf.file) return;
     this.mousein = raf;
 
     const currentarrow = {

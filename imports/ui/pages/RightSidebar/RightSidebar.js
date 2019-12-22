@@ -15,7 +15,7 @@ class RightSidebar extends Component {
       status: props.gameStatus
     };
   }
-/*   componentWillReceiveProps(prevProps) {
+  /*   componentWillReceiveProps(prevProps) {
     if (prevProps.gameStatus !== this.props.gameStatus) {
     //  alert(prevProps.gameStatus);
       this.setState({ status: this.props.gameStatus });

@@ -56,16 +56,8 @@ export default class LoginPage extends Component {
               </h1>
             </div>
             <div className="modal-body">
-              {error.length > 0 ? (
-                <div className="alert alert-danger fade in">{error}</div>
-              ) : (
-                ""
-              )}
-              <form
-                id="login-form"
-                className="form col-md-12 center-block"
-                onSubmit={this.DoLogin}
-              >
+              {error.length > 0 ? <div className="alert alert-danger fade in">{error}</div> : ""}
+              <form id="login-form" className="form col-md-12 center-block" onSubmit={this.DoLogin}>
                 <div className="form-group">
                   <input
                     type="email"
@@ -92,8 +84,7 @@ export default class LoginPage extends Component {
                 </div>
                 <div className="form-group text-center">
                   <p className="text-center">
-                    Don't have an account? Register{" "}
-                    <Link to="/sign-up">here</Link>
+                    Don't have an account? Register <Link to="/sign-up">here</Link>
                   </p>
                 </div>
               </form>

@@ -23,10 +23,7 @@ class RightBarBottom extends Component {
   }
 
   render() {
-    let translator = i18n.createTranslator(
-      "Common.rightBarBottom",
-      this.getLang()
-    );
+    let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
 
     return (
       <Tabs cssmanager={this.props.cssmanager} tabName="bottom">
@@ -63,14 +60,14 @@ class RightBarBottom extends Component {
             clientMessage={this.props.clientMessage}
           />
         </div>
-        {/* 
+        {/*
         <div
           label={translator("events")}
           imgsrc="images/event-icon-white.png"
           hoverSrc="images/event-icon-blue.png"
         >
           <Events />
-        </div> 
+        </div>
         <div
           label={translator("fen_pgn")}
           imgsrc="images/fen-pgn-white-icon.png"
