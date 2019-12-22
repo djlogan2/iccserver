@@ -1355,12 +1355,9 @@ Game.drawCircle = function(message_identifier, game_id, square) {
   check(square, String);
   const self = Meteor.user();
   check(self, Object);
-  if (
-    !(square.charCodeAt(1) > 47 && square.charCodeAt(1) < 58) || // alpha numeric code if statements by stack overflow
-    !(square.charCodeAt(0) > 96 && square.charCodeAt(0) < 123)
-  ) {
-    // lower alpha (a-z) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "ILLEGAL_MOVE", square);
+
+  if (!Game.validateSquare(self, message_identifier, square)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_SQUARE", square);
     return;
   }
   const game = Game.collection.findOne({ _id: game_id });
@@ -1370,8 +1367,21 @@ Game.drawCircle = function(message_identifier, game_id, square) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
+
+    // TODO: Learn how the hell collection handles new fields from dj/reading
+    //game.update(
+    //  { $push: { circles: square } }
+    // );
+    //return;
   }
-  return;
+};
+Game.validateSquare = function(user, message_identifier, square) {
+  check(square, String);
+  if (square[0] < "a" || square[0] > "g" || square[1] < "1" || square[1] > "8") {
+    return false;
+  } else {
+    return true;
+  }
 };
 
 Game.declineLocalDraw = function(message_identifier, game_id) {

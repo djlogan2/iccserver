@@ -114,6 +114,10 @@ export const ExaminedGameSchema = new SimpleSchema({
     rating: SimpleSchema.Integer
   }),
   tags: { type: Object, required: false, blackbox: true },
+  circles: { type: Array, defaultValue: [] },
+  "circles.$": String,
+  arrows: { type: Array, defaultValue: [] },
+  "arrows.$": String,
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },
   "observers.$": String,
