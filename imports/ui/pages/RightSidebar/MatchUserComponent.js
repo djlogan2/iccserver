@@ -24,8 +24,8 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       type: "standard",
       rated: true,
       is_adjourned: false,
-      minute: 10,
-      inc: 1,
+      minute: 15,
+      inc: 30,
       incOrdelayType: "inc",
       color: "random"
     };
@@ -43,8 +43,8 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       type: "standard",
       rated: false,
       is_adjourned: false,
-      minute: 10,
-      inc: 1,
+      minute: 15,
+      inc: 30,
       incOrdelayType: "inc",
       color: "random"
     });
@@ -96,8 +96,8 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       type: "standard",
       rated: false,
       is_adjourned: false,
-      minute: 10,
-      inc: 1,
+      minute: 15,
+      inc: 30,
       incOrdelayType: "inc",
       color: "random"
     });
