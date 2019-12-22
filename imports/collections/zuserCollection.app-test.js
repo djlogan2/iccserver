@@ -19,23 +19,7 @@ import { TestHelpers } from "../server/TestHelpers";
 //
 const logged_on_user_fields = {
   _id: 1,
-  username: 1,
-  ratings: {
-    bullet: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    blitz: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    standard: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    wild: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    bughouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    losers: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    crazyhouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    fiveminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    oneminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    correspondence: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    fifteenminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    threeminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    computerpool: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    chess960: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
-  }
+  username: 1
 };
 
 const our_allowed_user_fields = {
@@ -45,22 +29,6 @@ const our_allowed_user_fields = {
   locale: 1,
   board_css: 1,
   emails: 1,
-  ratings: {
-    bullet: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    blitz: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    standard: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    wild: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    bughouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    losers: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    crazyhouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    fiveminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    oneminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    correspondence: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    fifteenminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    threeminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    computerpool: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    chess960: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
-  },
   profile: {
     firstname: 1,
     lastname: 1,
@@ -83,22 +51,6 @@ const all_fields = {
     password: {
       bcrypt: 1
     }
-  },
-  ratings: {
-    bullet: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    blitz: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    standard: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    wild: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    bughouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    losers: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    crazyhouse: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    fiveminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    oneminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    correspondence: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    fifteenminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    threeminute: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    computerpool: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 },
-    chess960: { rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
   },
   profile: {
     firstname: 1,
@@ -134,34 +86,26 @@ function compare(testobject, actualobject, propheader) {
   let prop;
   for (prop in testobject) {
     if (Object.prototype.hasOwnProperty.call(testobject, prop)) {
-      if (actualobject[prop] === undefined)
-        return propheader + prop + " not found in database object";
-      else if (testobject[prop] instanceof Object) {
-        const msg = compare(
-          testobject[prop],
-          actualobject[prop],
-          propheader + prop + "."
-        );
-        if (!!msg) return msg;
+      if (prop !== "ratings") {
+        if (actualobject[prop] === undefined)
+          return propheader + prop + " not found in database object";
+        else if (testobject[prop] instanceof Object) {
+          const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
+          if (!!msg) return msg;
+        }
       }
     }
   }
 
   for (prop in actualobject) {
     if (Object.prototype.hasOwnProperty.call(actualobject, prop)) {
-      if (!testobject[prop])
-        return (
-          propheader +
-          prop +
-          " is not supposed to be viewable, but is in the subscription"
-        );
-      else if (isObject(actualobject[prop])) {
-        const msg = compare(
-          testobject[prop],
-          actualobject[prop],
-          propheader + prop + "."
-        );
-        if (!!msg) return msg;
+      if (prop !== "ratings") {
+        if (!testobject[prop])
+          return propheader + prop + " is not supposed to be viewable, but is in the subscription";
+        else if (isObject(actualobject[prop])) {
+          const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
+          if (!!msg) return msg;
+        }
       }
     }
   }
@@ -208,9 +152,7 @@ describe("Users", function() {
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("loggedOnUsers", collections => {
-      const user2a = collections.users.filter(
-        u => u.username === user2.username
-      );
+      const user2a = collections.users.filter(u => u.username === user2.username);
       chai.assert.equal(user2a.length, 1);
       const msg = compare(logged_on_user_fields, user2a[0]);
       done(msg);

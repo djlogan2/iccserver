@@ -284,7 +284,6 @@ export default class CssManager {
       return style;
     }
   }
-  
   /**This style for gameseek and match Request user form */
   formMain() {
     var style = {};

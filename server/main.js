@@ -18,10 +18,7 @@ const bound = Meteor.bindEnvironment(callback => {
 
 process.on("uncaughtException", (err, origin) => {
   bound(() => {
-    fs.writeSync(
-      process.stderr.fd,
-      `Caught exception: ${err}\n` + `Exception origin: ${origin}`
-    );
+    fs.writeSync(process.stderr.fd, `Caught exception: ${err}\n` + `Exception origin: ${origin}`);
     console.log(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
     log.error(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
     process.exit(7);

@@ -188,42 +188,6 @@ describe("GameRequests.addLocalGameSeek", function() {
     }, Match.Error);
   });
 
-  //   inc,
-  it("should fail if inc is null or not a number or not within ICC configuration requirements", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        -1,
-        "none",
-        true,
-        null,
-        null,
-        null,
-        true
-      );
-    }, ICCMeteorError);
-
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        "five",
-        "inc",
-        true,
-        null,
-        null,
-        null,
-        true
-      );
-    }, Match.Error);
-  });
-
   //   rated,
   it("should fail if rated is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -307,87 +271,7 @@ describe("GameRequests.addLocalGameSeek", function() {
   });
 
   //   minrating,
-  it("should fail if minrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        0,
-        "none",
-        true,
-        null,
-        "1200",
-        null,
-        true
-      );
-    }, Match.Error);
-
-    self.sandbox.replace(
-      SystemConfiguration,
-      "meetsMinimumAndMaximumRatingRules",
-      self.sandbox.fake.returns(false)
-    );
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        0,
-        "none",
-        true,
-        null,
-        1200,
-        null,
-        true
-      );
-    }, ICCMeteorError); //ICCMeteorError);
-  });
-
   //   maxrating,
-  it("should fail if maxrating is not null, a number, less than 1, or not within ICC configuration requirements", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        0,
-        "none",
-        true,
-        null,
-        null,
-        "1200",
-        true
-      );
-    }, Match.Error);
-
-    self.sandbox.replace(
-      SystemConfiguration,
-      "meetsMinimumAndMaximumRatingRules",
-      self.sandbox.fake.returns(false)
-    );
-    chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek(
-        "test_identifier",
-        0,
-        "standard",
-        15,
-        0,
-        "none",
-        true,
-        null,
-        null,
-        1200,
-        true
-      );
-    }, ICCMeteorError);
-  });
-
   //   autoaccept,
   it("should fail if autoaccept not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -932,31 +816,6 @@ describe("GameRequests.addLocalMatchRequest", function() {
       )
     );
     chai.assert.equal(GameRequests.collection.find().count(), 2);
-  });
-
-  it("should fail if time/inc invalid/not within ICC configuration", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    self.sandbox.replace(
-      SystemConfiguration,
-      "meetsTimeAndIncRules",
-      self.sandbox.fake.returns(false)
-    );
-    chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest(
-        "mid",
-        undefined,
-        0,
-        "standard",
-        true,
-        false,
-        15,
-        0,
-        "none",
-        15,
-        0,
-        "none"
-      );
-    }, Match.Error);
   });
 
   //   challenger_color_request,
@@ -2157,22 +2016,6 @@ describe("Local seeks", function() {
     );
     chai.assert.equal(GameRequests.collection.find().count(), 9);
   });
-
-  it("should fail if delay is specified as zero", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    chai.assert.throws(
-      () => GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 0, "us", true),
-      ICCMeteorError
-    );
-    chai.assert.throws(
-      () => GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 0, "bronstein", true),
-      ICCMeteorError
-    );
-    chai.assert.throws(
-      () => GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 0, "inc", true),
-      ICCMeteorError
-    );
-  });
 });
 
 describe("Local matches", function() {
@@ -2481,89 +2324,5 @@ describe("Local matches", function() {
       )
     );
     chai.assert.equal(GameRequests.collection.find().count(), 9);
-  });
-
-  it("should fail if delay is specified as zero and delaytype is not 'none'", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
-    chai.assert.throws(
-      () =>
-        GameRequests.addLocalMatchRequest(
-          "mi1",
-          p2,
-          0,
-          "standard",
-          true,
-          false,
-          15,
-          0,
-          "inc",
-          15,
-          15,
-          "inc",
-          "white"
-        ),
-      ICCMeteorError
-    );
-    chai.assert.throws(
-      () =>
-        GameRequests.addLocalMatchRequest(
-          "mi1",
-          p2,
-          0,
-          "standard",
-          true,
-          false,
-          15,
-          15,
-          "inc",
-          15,
-          0,
-          "inc",
-          "white"
-        ),
-      ICCMeteorError
-    );
-  });
-
-  it("should fail if delay is specified as non zero and delaytype is 'none'", function() {
-    self.loggedonuser = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
-    chai.assert.throws(
-      () =>
-        GameRequests.addLocalMatchRequest(
-          "mi1",
-          p2,
-          0,
-          "standard",
-          true,
-          false,
-          15,
-          15,
-          "none",
-          15,
-          15,
-          "inc"
-        ),
-      ICCMeteorError
-    );
-    chai.assert.throws(
-      () =>
-        GameRequests.addLocalMatchRequest(
-          "mi1",
-          p2,
-          0,
-          "standard",
-          true,
-          false,
-          15,
-          15,
-          "inc",
-          15,
-          15,
-          "none"
-        ),
-      ICCMeteorError
-    );
   });
 });

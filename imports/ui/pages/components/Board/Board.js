@@ -31,11 +31,7 @@ export default class Board extends React.Component {
   addCircle(rank, file) {
     const have = this._circleObject(rank, file);
     if (have) {
-      if (
-        have.lineWidth === this._circle.lineWidth &&
-        have.color === this._circle.color
-      )
-        return;
+      if (have.lineWidth === this._circle.lineWidth && have.color === this._circle.color) return;
       this.removeCircle(rank, file);
     }
     const c = { rank: rank, file: file };

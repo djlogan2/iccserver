@@ -6,6 +6,7 @@ import i18n from "meteor/universe:i18n";
 import "../lib/client/timestamp";
 
 Meteor.startup(() => {
+  Meteor.logoutOtherClients();
   i18n.addTranslations("en-US", {
     Common: {
       HomeContainer: {

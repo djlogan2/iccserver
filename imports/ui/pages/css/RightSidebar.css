@@ -80,6 +80,15 @@
 	border: 0;
 }
 */
+.tab-content .userlist button:hover {
+    background: #e6e5e5 !important;
+    color: #1565c0 !important;
+}
+.tab-content .userlist button:focus {
+    background: #e6e5e5 !important;
+    color: #1565c0 !important;
+	outline: none;
+}
 .right-bottom-content .tab-content {
 	padding: 0;
 	background: #fff;

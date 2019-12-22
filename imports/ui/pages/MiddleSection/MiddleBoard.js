@@ -163,23 +163,17 @@ export default class MiddleBoard extends Component {
           />
         </div>
         <div style={this.props.cssmanager.fullWidth()}>
-          <div
-            // style={this.props.cssmanager.parentPopup(h, w)}
-            style={{ width: w, height: mbh }}
-            className="boardMain"
-          >
-            <Board
-              cssmanager={this.props.cssmanager}
-              board={board.board()}
-              draw_rank_and_file={this.state.draw_rank_and_file}
-              side={size}
-              top={this.state.top}
-              circle={{ lineWidth: 2, color: "red" }}
-              arrow={{ lineWidth: 2, color: "blue" }}
-              ref="board"
-              onDrop={this._pieceSquareDragStop}
-            />
-          </div>
+          <Board
+            cssmanager={this.props.cssmanager}
+            board={board.board()}
+            draw_rank_and_file={this.state.draw_rank_and_file}
+            side={size}
+            top={this.state.top}
+            circle={{ lineWidth: 2, color: "red" }}
+            arrow={{ lineWidth: 2, color: "blue" }}
+            ref="board"
+            onDrop={this._pieceSquareDragStop}
+          />
         </div>
         <div style={{ clear: "Left" }} />
         <div style={{ width: size }}>

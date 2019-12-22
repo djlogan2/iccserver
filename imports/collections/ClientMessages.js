@@ -59,6 +59,7 @@ export const DefinedClientMessagesMap = {
   END_OF_GAME: {},
   VARIATION_REQUIRED: {},
   INVALID_VARIATION: {},
+  ALREADY_PLAYING: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},

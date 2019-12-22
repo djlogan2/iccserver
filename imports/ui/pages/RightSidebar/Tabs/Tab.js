@@ -49,11 +49,7 @@ class Tab extends Component {
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        <img
-          src={src}
-          alt=""
-          style={this.props.cssmanager.TabIcon(tabListName)}
-        />
+        <img src={src} alt="" style={this.props.cssmanager.TabIcon(tabListName)} />
         {label}
       </li>
     );

@@ -113,19 +113,44 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     );
   }
   toggleHover() {
-    this.setState({ hover: true });
-  }
-  toggleHoverOut() {
-    this.setState({ hover: false });
+    this.setState({ hover: !this.state.hover });
   }
 
   render() {
     let linkStyle;
     if (this.state.hover) {
-      alert("yes");
-      linkStyle = { color: "red", cursor: "pointer", background: "#ccc" };
+      linkStyle = {
+        backgroundColor: "transparent",
+        width: "100%",
+        display: "block",
+        height: "auto",
+        margin: "0",
+        borderRadius: "0px",
+        color: "#000",
+        textAlign: "left",
+        border: "0px",
+        borderBottom: "#ccc 1px solid",
+        padding: "8px 15px",
+        fontSize: "14px",
+        fontWeight: "bold"
+      };
     } else {
-      linkStyle = { color: "#000", background: "blue" };
+      linkStyle = {
+        backgroundColor: "transparent",
+        width: "100%",
+        display: "block",
+        height: "auto",
+        margin: "0",
+        borderRadius: "0px",
+        color: "#000",
+        textAlign: "left",
+        border: "0px",
+        borderBottom: "#ccc 1px solid",
+        padding: "8px 15px",
+        fontSize: "14px",
+        fontWeight: "bold",
+        background: " cadetblue"
+      };
     }
     let translator = i18n.createTranslator("Common.MatchUserSubTab", this.getLang());
     if (Meteor.userId() == null) return;
@@ -133,13 +158,14 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     const legacyUsers = legacyUsersC.find({}).fetch();
     const _userdata = localUsers.map(user => user.username);
     const userdata = _userdata.concat(legacyUsers.map(user => user.username + "(L)"));
+    const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (
         <div style={this.props.cssmanager.subTabHeader()}>
           {userdata.map((user, index) => (
-            <div key={index}>
+            <div key={index} className="userlist">
               <button
                 onClick={this.handelUserClick.bind(this, user)}
                 style={this.props.cssmanager.matchUserButton()}
@@ -164,7 +190,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
                 style={this.props.cssmanager.buttonStyle()}
                 onClick={this.removeUser.bind(this)}
               >
-                <img src="images/delete-sign.png" />
+                <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
               </button>
             </div>
           </div>
@@ -202,29 +228,18 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
 
             <div label={translator("recentOpponent")}>
               <div style={this.props.cssmanager.subTabHeader()}>
-                <div>
-                  <button style={this.props.cssmanager.matchUserButton()}>User-1</button>
-                </div>
-                <div>
-                  <button
-                    style={linkStyle}
-                    onMouseOut={this.toggleHover}
-                    onMouseOver={this.toggleHoverOut}
-                  >
-                    User-2
-                  </button>
-                </div>
+                {userdata2.map((user, index) => (
+                  <div key={index} className="userlist">
+                    <button
+                      onClick={this.handelUserClick.bind(this, user)}
+                      style={this.props.cssmanager.matchUserButton()}
+                    >{user}
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           </SubTabs>
-          {/*   <div
-            style={{
-              background: "#ccc",
-              width: "100%",
-              height: "2px",
-              margin: "15px 0px"
-            }}
-          /> */}
           <div style={{ fontSize: "16px", padding: "15px 0px" }}>
             Option 2 - Send a link for anyone to play
           </div>

@@ -13,6 +13,8 @@ import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
+import { DynamicRatings } from "./DynamicRatings";
+import { Users } from "../imports/collections/users";
 
 export const Game = {};
 
@@ -92,6 +94,8 @@ Game.startLocalGame = function(
   check(white_increment_or_delay_type, String);
   check(black_increment_or_delay_type, String);
 
+  check(self.ratings[rating_type], Object); // Rating type needs to be valid!
+
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -123,23 +127,48 @@ Game.startLocalGame = function(
   }
 
   if (
-    !SystemConfiguration.meetsTimeAndIncRules(
+    !DynamicRatings.meetsRatingTypeRules(
+      message_identifier,
+      "white",
+      rating_type,
       white_initial,
       white_increment_or_delay,
-      white_increment_or_delay_type
+      white_increment_or_delay_type,
+      rated,
+      "start",
+      !!color
     )
   ) {
     throw new ICCMeteorError("Unable to start game", "White time/inc/delay fails validation");
   }
+
   if (
-    !SystemConfiguration.meetsTimeAndIncRules(
+    !DynamicRatings.meetsRatingTypeRules(
+      message_identifier,
+      "black",
+      rating_type,
       black_initial,
       black_increment_or_delay,
-      black_increment_or_delay_type
+      black_increment_or_delay_type,
+      rated,
+      "start",
+      !!color
     )
   ) {
     throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
   }
+
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
 
   const chess = new Chess.Chess();
 
@@ -247,6 +276,18 @@ Game.startLocalExaminedGame = function(
     );
   }
 
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
+
   const chess = new Chess.Chess();
 
   const game = {
@@ -338,6 +379,7 @@ Game.startLegacyGame = function(
   const self = Meteor.user();
   const iswhite = !!self && !!whiteuser && whiteuser._id === self._id;
   const isblack = !!self && !!blackuser && blackuser._id === self._id;
+
   if (!self || (!iswhite && !isblack))
     throw new ICCMeteorError(
       message_identifier,
@@ -373,6 +415,18 @@ Game.startLegacyGame = function(
       "Unable to start game",
       "Both players are logged on locally. Begin a local game"
     );
+
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
 
   const game = {
     starttime: new Date(),
@@ -1825,6 +1879,14 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
   );
 };
 
+Game.localUnobserveAllGames = function(message_identifier, user_id) {
+  check(message_identifier, String);
+  check(user_id, String);
+  GameCollection.find({ observers: user_id }, { _id: 1 })
+    .fetch()
+    .forEach(game => Game.localRemoveObserver("", game._id, user_id));
+};
+
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
   switch (tag) {
     case "Event":
@@ -2099,6 +2161,7 @@ function testingCleanupMoveTimers() {
 
 Meteor.startup(function() {
   GameCollection.remove({});
+  Users.addLogoutHook(userId => Game.localUnobserveAllGames("", userId));
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
