@@ -124,3 +124,47 @@ if (Meteor.isTest || Meteor.isAppTest) {
     return self;
   };
 }
+
+function isObject(obj) {
+  if (!(obj instanceof Object)) return false;
+  if (obj instanceof Date) return false;
+  // noinspection RedundantIfStatementJS
+  if (obj instanceof Array) return false;
+  return true;
+}
+
+export function compare(testobject, actualobject, propheader) {
+  propheader = propheader || "";
+  if (isObject(testobject) || isObject(actualobject)) {
+    if (typeof testobject !== typeof actualobject)
+      return "object types failed to match: " + (propheader || "entire object");
+  }
+
+  let prop;
+  for (prop in testobject) {
+    if (Object.prototype.hasOwnProperty.call(testobject, prop)) {
+      if (prop !== "ratings") {
+        if (actualobject[prop] === undefined)
+          return propheader + prop + " not found in database object";
+        else if (testobject[prop] instanceof Object) {
+          const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
+          if (!!msg) return msg;
+        }
+      }
+    }
+  }
+
+  for (prop in actualobject) {
+    if (Object.prototype.hasOwnProperty.call(actualobject, prop)) {
+      if (prop !== "ratings") {
+        if (!testobject[prop])
+          return propheader + prop + " is not supposed to be viewable, but is in the subscription";
+        else if (isObject(actualobject[prop])) {
+          const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
+          if (!!msg) return msg;
+        }
+      }
+    }
+  }
+}
+

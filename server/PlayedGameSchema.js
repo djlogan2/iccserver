@@ -150,8 +150,6 @@ export const PlayedGameSchema = new SimpleSchema({
     },
     rating: SimpleSchema.Integer
   }),
-  moves: { type: Array, required: false },
-  "moves.$": String,
   lag: Object,
   "lag.white": Object,
   "lag.black": Object,
@@ -163,7 +161,6 @@ export const PlayedGameSchema = new SimpleSchema({
   "lag.black.active.$.originate": Number,
   "lag.white.pings": [Number],
   "lag.black.pings": [Number],
-  tags: { type: Object, required: false },
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },
   "observers.$": String,

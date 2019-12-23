@@ -1772,6 +1772,37 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
 GameHistory.examineGame = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const hist = GameHistoryCollection.findOne({ _id: game_id });
+  if (!hist)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to examine saved game",
+      "Unable to find game"
+    );
+  const chess = new Chess.Chess();
+  if (hist.tags && hist.tags.FEN) {
+    hist.fen = hist.tags.FEN;
+    if (!chess.loadfen(hist.tags.FEN))
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to examine saved game",
+        "FEN string is invalid"
+      );
+  } else {
+    hist.fen = chess.fen();
+  }
+
+  delete hist._id;
+  hist.tomove = chess.turn() === "w" ? "white" : "black";
+  hist.status = "examining";
+  hist.observers = [self._id];
+  hist.examiners = [self._id];
+  const examined_id = GameCollection.insert(hist);
+  active_games[examined_id] = chess;
+  return examined_id;
 };
 
 GameHistory.search = function(message_identifier, search_parameters, offset, count) {
@@ -2033,7 +2064,6 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     return;
   }
 
-  console.log("Starting move timer for game id " + game_id);
   move_timers[game_id] = Meteor.setInterval(() => {
     Meteor.clearInterval(move_timers[game_id]);
     delete move_timers[game_id];

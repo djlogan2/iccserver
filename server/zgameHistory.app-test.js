@@ -1,8 +1,80 @@
 import chai from "chai";
 
 import { Game, GameHistory } from "./Game";
-import { TestHelpers } from "../imports/server/TestHelpers";
-import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { TestHelpers, compare } from "../imports/server/TestHelpers";
+
+const examined_game_fields = {
+  startTime: 1,
+  result: 1,
+  fen: 1,
+  tomove: 1,
+  wild: 1,
+  rating_type: 1,
+  rated: 1,
+  status: 1,
+  clocks: {
+    white: {
+      initial: 1,
+      inc_or_delay: 1,
+      delaytype: 1
+    },
+    black: {
+      initial: 1,
+      inc_or_delay: 1,
+      delaytype: 1
+    }
+  },
+  white: {
+    name: 1,
+    id: 1,
+    rating: 1
+  },
+  black: {
+    name: 1,
+    id: 1,
+    rating: 1
+  },
+  tags: 1,
+  actions: 1,
+  observers: 1,
+  examiners: 1,
+  variations: {
+    cmi: 1,
+    variations: 1
+  }
+};
+
+const game_history_fields = {
+  startTime: 1,
+  result: 1,
+  wild: 1,
+  rating_type: 1,
+  rated: 1,
+  clocks: {
+    white: {
+      initial: 1,
+      inc_or_delay: 1,
+      delaytype: 1
+    },
+    black: {
+      initial: 1,
+      inc_or_delay: 1,
+      delaytype: 1
+    }
+  },
+  white: {
+    name: 1,
+    id: 1,
+    rating: 1
+  },
+  black: {
+    name: 1,
+    id: 1,
+    rating: 1
+  },
+  actions: 1,
+  variations: { variations: 1 }
+};
 
 describe.only("Game history", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
@@ -29,6 +101,7 @@ describe.only("Game history", function() {
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 1);
   });
+
   it("copies to game_history when a game is aborted", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -223,9 +296,9 @@ describe.only("Game history", function() {
       [],
       ""
     );
-    chai.assert.throws(() => GameHistory.savePlayedGame("mi2", game_id), ICCMeteorError);
-    chai.assert.fail("do me");
+    chai.assert.throws(() => GameHistory.savePlayedGame("mi2", game_id), Error);
   });
+
   it("must fail if trying to copy the same game to game history more than once", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -272,20 +345,74 @@ describe.only("Game history", function() {
     self.loggedonuser = save;
     chai.assert.equal(Game.collection.find().count(), 0);
     chai.assert.equal(GameHistory.collection.find().count(), 1);
-    return GameHistory.findOne();
+    return GameHistory.collection.findOne();
   }
 
   it("needs to copy a history game to the game collection when examining a game history game", function() {
     const hgame = createHistoryGame();
-    chai.assert.doesNotThrow(GameHistory.examineGame("mi1", hgame._id));
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.doesNotThrow(() => GameHistory.examineGame("mi1", hgame._id));
   });
 
   it("needs to remove all of the unnecessary game collection fields when copying to history", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 0);
+    Game.resignLocalGame("mi2", game_id);
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 1);
+
+    const game = GameHistory.collection.findOne();
+    compare(game_history_fields, game);
   });
 
   it("needs to add/create all of the necessaray game collection fields when copying to game/examine", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const p3 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 0);
+    Game.resignLocalGame("mi2", game_id);
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 1);
+
+    const hist = GameHistory.collection.findOne();
+
+    self.loggedonuser = p3;
+    const game2_id = GameHistory.examineGame("mi3", hist._id);
+    chai.assert.isDefined(game2_id);
+    const game = Game.collection.findOne({ _id: game2_id });
+    chai.assert.isDefined(game);
+    compare(examined_game_fields, game);
   });
 
   it("needs to write a client message if the user is playing a game and tries to examine a game", function() {

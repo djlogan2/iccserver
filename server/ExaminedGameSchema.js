@@ -91,26 +91,24 @@ export const ExaminedGameSchema = new SimpleSchema({
       white: new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
-        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
-        current: SimpleSchema.Integer,
-        starttime: SimpleSchema.Integer
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] }
       }),
       black: new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
-        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
-        current: SimpleSchema.Integer,
-        starttime: SimpleSchema.Integer
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] }
       })
     }),
     required: false
   },
   white: new SimpleSchema({
     name: String,
+    id: { type: String, required: false },
     rating: SimpleSchema.Integer
   }),
   black: new SimpleSchema({
     name: String,
+    id: { type: String, required: false },
     rating: SimpleSchema.Integer
   }),
   tags: { type: Object, required: false, blackbox: true },
@@ -120,7 +118,6 @@ export const ExaminedGameSchema = new SimpleSchema({
   examiners: { type: Array, defaultValue: [] },
   "examiners.$": String,
   variations: { type: Object, required: false },
-  "variations.hmtb": Number,
   "variations.cmi": Number,
   "variations.movelist": Array,
   "variations.movelist.$": Object,
