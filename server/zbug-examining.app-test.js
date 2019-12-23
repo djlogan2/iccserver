@@ -3,7 +3,7 @@ import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
 describe("When starting a game", function() {
-  const self = TestHelpers.setupDescribe.call(this, { timer: true });
+  const self = TestHelpers.setupDescribe.call(this);
   it("should remove you as an observer from all games when starting a local game", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
