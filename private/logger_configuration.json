@@ -16,7 +16,7 @@
     "Tabs/Tabs_js": "TRACE",
     "ICCMeteorError": "TRACE",
     "server/LegacyUsers": "ERROR",
-    "server/timestamp_js": "ERROR",
+    "server/timestamp_js": "TRACE",
     "server/Game_js": "TRACE",
     "server/GameRequest_js": "ERROR",
     "server/main_js": "ERROR",

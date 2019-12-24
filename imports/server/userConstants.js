@@ -37,6 +37,5 @@ export const fields_viewable_by_account_owner = {
 
 export const viewable_logged_on_user_fields = {
   username: 1,
-  ratings: 1,
-  status: 1
+  ratings: 1
 };

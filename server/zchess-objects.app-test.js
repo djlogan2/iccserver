@@ -1,110 +1,111 @@
-/*Constructor: Chess([ fen ])
-.ascii()
-.board()
-.clear()
-.fen()
-.game_over()
-.get(square)
-.history([ options ])
-.in_check()
-.in_checkmate()
-.in_draw()
-.in_stalemate()
-.in_threefold_repetition()
-.header()
-.insufficient_material()
-.load_pgn(pgn, [ options ])
-.moves([ options ])
-    .pgn([ options ])
+import chai from "chai";
 
-Returns the game in PGN format. Options is an optional parameter which may include max width and/or a newline character settings.
+describe.skip("", function() {
+  it("Constructor: Chess([ fen ])", function() {
+    chai.assert.fail("do me");
+  });
 
-    var chess = new Chess();
-chess.header('White', 'Plunky', 'Black', 'Plinkie');
-chess.move('e4');
-chess.move('e5');
-chess.move('Nc3');
-chess.move('Nc6');
+  it(".ascii()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.pgn({ max_width: 5, newline_char: '<br />' });
-// -> '[White "Plunky"]<br />[Black "Plinkie"]<br /><br />1. e4 e5<br />2. Nc3 Nc6'
-.put(piece, square)
+  it(".board()", function() {
+    chai.assert.fail("do me");
+  });
 
-Place a piece on the square where piece is an object with the form { type: ..., color: ... }. Returns true if the piece was successfully placed, otherwise, the board remains unchanged and false is returned. put() will fail when passed an invalid piece or square, or when two or more kings of the same color are placed.
+  it(".clear()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.clear();
+  it(".fen()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.put({ type: chess.PAWN, color: chess.BLACK }, 'a5') // put a black pawn on a5
-// -> true
-chess.put({ type: 'k', color: 'w' }, 'h1') // shorthand
-// -> true
+  it(".game_over()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.fen();
-// -> '8/8/8/p7/8/8/8/7K w - - 0 0'
+  it(".get(square)", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.put({ type: 'z', color: 'w' }, 'a1') // invalid piece
-// -> false
+  it(".history([ options ])", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.clear();
+  it(".in_check()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.put({ type: 'k', color: 'w' }, 'a1')
-// -> true
+  it(".in_checkmate()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.put({ type: 'k', color: 'w' }, 'h1') // fail - two kings
-    // -> false
-    .remove(square)
+  it(".in_draw()", function() {
+    chai.assert.fail("do me");
+  });
 
-Remove and return the piece on square.
+  it(".in_stalemate()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.clear();
-chess.put({ type: chess.PAWN, color: chess.BLACK }, 'a5') // put a black pawn on a5
-chess.put({ type: chess.KING, color: chess.WHITE }, 'h1') // put a white king on h1
+  it(".in_threefold_repetition()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.remove('a5');
-// -> { type: 'p', color: 'b' },
-chess.remove('h1');
-// -> { type: 'k', color: 'w' },
-chess.remove('e1');
-// -> null
-.reset()
+  it(".header()", function() {
+    chai.assert.fail("do me");
+  });
 
-Reset the board to the initial starting position.
+  it(".insufficient_material()", function() {
+    chai.assert.fail("do me");
+  });
 
-    .square_color(square)
+  it(".load(fen)", function() {
+    chai.assert.fail("do me");
+  });
 
-Returns the color of the square ('light' or 'dark').
+  it(".load_pgn(pgn, [ options ])", function() {
+    chai.assert.fail("do me");
+  });
 
-var chess = Chess();
-chess.square_color('h1')
-// -> 'light'
-chess.square_color('a7')
-// -> 'dark'
-chess.square_color('bogus square')
-    // -> null
-    .turn()
+  it(".move(move, [ options ])", function() {
+    chai.assert.fail("do me");
+  });
 
-Returns the current side to move.
+  it(".moves([ options ])", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.load('rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1')
-chess.turn()
-    // -> 'b'
-    .undo()
+  it(".pgn([ options ])", function() {
+    chai.assert.fail("do me");
+  });
 
-Takeback the last half-move, returning a move object if successful, otherwise null.
+  it(".put(piece, square)", function() {
+    chai.assert.fail("do me");
+  });
 
-    var chess = new Chess();
+  it(".remove(square)", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.fen();
-// -> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-chess.move('e4');
-chess.fen();
-// -> 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+  it(".reset()", function() {
+    chai.assert.fail("do me");
+  });
 
-chess.undo();
-// -> { color: 'w', from: 'e2', to: 'e4', flags: 'b', piece: 'p', san: 'e4' }
-chess.fen();
-// -> 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-chess.undo();
-// -> null
-.validate_fen(fen):
-*/
+  it(".square_color(square)", function() {
+    chai.assert.fail("do me");
+  });
+
+  it(".turn()", function() {
+    chai.assert.fail("do me");
+  });
+
+  it(".undo()", function() {
+    chai.assert.fail("do me");
+  });
+
+  it(".validate_fen(fen)", function() {
+    chai.assert.fail("do me");
+  });
+});

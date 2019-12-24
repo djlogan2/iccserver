@@ -92,26 +92,6 @@ describe("getAndCheck", function() {
     chai.assert.fail("do me");
   });
 });
-describe("Game.drawCircle", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.removeCircle", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.drawArrow", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.removeArrow", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
 describe("Game.changeHeaders", function() {
   it("still needs to be written", function () {
     chai.assert.fail("do me");

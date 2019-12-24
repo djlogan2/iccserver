@@ -9,7 +9,6 @@ import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
 import { i18n } from "./i18n";
-import { LegacyUser } from "../../lib/server/LegacyUsers";
 import { DynamicRatings } from "../../server/DynamicRatings";
 
 let log = new Logger("server/users_js");
@@ -25,15 +24,14 @@ Meteor.publish("loggedOnUsers", function() {
 Meteor.publish("userData", function() {
   if (!this.userId) return [];
 
-  const self = this;
+  // const self = this;
 
-  this.onStop(function() {
-    log.debug("User left: " + self.userId);
-    LegacyUser.logout(self.userId);
-    runLogoutHooks(this, self.userId);
-  });
+  // this.onStop(function() {
+  //   log.debug("User left: " + self.userId);
+  //   runLogoutHooks(this, self.userId);
+  // });
 
-  log.debug("User has arrived");
+  log.debug("User " + this.userId + " has arrived");
   return Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner });
 });
 
@@ -74,24 +72,18 @@ Accounts.onCreateUser(function(options, user) {
   return user;
 });
 
+// Accounts.onLogout(function(user_parameter) {
+//   const user = user_parameter.user;
+//   //const connection = user_parameter.connection;
+//   log.debug("User logged out: " + user._id);
+//   runLogoutHooks(this, user._id);
+// });
+
 Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;
   const connection = user_parameter.connection;
 
   log.debug("user record", user);
-  log.debug("User is in legacy_login role", Roles.userIsInRole(user, "legacy_login"));
-
-  if (
-    Roles.userIsInRole(user, "legacy_login") &&
-    user.profile &&
-    user.profile.legacy &&
-    user.profile.legacy.username &&
-    user.profile.legacy.password &&
-    user.profile.legacy.autologin
-  ) {
-    LegacyUser.login(user);
-  }
-
   runLoginHooks(this, user, connection);
 });
 
@@ -123,6 +115,11 @@ Meteor.startup(function() {
     Users.runLoginHooks = runLoginHooks;
     Users.ruLogoutHooks = runLogoutHooks;
   }
+  Meteor.users.find({ "status.online": true }).observeChanges({
+    removed(id, fields) {
+      runLogoutHooks(this, id);
+    }
+  });
 });
 
 Accounts.validateLoginAttempt(function(params) {
