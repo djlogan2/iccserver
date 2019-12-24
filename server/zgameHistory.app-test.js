@@ -2,6 +2,7 @@ import chai from "chai";
 
 import { Game, GameHistory } from "./Game";
 import { TestHelpers, compare } from "../imports/server/TestHelpers";
+import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 const examined_game_fields = {
   startTime: 1,
@@ -76,7 +77,7 @@ const game_history_fields = {
   variations: { variations: 1 }
 };
 
-describe.only("Game history", function() {
+describe("Game history", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
   it("copies to game_history when a game is resigned", function() {
     const p1 = TestHelpers.createUser();
@@ -127,6 +128,7 @@ describe.only("Game history", function() {
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 1);
   });
+
   it("copies to game_history when a game is drawn", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -152,11 +154,12 @@ describe.only("Game history", function() {
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 1);
   });
+
   it("copies to game_history when a game is ended by out of time", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
+    Game.startLocalGame("mi1", p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     self.clock.tick(60 * 1000); // 1 minute
@@ -343,15 +346,17 @@ describe.only("Game history", function() {
     self.loggedonuser = p2;
     Game.localRemoveObserver("mi4", game_id, p2._id);
     self.loggedonuser = save;
-    chai.assert.equal(Game.collection.find().count(), 0);
-    chai.assert.equal(GameHistory.collection.find().count(), 1);
-    return GameHistory.collection.findOne();
+    return GameHistory.collection.findOne({ _id: game_id });
   }
 
   it("needs to copy a history game to the game collection when examining a game history game", function() {
     const hgame = createHistoryGame();
     self.loggedonuser = TestHelpers.createUser();
+    chai.assert.equal(Game.collection.find().count(), 0);
+    chai.assert.equal(GameHistory.collection.find().count(), 1);
     chai.assert.doesNotThrow(() => GameHistory.examineGame("mi1", hgame._id));
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 1);
   });
 
   it("needs to remove all of the unnecessary game collection fields when copying to history", function() {
@@ -416,17 +421,74 @@ describe.only("Game history", function() {
   });
 
   it("needs to write a client message if the user is playing a game and tries to examine a game", function() {
-    chai.assert.fail("do me");
+    const hgame = createHistoryGame();
+    chai.assert.equal(Game.collection.find().count(), 0);
+    chai.assert.equal(GameHistory.collection.find().count(), 1);
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 1);
+    self.loggedonuser = p2;
+    GameHistory.examineGame("mi2", hgame._id);
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 1);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_PLAYING");
   });
 
   it("needs to unobserve all other games if a user examines a game history game", function() {
-    chai.assert.fail("do me");
+    this.timeout(30000);
+    const hgame = createHistoryGame();
+
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
+    Game.resignLocalGame("mi2", game_id);
+    chai.assert.equal(Game.collection.find().count(), 1);
+    chai.assert.equal(GameHistory.collection.find().count(), 2);
+    self.loggedonuser = p2;
+    const game2_id = GameHistory.examineGame("mi2", hgame._id);
+    chai.assert.equal(Game.collection.find().count(), 2);
+    chai.assert.equal(GameHistory.collection.find().count(), 2);
+    const p1examined = Game.collection.findOne({ _id: game_id });
+    const p2examined = Game.collection.findOne({ _id: game2_id });
+    chai.assert.sameMembers(p1examined.examiners, [p1._id]);
+    chai.assert.sameMembers(p2examined.examiners, [p2._id]);
   });
 
   it("needs to have a search method anyone can use, with pagination", function() {
-    chai.assert.fail("do me");
+    this.timeout(30000);
+    const games = [];
+    for (let x = 0; x < 100; x++) games.push(createHistoryGame()._id);
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["search_game_history"]
+    });
+    for (let x = 0; x < 10; x++) {
+      const cursor = GameHistory.search("mi1", {}, x * 10, 10);
+      const searchgames = cursor.fetch();
+      const ids = searchgames.map(g => g._id);
+      chai.assert.equal(searchgames.length, 10);
+      chai.assert.sameMembers(ids, games.slice(x * 10, x * 10 + 10));
+    }
   });
-  it("needs to write a client message if a user does not have the 'search_game_history' role", function() {
-    chai.assert.fail("do me");
+
+  it("needs to fail if a user does not have the 'search_game_history' role", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    chai.assert.throws(() => GameHistory.search("mi1", {}, 10, 10), ICCMeteorError);
   });
 });

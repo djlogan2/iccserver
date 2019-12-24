@@ -1782,6 +1782,19 @@ GameHistory.examineGame = function(message_identifier, game_id) {
       "Unable to examine saved game",
       "Unable to find game"
     );
+
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
+
   const chess = new Chess.Chess();
   if (hist.tags && hist.tags.FEN) {
     hist.fen = hist.tags.FEN;
@@ -1800,6 +1813,7 @@ GameHistory.examineGame = function(message_identifier, game_id) {
   hist.status = "examining";
   hist.observers = [self._id];
   hist.examiners = [self._id];
+  hist.variations.cmi = 0;
   const examined_id = GameCollection.insert(hist);
   active_games[examined_id] = chess;
   return examined_id;
@@ -1812,12 +1826,10 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
   check(offset, Number);
   check(count, Number);
   if (!Roles.userIsInRole(self, "search_game_history"))
-    throw new ICCMeteorError(message_identifier, "Unable to add rating", "User not authorized");
+    throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
   if (count > SystemConfiguration.maximumGameHistorySearchCount())
     count = SystemConfiguration.maximumGameHistorySearchCount();
-  return GameHistoryCollection.find(search_parameters)
-    .skip(offset)
-    .limit(count);
+  return GameHistoryCollection.find(search_parameters, {skip: offset, limit: count});
 };
 
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
