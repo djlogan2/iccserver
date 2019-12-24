@@ -79,7 +79,14 @@ describe.only("Game.drawCircle", function() {
     chai.assert.deepEqual(record.circles[0], { square: 'c1', color: 'red', size: 3 });
   });
   it("should write an action", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.drawCircle("mi1", game_id, "c1", "red", 3);
+    const record = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal("draw_circle", record.actions[0].type, "Failed to record a draw in actions");
+    chai.assert.equal("c1", record.actions[0].parameter.square, "Failed to record a draw in actions");
+    chai.assert.equal("red", record.actions[0].parameter.color, "Failed to record a draw in actions");
+    chai.assert.deepEqual(3, record.actions[0].parameter.size, "Failed to record a draw in actions");
   });
 });
 describe("Game.removeCircle", function() {

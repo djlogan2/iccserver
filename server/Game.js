@@ -1423,8 +1423,22 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
+  } else if (
+    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
   }
-  GameCollection.update({ _id: game_id, status: "examining" }, { $push: { circles: {square: square, color: color, size: size} } });
+  for (var i = 0; i < game.circles.length; i++) {
+    if (game.circles[i].square === square) return;
+  }
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $push: { circles: { square: square, color: color, size: size } } }
+  );
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $push: { actions: { type: "draw_circle", issuer: "iccserver", parameter: {square: square, color: color, size: size} } } }
+  );
 };
 Game.isSquareValid = function(square) {
   check(square, String);
