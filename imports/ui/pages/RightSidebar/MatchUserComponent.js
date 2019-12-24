@@ -20,12 +20,13 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
         legacyUsers: Meteor.subscribe("legacyUsers")
       },
       user: null,
+      userObj: null,
       wild_number: 0,
-      type: "standard",
+      rating_type: "standard",
       rated: true,
       is_adjourned: false,
-      minute: 15,
-      inc: 30,
+      time: 14,
+      inc: 1,
       incOrdelayType: "inc",
       color: "random"
     };
@@ -40,26 +41,26 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     this.setState({
       user: null,
       wild_number: 0,
-      type: "standard",
+      rating_type: "standard",
       rated: false,
       is_adjourned: false,
-      minute: 15,
-      inc: 30,
+      time: 14,
+      inc: 1,
       incOrdelayType: "inc",
       color: "random"
     });
   }
   handelUserClick = user => {
-    this.setState({ user: user });
+    this.setState({ user: user.username, userObj: user });
   };
   handleChangeMinute = minute => {
-    this.setState({ minute: minute });
+    this.setState({ time: minute });
   };
   handleChangeSecond = inc => {
     this.setState({ inc: inc });
   };
   handleChangeGameType = type => {
-    this.setState({ type: type });
+    this.setState({ rating_type: type });
   };
   handleIncOrDelayTypeChange = incOrDelay => {
     this.setState({ incOrdelayType: incOrDelay });
@@ -73,31 +74,31 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
 
   handleMatchSubmit() {
     let color = this.state.color === "random" ? null : this.state.color;
-
-    let submit = Meteor.call(
+    Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
-      this.state.user,
+      this.state.userObj,
       this.state.wild_number,
-      this.state.type,
+      this.state.rating_type,
       this.state.rated,
       this.state.is_adjourned,
-      this.state.minute,
+      this.state.time,
       this.state.inc,
       this.state.incOrdelayType,
-      this.state.minute,
+      this.state.time,
       this.state.inc,
       this.state.incOrdelayType,
       color
     );
     this.setState({
+      userObj: null,
       user: null,
       wild_number: 0,
-      type: "standard",
+      rating_type: "standard",
       rated: false,
       is_adjourned: false,
-      minute: 15,
-      inc: 30,
+      time: 14,
+      inc: 1,
       incOrdelayType: "inc",
       color: "random"
     });
@@ -117,41 +118,6 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   }
 
   render() {
-    let linkStyle;
-    if (this.state.hover) {
-      linkStyle = {
-        backgroundColor: "transparent",
-        width: "100%",
-        display: "block",
-        height: "auto",
-        margin: "0",
-        borderRadius: "0px",
-        color: "#000",
-        textAlign: "left",
-        border: "0px",
-        borderBottom: "#ccc 1px solid",
-        padding: "8px 15px",
-        fontSize: "14px",
-        fontWeight: "bold"
-      };
-    } else {
-      linkStyle = {
-        backgroundColor: "transparent",
-        width: "100%",
-        display: "block",
-        height: "auto",
-        margin: "0",
-        borderRadius: "0px",
-        color: "#000",
-        textAlign: "left",
-        border: "0px",
-        borderBottom: "#ccc 1px solid",
-        padding: "8px 15px",
-        fontSize: "14px",
-        fontWeight: "bold",
-        background: " cadetblue"
-      };
-    }
     let translator = i18n.createTranslator("Common.MatchUserSubTab", this.getLang());
     if (Meteor.userId() == null) return;
     const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
@@ -164,13 +130,13 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     if (this.state.user === null) {
       matchForm = (
         <div style={this.props.cssmanager.subTabHeader()}>
-          {userdata.map((user, index) => (
+          {localUsers.map((user, index) => (
             <div key={index} className="userlist">
               <button
                 onClick={this.handelUserClick.bind(this, user)}
                 style={this.props.cssmanager.matchUserButton()}
               >
-                {user}
+                {user.username}
               </button>
             </div>
           ))}
@@ -204,9 +170,9 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
             handleRatedChange={this.handleRatedChange}
             handleIncOrDelayTypeChange={this.handleIncOrDelayTypeChange}
             handleSubmit={this.handleMatchSubmit.bind(this)}
-            type={this.state.type}
+            type={this.state.rating_type}
             rated={this.state.rated}
-            minute={this.state.minute}
+            minute={this.state.time}
             inc={this.state.inc}
             incOrdelayType={this.state.incOrdelayType}
             color={this.state.color}

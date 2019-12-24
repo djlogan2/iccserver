@@ -555,7 +555,6 @@ GameRequests.addLocalMatchRequest = function(
   check(receiver_inc_or_delay_type, String);
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
-
   if (!receiver_user.status.online) {
     ClientMessages.sendMessageToClient(
       challenger_user,
@@ -649,7 +648,6 @@ GameRequests.addLocalMatchRequest = function(
       !DynamicRatings.meetsRatingTypeRules(
         message_identifier,
         "black",
-        rating_type,
         rating_type,
         receiver_time,
         receiver_inc_or_delay,

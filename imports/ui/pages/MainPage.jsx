@@ -97,7 +97,7 @@ export default class MainPage extends Component {
           <h3
             style={{
               margin: "10px 0px 20px",
-              color: "#fff",
+              color: "#000",
               fontSize: "17px"
             }}
           >
@@ -133,7 +133,7 @@ export default class MainPage extends Component {
             position: "absolute",
             right: "8px",
             background: "#f88117e0",
-            width: "195px",
+            width: "auto",
             top: "15px",
             zIndex: "9",
             webkitBoxShadow: "#949392 3px 2px 4px 0px",
@@ -148,7 +148,7 @@ export default class MainPage extends Component {
             style={{ width: "18px", marginRight: "10px" }}
             alt="info"
           />
-          <strong style={{ width: "100px", marginRight: "6px", fontSize: "14px" }}>{title}</strong>
+          <strong style={{ width: "auto", marginRight: "6px", fontSize: "14px" }}>{title}</strong>
           <button
             onClick={this._performAction.bind(this, "accepted", action)}
             style={{ backgroundColor: "transparent", border: "0px" }}
@@ -376,7 +376,11 @@ export default class MainPage extends Component {
             switch (action["type"]) {
               case "takeback_requested":
                 if (issuer !== this.userId && game.pending[othercolor].takeback.number > 0) {
-                  actionPopup = this.actionPopup("Take Back", "takeBack");
+                  let backCount =
+                    game.pending[othercolor].takeback.number === 1
+                      ? "Take Back 1 Move"
+                      : " Take Back 2 Moves";
+                  actionPopup = this.actionPopup(backCount, "takeBack");
                 }
                 break;
               case "draw_requested":

@@ -96,7 +96,6 @@ Game.startLocalGame = function(
   check(black_increment_or_delay_type, String);
 
   check(self.ratings[rating_type], Object); // Rating type needs to be valid!
-
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -683,7 +682,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
       // TODO: check for current <= 0 and end the game, yes?
       setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
-      log.debug("setobject=" + setobject);
     } else {
       endGamePing(game_id);
     }
@@ -694,12 +692,13 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     game.status === "playing"
       ? {
           move: move,
-          lag: Timestamp.averageLag(self._id),
-          ping: Timestamp.pingTime(self._id),
+          lag: 45, //Timestamp.averageLag(self._id),
+          ping: 63, //Timestamp.pingTime(self._id),
           gamelag: gamelag,
           gameping: gameping
         }
       : move;
+
 
   const pushobject = {
     actions: { type: "move", issuer: self._id, parameter: move_parameter }
@@ -1829,7 +1828,7 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
     throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
   if (count > SystemConfiguration.maximumGameHistorySearchCount())
     count = SystemConfiguration.maximumGameHistorySearchCount();
-  return GameHistoryCollection.find(search_parameters, {skip: offset, limit: count});
+  return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
 };
 
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
