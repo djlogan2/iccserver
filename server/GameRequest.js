@@ -1,7 +1,6 @@
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-import { Roles } from "meteor/alanning:roles";
 
 import { Match, check } from "meteor/check";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
@@ -295,7 +294,7 @@ GameRequests.addLocalGameSeek = function(
 
   if (!!formula) throw new ICCMeteorError(message_identifier, "Formula is not yet supported");
 
-  if (!Roles.userIsInRole(self, rated ? "play_rated_games" : "play_unrated_games")) {
+  if (!Users.isAuthorized(self, rated ? "play_rated_games" : "play_unrated_games")) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -385,7 +384,7 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     throw new ICCMeteorError(message_identifier, "Cannot accept a seek from yourself");
   if (request.type !== "seek")
     throw new ICCMeteorError(message_identifier, "Cannot accept a non-local seek");
-  if (!Roles.userIsInRole(self, request.rated ? "play_rated_games" : "play_unrated_games")) {
+  if (!Users.isAuthorized(self, request.rated ? "play_rated_games" : "play_unrated_games")) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -669,9 +668,9 @@ GameRequests.addLocalMatchRequest = function(
 
   const role = is_it_rated ? "play_rated_games" : "play_unrated_games";
 
-  if (!Roles.userIsInRole(challenger_user, role))
+  if (!Users.isAuthorized(challenger_user, role))
     throw new ICCMeteorError(message_identifier, "not_in_role", role);
-  if (!Roles.userIsInRole(receiver_user, role))
+  if (!Users.isAuthorized(receiver_user, role))
     throw new ICCMeteorError(message_identifier, "not_in_role", role);
 
   if (wild_number !== 0) throw new ICCMeteorError(message_identifier, "Wild must be zero");
@@ -888,8 +887,8 @@ Meteor.methods({
 
 function seekMatchesUser(user, seek) {
   if (user._id === seek.owner) return false;
-  if (!Roles.userIsInRole(user, "play_rated_games") && seek.rated) return false;
-  if (!Roles.userIsInRole(user, "play_unrated_games") && !seek.rated) return false;
+  if (!Users.isAuthorized(user, "play_rated_games") && seek.rated) return false;
+  if (!Users.isAuthorized(user, "play_unrated_games") && !seek.rated) return false;
   if (!seek.minrating && !seek.maxrating) return true;
 
   const myrating = user.ratings[seek.rating_type].rating;

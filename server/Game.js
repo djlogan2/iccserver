@@ -1,7 +1,6 @@
 import Chess from "chess.js";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
-import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
@@ -158,7 +157,7 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (!Roles.userIsInRole(self, "play_" + (rated ? "" : "un") + "rated_games")) {
+  if (!Users.isAuthorized(self, "play_" + (rated ? "" : "un") + "rated_games")) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -167,7 +166,7 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (!Roles.userIsInRole(other_user, "play_" + (rated ? "" : "un") + "rated_games")) {
+  if (!Users.isAuthorized(other_user, "play_" + (rated ? "" : "un") + "rated_games")) {
     ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
     return;
   }
@@ -1870,7 +1869,7 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
   check(search_parameters, Object);
   check(offset, Number);
   check(count, Number);
-  if (!Roles.userIsInRole(self, "search_game_history"))
+  if (!Users.isAuthorized(self, "search_game_history"))
     throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
   if (count > SystemConfiguration.maximumGameHistorySearchCount())
     count = SystemConfiguration.maximumGameHistorySearchCount();

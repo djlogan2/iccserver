@@ -2,8 +2,8 @@ import SimpleSchema from "simpl-schema";
 import { check, Match } from "meteor/check";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-import { Roles } from "meteor/alanning:roles";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { Users } from "../imports/collections/users";
 
 const RatingSchema = new SimpleSchema({
   wild_number: { type: Array },
@@ -261,7 +261,7 @@ DynamicRatings.addRatingType = function(
   check(can_match, Boolean);
   check(starting_rating, Match.Maybe(Number));
 
-  if (!Roles.userIsInRole(self, "add_dynamic_rating"))
+  if (!Users.isAuthorized(self, "add_dynamic_rating"))
     throw new ICCMeteorError(message_identifier, "Unable to add rating", "User not authorized");
 
   if (DynamicRatingsCollection.find({ rating_type: rating_type }).count() !== 0)
@@ -329,7 +329,7 @@ DynamicRatings.deleteRatingType = function(message_identifier, rating_type) {
   check(message_identifier, String);
   check(rating_type, String);
 
-  if (!Roles.userIsInRole(self, "delete_dynamic_rating"))
+  if (!Users.isAuthorized(self, "delete_dynamic_rating"))
     throw new ICCMeteorError(message_identifier, "Unable to add rating", "User not authorized");
 
   const unsetobject = {};

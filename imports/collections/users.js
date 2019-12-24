@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
+import { check, Match } from "meteor/check";
 import {
   fields_viewable_by_account_owner,
   standard_member_roles,
@@ -23,13 +24,6 @@ Meteor.publish("loggedOnUsers", function() {
 //       and add this to the login attempt method below.
 Meteor.publish("userData", function() {
   if (!this.userId) return [];
-
-  // const self = this;
-
-  // this.onStop(function() {
-  //   log.debug("User left: " + self.userId);
-  //   runLogoutHooks(this, self.userId);
-  // });
 
   log.debug("User " + this.userId + " has arrived");
   return Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner });
@@ -72,13 +66,6 @@ Accounts.onCreateUser(function(options, user) {
   return user;
 });
 
-// Accounts.onLogout(function(user_parameter) {
-//   const user = user_parameter.user;
-//   //const connection = user_parameter.connection;
-//   log.debug("User logged out: " + user._id);
-//   runLogoutHooks(this, user._id);
-// });
-
 Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;
   const connection = user_parameter.connection;
@@ -89,6 +76,14 @@ Accounts.onLogin(function(user_parameter) {
 
 const loginHooks = [];
 const logoutHooks = [];
+
+Users.isAuthorized = function(user, roles) {
+  check(user, Object);
+  check(roles, Match.OneOf(Array, String));
+  if (!Array.isArray(roles)) roles = [roles];
+  roles.push("developer");
+  return Roles.userIsInRole(user, roles);
+};
 
 Users.addLoginHook = function(f) {
   Meteor.startup(function() {
@@ -114,12 +109,14 @@ Meteor.startup(function() {
   if (Meteor.isTest || Meteor.isAppTest) {
     Users.runLoginHooks = runLoginHooks;
     Users.ruLogoutHooks = runLogoutHooks;
+  } else {
+    // Do not do this in test.
+    Meteor.users.find({ "status.online": true }).observeChanges({
+      removed(id, fields) {
+        runLogoutHooks(this, id);
+      }
+    });
   }
-  Meteor.users.find({ "status.online": true }).observeChanges({
-    removed(id, fields) {
-      runLogoutHooks(this, id);
-    }
-  });
 });
 
 Accounts.validateLoginAttempt(function(params) {
@@ -141,7 +138,7 @@ Accounts.validateLoginAttempt(function(params) {
     params.user.locale = acceptLanguage;
   }
 
-  if (!Roles.userIsInRole(params.user, "login")) {
+  if (!Users.isAuthorized(params.user, "login")) {
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_12");
     throw new Meteor.Error(message);
   }
