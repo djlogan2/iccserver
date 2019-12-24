@@ -4,10 +4,7 @@ export default class GameShareComponent extends Component {
   render() {
     return (
       <button style={this.props.cssmanager.buttonStyle()}>
-        <img
-          src={this.props.cssmanager.buttonBackgroundImage("gameShare")}
-          alt="Game Share"
-        />
+        <img src={this.props.cssmanager.buttonBackgroundImage("gameShare")} alt="Game Share" />
       </button>
     );
   }

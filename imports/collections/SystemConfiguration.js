@@ -27,6 +27,10 @@ SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   };
 };
 
+SystemConfiguration.maximumGameHistorySearchCount = function() {
+  return 100;
+};
+
 SystemConfiguration.maximumRunningEngines = function() {
   return 5;
 };

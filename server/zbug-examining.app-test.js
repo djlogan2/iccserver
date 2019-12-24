@@ -3,7 +3,7 @@ import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
 describe("When starting a game", function() {
-  const self = TestHelpers.setupDescribe.call(this, { timer: true });
+  const self = TestHelpers.setupDescribe.call(this);
   it("should remove you as an observer from all games when starting a local game", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -143,19 +143,7 @@ describe("When starting a game", function() {
     const p2 = TestHelpers.createUser();
 
     self.loggedonuser = p1;
-    Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
 
     self.loggedonuser = p2;
 

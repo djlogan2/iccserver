@@ -101,18 +101,12 @@ class TestContainer extends TrackerReact(React.Component) {
 
   circleLineWidthChange = event => {
     this._circle.lineWidth = event.target.value;
-    this.refs.board.setCircleParameters(
-      this._circle.lineWidth,
-      this._circle.color
-    );
+    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
   circleColorChange = event => {
     this._circle.color = event.target.value;
-    this.refs.board.setCircleParameters(
-      this._circle.lineWidth,
-      this._circle.color
-    );
+    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
   nextRAF() {
@@ -136,12 +130,7 @@ class TestContainer extends TrackerReact(React.Component) {
   }
   gameUndo = () => {};
   static renderMoveList() {
-    const moveList = [
-      "d4",
-      ["e6", "d6"],
-      "c4",
-      ["b6", ["f5", ["f4", ["e3", "g5", "f3"]]]]
-    ];
+    const moveList = ["d4", ["e6", "d6"], "c4", ["b6", ["f5", ["f4", ["e3", "g5", "f3"]]]]];
     return <MoveListComponent moves={moveList} />;
   }
   _pieceSquareDragStop = raf => {
@@ -252,18 +241,8 @@ class TestContainer extends TrackerReact(React.Component) {
           draw_rank_and_file={"br"}
           circle={{ color: "yellow", lineWidth: 20 }}
         />
-        <RankSquare
-          cssmanager={this.props.cssmanager}
-          rank={0}
-          file={3}
-          side={100}
-        />
-        <FileSquare
-          cssmanager={this.props.cssmanager}
-          rank={0}
-          file={3}
-          side={100}
-        />
+        <RankSquare cssmanager={this.props.cssmanager} rank={0} file={3} side={100} />
+        <FileSquare cssmanager={this.props.cssmanager} rank={0} file={3} side={100} />
       </div>
     );
   }

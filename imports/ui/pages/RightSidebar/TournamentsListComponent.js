@@ -12,12 +12,7 @@ export default class TournamentsListComponent extends Component {
      */
 
   render() {
-    return (
-      <Tournaments
-        lists={this.props.TournamentsList}
-        cssmanager={this.props.cssmanager}
-      />
-    );
+    return <Tournaments lists={this.props.TournamentsList} cssmanager={this.props.cssmanager} />;
   }
 }
 
@@ -30,18 +25,12 @@ class Tournaments extends Component {
             <span style={this.props.cssmanager.spanStyle()}>
               <img src={list.src} alt="" />
             </span>
-            <span style={this.props.cssmanager.spanStyle("name")}>
-              {list.name}
-            </span>
-            <span style={this.props.cssmanager.spanStyle("status")}>
-              {list.status}
-            </span>
+            <span style={this.props.cssmanager.spanStyle("name")}>{list.name}</span>
+            <span style={this.props.cssmanager.spanStyle("status")}>{list.status}</span>
             <span style={this.props.cssmanager.spanStyle()}>
               {list.count}
               <img
-                src={this.props.cssmanager.buttonBackgroundImage(
-                  "tournamentUserIcon"
-                )}
+                src={this.props.cssmanager.buttonBackgroundImage("tournamentUserIcon")}
                 alt="user-icon"
               />
             </span>
@@ -50,8 +39,6 @@ class Tournaments extends Component {
       );
     });
 
-    return (
-      <div style={this.props.cssmanager.tournamentContent()}>{listItem}</div>
-    );
+    return <div style={this.props.cssmanager.tournamentContent()}>{listItem}</div>;
   }
 }

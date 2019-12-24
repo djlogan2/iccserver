@@ -15,6 +15,7 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
+import { GameHistorySchema } from "./GameHistorySchema";
 
 export const Game = {};
 
@@ -707,6 +708,8 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   setobject.tomove = otherbw;
   setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
 
+  if (setobject.result) GameHistory.savePlayedGame(message_identifier, game_id);
+
   GameCollection.update(
     { _id: game_id, status: game.status },
     { $unset: unsetobject, $set: setobject, $push: pushobject }
@@ -1172,6 +1175,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
         }
       }
     );
+    GameHistory.savePlayedGame(message_identifier, game_id);
     return;
   }
 
@@ -1311,6 +1315,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
       }
     }
   );
+  GameHistory.savePlayedGame(message_identifier, game_id);
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
@@ -1355,6 +1360,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
+  GameHistory.savePlayedGame(message_identifier, game_id);
   ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].abort, "ABORT_ACCEPTED");
 };
 
@@ -1571,6 +1577,7 @@ Game.resignLocalGame = function(message_identifier, game_id) {
       }
     }
   );
+  GameHistory.savePlayedGame(message_identifier, game_id);
 };
 
 Game.recordLegacyOffers = function(
@@ -1631,116 +1638,6 @@ Game.isPlayingGame = function(user_or_id) {
     }).count() !== 0
   );
 };
-
-Meteor.methods({
-  gamepong(game_id, pong) {
-    const user = Meteor.user();
-    check(game_id, String);
-    check(pong, Object);
-    check(user, Object);
-    if (!game_pings[game_id])
-      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
-    const game = GameCollection.findOne(
-      { _id: game_id, status: "playing" },
-      { fields: { "white.id": 1 } }
-    );
-    if (!game)
-      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
-    const color = game.white.id === user._id ? "white" : "black";
-    game_pings[game_id][color].pongArrived(pong);
-  },
-  addGameMove(message_identifier, game_id, move) {
-    check(message_identifier, String);
-    check(game_id, String);
-    check(move, String);
-    Game.saveLocalMove(message_identifier, game_id, move);
-  },
-  requestTakeback(message_identifier, game_id, number) {
-    check(message_identifier, String);
-    check(game_id, String);
-    check(number, Number);
-    Game.requestLocalTakeback(message_identifier, game_id, number);
-  },
-  acceptTakeBack(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.acceptLocalTakeback(message_identifier, game_id);
-  },
-  declineTakeback(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.declineLocalTakeback(message_identifier, game_id);
-  },
-  resignGame(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.resignLocalGame(message_identifier, game_id);
-  },
-  requestToDraw(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.requestLocalDraw(message_identifier, game_id);
-  },
-  acceptDraw(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.acceptLocalDraw(message_identifier, game_id);
-  },
-  declineDraw(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.declineLocalDraw(message_identifier, game_id);
-  },
-  requestToAbort(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.requestLocalAbort(message_identifier, game_id);
-  },
-  acceptAbort(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.acceptLocalAbort(message_identifier, game_id);
-  },
-  declineAbort(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.declineLocalAbort(message_identifier, game_id);
-  },
-  requestToAdjourn(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.requestLocalAdjourn(message_identifier, game_id);
-  },
-  acceptAdjourn(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.acceptLocalAdjourn(message_identifier, game_id);
-  },
-  declineAdjourn(message_identifier, game_id) {
-    check(message_identifier, String);
-    check(game_id, String);
-    Game.declineLocalAdjourn(message_identifier, game_id);
-  }
-});
-
-Meteor.publish("playing_games", function() {
-  const user = Meteor.user();
-  if (!user || !user.status.online) return [];
-  return GameCollection.find(
-    {
-      $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
-    },
-    { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
-  );
-});
-
-Meteor.publish("observing_games", function() {
-  const user = Meteor.user();
-  if (!user || !user.status.online) return [];
-  return GameCollection.find({
-    observers: user._id
-  });
-});
 
 Game.moveForward = function(message_identifier, game_id, move_count, variation_index) {
   const movecount = move_count || 1;
@@ -1892,6 +1789,89 @@ Game.localUnobserveAllGames = function(message_identifier, user_id) {
   GameCollection.find({ observers: user_id }, { _id: 1 })
     .fetch()
     .forEach(game => Game.localRemoveObserver("", game._id, user_id));
+};
+
+export const GameHistory = {};
+
+const GameHistoryCollection = new Mongo.Collection("game_history");
+GameHistoryCollection.attachSchema(GameHistorySchema);
+
+GameHistory.savePlayedGame = function(message_identifier, game_id) {
+  const self = Meteor.user();
+  check(message_identifier, String);
+  check(game_id, String);
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to save game to game history",
+      "Unable to find game to save"
+    );
+  return GameHistoryCollection.insert(game);
+};
+
+GameHistory.examineGame = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const hist = GameHistoryCollection.findOne({ _id: game_id });
+  if (!hist)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to examine saved game",
+      "Unable to find game"
+    );
+
+  if (
+    GameCollection.find({
+      status: "playing",
+      $or: [{ "white.id": self._id }, { "black.id": self._id }]
+    }).count() !== 0
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
+
+  const chess = new Chess.Chess();
+  if (hist.tags && hist.tags.FEN) {
+    hist.fen = hist.tags.FEN;
+    if (!chess.loadfen(hist.tags.FEN))
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to examine saved game",
+        "FEN string is invalid"
+      );
+  } else {
+    hist.fen = chess.fen();
+  }
+
+  delete hist._id;
+  hist.tomove = chess.turn() === "w" ? "white" : "black";
+  hist.status = "examining";
+  hist.observers = [self._id];
+  hist.examiners = [self._id];
+  hist.variations.cmi = 0;
+  const examined_id = GameCollection.insert(hist);
+  active_games[examined_id] = chess;
+  return examined_id;
+};
+
+GameHistory.search = function(message_identifier, search_parameters, offset, count) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(search_parameters, Object);
+  check(offset, Number);
+  check(count, Number);
+  if (!Roles.userIsInRole(self, "search_game_history"))
+    throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
+  if (count > SystemConfiguration.maximumGameHistorySearchCount())
+    count = SystemConfiguration.maximumGameHistorySearchCount();
+  return GameHistoryCollection.find(search_parameters, {skip: offset, limit: count});
 };
 
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
@@ -2149,6 +2129,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     setobject.status = "examining";
     setobject.examiners = [game.white.id, game.black.id];
     GameCollection.update({ _id: game_id }, { $set: setobject, $unset: { pending: 1 } });
+    GameHistory.savePlayedGame("server", game_id);
   }, actual_milliseconds);
 }
 
@@ -2173,8 +2154,62 @@ Meteor.startup(function() {
 
 if (Meteor.isTest || Meteor.isAppTest) {
   Game.collection = GameCollection;
+  GameHistory.collection = GameHistoryCollection;
   Game.addMoveToMoveList = addMoveToMoveList;
   Game.buildPgnFromMovelist = buildPgnFromMovelist;
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
 }
+
+Meteor.methods({
+  gamepong(game_id, pong) {
+    const user = Meteor.user();
+    check(game_id, String);
+    check(pong, Object);
+    check(user, Object);
+    if (!game_pings[game_id])
+      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+    const game = GameCollection.findOne(
+      { _id: game_id, status: "playing" },
+      { fields: { "white.id": 1 } }
+    );
+    if (!game)
+      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+    const color = game.white.id === user._id ? "white" : "black";
+    game_pings[game_id][color].pongArrived(pong);
+  },
+  addGameMove: Game.saveLocalMove,
+  requestTakeback: Game.requestLocalTakeback,
+  acceptTakeBack: Game.acceptLocalTakeback,
+  declineTakeback: Game.declineLocalTakeback,
+  resignGame: Game.resignLocalGame,
+  requestToDraw: Game.requestLocalDraw,
+  acceptDraw: Game.acceptLocalDraw,
+  declineDraw: Game.declineLocalDraw,
+  requestToAbort: Game.requestLocalAbort,
+  acceptAbort: Game.acceptLocalAbort,
+  declineAbort: Game.declineLocalAbort,
+  requestToAdjourn: Game.requestLocalAdjourn,
+  acceptAdjourn: Game.acceptLocalAdjourn,
+  declineAdjourn: Game.declineLocalAdjourn,
+  searchGameHistory: GameHistory.search
+});
+
+Meteor.publish("playing_games", function() {
+  const user = Meteor.user();
+  if (!user || !user.status.online) return [];
+  return GameCollection.find(
+    {
+      $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
+    },
+    { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
+  );
+});
+
+Meteor.publish("observing_games", function() {
+  const user = Meteor.user();
+  if (!user || !user.status.online) return [];
+  return GameCollection.find({
+    observers: user._id
+  });
+});

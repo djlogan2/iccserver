@@ -20,19 +20,16 @@ export default class SignUpPage extends Component {
     let password = document.getElementById("signup-password").value;
 
     // this.setState({error: ""});
-    Accounts.createUser(
-      { email: email, username: name, password: password },
-      err => {
-        if (err) {
-          log.error("Error occurs on Sign up: " + err);
-          this.setState({
-            error: err.reason
-          });
-        } else {
-          this.props.history.push("/login");
-        }
+    Accounts.createUser({ email: email, username: name, password: password }, err => {
+      if (err) {
+        log.error("Error occurs on Sign up: " + err);
+        this.setState({
+          error: err.reason
+        });
+      } else {
+        this.props.history.push("/login");
       }
-    );
+    });
   }
 
   getLang() {
@@ -56,11 +53,7 @@ export default class SignUpPage extends Component {
               <h1 className="text-center">{translator("signup")}</h1>
             </div>
             <div className="modal-body">
-              {error.length > 0 ? (
-                <div className="alert alert-danger fade in">{error}</div>
-              ) : (
-                ""
-              )}
+              {error.length > 0 ? <div className="alert alert-danger fade in">{error}</div> : ""}
               <form
                 id="login-form"
                 className="form col-md-12 center-block"

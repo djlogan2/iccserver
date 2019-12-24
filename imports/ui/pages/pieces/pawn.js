@@ -21,10 +21,7 @@ export default class Pawn extends Piece {
         (dest === src - 16 && this.initialPositions[1].indexOf(src) !== -1)
       ) {
         return true;
-      } else if (
-        isDestEnemyOccupied &&
-        (dest === src - 9 || dest === src - 7)
-      ) {
+      } else if (isDestEnemyOccupied && (dest === src - 9 || dest === src - 7)) {
         return true;
       }
     } else if (this.player === 2) {
@@ -33,10 +30,7 @@ export default class Pawn extends Piece {
         (dest === src + 16 && this.initialPositions[2].indexOf(src) !== -1)
       ) {
         return true;
-      } else if (
-        isDestEnemyOccupied &&
-        (dest === src + 9 || dest === src + 7)
-      ) {
+      } else if (isDestEnemyOccupied && (dest === src + 9 || dest === src + 7)) {
         return true;
       }
     }

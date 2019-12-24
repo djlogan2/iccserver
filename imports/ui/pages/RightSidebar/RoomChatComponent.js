@@ -38,10 +38,7 @@ export default class RoomChatComponent extends Component {
     );
   }
   render() {
-    let translator = i18n.createTranslator(
-      "Common.chatBoxMessage",
-      this.getLang()
-    );
+    let translator = i18n.createTranslator("Common.chatBoxMessage", this.getLang());
     let content = [];
     this.chatRooms.forEach((room, index) => {
       content.push(
