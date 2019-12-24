@@ -542,7 +542,7 @@ GameRequests.addLocalMatchRequest = function(
   const challenger_user = Meteor.user();
   check(challenger_user, Object);
   check(message_identifier, String);
-  check(receiver_user, Object);
+  check(receiver_user, Match.OneOf(Object, String));
   check(wild_number, Number);
   check(rating_type, String);
   check(is_it_rated, Boolean);
@@ -555,7 +555,10 @@ GameRequests.addLocalMatchRequest = function(
   check(receiver_inc_or_delay_type, String);
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
-  if (!receiver_user.status.online) {
+
+  if (typeof receiver_user === "string") receiver_user = Meteor.users.findOne({ _id: receiver_user });
+
+  if (!receiver_user || !receiver_user.status.online) {
     ClientMessages.sendMessageToClient(
       challenger_user,
       message_identifier,
@@ -874,6 +877,7 @@ GameRequests.removeLegacyMatchRequest = function(
     explanation_string
   ]);
 };
+
 Meteor.methods({
   addLocalMatchRequest: GameRequests.addLocalMatchRequest,
   gameRequestAccept: GameRequests.acceptMatchRequest,

@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
+import { GameRequests } from "./GameRequest";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";

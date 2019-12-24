@@ -77,7 +77,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
-      this.state.userObj,
+      this.state.userObj._id,
       this.state.wild_number,
       this.state.rating_type,
       this.state.rated,
