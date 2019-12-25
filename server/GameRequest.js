@@ -555,7 +555,8 @@ GameRequests.addLocalMatchRequest = function(
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
 
-  if (typeof receiver_user === "string") receiver_user = Meteor.users.findOne({ _id: receiver_user });
+  if (typeof receiver_user === "string")
+    receiver_user = Meteor.users.findOne({ _id: receiver_user });
 
   if (!receiver_user || !receiver_user.status.online) {
     ClientMessages.sendMessageToClient(

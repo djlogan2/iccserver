@@ -4,7 +4,7 @@ import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("MoveLIst_js");
 export default class MoveListComponent extends Component {
   _pgnView = (actionType, action) => {
-    this.props.performAction(action, actionType);
+   
   };
   render() {
     let moves = [];
