@@ -68,7 +68,7 @@ describe.only("Game.drawCircle", function() {
     Game.drawCircle("mi2", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(record.circles.length, 1);
-    chai.assert.deepEqual(record.circles[0], { square: 'c1', color: 'red', size: 3 });
+    chai.assert.deepEqual(record.circles[0], { square: "c1", color: "red", size: 3 });
   });
   it("should add the square to the game record if all is well", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -76,7 +76,7 @@ describe.only("Game.drawCircle", function() {
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(record.circles.length, 1);
-    chai.assert.deepEqual(record.circles[0], { square: 'c1', color: 'red', size: 3 });
+    chai.assert.deepEqual(record.circles[0], { square: "c1", color: "red", size: 3 });
   });
   it("should write an action", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -84,32 +84,133 @@ describe.only("Game.drawCircle", function() {
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("draw_circle", record.actions[0].type, "Failed to record a draw in actions");
-    chai.assert.equal("c1", record.actions[0].parameter.square, "Failed to record a draw in actions");
-    chai.assert.equal("red", record.actions[0].parameter.color, "Failed to record a draw in actions");
-    chai.assert.deepEqual(3, record.actions[0].parameter.size, "Failed to record a draw in actions");
+    chai.assert.equal(
+      "c1",
+      record.actions[0].parameter.square,
+      "Failed to record a draw in actions"
+    );
+    chai.assert.equal(
+      "red",
+      record.actions[0].parameter.color,
+      "Failed to record a draw in actions"
+    );
+    chai.assert.deepEqual(
+      3,
+      record.actions[0].parameter.size,
+      "Failed to record a draw in actions"
+    );
+  });
+  it("Should change color of circle if already existing, valid and drawn again with changed color", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.drawCircle("mi1", game_id, "c1", "red", 3);
+    Game.drawCircle("mi2", game_id, "c1", "blue", 3);
+    const record = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal(record.circles[0].color, "blue", "failed to change color of existing circle");
+  });
+
+  it("Should change the size of circle if already existing, valid and drawn again with changed size", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.drawCircle("mi1", game_id, "c1", "red", 3);
+    Game.drawCircle("mi2", game_id, "c1", "red", 5);
+    const record = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal(record.circles[0].size, 5, "failed to change size of circle");
   });
 });
 describe("Game.removeCircle", function() {
-  it("should fail if game does not exist", function() {
-    chai.assert.fail("do me");
+  const self = TestHelpers.setupDescribe.apply(this);
+  it("should have a function called drawCircle", function() {
+    chai.assert.isFunction(Game.removeCircle, "Failed to identify Game.drawCircle as a function");
   });
-  it("should return client message if game is not examined exist", function() {
-    chai.assert.fail("do me");
+  it("should fail if game does not exist", function() {
+    chai.assert.throws(() => {
+      Game.removeCircle("invalid_id", "invalid", "c1");
+    });
+  });
+  it("should return client message if game is not examined", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const other = TestHelpers.createUser();
+    const game = Game.startLocalGame(
+      "test_identifier",
+      other,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    self.loggedonuser = other;
+    Game.removeCircle("test_identifier2", game, "c1");
+    const message = self.clientMessagesSpy.args[0][2];
+    chai.assert.equal(message, "NOT_AN_EXAMINER");
   });
   it("should return client message if user is not an examiner", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const other = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("test_identifier", "w", "b", 0);
+    self.loggedonuser = other;
+    Game.removeCircle("test_identifier2", game, "c1");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    chai.assert.fail("do me");
+    const newguy = TestHelpers.createUser({ _id: "whiteguy" });
+    self.loggedonuser = newguy;
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.removeCircle("mi1", game_id, "za"); // illegal row and column
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_SQUARE");
+    Game.removeCircle("mi1", game_id, "c9"); // illegal column
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "INVALID_SQUARE");
+    chai.assert.equal(self.clientMessagesSpy.args[1][3], "c9");
+    Game.removeCircle("mi1", game_id, "c0"); // illegal column
+    chai.assert.equal(self.clientMessagesSpy.args[2][2], "INVALID_SQUARE");
+    chai.assert.equal(self.clientMessagesSpy.args[2][3], "c0");
+    Game.removeCircle("mi1", game_id, "i1"); // illegal row
+    chai.assert.equal(self.clientMessagesSpy.args[3][2], "INVALID_SQUARE");
+    chai.assert.equal(self.clientMessagesSpy.args[3][3], "i1");
   });
   it("should not have to remove the same square multiple times", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({ _id: "whiteguy" });
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.removeCircle("mi1", game_id, "c1");
+    Game.removeCircle("mi2", game_id, "c1");
+    const record = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal(record.circles.length, 0);
   });
-  it("should remove the square to the game record if all is well", function() {
-    chai.assert.fail("do me");
+  it("should remove the square from the game record if all is well", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.drawCircle("mi1", game_id, "c1", "red", 3);
+    var record = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal(record.circles.length, 1);
+    chai.assert.deepEqual(record.circles[0], { square: "c1", color: "red", size: 3 });
+    Game.removeCircle("mi1", game_id, "c1");
+    record = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal(record.circles.length, 0);
   });
   it("should write an action", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+    Game.drawCircle("mi1", game_id, "c1", "red", 3);
+    Game.removeCircle("mi1", game_id, "c1");
+    const record = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal(
+      "remove_circle",
+      record.actions[1].type,
+      "Failed to record a draw in actions"
+    );
+    chai.assert.equal(
+      "c1",
+      record.actions[0].parameter.square,
+      "Failed to record a draw in actions"
+    );
   });
 });
 describe("Game.drawArrow", function() {

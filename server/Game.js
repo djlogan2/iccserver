@@ -1409,7 +1409,6 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   );
 };
 
-//TODO: add functionality, decide on parameters and protocols
 Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   check(message_identifier, String);
   check(square, String);
@@ -1433,19 +1432,77 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
     !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
   ) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
   }
   for (var i = 0; i < game.circles.length; i++) {
-    if (game.circles[i].square === square) return;
+    if (game.circles[i].square === square) {
+      GameCollection.update(
+        { _id: game_id, status: "examining" , circles: i},
+        { $set: { "circles.color": color, "circles.size": size } }
+      );
+      return;
+    }
   }
+
   GameCollection.update(
     { _id: game_id, status: "examining" },
     { $push: { circles: { square: square, color: color, size: size } } }
   );
   GameCollection.update(
     { _id: game_id, status: "examining" },
-    { $push: { actions: { type: "draw_circle", issuer: "iccserver", parameter: {square: square, color: color, size: size} } } }
+    {
+      $push: {
+        actions: {
+          type: "draw_circle",
+          issuer: "iccserver",
+          parameter: { square: square, color: color, size: size }
+        }
+      }
+    }
   );
 };
+Game.removeCircle = function(message_identifier, game_id, square) {
+  check(message_identifier, String);
+  check(square, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(square)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_SQUARE", square);
+    return;
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to remove circle", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  } else if (
+    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  for (var i = 0; i < game.circles.length; i++) {
+    if (game.circles[i].square === square) {
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        { $pull: { circles: { square: square } } }
+      );
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $push: {
+            actions: { type: "remove_circle", issuer: "iccserver", parameter: { square: square } }
+          }
+        }
+      );
+      return;
+    }
+  }
+};
+
 Game.isSquareValid = function(square) {
   check(square, String);
   return !(square[0] < "a" || square[0] > "h" || square[1] < "1" || square[1] > "8");
@@ -1871,7 +1928,7 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
     throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
   if (count > SystemConfiguration.maximumGameHistorySearchCount())
     count = SystemConfiguration.maximumGameHistorySearchCount();
-  return GameHistoryCollection.find(search_parameters, {skip: offset, limit: count});
+  return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
 };
 
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {

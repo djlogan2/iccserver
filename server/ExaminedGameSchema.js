@@ -36,7 +36,8 @@ const actionSchema = new SimpleSchema({
       "abort_declined",
       "move_backward",
       "move_forward",
-      "draw_circle" // Used to draw circles
+      "draw_circle", // Used to draw circles
+      "remove_circle"
     ]
   },
   parameter: {
@@ -45,9 +46,9 @@ const actionSchema = new SimpleSchema({
   },
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
-  "parameter.square": { type: String, required: false},
-  "parameter.size": { type: Number, required: false},
-  "parameter.color": { type: String, required: false}
+  "parameter.square": { type: String, required: false },
+  "parameter.size": { type: Number, required: false },
+  "parameter.color": { type: String, required: false }
 });
 
 export const ExaminedGameSchema = new SimpleSchema({
