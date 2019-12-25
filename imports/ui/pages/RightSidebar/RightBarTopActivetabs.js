@@ -40,7 +40,6 @@ export default class RightBarTopActivetabs extends Component {
             cssmanager={this.props.cssmanager}
             MoveHistory={this.props.RightBarTopData.MoveList}
             flip={this.props.flip}
-            performAction={this.props.performAction}
             actionData={this.props.actionData}
           />
         </div>

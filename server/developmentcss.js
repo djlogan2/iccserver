@@ -56,7 +56,7 @@ const systemcss = {
     width: "350px",
     height: "auto",
     borderRadius: "3px",
-    background: "#1565c0eb",
+    background: "#b7bdc5",
     position: "fixed",
     zIndex: "99",
     left: "0",
@@ -65,11 +65,11 @@ const systemcss = {
     top: "27%",
     padding: "20px",
     textAlign: "center",
-    border: "4px solid",
-    borderColor: "#f9af6d"
+    border: "3px solid ",
+    borderColor: "#242f35"
   },
   innerPopupMainPage: {
-    backgroundColor: "#ea9345",
+    backgroundColor: "#1565c0",
     border: "none",
     color: "white",
     padding: "7px 20px",

@@ -1,7 +1,6 @@
 import Chess from "chess.js";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
-import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
@@ -16,6 +15,52 @@ import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { GameHistorySchema } from "./GameHistorySchema";
+
+const x = [
+  [0, "Res", "Black resigns"],
+  [1, "Mat", "Black checkmated"],
+  [2, "Fla", "Black forfeits on time."],
+  [3, "Adj", "White declared the winner by adjudication"],
+  [4, "BQ", "Black disconnected and forfeits"],
+  [5, "BQ", "Black got disconnected and forfeits"],
+  [6, "BQ", "Unregistered player Black disconnected and forfeits"],
+  [7, "Res", "Black's partner resigns"],
+  [8, "Mat", "Black's partner checkmated"],
+  [9, "Fla", "Black's partner forfeits on time"],
+  [10, "BQ", "Black's partner disconnected and forfeits"],
+  [11, "BQ", "Black disconnected and forfeits [obsolete?]"],
+  [12, "1-0", "White wins [specific reason unknown]"],
+  [13, "Agr", "Game drawn by mutual agreement"],
+  [14, "Sta", "Black stalemated"],
+  [15, "Rep", "Game drawn by repetition"],
+  [16, "50", "Game drawn by the 50 move rule"],
+  [17, "TM", "Black ran out of time and White has no material to mate"],
+  [18, "NM", "Game drawn because neither player has mating material"],
+  [19, "NT", "Game drawn because both players ran out of time"],
+  [20, "Adj", "Game drawn by adjudication"],
+  [21, "Agr", "Partner's game drawn by mutual agreement"],
+  [22, "NT", " Partner's game drawn because both players ran"],
+  [23, "1/2", "Game drawn [specific reason unknown]"],
+  [24, "?", "Game adjourned by mutual agreement"],
+  [25, "?", "Game adjourned when Black disconnected"],
+  [26, "?", "Game adjourned by system shutdown"],
+  [27, "?", "Game courtesyadjourned by Black"],
+  [28, "?", "Game adjourned by an administrator"],
+  [29, "?", "Game adjourned when Black got disconnected"],
+  [30, "Agr", "Game aborted by mutual agreement"],
+  [31, "BQ", "Game aborted when Black disconnected"],
+  [32, "SD", "Game aborted by system shutdown"],
+  [33, "BA", "Game courtesyaborted by Black"],
+  [34, "Adj", "Game aborted by an administrator"],
+  [35, "Sho", "Game aborted because it's too short to adjourn"],
+  [36, "BQ", " Game aborted when Black's partner disconnected"],
+  [37, "Sho", "Game aborted by Black at move 1"],
+  [38, "Sho", "Game aborted by Black's partner at move 1"],
+  [39, "Sho", "Game aborted because it's too short"],
+  [40, "Adj", "Game aborted because Black's account expired"],
+  [41, "BQ", "Game aborted when Black got disconnected"],
+  [42, "?", "No result [specific reason unknown]"]
+];
 
 export const Game = {};
 
@@ -96,7 +141,6 @@ Game.startLocalGame = function(
   check(black_increment_or_delay_type, String);
 
   check(self.ratings[rating_type], Object); // Rating type needs to be valid!
-
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -113,7 +157,7 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (!Roles.userIsInRole(self, "play_" + (rated ? "" : "un") + "rated_games")) {
+  if (!Users.isAuthorized(self, "play_" + (rated ? "" : "un") + "rated_games")) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
@@ -122,7 +166,7 @@ Game.startLocalGame = function(
     return;
   }
 
-  if (!Roles.userIsInRole(other_user, "play_" + (rated ? "" : "un") + "rated_games")) {
+  if (!Users.isAuthorized(other_user, "play_" + (rated ? "" : "un") + "rated_games")) {
     ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
     return;
   }
@@ -683,7 +727,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
       // TODO: check for current <= 0 and end the game, yes?
       setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
-      log.debug("setobject=" + setobject);
     } else {
       endGamePing(game_id);
     }
@@ -700,6 +743,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
           gameping: gameping
         }
       : move;
+
 
   const pushobject = {
     actions: { type: "move", issuer: self._id, parameter: move_parameter }
@@ -1924,7 +1968,7 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
   check(search_parameters, Object);
   check(offset, Number);
   check(count, Number);
-  if (!Roles.userIsInRole(self, "search_game_history"))
+  if (!Users.isAuthorized(self, "search_game_history"))
     throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
   if (count > SystemConfiguration.maximumGameHistorySearchCount())
     count = SystemConfiguration.maximumGameHistorySearchCount();

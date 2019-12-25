@@ -1453,6 +1453,7 @@ describe("Takeback behavior", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   it("restores both clocks to the same time as the move taken back to", function() {
+    this.timeout(5000);
     // So if say:
     // move 20, white clock: 25:00, black clock: 15:00,
     // at move 22, white clock: 5:00, black clock: 2:00,

@@ -1,5 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
+import { check, Match } from "meteor/check";
 import {
   fields_viewable_by_account_owner,
   standard_member_roles,
@@ -9,7 +10,6 @@ import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
 import { i18n } from "./i18n";
-import { LegacyUser } from "../../lib/server/LegacyUsers";
 import { DynamicRatings } from "../../server/DynamicRatings";
 
 let log = new Logger("server/users_js");
@@ -25,15 +25,7 @@ Meteor.publish("loggedOnUsers", function() {
 Meteor.publish("userData", function() {
   if (!this.userId) return [];
 
-  const self = this;
-
-  this.onStop(function() {
-    log.debug("User left: " + self.userId);
-    LegacyUser.logout(self.userId);
-    runLogoutHooks(this, self.userId);
-  });
-
-  log.debug("User has arrived");
+  log.debug("User " + this.userId + " has arrived");
   return Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner });
 });
 
@@ -79,24 +71,19 @@ Accounts.onLogin(function(user_parameter) {
   const connection = user_parameter.connection;
 
   log.debug("user record", user);
-  log.debug("User is in legacy_login role", Roles.userIsInRole(user, "legacy_login"));
-
-  if (
-    Roles.userIsInRole(user, "legacy_login") &&
-    user.profile &&
-    user.profile.legacy &&
-    user.profile.legacy.username &&
-    user.profile.legacy.password &&
-    user.profile.legacy.autologin
-  ) {
-    LegacyUser.login(user);
-  }
-
   runLoginHooks(this, user, connection);
 });
 
 const loginHooks = [];
 const logoutHooks = [];
+
+Users.isAuthorized = function(user, roles) {
+  check(user, Object);
+  check(roles, Match.OneOf(Array, String));
+  if (!Array.isArray(roles)) roles = [roles];
+  roles.push("developer");
+  return Roles.userIsInRole(user, roles);
+};
 
 Users.addLoginHook = function(f) {
   Meteor.startup(function() {
@@ -122,6 +109,13 @@ Meteor.startup(function() {
   if (Meteor.isTest || Meteor.isAppTest) {
     Users.runLoginHooks = runLoginHooks;
     Users.ruLogoutHooks = runLogoutHooks;
+  } else {
+    // Do not do this in test.
+    Meteor.users.find({ "status.online": true }).observeChanges({
+      removed(id, fields) {
+        runLogoutHooks(this, id);
+      }
+    });
   }
 });
 
@@ -144,7 +138,7 @@ Accounts.validateLoginAttempt(function(params) {
     params.user.locale = acceptLanguage;
   }
 
-  if (!Roles.userIsInRole(params.user, "login")) {
+  if (!Users.isAuthorized(params.user, "login")) {
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_12");
     throw new Meteor.Error(message);
   }

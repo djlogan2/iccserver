@@ -8,12 +8,6 @@ class ActionComponent extends Component {
     this.state = {
       action: "action"
     };
-    this.username = "";
-    this.gameId = "";
-    this.userId = "";
-    this.gameTurn = "";
-    this.whitePlayer = "";
-    this.blackPlayer = "";
   }
   static getLang() {
     return (
@@ -35,37 +29,35 @@ class ActionComponent extends Component {
         this._takeBackAction(2);
         break;
       case "abort":
-        this._abortAction();
+        this._abortRequest();
         break;
       default:
     }
-    //this.props.handleChangeSecond(parseInt(event.target.value));
   };
   _takeBackAction = number => {
-    this.props.performAction("request", "takeBackRequest", number);
+    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, number);
   };
-
-  _drawAction = () => {
-    this.props.performAction("request", "drawRequest");
+  _drawRequest = () => {
+    Meteor.call("requestToDraw", "drawRequest", this.gameId);
   };
-  _resignAction = () => {
-    this.props.performAction("request", "resign");
+  _abortRequest = () => {
+    Meteor.call("requestToAbort", "abortRequest", this.gameId);
   };
-  _abortAction = () => {
-    this.props.performAction("request", "abortRequest");
+  _adjournRequest = () => {
+    Meteor.call("requestToAdjourn", "adjournRequest", this.gameId);
+  };
+  _resignGame = () => {
+    Meteor.call("resignGame", "resignGame", this.gameId);
   };
   render() {
     this.userId = this.props.actionData.userId;
-    this.username = this.props.actionData.user;
     this.gameId = this.props.actionData.gameId;
-    this.gameTurn = this.props.actionData.gameTurn;
-    this.whitePlayer = this.props.actionData.whitePlayer;
-    this.blackPlayer = this.props.actionData.blackPlayer;
     let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
-
     return (
       <div className="draw-section">
-        <div style={this.props.cssmanager.drawActionSection()}>Current User : {this.username}</div>
+        <div style={this.props.cssmanager.drawActionSection()}>
+          Current User : {this.props.actionData.user}
+        </div>
         <ul>
           {/*     <li style={this.props.cssmanager.drawSectionList()}>
             <button
@@ -84,7 +76,7 @@ class ActionComponent extends Component {
           <li style={this.props.cssmanager.drawSectionList()}>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this._drawAction.bind(this)}
+              onClick={this._drawRequest.bind(this)}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("draw")}
@@ -98,7 +90,7 @@ class ActionComponent extends Component {
           <li style={this.props.cssmanager.drawSectionList()}>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this._resignAction.bind(this, "request", "resign")}
+              onClick={this._resignGame.bind(this)}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("resign")}

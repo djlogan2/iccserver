@@ -3,13 +3,13 @@ import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 
 export default class ChatComponent extends Component {
-  acceptGameSeek() {
-    Meteor.call("acceptLocalGameSeek", "gameSeek");
+  acceptGameSeek(requestId) {
+    Meteor.call("acceptLocalGameSeek", "gameSeek", requestId);
   }
   removeAcknowledgeMessage(messageId) {
     Meteor.call("acknowledge.client.message", messageId);
   }
-  gameSeekRequest = () => {
+  gameSeekRequest = requestId => {
     return (
       <div
         style={{
@@ -25,7 +25,7 @@ export default class ChatComponent extends Component {
       >
         <span style={{ width: "100%", float: "left" }}>NEW GAME SEEK</span>
         <button
-          onClick={this.acceptGameSeek.bind(this)}
+          onClick={this.acceptGameSeek.bind(this, requestId)}
           style={{
             backgroundColor: "#1565c0",
             border: "none",
@@ -63,7 +63,7 @@ export default class ChatComponent extends Component {
     }
     if (request !== undefined)
       if (request.type === "seek" && request.owner !== Meteor.userId())
-        gameSeekPopup = this.gameSeekRequest();
+        gameSeekPopup = this.gameSeekRequest(request._id);
 
     return (
       <div>

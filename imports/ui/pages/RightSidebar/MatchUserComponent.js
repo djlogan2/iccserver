@@ -20,12 +20,13 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
         legacyUsers: Meteor.subscribe("legacyUsers")
       },
       user: null,
+      userId: null,
       wild_number: 0,
-      type: "standard",
+      rating_type: "standard",
       rated: true,
       is_adjourned: false,
-      minute: 15,
-      inc: 30,
+      time: 14,
+      inc: 1,
       incOrdelayType: "inc",
       color: "random"
     };
@@ -40,26 +41,26 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     this.setState({
       user: null,
       wild_number: 0,
-      type: "standard",
+      rating_type: "standard",
       rated: false,
       is_adjourned: false,
-      minute: 15,
-      inc: 30,
+      time: 14,
+      inc: 1,
       incOrdelayType: "inc",
       color: "random"
     });
   }
-  handelUserClick = user => {
-    this.setState({ user: user });
+  handelUserClick = (user, Id) => {
+    this.setState({ user: user.username, userId: Id });
   };
   handleChangeMinute = minute => {
-    this.setState({ minute: minute });
+    this.setState({ time: minute });
   };
   handleChangeSecond = inc => {
     this.setState({ inc: inc });
   };
   handleChangeGameType = type => {
-    this.setState({ type: type });
+    this.setState({ rating_type: type });
   };
   handleIncOrDelayTypeChange = incOrDelay => {
     this.setState({ incOrdelayType: incOrDelay });
@@ -73,31 +74,31 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
 
   handleMatchSubmit() {
     let color = this.state.color === "random" ? null : this.state.color;
-
-    let submit = Meteor.call(
+    Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
-      this.state.user,
+      this.state.userId,
       this.state.wild_number,
-      this.state.type,
+      this.state.rating_type,
       this.state.rated,
       this.state.is_adjourned,
-      this.state.minute,
+      this.state.time,
       this.state.inc,
       this.state.incOrdelayType,
-      this.state.minute,
+      this.state.time,
       this.state.inc,
       this.state.incOrdelayType,
       color
     );
     this.setState({
+      userId: null,
       user: null,
       wild_number: 0,
-      type: "standard",
+      rating_type: "standard",
       rated: false,
       is_adjourned: false,
-      minute: 15,
-      inc: 30,
+      time: 14,
+      inc: 1,
       incOrdelayType: "inc",
       color: "random"
     });
@@ -117,49 +118,16 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   }
 
   render() {
-    let linkStyle;
-    if (this.state.hover) {
-      linkStyle = {
-        backgroundColor: "transparent",
-        width: "100%",
-        display: "block",
-        height: "auto",
-        margin: "0",
-        borderRadius: "0px",
-        color: "#000",
-        textAlign: "left",
-        border: "0px",
-        borderBottom: "#ccc 1px solid",
-        padding: "8px 15px",
-        fontSize: "14px",
-        fontWeight: "bold"
-      };
-    } else {
-      linkStyle = {
-        backgroundColor: "transparent",
-        width: "100%",
-        display: "block",
-        height: "auto",
-        margin: "0",
-        borderRadius: "0px",
-        color: "#000",
-        textAlign: "left",
-        border: "0px",
-        borderBottom: "#ccc 1px solid",
-        padding: "8px 15px",
-        fontSize: "14px",
-        fontWeight: "bold",
-        background: " cadetblue"
-      };
-    }
     let translator = i18n.createTranslator("Common.MatchUserSubTab", this.getLang());
     if (Meteor.userId() == null) return;
     const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
-    const _userdata = localUsers.map(user => user.username);
-    const userdata = _userdata.concat(legacyUsers.map(user => user.username + "(L)"));
+  //  const _userdata = localUsers.map(user => user.username);
+    const userdata = localUsers.concat(legacyUsers.map(user => user.username + "(L)"));
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
+
+
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (
@@ -167,10 +135,10 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
           {userdata.map((user, index) => (
             <div key={index} className="userlist">
               <button
-                onClick={this.handelUserClick.bind(this, user)}
+                onClick={this.handelUserClick.bind(this, user.username, user._id)}
                 style={this.props.cssmanager.matchUserButton()}
               >
-                {user}
+                {user.username}
               </button>
             </div>
           ))}
@@ -204,9 +172,9 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
             handleRatedChange={this.handleRatedChange}
             handleIncOrDelayTypeChange={this.handleIncOrDelayTypeChange}
             handleSubmit={this.handleMatchSubmit.bind(this)}
-            type={this.state.type}
+            type={this.state.rating_type}
             rated={this.state.rated}
-            minute={this.state.minute}
+            minute={this.state.time}
             inc={this.state.inc}
             incOrdelayType={this.state.incOrdelayType}
             color={this.state.color}

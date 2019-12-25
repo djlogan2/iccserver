@@ -11,6 +11,8 @@ import { UCI } from "../../server/UCI";
 import { Timestamp } from "../../lib/server/timestamp";
 import { Game } from "../../server/Game";
 import { DynamicRatings } from "../../server/DynamicRatings";
+import { all_roles } from "./userConstants";
+import { Users } from "../collections/users";
 
 export const TestHelpers = {};
 
@@ -87,6 +89,27 @@ if (Meteor.isTest || Meteor.isAppTest) {
       }
 
       self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
+
+      const orig_isauthorized = Users.isAuthorized;
+      self.sandbox.replace(
+        Users,
+        "isAuthorized",
+        self.sandbox.fake((user, roles) => {
+          if (typeof roles === "string") {
+            if (all_roles.indexOf(roles) === -1)
+              console.log("Unable to find known role of " + roles);
+            return orig_isauthorized(user, roles);
+          } else {
+            for (let x = 0; x < roles.length; x++) {
+              if (all_roles.indexOf(roles[x]) === -1) {
+                console.log("Unable to find known role of " + roles[x]);
+                return false;
+              }
+            }
+            return orig_isauthorized(user, roles);
+          }
+        })
+      );
 
       self.clientMessagesSpy = self.sandbox.spy(ClientMessages, "sendMessageToClient");
 
@@ -167,4 +190,3 @@ export function compare(testobject, actualobject, propheader) {
     }
   }
 }
-

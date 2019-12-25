@@ -1,7 +1,5 @@
 export const standard_guest_roles = ["login"];
 
-export const UserConstants = {};
-
 export const titles = ["C", "*", "H", "FM", "IM", "GM", "WGM", "WIM", "WFM", "DM", "TD", "U"];
 
 export const all_roles = [
@@ -11,7 +9,12 @@ export const all_roles = [
   "play_unrated_games",
   "legacy_login",
   "administrator",
-  "developer"
+  "developer",
+  "add_dynamic_ratings",
+  "add_to_group",
+  "remove_from_group",
+    "add_dynamic_rating",
+    "delete_dynamic_rating"
 ];
 
 export const standard_member_roles = [
