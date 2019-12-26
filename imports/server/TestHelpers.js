@@ -94,11 +94,11 @@ if (Meteor.isTest || Meteor.isAppTest) {
       self.sandbox.replace(
         Users,
         "isAuthorized",
-        self.sandbox.fake((user, roles) => {
+        self.sandbox.fake((user, roles, scope) => {
           if (typeof roles === "string") {
             if (all_roles.indexOf(roles) === -1)
               console.log("Unable to find known role of " + roles);
-            return orig_isauthorized(user, roles);
+            return orig_isauthorized(user, roles, scope);
           } else {
             for (let x = 0; x < roles.length; x++) {
               if (all_roles.indexOf(roles[x]) === -1) {
@@ -133,7 +133,10 @@ if (Meteor.isTest || Meteor.isAppTest) {
         })
       );
 
-      resetDatabase(null, done);
+      resetDatabase(null, () => {
+        all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+        done();
+      });
     });
 
     afterEach.call(this, function() {

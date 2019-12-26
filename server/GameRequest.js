@@ -1,7 +1,7 @@
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-
+import { _ } from "underscore";
 import { Match, check } from "meteor/check";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ClientMessages } from "../imports/collections/ClientMessages";
@@ -29,6 +29,9 @@ const LocalSeekSchema = new SimpleSchema({
   delaytype: String,
   rated: Boolean,
   autoaccept: Boolean,
+  group_setting: { type: String, allowedValues: ["all", "group"] },
+  groups: { type: Array, required: false },
+  "groups.$": String,
   color: { type: String, optional: true, allowedValues: ["white", "black"] },
   minrating: { type: Number, optional: true },
   maxrating: { type: Number, optional: true },
@@ -250,8 +253,13 @@ GameRequests.addLocalGameSeek = function(
   check(autoaccept, Match.Maybe(Boolean));
   check(formula, Match.Maybe(String));
   const self = Meteor.user();
+  check(self, Object);
 
-  if (!self) throw new ICCMeteorError(message_identifier, "self is null");
+  const group_setting = Users.getGroupParameter(message_identifier, self, "seeks");
+
+  if (group_setting === "none")
+    throw new ICCMeteorError(message_identifier, "Unable to issue seek", "Not authorized");
+
   if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
   if (color !== null && color !== undefined && color !== "white" && color !== "black")
     throw new Match.Error("Invalid color specification");
@@ -323,10 +331,24 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
+  const user_groups = Users.getGroups(self);
+  if (group_setting === "group" && !user_groups) {
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to issue seek",
+      "Unknown server error - missing group"
+    );
+  }
+
+  if (user_groups) game.groups = user_groups;
+  game.group_setting = group_setting;
+
   const users = Meteor.users.find({ "status.online": true }).fetch();
   let matchingusers = [];
   if (!!users) {
-    matchingusers = users.filter(user => seekMatchesUser(user, game)).map(user => user._id);
+    matchingusers = users
+      .filter(user => seekMatchesUser(message_identifier, user, game))
+      .map(user => user._id);
   }
   game.matchingusers = matchingusers || [];
 
@@ -555,7 +577,8 @@ GameRequests.addLocalMatchRequest = function(
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
 
-  if (typeof receiver_user === "string") receiver_user = Meteor.users.findOne({ _id: receiver_user });
+  if (typeof receiver_user === "string")
+    receiver_user = Meteor.users.findOne({ _id: receiver_user });
 
   if (!receiver_user || !receiver_user.status.online) {
     ClientMessages.sendMessageToClient(
@@ -885,10 +908,26 @@ Meteor.methods({
   acceptLocalGameSeek: GameRequests.acceptGameSeek
 });
 
-function seekMatchesUser(user, seek) {
+function seekMatchesUser(message_identifier, user, seek) {
+  check(message_identifier, String);
+  check(user, Object);
+  check(seek, Object);
+
   if (user._id === seek.owner) return false;
   if (!Users.isAuthorized(user, "play_rated_games") && seek.rated) return false;
   if (!Users.isAuthorized(user, "play_unrated_games") && !seek.rated) return false;
+
+  const group_setting = Users.getGroupParameter(message_identifier, user, "seeks");
+  const user_groups = Users.getGroups(user);
+  const seek_groups = seek.groups || [];
+
+  if (group_setting === "none") return false;
+  if (
+    (seek_groups.length || group_setting === "group") &&
+    !_.intersection(seek_groups, user_groups).length
+  )
+    return false;
+
   if (!seek.minrating && !seek.maxrating) return true;
 
   const myrating = user.ratings[seek.rating_type].rating;

@@ -11,10 +11,12 @@ export const all_roles = [
   "administrator",
   "developer",
   "add_dynamic_ratings",
+  "create_group",
   "add_to_group",
   "remove_from_group",
-    "add_dynamic_rating",
-    "delete_dynamic_rating"
+  "change_group_parameter",
+  "add_dynamic_rating",
+  "delete_dynamic_rating"
 ];
 
 export const standard_member_roles = [
