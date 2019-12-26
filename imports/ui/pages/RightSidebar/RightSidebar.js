@@ -15,13 +15,9 @@ class RightSidebar extends Component {
       status: props.gameStatus
     };
   }
-  /*   componentWillReceiveProps(prevProps) {
-    if (prevProps.gameStatus !== this.props.gameStatus) {
-    //  alert(prevProps.gameStatus);
-      this.setState({ status: this.props.gameStatus });
-    }
-  } */
+
   render() {
+ 
     let tabitem = null;
     if (this.props.gameStatus === "playing") {
       tabitem = (
@@ -29,7 +25,6 @@ class RightSidebar extends Component {
           RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
-          performAction={this.props.performAction}
           actionData={this.props.actionData}
           ref="right_bar_top"
         />
@@ -37,11 +32,8 @@ class RightSidebar extends Component {
     } else {
       tabitem = (
         <RightBarTabs
-          RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
-          performAction={this.props.performAction}
-          actionData={this.props.actionData}
           ref="right_bar_top"
         />
       );

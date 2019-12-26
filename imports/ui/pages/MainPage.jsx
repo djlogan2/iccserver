@@ -8,25 +8,13 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
+import { GameRequestPopup, ActionPopup } from "./components/Popup/Popup";
 const log = new Logger("client/MainPage");
 
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
     this.gameId = null;
-    this.board = null;
-    this.state = {
-      mode: "play",
-      username: "",
-      visible: false,
-      startgame: false,
-      aborted: false,
-      resigned: false,
-      draw: false,
-      currentPos: 0,
-      history: null
-    };
-
     this.userId = Meteor.userId();
 
     this.Main = {
@@ -90,188 +78,21 @@ export default class MainPage extends Component {
       }
     });
   };
-  gameRequest = (title, param) => {
+  gameRequest = (title, requestId) => {
     return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
-        <div className="popup_inner">
-          <h3
-            style={{
-              margin: "10px 0px 20px",
-              color: "#000",
-              fontSize: "17px"
-            }}
-          >
-            {title}
-          </h3>
-          <button
-            onClick={this.gameAccept.bind(this, param)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Accept
-          </button>
-          <button
-            onClick={this.gameDecline.bind(this, param)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Decline
-          </button>
-        </div>
-      </div>
+      <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
     );
   };
-  //TODO we have remove later
   actionPopup = (title, action) => {
     return (
-      <div style={{ position: "relative" }}>
-        <div
-          style={{
-            display: "flex",
-            marginTop: "0px",
-            alignItems: "center",
-            color: "#fff",
-            border: "1px solid #f88117",
-            position: "absolute",
-            right: "8px",
-            background: "#f88117e0",
-            width: "auto",
-            top: "15px",
-            zIndex: "9",
-            webkitBoxShadow: "#949392 3px 2px 4px 0px",
-            mozBoxShadow: "#949392 3px 2px 4px 0px",
-            boxShadow: "#949392 3px 2px 4px 0px",
-            borderRadius: "4px",
-            padding: "10px 15px"
-          }}
-        >
-          <img
-            src={this.props.cssmanager.buttonBackgroundImage("infoIcon")}
-            style={{ width: "18px", marginRight: "10px" }}
-            alt="info"
-          />
-          <strong style={{ width: "auto", marginRight: "6px", fontSize: "14px" }}>{title}</strong>
-          <button
-            onClick={this._performAction.bind(this, "accepted", action)}
-            style={{ backgroundColor: "transparent", border: "0px" }}
-          >
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage("checkedIcon")}
-              style={{ width: "18px" }}
-              alt="accept"
-            />
-          </button>
-          <button
-            onClick={this._performAction.bind(this, "rejected", action)}
-            style={{ backgroundColor: "transparent", border: "0px" }}
-          >
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage("closeIcon")}
-              style={{ width: "15px" }}
-              alt="close"
-            />
-          </button>
-        </div>
-      </div>
+      <ActionPopup
+        gameID={this.gameId}
+        title={title}
+        action={action}
+        cssmanager={this.props.cssmanager}
+      />
     );
   };
-  _gamePgnView(actionType) {
-    switch (actionType) {
-      case "startposition":
-        this.startPosition();
-        break;
-      case "endposition":
-        this.endPosition();
-        break;
-      case "previousOne":
-        this.previousOneMove();
-        break;
-      case "nextOne":
-        this.nextOneMove();
-        break;
-      default:
-    }
-  }
-  _performAction = (actionType, action, param = "none") => {
-    switch (action) {
-      case "takeBackRequest":
-        this.takeBackRequest(param);
-        break;
-      case "takeBack":
-        this.takeBack(actionType);
-        break;
-      case "drawRequest":
-        this.drawRequest();
-        break;
-      case "draw":
-        this.draw(actionType);
-        break;
-      case "abortRequest":
-        this.abortRequest();
-        break;
-      case "abort":
-        this.abort(actionType);
-        break;
-      case "adjournRequest":
-        this.adjournRequest();
-        break;
-      case "adjourn":
-        this.adjourn(actionType);
-        break;
-      case "resign":
-        this.resignGame();
-        break;
-      case "pgnview":
-        this._gamePgnView(actionType);
-        break;
-      default:
-    }
-  };
-  takeBackRequest = num => {
-    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, num);
-  };
-  takeBack = isAccept => {
-    if (isAccept === "accepted") Meteor.call("acceptTakeBack", "takeBackAccept", this.gameId);
-    else Meteor.call("declineTakeback", "takeBackDecline", this.gameId);
-  };
-  gameAccept = gameRequestData => {
-    Meteor.call("gameRequestAccept", "gameAccept", gameRequestData["_id"]);
-  };
-  gameDecline = gameRequestData => {
-    Meteor.call("gameRequestDecline", "gameDecline", gameRequestData["_id"]);
-  };
-  drawRequest = () => {
-    Meteor.call("requestToDraw", "drawRequest", this.gameId);
-  };
-  draw = isAccept => {
-    if (isAccept === "accepted") Meteor.call("acceptDraw", "drawAccept", this.gameId);
-    else Meteor.call("declineDraw", "drawDecline", this.gameId);
-  };
-  abortRequest = () => {
-    Meteor.call("requestToAbort", "abortRequest", this.gameId);
-  };
-
-  abort = isAccept => {
-    if (isAccept === "accepted") Meteor.call("acceptAbort", "abortAccept", this.gameId);
-    else Meteor.call("declineAbort", "abortDecline", this.gameId);
-  };
-  adjournRequest = () => {
-    Meteor.call("requestToAdjourn", "adjournRequest", this.gameId);
-  };
-  adjourn = isAccept => {
-    if (isAccept === "accepted") Meteor.call("acceptAdjourn", "adjournAccept", this.gameId);
-    else Meteor.call("declineAdjourn", "adjournDecline", this.gameId);
-  };
-  resignGame = () => {
-    Meteor.call("resignGame", "resignGame", this.gameId);
-  };
-
-  hideInformativePopup(param) {
-    this.setState({
-      draw: true,
-      aborted: true,
-      startgame: true
-    });
-  }
-
   _pieceSquareDragStop = raf => {
     let isMove = this.props.onDrop({
       from: raf.from,
@@ -283,119 +104,77 @@ export default class MainPage extends Component {
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
-  startPosition = () => {
-    let history = this.props.board.history();
-    this.board = this.props.board;
-    this.board.reset();
-    this.setState({ currentPos: 0, history: history, mode: "view" });
-    //this.board.move(history[this.state.currentPos]);
-  };
-  nextOneMove = () => {
-    if (this.state.currentPos < this.state.history.length) {
-      this.board.move(this.state.history[this.state.currentPos]);
-      this.setState({ currentPos: this.state.currentPos + 1, mode: "view" });
-    } else if (this.state.currentPos === this.state.history.length) {
-      this.setState({ mode: "play" });
-    }
-  };
-  endPosition = () => {
-    let history = this.props.board.history();
-    //  this.board = new Chess.Chess();
-    this.board.load_pgn(history);
-    this.setState({
-      currentPos: history.length,
-      history: history,
-      mode: "play"
-    });
-    // this.board.move(history[history.lenth]);
-  };
-  previousOneMove = () => {
-    if (!this.board) {
-      this.board = this.props.board;
-      //  let history = this.props.board.history();
-    }
-    this.board.undo();
-    /*  this.setState({
-      currentPos: currentPos,
-      history: history,
-      mode: "view"
-    });
-     */
-  };
-  // If Next button clicked, move forward one
-
   render() {
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-    const gameRequest = this.props.gameRequest;
+    const GameRequest = this.props.gameRequest;
     let informativePopup = null;
     let actionPopup = null;
     let status = "others";
     let position = { top: "w" };
-    if (gameRequest !== undefined) {
-      if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
-        informativePopup = this.gameRequest("Opponent has requested for a game", gameRequest);
-    }
-    if (game !== undefined) {
+    if (
+      !!GameRequest &&
+      GameRequest.type === "match" &&
+      GameRequest.receiver_id === Meteor.userId()
+    )
+      informativePopup = this.gameRequest("Opponent has requested for a game", GameRequest["_id"]);
+
+    if (!!game && game.status === "playing") {
+      status = "playing";
       this.gameId = game._id;
-      if (game.black.name === Meteor.user().username) {
+      if (game.black.id === Meteor.userId()) {
         Object.assign(position, { top: "w" });
-      }
-      if (game.white.name === Meteor.user().username) {
+      } else {
         Object.assign(position, { top: "b" });
       }
-      if (game.status === "playing") {
-        status = "playing";
-        // this.Main.MiddleSection.black = game.black;
-        Object.assign(this.Main.MiddleSection, { black: game.black });
-        Object.assign(this.Main.MiddleSection, { white: game.white });
-        Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
+      Object.assign(
+        this.Main.MiddleSection,
+        { black: game.black },
+        { white: game.white },
+        { clocks: game.clocks }
+      );
 
-        if (gameTurn === "w") {
-          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
-          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
-        } else {
-          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
-          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
-        }
-        this.userId = Meteor.userId();
-        this.gameId = game._id;
-        this.Main.RightSection.MoveList = game.variations;
-        this.Main.RightSection.Action.userId = this.userId;
-        this.Main.RightSection.Action.user = Meteor.user().username;
-        this.Main.RightSection.Action.gameTurn = gameTurn;
-        this.Main.RightSection.Action.whitePlayer = game.white.name;
-        this.Main.RightSection.Action.blackPlayer = game.black.name;
-        this.Main.RightSection.Action.gameId = game._id;
-        const othercolor = this.userId === game.white.id ? "black" : "white";
+      if (gameTurn === "w") {
+        Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
+        Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
+      } else {
+        Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
+        Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
+      }
+      this.Main.RightSection.MoveList = game.variations;
+      Object.assign(this.Main.RightSection.Action, {
+        gameId: this.gameId,
+        userId: this.userId,
+        user: Meteor.user().username
+      });
+      const othercolor = this.userId === game.white.id ? "black" : "white";
 
-        const actions = game.actions;
-        if (actions !== undefined && actions.length !== 0) {
-          for (const action of actions) {
-            const issuer = action["issuer"];
-            switch (action["type"]) {
-              case "takeback_requested":
-                if (issuer !== this.userId && game.pending[othercolor].takeback.number > 0) {
-                  let backCount =
-                    game.pending[othercolor].takeback.number === 1
-                      ? "Take Back 1 Move"
-                      : " Take Back 2 Moves";
-                  actionPopup = this.actionPopup(backCount, "takeBack");
-                }
-                break;
-              case "draw_requested":
-                if (issuer !== this.userId && game.pending[othercolor].draw !== "0") {
-                  actionPopup = this.actionPopup("Draw", "draw");
-                }
-                break;
-              case "abort_requested":
-                if (issuer !== this.userId && game.pending[othercolor].abort !== "0") {
-                  actionPopup = this.actionPopup("Abort", "abort");
-                }
-                break;
-              default:
-                break;
-            }
+      const actions = game.actions;
+      if (!!actions && actions.length !== 0) {
+        for (const action of actions) {
+          const issuer = action["issuer"];
+          switch (action["type"]) {
+            case "takeback_requested":
+              if (issuer !== this.userId && game.pending[othercolor].takeback.number > 0) {
+                let backCount =
+                  game.pending[othercolor].takeback.number === 1
+                    ? "Take Back 1 Move"
+                    : " Take Back 2 Moves";
+                actionPopup = this.actionPopup(backCount, "takeBack");
+              }
+              break;
+            case "draw_requested":
+              if (issuer !== this.userId && game.pending[othercolor].draw !== "0") {
+                actionPopup = this.actionPopup("Draw", "draw");
+              }
+              break;
+            case "abort_requested":
+              if (issuer !== this.userId && game.pending[othercolor].abort !== "0") {
+                actionPopup = this.actionPopup("Abort", "abort");
+              }
+              break;
+            default:
+              break;
           }
         }
       }
@@ -403,8 +182,8 @@ export default class MainPage extends Component {
       this.intializeBoard();
     }
 
-    let w = this.state.width;
-    let h = this.state.height;
+    let w;
+    let h;
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
     w /= 2;
@@ -423,7 +202,7 @@ export default class MainPage extends Component {
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
               capture={this.props.capture}
-              board={this.state.mode === "play" ? this.props.board : this.board}
+              board={this.props.board}
               onDrop={this._pieceSquareDragStop}
               top={position.top}
             />
@@ -435,7 +214,6 @@ export default class MainPage extends Component {
               RightSidebarData={this.Main.RightSection}
               gameStatus={status}
               flip={this._flipboard}
-              performAction={this._performAction}
               actionData={this.Main.RightSection.Action}
               gameRequest={this.props.gameRequest}
               clientMessage={this.props.clientMessage}

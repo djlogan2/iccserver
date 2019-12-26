@@ -20,7 +20,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
         legacyUsers: Meteor.subscribe("legacyUsers")
       },
       user: null,
-      userObj: null,
+      userId: null,
       wild_number: 0,
       rating_type: "standard",
       rated: true,
@@ -50,8 +50,8 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       color: "random"
     });
   }
-  handelUserClick = user => {
-    this.setState({ user: user.username, userObj: user });
+  handelUserClick = (user, Id) => {
+    this.setState({ user: user.username, userId: Id });
   };
   handleChangeMinute = minute => {
     this.setState({ time: minute });
@@ -77,7 +77,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
-      this.state.userObj._id,
+      this.state.userId,
       this.state.wild_number,
       this.state.rating_type,
       this.state.rated,
@@ -91,7 +91,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       color
     );
     this.setState({
-      userObj: null,
+      userId: null,
       user: null,
       wild_number: 0,
       rating_type: "standard",
@@ -122,18 +122,20 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     if (Meteor.userId() == null) return;
     const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
-    const _userdata = localUsers.map(user => user.username);
-    const userdata = _userdata.concat(legacyUsers.map(user => user.username + "(L)"));
+  //  const _userdata = localUsers.map(user => user.username);
+    const userdata = localUsers.concat(legacyUsers.map(user => user.username + "(L)"));
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
+
+
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (
         <div style={this.props.cssmanager.subTabHeader()}>
-          {localUsers.map((user, index) => (
+          {userdata.map((user, index) => (
             <div key={index} className="userlist">
               <button
-                onClick={this.handelUserClick.bind(this, user)}
+                onClick={this.handelUserClick.bind(this, user.username, user._id)}
                 style={this.props.cssmanager.matchUserButton()}
               >
                 {user.username}
