@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { check } from "meteor/check";
+import { Match, check } from "meteor/check";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { Users } from "../imports/collections/users";
 import SimpleSchema from "simpl-schema";
@@ -123,8 +123,10 @@ Groups.getGroupParameter = function(message_identifier, user, parameter) {
 };
 
 Groups.getGroups = function(user) {
-  check(user, Object);
-  return GroupCollection.find({ "member.id": user._id })
+  check(user, Match.OneOf(Object, String));
+  if (typeof user !== "string")
+    user = user._id;
+  return GroupCollection.find({ "member.id": user })
     .fetch()
     .map(rec => rec.name);
 };
@@ -180,14 +182,13 @@ Groups.changeGroupParameter = function(message_identifier, name, member, paramet
     throw new ICCMeteorError(message_identifier, "Unable to change parameter", "Invalid value");
 
   if (group.member[index][parameter] === value) return;
+  const setobject = {};
+  setobject["member.$." + parameter] = value;
 
-  GroupCollection.update(
-    { name: name, "member.id": member._id },
-    { $set: { "member.$.seeks": value } }
-  );
+  GroupCollection.update({ name: name, "member.id": member._id }, { $set: setobject });
 
-  if (listeners["seeks"])
-    listeners["seeks"].forEach(func => {
+  if (listeners[parameter])
+    listeners[parameter].forEach(func => {
       func(message_identifier, member, value);
     });
 };

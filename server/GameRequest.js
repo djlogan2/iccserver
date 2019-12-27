@@ -590,6 +590,41 @@ GameRequests.addLocalMatchRequest = function(
     return;
   }
 
+  const our_group_setting = Groups.getGroupParameter(
+    message_identifier,
+    challenger_user,
+    "matches"
+  );
+
+  if (our_group_setting === "none")
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to match",
+      "Group is preventing match request"
+    );
+
+  const their_group_setting = Groups.getGroupParameter(
+    message_identifier,
+    receiver_user,
+    "matches"
+  );
+
+  let group_authorized = our_group_setting !== "none" && their_group_setting !== "none";
+  if (group_authorized && (our_group_setting === "group" || their_group_setting === "group")) {
+    const our_groups = Groups.getGroups(challenger_user);
+    const their_groups = Groups.getGroups(receiver_user);
+    group_authorized = !!_.intersection(our_groups, their_groups).length;
+  }
+
+  if (!group_authorized) {
+    ClientMessages.sendMessageToClient(
+      challenger_user,
+      message_identifier,
+      "UNABLE_TO_PLAY_OPPONENT"
+    );
+    return;
+  }
+
   if (
     !!challenger_color_request &&
     challenger_color_request !== "white" &&
@@ -1057,8 +1092,34 @@ function loginHook(user) {
 function groupSeekChangeHook(message_identifier, member, value) {
   if (value === "none") GameRequests.removeUserFromAllSeeks(member._id);
   else {
-    GameRequestCollection.update({type: "seek", owner: member._id},{$set: {group_setting: value}});
+    GameRequestCollection.update(
+      { type: "seek", owner: member._id },
+      { $set: { group_setting: value } }
+    );
     GameRequests.updateAllUserSeeks(message_identifier, member);
+  }
+}
+
+function groupMatchChangeHook(message_identifier, member, value) {
+  if (value === "none")
+    GameRequestCollection.remove({
+      $or: [{ challenger_id: member._id }, { receiver_id: member._id }]
+    });
+  else if (value === "group") {
+    const my_groups = Groups.getGroups(member);
+    const nuke_em = [];
+    GameRequestCollection.find({
+      $or: [{ challenger_id: member._id }, { receiver_id: member._id }]
+    })
+      .fetch()
+      .forEach(match => {
+        const their_groups = Groups.getGroups(
+          match.challenger_id === member._id ? match.receiver_id : match.challenger_id
+        );
+        if (!_.intersection(my_groups, their_groups).length) nuke_em.push(match._id);
+      });
+
+    GameRequestCollection.remove({ _id: { $in: nuke_em } });
   }
 }
 
@@ -1074,4 +1135,5 @@ Meteor.startup(function() {
   Users.addLogoutHook(logoutHook);
   Users.addLoginHook(loginHook);
   Groups.addParameterChangeListener("seeks", groupSeekChangeHook);
+  Groups.addParameterChangeListener("matches", groupMatchChangeHook);
 });
