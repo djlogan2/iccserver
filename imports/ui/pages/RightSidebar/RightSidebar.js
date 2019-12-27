@@ -17,9 +17,8 @@ class RightSidebar extends Component {
   }
 
   render() {
- 
     let tabitem = null;
-    if (this.props.gameStatus === "playing") {
+    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
       tabitem = (
         <RightBarActiveTabs
           RightBarTopData={this.props.RightSidebarData}

@@ -13,6 +13,7 @@
     "CreateGameComponent_js": "TRACE",
     "client/RightBarTop": "TRACE",
     "client/RightSidebar": "TRACE",
+    "client/MatchUserComponent": "TRACE",
     "Tabs/Tabs_js": "TRACE",
     "ICCMeteorError": "TRACE",
     "server/LegacyUsers": "ERROR",

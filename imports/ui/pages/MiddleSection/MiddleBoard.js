@@ -5,8 +5,6 @@ import Board from "../components/Board/Board";
 import "../css/developmentboard.css";
 import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
-import WhitePlayerClock from "./WhitePlayerClock";
-import { Meteor } from "meteor/meteor";
 
 export default class MiddleBoard extends Component {
   constructor(props) {
@@ -173,6 +171,7 @@ export default class MiddleBoard extends Component {
             arrow={{ lineWidth: 2, color: "blue" }}
             ref="board"
             onDrop={this._pieceSquareDragStop}
+            onDrawCircle={this.props.onDrawCircle}
           />
         </div>
         <div style={{ clear: "Left" }} />

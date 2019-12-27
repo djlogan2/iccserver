@@ -100,7 +100,6 @@ export default class MainPage extends Component {
     });
     return isMove;
   };
-
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
@@ -119,7 +118,7 @@ export default class MainPage extends Component {
     )
       informativePopup = this.gameRequest("Opponent has requested for a game", GameRequest["_id"]);
 
-    if (!!game && game.status === "playing") {
+    if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = "playing";
       this.gameId = game._id;
       if (game.black.id === Meteor.userId()) {
@@ -204,6 +203,7 @@ export default class MainPage extends Component {
               capture={this.props.capture}
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
+              onDrawCircle={this.props.onDrawCircle}
               top={position.top}
             />
           </div>

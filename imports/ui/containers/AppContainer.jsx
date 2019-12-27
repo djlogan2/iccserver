@@ -59,17 +59,15 @@ export default class AppContainer extends TrackerReact(React.Component) {
     };
     this.logout = this.logout.bind(this);
   }
-
   renderGameMessages() {
     const game = Game.findOne({
       $and: [
-        { status: "playing" },
+        { $or: [{ status: "playing" }, { status: "examining" }] },
         {
           $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
         }
       ]
     });
-
     if (!!game) {
       const color = game.white.id === Meteor.userId() ? "white" : "black";
 
@@ -180,13 +178,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     return capturedSoldiers;
   }
-
+  drawCircle(square) {
+    // TODO: we can't find game._id so we have keep static.we will fix later.
+    Meteor.call("drawCircle", "DrawCircle", "5d5DGZaQe6whkPdjm", square, "red", 3);
+  }
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
-
     if (!game) {
       return false;
     } else {
+      this.gameId = game._id;
       let result = null;
       let gameTurn = this._board.turn();
       if (this._board.game_over() === true) {
@@ -196,10 +197,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
       // TODO: FYI, I really prefer you use userid and not username when checking.
       //       The server uses user._id or Meteor.userId() exclusively.
-      if (game.white.name === Meteor.user().username && gameTurn === "w") {
+      if (
+        (game.black.id === Meteor.userId() && gameTurn === "b") ||
+        (game.white.id === Meteor.userId() && gameTurn === "w")
+      ) {
         result = this._board.move({ from: raf.from, to: raf.to });
-      } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
-        result = this._board.move({ from: raf.from, to: raf.to });
+      } else {
+        alert("Not your Move");
       }
       var moveColor = "White";
       if (this._board.turn() === "b") {
@@ -210,10 +214,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
         let status = "Game over, " + moveColor + " is in checkmate.";
         alert(status);
       }
-
       if (result !== null) {
         let history = this._board.history();
-
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
@@ -261,6 +263,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   render() {
     const gameRequest = this.renderGameRequest();
     const game = this.renderGameMessages();
+
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
@@ -287,6 +290,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
+          onDrawCircle={this.drawCircle}
           history={this.props.history}
           ref="main_page"
         />

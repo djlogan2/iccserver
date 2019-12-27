@@ -223,14 +223,23 @@ export default class Board extends React.Component {
     });
     return isMove;
   };
-
+  getCoordinates(rank, file) {
+    this.rankTo = rank + 1;
+    const filefromList = ["a", "b", "c", "d", "e", "f", "g", "h"];
+    this.fileTo = filefromList[file];
+    return this.fileTo + this.rankTo;
+  }
   _pieceSquareMouseUp = raf => {
     if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
       const obj = this._circleObject(raf.rank, raf.file);
       if (obj) {
         this.removeCircle(raf.rank, raf.file);
+        let circle = this.getCoordinates(raf.rank, raf.file);
+     //   this.props.removeCircle(circle);
       } else {
+        let circle = this.getCoordinates(raf.rank, raf.file);
         this.addCircle(raf.rank, raf.file);
+        this.props.onDrawCircle(circle);
       }
     } else {
       // The arrows
@@ -345,6 +354,7 @@ export default class Board extends React.Component {
         circle={circle}
         onDragStart={this._pieceSquareDragStart}
         onDrop={this._pieceSquareDragStop}
+        onDrawCircle={this.drawCircle}
       />
     );
   }

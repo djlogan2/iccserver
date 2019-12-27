@@ -5,8 +5,11 @@ import i18n from "meteor/universe:i18n";
 import PropTypes from "prop-types";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import GameForm from "./GameForm";
+import { Logger } from "../../../../lib/client/Logger";
+const log = new Logger("client/MatchUserComponent");
 
 const legacyUsersC = new Mongo.Collection("legacyUsers");
+const DynamicRatingsCollection = new Mongo.Collection("ratings");
 
 export default class MatchUserComponent extends TrackerReact(React.Component) {
   constructor(props) {
@@ -17,7 +20,8 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       trial: 0,
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        legacyUsers: Meteor.subscribe("legacyUsers")
+        legacyUsers: Meteor.subscribe("legacyUsers"),
+        DynamicRatings: Meteor.subscribe("DynamicRatings")
       },
       user: null,
       userId: null,
@@ -35,6 +39,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   componentWillUnmount() {
     this.state.subscription.loggedOnUsers.stop();
     this.state.subscription.legacyUsers.stop();
+    this.state.subscription.DynamicRatings.stop();
   }
 
   removeUser() {
@@ -116,18 +121,20 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   toggleHover() {
     this.setState({ hover: !this.state.hover });
   }
+  getDynamicRatings() {
+    return DynamicRatingsCollection.find({}).fetch();
+  }
 
   render() {
     let translator = i18n.createTranslator("Common.MatchUserSubTab", this.getLang());
     if (Meteor.userId() == null) return;
     const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
-  //  const _userdata = localUsers.map(user => user.username);
+    //  const _userdata = localUsers.map(user => user.username);
     const userdata = localUsers.concat(legacyUsers.map(user => user.username + "(L)"));
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
-
-
+  // this.rating=this.getDynamicRatings();
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (
