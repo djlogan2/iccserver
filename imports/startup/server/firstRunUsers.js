@@ -7,7 +7,7 @@ import { all_roles, standard_member_roles } from "../../server/userConstants";
 let log = new Logger("server/firstRunUsers_js");
 
 export default function firstRunUsers() {
-  if (Meteor.users.find().count() === 0) all_roles.forEach(role => Roles.createRole(role));
+  if (Meteor.users.find().count() === 0) all_roles.forEach(role => Roles.createRole(role, {unlessExists: true}));
 
   if (!Meteor.isTest && !Meteor.isAppTest && Meteor.users.find().count() === 0) {
     const id = Accounts.createUser({

@@ -9,8 +9,9 @@ import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
-import { Users } from "../imports/collections/users";
 import { DynamicRatings } from "./DynamicRatings";
+import { Groups } from "./Groups";
+import { Users } from "../imports/collections/users";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
@@ -255,7 +256,7 @@ GameRequests.addLocalGameSeek = function(
   const self = Meteor.user();
   check(self, Object);
 
-  const group_setting = Users.getGroupParameter(message_identifier, self, "seeks");
+  const group_setting = Groups.getGroupParameter(message_identifier, self, "seeks");
 
   if (group_setting === "none")
     throw new ICCMeteorError(message_identifier, "Unable to issue seek", "Not authorized");
@@ -331,7 +332,7 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
-  const user_groups = Users.getGroups(self);
+  const user_groups = Groups.getGroups(self);
   if (group_setting === "group" && !user_groups) {
     throw new ICCMeteorError(
       message_identifier,
@@ -913,20 +914,24 @@ function seekMatchesUser(message_identifier, user, seek) {
   check(user, Object);
   check(seek, Object);
 
-  if (user._id === seek.owner) return false;
+  if (user._id === seek.owner) {
+    return false;
+  }
   if (!Users.isAuthorized(user, "play_rated_games") && seek.rated) return false;
   if (!Users.isAuthorized(user, "play_unrated_games") && !seek.rated) return false;
 
-  const group_setting = Users.getGroupParameter(message_identifier, user, "seeks");
-  const user_groups = Users.getGroups(user);
-  const seek_groups = seek.groups || [];
+  const group_setting = Groups.getGroupParameter(message_identifier, user, "seeks");
 
   if (group_setting === "none") return false;
+  const user_groups = Groups.getGroups(user);
+  const seek_groups = seek.groups || [];
+
   if (
-    (seek_groups.length || group_setting === "group") &&
+    ((seek_groups.length && seek.group_setting !== "all") || group_setting === "group") &&
     !_.intersection(seek_groups, user_groups).length
-  )
+  ) {
     return false;
+  }
 
   if (!seek.minrating && !seek.maxrating) return true;
 
@@ -937,61 +942,123 @@ function seekMatchesUser(message_identifier, user, seek) {
 
 Meteor.publish("game_requests", function() {
   const user = Meteor.user();
-  if (!user || !user.status.online) return [];
+  if (!user || !user.status.online) return GameRequestCollection.find({ _id: "0" }); //return [];
   if (Game.isPlayingGame(user)) return GameRequestCollection.find({ _id: "0" }); //return [];
 
   const id = user._id;
   if (!id) return [];
   return GameRequestCollection.find(
     {
-      $or: [
-        { challenger_id: id },
-        { receiver_id: id },
-        { owner: id },
-        { matchingusers: id },
-        { type: "seek" }
-      ]
+      $or: [{ challenger_id: id }, { receiver_id: id }, { owner: id }, { matchingusers: id }]
     },
     { fields: { matchingusers: 0 } }
   );
 });
 
-function logoutHook(userId) {
-  let GameRequests = GameRequestCollection.find({
-    $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
-  }).fetch();
-
-  if (GameRequests && GameRequests.length > 0) {
-    GameRequests.forEach(request => {
-      if (request.type === "match" && request.receiver_id === userId) {
-        ClientMessages.sendMessageToClient(
-          request.challenger_id,
-          "matchRequest",
-          "CANNOT_MATCH_LOGGED_OFF_USER"
-        );
-      }
-    });
-  }
-
-  GameRequestCollection.remove({
-    $or: [{ challenger_id: userId }, { receiver_id: userId }, { owner: userId }]
-  });
+GameRequests.removeUserFromAllSeeks = function(userId) {
+  check(userId, String);
   GameRequestCollection.update(
     { type: "seek", matchingusers: userId },
     { $pull: { matchingusers: userId } },
     { multi: true }
   );
-}
+  GameRequestCollection.remove({ type: "seek", owner: userId });
+};
 
-function loginHook(user) {
-  const seeks = GameRequestCollection.find({ type: "seek" }).fetch();
-  const matchingseeks = seeks.filter(seek => seekMatchesUser(user, seek)).map(seek => seek._id);
-  if (matchingseeks.length > 0) {
+GameRequests.updateAllUserSeeks = function(message_identifier, user) {
+  check(message_identifier, String);
+  check(user, Object);
+
+  const add = [];
+  const remove = [];
+
+  GameRequestCollection.find({ type: "seek" })
+    .fetch()
+    .forEach(seek => {
+      const matches = seekMatchesUser(message_identifier, user, seek);
+      const alreadymatches = seek.matchingusers.indexOf(user._id) !== -1;
+      if (matches !== alreadymatches) {
+        if (matches) add.push(seek._id);
+        else remove.push(seek._id);
+      }
+    });
+
+  if (add.length)
     GameRequestCollection.update(
-      { type: "seek", _id: { $in: matchingseeks } },
+      { _id: { $in: add }, type: "seek" },
       { $push: { matchingusers: user._id } },
       { multi: true }
     );
+
+  if (remove.length)
+    GameRequestCollection.update(
+      { _id: { $in: remove }, type: "seek" },
+      { $pull: { matchingusers: user._id } },
+      { multi: true }
+    );
+
+  Meteor.users
+    .find({ "status.online": true })
+    .fetch()
+    .forEach(onlineuser => {
+      GameRequestCollection.find({ type: "seek", owner: user._id })
+        .fetch()
+        .forEach(seek => {
+          const matches = seekMatchesUser(message_identifier, onlineuser, seek);
+          const alreadymatched = seek.matchingusers.indexOf(onlineuser._id) !== -1;
+          if (matches !== alreadymatched) {
+            if (matches) {
+              GameRequestCollection.update(
+                { _id: seek._id, type: seek.type },
+                { $push: { matchingusers: onlineuser._id } }
+              );
+            } else {
+              GameRequestCollection.update(
+                { _id: seek._id, type: seek.type },
+                { $pull: { matchingusers: onlineuser._id } }
+              );
+            }
+          }
+        });
+    });
+};
+
+GameRequests.removeAllUserMatches = function(userId) {
+  check(userId, String);
+  GameRequestCollection.find(
+    {
+      receiver_id: userId
+    },
+    { challenger_id: 1 }
+  )
+    .fetch()
+    .forEach(match => {
+      ClientMessages.sendMessageToClient(
+        match.challenger_id,
+        "matchRequest",
+        "CANNOT_MATCH_LOGGED_OFF_USER"
+      );
+    });
+
+  GameRequestCollection.remove({
+    $or: [{ challenger_id: userId }, { receiver_id: userId }]
+  });
+};
+
+function logoutHook(userId) {
+  GameRequests.removeAllUserMatches(userId);
+  GameRequests.removeUserFromAllSeeks(userId);
+}
+
+function loginHook(user) {
+  GameRequests.updateAllUserSeeks("server", user);
+}
+
+function groupSeekChangeHook(message_identifier, member, value) {
+  if (value === "none") GameRequests.removeUserFromAllSeeks(member._id);
+  else {
+    GameRequestCollection.update({type: "seek", owner: member._id},{$set: {group_setting: value}});
+    GameRequests.updateAllUserSeeks(message_identifier, member);
   }
 }
 
@@ -1006,4 +1073,5 @@ Meteor.startup(function() {
   GameRequestCollection.remove({}); // Truncate this table on Meteor startup.
   Users.addLogoutHook(logoutHook);
   Users.addLoginHook(loginHook);
+  Groups.addParameterChangeListener("seeks", groupSeekChangeHook);
 });

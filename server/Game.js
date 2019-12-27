@@ -744,7 +744,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
         }
       : move;
 
-
   const pushobject = {
     actions: { type: "move", issuer: self._id, parameter: move_parameter }
   };
@@ -929,8 +928,13 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   check(message_identifier, String);
   check(game_id, String);
   check(id_to_remove, String);
-  const self = Meteor.user();
-  check(self, Object);
+
+  // Since we call this on logout, we have to allow an invalid 'self'
+  let self;
+  if (message_identifier !== "server") {
+    self = Meteor.user();
+    check(self, Object);
+  }
 
   const game = GameCollection.findOne({
     _id: game_id
@@ -944,11 +948,11 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     );
 
   if (!game.observers || game.observers.indexOf(id_to_remove) === -1) {
-    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
+    if (!!self) ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
     return;
   }
 
-  if (id_to_remove !== self._id)
+  if (!!self && id_to_remove !== self._id)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to remove observer",
@@ -1790,7 +1794,7 @@ Game.localUnobserveAllGames = function(message_identifier, user_id) {
   check(user_id, String);
   GameCollection.find({ observers: user_id }, { _id: 1 })
     .fetch()
-    .forEach(game => Game.localRemoveObserver("", game._id, user_id));
+    .forEach(game => Game.localRemoveObserver("server", game._id, user_id));
 };
 
 export const GameHistory = {};

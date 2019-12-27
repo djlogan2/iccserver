@@ -16,7 +16,8 @@ export const all_roles = [
   "remove_from_group",
   "change_group_parameter",
   "add_dynamic_rating",
-  "delete_dynamic_rating"
+  "delete_dynamic_rating",
+  "search_game_history"
 ];
 
 export const standard_member_roles = [
