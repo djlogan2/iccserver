@@ -1,6 +1,4 @@
 import { Meteor } from "meteor/meteor";
-import { Mongo } from "meteor/mongo";
-import SimpleSchema from "simpl-schema";
 import { Accounts } from "meteor/accounts-base";
 import { check, Match } from "meteor/check";
 import {
@@ -14,6 +12,7 @@ import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
 import { i18n } from "./i18n";
 import { DynamicRatings } from "../../server/DynamicRatings";
+import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 
 let log = new Logger("server/users_js");
 
@@ -64,10 +63,67 @@ Accounts.onCreateUser(function(options, user) {
   standard_member_roles.forEach(role =>
     user.roles.push({ _id: role, scope: null, assigned: true })
   );
-  //user.roles = standard_member_roles;
 
   return user;
 });
+
+const group_change_hooks = [];
+
+Users.addGroupChangeHook = function(func) {
+  Meteor.startup(() => group_change_hooks.push(func));
+};
+
+Users.setLimitToGroup = function(message_identifier, user, limit_to_group) {
+  check(message_identifier, String);
+  check(user, Match.OneOf(Object, String));
+  check(limit_to_group, Boolean);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "change_limit_to_group"))
+    throw new ICCMeteorError(message_identifier, "Unable to change group limit", "Not authorized");
+
+  const user_id = typeof user === "object" ? user._id : user;
+  const updated = Meteor.users.update(
+    { _id: user_id },
+    { $set: { limit_to_group: limit_to_group } }
+  );
+  if (updated) group_change_hooks.forEach(f => f(message_identifier, user_id));
+};
+
+Users.addToGroup = function(message_identifier, user, group) {
+  check(message_identifier, String);
+  check(user, Match.OneOf(Object, String));
+  check(group, String);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "add_to_group"))
+    throw new ICCMeteorError(message_identifier, "Unable to add user to group", "Not authorized");
+
+  if (typeof user === "object") user = user._id;
+  const victim = Meteor.users.findOne({ _id: user });
+  if (!victim)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add user to group",
+      "Unable to find user"
+    );
+
+  if (Meteor.users.find({ _id: user, groups: group }).count())
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to add user to group",
+      "User already in group"
+    );
+
+  const modifier = { $push: { groups: group } };
+  if (victim.limit_to_group === undefined) modifier["$set"] = { limit_to_group: true };
+  Meteor.users.update({ _id: user }, modifier);
+  group_change_hooks.forEach(f => f(message_identifier, user));
+};
 
 Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;

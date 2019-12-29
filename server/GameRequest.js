@@ -10,7 +10,6 @@ import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
 import { DynamicRatings } from "./DynamicRatings";
-import { Groups } from "./Groups";
 import { Users } from "../imports/collections/users";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
@@ -30,7 +29,7 @@ const LocalSeekSchema = new SimpleSchema({
   delaytype: String,
   rated: Boolean,
   autoaccept: Boolean,
-  group_setting: { type: String, allowedValues: ["all", "group"] },
+  limit_to_group: { type: Boolean, defaultValue: false },
   groups: { type: Array, required: false },
   "groups.$": String,
   color: { type: String, optional: true, allowedValues: ["white", "black"] },
@@ -256,11 +255,6 @@ GameRequests.addLocalGameSeek = function(
   const self = Meteor.user();
   check(self, Object);
 
-  const group_setting = Groups.getGroupParameter(message_identifier, self, "seeks");
-
-  if (group_setting === "none")
-    throw new ICCMeteorError(message_identifier, "Unable to issue seek", "Not authorized");
-
   if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
   if (color !== null && color !== undefined && color !== "white" && color !== "black")
     throw new Match.Error("Invalid color specification");
@@ -332,17 +326,10 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
-  const user_groups = Groups.getGroups(self);
-  if (group_setting === "group" && !user_groups) {
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to issue seek",
-      "Unknown server error - missing group"
-    );
+  if (self.groups) {
+    game.groups = self.groups;
+    game.limit_to_group = self.limit_to_group;
   }
-
-  if (user_groups) game.groups = user_groups;
-  game.group_setting = group_setting;
 
   const users = Meteor.users.find({ "status.online": true }).fetch();
   let matchingusers = [];
@@ -590,31 +577,11 @@ GameRequests.addLocalMatchRequest = function(
     return;
   }
 
-  const our_group_setting = Groups.getGroupParameter(
-    message_identifier,
-    challenger_user,
-    "matches"
-  );
-
-  if (our_group_setting === "none")
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to match",
-      "Group is preventing match request"
-    );
-
-  const their_group_setting = Groups.getGroupParameter(
-    message_identifier,
-    receiver_user,
-    "matches"
-  );
-
-  let group_authorized = our_group_setting !== "none" && their_group_setting !== "none";
-  if (group_authorized && (our_group_setting === "group" || their_group_setting === "group")) {
-    const our_groups = Groups.getGroups(challenger_user);
-    const their_groups = Groups.getGroups(receiver_user);
-    group_authorized = !!_.intersection(our_groups, their_groups).length;
-  }
+  const challenger_group_limit = challenger_user.limit_to_group || false;
+  const receiver_group_limit = receiver_user.limit_to_group || false;
+  const limit = challenger_group_limit || receiver_group_limit;
+  const group_authorized =
+    !limit || !!_.intersection(challenger_user.groups, receiver_user.groups).length;
 
   if (!group_authorized) {
     ClientMessages.sendMessageToClient(
@@ -955,18 +922,9 @@ function seekMatchesUser(message_identifier, user, seek) {
   if (!Users.isAuthorized(user, "play_rated_games") && seek.rated) return false;
   if (!Users.isAuthorized(user, "play_unrated_games") && !seek.rated) return false;
 
-  const group_setting = Groups.getGroupParameter(message_identifier, user, "seeks");
-
-  if (group_setting === "none") return false;
-  const user_groups = Groups.getGroups(user);
-  const seek_groups = seek.groups || [];
-
-  if (
-    ((seek_groups.length && seek.group_setting !== "all") || group_setting === "group") &&
-    !_.intersection(seek_groups, user_groups).length
-  ) {
-    return false;
-  }
+  const limit = seek.limit_to_group || user.limit_to_group;
+  const group_match = !limit || !!_.intersection(seek.groups, user.groups).length;
+  if (!group_match) return false;
 
   if (!seek.minrating && !seek.maxrating) return true;
 
@@ -1002,8 +960,12 @@ GameRequests.removeUserFromAllSeeks = function(userId) {
 
 GameRequests.updateAllUserSeeks = function(message_identifier, user) {
   check(message_identifier, String);
-  check(user, Object);
+  check(user, Match.OneOf(Object, String));
 
+  if (typeof user === "string") {
+    user = Meteor.users.findOne({ _id: user });
+    if (!user) throw new Match.Error("Unable to find user");
+  }
   const add = [];
   const remove = [];
 
@@ -1089,38 +1051,33 @@ function loginHook(user) {
   GameRequests.updateAllUserSeeks("server", user);
 }
 
-function groupSeekChangeHook(message_identifier, member, value) {
-  if (value === "none") GameRequests.removeUserFromAllSeeks(member._id);
-  else {
-    GameRequestCollection.update(
-      { type: "seek", owner: member._id },
-      { $set: { group_setting: value } }
-    );
-    GameRequests.updateAllUserSeeks(message_identifier, member);
-  }
-}
+function groupChangeHook(message_identifier, userId) {
+  check(message_identifier, String);
+  check(userId, String);
+  const user = Meteor.users.findOne({_id: userId});
+  check(user, Object);
+  GameRequestCollection.update(
+    { type: "seek", owner: user._id },
+    { $set: { groups: user.groups, limit_to_group: user.limit_to_group } },
+    { multi: true }
+  );
+  GameRequests.updateAllUserSeeks(message_identifier, user);
 
-function groupMatchChangeHook(message_identifier, member, value) {
-  if (value === "none")
-    GameRequestCollection.remove({
-      $or: [{ challenger_id: member._id }, { receiver_id: member._id }]
-    });
-  else if (value === "group") {
-    const my_groups = Groups.getGroups(member);
-    const nuke_em = [];
-    GameRequestCollection.find({
-      $or: [{ challenger_id: member._id }, { receiver_id: member._id }]
-    })
-      .fetch()
-      .forEach(match => {
-        const their_groups = Groups.getGroups(
-          match.challenger_id === member._id ? match.receiver_id : match.challenger_id
-        );
-        if (!_.intersection(my_groups, their_groups).length) nuke_em.push(match._id);
+  const nuke_em = GameRequestCollection.find({
+    type: "match",
+    $or: [{ challenger_id: user._id }, { receiver_id: user._id }]
+  })
+    .fetch()
+    .filter(match => {
+      const challenger = Meteor.users.findOne({
+        _id: match.challenger_id === user._id ? match.receiver_id : match.challenger_id
       });
-
-    GameRequestCollection.remove({ _id: { $in: nuke_em } });
-  }
+      if (!user.limit_to_group && !challenger.limit_to_group) return false;
+      const their_groups = challenger.groups || [];
+      return !_.intersection(user.groups, their_groups).length;
+    })
+    .map(match => match._id);
+  if (nuke_em.length) GameRequestCollection.remove({ _id: { $in: nuke_em } });
 }
 
 if (Meteor.isTest || Meteor.isAppTest) {
@@ -1134,6 +1091,5 @@ Meteor.startup(function() {
   GameRequestCollection.remove({}); // Truncate this table on Meteor startup.
   Users.addLogoutHook(logoutHook);
   Users.addLoginHook(loginHook);
-  Groups.addParameterChangeListener("seeks", groupSeekChangeHook);
-  Groups.addParameterChangeListener("matches", groupMatchChangeHook);
+  Users.addGroupChangeHook(groupChangeHook);
 });

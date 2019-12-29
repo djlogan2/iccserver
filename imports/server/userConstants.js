@@ -11,10 +11,8 @@ export const all_roles = [
   "administrator",
   "developer",
   "add_dynamic_ratings",
-  "create_group",
   "add_to_group",
-  "remove_from_group",
-  "change_group_parameter",
+  "change_limit_to_group", // TODO: Set roles to "change_user_" + field. Then decide what to do about object nesting, like if "change_user_profile" exists, that means a user can change "user.profile.legacy.username" without requiring "change_user_profile_legacy_username" ?
   "add_dynamic_rating",
   "delete_dynamic_rating",
   "search_game_history"

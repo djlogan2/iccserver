@@ -1,42 +1,14 @@
-import { Roles } from "meteor/alanning:roles";
 import chai from "chai";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { GameRequests } from "./GameRequest";
-import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { Groups } from "./Groups";
+import { Users } from "../imports/collections/users";
 
-describe.only ("User groups", function() {
+describe("User groups", function() {
   this.timeout(500000);
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should not allow a seek to be issued if group 'seeks' setting is 'none'", function() {
-    const admin = TestHelpers.createUser({ roles: ["create_group", "add_to_group"] });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "seeks", "none");
-    self.loggedonuser = member;
-    chai.assert.throws(
-      () => GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 0, "none", true),
-      ICCMeteorError
-    );
-  });
-
-  it("should allow a private seek to be issued if group 'seeks' setting is 'group'", function() {
-    const admin = TestHelpers.createUser({ roles: ["create_group", "add_to_group"] });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "seeks", "group");
-    self.loggedonuser = member;
+  it("should allow a private seek to be issued if users 'limit_to_groups' setting is true", function() {
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup"], limit_to_group: true });
     chai.assert.doesNotThrow(() =>
       GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 0, "none", true)
     );
@@ -45,20 +17,11 @@ describe.only ("User groups", function() {
     chai.assert.isDefined(request.groups);
     chai.assert.equal(request.groups.length, 1);
     chai.assert.equal(request.groups[0], "testgroup");
-    chai.assert.equal(request.group_setting, "group");
+    chai.assert.equal(request.limit_to_group, true);
   });
 
-  it("should allow a public seek to be issued if group 'seeks' setting is 'all'", function() {
-    const admin = TestHelpers.createUser({ roles: ["create_group", "add_to_group"] });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "seeks", "all");
-    self.loggedonuser = member;
+  it("should allow a public seek to be issued if users 'limit_to_groups' setting is false", function() {
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup"], limit_to_group: false });
     chai.assert.doesNotThrow(() =>
       GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 0, "none", true)
     );
@@ -67,66 +30,17 @@ describe.only ("User groups", function() {
     chai.assert.isDefined(request.groups);
     chai.assert.equal(request.groups.length, 1);
     chai.assert.equal(request.groups[0], "testgroup");
-    chai.assert.equal(request.group_setting, "all");
+    chai.assert.equal(request.limit_to_group, false);
   });
 
-  it("should return no seeks if group 'seeks' setting is 'none'", function(done) {
-    this.timeout(10000);
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner = TestHelpers.createUser();
-    const member1 = TestHelpers.createUser();
-    const member2 = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 0, "none", true);
-    Groups.createGroup("mi2", "testgroup", owner);
-    Groups.addToGroup("mi3", "testgroup", member1);
-    Groups.addToGroup("mi4", "testgroup", member2);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    GameRequests.addLocalGameSeek("mi5", 0, "standard", 16, 0, "none", true);
-    Groups.changeGroupParameter("mi6", "testgroup", member1, "seeks", "group");
-    Groups.changeGroupParameter("mi7", "testgroup", member2, "seeks", "none");
-    self.loggedonuser = member1;
-    GameRequests.addLocalGameSeek("mi8", 0, "standard", 17, 0, "none", true);
-    chai.assert.equal(GameRequests.collection.find().count(), 3);
-    self.loggedonuser = member2;
-    const collector = new PublicationCollector({ userId: member2._id });
-    collector.collect("game_requests", collections => {
-      chai.assert.equal(collections.game_requests.length, 0);
-      done();
-    });
-  });
-
-  it("should return only seeks from other group members if group 'seeks' setting is 'group'", function(done) {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner1 = TestHelpers.createUser();
-    const owner2 = TestHelpers.createUser();
-    const member1_1 = TestHelpers.createUser();
-    const member1_2 = TestHelpers.createUser();
-    const member2_1 = TestHelpers.createUser();
-    const member2_2 = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup1", owner1);
-    Groups.addToGroup("mi2", "testgroup1", member1_1);
-    Groups.addToGroup("mi3", "testgroup1", member1_2);
-    Roles.addUsersToRoles(owner1._id, "change_group_parameter", "group testgroup1");
-
-    Groups.createGroup("mi4", "testgroup2", owner2);
-    Groups.addToGroup("mi5", "testgroup2", member2_1);
-    Groups.addToGroup("mi6", "testgroup2", member2_2);
-    Roles.addUsersToRoles(owner2._id, "change_group_parameter", "group testgroup2");
-
-    self.loggedonuser = owner1;
-    Groups.changeGroupParameter("mi7", "testgroup1", member1_1, "seeks", "group");
-    Groups.changeGroupParameter("mi8", "testgroup1", member1_2, "seeks", "all");
-
-    self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi9", "testgroup2", member2_1, "seeks", "group");
-    Groups.changeGroupParameter("mi10", "testgroup2", member2_2, "seeks", "all");
+  it("should return only seeks from other group members if users 'limit_to_groups' setting is true", function(done) {
+    const admin = TestHelpers.createUser();
+    const owner1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const owner2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
+    const member1_1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    const member1_2 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const member2_1 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: true });
+    const member2_2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
 
     // admin - seek - global
     // owner1 - seek - global plus testgroup1
@@ -146,7 +60,6 @@ describe.only ("User groups", function() {
     const collector = new PublicationCollector({ userId: member2_1._id });
     collector.collect("game_requests", collections => {
       const expectedhas = [owner2._id, member2_1._id, member2_2._id];
-      const expectednot = [admin._id, owner1._id, member1_1._id, member1_2._id];
       const actualhas = collections.game_requests.map(gr => gr.owner);
       chai.assert.equal(collections.game_requests.length, expectedhas.length);
       chai.assert.sameMembers(actualhas, expectedhas);
@@ -154,34 +67,14 @@ describe.only ("User groups", function() {
     });
   });
 
-  it("should return all public seeks if group 'seeks' setting is 'all'", function(done) {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner1 = TestHelpers.createUser();
-    const owner2 = TestHelpers.createUser();
-    const member1_1 = TestHelpers.createUser();
-    const member1_2 = TestHelpers.createUser();
-    const member2_1 = TestHelpers.createUser();
-    const member2_2 = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup1", owner1);
-    Groups.addToGroup("mi2", "testgroup1", member1_1);
-    Groups.addToGroup("mi3", "testgroup1", member1_2);
-    Roles.addUsersToRoles(owner1._id, "change_group_parameter", "group testgroup1");
-
-    Groups.createGroup("mi4", "testgroup2", owner2);
-    Groups.addToGroup("mi5", "testgroup2", member2_1);
-    Groups.addToGroup("mi6", "testgroup2", member2_2);
-    Roles.addUsersToRoles(owner2._id, "change_group_parameter", "group testgroup2");
-
-    self.loggedonuser = owner1;
-    Groups.changeGroupParameter("mi7", "testgroup1", member1_1, "seeks", "group");
-    Groups.changeGroupParameter("mi8", "testgroup1", member1_2, "seeks", "all");
-
-    self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi9", "testgroup2", member2_1, "seeks", "group");
-    Groups.changeGroupParameter("mi10", "testgroup2", member2_2, "seeks", "all");
+  it("should return all public seeks if users 'limit_to_groups' setting is false", function(done) {
+    const admin = TestHelpers.createUser();
+    const owner1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const owner2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
+    const member1_1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    const member1_2 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const member2_1 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: true });
+    const member2_2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
 
     // admin - seek - global
     // owner1 - seek - global plus testgroup1
@@ -208,7 +101,6 @@ describe.only ("User groups", function() {
         member2_1._id,
         member2_2._id
       ];
-      const expectednot = [member1_1._id];
       const actualhas = collections.game_requests.map(gr => gr.owner);
       chai.assert.equal(collections.game_requests.length, expectedhas.length);
       chai.assert.sameMembers(actualhas, expectedhas);
@@ -216,34 +108,14 @@ describe.only ("User groups", function() {
     });
   });
 
-  it("should change seeks to be public if they were private and the users 'seeks' setting is changed from 'group' to 'all'", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner1 = TestHelpers.createUser();
-    const owner2 = TestHelpers.createUser();
-    const member1_1 = TestHelpers.createUser();
-    const member1_2 = TestHelpers.createUser();
-    const member2_1 = TestHelpers.createUser();
-    const member2_2 = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup1", owner1);
-    Groups.addToGroup("mi2", "testgroup1", member1_1);
-    Groups.addToGroup("mi3", "testgroup1", member1_2);
-    Roles.addUsersToRoles(owner1._id, "change_group_parameter", "group testgroup1");
-
-    Groups.createGroup("mi4", "testgroup2", owner2);
-    Groups.addToGroup("mi5", "testgroup2", member2_1);
-    Groups.addToGroup("mi6", "testgroup2", member2_2);
-    Roles.addUsersToRoles(owner2._id, "change_group_parameter", "group testgroup2");
-
-    self.loggedonuser = owner1;
-    Groups.changeGroupParameter("mi7", "testgroup1", member1_1, "seeks", "group");
-    Groups.changeGroupParameter("mi8", "testgroup1", member1_2, "seeks", "all");
-
-    self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi9", "testgroup2", member2_1, "seeks", "group");
-    Groups.changeGroupParameter("mi10", "testgroup2", member2_2, "seeks", "all");
+  it("should change seeks to be public if they were private and the users users 'limit_to_groups' setting is changed from true to false", function() {
+    const admin = TestHelpers.createUser();
+    const owner1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const owner2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false, roles: ["change_limit_to_group", "play_rated_games"] });
+    const member1_1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    const member1_2 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const member2_1 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: true });
+    const member2_2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
 
     // admin - seek - global
     // owner1 - seek - global plus testgroup1
@@ -264,7 +136,7 @@ describe.only ("User groups", function() {
     );
 
     self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi12", "testgroup2", member2_1, "seeks", "all");
+    Users.setLimitToGroup("mi12", member2_1, false);
     chai.assert.equal(GameRequests.collection.find({ matchingusers: member2_1._id }).count(), 5);
     chai.assert.equal(
       GameRequests.collection.findOne({ owner: member2_1._id }).matchingusers.length,
@@ -272,34 +144,14 @@ describe.only ("User groups", function() {
     );
   });
 
-  it("should change seeks to be private if they were public and the users 'seeks' setting is changed from 'all' to 'group", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner1 = TestHelpers.createUser();
-    const owner2 = TestHelpers.createUser();
-    const member1_1 = TestHelpers.createUser();
-    const member1_2 = TestHelpers.createUser();
-    const member2_1 = TestHelpers.createUser();
-    const member2_2 = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup1", owner1);
-    Groups.addToGroup("mi2", "testgroup1", member1_1);
-    Groups.addToGroup("mi3", "testgroup1", member1_2);
-    Roles.addUsersToRoles(owner1._id, "change_group_parameter", "group testgroup1");
-
-    Groups.createGroup("mi4", "testgroup2", owner2);
-    Groups.addToGroup("mi5", "testgroup2", member2_1);
-    Groups.addToGroup("mi6", "testgroup2", member2_2);
-    Roles.addUsersToRoles(owner2._id, "change_group_parameter", "group testgroup2");
-
-    self.loggedonuser = owner1;
-    Groups.changeGroupParameter("mi7", "testgroup1", member1_1, "seeks", "group");
-    Groups.changeGroupParameter("mi8", "testgroup1", member1_2, "seeks", "all");
-
-    self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi9", "testgroup2", member2_1, "seeks", "all");
-    Groups.changeGroupParameter("mi10", "testgroup2", member2_2, "seeks", "all");
+  it("should change seeks to be private if they were public and the users 'limit_to_groups' setting is changed from false to true", function() {
+    const admin = TestHelpers.createUser();
+    const owner1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const owner2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false, roles: ["change_limit_to_group", "play_rated_games"] });
+    const member1_1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    const member1_2 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    const member2_1 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
+    const member2_2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
 
     // admin - seek - global
     // owner1 - seek - global plus testgroup1
@@ -320,7 +172,7 @@ describe.only ("User groups", function() {
     );
 
     self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi12", "testgroup2", member2_1, "seeks", "group");
+    Users.setLimitToGroup("mi12", member2_1, true);
     chai.assert.equal(GameRequests.collection.find({ matchingusers: member2_1._id }).count(), 2);
     chai.assert.equal(
       GameRequests.collection.findOne({ owner: member2_1._id }).matchingusers.length,
@@ -328,132 +180,10 @@ describe.only ("User groups", function() {
     );
   });
 
-  it("should remove all users seeks if a users 'seeks' setting is changed to 'none'", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner1 = TestHelpers.createUser();
-    const owner2 = TestHelpers.createUser();
-    const member1_1 = TestHelpers.createUser();
-    const member1_2 = TestHelpers.createUser();
-    const member2_1 = TestHelpers.createUser();
-    const member2_2 = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup1", owner1);
-    Groups.addToGroup("mi2", "testgroup1", member1_1);
-    Groups.addToGroup("mi3", "testgroup1", member1_2);
-    Roles.addUsersToRoles(owner1._id, "change_group_parameter", "group testgroup1");
-
-    Groups.createGroup("mi4", "testgroup2", owner2);
-    Groups.addToGroup("mi5", "testgroup2", member2_1);
-    Groups.addToGroup("mi6", "testgroup2", member2_2);
-    Roles.addUsersToRoles(owner2._id, "change_group_parameter", "group testgroup2");
-
-    self.loggedonuser = owner1;
-    Groups.changeGroupParameter("mi7", "testgroup1", member1_1, "seeks", "group");
-    Groups.changeGroupParameter("mi8", "testgroup1", member1_2, "seeks", "all");
-
-    self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi9", "testgroup2", member2_1, "seeks", "all");
-    Groups.changeGroupParameter("mi10", "testgroup2", member2_2, "seeks", "all");
-
-    // admin - seek - global
-    // owner1 - seek - global plus testgroup1
-    // owner2 - seek - global plus testgroup2
-    // member1_1 - seek - testgroup1
-    // member1_2 - seek - global plus testgroup1
-    // member2_1 - seek - testgroup2
-    // member2_2 - seek - global plus testgroup2
-    [admin, owner1, owner2, member1_1, member1_2, member2_1, member2_2].forEach(member => {
-      self.loggedonuser = member;
-      GameRequests.addLocalGameSeek("mi11", 0, "standard", 16, 0, "none", true);
-    });
-
-    chai.assert.equal(GameRequests.collection.find({ matchingusers: member2_1._id }).count(), 5); // If I'm an owner, I'm not in matchingusers
-    chai.assert.equal(
-      GameRequests.collection.findOne({ owner: member2_1._id }).matchingusers.length,
-      5
-    );
-
-    self.loggedonuser = owner2;
-    Groups.changeGroupParameter("mi12", "testgroup2", member2_1, "seeks", "none");
-    chai.assert.equal(GameRequests.collection.find({ matchingusers: member2_1._id }).count(), 0);
-    chai.assert.equal(GameRequests.collection.find({ owner: member2_1._id }).count(), 0);
-  });
-
-  it("should not allow sending a match request if group 'matches' setting is 'none'", function() {
-    const admin = TestHelpers.createUser({ roles: ["create_group", "add_to_group"] });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "none");
-    self.loggedonuser = member;
-    chai.assert.throws(
-      () =>
-        GameRequests.addLocalMatchRequest(
-          "mi4",
-          owner,
-          0,
-          "standard",
-          true,
-          false,
-          15,
-          15,
-          "inc",
-          15,
-          15,
-          "inc"
-        ),
-      ICCMeteorError
-    );
-  });
-
-  it("should not allow receiving a match request if group 'matches' setting is 'none'", function() {
-    const admin = TestHelpers.createUser({ roles: ["create_group", "add_to_group"] });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "none");
-    GameRequests.addLocalMatchRequest(
-      "mi4",
-      member,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
-    chai.assert.equal(GameRequests.collection.find().count(), 0);
-  });
-
-  it("should only allow a match to be sent to a group member if the users 'matches' setting is 'group'", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "group");
-    self.loggedonuser = member;
+  it("should only allow a match to be sent to a group member if users 'limit_to_groups' setting is true", function() {
+    const admin = TestHelpers.createUser();
+    const owner = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
     GameRequests.addLocalMatchRequest(
       "mi4",
       owner,
@@ -489,19 +219,9 @@ describe.only ("User groups", function() {
     chai.assert.equal(GameRequests.collection.find().count(), 1);
   });
 
-  it("should only allow a match to be received by a group member if the users 'matches' setting is 'group'", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "group");
-    self.loggedonuser = owner;
+  it("should only allow a match to be received by a group member if the users 'limit_to_groups' setting is true", function() {
+    const member = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
     GameRequests.addLocalMatchRequest(
       "mi4",
       member,
@@ -538,19 +258,11 @@ describe.only ("User groups", function() {
     chai.assert.equal(GameRequests.collection.find().count(), 1);
   });
 
-  it("should allow a user to match anyone if the group members 'matches' setting is 'all", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "all");
-    self.loggedonuser = member;
+  it("should allow a user to match anyone if the users 'limit_to_groups' setting is false", function() {
+    const admin = TestHelpers.createUser();
+    const owner = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+
     GameRequests.addLocalMatchRequest(
       "mi4",
       owner,
@@ -584,19 +296,9 @@ describe.only ("User groups", function() {
     chai.assert.equal(GameRequests.collection.find().count(), 2);
   });
 
-  it("should allow a user to get a match request from anyone if the group members 'matches' setting is 'all'", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "all");
-    self.loggedonuser = owner;
+  it("should allow a user to get a match request from anyone if the users 'limit_to_groups' setting is false", function() {
+    const member = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
     GameRequests.addLocalMatchRequest(
       "mi4",
       member,
@@ -631,18 +333,10 @@ describe.only ("User groups", function() {
     chai.assert.equal(GameRequests.collection.find().count(), 2);
   });
 
-  it("should remove match requests to and from non-group members if a users 'matches' setting is changed from 'all' to 'group'", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "all");
+  it("should remove match requests to and from non-group members if users 'limit_to_groups' setting is changed from false to true", function() {
+    const admin = TestHelpers.createUser();
+    const owner = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false, roles: ["change_limit_to_group", "play_rated_games"] });
+    const member = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
     self.loggedonuser = owner;
     GameRequests.addLocalMatchRequest(
       "mi4",
@@ -706,113 +400,27 @@ describe.only ("User groups", function() {
     );
     chai.assert.equal(GameRequests.collection.find().count(), 4);
     self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi8", "testgroup", member, "matches", "group");
+    Users.setLimitToGroup("mi8", member, true);
     chai.assert.equal(GameRequests.collection.find().count(), 2);
   });
 
-  it("should remove all match requests, to and from, if a users 'matches' setting is changed to 'none'", function() {
-    const admin = TestHelpers.createUser({
-      roles: ["create_group", "add_to_group", "play_rated_games"]
-    });
-    const owner = TestHelpers.createUser();
-    const member = TestHelpers.createUser();
-    self.loggedonuser = admin;
-    Groups.createGroup("mi1", "testgroup", owner);
-    Groups.addToGroup("mi2", "testgroup", member);
-    Roles.addUsersToRoles(owner._id, "change_group_parameter", "group testgroup");
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi3", "testgroup", member, "matches", "all");
-    self.loggedonuser = owner;
-    GameRequests.addLocalMatchRequest(
-      "mi4",
-      member,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
-    chai.assert.equal(GameRequests.collection.find().count(), 1);
-
-    self.loggedonuser = TestHelpers.createUser();
-    GameRequests.addLocalMatchRequest(
-      "mi5",
-      member,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
-    self.loggedonuser = member;
-    GameRequests.addLocalMatchRequest(
-      "mi6",
-      admin,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
-    GameRequests.addLocalMatchRequest(
-      "mi7",
-      owner,
-      0,
-      "standard",
-      true,
-      false,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
-    chai.assert.equal(GameRequests.collection.find().count(), 4);
-    self.loggedonuser = owner;
-    Groups.changeGroupParameter("mi8", "testgroup", member, "matches", "group");
-    chai.assert.equal(GameRequests.collection.find().count(), 0);
-  });
-
-  it("should not allow a user to start a local game if group 'play' setting is set to 'none'", function() {
+  it("should not allow a user to start a local game with a non-group member if 'limit_to_group' setting is 'true'", function() {
     chai.assert.fail("do me ");
   });
-  it("should not allow a user to start a local game with a non-group member if 'play' setting is 'group'", function() {
+  it("should allow a user to start a local game with a group member if 'limit_to_group' setting is 'true'", function() {
     chai.assert.fail("do me ");
   });
-  it("should allow a user to start a local game with a group member if 'play' setting is 'group'", function() {
-    chai.assert.fail("do me ");
-  });
-  it("should allow a user to start a local game with a non-group member if 'play' setting is 'all'", function() {
+  it("should allow a user to start a local game with a non-group member if 'limit_to_group' setting is 'false'", function() {
     chai.assert.fail("do me ");
   });
 
-  it("should not show any logged on members if group 'showusers' setting is set to 'none'", function() {
+  it("should not show any logged on members if user is not in the 'show_users' role", function() {
     chai.assert.fail("do me ");
   });
-  it("should show only logged on group members if group 'showusers' setting is set to 'group'", function() {
+  it("should show only logged on group members if 'limit_to_group' setting is set to 'true'", function() {
     chai.assert.fail("do me ");
   });
-  it("should show all logged on group members if group 'showusers' setting is set to 'all'", function() {
+  it("should show all logged on group members if group 'limit_to_group' setting is set to 'false'", function() {
     chai.assert.fail("do me ");
-  });
-
-  it("needs to test the intersection between users in multiple groupe [g1, g2, g3] and seeks in multiple groups [g2, g3, g4]", function() {
-    chai.assert.fail("do me");
   });
 });
