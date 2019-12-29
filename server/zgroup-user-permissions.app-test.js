@@ -3,9 +3,9 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { GameRequests } from "./GameRequest";
 import { Users } from "../imports/collections/users";
+import { Game } from "./Game";
 
 describe("User groups", function() {
-  this.timeout(500000);
   const self = TestHelpers.setupDescribe.apply(this);
   it("should allow a private seek to be issued if users 'limit_to_groups' setting is true", function() {
     self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup"], limit_to_group: true });
@@ -111,7 +111,11 @@ describe("User groups", function() {
   it("should change seeks to be public if they were private and the users users 'limit_to_groups' setting is changed from true to false", function() {
     const admin = TestHelpers.createUser();
     const owner1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
-    const owner2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false, roles: ["change_limit_to_group", "play_rated_games"] });
+    const owner2 = TestHelpers.createUser({
+      groups: ["testgroup2"],
+      limit_to_group: false,
+      roles: ["change_limit_to_group", "play_rated_games"]
+    });
     const member1_1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
     const member1_2 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
     const member2_1 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: true });
@@ -147,7 +151,11 @@ describe("User groups", function() {
   it("should change seeks to be private if they were public and the users 'limit_to_groups' setting is changed from false to true", function() {
     const admin = TestHelpers.createUser();
     const owner1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
-    const owner2 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false, roles: ["change_limit_to_group", "play_rated_games"] });
+    const owner2 = TestHelpers.createUser({
+      groups: ["testgroup2"],
+      limit_to_group: false,
+      roles: ["change_limit_to_group", "play_rated_games"]
+    });
     const member1_1 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
     const member1_2 = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
     const member2_1 = TestHelpers.createUser({ groups: ["testgroup2"], limit_to_group: false });
@@ -335,7 +343,11 @@ describe("User groups", function() {
 
   it("should remove match requests to and from non-group members if users 'limit_to_groups' setting is changed from false to true", function() {
     const admin = TestHelpers.createUser();
-    const owner = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false, roles: ["change_limit_to_group", "play_rated_games"] });
+    const owner = TestHelpers.createUser({
+      groups: ["testgroup1"],
+      limit_to_group: false,
+      roles: ["change_limit_to_group", "play_rated_games"]
+    });
     const member = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
     self.loggedonuser = owner;
     GameRequests.addLocalMatchRequest(
@@ -405,22 +417,54 @@ describe("User groups", function() {
   });
 
   it("should not allow a user to start a local game with a non-group member if 'limit_to_group' setting is 'true'", function() {
-    chai.assert.fail("do me ");
-  });
-  it("should allow a user to start a local game with a group member if 'limit_to_group' setting is 'true'", function() {
-    chai.assert.fail("do me ");
-  });
-  it("should allow a user to start a local game with a non-group member if 'limit_to_group' setting is 'false'", function() {
-    chai.assert.fail("do me ");
+    const member = TestHelpers.createUser({ groups: ["testhelpers"], limit_to_group: false });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    chai.assert.equal(Game.collection.find().count(), 0);
+    Game.startLocalGame("mi1", member, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    chai.assert.equal(Game.collection.find().count(), 0);
   });
 
-  it("should not show any logged on members if user is not in the 'show_users' role", function() {
-    chai.assert.fail("do me ");
+  it("should not allow a user to start a local game with a non-group member if 'limit_to_group' setting is 'true'", function() {
+    const member = TestHelpers.createUser({ groups: ["testhelpers"], limit_to_group: true });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    chai.assert.equal(Game.collection.find().count(), 0);
+    Game.startLocalGame("mi1", member, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    chai.assert.equal(Game.collection.find().count(), 0);
   });
-  it("should show only logged on group members if 'limit_to_group' setting is set to 'true'", function() {
-    chai.assert.fail("do me ");
+
+  it("should allow a user to start a local game with a group member if 'limit_to_group' setting is 'true'", function() {
+    const member = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    chai.assert.equal(Game.collection.find().count(), 0);
+    Game.startLocalGame("mi1", member, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    chai.assert.equal(Game.collection.find().count(), 1);
   });
-  it("should show all logged on group members if group 'limit_to_group' setting is set to 'false'", function() {
-    chai.assert.fail("do me ");
+
+  it("should allow a user to start a local game with a group member if 'limit_to_group' setting is 'true'", function() {
+    const member = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: true });
+    self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+    chai.assert.equal(Game.collection.find().count(), 0);
+    Game.startLocalGame("mi1", member, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    chai.assert.equal(Game.collection.find().count(), 1);
+  });
+
+  it("should allow a user to start a local game with a non-group member if 'limit_to_group' setting is 'false'", function() {
+    it("should allow a user to start a local game with a group member if 'limit_to_group' setting is 'true'", function() {
+      const member = TestHelpers.createUser({ groups: ["testhelpers"], limit_to_group: false });
+      self.loggedonuser = TestHelpers.createUser({ groups: ["testgroup1"], limit_to_group: false });
+      chai.assert.equal(Game.collection.find().count(), 0);
+      Game.startLocalGame("mi1", member, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+      chai.assert.equal(Game.collection.find().count(), 1);
+    });
+  });
+
+  it.skip("should not show any logged on members if user is not in the 'show_users' role", function() {
+    chai.assert.fail("do me when we show users");
+  });
+  it.skip("should show only logged on group members if 'limit_to_group' setting is set to 'true'", function() {
+    chai.assert.fail("do me when we show users");
+  });
+  it.skip("should show all logged on group members if group 'limit_to_group' setting is set to 'false'", function() {
+    chai.assert.fail("do me when we show users");
   });
 });

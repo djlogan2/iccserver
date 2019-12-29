@@ -1,4 +1,5 @@
 import Chess from "chess.js";
+import { _ } from "underscore";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Logger } from "../lib/server/Logger";
@@ -169,6 +170,15 @@ Game.startLocalGame = function(
   if (!Users.isAuthorized(other_user, "play_" + (rated ? "" : "un") + "rated_games")) {
     ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
     return;
+  }
+
+  if (self.limit_to_group || other_user.limit_to_group) {
+    const g1 = self.groups || [];
+    const g2 = other_user.groups || [];
+    if (!_.intersection(g1, g2).length) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
+      return;
+    }
   }
 
   if (
