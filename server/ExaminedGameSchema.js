@@ -36,8 +36,10 @@ const actionSchema = new SimpleSchema({
       "abort_declined",
       "move_backward",
       "move_forward",
-      "draw_circle", // Used to draw circles
-      "remove_circle"
+      "draw_circle",
+      "remove_circle",
+      "draw_arrow",
+      "remove_arrow"
     ]
   },
   parameter: {
@@ -47,6 +49,8 @@ const actionSchema = new SimpleSchema({
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
   "parameter.square": { type: String, required: false },
+  "parameter.from": { type: String, required: false },
+  "parameter.to": { type: String, required: false },
   "parameter.size": { type: Number, required: false },
   "parameter.color": { type: String, required: false }
 });
@@ -126,8 +130,10 @@ export const ExaminedGameSchema = new SimpleSchema({
   "arrows.$": Object,
   "arrows.$.arrow": { type: Array, minCount: 2, maxCount: 2 },
   "arrows.$.arrow.$": String,
-  "arrows.$.color": String,
-  "arrows.$.size": Number,
+  "arrows.$.arrow.from": String,
+  "arrows.$.arrow.to": String,
+  "arrows.$.arrow.color": String,
+  "arrows.$.arrow.size": Number,
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },
   "observers.$": String,

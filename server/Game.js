@@ -744,7 +744,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
         }
       : move;
 
-
   const pushobject = {
     actions: { type: "move", issuer: self._id, parameter: move_parameter }
   };
@@ -1479,11 +1478,9 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
     return;
   }
   for (var i = 0; i < game.circles.length; i++) {
-    if (game.circles[i].square === square) {
-      GameCollection.update(
-        { _id: game_id, status: "examining" , circles: i},
-        { $set: { "circles.color": color, "circles.size": size } }
-      );
+    if (game.circles[i].square == square) {
+      game.circles[i].color = color;
+      game.circles[i].size = size;
       return;
     }
   }
@@ -1539,6 +1536,116 @@ Game.removeCircle = function(message_identifier, game_id, square) {
         {
           $push: {
             actions: { type: "remove_circle", issuer: "iccserver", parameter: { square: square } }
+          }
+        }
+      );
+      return;
+    }
+  }
+};
+
+Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
+  check(message_identifier, String);
+  check(from, String);
+  check(to, String);
+  check(color, String);
+  check(size, Number);
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "INVALID_SQUARE",
+      from + " to " + to
+    );
+    return;
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  } else if (
+    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  for (var i = 0; i < game.circles.length; i++) {
+    if (game.arrows[i].from == from && game.arrows[i].to == to) {
+      GameCollection.update(
+        { _id: game_id, status: "examining", from: from, to: to },
+        { $set: { arrows: { color: color, size: size } } }
+      );
+      return;
+    }
+  }
+  // TODO: simplify to upsert
+  GameCollection.upsert(
+    { _id: game_id, status: "examining" },
+    { $push: { arrows: { from: from, to: to, color: color, size: size } } }
+  );
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: {
+          type: "draw_arrow",
+          issuer: "iccserver",
+          parameter: { from: from, to: to, color: color, size: size }
+        }
+      }
+    }
+  );
+};
+Game.removeArrow = function(message_identifier, game_id, from, to) {
+  check(message_identifier, String);
+  check(from, String);
+  check(to, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
+    ClientMessages.sendMessageToClient(
+      self,
+      message_identifier,
+      "INVALID_SQUARE",
+      from + " to " + to
+    );
+    return;
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to remove circle", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  } else if (
+    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  for (var i = 0; i < game.arrows.length; i++) {
+    if (game.arrows[i].from === from && game.arrows[i].to == to) {
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        { $pull: { arrow: { from: from, to: to } } }
+      );
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $push: {
+            actions: {
+              type: "remove_arrow",
+              issuer: "iccserver",
+              parameter: { from: from, to: to }
+            }
           }
         }
       );
