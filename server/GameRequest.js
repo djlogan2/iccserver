@@ -933,19 +933,35 @@ function seekMatchesUser(message_identifier, user, seek) {
   return !seek.maxrating || seek.maxrating >= myrating;
 }
 
-Meteor.publish("game_requests", function() {
-  const user = Meteor.user();
-  if (!user || !user.status.online) return GameRequestCollection.find({ _id: "0" }); //return [];
-  if (Game.isPlayingGame(user)) return GameRequestCollection.find({ _id: "0" }); //return [];
-
-  const id = user._id;
-  if (!id) return [];
-  return GameRequestCollection.find(
-    {
-      $or: [{ challenger_id: id }, { receiver_id: id }, { owner: id }, { matchingusers: id }]
+Meteor.publishComposite("game_requests", function() {
+  return {
+    find: function() {
+      log.debug("publishComposite user, userid=" + this.userId);
+      return Meteor.users.find(
+        { _id: this.userId, "status.online": true },
+        { fields: { "status.game": 1 } }
+      );
     },
-    { fields: { matchingusers: 0 } }
-  );
+    children: [
+      {
+        find(user) {
+          log.debug("publishComposite game_requests, userid=" + user._id);
+          if (user.status.game === "playing") return GameRequestCollection.find({ _id: "0" });
+          return GameRequestCollection.find(
+            {
+              $or: [
+                { challenger_id: user._id },
+                { receiver_id: user._id },
+                { owner: user._id },
+                { matchingusers: user._id }
+              ]
+            },
+            { fields: { matchingusers: 0 } }
+          );
+        }
+      }
+    ]
+  };
 });
 
 GameRequests.removeUserFromAllSeeks = function(userId) {
@@ -1054,7 +1070,7 @@ function loginHook(user) {
 function groupChangeHook(message_identifier, userId) {
   check(message_identifier, String);
   check(userId, String);
-  const user = Meteor.users.findOne({_id: userId});
+  const user = Meteor.users.findOne({ _id: userId });
   check(user, Object);
   GameRequestCollection.update(
     { type: "seek", owner: user._id },

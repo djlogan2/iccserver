@@ -8,6 +8,7 @@ export const all_roles = [
   "play_rated_games",
   "play_unrated_games",
   "legacy_login",
+  "show_users",
   "administrator",
   "developer",
   "add_dynamic_ratings",
@@ -22,7 +23,8 @@ export const standard_member_roles = [
   "login",
   "send_messages",
   "play_rated_games",
-  "play_unrated_games"
+  "play_unrated_games",
+  "show_users"
 ];
 
 export const fields_viewable_by_account_owner = {
@@ -32,6 +34,9 @@ export const fields_viewable_by_account_owner = {
   emails: 1,
   locale: 1,
   board_css: 1,
+  limit_to_group: 1,
+  groups: 1,
+  "status.game": 1,
   "profile.firstname": 1,
   "profile.lastname": 1,
   "profile.legacy.validated": 1,
@@ -41,5 +46,6 @@ export const fields_viewable_by_account_owner = {
 
 export const viewable_logged_on_user_fields = {
   username: 1,
-  ratings: 1
+  ratings: 1,
+  "status.game": 1
 };

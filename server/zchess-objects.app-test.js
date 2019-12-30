@@ -81,9 +81,7 @@ describe.skip("", function() {
     chai.assert.fail("do me");
   });
 
-  it(".put(piece, square)", function() {
-    chai.assert.fail("do me");
-  });
+
 
   it(".remove(square)", function() {
     chai.assert.fail("do me");

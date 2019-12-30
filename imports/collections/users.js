@@ -18,8 +18,34 @@ let log = new Logger("server/users_js");
 
 export const Users = {};
 
-Meteor.publish("loggedOnUsers", function() {
-  return Meteor.users.find({ "status.online": true }, { fields: viewable_logged_on_user_fields });
+Meteor.publishComposite("loggedOnUsers", function() {
+  return {
+    find() {
+      return Meteor.users.find(
+        { _id: this.userId, "status.online": true },
+        { fields: fields_viewable_by_account_owner }
+      );
+    },
+    children: [
+      {
+        find(user) {
+          let find;
+          if (!Users.isAuthorized(user, "show_users")) return [];
+          else if (user.limit_to_group) {
+            find = { "status.online": true, $in: user.groups };
+          } else {
+            find = {
+              $and: [
+                { "status.online": true },
+                { $or: [{ limit_to_group: false }, { $in: { groups: user.groups } }] }
+              ]
+            };
+          }
+          return Meteor.users.find(find, { fields: viewable_logged_on_user_fields });
+        }
+      }
+    ]
+  };
 });
 
 // TODO: Add a method that is draining the server (i.e. not allowing anyone to login)
@@ -64,8 +90,27 @@ Accounts.onCreateUser(function(options, user) {
     user.roles.push({ _id: role, scope: null, assigned: true })
   );
 
+  if (!user.status) user.status = {};
+  user.status.game = "none";
+
   return user;
 });
+
+Users.setGameStatus = function(message_identifier, user, status) {
+  check(message_identifier, String);
+  check(user, Match.OneOf(Object, String));
+  check(status, String);
+
+  if (typeof user === "object") user = user._id;
+
+  if (["examining", "observing", "playing", "none"].indexOf(status) === -1)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to set users game status",
+      "Invalid status"
+    );
+  Meteor.users.update({ _id: user, "status.online": true }, { $set: { "status.game": status } });
+};
 
 const group_change_hooks = [];
 

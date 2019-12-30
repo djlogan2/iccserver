@@ -43,7 +43,12 @@ const actionSchema = new SimpleSchema({
     optional: true
   },
   "parameter.movecount": { type: Number, required: false },
-  "parameter.variation": { type: Number, required: false }
+  "parameter.variation": { type: Number, required: false },
+  "parameter.move": { type: String, required: false },
+  "parameter.lag": { type: Number, required: false },
+  "parameter.ping": { type: Number, required: false },
+  "parameter.gamelag": { type: Number, required: false },
+  "parameter.gameping": { type: Number, required: false }
 });
 
 export const ExaminedGameSchema = new SimpleSchema({

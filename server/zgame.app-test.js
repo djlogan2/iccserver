@@ -882,6 +882,7 @@ describe("Game.legacyGameEnded", function() {
   });
 
   it("should fail if game is not being played", function() {
+    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     chai.assert.doesNotThrow(() =>
