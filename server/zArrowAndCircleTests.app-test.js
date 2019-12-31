@@ -213,7 +213,7 @@ describe("Game.removeCircle", function() {
     );
   });
 });
-describe.only("Game.drawArrow", function() {
+describe("Game.drawArrow", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should have a function called drawArrow", function() {
     chai.assert.isFunction(Game.drawArrow, "Failed to identify Game.drawCircle as a function");

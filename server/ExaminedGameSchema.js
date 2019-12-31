@@ -48,19 +48,16 @@ const actionSchema = new SimpleSchema({
   },
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
-<<<<<<< HEAD
   "parameter.square": { type: String, required: false },
   "parameter.from": { type: String, required: false },
   "parameter.to": { type: String, required: false },
   "parameter.size": { type: Number, required: false },
-  "parameter.color": { type: String, required: false }
-=======
+  "parameter.color": { type: String, required: false },
   "parameter.move": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },
   "parameter.ping": { type: Number, required: false },
   "parameter.gamelag": { type: Number, required: false },
   "parameter.gameping": { type: Number, required: false }
->>>>>>> 4033f13da3852fe2d91b3209a9964241b1ed6d46
 });
 
 export const ExaminedGameSchema = new SimpleSchema({
