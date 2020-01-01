@@ -1625,17 +1625,28 @@ Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  for (var i = 0; i < game.circles.length; i++) {
+  for (var i = 0; i < game.arrows.length; i++) {
     if (game.arrows[i].from == from && game.arrows[i].to == to) {
       GameCollection.update(
-        { _id: game_id, status: "examining", from: from, to: to },
-        { $set: { arrows: { color: color, size: size } } }
+        { _id: game_id, status: "examining", upsert: true },
+        { $push: { arrows: { from: from, to: to, color: color, size: size } } }
+      );
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $push: {
+            actions: {
+              type: "draw_circle",
+              issuer: "iccserver",
+              parameter: { from: from, to: to, color: color, size: size }
+            }
+          }
+        }
       );
       return;
     }
   }
-  // TODO: simplify to upsert
-  GameCollection.upsert(
+  GameCollection.update(
     { _id: game_id, status: "examining" },
     { $push: { arrows: { from: from, to: to, color: color, size: size } } }
   );
