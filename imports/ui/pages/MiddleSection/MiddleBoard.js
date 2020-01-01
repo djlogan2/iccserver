@@ -168,10 +168,12 @@ export default class MiddleBoard extends Component {
             side={size}
             top={this.state.top}
             circle={{ lineWidth: 2, color: "red" }}
+            //circle={this.props.circles}
             arrow={{ lineWidth: 2, color: "blue" }}
             ref="board"
             onDrop={this._pieceSquareDragStop}
             onDrawCircle={this.props.onDrawCircle}
+            onRemoveCircle={this.props.onRemoveCircle}
           />
         </div>
         <div style={{ clear: "Left" }} />

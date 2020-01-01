@@ -35,6 +35,7 @@ export default class Board extends React.Component {
       this.removeCircle(rank, file);
     }
     const c = { rank: rank, file: file };
+
     Object.assign(c, this._circle);
     let newarray = this.state.circles.splice(0);
     newarray.push(c);
@@ -79,11 +80,8 @@ export default class Board extends React.Component {
         board.push(this._renderRankRow(rank));
       }
     }
-
     if (this._fileline === "b") board.push(this._renderFileRow(this.props.top === "b"));
-
     const arrows = this.state.arrows.map(arrow => this._renderArrow(arrow)) || "";
-
     if (this.state.currentarrow) arrows.push(this._renderArrow(this.state.currentarrow));
 
     return (
@@ -106,12 +104,18 @@ export default class Board extends React.Component {
     this.state = { circles: [], arrows: [], currentarrow: null };
     this._circle = this.props.circle;
     this._setup();
-    (this.rankFrom = null),
-      (this.rankTo = null),
-      (this.piece = null),
-      (this.fileFrom = null),
-      (this.fileTo = null);
+    this.rankFrom = "";
+    this.rankTo = "";
+    this.piece = "";
+    this.fileFrom = "";
+    this.fileTo = "";
   }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.circle !== prevState.circles) {
+      return { circle: nextProps.circle };
+    } else return null;
+  }
+
   /****************************************************************************
    * private methods                                                          *
    ****************************************************************************/
@@ -154,8 +158,7 @@ export default class Board extends React.Component {
         color: circleobj[0].color
       };
   }
-
-  _fileSquareClick = () => {
+    _fileSquareClick = () => {
     log.error("fileSquareclick");
   };
 
@@ -235,7 +238,7 @@ export default class Board extends React.Component {
       if (obj) {
         this.removeCircle(raf.rank, raf.file);
         let circle = this.getCoordinates(raf.rank, raf.file);
-     //   this.props.removeCircle(circle);
+        this.props.onRemoveCircle(circle);
       } else {
         let circle = this.getCoordinates(raf.rank, raf.file);
         this.addCircle(raf.rank, raf.file);

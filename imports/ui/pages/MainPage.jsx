@@ -118,7 +118,7 @@ export default class MainPage extends Component {
     )
       informativePopup = this.gameRequest("Opponent has requested for a game", GameRequest["_id"]);
 
-    if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
+    if (!!game && game.status === "playing") {
       status = "playing";
       this.gameId = game._id;
       if (game.black.id === Meteor.userId()) {
@@ -204,7 +204,9 @@ export default class MainPage extends Component {
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
               onDrawCircle={this.props.onDrawCircle}
+              onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
+              circles={this.props.circles}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
@@ -218,6 +220,7 @@ export default class MainPage extends Component {
               gameRequest={this.props.gameRequest}
               clientMessage={this.props.clientMessage}
               ref="right_sidebar"
+              examing={this.props.examing}
             />
           </div>
         </div>

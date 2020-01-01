@@ -69,7 +69,6 @@ class ActionPopup extends Component {
     else Meteor.call("declineDraw", "drawDecline", gameId);
   };
   abort = (isAccept, gameId) => {
-    alert(gameId);
     if (isAccept === "accepted") Meteor.call("acceptAbort", "abortAccept", gameId);
     else Meteor.call("declineAbort", "abortDecline", gameId);
   };

@@ -39,22 +39,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
     // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
-    this.player = {
-      White: { name: "abc", rating: "123" },
-      Black: { name: "xyz", rating: "456" }
-    };
     this.userpending = null;
     this.state = {
-      gameClock: null,
-      from: null,
-      to: null,
+      gameId: null,
       subscription: {
         css: Meteor.subscribe("css"),
         game: Meteor.subscribe("playing_games"),
         gameRequests: Meteor.subscribe("game_requests"),
-        clientMessages: Meteor.subscribe("client_messages")
+        clientMessages: Meteor.subscribe("client_messages"),
+        observingGames: Meteor.subscribe("observing_games")
       },
-      move: "",
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
@@ -62,7 +56,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   renderGameMessages() {
     const game = Game.findOne({
       $and: [
-        { $or: [{ status: "playing" }, { status: "examining" }] },
+        { status: "playing" },
         {
           $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
         }
@@ -80,7 +74,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     return game;
   }
+  examinGame() {
+    const game = Game.find({
+      observers: Meteor.userId()
+    }).fetch();
 
+    return game;
+  }
   renderGameRequest() {
     return GameRequestCollection.findOne(
       {
@@ -128,6 +128,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.game.stop();
     this.state.subscription.gameRequests.stop();
     this.state.subscription.clientMessages.stop();
+    this.state.subscribtion.observingGames.stop();
   }
 
   componentWillMount() {
@@ -179,15 +180,17 @@ export default class AppContainer extends TrackerReact(React.Component) {
     return capturedSoldiers;
   }
   drawCircle(square) {
-    // TODO: we can't find game._id so we have keep static.we will fix later.
-    Meteor.call("drawCircle", "DrawCircle", "5d5DGZaQe6whkPdjm", square, "red", 3);
+    Meteor.call("drawCircle", "DrawCircle", "7hGWCMDiZoWy8HbZd", square, "red", 3);
   }
+  removeCircle(square) {
+    Meteor.call("removeCircle", "RemoveCircle", "7hGWCMDiZoWy8HbZd", square);
+  }
+
   _pieceSquareDragStop = raf => {
     const game = this.renderGameMessages();
     if (!game) {
       return false;
     } else {
-      this.gameId = game._id;
       let result = null;
       let gameTurn = this._board.turn();
       if (this._board.game_over() === true) {
@@ -260,10 +263,24 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this._boardfallensolder.move(moves[index]);
     }
   }
+  _examinBoard(game) {
+    if (this._board.fen() !== game.fen) {
+      this._board.load(game.fen);
+    }
+  }
+  getCoordinatesToRank(square) {
+    let file = square.square.charAt(0);
+    let rank = parseInt(square.square.charAt(1));
+    const fileNumber = ["h", "g", "f", "e", "d", "c", "b", "a"];
+    let fileNo = fileNumber.indexOf(file);
+    return { file: fileNo, rank: rank + 1, color: square.color, size: square.size };
+  }
   render() {
     const gameRequest = this.renderGameRequest();
-    const game = this.renderGameMessages();
-
+    let game = this.renderGameMessages();
+    let observers = [];
+    let circles = [];
+    const gameExamin = this.examinGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
@@ -275,8 +292,22 @@ export default class AppContainer extends TrackerReact(React.Component) {
     )
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
-    if (game !== undefined) this._boardFromMongoMessages(game);
-    else this._boardfallensolder = new Chess.Chess();
+    if (!!game) {
+      this.gameId = game._id;
+      this._boardFromMongoMessages(game);
+    } else if (!!gameExamin && gameExamin.length > 0) {
+      //let currentGame = gameExamin[gameExamin.length - 1];
+      log.debug(gameExamin);
+     //this._examinBoard(gameExamin);
+     // observers = gameExamin.observers;
+      // circles = gameExamin.circles;
+      /*  if (!!game.circles) {
+        game.circles.map(circle => {
+          let cr = this.getCoordinatesToRank(circle);
+          circles.push(cr);
+        });
+      } */
+    } else this._boardfallensolder = new Chess.Chess();
 
     const capture = this._fallenSoldier();
     return (
@@ -291,8 +322,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawCircle={this.drawCircle}
+          onRemoveCircle={this.removeCircle}
           history={this.props.history}
           ref="main_page"
+          examing={gameExamin}
+          circles={circles}
         />
       </div>
     );

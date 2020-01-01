@@ -2316,7 +2316,8 @@ Meteor.methods({
   acceptAdjourn: Game.acceptLocalAdjourn,
   declineAdjourn: Game.declineLocalAdjourn,
   searchGameHistory: GameHistory.search,
-  drawCircle: Game.drawCircle
+  drawCircle: Game.drawCircle,
+  removeCircle: Game.removeCircle
 });
 
 Meteor.publish("playing_games", function() {
@@ -2324,15 +2325,11 @@ Meteor.publish("playing_games", function() {
   if (!user || !user.status.online) return [];
   return GameCollection.find(
     {
-      $and: [
-        { $or: [{ status: "playing" }, { status: "examining" }] },
-        { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
-      ]
+      $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
     },
     { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
   );
 });
-
 Meteor.publish("observing_games", function() {
   const user = Meteor.user();
   if (!user || !user.status.online) return [];
