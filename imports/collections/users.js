@@ -29,17 +29,18 @@ Meteor.publishComposite("loggedOnUsers", function() {
     children: [
       {
         find(user) {
-          let find;
+          const find = {};
           if (!Users.isAuthorized(user, "show_users")) return [];
           else if (user.limit_to_group) {
-            find = { "status.online": true, $in: user.groups };
+            find["status.online"] = true;
+            find["groups"] = { $in: user.groups };
           } else {
-            find = {
-              $and: [
-                { "status.online": true },
-                { $or: [{ limit_to_group: false }, { $in: { groups: user.groups } }] }
-              ]
-            };
+            find["$and"] = [{ "status.online": true }];
+            if (user.groups && user.groups.length)
+              find["$and"].push({
+                $or: [{ limit_to_group: false }, { groups: { $in: user.groups } }]
+              });
+            else find["$and"].push({ limit_to_group: false });
           }
           return Meteor.users.find(find, { fields: viewable_logged_on_user_fields });
         }
@@ -86,6 +87,8 @@ Accounts.onCreateUser(function(options, user) {
   user.locale = "unknown";
   user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
   user.roles = [];
+  user.groups = [];
+  user.limit_to_group = false;
   standard_member_roles.forEach(role =>
     user.roles.push({ _id: role, scope: null, assigned: true })
   );
