@@ -34,12 +34,14 @@ export default class Board extends React.Component {
       if (have.lineWidth === this._circle.lineWidth && have.color === this._circle.color) return;
       this.removeCircle(rank, file);
     }
-    const c = { rank: rank, file: file };
-
+    //TODO :This code comment becouse each time state update from incomming props so not longer nessary when game examin mode.
+    //If check circle in local then remove comment
+ 
+    /* const c = { rank: rank, file: file };
     Object.assign(c, this._circle);
     let newarray = this.state.circles.splice(0);
     newarray.push(c);
-    this.setState({ circles: newarray });
+    this.setState({ circles: newarray }); */
   }
 
   /**
@@ -51,7 +53,10 @@ export default class Board extends React.Component {
     let newarray = this.state.circles.splice(0).filter(raf => {
       return raf.rank !== rank || raf.file !== file;
     });
-    this.setState({ circles: newarray });
+
+    //TODO :This code comment becouse each time state update from incomming props so not longer nessary when game examin mode.
+    //If check circle in local then remove comment
+    /*   this.setState({ circles: newarray }); */
   }
 
   /**
@@ -101,7 +106,11 @@ export default class Board extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { circles: [], arrows: [], currentarrow: null };
+    this.state = {
+      circles: this.props.circles,
+      arrows: [],
+      currentarrow: null
+    };
     this._circle = this.props.circle;
     this._setup();
     this.rankFrom = "";
@@ -111,8 +120,8 @@ export default class Board extends React.Component {
     this.fileTo = "";
   }
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.circle !== prevState.circles) {
-      return { circle: nextProps.circle };
+    if (nextProps.circles !== prevState.circles) {
+      return { circles: nextProps.circles };
     } else return null;
   }
 
@@ -158,7 +167,7 @@ export default class Board extends React.Component {
         color: circleobj[0].color
       };
   }
-    _fileSquareClick = () => {
+  _fileSquareClick = () => {
     log.error("fileSquareclick");
   };
 
@@ -240,9 +249,9 @@ export default class Board extends React.Component {
         let circle = this.getCoordinates(raf.rank, raf.file);
         this.props.onRemoveCircle(circle);
       } else {
-        let circle = this.getCoordinates(raf.rank, raf.file);
         this.addCircle(raf.rank, raf.file);
-        this.props.onDrawCircle(circle);
+        let circle = this.getCoordinates(raf.rank, raf.file);
+        this.props.onDrawCircle(circle, this._circle.color, this._circle.lineWidth);
       }
     } else {
       // The arrows

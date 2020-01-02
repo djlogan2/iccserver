@@ -52,6 +52,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
+    this.drawCircle = this.drawCircle.bind(this);
+    this.removeCircle = this.removeCircle.bind(this);
   }
   renderGameMessages() {
     const game = Game.findOne({
@@ -179,15 +181,21 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     return capturedSoldiers;
   }
-  drawCircle(square) {
-    Meteor.call("drawCircle", "DrawCircle", "7hGWCMDiZoWy8HbZd", square, "red", 3);
+  drawCircle(square, color, size) {
+    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size);
   }
   removeCircle(square) {
-    Meteor.call("removeCircle", "RemoveCircle", "7hGWCMDiZoWy8HbZd", square);
+    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square);
   }
 
   _pieceSquareDragStop = raf => {
-    const game = this.renderGameMessages();
+    let game = this.renderGameMessages();
+    if (!game) {
+      const gameExamin = this.examinGame();
+      if (!!gameExamin && gameExamin.length > 0) {
+        game = gameExamin[gameExamin.length - 1];
+      }
+    }
     if (!game) {
       return false;
     } else {
@@ -271,14 +279,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
     let rank = parseInt(square.square.charAt(1));
-    const fileNumber = ["h", "g", "f", "e", "d", "c", "b", "a"];
+    const fileNumber = ["a", "b", "c", "d", "e", "f", "g", "h"];
     let fileNo = fileNumber.indexOf(file);
-    return { file: fileNo, rank: rank + 1, color: square.color, size: square.size };
+    return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
   }
   render() {
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
-    let observers = [];
     let circles = [];
     const gameExamin = this.examinGame();
     const systemCSS = this._systemCSS();
@@ -295,19 +302,23 @@ export default class AppContainer extends TrackerReact(React.Component) {
     if (!!game) {
       this.gameId = game._id;
       this._boardFromMongoMessages(game);
-    } else if (!!gameExamin && gameExamin.length > 0) {
-      //let currentGame = gameExamin[gameExamin.length - 1];
-      log.debug(gameExamin);
-     //this._examinBoard(gameExamin);
-     // observers = gameExamin.observers;
-      // circles = gameExamin.circles;
-      /*  if (!!game.circles) {
-        game.circles.map(circle => {
-          let cr = this.getCoordinatesToRank(circle);
-          circles.push(cr);
-        });
-      } */
-    } else this._boardfallensolder = new Chess.Chess();
+    } else {
+      if (!!gameExamin && gameExamin.length > 0) {
+        game = gameExamin[gameExamin.length - 1];
+        this.gameId = game._id;
+        this._boardFromMongoMessages(game);
+        if (!!game.circles) {
+          let circleslist = game.circles;
+
+          circleslist.forEach(circle => {
+            let c1 = this.getCoordinatesToRank(circle);
+            circles.push(c1);
+          });
+        }
+      }
+      log.debug(circles);
+    }
+    this._boardfallensolder = new Chess.Chess();
 
     const capture = this._fallenSoldier();
     return (

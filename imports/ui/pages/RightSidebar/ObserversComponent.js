@@ -21,7 +21,10 @@ export default class ObserversComponent extends TrackerReact(React.Component) {
       "en-US"
     );
   }
-  handelUserClick() {}
+  setGameExaminMode(id, white, black) {
+    Meteor.call("startLocalExaminedGame", "ExaminedGame", white, black, 0);
+    //this.props.openObserverGame(id);
+  }
   getobserverName(id) {
     let user = Meteor.users.findOne({ _id: id });
     if (!!user) return user.username;
@@ -32,17 +35,24 @@ export default class ObserversComponent extends TrackerReact(React.Component) {
   render() {
     let gamelist = [];
     let observername = [];
+    let whitename;
+    let blackname;
     let games = this.props.examing;
     for (let i = 0; i < games.length; i++) {
       let observers = games[i].observers;
       for (let j = 0; j < observers.length; j++) {
-        let username = this.getobserverName(observers[j]);
-        observername.push(username);
+        if (observers[j] === games[i].white.id) {
+          whitename = this.getobserverName(observers[j]);
+        } else {
+          blackname = this.getobserverName(observers[j]);
+        }
       }
       gamelist.push({
+        id: games[i]._id,
         name: "3 minut arina",
-        Result: "won",
-        Players: observername[0] + "vs" + observername[1],
+        Result: games[i].result,
+        white: whitename,
+        black: blackname,
         status: games[i].status
       });
     }
@@ -53,12 +63,10 @@ export default class ObserversComponent extends TrackerReact(React.Component) {
           {gamelist.map((game, index) => (
             <div key={index} className="userlist">
               <button
-                onClick={this.handelUserClick.bind(this)}
+                onClick={this.setGameExaminMode.bind(this, game.id, game.white, game.black)}
                 style={this.props.cssmanager.matchUserButton()}
               >
-                {game.name}--
-                {game.Players}--
-                {game.status}
+                {game.white}-vs-{game.black}
               </button>
             </div>
           ))}

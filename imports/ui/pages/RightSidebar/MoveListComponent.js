@@ -3,37 +3,48 @@ import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("MoveLIst_js");
 export default class MoveListComponent extends Component {
-  _pgnView = (actionType, action) => {
-   
+  _pgnView = (actionType, action) => {};
+  moveBackword = () => {
+    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1);
   };
+  moveForward = () => {
+    Meteor.call("moveForward", "MoveForward", this.gameId, 1);
+  };
+
   render() {
     let moves = [];
-    let variation = this.props.Moves;
-    let itemToBeRemoved = [];
-    for (let i = 0; i < variation.cmi; i++) {
-      if (itemToBeRemoved.indexOf(i) === -1) {
-        var moveListItem = variation.movelist[i];
-        if (moveListItem !== undefined) {
-          var variationI = moveListItem.variations;
-          if (variationI !== undefined) {
-            var len = variationI.length;
-            if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
-              moves.push(variation.movelist[variationI[0]].move);
-            } else if (len > 1) {
-              if (variation.movelist[variationI[len - 1]] !== undefined) {
-                moves.push(variation.movelist[variationI[len - 1]].move);
-              }
-              if (variation.cmi === variationI[len - 1]) {
-                break;
-              }
-              for (let n = variationI[0]; n < variationI[len - 1]; n++) {
-                itemToBeRemoved.push(n);
+    let variation;
+    this.gameId = this.props.Moves._id;
+    if (!!this.props.Moves && this.props.Moves.variations !== undefined) {
+      this.gameId = this.props.Moves._id;
+      variation = this.props.Moves.variations;
+      let itemToBeRemoved = [];
+      for (let i = 0; i < variation.cmi; i++) {
+        if (itemToBeRemoved.indexOf(i) === -1) {
+          var moveListItem = variation.movelist[i];
+          if (moveListItem !== undefined) {
+            var variationI = moveListItem.variations;
+            if (variationI !== undefined) {
+              var len = variationI.length;
+              if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
+                moves.push(variation.movelist[variationI[0]].move);
+              } else if (len > 1) {
+                if (variation.movelist[variationI[len - 1]] !== undefined) {
+                  moves.push(variation.movelist[variationI[len - 1]].move);
+                }
+                if (variation.cmi === variationI[len - 1]) {
+                  break;
+                }
+                for (let n = variationI[0]; n < variationI[len - 1]; n++) {
+                  itemToBeRemoved.push(n);
+                }
               }
             }
           }
         }
       }
     }
+
     let movesString = [];
     if (moves != null || moves !== undefined) {
       for (let i = 0; i < moves.length; ) {
@@ -71,14 +82,11 @@ export default class MoveListComponent extends Component {
           </button>
           <button
             style={this.props.cssmanager.buttonStyle()}
-            onClick={this._pgnView.bind(this, "pgnview", "previousOne")}
+            onClick={this.moveBackword.bind(this)}
           >
             <img src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")} alt="previous" />
           </button>
-          <button
-            style={this.props.cssmanager.buttonStyle()}
-            onClick={this._pgnView.bind(this, "pgnview", "nextOne")}
-          >
+          <button style={this.props.cssmanager.buttonStyle()} onClick={this.moveForward.bind(this)}>
             <img src={this.props.cssmanager.buttonBackgroundImage("nextIconGray")} alt="next" />
           </button>
           <button

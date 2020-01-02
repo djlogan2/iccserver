@@ -12,13 +12,20 @@ class RightSidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: props.gameStatus
+      status: true
     };
+  }
+  changeMode() {
+    this.setState({ status: !this.state.status });
   }
 
   render() {
     let tabitem = null;
-    if (this.props.gameStatus === "playing") {
+
+    if (
+      (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") &&
+      this.state.status === true
+    ) {
       tabitem = (
         <RightBarActiveTabs
           RightBarTopData={this.props.RightSidebarData}
@@ -40,6 +47,7 @@ class RightSidebar extends Component {
     return (
       <div className="right-content-desktop">
         <div style={this.props.cssmanager.rightTopContent()}>{tabitem}</div>
+        <button onClick={this.changeMode.bind(this)}>Change Menu</button>
         <div style={this.props.cssmanager.rightBottomContent()}>
           <RightBarBottom
             cssmanager={this.props.cssmanager}
