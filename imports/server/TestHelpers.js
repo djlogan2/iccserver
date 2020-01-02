@@ -20,13 +20,10 @@ if (Meteor.isTest || Meteor.isAppTest) {
   TestHelpers.createUser = function(_options) {
     const options = _options || {};
     const userRecord = {
-      createDate: new Date(),
       username: options.username || faker.internet.userName(),
       email: options.email || faker.internet.email(),
-      password: options.password || faker.internet.password(),
-      locale: options.locale || "en-us",
-      board_css: options.board_css || "developmentcss",
-      roles: []
+      password: options.password || faker.internet.password()
+
     };
     if (
       options.legacy === undefined ||
@@ -43,19 +40,27 @@ if (Meteor.isTest || Meteor.isAppTest) {
         }
       };
     }
+
     const id = Accounts.createUser(userRecord);
     userRecord._id = id;
+
     if (!!options.roles) {
       options.roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
       Roles.setUserRoles(id, options.roles);
     }
 
-    Meteor.users.update(
-      { _id: id },
-      { $set: { "status.online": options.login === undefined || options.login } }
-    );
+    const setobject = {};
+    setobject["status.online"] = options.login === undefined || options.login;
+    setobject.groups = options.groups || ["testhelpers"];
+    setobject.limit_to_group = options.limit_to_group || false;
+    setobject.locale = options.locale || "en-us";
+    setobject.board_css = options.board_css || "developmentcss";
+
     if (userRecord.profile && userRecord.profile.legacy)
-      Meteor.users.update({ _id: id }, { $set: { "profile.legacy.validated": true } });
+      setobject["profile.legacy.validated"] = true;
+
+    Meteor.users.update({ _id: id }, { $set: setobject });
+
     return Meteor.users.findOne({ _id: id });
   };
 
@@ -94,11 +99,11 @@ if (Meteor.isTest || Meteor.isAppTest) {
       self.sandbox.replace(
         Users,
         "isAuthorized",
-        self.sandbox.fake((user, roles) => {
+        self.sandbox.fake((user, roles, scope) => {
           if (typeof roles === "string") {
             if (all_roles.indexOf(roles) === -1)
               console.log("Unable to find known role of " + roles);
-            return orig_isauthorized(user, roles);
+            return orig_isauthorized(user, roles, scope);
           } else {
             for (let x = 0; x < roles.length; x++) {
               if (all_roles.indexOf(roles[x]) === -1) {
@@ -133,7 +138,10 @@ if (Meteor.isTest || Meteor.isAppTest) {
         })
       );
 
-      resetDatabase(null, done);
+      resetDatabase(null, () => {
+        all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+        done();
+      });
     });
 
     afterEach.call(this, function() {

@@ -8,20 +8,23 @@ export const all_roles = [
   "play_rated_games",
   "play_unrated_games",
   "legacy_login",
+  "show_users",
   "administrator",
   "developer",
   "add_dynamic_ratings",
   "add_to_group",
-  "remove_from_group",
-    "add_dynamic_rating",
-    "delete_dynamic_rating"
+  "change_limit_to_group", // TODO: Set roles to "change_user_" + field. Then decide what to do about object nesting, like if "change_user_profile" exists, that means a user can change "user.profile.legacy.username" without requiring "change_user_profile_legacy_username" ?
+  "add_dynamic_rating",
+  "delete_dynamic_rating",
+  "search_game_history"
 ];
 
 export const standard_member_roles = [
   "login",
   "send_messages",
   "play_rated_games",
-  "play_unrated_games"
+  "play_unrated_games",
+  "show_users"
 ];
 
 export const fields_viewable_by_account_owner = {
@@ -31,6 +34,9 @@ export const fields_viewable_by_account_owner = {
   emails: 1,
   locale: 1,
   board_css: 1,
+  limit_to_group: 1,
+  groups: 1,
+  "status.game": 1,
   "profile.firstname": 1,
   "profile.lastname": 1,
   "profile.legacy.validated": 1,
@@ -40,5 +46,6 @@ export const fields_viewable_by_account_owner = {
 
 export const viewable_logged_on_user_fields = {
   username: 1,
-  ratings: 1
+  ratings: 1,
+  "status.game": 1
 };
