@@ -1627,9 +1627,9 @@ Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
   }
   for (var i = 0; i < game.arrows.length; i++) {
     if (game.arrows[i].from == from && game.arrows[i].to == to) {
-      GameCollection.update(
-        { _id: game_id, status: "examining", upsert: true },
-        { $push: { arrows: { from: from, to: to, color: color, size: size } } }
+      GameCollection.upsert(
+        { _id: game_id, status: "examining", arrows: i },
+        { $set: { arrows: { color: color, size: size } }}
       );
       GameCollection.update(
         { _id: game_id, status: "examining" },

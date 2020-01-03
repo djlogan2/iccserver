@@ -297,7 +297,8 @@ describe.only("Game.drawArrow", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawArrow("mi1", game_id, "c1", "d2", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
-    chai.assert.equal("draw_arrow", record.actions[1].type, "Failed to record a draw in actions");
+    chai.assert.equal(record.actions.length, 1, "failed to write an action");
+    chai.assert.equal("draw_arrow", record.actions[0].type, "Failed to record a draw in actions");
     chai.assert.equal("c1", record.actions[0].parameter.from, "Failed to record a draw in actions");
   });
 });
