@@ -100,7 +100,7 @@ describe("Game status field in user record", function() {
   function transitionToCondition(user, condition) {
     switch (condition) {
       case "none":
-        const game = Game.collection.findOne({$or: [{"white.id": user._id}, {"black.id": user._id}, {observers: user._id}]});
+        const game = Game.collection.findOne({$or: [{"white.id": user._id}, {"black.id": user._id}, {"observers.id": user._id}]});
         if (game && game.legacy_game_id) {
           Game.legacyGameEnded("mi2", game.legacy_game_number, false, "x", "x");
         } else if (game && game.status === "playing") {
