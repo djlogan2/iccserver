@@ -5,8 +5,6 @@ import Board from "../components/Board/Board";
 import "../css/developmentboard.css";
 import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
-import WhitePlayerClock from "./WhitePlayerClock";
-import { Meteor } from "meteor/meteor";
 
 export default class MiddleBoard extends Component {
   constructor(props) {
@@ -169,12 +167,52 @@ export default class MiddleBoard extends Component {
             draw_rank_and_file={this.state.draw_rank_and_file}
             side={size}
             top={this.state.top}
-            circle={{ lineWidth: 2, color: "red" }}
+            circles={this.props.circles}
+            circle={{ lineWidth: 4, color: "red" }}
             arrow={{ lineWidth: 2, color: "blue" }}
             ref="board"
             onDrop={this._pieceSquareDragStop}
+            onDrawCircle={this.props.onDrawCircle}
+            onRemoveCircle={this.props.onRemoveCircle}
           />
-        </div>
+        {/*   <div
+            style={{
+              position: "absolute",
+              top: "40%",
+              right: "20px",
+              color: "#fff",
+              fontSize: "12px"
+            }}
+          >
+            Circle width:
+            <br />
+            <input
+              style={{ color: "black" }}
+              id="circlewidth"
+              type="number"
+              name="quantity"
+              min="1"
+              max="50"
+              onChange={this.circleLineWidthChange}
+            />
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: "20px",
+              color: "#fff",
+              fontSize: "12px"
+            }}
+          >
+            Circle color:
+            <br />
+            <select id="circlecolor" style={{ color: "black" }} onChange={this.circleColorChange}>
+              <option value="red">Red</option>
+              <option value="green">Green</option>
+            </select>
+          </div>*/}
+        </div> 
         <div style={{ clear: "Left" }} />
         <div style={{ width: size }}>
           <Player

@@ -2,6 +2,7 @@ import Chess from "chess.js";
 import { _ } from "underscore";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
+
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
@@ -142,6 +143,7 @@ Game.startLocalGame = function(
   check(black_increment_or_delay_type, String);
 
   check(self.ratings[rating_type], Object); // Rating type needs to be valid!
+
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -1539,6 +1541,126 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   );
 };
 
+Game.drawCircle = function(message_identifier, game_id, square, color, size) {
+  check(message_identifier, String);
+  check(square, String);
+  check(color, String);
+  check(size, Number);
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(square)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_SQUARE", square);
+    return;
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  } else if (
+    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  //TODO: we have doubted this way is right or not but we have to want work ahead add this condition.now is working as expected
+
+  if (game.circles === undefined) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      { $push: { circles: { square: square, color: color, size: size } } }
+    );
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $push: {
+          actions: {
+            type: "draw_circle",
+            issuer: "iccserver",
+            parameter: { square: square, color: color, size: size }
+          }
+        }
+      }
+    );
+    return;
+  } else {
+    for (var i = 0; i < game.circles.length; i++) {
+      if (game.circles[i].square === square) {
+        GameCollection.update(
+          { _id: game_id, status: "examining", circles: i },
+          { $set: { "circles.color": color, "circles.size": size } }
+        );
+        return;
+      }
+    }
+  }
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $push: { circles: { square: square, color: color, size: size } } }
+  );
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: {
+          type: "draw_circle",
+          issuer: "iccserver",
+          parameter: { square: square, color: color, size: size }
+        }
+      }
+    }
+  );
+};
+Game.removeCircle = function(message_identifier, game_id, square) {
+  check(message_identifier, String);
+  check(square, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(square)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_SQUARE", square);
+    return;
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to remove circle", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  } else if (
+    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  for (var i = 0; i < game.circles.length; i++) {
+    if (game.circles[i].square === square) {
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        { $pull: { circles: { square: square } } }
+      );
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $push: {
+            actions: { type: "remove_circle", issuer: "iccserver", parameter: { square: square } }
+          }
+        }
+      );
+      return;
+    }
+  }
+};
+
+Game.isSquareValid = function(square) {
+  check(square, String);
+  return !(square[0] < "a" || square[0] > "h" || square[1] < "1" || square[1] > "8");
+};
+
 Game.declineLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
@@ -2309,7 +2431,12 @@ Meteor.methods({
   requestToAdjourn: Game.requestLocalAdjourn,
   acceptAdjourn: Game.acceptLocalAdjourn,
   declineAdjourn: Game.declineLocalAdjourn,
-  searchGameHistory: GameHistory.search
+  searchGameHistory: GameHistory.search,
+  drawCircle: Game.drawCircle,
+  removeCircle: Game.removeCircle,
+  startLocalExaminedGame: Game.startLocalExaminedGame,
+  moveBackword: Game.moveBackward,
+  moveForward: Game.moveForward
 });
 
 Meteor.publish("playing_games", function() {
@@ -2324,7 +2451,6 @@ Meteor.publish("playing_games", function() {
     { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
   );
 });
-
 Meteor.publish("observing_games", function() {
   return GameCollection.find({
     "observers.id": this.userId

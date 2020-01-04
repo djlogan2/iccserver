@@ -45,7 +45,7 @@ class RightBarBottom extends Component {
         >
           <Observers
             cssmanager={this.props.cssmanager}
-            gameRequest={this.props.gameRequest}
+            examing={this.props.examing}
             clientMessage={this.props.clientMessage}
           />
         </div>
@@ -54,11 +54,7 @@ class RightBarBottom extends Component {
           imgsrc="images/fen-pgn-white-icon.png"
           hoverSrc="images/fen-pgn-blue-icon.png"
         >
-          <RoomChat
-            cssmanager={this.props.cssmanager}
-            gameRequest={this.props.gameRequest}
-            clientMessage={this.props.clientMessage}
-          />
+          <RoomChat cssmanager={this.props.cssmanager} clientMessage={this.props.clientMessage} />
         </div>
         {/*
         <div

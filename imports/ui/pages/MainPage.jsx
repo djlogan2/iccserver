@@ -119,8 +119,8 @@ export default class MainPage extends Component {
     )
       informativePopup = this.gameRequest("Opponent has requested for a game", GameRequest["_id"]);
 
-    if (!!game && game.status === "playing") {
-      status = "playing";
+    if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
+      status = game.status;
       this.gameId = game._id;
       if (game.black.id === Meteor.userId()) {
         Object.assign(position, { top: "w" });
@@ -141,7 +141,7 @@ export default class MainPage extends Component {
         Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
         Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
       }
-      this.Main.RightSection.MoveList = game.variations;
+      this.Main.RightSection.MoveList = game;
       Object.assign(this.Main.RightSection.Action, {
         gameId: this.gameId,
         userId: this.userId,
@@ -155,7 +155,10 @@ export default class MainPage extends Component {
           const issuer = action["issuer"];
           switch (action["type"]) {
             case "takeback_requested":
-              if (issuer !== this.userId && game.pending[othercolor].takeback.number > 0) {
+              if (
+                issuer !== this.userId &&
+                (!!game.pending && game.pending[othercolor].takeback.number > 0)
+              ) {
                 let backCount =
                   game.pending[othercolor].takeback.number === 1
                     ? "Take Back 1 Move"
@@ -204,7 +207,10 @@ export default class MainPage extends Component {
               capture={this.props.capture}
               board={this.props.board}
               onDrop={this._pieceSquareDragStop}
+              onDrawCircle={this.props.onDrawCircle}
+              onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
+              circles={this.props.circles}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
@@ -218,6 +224,7 @@ export default class MainPage extends Component {
               gameRequest={this.props.gameRequest}
               clientMessage={this.props.clientMessage}
               ref="right_sidebar"
+              examing={this.props.examing}
             />
           </div>
         </div>

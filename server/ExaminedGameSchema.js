@@ -35,7 +35,9 @@ const actionSchema = new SimpleSchema({
       "abort_accepted",
       "abort_declined",
       "move_backward",
-      "move_forward"
+      "move_forward",
+      "draw_circle", // Used to draw circles
+      "remove_circle"
     ]
   },
   parameter: {
@@ -44,11 +46,17 @@ const actionSchema = new SimpleSchema({
   },
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
+<<<<<<< HEAD
+  "parameter.square": { type: String, required: false },
+  "parameter.size": { type: Number, required: false },
+  "parameter.color": { type: String, required: false }
+=======
   "parameter.move": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },
   "parameter.ping": { type: Number, required: false },
   "parameter.gamelag": { type: Number, required: false },
   "parameter.gameping": { type: Number, required: false }
+>>>>>>> 571033881b2cd5573f8921a3ac5ec8af89b8a6c7
 });
 
 export const ExaminedGameSchema = new SimpleSchema({
@@ -117,6 +125,17 @@ export const ExaminedGameSchema = new SimpleSchema({
     rating: SimpleSchema.Integer
   }),
   tags: { type: Object, required: false, blackbox: true },
+  circles: { type: Array, defaultValue: [] },
+  "circles.$": Object,
+  "circles.$.square": String,
+  "circles.$.color": String,
+  "circles.$.size": Number,
+  arrows: { type: Array, defaultValue: [] },
+  "arrows.$": Object,
+  "arrows.$.arrow": { type: Array, minCount: 2, maxCount: 2 },
+  "arrows.$.arrow.$": String,
+  "arrows.$.color": String,
+  "arrows.$.size": Number,
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },
   "observers.$": Object,

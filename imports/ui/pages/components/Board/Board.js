@@ -34,11 +34,14 @@ export default class Board extends React.Component {
       if (have.lineWidth === this._circle.lineWidth && have.color === this._circle.color) return;
       this.removeCircle(rank, file);
     }
-    const c = { rank: rank, file: file };
+    //TODO :This code comment becouse each time state update from incomming props so not longer nessary when game examin mode.
+    //If check circle in local then remove comment
+ 
+    /* const c = { rank: rank, file: file };
     Object.assign(c, this._circle);
     let newarray = this.state.circles.splice(0);
     newarray.push(c);
-    this.setState({ circles: newarray });
+    this.setState({ circles: newarray }); */
   }
 
   /**
@@ -50,7 +53,10 @@ export default class Board extends React.Component {
     let newarray = this.state.circles.splice(0).filter(raf => {
       return raf.rank !== rank || raf.file !== file;
     });
-    this.setState({ circles: newarray });
+
+    //TODO :This code comment becouse each time state update from incomming props so not longer nessary when game examin mode.
+    //If check circle in local then remove comment
+    /*   this.setState({ circles: newarray }); */
   }
 
   /**
@@ -79,11 +85,8 @@ export default class Board extends React.Component {
         board.push(this._renderRankRow(rank));
       }
     }
-
     if (this._fileline === "b") board.push(this._renderFileRow(this.props.top === "b"));
-
     const arrows = this.state.arrows.map(arrow => this._renderArrow(arrow)) || "";
-
     if (this.state.currentarrow) arrows.push(this._renderArrow(this.state.currentarrow));
 
     return (
@@ -103,15 +106,25 @@ export default class Board extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { circles: [], arrows: [], currentarrow: null };
+    this.state = {
+      circles: this.props.circles,
+      arrows: [],
+      currentarrow: null
+    };
     this._circle = this.props.circle;
     this._setup();
-    (this.rankFrom = null),
-      (this.rankTo = null),
-      (this.piece = null),
-      (this.fileFrom = null),
-      (this.fileTo = null);
+    this.rankFrom = "";
+    this.rankTo = "";
+    this.piece = "";
+    this.fileFrom = "";
+    this.fileTo = "";
   }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.circles !== prevState.circles) {
+      return { circles: nextProps.circles };
+    } else return null;
+  }
+
   /****************************************************************************
    * private methods                                                          *
    ****************************************************************************/
@@ -154,7 +167,6 @@ export default class Board extends React.Component {
         color: circleobj[0].color
       };
   }
-
   _fileSquareClick = () => {
     log.error("fileSquareclick");
   };
@@ -223,14 +235,23 @@ export default class Board extends React.Component {
     });
     return isMove;
   };
-
+  getCoordinates(rank, file) {
+    this.rankTo = rank + 1;
+    const filefromList = ["a", "b", "c", "d", "e", "f", "g", "h"];
+    this.fileTo = filefromList[file];
+    return this.fileTo + this.rankTo;
+  }
   _pieceSquareMouseUp = raf => {
     if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
       const obj = this._circleObject(raf.rank, raf.file);
       if (obj) {
         this.removeCircle(raf.rank, raf.file);
+        let circle = this.getCoordinates(raf.rank, raf.file);
+        this.props.onRemoveCircle(circle);
       } else {
         this.addCircle(raf.rank, raf.file);
+        let circle = this.getCoordinates(raf.rank, raf.file);
+        this.props.onDrawCircle(circle, this._circle.color, this._circle.lineWidth);
       }
     } else {
       // The arrows
@@ -345,6 +366,7 @@ export default class Board extends React.Component {
         circle={circle}
         onDragStart={this._pieceSquareDragStart}
         onDrop={this._pieceSquareDragStop}
+        onDrawCircle={this.drawCircle}
       />
     );
   }
