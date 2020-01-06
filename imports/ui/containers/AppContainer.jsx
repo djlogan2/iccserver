@@ -78,7 +78,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
   examinGame() {
     const game = Game.find({
-      observers: Meteor.userId()
+      "observers.id": Meteor.userId()
     }).fetch();
 
     return game;
@@ -316,9 +316,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           });
         }
       }
-      log.debug(circles);
     }
-    this._boardfallensolder = new Chess.Chess();
 
     const capture = this._fallenSoldier();
     return (
@@ -338,6 +336,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           ref="main_page"
           examing={gameExamin}
           circles={circles}
+          path={this.props.match.path}
         />
       </div>
     );

@@ -270,9 +270,8 @@ export default class Board extends React.Component {
 
   _pieceDrawCicle = (event, raf) => {
     event.preventDefault();
-
     let color;
-    if (event.type === "contextmenu") {
+    if (event.type === "click") {
       if (event.ctrlKey && event.altKey) {
         color = "yellow";
       } else if (event.shiftKey) {

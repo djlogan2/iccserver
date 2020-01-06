@@ -225,6 +225,7 @@ export default class MainPage extends Component {
               clientMessage={this.props.clientMessage}
               ref="right_sidebar"
               examing={this.props.examing}
+              path={this.props.path}
             />
           </div>
         </div>

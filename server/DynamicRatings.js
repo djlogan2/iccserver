@@ -435,7 +435,7 @@ DynamicRatings.meetsRatingTypeRules = function(
 Meteor.publish("DynamicRatings", function() {
   const user = Meteor.user();
   if (!user || !user.status.online) return [];
-  if (Game.isPlayingGame(user)) return [];
+  //  if (Game.isPlayingGame(user)) return [];
   return DynamicRatingsCollection.find();
 });
 

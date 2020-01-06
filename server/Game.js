@@ -1557,63 +1557,31 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   if (!game) {
     throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
   }
-  if (game.status !== "examining") {
-    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
-    return;
-  } else if (
-    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
-  ) {
+  if (game.status !== "examining" || game.examiners.map(ex => ex.id).indexOf(self._id) === -1) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  //TODO: we have doubted this way is right or not but we have to want work ahead add this condition.now is working as expected
 
-  if (game.circles === undefined) {
-    GameCollection.update(
-      { _id: game_id, status: "examining" },
-      { $push: { circles: { square: square, color: color, size: size } } }
-    );
-    GameCollection.update(
-      { _id: game_id, status: "examining" },
-      {
-        $push: {
-          actions: {
-            type: "draw_circle",
-            issuer: "iccserver",
-            parameter: { square: square, color: color, size: size }
-          }
-        }
-      }
-    );
-    return;
-  } else {
-    for (var i = 0; i < game.circles.length; i++) {
-      if (game.circles[i].square === square) {
-        GameCollection.update(
-          { _id: game_id, status: "examining", circles: i },
-          { $set: { "circles.color": color, "circles.size": size } }
-        );
-        return;
-      }
-    }
-  }
-  GameCollection.update(
-    { _id: game_id, status: "examining" },
-    { $push: { circles: { square: square, color: color, size: size } } }
-  );
+  const setobject = {};
+  const pushobject = {};
+
+  pushobject.actions = {
+    type: "draw_circle",
+    issuer: self._id,
+    parameter: { square: square, color: color, size: size }
+  };
+  if (!game.circles) setobject.circles = [{ square: square, color: color, size: size }];
+  else pushobject.circles = { square: square, color: color, size: size };
+
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
-      $push: {
-        actions: {
-          type: "draw_circle",
-          issuer: "iccserver",
-          parameter: { square: square, color: color, size: size }
-        }
-      }
+      $set: setobject,
+      $push: pushobject
     }
   );
 };
+
 Game.removeCircle = function(message_identifier, game_id, square) {
   check(message_identifier, String);
   check(square, String);
@@ -1634,6 +1602,7 @@ Game.removeCircle = function(message_identifier, game_id, square) {
   } else if (
     !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
   ) {
+    // TODO: Below condition is not working as examiners
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }

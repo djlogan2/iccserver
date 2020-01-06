@@ -4,13 +4,18 @@ import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("MoveLIst_js");
 export default class MoveListComponent extends Component {
   _pgnView = (actionType, action) => {};
+  moveBackwordBeginning = () => {
+    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1, 1);
+  };
   moveBackword = () => {
     Meteor.call("moveBackword", "MoveBackword", this.gameId, 1);
   };
   moveForward = () => {
     Meteor.call("moveForward", "MoveForward", this.gameId, 1);
   };
-
+  moveForwardEnd = cmi => {
+     Meteor.call("moveForward", "MoveForward", this.gameId, 1, cmi);
+  };
   render() {
     let moves = [];
     let variation;
@@ -73,7 +78,7 @@ export default class MoveListComponent extends Component {
         <div style={this.props.cssmanager.gameButtonMove()}>
           <button
             style={this.props.cssmanager.buttonStyle()}
-            onClick={this._pgnView.bind(this, "pgnview", "startposition")}
+            onClick={this.moveBackwordBeginning.bind(this)}
           >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
@@ -91,7 +96,7 @@ export default class MoveListComponent extends Component {
           </button>
           <button
             style={this.props.cssmanager.buttonStyle()}
-            onClick={this._pgnView.bind(this, "pgnview", "endposition")}
+            onClick={this.moveForwardEnd.bind(this, variation.cmi)}
           >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("fastForwardNext")}
