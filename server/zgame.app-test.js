@@ -254,6 +254,7 @@ describe("Game.startLocalGame", function() {
   });
 
   it("should add a playing game to the database with a random(ish--it's actually an algorithm) color if null", function() {
+    this.timeout(10000);
     let whites = 0;
     let blacks = 0;
     for (let x = 0; x < 10; x++) {
@@ -283,6 +284,7 @@ describe("Game.startLocalGame", function() {
   });
 
   it("should add a playing game with the player as white if white is specified", function() {
+    this.timeout(10000);
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = TestHelpers.createUser();
       const otherguy = TestHelpers.createUser();
@@ -308,6 +310,7 @@ describe("Game.startLocalGame", function() {
   });
 
   it("should add a playing game with the player as black if black is specified", function() {
+    this.timeout(10000);
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = TestHelpers.createUser();
       const otherguy = TestHelpers.createUser();
@@ -882,6 +885,7 @@ describe("Game.legacyGameEnded", function() {
   });
 
   it("should fail if game is not being played", function() {
+    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     chai.assert.doesNotThrow(() =>
@@ -1038,8 +1042,8 @@ describe("Game.localAddExaminer", function() {
     chai.assert.isDefined(games[0].examiners);
     chai.assert.equal(games[0].observers.length, observers.length);
     chai.assert.equal(games[0].examiners.length, examiners.length);
-    chai.assert.sameMembers(observers.map(ob => ob._id), games[0].observers);
-    chai.assert.sameMembers(examiners.map(ex => ex._id), games[0].examiners);
+    chai.assert.sameMembers(observers.map(ob => ob._id), games[0].observers.map(ob => ob.id));
+    chai.assert.sameMembers(examiners.map(ex => ex._id), games[0].examiners.map(ex => ex.id));
   });
 });
 
@@ -1139,7 +1143,7 @@ describe("Game.localRemoveExaminer", function() {
     chai.assert.equal(games.length, 1);
     chai.assert.isDefined(games[0].examiners);
     chai.assert.equal(games[0].examiners.length, 1);
-    chai.assert.sameMembers([us._id], games[0].examiners);
+    chai.assert.sameMembers([us._id], games[0].examiners.map(ex => ex.id));
   });
 });
 
@@ -1225,15 +1229,15 @@ describe("Game.localAddObserver", function() {
     chai.assert.equal(ipgame.observers.length, 1);
     chai.assert.equal(exgame.observers.length, 2);
 
-    chai.assert.sameMembers(ipgame.observers, [observer._id]);
-    chai.assert.sameMembers(exgame.observers, [randomguy._id, observer._id]);
+    chai.assert.sameMembers(ipgame.observers.map(ob => ob.id), [observer._id]);
+    chai.assert.sameMembers(exgame.observers.map(ob => ob.id), [randomguy._id, observer._id]);
 
     self.loggedonuser = opponent;
     Game.resignLocalGame("mi5", game_id1);
 
     const game3 = Game.collection.findOne({ _id: game_id1 });
-    chai.assert.sameMembers(game3.observers, [us._id, opponent._id, observer._id]);
-    chai.assert.sameMembers(game3.examiners, [us._id, opponent._id]);
+    chai.assert.sameMembers(game3.observers.map(ob => ob.id), [us._id, opponent._id, observer._id]);
+    chai.assert.sameMembers(game3.examiners.map(ex => ex.id), [us._id, opponent._id]);
   });
 });
 
@@ -1324,8 +1328,8 @@ describe("Game.localRemoveObserver", function() {
     const pg1 = Game.collection.findOne({ status: "playing" });
     const ex1 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.notEqual(pg1.observers.indexOf(observer._id), -1);
-    chai.assert.notEqual(ex1.observers.indexOf(observer._id), -1);
+    chai.assert.notEqual(pg1.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.notEqual(ex1.observers.map(ob => ob.id).indexOf(observer._id), -1);
 
     Game.localRemoveObserver("mi5", playing_game, observer._id);
     Game.localRemoveObserver("mi5", examined_game, observer._id);
@@ -1333,8 +1337,8 @@ describe("Game.localRemoveObserver", function() {
     const pg2 = Game.collection.findOne({ status: "playing" });
     const ex2 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.equal(pg2.observers.indexOf(observer._id), -1);
-    chai.assert.equal(ex2.observers.indexOf(observer._id), -1);
+    chai.assert.equal(pg2.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal(ex2.observers.map(ob => ob.id).indexOf(observer._id), -1);
   });
 
   it("should delete the record if the last examiner leaves, regardless of observers left", function() {
@@ -3030,7 +3034,7 @@ describe("Game.moveBackward", function() {
     );
     Game.collection.update(
       { _id: game_id, status: "examining" },
-      { $push: { examiners: examiner._id } }
+      { $push: { examiners: {id: examiner._id, username: examiner.username} } }
     );
     Game.moveBackward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -3273,7 +3277,7 @@ describe("Game.moveForward", function() {
     );
     Game.collection.update(
       { _id: game_id, status: "examining" },
-      { $push: { examiners: examiner._id } }
+      { $push: { examiners: {id: examiner._id, username: examiner.username} } }
     );
     Game.moveForward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -3464,7 +3468,7 @@ describe("Game publication", function() {
     const game = Game.collection.findOne({});
     chai.assert.equal(game.white.id, p1._id);
     chai.assert.equal(game.black.id, p2._id);
-    chai.assert.sameMembers(game.observers, [o1._id, o2._id]);
+    chai.assert.sameMembers(game.observers.map(ob => ob.id), [o1._id, o2._id]);
 
     function check(user, hasComputerMoves) {
       return new Promise(resolve => {

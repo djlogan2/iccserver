@@ -46,9 +46,17 @@ const actionSchema = new SimpleSchema({
   },
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
+<<<<<<< HEAD
   "parameter.square": { type: String, required: false },
   "parameter.size": { type: Number, required: false },
   "parameter.color": { type: String, required: false }
+=======
+  "parameter.move": { type: String, required: false },
+  "parameter.lag": { type: Number, required: false },
+  "parameter.ping": { type: Number, required: false },
+  "parameter.gamelag": { type: Number, required: false },
+  "parameter.gameping": { type: Number, required: false }
+>>>>>>> 571033881b2cd5573f8921a3ac5ec8af89b8a6c7
 });
 
 export const ExaminedGameSchema = new SimpleSchema({
@@ -130,9 +138,13 @@ export const ExaminedGameSchema = new SimpleSchema({
   "arrows.$.size": Number,
   actions: [actionSchema],
   observers: { type: Array, defaultValue: [] },
-  "observers.$": String,
+  "observers.$": Object,
+  "observers.$.id": String,
+  "observers.$.username": String,
   examiners: { type: Array, defaultValue: [] },
-  "examiners.$": String,
+  "examiners.$": Object,
+  "examiners.$.id": String,
+  "examiners.$.username": String,
   variations: { type: Object, required: false },
   "variations.cmi": Number,
   "variations.movelist": Array,

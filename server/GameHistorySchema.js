@@ -43,7 +43,8 @@ const actionSchema = new SimpleSchema({
     optional: true
   },
   "parameter.movecount": { type: Number, required: false },
-  "parameter.variation": { type: Number, required: false }
+  "parameter.variation": { type: Number, required: false },
+  "parameter.move": { type: String, required: false }
 });
 
 export const GameHistorySchema = new SimpleSchema({

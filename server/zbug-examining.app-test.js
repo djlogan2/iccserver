@@ -26,10 +26,10 @@ describe("When starting a game", function() {
     );
     self.loggedonuser = p3;
     Game.localAddObserver("mi2", game_id, p3._id);
-    chai.assert.isDefined(Game.collection.findOne({ observers: p3._id }));
+    chai.assert.isDefined(Game.collection.findOne({ "observers.id": p3._id }));
 
     Game.startLocalGame("mi3", p4, 0, "standard", true, 15, 0, "none", 15, 0, "none");
-    chai.assert.isUndefined(Game.collection.findOne({ observers: p3._id }));
+    chai.assert.isUndefined(Game.collection.findOne({ "observers.id": p3._id }));
   });
   it("should remove you as an observer from all games when starting a legacy game", function() {
     const p1 = TestHelpers.createUser();
@@ -52,7 +52,7 @@ describe("When starting a game", function() {
     );
     self.loggedonuser = p3;
     Game.localAddObserver("mi2", game_id, p3._id);
-    chai.assert.isDefined(Game.collection.findOne({ observers: p3._id }));
+    chai.assert.isDefined(Game.collection.findOne({ "observers.id": p3._id }));
 
     Game.startLegacyGame(
       "mi3",
@@ -75,7 +75,7 @@ describe("When starting a game", function() {
       ""
     );
     chai.assert.isDefined(Game.collection.findOne({ status: "playing", "white.id": p3._id }));
-    chai.assert.isUndefined(Game.collection.findOne({ observers: p3._id }));
+    chai.assert.isUndefined(Game.collection.findOne({ "observers.id": p3._id }));
   });
   it("should remove you as an observer from all games when examining a new game", function() {
     const p1 = TestHelpers.createUser();
@@ -87,7 +87,7 @@ describe("When starting a game", function() {
 
     self.loggedonuser = p3;
     Game.localAddObserver("mi2", game_id, p3._id);
-    chai.assert.isDefined(Game.collection.findOne({ observers: p3._id }));
+    chai.assert.isDefined(Game.collection.findOne({ "observers.id": p3._id }));
 
     const game2_id = Game.startLocalGame(
       "mi1",
@@ -105,7 +105,7 @@ describe("When starting a game", function() {
     );
 
     chai.assert.isDefined(Game.collection.findOne({ status: "playing", "white.id": p3._id }));
-    chai.assert.isUndefined(Game.collection.findOne({ observers: p3._id }));
+    chai.assert.isUndefined(Game.collection.findOne({ "observers.id": p3._id }));
   });
   it("should not allow a user to start a playing game if one is already being played", function() {
     const p1 = TestHelpers.createUser();
