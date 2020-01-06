@@ -2320,7 +2320,8 @@ Meteor.methods({
   removeCircle: Game.removeCircle,
   startLocalExaminedGame: Game.startLocalExaminedGame,
   moveBackword: Game.moveBackward,
-  moveForward: Game.moveForward
+  moveForward: Game.moveForward,
+  examineGame: GameHistory.examineGame
 });
 
 Meteor.publish("playing_games", function() {

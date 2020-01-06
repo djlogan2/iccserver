@@ -75,13 +75,18 @@ export default class PieceSquare extends Square {
     });
   };
 
-  mouseUp = () => {
+  mouseUp = event => {
     this.props.onMouseUp({
       rank: this.props.rank,
       file: this.props.file
     });
   };
-
+  onClickHandler = event => {
+    this.props.pieceDrawCicle(event, {
+      rank: this.props.rank,
+      file: this.props.file
+    });
+  };
   dragStop = event => {
     let isMove = this.props.onDrop({
       rank: this.props.rank,
@@ -127,9 +132,11 @@ export default class PieceSquare extends Square {
           float: "left"
         }}
         onMouseDown={this.mouseDown}
-        onMouseUp={this.mouseUp}
+        onMouseUp={e => this.mouseUp(e)}
         //  onDragStart={this.dragStart}
         //  onDrop={this.dragStop}
+        onContextMenu={e => this.onClickHandler(e)}
+        onClick={e => this.onClickHandler(e)}
       >
         <div
           draggable="true"

@@ -36,7 +36,7 @@ export default class Board extends React.Component {
     }
     //TODO :This code comment becouse each time state update from incomming props so not longer nessary when game examin mode.
     //If check circle in local then remove comment
- 
+
     /* const c = { rank: rank, file: file };
     Object.assign(c, this._circle);
     let newarray = this.state.circles.splice(0);
@@ -242,16 +242,16 @@ export default class Board extends React.Component {
     return this.fileTo + this.rankTo;
   }
   _pieceSquareMouseUp = raf => {
-    if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
+    /*   if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
       const obj = this._circleObject(raf.rank, raf.file);
       if (obj) {
         this.removeCircle(raf.rank, raf.file);
         let circle = this.getCoordinates(raf.rank, raf.file);
-        this.props.onRemoveCircle(circle);
+        //  this.props.onRemoveCircle(circle);
       } else {
         this.addCircle(raf.rank, raf.file);
         let circle = this.getCoordinates(raf.rank, raf.file);
-        this.props.onDrawCircle(circle, this._circle.color, this._circle.lineWidth);
+        //    this.props.onDrawCircle(circle, this._circle.color, this._circle.lineWidth);
       }
     } else {
       // The arrows
@@ -265,6 +265,37 @@ export default class Board extends React.Component {
       this.mousedown = null;
       this.mousein = null;
       this.setState({ arrows: newarrows, currentarrow: null });
+    } */
+  };
+
+  _pieceDrawCicle = (event, raf) => {
+    event.preventDefault();
+
+    let color;
+    if (event.type === "contextmenu") {
+      if (event.ctrlKey && event.altKey) {
+        color = "yellow";
+      } else if (event.shiftKey) {
+        color = "green";
+      } else if (event.ctrlKey) {
+        color = "red";
+      } else if (event.altKey) {
+        color = "blue";
+      }
+    }
+    if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
+      const obj = this._circleObject(raf.rank, raf.file);
+      if (obj) {
+        this.removeCircle(raf.rank, raf.file);
+        let circle = this.getCoordinates(raf.rank, raf.file);
+        this.props.onRemoveCircle(circle);
+      } else {
+        if (!!color) {
+          this.addCircle(raf.rank, raf.file);
+          let circle = this.getCoordinates(raf.rank, raf.file);
+          this.props.onDrawCircle(circle, color, this._circle.lineWidth);
+        }
+      }
     }
   };
 
@@ -367,6 +398,7 @@ export default class Board extends React.Component {
         onDragStart={this._pieceSquareDragStart}
         onDrop={this._pieceSquareDragStop}
         onDrawCircle={this.drawCircle}
+        pieceDrawCicle={this._pieceDrawCicle}
       />
     );
   }

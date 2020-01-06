@@ -21,8 +21,9 @@ export default class ObserversComponent extends TrackerReact(React.Component) {
       "en-US"
     );
   }
-  setGameExaminMode(id, white, black) {
-    Meteor.call("startLocalExaminedGame", "ExaminedGame", white, black, 0);
+  setGameExaminMode(id) {
+    alert(id);
+    Meteor.call("examineGame", "ExaminedGame", id);
     //this.props.openObserverGame(id);
   }
   getobserverName(id) {
@@ -50,27 +51,47 @@ export default class ObserversComponent extends TrackerReact(React.Component) {
       gamelist.push({
         id: games[i]._id,
         name: "3 minut arina",
-        Result: games[i].result,
+        result: games[i].result,
         white: whitename,
         black: blackname,
-        status: games[i].status
+        status: games[i].status,
+        time: games[i].startTime.toDateString()
       });
     }
     return (
       <div>
-        <div style={this.props.cssmanager.tabSeparator()} />
-        <div style={this.props.cssmanager.subTabHeader()}>
-          {gamelist.map((game, index) => (
-            <div key={index} className="userlist">
-              <button
-                onClick={this.setGameExaminMode.bind(this, game.id, game.white, game.black)}
-                style={this.props.cssmanager.matchUserButton()}
-              >
-                {game.white}-vs-{game.black}
-              </button>
-            </div>
-          ))}
-        </div>
+        {gamelist.length > 0 ? (
+          <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Players
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Result
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Date
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {gamelist.map((game, index) => (
+                <tr onClick={this.setGameExaminMode.bind(this, game.id)}>
+                  <td style={{ padding: "5px 5px" }}>
+                    {game.white}-vs-{game.black}
+                  </td>
+                  <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                  <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                  <td style={{ padding: "5px 5px" }}>{game.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
       </div>
     );
   }
