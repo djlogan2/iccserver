@@ -93,13 +93,7 @@ export default class MainPage extends Component {
       />
     );
   };
-  _pieceSquareDragStop = raf => {
-    let isMove = this.props.onDrop({
-      from: raf.from,
-      to: raf.to
-    });
-    return isMove;
-  };
+ 
 
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
@@ -206,7 +200,8 @@ export default class MainPage extends Component {
               ref="middleBoard"
               capture={this.props.capture}
               board={this.props.board}
-              onDrop={this._pieceSquareDragStop}
+              fen={this.props.board.fen()}
+              onDrop={this.props.onDrop}
               onDrawCircle={this.props.onDrawCircle}
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}

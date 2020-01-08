@@ -199,40 +199,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     if (!game) {
       return false;
     } else {
-      let result = null;
-      let gameTurn = this._board.turn();
-      if (this._board.game_over() === true) {
-        alert("Game over");
-        return false;
-      }
-
-      // TODO: FYI, I really prefer you use userid and not username when checking.
-      //       The server uses user._id or Meteor.userId() exclusively.
-      if (
-        (game.black.id === Meteor.userId() && gameTurn === "b") ||
-        (game.white.id === Meteor.userId() && gameTurn === "w")
-      ) {
-        result = this._board.move({ from: raf.from, to: raf.to });
-      } else {
-        alert("Not your Move");
-      }
-      var moveColor = "White";
-      if (this._board.turn() === "b") {
-        moveColor = "Black";
-      }
-      if (this._board.in_checkmate()) {
-        // TODO: See, here we are already with overlooked non-internationalized strings
-        let status = "Game over, " + moveColor + " is in checkmate.";
-        alert(status);
-      }
-      if (result !== null) {
-        let history = this._board.history();
-        this.gameId = game._id;
-        this.userId = Meteor.userId();
-        let move = history[history.length - 1];
-        Meteor.call("addGameMove", "gameMove", this.gameId, move);
-        return true;
-      }
+      Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
     }
   };
   _boardFromMongoMessages(game) {
