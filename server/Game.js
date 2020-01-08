@@ -1545,7 +1545,7 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
       $push: {
         actions: {
           type: "draw_circle",
-          issuer: "iccserver",
+          issuer: self._id,
           parameter: { square: square, color: color, size: size }
         }
       }
@@ -1569,29 +1569,21 @@ Game.removeCircle = function(message_identifier, game_id, square) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (
-    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
-  ) {
+  } else if (!game.examiners.includes(self._id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  for (var i = 0; i < game.circles.length; i++) {
-    if (game.circles[i].square === square) {
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        { $pull: { circles: { square: square } } }
-      );
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        {
-          $push: {
-            actions: { type: "remove_circle", issuer: "iccserver", parameter: { square: square } }
-          }
-        }
-      );
-      return;
+
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: { type: "remove_circle", issuer: self._id, parameter: { square: square } }
+      },
+      $pull: { circles: { square: square } }
     }
-  }
+  );
+  return;
 };
 
 Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
@@ -1619,44 +1611,25 @@ Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (
-    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
-  ) {
+  } else if (!game.examiners.includes(self._id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  for (var i = 0; i < game.arrows.length; i++) {
-    if (game.arrows[i].from == from && game.arrows[i].to == to) {
-      GameCollection.upsert(
-        { _id: game_id, status: "examining", arrows: i },
-        { $set: { arrows: { color: color, size: size } }}
-      );
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        {
-          $push: {
-            actions: {
-              type: "draw_circle",
-              issuer: "iccserver",
-              parameter: { from: from, to: to, color: color, size: size }
-            }
-          }
-        }
-      );
-      return;
-    }
+  const resultFind = game.arrows.find(arrow => arrow.from === from && arrow.to === to);
+  if (resultFind) {
+    resultFind.color = color;
+    resultFind.size = size;
+  } else {
+    game.arrows.push({ from: from, to: to, color: color, size: size });
   }
   GameCollection.update(
     { _id: game_id, status: "examining" },
-    { $push: { arrows: { from: from, to: to, color: color, size: size } } }
-  );
-  GameCollection.update(
-    { _id: game_id, status: "examining" },
     {
+      $set: { arrows: game.arrows },
       $push: {
         actions: {
           type: "draw_arrow",
-          issuer: "iccserver",
+          issuer: self._id,
           parameter: { from: from, to: to, color: color, size: size }
         }
       }
@@ -1692,27 +1665,18 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  for (var i = 0; i < game.arrows.length; i++) {
-    if (game.arrows[i].from === from && game.arrows[i].to == to) {
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        { $pull: { arrow: { from: from, to: to } } }
-      );
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        {
-          $push: {
-            actions: {
-              type: "remove_arrow",
-              issuer: "iccserver",
-              parameter: { from: from, to: to }
-            }
-          }
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $pull: {
+        arrow: { from: from, to: to },
+        $push: {
+          actions: { type: "remove_arrow", issuer: self._id, parameter: { from: from, to: to } }
         }
-      );
-      return;
+      }
     }
-  }
+  );
+  return;
 };
 
 Game.isSquareValid = function(square) {

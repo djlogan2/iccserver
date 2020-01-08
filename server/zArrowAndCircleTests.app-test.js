@@ -213,7 +213,7 @@ describe("Game.removeCircle", function() {
     );
   });
 });
-describe.only("Game.drawArrow", function() {
+describe("Game.drawArrow", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should have a function called drawArrow", function() {
     chai.assert.isFunction(Game.drawArrow, "Failed to identify Game.drawCircle as a function");
@@ -281,6 +281,8 @@ describe.only("Game.drawArrow", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawArrow("mi1", game_id, "c1", "d2", "red", 3);
     Game.drawArrow("mi2", game_id, "c1", "d2", "red", 3);
+    Game.drawArrow("mi2", game_id, "c1", "d2", "red", 5);
+    Game.drawArrow("mi2", game_id, "c1", "d2", "plurple", 3);
     const record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(record.arrows.length, 1);
   });
@@ -368,13 +370,13 @@ describe("Game.removeArrow", function() {
     const record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(record.arrows.length, 0);
   });
-  it("should remove the square from the game record if all is well", function() {
+  it("should remove the arrow from the game record if all is well", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawArrow("mi1", game_id, "c1", "d2", "red", 3);
     var record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(record.arrows.length, 1);
-    chai.assert.deepEqual(record.arrows[0], { square: "c1", color: "red", size: 3 });
+    chai.assert.deepEqual(record.arrows[0], { from: "c1", to: "d2", color: "red", size: 3 });
     Game.removeArrow("mi1", game_id, "c1", "d2");
     record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(record.circles.length, 0);
