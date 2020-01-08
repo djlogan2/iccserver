@@ -467,8 +467,8 @@ describe("Game history", function() {
     chai.assert.equal(GameHistory.collection.find().count(), 2);
     const p1examined = Game.collection.findOne({ _id: game_id });
     const p2examined = Game.collection.findOne({ _id: game2_id });
-    chai.assert.sameMembers(p1examined.examiners, [p1._id]);
-    chai.assert.sameMembers(p2examined.examiners, [p2._id]);
+    chai.assert.sameMembers(p1examined.examiners.map(ex => ex.id), [p1._id]);
+    chai.assert.sameMembers(p2examined.examiners.map(ex => ex.id), [p2._id]);
   });
 
   it("needs to have a search method anyone can use, with pagination", function() {

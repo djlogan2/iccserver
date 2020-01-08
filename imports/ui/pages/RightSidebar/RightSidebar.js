@@ -12,14 +12,17 @@ class RightSidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: props.gameStatus
+      status: true
     };
+  }
+  changeMode() {
+    this.setState({ status: !this.state.status });
   }
 
   render() {
- 
     let tabitem = null;
-    if (this.props.gameStatus === "playing") {
+
+    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
       tabitem = (
         <RightBarActiveTabs
           RightBarTopData={this.props.RightSidebarData}
@@ -46,6 +49,7 @@ class RightSidebar extends Component {
             cssmanager={this.props.cssmanager}
             gameRequest={this.props.gameRequest}
             clientMessage={this.props.clientMessage}
+            examing={this.props.examing}
           />
         </div>
       </div>

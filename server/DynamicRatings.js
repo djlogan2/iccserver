@@ -4,6 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { Users } from "../imports/collections/users";
+import { Game } from "./Game";
 
 const RatingSchema = new SimpleSchema({
   wild_number: { type: Array },
@@ -430,6 +431,13 @@ DynamicRatings.meetsRatingTypeRules = function(
   if (inctype.indexOf(inc_or_delay_type) === -1) return false;
   return !(game_etime < etime[0] || game_etime > etime[1]);
 };
+
+Meteor.publish("DynamicRatings", function() {
+  const user = Meteor.user();
+  if (!user || !user.status.online) return [];
+  //  if (Game.isPlayingGame(user)) return [];
+  return DynamicRatingsCollection.find();
+});
 
 if (Meteor.isTest || Meteor.isAppTest) {
   DynamicRatings.collection = DynamicRatingsCollection;

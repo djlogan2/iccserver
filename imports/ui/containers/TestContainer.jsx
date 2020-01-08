@@ -212,8 +212,10 @@ class TestContainer extends TrackerReact(React.Component) {
           side={100}
           draw_rank_and_file={"tl"}
           circle={{ color: "red", lineWidth: 5 }}
+          cssmanager={css}
         />
         <PieceSquare
+          cssmanager={css}
           rank={0}
           file={1}
           color={"w"}
@@ -231,18 +233,20 @@ class TestContainer extends TrackerReact(React.Component) {
           onMouseUp={() => console.log("here")}
           draw_rank_and_file={"tr"}
           side={100}
-        />
+          cssmanager={css}
+       />
         <PieceSquare
+          cssmanager={css}
           rank={0}
           file={3}
           onMouseDown={() => console.log("here")}
           onMouseUp={() => console.log("here")}
           side={100}
           draw_rank_and_file={"br"}
-          circle={{ color: "yellow", lineWidth: 20 }}
+          circle={{ color: "blue", lineWidth: 20 }}
         />
-        <RankSquare cssmanager={this.props.cssmanager} rank={0} file={3} side={100} />
-        <FileSquare cssmanager={this.props.cssmanager} rank={0} file={3} side={100} />
+        <RankSquare cssmanager={css} rank={0} file={3} side={100} />
+        <FileSquare cssmanager={css} rank={0} file={3} side={100} />
       </div>
     );
   }

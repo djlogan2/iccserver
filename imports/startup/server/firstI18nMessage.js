@@ -5,130 +5,131 @@ import { Meteor } from "meteor/meteor";
 const messages = [
   [
     "MATCH_DECLINED",
-    "MATCH DECLINED",
+    "MATCH DECLINED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "МАТЧ ОТКЛОНЕН"
+    "МАТЧ ОТКЛОНЕН {1}"
   ],
   [
     "CANNOT_MATCH_LOGGED_OFF_USER",
-    "CANNOT MATCH LOGGED OFF USER",
+    "CANNOT MATCH LOGGED OFF USER {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ"
+    "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ {1}"
   ],
   [
     "NO_MATCH_FOUND",
-    "NO MATCH FOUND",
+    "NO MATCH FOUND {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО"
+    "НЕ НАЙДЕНО {1}"
   ],
   [
     "TAKEBACK_ACCEPTED",
-    "TAKEBACK ACCEPTED",
+    "TAKEBACK ACCEPTED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "ПРИНЯТЬ ОБРАТНО ПРИНЯТО"
+    "ПРИНЯТЬ ОБРАТНО ПРИНЯТО {1}"
   ],
   [
     "NOT_PLAYING_A_GAME",
-    "NOT PLAYING A GAME",
+    "NOT PLAYING A GAME {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ ИГРАТЬ В ИГРУ"
+    "НЕ ИГРАТЬ В ИГРУ {1}"
   ],
   [
     "NO_TAKEBACK_PENDING",
-    "NO TAKEBACK PENDING",
+    "NO TAKEBACK PENDING {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "НЕТ ВЕРНУТЬ В ОЖИДАНИИ"
+    "НЕТ ВЕРНУТЬ В ОЖИДАНИИ {1}"
   ],
   [
     "TAKEBACK_DECLINED",
-    "TAKEBACK DECLINED",
+    "TAKEBACK DECLINED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО"
+    "НЕ НАЙДЕНО {1}"
   ],
   [
     "DRAW_ALREADY_PENDING",
-    "DRAW ALREADY PENDING",
+    "DRAW ALREADY PENDING {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "ВЕРНУТЬСЯ ОТКЛОНЕНО"
+    "ВЕРНУТЬСЯ ОТКЛОНЕНО {1}"
   ],
   [
     "ABORT_ALREADY_PENDING",
-    "ABORT ALREADY PENDING",
+    "ABORT ALREADY PENDING {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "АБОРТ УЖЕ В ОЖИДАНИИ"
+    "АБОРТ УЖЕ В ОЖИДАНИИ {1}"
   ],
   [
     "ADJOURN_ALREADY_PENDING",
-    "ADJOURN ALREADY PENDING",
+    "ADJOURN ALREADY PENDING {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "ADJOURN УЖЕ В ОЖИДАНИИ"
+    "ADJOURN УЖЕ В ОЖИДАНИИ {1}"
   ],
   [
     "DRAW_ACCEPTED",
-    "DRAW ACCEPTED",
+    "DRAW ACCEPTED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "РИСУНОК ПРИНЯТО"
+    "РИСУНОК ПРИНЯТО {1}"
   ],
   [
     "DRAW_DECLINED",
-    "DRAW DECLINED",
+    "DRAW DECLINED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "РИСУНОК ОТКЛОНЕН"
+    "РИСУНОК ОТКЛОНЕН {1]"
   ],
   [
     "ABORT_ACCEPTED",
-    "ABORT ACCEPTED",
+    "ABORT ACCEPTED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО"
+    "НЕ НАЙДЕНО {1}"
   ],
   [
     "ADJOURN_ACCEPTED",
-    "ADJOURN ACCEPTED",
+    "ADJOURN ACCEPTED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "ПРИЛОЖЕНИЕ ПРИНЯТО"
+    "ПРИЛОЖЕНИЕ ПРИНЯТО {1}"
   ],
   [
     "ABORT_DECLINED",
-    "ABORT DECLINED",
+    "ABORT DECLINED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "АБОРТ ОТКЛОНЕН"
+    "АБОРТ ОТКЛОНЕН {1}"
   ],
   [
     "ADJOURN_DECLINED",
-    "ADJOURN DECLINED",
+    "ADJOURN DECLINED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "ADJOURN ОТКЛОНЕН"
+    "ADJOURN ОТКЛОНЕН {1}"
   ],
   [
     "NOT_AN_EXAMINER",
-    "NOT AN EXAMINER",
+    "NOT AN EXAMINER {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ ЭКСПЕРТ"
+    "НЕ ЭКСПЕРТ {1}"
   ],
   [
     "END_OF_GAME",
-    "END OF GAME",
+    "END OF GAME {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "конец игры"
+    "конец игры {1}"
   ],
   [
     "INVALID_VARIATION",
-    "INVALID VARIATION",
+    "INVALID VARIATION {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "недопустимый вариант изменения"
+    "недопустимый вариант изменения {1}"
   ],
   [
     "VARIATION_REQUIRED",
-    "VARIATION REQUIRED",
+    "VARIATION REQUIRED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "ВАРИАЦИЯ ТРЕБУЕТСЯ"
+    "ВАРИАЦИЯ ТРЕБУЕТСЯ {1}"
   ],
   [
     "UNABLE_TO_PLAY_OPPONENT",
-    "UNABLE TO PLAY OPPONENT",
+    "UNABLE TO PLAY OPPONENT {1}",
     "El mensaje con el valor {1} como valor de parámetro",
-    "Невозможно играть противником"
-  ][("SERVER_ERROR", "SERVER_ERROR. message={1} reason={2}", "SERVER_ERROR", "SERVER_ERROR")]
+    "Невозможно играть противником {1}"
+  ],
+  ["SERVER_ERROR", "SERVER_ERROR. message={1} reason={2}", "SERVER_ERROR", "SERVER_ERROR"]
 ];
 
 export default function firstAddI18nMessage() {

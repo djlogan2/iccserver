@@ -52,12 +52,11 @@ class ActionComponent extends Component {
   render() {
     this.userId = this.props.actionData.userId;
     this.gameId = this.props.actionData.gameId;
+    let status = this.props.game.status;
     let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
     return (
       <div className="draw-section">
-        <div style={this.props.cssmanager.drawActionSection()}>
-          Current User : {this.props.actionData.user}
-        </div>
+        <div style={this.props.cssmanager.drawActionSection()}>Game status : {status}</div>
         <ul>
           {/*     <li style={this.props.cssmanager.drawSectionList()}>
             <button

@@ -39,27 +39,22 @@ export default class AppContainer extends TrackerReact(React.Component) {
     // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
-    this.player = {
-      White: { name: "abc", rating: "123" },
-      Black: { name: "xyz", rating: "456" }
-    };
     this.userpending = null;
     this.state = {
-      gameClock: null,
-      from: null,
-      to: null,
+      gameId: null,
       subscription: {
         css: Meteor.subscribe("css"),
         game: Meteor.subscribe("playing_games"),
         gameRequests: Meteor.subscribe("game_requests"),
-        clientMessages: Meteor.subscribe("client_messages")
+        clientMessages: Meteor.subscribe("client_messages"),
+        observingGames: Meteor.subscribe("observing_games")
       },
-      move: "",
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
+    this.drawCircle = this.drawCircle.bind(this);
+    this.removeCircle = this.removeCircle.bind(this);
   }
-
   renderGameMessages() {
     const game = Game.findOne({
       $and: [
@@ -69,7 +64,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         }
       ]
     });
-
     if (!!game) {
       const color = game.white.id === Meteor.userId() ? "white" : "black";
 
@@ -82,7 +76,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     return game;
   }
+  examinGame() {
+    const game = Game.find({
+      "observers.id": Meteor.userId()
+    }).fetch();
 
+    return game;
+  }
   renderGameRequest() {
     return GameRequestCollection.findOne(
       {
@@ -130,6 +130,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.game.stop();
     this.state.subscription.gameRequests.stop();
     this.state.subscription.clientMessages.stop();
+    this.state.subscribtion.observingGames.stop();
   }
 
   componentWillMount() {
@@ -180,10 +181,21 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     return capturedSoldiers;
   }
+  drawCircle(square, color, size) {
+    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size);
+  }
+  removeCircle(square) {
+    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square);
+  }
 
   _pieceSquareDragStop = raf => {
-    const game = this.renderGameMessages();
-
+    let game = this.renderGameMessages();
+    if (!game) {
+      const gameExamin = this.examinGame();
+      if (!!gameExamin && gameExamin.length > 0) {
+        game = gameExamin[gameExamin.length - 1];
+      }
+    }
     if (!game) {
       return false;
     } else {
@@ -196,10 +208,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
       // TODO: FYI, I really prefer you use userid and not username when checking.
       //       The server uses user._id or Meteor.userId() exclusively.
-      if (game.white.name === Meteor.user().username && gameTurn === "w") {
+      if (
+        (game.black.id === Meteor.userId() && gameTurn === "b") ||
+        (game.white.id === Meteor.userId() && gameTurn === "w")
+      ) {
         result = this._board.move({ from: raf.from, to: raf.to });
-      } else if (game.black.name === Meteor.user().username && gameTurn === "b") {
-        result = this._board.move({ from: raf.from, to: raf.to });
+      } else {
+        alert("Not your Move");
       }
       var moveColor = "White";
       if (this._board.turn() === "b") {
@@ -210,10 +225,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
         let status = "Game over, " + moveColor + " is in checkmate.";
         alert(status);
       }
-
       if (result !== null) {
         let history = this._board.history();
-
         this.gameId = game._id;
         this.userId = Meteor.userId();
         let move = history[history.length - 1];
@@ -258,9 +271,23 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this._boardfallensolder.move(moves[index]);
     }
   }
+  _examinBoard(game) {
+    if (this._board.fen() !== game.fen) {
+      this._board.load(game.fen);
+    }
+  }
+  getCoordinatesToRank(square) {
+    let file = square.square.charAt(0);
+    let rank = parseInt(square.square.charAt(1));
+    const fileNumber = ["a", "b", "c", "d", "e", "f", "g", "h"];
+    let fileNo = fileNumber.indexOf(file);
+    return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
+  }
   render() {
     const gameRequest = this.renderGameRequest();
-    const game = this.renderGameMessages();
+    let game = this.renderGameMessages();
+    let circles = [];
+    const gameExamin = this.examinGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
@@ -272,8 +299,24 @@ export default class AppContainer extends TrackerReact(React.Component) {
     )
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
-    if (game !== undefined) this._boardFromMongoMessages(game);
-    else this._boardfallensolder = new Chess.Chess();
+    if (!!game) {
+      this.gameId = game._id;
+      this._boardFromMongoMessages(game);
+    } else {
+      if (!!gameExamin && gameExamin.length > 0) {
+        game = gameExamin[gameExamin.length - 1];
+        this.gameId = game._id;
+        this._boardFromMongoMessages(game);
+        if (!!game.circles) {
+          let circleslist = game.circles;
+
+          circleslist.forEach(circle => {
+            let c1 = this.getCoordinatesToRank(circle);
+            circles.push(c1);
+          });
+        }
+      }
+    }
 
     const capture = this._fallenSoldier();
     return (
@@ -287,8 +330,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
           gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
+          onDrawCircle={this.drawCircle}
+          onRemoveCircle={this.removeCircle}
           history={this.props.history}
           ref="main_page"
+          examing={gameExamin}
+          circles={circles}
+          path={this.props.match.path}
         />
       </div>
     );
