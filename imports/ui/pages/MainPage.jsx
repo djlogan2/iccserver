@@ -93,7 +93,6 @@ export default class MainPage extends Component {
       />
     );
   };
- 
 
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
@@ -105,6 +104,7 @@ export default class MainPage extends Component {
     let informativePopup = null;
     let actionPopup = null;
     let status = "others";
+    let undo = false;
     let position = { top: "w" };
     if (
       !!GameRequest &&
@@ -145,6 +145,9 @@ export default class MainPage extends Component {
 
       const actions = game.actions;
       if (!!actions && actions.length !== 0) {
+        //TODO: When takeback occure Chessbord not trash remove peice so write these code
+        let ack = actions[actions.length - 1];
+        undo = ack["type"] === "takeback_accepted" || game.status === "examining" ? true : false;
         for (const action of actions) {
           const issuer = action["issuer"];
           switch (action["type"]) {
@@ -161,12 +164,18 @@ export default class MainPage extends Component {
               }
               break;
             case "draw_requested":
-              if (issuer !== this.userId && game.pending[othercolor].draw !== "0") {
+              if (
+                issuer !== this.userId &&
+                (!!game.pending && game.pending[othercolor].draw !== "0")
+              ) {
                 actionPopup = this.actionPopup("Draw", "draw");
               }
               break;
             case "abort_requested":
-              if (issuer !== this.userId && game.pending[othercolor].abort !== "0") {
+              if (
+                issuer !== this.userId &&
+                (!!game.pending && game.pending[othercolor].abort !== "0")
+              ) {
                 actionPopup = this.actionPopup("Abort", "abort");
               }
               break;
@@ -200,12 +209,12 @@ export default class MainPage extends Component {
               ref="middleBoard"
               capture={this.props.capture}
               board={this.props.board}
-              fen={this.props.board.fen()}
               onDrop={this.props.onDrop}
               onDrawCircle={this.props.onDrawCircle}
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
               circles={this.props.circles}
+              undo={undo}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">

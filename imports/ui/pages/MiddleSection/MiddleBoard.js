@@ -19,6 +19,7 @@ export default class MiddleBoard extends Component {
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       board: props.board,
+      istakeback: false,
       draw_rank_and_file: "bl",
       top: props.top,
       boardTop: "black",
@@ -109,13 +110,16 @@ export default class MiddleBoard extends Component {
       to: targetSquare,
       promotion: "q"
     });
-    if (move === null) return;
-    let history = this.state.board.history();
-    let moves = history[history.length - 1];
-    this.props.onDrop({
-      move: moves
-    });
-    this.setState({ board: this.state.board });
+    if (move === null) {
+      return;
+    } else {
+      this.setState({ board: this.state.board });
+      let history = this.state.board.history();
+      let moves = history[history.length - 1];
+      this.props.onDrop({
+        move: moves
+      });
+    }
   };
 
   render() {
@@ -162,6 +166,7 @@ export default class MiddleBoard extends Component {
     } else {
       bordtop = "white";
     }
+    log.debug("Ok", this.props.istakeback);
     return (
       <div>
         <button
@@ -196,12 +201,11 @@ export default class MiddleBoard extends Component {
             position={this.state.board.fen()}
             onDrop={this.onDrop}
             orientation={bordtop}
+            undo={this.props.undo}
             boardStyle={{
               borderRadius: "5px",
               boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
             }}
-            dropOffBoard="trash"
-            transitionDuration={300}
             draggable={true}
           />
         </div>
