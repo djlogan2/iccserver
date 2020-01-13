@@ -402,12 +402,20 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     );
     return;
   }
-  ////NOTE: I have changed below method calling since you were passing whole object with inc and delay but, at
-  //// method definition, it is acceoting number and string means single element of delay, inc, and delaytype
-  //// also changed the variable name for delay as there is no var named 'delay' in request object but it is
-  //// 'inc_or_delay'. and there is no variable like 'challenger_color_request' inrequest object but, its' not
-  //// giving an error because it is optional
+
   const challenger = Meteor.users.findOne({ _id: request.owner });
+  check(challenger, Object);
+
+  if (Game.isPlayingGame(self)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  if (Game.isPlayingGame(challenger)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
   const game_id = Game.startLocalGame(
     message_identifier,
     challenger,
@@ -417,11 +425,9 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     request.time,
     request.inc_or_delay,
     request.delaytype,
-    //{ inc: request.inc, delay: request.delay, delaytype: request.delaytype }, //request.inc,
     request.time,
     request.inc_or_delay,
     request.delaytype,
-    //{ inc: request.inc, delay: request.delay, delaytype: request.delaytype }, //request.inc,
     request.challenger_color_request
   );
   GameRequestCollection.remove({ _id: seek_id });
@@ -773,6 +779,16 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
 
   const challenger = Meteor.users.findOne({ _id: match.challenger_id });
   check(challenger, Object);
+
+  if (Game.isPlayingGame(challenger)) {
+    ClientMessages.sendMessageToClient(receiver, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  if (Game.isPlayingGame(receiver)) {
+    ClientMessages.sendMessageToClient(receiver, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
 
   let white_initial;
   let black_initial;
