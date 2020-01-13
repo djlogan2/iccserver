@@ -14,12 +14,14 @@ export default class MoveListComponent extends Component {
     Meteor.call("moveForward", "MoveForward", this.gameId, 1);
   };
   moveForwardEnd = cmi => {
-     Meteor.call("moveForward", "MoveForward", this.gameId, 1, cmi);
+    Meteor.call("moveForward", "MoveForward", this.gameId, 1, cmi);
   };
   render() {
     let moves = [];
     let variation;
-    this.gameId = this.props.Moves._id;
+    let game = this.props.Moves;
+    this.gameId = game._id;
+    let status = game.status;
     if (!!this.props.Moves && this.props.Moves.variations !== undefined) {
       this.gameId = this.props.Moves._id;
       variation = this.props.Moves.variations;

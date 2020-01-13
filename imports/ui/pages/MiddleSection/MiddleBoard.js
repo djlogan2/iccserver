@@ -5,16 +5,24 @@ import Board from "../components/Board/Board";
 import "../css/developmentboard.css";
 import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
+import Chessboard from "chessboardjsx";
+import Square from "../components/Board/Square";
+import { Meteor } from "meteor/meteor";
+import { Logger } from "../../../../lib/client/Logger";
+
+const log = new Logger("client/MiddleBoard");
 
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
     this._circle = { lineWidth: 2, color: "red" };
-
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
+      board: props.board,
+      istakeback: false,
       draw_rank_and_file: "bl",
       top: props.top,
+      boardTop: "black",
       white: props.MiddleBoardData.white,
       black: props.MiddleBoardData.black,
       height: 500,
@@ -52,6 +60,7 @@ export default class MiddleBoard extends Component {
       this.setState({ top: this.props.top });
     }
   }
+
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newTop });
@@ -70,7 +79,11 @@ export default class MiddleBoard extends Component {
     this._circle.color = event.target.value;
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
-
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.board !== prevState.board) {
+      return { board: nextProps.board };
+    }
+  }
   nextRAF() {
     const values = ["tl", "tr", "bl", "br", "stl", "str", "sbl", "sbr"];
     const texts = [
@@ -90,13 +103,25 @@ export default class MiddleBoard extends Component {
     if (i === values.length) return [null, "No rank and file"];
     else return [values[i], texts[i]];
   }
-  _pieceSquareDragStop = raf => {
-    let isMove = this.props.onDrop({
-      from: raf.from,
-      to: raf.to
+
+  onDrop = ({ sourceSquare, targetSquare }) => {
+    let move = this.state.board.move({
+      from: sourceSquare,
+      to: targetSquare,
+      promotion: "q"
     });
-    return isMove;
+    if (move === null) {
+      return;
+    } else {
+      this.setState({ board: this.state.board });
+      let history = this.state.board.history();
+      let moves = history[history.length - 1];
+      this.props.onDrop({
+        move: moves
+      });
+    }
   };
+
   render() {
     let w = this.state.width;
     let h = this.state.height;
@@ -134,7 +159,14 @@ export default class MiddleBoard extends Component {
       this.state.top === "b" ? this.props.capture.b : this.props.capture.w;
     const tc = this.state.top === "w" ? "b" : "w";
     const bc = this.state.top === "b" ? "b" : "w";
-    const board = this.props.board || new Chess.Chess();
+
+    let bordtop;
+    if (this.state.top === "w") {
+      bordtop = "black";
+    } else {
+      bordtop = "white";
+    }
+    log.debug("Ok", this.props.istakeback);
     return (
       <div>
         <button
@@ -161,58 +193,22 @@ export default class MiddleBoard extends Component {
           />
         </div>
         <div style={this.props.cssmanager.fullWidth()}>
-          <Board
-            cssmanager={this.props.cssmanager}
-            board={board.board()}
-            draw_rank_and_file={this.state.draw_rank_and_file}
-            side={size}
-            top={this.state.top}
-            circles={this.props.circles}
-            circle={{ lineWidth: 4, color: "red" }}
-            arrow={{ lineWidth: 2, color: "blue" }}
-            ref="board"
-            onDrop={this._pieceSquareDragStop}
-            onDrawCircle={this.props.onDrawCircle}
-            onRemoveCircle={this.props.onRemoveCircle}
+          <Chessboard
+            id="allowDrag"
+            darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
+            lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
+            calcWidth={({ screenWidth }) => (screenWidth < 500 ? 350 : 480)}
+            position={this.state.board.fen()}
+            onDrop={this.onDrop}
+            orientation={bordtop}
+            undo={this.props.undo}
+            boardStyle={{
+              borderRadius: "5px",
+              boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
+            }}
+            draggable={true}
           />
-        {/*   <div
-            style={{
-              position: "absolute",
-              top: "40%",
-              right: "20px",
-              color: "#fff",
-              fontSize: "12px"
-            }}
-          >
-            Circle width:
-            <br />
-            <input
-              style={{ color: "black" }}
-              id="circlewidth"
-              type="number"
-              name="quantity"
-              min="1"
-              max="50"
-              onChange={this.circleLineWidthChange}
-            />
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              top: "50%",
-              right: "20px",
-              color: "#fff",
-              fontSize: "12px"
-            }}
-          >
-            Circle color:
-            <br />
-            <select id="circlecolor" style={{ color: "black" }} onChange={this.circleColorChange}>
-              <option value="red">Red</option>
-              <option value="green">Green</option>
-            </select>
-          </div>*/}
-        </div> 
+        </div>
         <div style={{ clear: "Left" }} />
         <div style={{ width: size }}>
           <Player

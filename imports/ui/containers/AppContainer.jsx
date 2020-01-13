@@ -58,7 +58,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
   renderGameMessages() {
     const game = Game.findOne({
       $and: [
-        { status: "playing" },
+        {
+          $or: [{ status: "playing" }, { status: "examining" }]
+        },
         {
           $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
         }
@@ -194,53 +196,17 @@ export default class AppContainer extends TrackerReact(React.Component) {
       const gameExamin = this.examinGame();
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
-      }
-    }
-    if (!game) {
-      return false;
-    } else {
-      let result = null;
-      let gameTurn = this._board.turn();
-      if (this._board.game_over() === true) {
-        alert("Game over");
-        return false;
-      }
-
-      // TODO: FYI, I really prefer you use userid and not username when checking.
-      //       The server uses user._id or Meteor.userId() exclusively.
-      if (
-        (game.black.id === Meteor.userId() && gameTurn === "b") ||
-        (game.white.id === Meteor.userId() && gameTurn === "w")
-      ) {
-        result = this._board.move({ from: raf.from, to: raf.to });
       } else {
-        alert("Not your Move");
-      }
-      var moveColor = "White";
-      if (this._board.turn() === "b") {
-        moveColor = "Black";
-      }
-      if (this._board.in_checkmate()) {
-        // TODO: See, here we are already with overlooked non-internationalized strings
-        let status = "Game over, " + moveColor + " is in checkmate.";
-        alert(status);
-      }
-      if (result !== null) {
-        let history = this._board.history();
-        this.gameId = game._id;
-        this.userId = Meteor.userId();
-        let move = history[history.length - 1];
-        Meteor.call("addGameMove", "gameMove", this.gameId, move);
-        return true;
+        return;
       }
     }
+
+    Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };
   _boardFromMongoMessages(game) {
     let moves = [];
     let variation = game.variations;
-    if (this._board.fen() !== game.fen) {
-      this._board.load(game.fen);
-    }
+    this._board.load(game.fen);
     this._boardfallensolder = new Chess.Chess();
     let itemToBeRemoved = [];
     for (let i = 0; i < variation.cmi; i++) {
@@ -272,9 +238,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
   }
   _examinBoard(game) {
-    if (this._board.fen() !== game.fen) {
-      this._board.load(game.fen);
-    }
+    // if (this._board.fen() !== game.fen) {
+    this._board.load(game.fen);
+    // }
   }
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
@@ -287,7 +253,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
     let circles = [];
-    const gameExamin = this.examinGame();
+    const gameExamin = []; // this.examinGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
@@ -303,10 +269,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this.gameId = game._id;
       this._boardFromMongoMessages(game);
     } else {
-      if (!!gameExamin && gameExamin.length > 0) {
+      /*  if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
         this.gameId = game._id;
-        this._boardFromMongoMessages(game);
+        this._examinBoard(game);
         if (!!game.circles) {
           let circleslist = game.circles;
 
@@ -315,7 +281,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
             circles.push(c1);
           });
         }
-      }
+      } */
     }
 
     const capture = this._fallenSoldier();
@@ -324,7 +290,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         <MainPage
           cssmanager={css}
           board={this._board}
-          move={this.state.move}
           capture={capture}
           game={game}
           gameRequest={gameRequest}

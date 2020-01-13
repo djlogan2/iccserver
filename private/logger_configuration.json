@@ -3,6 +3,7 @@
     "server/users_js": "ERROR",
     "server/firstRunUsers_js": "ERROR",
     "client/AppContainer": "TRACE",
+    "client/MiddleBoard": "TRACE",
     "LoginPage/LoginPage_js": "TRACE",
     "client/MainPage": "TRACE",
     "SignUpPage/SignUpPage_js": "TRACE",
@@ -18,8 +19,8 @@
     "ICCMeteorError": "TRACE",
     "server/LegacyUsers": "ERROR",
     "server/timestamp_js": "ERROR",
-    "server/Game_js": "TRACE",
-    "server/GameRequest_js": "TRACE",
+    "server/Game_js": "ERROR",
+    "server/GameRequest_js": "ERROR",
     "server/main_js": "ERROR",
-    "server/UCI": "TRACE"
+    "server/UCI": "ERROR"
 }
