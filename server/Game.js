@@ -1559,7 +1559,9 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (!game.examiners.includes(self._id)) {
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
@@ -1601,7 +1603,9 @@ Game.removeCircle = function(message_identifier, game_id, square) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (!game.examiners.includes(self._id)) {
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
@@ -1643,7 +1647,9 @@ Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (!game.examiners.includes(self._id)) {
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
@@ -1686,14 +1692,14 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
   }
   const game = GameCollection.findOne({ _id: game_id });
   if (!game) {
-    throw new ICCMeteorError(message_identifier, "Unable to remove circle", "Game doesn't exist");
+    throw new ICCMeteorError(message_identifier, "Unable to remove arrow", "Game doesn't exist");
   }
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (
-    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
-  ) {
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
@@ -1701,10 +1707,10 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
     { _id: game_id, status: "examining" },
     {
       $pull: {
-        arrow: { from: from, to: to },
-        $push: {
-          actions: { type: "remove_arrow", issuer: self._id, parameter: { from: from, to: to } }
-        }
+        arrow: { from: from, to: to }
+      },
+      $push: {
+        actions: { type: "remove_arrow", issuer: self._id, parameter: { from: from, to: to } }
       }
     }
   );

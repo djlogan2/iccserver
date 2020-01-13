@@ -2,7 +2,7 @@ import chai from "chai";
 import { Game } from "../server/Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
-describe.only("Game.drawCircle", function() {
+describe("Game.drawCircle", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should have a function called drawCircle", function() {
     chai.assert.isFunction(Game.drawCircle, "Failed to identify Game.drawCircle as a function");
@@ -71,7 +71,7 @@ describe.only("Game.drawCircle", function() {
     chai.assert.deepEqual(record.circles[0], { square: "c1", color: "red", size: 3 });
   });
   it("should add the square to the game record if all is well", function() {
-    self.loggedonuser = TestHelpers.createUser();
+    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
@@ -79,7 +79,7 @@ describe.only("Game.drawCircle", function() {
     chai.assert.deepEqual(record.circles[0], { square: "c1", color: "red", size: 3 });
   });
   it("should write an action", function() {
-    self.loggedonuser = TestHelpers.createUser();
+    self.loggedonuser = TestHelpers.createUser({ _id: "whiteguy" });
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
@@ -101,7 +101,7 @@ describe.only("Game.drawCircle", function() {
     );
   });
   it("Should change color of circle if already existing, valid and drawn again with changed color", function() {
-    self.loggedonuser = TestHelpers.createUser();
+    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     Game.drawCircle("mi2", game_id, "c1", "blue", 3);
@@ -110,7 +110,7 @@ describe.only("Game.drawCircle", function() {
   });
 
   it("Should change the size of circle if already existing, valid and drawn again with changed size", function() {
-    self.loggedonuser = TestHelpers.createUser();
+    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     Game.drawCircle("mi2", game_id, "c1", "red", 5);
@@ -129,7 +129,7 @@ describe("Game.removeCircle", function() {
     });
   });
   it("should return client message if game is not examined", function() {
-    self.loggedonuser = TestHelpers.createUser();
+    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
     const other = TestHelpers.createUser();
     const game = Game.startLocalGame(
       "test_identifier",
@@ -151,7 +151,7 @@ describe("Game.removeCircle", function() {
     chai.assert.equal(message, "NOT_AN_EXAMINER");
   });
   it("should return client message if user is not an examiner", function() {
-    self.loggedonuser = TestHelpers.createUser();
+    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
     const other = TestHelpers.createUser();
     const game = Game.startLocalExaminedGame("test_identifier", "w", "b", 0);
     self.loggedonuser = other;
@@ -208,7 +208,7 @@ describe("Game.removeCircle", function() {
     );
     chai.assert.equal(
       "c1",
-      record.actions[0].parameter.square,
+      record.actions[1].parameter.square,
       "Failed to record a draw in actions"
     );
   });
