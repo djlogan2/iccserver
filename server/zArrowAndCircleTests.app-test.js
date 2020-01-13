@@ -2,7 +2,7 @@ import chai from "chai";
 import { Game } from "../server/Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
-describe("Game.drawCircle", function() {
+describe.only("Game.drawCircle", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should have a function called drawCircle", function() {
     chai.assert.isFunction(Game.drawCircle, "Failed to identify Game.drawCircle as a function");

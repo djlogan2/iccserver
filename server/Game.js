@@ -1559,27 +1559,21 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (
-    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
-  ) {
+  } else if (!game.examiners.includes(self._id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  for (var i = 0; i < game.circles.length; i++) {
-    if (game.circles[i].square == square) {
-      game.circles[i].color = color;
-      game.circles[i].size = size;
-      return;
-    }
+  const resultFind = game.circles.find(circle => circle.square === square);
+  if (resultFind) {
+    resultFind.color = color;
+    resultFind.size = size;
+  } else {
+    game.circles.push({ square: square, color: color, size: size });
   }
-
-  GameCollection.update(
-    { _id: game_id, status: "examining" },
-    { $push: { circles: { square: square, color: color, size: size } } }
-  );
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
+      $set: { circles: game.circles },
       $push: {
         actions: {
           type: "draw_circle",
@@ -1644,7 +1638,7 @@ Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
   }
   const game = GameCollection.findOne({ _id: game_id });
   if (!game) {
-    throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
+    throw new ICCMeteorError(message_identifier, "Unable to draw arrow", "Game doesn't exist");
   }
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
