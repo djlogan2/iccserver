@@ -1,10 +1,12 @@
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 import { GameRequests } from "./GameRequest";
+import "./PgnExport";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
 import firstAddI18nMessage from "../imports/startup/server/firstI18nMessage";
+import "./Mugshots";
 import fs from "fs";
 
 import "../imports/collections/css";

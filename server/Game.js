@@ -13,7 +13,6 @@ import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
-import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { GameHistorySchema } from "./GameHistorySchema";
