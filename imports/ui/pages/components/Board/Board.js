@@ -158,6 +158,7 @@ export default class Board extends React.Component {
   }
 
   _circleObject(rank, file) {
+    /*
     const circleobj = this.state.circles.filter(obj => {
       return obj.rank === rank && obj.file === file;
     });
@@ -166,6 +167,7 @@ export default class Board extends React.Component {
         lineWidth: circleobj[0].lineWidth,
         color: circleobj[0].color
       };
+     */
   }
   _fileSquareClick = () => {
     log.error("fileSquareclick");

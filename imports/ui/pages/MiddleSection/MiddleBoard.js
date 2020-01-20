@@ -1,13 +1,9 @@
 import React, { Component } from "react";
 import "../css/ChessBoard";
 import Player from "./Player";
-import Board from "../components/Board/Board";
 import "../css/developmentboard.css";
-import Chess from "chess.js";
 import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
-import Square from "../components/Board/Square";
-import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("client/MiddleBoard");
