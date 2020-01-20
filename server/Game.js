@@ -13,7 +13,6 @@ import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
-import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { GameHistorySchema } from "./GameHistorySchema";
@@ -214,12 +213,11 @@ Game.startLocalGame = function(
     throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
   }
 
-  if (
-    GameCollection.find({
-      status: "playing",
-      $or: [{ "white.id": self._id }, { "black.id": self._id }]
-    }).count() !== 0
-  ) {
+  if (Game.isPlayingGame(self._id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+  if (Game.isPlayingGame(other_user._id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
     return;
   }
@@ -1910,15 +1908,15 @@ function determineWhite(p1, p2, color) {
   else return p2;
 }
 
-// Game.isPlayingGame = function(user_or_id) {
-//   check(user_or_id, Match.OneOf(Object, String));
-//   const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
-//   return (
-//     GameCollection.find({
-//       $and: [{ status: "playing" }, { $or: [{ "white.id": id }, { "black.id": id }] }]
-//     }).count() !== 0
-//   );
-// };
+Game.isPlayingGame = function(user_or_id) {
+  check(user_or_id, Match.OneOf(Object, String));
+  const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
+  return (
+    GameCollection.find({
+      $and: [{ status: "playing" }, { $or: [{ "white.id": id }, { "black.id": id }] }]
+    }).count() !== 0
+  );
+};
 
 Game.moveForward = function(message_identifier, game_id, move_count, variation_index) {
   const movecount = move_count || 1;
@@ -2347,11 +2345,11 @@ function _startGamePing(game_id, color) {
           _id: game_id,
           status: "playing"
         });
-        if (!game) throw new Meteor.Error("Unable to set ping information", "game not found");
+        if (!game) throw new ICCMeteorError("server", "Unable to set ping information", "game not found");
 
         const item = game.lag[color].active.filter(ping => ping.id === msg.id);
         if (!item || item.length !== 1)
-          throw new Meteor.Error(
+          throw new ICCMeteorError("server",
             "Unable to set ping information",
             "cannot find ping id in array of active pings"
           );
@@ -2374,7 +2372,7 @@ function _startGamePing(game_id, color) {
 
 function endGamePing(game_id) {
   if (!game_pings[game_id])
-    throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+    throw new ICCMeteorError("server", "Unable to update game ping", "Unable to locate game to ping");
   game_pings[game_id]["white"].end();
   game_pings[game_id]["black"].end();
   delete game_pings[game_id];
@@ -2407,7 +2405,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     Meteor.clearInterval(move_timers[game_id]);
     delete move_timers[game_id];
     const game = GameCollection.findOne({ _id: game_id, status: "playing" });
-    if (!game) throw new Meteor.Error("Unable to find a game to expire time on");
+    if (!game) throw new ICCMeteorError("server", "Unable to find a game to expire time on");
     const setobject = {};
     const pushobject = {};
     setobject["clocks." + color + ".current"] = 0;
@@ -2468,13 +2466,13 @@ Meteor.methods({
     check(pong, Object);
     check(user, Object);
     if (!game_pings[game_id])
-      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+      throw new ICCMeteorError("server", "Unable to update game ping", "Unable to locate game to ping");
     const game = GameCollection.findOne(
       { _id: game_id, status: "playing" },
       { fields: { "white.id": 1 } }
     );
     if (!game)
-      throw new Meteor.Error("Unable to update game ping", "Unable to locate game to ping");
+      throw new ICCMeteorError("server", "Unable to update game ping", "Unable to locate game to ping");
     const color = game.white.id === user._id ? "white" : "black";
     game_pings[game_id][color].pongArrived(pong);
   },

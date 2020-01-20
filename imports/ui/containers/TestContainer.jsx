@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PieceSquare from "../pages/components/Board/PieceSquare";
 import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
+import UploadMugshot from "../pages/components/FileUpload/UploadMugshot";
 import Board from "../pages/components/Board/Board";
 import CssManager from "../pages/components/Css/TestContainerCssManager";
 import Chess from "chess.js";
@@ -55,6 +56,8 @@ class TestContainer extends TrackerReact(React.Component) {
 
   render() {
     switch (this.state.what) {
+      case "mugshot":
+        return this.renderMugshotUpload();
       case "userlist":
         return this.renderUserList();
       case "square":
@@ -199,6 +202,18 @@ class TestContainer extends TrackerReact(React.Component) {
     );
   }
 
+  doupload() {
+    console.log("here");
+  }
+
+  renderMugshotUpload() {
+    return (
+      <div>
+        <UploadMugshot />
+      </div>
+    );
+  }
+
   renderSquare() {
     return (
       <div>
@@ -234,7 +249,7 @@ class TestContainer extends TrackerReact(React.Component) {
           draw_rank_and_file={"tr"}
           side={100}
           cssmanager={css}
-       />
+        />
         <PieceSquare
           cssmanager={css}
           rank={0}
