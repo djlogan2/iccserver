@@ -1633,8 +1633,8 @@ Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "INVALID_SQUARE",
-      from + " to " + to
+      "INVALID_ARROW",
+      from, to
     );
     return;
   }
@@ -1676,15 +1676,16 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
   check(message_identifier, String);
   check(from, String);
   check(to, String);
-  const self = Meteor.user();
+  let self;
+  self = Meteor.user();
   check(self, Object);
 
   if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
     ClientMessages.sendMessageToClient(
       self,
       message_identifier,
-      "INVALID_SQUARE",
-      from + " to " + to
+      "INVALID_ARROW",
+      from, to
     );
     return;
   }

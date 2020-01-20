@@ -9,7 +9,7 @@ describe("Game.drawCircle", function() {
   });
   it("should fail if game does not exist", function() {
     chai.assert.throws(() => {
-      Game.drawCircle("invalid_id", "invalid", "Dave", "c1", "red", 3);
+      Game.drawCircle("invalid_id", "invalid", "c1", "red", 3);
     });
   });
 
@@ -45,7 +45,7 @@ describe("Game.drawCircle", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    const newguy = TestHelpers.createUser({ _id: "whiteguy" });
+    const newguy = TestHelpers.createUser();
     self.loggedonuser = newguy;
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "za", "red", 3); // illegal row and column
@@ -62,7 +62,7 @@ describe("Game.drawCircle", function() {
     chai.assert.equal(self.clientMessagesSpy.args[3][3], "i1");
   });
   it("should not add the same square multiple times", function() {
-    self.loggedonuser = TestHelpers.createUser({ _id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     Game.drawCircle("mi2", game_id, "c1", "red", 3);
@@ -71,7 +71,7 @@ describe("Game.drawCircle", function() {
     chai.assert.deepEqual(record.circles[0], { square: "c1", color: "red", size: 3 });
   });
   it("should add the square to the game record if all is well", function() {
-    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
@@ -79,29 +79,19 @@ describe("Game.drawCircle", function() {
     chai.assert.deepEqual(record.circles[0], { square: "c1", color: "red", size: 3 });
   });
   it("should write an action", function() {
-    self.loggedonuser = TestHelpers.createUser({ _id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("draw_circle", record.actions[0].type, "Failed to record a draw in actions");
-    chai.assert.equal(
-      "c1",
-      record.actions[0].parameter.square,
-      "Failed to record a draw in actions"
-    );
-    chai.assert.equal(
-      "red",
-      record.actions[0].parameter.color,
-      "Failed to record a draw in actions"
-    );
     chai.assert.deepEqual(
-      3,
-      record.actions[0].parameter.size,
+      { square: "c1", color: "red", size: 3 },
+      record.actions[0].parameter,
       "Failed to record a draw in actions"
     );
   });
   it("Should change color of circle if already existing, valid and drawn again with changed color", function() {
-    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     Game.drawCircle("mi2", game_id, "c1", "blue", 3);
@@ -110,7 +100,7 @@ describe("Game.drawCircle", function() {
   });
 
   it("Should change the size of circle if already existing, valid and drawn again with changed size", function() {
-    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     Game.drawCircle("mi2", game_id, "c1", "red", 5);
@@ -120,8 +110,8 @@ describe("Game.drawCircle", function() {
 });
 describe("Game.removeCircle", function() {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should have a function called drawCircle", function() {
-    chai.assert.isFunction(Game.removeCircle, "Failed to identify Game.drawCircle as a function");
+  it("should have a function called removeCircle", function() {
+    chai.assert.isFunction(Game.removeCircle, "Failed to identify Game.removeCircle as a function");
   });
   it("should fail if game does not exist", function() {
     chai.assert.throws(() => {
@@ -129,7 +119,7 @@ describe("Game.removeCircle", function() {
     });
   });
   it("should return client message if game is not examined", function() {
-    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
     const game = Game.startLocalGame(
       "test_identifier",
@@ -151,7 +141,7 @@ describe("Game.removeCircle", function() {
     chai.assert.equal(message, "NOT_AN_EXAMINER");
   });
   it("should return client message if user is not an examiner", function() {
-    self.loggedonuser = TestHelpers.createUser( {_id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
     const game = Game.startLocalExaminedGame("test_identifier", "w", "b", 0);
     self.loggedonuser = other;
@@ -160,7 +150,7 @@ describe("Game.removeCircle", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    const newguy = TestHelpers.createUser({ _id: "whiteguy" });
+    const newguy = TestHelpers.createUser();
     self.loggedonuser = newguy;
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.removeCircle("mi1", game_id, "za"); // illegal row and column
@@ -177,7 +167,7 @@ describe("Game.removeCircle", function() {
     chai.assert.equal(self.clientMessagesSpy.args[3][3], "i1");
   });
   it("should not have to remove the same square multiple times", function() {
-    self.loggedonuser = TestHelpers.createUser({ _id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.removeCircle("mi1", game_id, "c1");
     Game.removeCircle("mi2", game_id, "c1");
@@ -254,7 +244,7 @@ describe("Game.drawArrow", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
-  it("Should change color of arrow if already existing, valid and drawn again with changed color", function() {
+  it("Should change color of arrow if it already exists", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawArrow("mi1", game_id, "c1", "d2", "red", 3);
@@ -263,7 +253,7 @@ describe("Game.drawArrow", function() {
     chai.assert.equal(record.arrows[0].color, "blue", "failed to change color of existing arrow");
   });
 
-  it("Should change the size of arrow if already existing, valid and drawn again with changed size", function() {
+  it("Should change the size of arrow if it already exists", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawArrow("mi1", game_id, "c1", "d2", "red", 3);
@@ -277,7 +267,7 @@ describe("Game.drawArrow", function() {
     });
   });
   it("should not add the same arrow multiple times (different directions are NOT the same arrow)", function() {
-    self.loggedonuser = TestHelpers.createUser({ _id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawArrow("mi1", game_id, "c1", "d2", "red", 3);
     Game.drawArrow("mi2", game_id, "c1", "d2", "red", 3);
@@ -306,8 +296,8 @@ describe("Game.drawArrow", function() {
 });
 describe("Game.removeArrow", function() {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should have a function called drawCircle", function() {
-    chai.assert.isFunction(Game.removeArrow, "Failed to identify Game.drawArrow as a function");
+  it("should have a function called removeArrow", function() {
+    chai.assert.isFunction(Game.removeArrow, "Failed to identify Game.removeArrow as a function");
   });
   it("should fail if game does not exist", function() {
     chai.assert.throws(() => {
@@ -346,24 +336,27 @@ describe("Game.removeArrow", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    const newguy = TestHelpers.createUser({ _id: "whiteguy" });
+    const newguy = TestHelpers.createUser();
     self.loggedonuser = newguy;
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.removeArrow("mi1", game_id, "za", "d2"); // illegal row and column
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_SQUARE");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_ARROW");
     Game.removeArrow("mi1", game_id, "c9", "d2"); // illegal column
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "INVALID_SQUARE");
-    chai.assert.equal(self.clientMessagesSpy.args[1][3], "c9 to d2");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "INVALID_ARROW");
+    chai.assert.equal(self.clientMessagesSpy.args[1][3], "c9");
+    chai.assert.equal(self.clientMessagesSpy.args[1][4], "d2");
     Game.removeArrow("mi1", game_id, "c0", "d2"); // illegal column
-    chai.assert.equal(self.clientMessagesSpy.args[2][2], "INVALID_SQUARE");
-    chai.assert.equal(self.clientMessagesSpy.args[2][3], "c0 to d2");
+    chai.assert.equal(self.clientMessagesSpy.args[2][2], "INVALID_ARROW");
+    chai.assert.equal(self.clientMessagesSpy.args[2][3], "c0");
+    chai.assert.equal(self.clientMessagesSpy.args[2][4], "d2");
     Game.removeArrow("mi1", game_id, "i1", "d2"); // illegal row
-    chai.assert.equal(self.clientMessagesSpy.args[3][2], "INVALID_SQUARE");
-    chai.assert.equal(self.clientMessagesSpy.args[3][3], "i1 to d2");
+    chai.assert.equal(self.clientMessagesSpy.args[3][2], "INVALID_ARROW");
+    chai.assert.equal(self.clientMessagesSpy.args[3][3], "i1");
+    chai.assert.equal(self.clientMessagesSpy.args[3][4], "d2");
   });
   it("should not have to remove the same square multiple times", function() {
-    self.loggedonuser = TestHelpers.createUser({ _id: "whiteguy" });
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.removeArrow("mi1", game_id, "c1", "d2");
     Game.removeArrow("mi2", game_id, "c1", "d2");
