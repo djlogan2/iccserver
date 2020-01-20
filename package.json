@@ -21,6 +21,7 @@
     "bcrypt": "^3.0.7",
     "chess.js": "git+https://github.com/jhlywa/chess.js.git",
     "chessboardjsx": "^2.4.2",
+    "date-and-time": "^0.12.0",
     "faker": "^4.1.0",
     "legacyicc": "file:../legacy/",
     "meteor-node-stubs": "^0.4.1",

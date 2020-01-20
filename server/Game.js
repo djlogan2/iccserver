@@ -16,6 +16,7 @@ import { Timestamp } from "../lib/server/timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { GameHistorySchema } from "./GameHistorySchema";
+import date from "date-and-time";
 
 const x = [
   [0, "Res", "Black resigns"],
@@ -1978,6 +1979,50 @@ Game.localUnobserveAllGames = function(message_identifier, user_id) {
     .forEach(game => Game.localRemoveObserver("server", game._id, user_id));
 };
 
+Game.exportToPGN = function(id) {
+  check(id, String);
+  const game = GameCollection.findOne({ _id: id });
+  if (!game) return;
+  let pgn = "";
+  //-
+  pgn += "[Date " + date.format("YYYY.MM.DD", game.startTime) + "]\n";
+  pgn += "[White " + game.white.name + "]\n";
+  pgn += "[Black " + game.black.name + "]\n";
+  pgn += "[Result " + game.result + "]\n";
+  pgn += "[WhiteElo " + game.white.rating + "]\n";
+  pgn += "[BlackElo " + game.black.rating + "]\n";
+  //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
+  //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
+  //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
+  pgn += "[Time " + date.format("hh:mm:ss", game.startTime) + "]\n";
+  if (!game.clocks) {
+    pgn += "[TimeControl ?]\n";
+  } else {
+    switch (game.clocks.white.inc_or_delay_type) {
+      case "none":
+        pgn += "[TimeControl " + game.clocks.white.initial / 1000 + "]\n";
+        break;
+      case "us":
+      case "bronstein":
+      case "inc":
+        pgn +=
+          "[TimeControl " +
+          game.clocks.white.initial / 1000 +
+          "+" +
+          game.clocks.white.inc_or_delay +
+          "]\n";
+        break;
+      default:
+        pgn += "[TimeControl ?]\n";
+        break;
+    }
+  }
+  pgn += "\n";
+  pgn += buildPgnFromMovelist(game.variations.movelist);
+  return pgn;
+  //-
+};
+
 export const GameHistory = {};
 
 const GameHistoryCollection = new Mongo.Collection("game_history");
@@ -2253,11 +2298,13 @@ function _startGamePing(game_id, color) {
           _id: game_id,
           status: "playing"
         });
-        if (!game) throw new ICCMeteorError("server", "Unable to set ping information", "game not found");
+        if (!game)
+          throw new ICCMeteorError("server", "Unable to set ping information", "game not found");
 
         const item = game.lag[color].active.filter(ping => ping.id === msg.id);
         if (!item || item.length !== 1)
-          throw new ICCMeteorError("server",
+          throw new ICCMeteorError(
+            "server",
             "Unable to set ping information",
             "cannot find ping id in array of active pings"
           );
@@ -2280,7 +2327,11 @@ function _startGamePing(game_id, color) {
 
 function endGamePing(game_id) {
   if (!game_pings[game_id])
-    throw new ICCMeteorError("server", "Unable to update game ping", "Unable to locate game to ping");
+    throw new ICCMeteorError(
+      "server",
+      "Unable to update game ping",
+      "Unable to locate game to ping"
+    );
   game_pings[game_id]["white"].end();
   game_pings[game_id]["black"].end();
   delete game_pings[game_id];
@@ -2374,13 +2425,21 @@ Meteor.methods({
     check(pong, Object);
     check(user, Object);
     if (!game_pings[game_id])
-      throw new ICCMeteorError("server", "Unable to update game ping", "Unable to locate game to ping");
+      throw new ICCMeteorError(
+        "server",
+        "Unable to update game ping",
+        "Unable to locate game to ping"
+      );
     const game = GameCollection.findOne(
       { _id: game_id, status: "playing" },
       { fields: { "white.id": 1 } }
     );
     if (!game)
-      throw new ICCMeteorError("server", "Unable to update game ping", "Unable to locate game to ping");
+      throw new ICCMeteorError(
+        "server",
+        "Unable to update game ping",
+        "Unable to locate game to ping"
+      );
     const color = game.white.id === user._id ? "white" : "black";
     game_pings[game_id][color].pongArrived(pong);
   },
