@@ -16,7 +16,9 @@ export default class MainPage extends Component {
     super(props);
     this.gameId = null;
     this.userId = Meteor.userId();
-
+    this.state = {
+      notification: false
+    };
     this.Main = {
       LeftSection: {
         MenuLinks: links
@@ -52,8 +54,16 @@ export default class MainPage extends Component {
         Action: {}
       }
     };
+    this.notificationHandler = this.notificationHandler.bind(this);
   }
-
+  componentWillReceiveProps(nextProps) {
+    if (!!this.props.game && !!nextProps.game && !!nextProps.game.fen && !!this.props.game.fen) {
+      if (nextProps.game.fen !== this.props.game.fen)
+        if (this.props.game.status === "examining" || this.state.notification === true) {
+          this.setState({ notification: false });
+        }
+    }
+  }
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
       white: {
@@ -93,7 +103,33 @@ export default class MainPage extends Component {
       />
     );
   };
+  notificationPopup = (title, action) => {
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        <div className="popup_inner">
+          <h3
+            style={{
+              margin: "10px 0px 20px",
+              color: "#000",
+              fontSize: "17px"
+            }}
+          >
+            {title}
+          </h3>
+          <button
+            onClick={() => this.notificationHandler()}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
 
+  notificationHandler() {
+    this.setState({ notification: !this.state.notification });
+  }
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
@@ -144,10 +180,56 @@ export default class MainPage extends Component {
       const othercolor = this.userId === game.white.id ? "black" : "white";
 
       const actions = game.actions;
+      if (status === "examining") {
+        undo = true;
+      }
       if (!!actions && actions.length !== 0) {
-        //TODO: When takeback occure Chessbord not trash remove peice so write these code
         let ack = actions[actions.length - 1];
-        undo = ack["type"] === "takeback_accepted" || game.status === "examining" ? true : false;
+        switch (ack["type"]) {
+          case "abort_accepted":
+            if (ack["issuer"] !== this.userId && this.state.notification === false) {
+              informativePopup = this.notificationPopup(
+                "Your Abort Request accepted By Opponnet",
+                "abort"
+              );
+            }
+            break;
+          case "abort_declined":
+            if (ack["issuer"] !== this.userId && this.state.notification === false) {
+              informativePopup = this.notificationPopup(
+                "Your Abort Request Decline By Opponnet",
+                "abort"
+              );
+            }
+            break;
+          case "draw_accepted":
+            if (ack["issuer"] !== this.userId && this.state.notification === false) {
+              informativePopup = this.notificationPopup(
+                "Your Draw Request Accept By Opponnet",
+                "abort"
+              );
+            }
+            break;
+          case "draw_declined":
+            if (ack["issuer"] !== this.userId && this.state.notification === false) {
+              informativePopup = this.notificationPopup(
+                "Your Draw Request Decline By Opponnet",
+                "abort"
+              );
+            }
+            break;
+          case "resign":
+            if (ack["issuer"] !== this.userId && this.state.notification === false) {
+              informativePopup = this.notificationPopup("Game is Resigned By Opponent", "abort");
+            }
+            break;
+          case "takeback_accepted":
+            undo = true;
+            break;
+          default:
+            break;
+        }
+
         for (const action of actions) {
           const issuer = action["issuer"];
           switch (action["type"]) {
@@ -215,6 +297,7 @@ export default class MainPage extends Component {
               top={position.top}
               circles={this.props.circles}
               undo={undo}
+              gameStatus={status}
             />
           </div>
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">

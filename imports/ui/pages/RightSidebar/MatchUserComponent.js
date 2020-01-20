@@ -15,9 +15,6 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.state = {
-      hover: false,
-      error: null,
-      trial: 0,
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
         legacyUsers: Meteor.subscribe("legacyUsers"),
@@ -134,7 +131,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     const userdata = localUsers.concat(legacyUsers.map(user => user.username + "(L)"));
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
-  // this.rating=this.getDynamicRatings();
+    // this.rating=this.getDynamicRatings();
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (

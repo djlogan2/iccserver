@@ -12,13 +12,20 @@ class RightSidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: true
+      status: true,
+      gameRequest: props.gameRequest
     };
   }
   changeMode() {
     this.setState({ status: !this.state.status });
   }
-
+  componentWillReceiveProps(nextProps) {
+    if (!!this.props.gameRequest) {
+      if (nextProps.gameRequest !== this.props.gameRequest) {
+        this.setState({ gameRequest: this.props.gameRequest });
+      }
+    }
+  }
   render() {
     let tabitem = null;
 
@@ -29,6 +36,7 @@ class RightSidebar extends Component {
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
           actionData={this.props.actionData}
+          gameRequest={this.state.gameRequest}
           ref="right_bar_top"
         />
       );

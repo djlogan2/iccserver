@@ -17,6 +17,7 @@ export default class GameComponent extends Component {
           cssmanager={this.props.cssmanager}
           game={this.props.MoveHistory}
           actionData={this.props.actionData}
+          gameRequest={this.props.gameRequest}
         />
       </div>
     );
