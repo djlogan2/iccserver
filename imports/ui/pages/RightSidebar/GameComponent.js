@@ -18,6 +18,7 @@ export default class GameComponent extends Component {
           game={this.props.MoveHistory}
           actionData={this.props.actionData}
           gameRequest={this.props.gameRequest}
+          history={this.props.history}
         />
       </div>
     );

@@ -56,9 +56,10 @@ export default class MainPage extends Component {
     };
     this.notificationHandler = this.notificationHandler.bind(this);
   }
+
   componentWillReceiveProps(nextProps) {
-    if (!!this.props.game && !!nextProps.game && !!nextProps.game.fen && !!this.props.game.fen) {
-      if (nextProps.game.fen !== this.props.game.fen)
+    if (!!this.props.len && !!nextProps.len) {
+      if (nextProps.len !== this.props.len)
         if (this.props.game.status === "examining" || this.state.notification === true) {
           this.setState({ notification: false });
         }
@@ -189,7 +190,7 @@ export default class MainPage extends Component {
           case "abort_accepted":
             if (ack["issuer"] !== this.userId && this.state.notification === false) {
               informativePopup = this.notificationPopup(
-                "Your Abort Request accepted By Opponnet",
+                "Abort request has been accepted by the opponent",
                 "abort"
               );
             }
@@ -197,7 +198,7 @@ export default class MainPage extends Component {
           case "abort_declined":
             if (ack["issuer"] !== this.userId && this.state.notification === false) {
               informativePopup = this.notificationPopup(
-                "Your Abort Request Decline By Opponnet",
+                "Abort request has been declined by the opponent",
                 "abort"
               );
             }
@@ -205,7 +206,7 @@ export default class MainPage extends Component {
           case "draw_accepted":
             if (ack["issuer"] !== this.userId && this.state.notification === false) {
               informativePopup = this.notificationPopup(
-                "Your Draw Request Accept By Opponnet",
+                "Draw request has been accepted by the opponent",
                 "abort"
               );
             }
@@ -213,14 +214,14 @@ export default class MainPage extends Component {
           case "draw_declined":
             if (ack["issuer"] !== this.userId && this.state.notification === false) {
               informativePopup = this.notificationPopup(
-                "Your Draw Request Decline By Opponnet",
+                "Draw request has been declined by the opponent",
                 "abort"
               );
             }
             break;
           case "resign":
             if (ack["issuer"] !== this.userId && this.state.notification === false) {
-              informativePopup = this.notificationPopup("Game is Resigned By Opponent", "abort");
+              informativePopup = this.notificationPopup("Game is resigned by opponent", "abort");
             }
             break;
           case "takeback_accepted":

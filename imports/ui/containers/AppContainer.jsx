@@ -254,6 +254,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
     let circles = [];
+    let actionlen;
     let gameExamin = []; // this.examinGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
@@ -268,6 +269,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (!!game) {
       this.gameId = game._id;
+      actionlen = game.actions.length;
       this._boardFromMongoMessages(game);
     } else {
       gameExamin = this.examinGame();
@@ -285,7 +287,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         }
       }
     }
-
     const capture = this._fallenSoldier();
     return (
       <div>
@@ -293,6 +294,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           cssmanager={css}
           board={this._board}
           capture={capture}
+          len={actionlen}
           game={game}
           gameRequest={gameRequest}
           clientMessage={clientMessage}

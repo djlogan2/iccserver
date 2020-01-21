@@ -16,11 +16,7 @@ export default class RightBarTopActivetabs extends Component {
       status: "others"
     };
   }
-  /*  componentWillReceiveProps(prevProps) {
-    if (prevProps.RightBarTopData1.status !== this.props.RightBarTopData1.status) {
-      if (this.props.RightBarTopData1.status === "playing") this.setState({ status: "playing" });
-    }
-  } */
+
   getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||

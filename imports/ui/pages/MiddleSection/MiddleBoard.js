@@ -4,6 +4,7 @@ import Player from "./Player";
 import "../css/developmentboard.css";
 import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
+import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("client/MiddleBoard");

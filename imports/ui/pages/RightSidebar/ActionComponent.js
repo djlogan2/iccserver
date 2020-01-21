@@ -7,6 +7,7 @@ class ActionComponent extends Component {
     super(props);
     this.state = {
       action: "action",
+      examinAction: "action",
       gameRequest: props.gameRequest
     };
   }
@@ -44,6 +45,9 @@ class ActionComponent extends Component {
         break;
       default:
     }
+  };
+  handleChange = e => {
+    this.setState({ examinAction: e.target.value });
   };
   _takeBackAction = number => {
     Meteor.call("requestTakeback", "takeBackRequest", this.gameId, number);
@@ -85,13 +89,26 @@ class ActionComponent extends Component {
       this.state.gameRequest.challenger_color_request
     );
   };
+  examinActionPopup = () => {
+    return (
+      <div>
+        Email <input type="text" name="email" />
+      </div>
+    );
+  };
+
   render() {
     this.userId = this.props.actionData.userId;
     this.gameId = this.props.actionData.gameId;
     let status = this.props.game.status;
+    let popup = null;
     let display = status === "playing" ? true : false;
-    // let display = false;
+    //let display = false;
     let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
+
+    if (this.state.examinAction === "emailgame") {
+      //  popup = this.examinActionPopup();
+    }
 
     return (
       <div className="draw-section">
@@ -151,7 +168,10 @@ class ActionComponent extends Component {
         ) : (
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
-              <button style={this.props.cssmanager.buttonStyle()}>
+              <button
+                onClick={event => (window.location.href = "/play")}
+                style={this.props.cssmanager.buttonStyle()}
+              >
                 <img
                   src={this.props.cssmanager.buttonBackgroundImage("draw")}
                   alt="Draw"
@@ -184,15 +204,17 @@ class ActionComponent extends Component {
                     marginTop: "7px",
                     width: "150px"
                   }}
-                  value={this.state.action}
+                  value={this.state.examinAction}
+                  onChange={this.handleChange}
                 >
                   <option value="action">Action</option>
-                  <option value="action">Add Game To Library</option>
-                  <option value="abort">Complain About This Game</option>
-                  <option value="halfMove">Email Game</option>
+                  <option value="addgame">Add Game To Library</option>
+                  <option value="complain">Complain About This Game</option>
+                  <option value="emailgame">Email Game</option>
                 </select>
               </span>
             </li>
+            {popup}
           </ul>
         )}
       </div>
