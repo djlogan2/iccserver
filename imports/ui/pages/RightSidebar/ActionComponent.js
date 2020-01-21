@@ -6,7 +6,9 @@ class ActionComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      action: "action"
+      action: "action",
+      examinAction: "action",
+      gameRequest: props.gameRequest
     };
   }
   static getLang() {
@@ -17,6 +19,16 @@ class ActionComponent extends Component {
       navigator.userLanguage ||
       "en-US"
     );
+  }
+  componentWillReceiveProps(nextProps) {
+    if (!!this.props.gameRequest) {
+      if (
+        nextProps.gameRequest !== this.props.gameRequest &&
+        this.props.gameRequest.type === "match"
+      ) {
+        this.setState({ gameRequest: this.props.gameRequest });
+      }
+    }
   }
   handleChangeSecond = event => {
     let action = event.target.value;
@@ -34,6 +46,9 @@ class ActionComponent extends Component {
       default:
     }
   };
+  handleChange = e => {
+    this.setState({ examinAction: e.target.value });
+  };
   _takeBackAction = number => {
     Meteor.call("requestTakeback", "takeBackRequest", this.gameId, number);
   };
@@ -49,12 +64,52 @@ class ActionComponent extends Component {
   _resignGame = () => {
     Meteor.call("resignGame", "resignGame", this.gameId);
   };
+  _reMatchGame = () => {
+    let toUser;
+    if (Meteor.userId() !== this.state.gameRequest.challenger_id) {
+      toUser = this.state.gameRequest.challenger_id;
+    } else {
+      toUser = this.state.gameRequest.receiver_id;
+    }
+
+    Meteor.call(
+      "addLocalMatchRequest",
+      "matchRequest",
+      toUser,
+      this.state.gameRequest.wild_number,
+      this.state.gameRequest.rating_type,
+      this.state.gameRequest.rated,
+      this.state.gameRequest.adjourned,
+      this.state.gameRequest.challenger_time,
+      this.state.gameRequest.challenger_inc_or_delay,
+      this.state.gameRequest.challenger_delaytype,
+      this.state.gameRequest.receiver_time,
+      this.state.gameRequest.receiver_inc_or_delay,
+      this.state.gameRequest.receiver_delaytype,
+      this.state.gameRequest.challenger_color_request
+    );
+  };
+  examinActionPopup = () => {
+    return (
+      <div>
+        Email <input type="text" name="email" />
+      </div>
+    );
+  };
+
   render() {
     this.userId = this.props.actionData.userId;
     this.gameId = this.props.actionData.gameId;
     let status = this.props.game.status;
+    let popup = null;
     let display = status === "playing" ? true : false;
+    //let display = false;
     let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
+
+    if (this.state.examinAction === "emailgame") {
+      //  popup = this.examinActionPopup();
+    }
+
     return (
       <div className="draw-section">
         <div style={this.props.cssmanager.drawActionSection()}>Game status : {status}</div>
@@ -113,7 +168,10 @@ class ActionComponent extends Component {
         ) : (
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
-              <button style={this.props.cssmanager.buttonStyle()}>
+              <button
+                onClick={event => (window.location.href = "/play")}
+                style={this.props.cssmanager.buttonStyle()}
+              >
                 <img
                   src={this.props.cssmanager.buttonBackgroundImage("draw")}
                   alt="Draw"
@@ -123,7 +181,10 @@ class ActionComponent extends Component {
               </button>
             </li>
             <li style={this.props.cssmanager.drawSectionList()}>
-              <button style={this.props.cssmanager.buttonStyle()}>
+              <button
+                onClick={this._reMatchGame.bind(this)}
+                style={this.props.cssmanager.buttonStyle()}
+              >
                 <img
                   src={this.props.cssmanager.buttonBackgroundImage("resign")}
                   alt="Resign"
@@ -140,20 +201,20 @@ class ActionComponent extends Component {
                     border: "1px #9c9c9c solid",
                     padding: "6px 3px",
                     borderRadius: "5px",
-                    marginTop: "7px"
+                    marginTop: "7px",
+                    width: "150px"
                   }}
-                  value={this.state.action}
+                  value={this.state.examinAction}
+                  onChange={this.handleChange}
                 >
                   <option value="action">Action</option>
-                  <option value="abort">Abort</option>
-                  <option value="halfMove">TakeBack 1 Move</option>
-                  <option value="fullMove">TakeBack 2 Moves</option>
-                  <option value="flag">Flag</option>
-                  <option value="moretime">Moretime</option>
-                  <option value="adjourn">Adjourn</option>
+                  <option value="addgame">Add Game To Library</option>
+                  <option value="complain">Complain About This Game</option>
+                  <option value="emailgame">Email Game</option>
                 </select>
               </span>
             </li>
+            {popup}
           </ul>
         )}
       </div>

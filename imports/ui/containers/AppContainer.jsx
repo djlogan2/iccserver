@@ -28,6 +28,7 @@ Meteor.startup(() => {
     // the subscription is stopped on the server, cleaning up.
     //
     Meteor.subscribe("userData");
+    Meteor.subscribe("observing_games");
   });
 });
 
@@ -58,9 +59,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
   renderGameMessages() {
     const game = Game.findOne({
       $and: [
-        {
-          $or: [{ status: "playing" }, { status: "examining" }]
-        },
+        { status: "playing" },
+
         {
           $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
         }
@@ -89,6 +89,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
     return GameRequestCollection.findOne(
       {
         $or: [
+          {
+            challenger_id: Meteor.userId()
+          },
           {
             receiver_id: Meteor.userId()
           },
@@ -193,7 +196,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _pieceSquareDragStop = raf => {
     let game = this.renderGameMessages();
     if (!game) {
-      const gameExamin = this.examinGame();
+      let gameExamin = this.examinGame();
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
       } else {
@@ -238,9 +241,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }
   }
   _examinBoard(game) {
-    // if (this._board.fen() !== game.fen) {
     this._board.load(game.fen);
-    // }
   }
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
@@ -253,7 +254,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
     let circles = [];
-    const gameExamin = []; // this.examinGame();
+    let actionlen;
+    let gameExamin = []; // this.examinGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
@@ -267,9 +269,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (!!game) {
       this.gameId = game._id;
+      actionlen = game.actions.length;
       this._boardFromMongoMessages(game);
     } else {
-      /*  if (!!gameExamin && gameExamin.length > 0) {
+      gameExamin = this.examinGame();
+      if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
         this.gameId = game._id;
         this._examinBoard(game);
@@ -281,9 +285,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
             circles.push(c1);
           });
         }
-      } */
+      }
     }
-
     const capture = this._fallenSoldier();
     return (
       <div>
@@ -291,6 +294,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           cssmanager={css}
           board={this._board}
           capture={capture}
+          len={actionlen}
           game={game}
           gameRequest={gameRequest}
           clientMessage={clientMessage}

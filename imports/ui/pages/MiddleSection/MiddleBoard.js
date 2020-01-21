@@ -4,6 +4,7 @@ import Player from "./Player";
 import "../css/developmentboard.css";
 import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
+import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("client/MiddleBoard");
@@ -117,20 +118,23 @@ export default class MiddleBoard extends Component {
       });
     }
   };
-
   render() {
     let w = this.state.width;
     let h = this.state.height;
     let d;
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
-
+    let bh = h;
+    let bw = w;
     d = h;
     w /= 2; // 1366/2
     h -= d / 9;
-    let mbh = h / 6;
-
     const size = Math.min(h, w);
+    d = bh;
+    bw = bw / 2;
+    bh -= d / 5;
+    let boardsize = Math.min(bh, bw);
+
     const newColor = this.state.top === "w" ? "Black" : "White";
 
     const raf = this.nextRAF()[1];
@@ -162,7 +166,22 @@ export default class MiddleBoard extends Component {
     } else {
       bordtop = "white";
     }
-    log.debug("Ok", this.props.istakeback);
+    let turn = false;
+    //TODO:DRAGEABLE FALSE AND TRUE ACCODING GAME TURN
+    if (
+      (this.props.MiddleBoardData.white.id === Meteor.userId() &&
+        this.state.board.turn() === "w") ||
+      this.props.gameStatus === "examining"
+    ) {
+      turn = true;
+    } else if (
+      (this.props.MiddleBoardData.black.id === Meteor.userId() &&
+        this.state.board.turn() === "b") ||
+      this.props.gameStatus === "examining"
+    ) {
+      turn = true;
+    }
+
     return (
       <div>
         <button
@@ -193,7 +212,7 @@ export default class MiddleBoard extends Component {
             id="allowDrag"
             darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
             lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
-            calcWidth={({ screenWidth }) => (screenWidth < 500 ? 350 : 480)}
+            calcWidth={({ screenWidth }) => boardsize}
             position={this.state.board.fen()}
             onDrop={this.onDrop}
             orientation={bordtop}
@@ -202,7 +221,7 @@ export default class MiddleBoard extends Component {
               borderRadius: "5px",
               boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
             }}
-            draggable={true}
+            draggable={turn}
           />
         </div>
         <div style={{ clear: "Left" }} />
