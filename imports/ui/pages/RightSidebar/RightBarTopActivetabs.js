@@ -38,6 +38,7 @@ export default class RightBarTopActivetabs extends Component {
             flip={this.props.flip}
             actionData={this.props.actionData}
             gameRequest={this.props.gameRequest}
+            examineAction={this.props.examineAction}
           />
         </div>
         <div label={translator("play")} imgsrc="images/play-icon-gray.png">

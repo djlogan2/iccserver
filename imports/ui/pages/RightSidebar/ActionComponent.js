@@ -48,6 +48,7 @@ class ActionComponent extends Component {
   };
   handleChange = e => {
     this.setState({ examinAction: e.target.value });
+    this.props.examineAction(e.target.value);
   };
   _takeBackAction = number => {
     Meteor.call("requestTakeback", "takeBackRequest", this.gameId, number);
@@ -101,14 +102,10 @@ class ActionComponent extends Component {
     this.userId = this.props.actionData.userId;
     this.gameId = this.props.actionData.gameId;
     let status = this.props.game.status;
-    let popup = null;
-    let display = status === "playing" ? true : false;
-    //let display = false;
-    let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
 
-    if (this.state.examinAction === "emailgame") {
-      //  popup = this.examinActionPopup();
-    }
+    let display = status === "playing" ? true : false;
+
+    let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
 
     return (
       <div className="draw-section">
@@ -214,7 +211,6 @@ class ActionComponent extends Component {
                 </select>
               </span>
             </li>
-            {popup}
           </ul>
         )}
       </div>

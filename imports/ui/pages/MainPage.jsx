@@ -17,7 +17,9 @@ export default class MainPage extends Component {
     this.gameId = null;
     this.userId = Meteor.userId();
     this.state = {
-      notification: false
+      notification: false,
+      exnotification: false,
+      examinAction: "action"
     };
     this.Main = {
       LeftSection: {
@@ -55,13 +57,14 @@ export default class MainPage extends Component {
       }
     };
     this.notificationHandler = this.notificationHandler.bind(this);
+    this.examineActionHandler = this.examineActionHandler.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     if (!!this.props.len && !!nextProps.len) {
       if (nextProps.len !== this.props.len)
         if (this.props.game.status === "examining" || this.state.notification === true) {
-          this.setState({ notification: false });
+          this.setState({ notification: false, exnotification: false });
         }
     }
   }
@@ -94,6 +97,9 @@ export default class MainPage extends Component {
       <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
     );
   };
+  examineActionHandler(action) {
+    this.setState({ exnotification: false, examinAction: action });
+  }
   actionPopup = (title, action) => {
     return (
       <ActionPopup
@@ -127,9 +133,83 @@ export default class MainPage extends Component {
       </div>
     );
   };
+  examinActionPopup = action => {
+    if (action === "complain") {
+      return (
+        <div style={this.props.cssmanager.outerPopupMain()}>
+          <button
+            style={{
+              position: "absolute",
+              top: "-17px",
+              right: "-16px",
+              background: "#b7bdc5",
+              borderRadius: "50%",
+              border: "3px solid #242f35"
+            }}
+            onClick={() => this.examinActionCloseHandler()}
+          >
+            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+          </button>
+          <div className="popup_inner">
+            <div>
+              <label>Email</label>
+              <input type="text" name="email" />
+            </div>
+            <div>
+              <label>Complaint</label>
+              <textarea name="complaint" rows="4" cols="35" />
+            </div>
+            <div>
+              <button
+                onClick={() => this.examinActionCloseHandler()}
+                style={this.props.cssmanager.innerPopupMain()}
+              >
+                submit
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (action === "emailgame") {
+      return (
+        <div style={this.props.cssmanager.outerPopupMain()}>
+          <button
+            style={{
+              position: "absolute",
+              top: "-17px",
+              right: "-16px",
+              background: "#b7bdc5",
+              borderRadius: "50%",
+              border: "3px solid #242f35"
+            }}
+            onClick={() => this.examinActionCloseHandler()}
+          >
+            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+          </button>
+          <div className="popup_inner">
+            <div>
+              <label>Email</label>
+              <input type="text" name="email" />
+            </div>
 
+            <div>
+              <button
+                onClick={() => this.examinActionCloseHandler()}
+                style={this.props.cssmanager.innerPopupMain()}
+              >
+                submit
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
   notificationHandler() {
     this.setState({ notification: !this.state.notification });
+  }
+  examinActionCloseHandler() {
+    this.setState({ exnotification: true });
   }
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
@@ -270,7 +350,14 @@ export default class MainPage extends Component {
     } else {
       this.intializeBoard();
     }
+    let exPopup = null;
 
+    if (
+      this.state.exnotification === false &&
+      (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
+    ) {
+      exPopup = this.examinActionPopup(this.state.examinAction);
+    }
     let w;
     let h;
     if (!w) w = window.innerWidth;
@@ -286,6 +373,7 @@ export default class MainPage extends Component {
           />
           <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
             {informativePopup}
+            {exPopup}
             <MiddleBoard
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
@@ -314,6 +402,7 @@ export default class MainPage extends Component {
               ref="right_sidebar"
               examing={this.props.examing}
               path={this.props.path}
+              examineAction={this.examineActionHandler}
             />
           </div>
         </div>

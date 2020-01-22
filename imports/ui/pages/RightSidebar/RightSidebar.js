@@ -28,7 +28,6 @@ class RightSidebar extends Component {
   }
   render() {
     let tabitem = null;
-
     if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
       tabitem = (
         <RightBarActiveTabs
@@ -37,6 +36,7 @@ class RightSidebar extends Component {
           flip={this.props.flip}
           actionData={this.props.actionData}
           gameRequest={this.state.gameRequest}
+          examineAction={this.props.examineAction}
           ref="right_bar_top"
         />
       );
