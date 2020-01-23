@@ -34,9 +34,10 @@ export default class RightBarTopActivetabs extends Component {
         <div label={translator("game")} imgsrc="images/game-icon-gray.png">
           <GameHistory
             cssmanager={this.props.cssmanager}
-            MoveHistory={this.props.RightBarTopData.MoveList}
+            game={this.props.RightBarTopData.MoveList}
             flip={this.props.flip}
             actionData={this.props.actionData}
+            startGameExamine={this.props.startGameExamine}
             gameRequest={this.props.gameRequest}
             examineAction={this.props.examineAction}
           />

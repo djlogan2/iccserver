@@ -34,8 +34,8 @@ class RightSidebar extends Component {
           RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
-          actionData={this.props.actionData}
           gameRequest={this.state.gameRequest}
+          startGameExamine={this.props.startGameExamine}
           examineAction={this.props.examineAction}
           ref="right_bar_top"
         />

@@ -19,12 +19,11 @@ export default class MoveListComponent extends Component {
   render() {
     let moves = [];
     let variation;
-    let game = this.props.Moves;
+    let game = this.props.game;
     this.gameId = game._id;
     let status = game.status;
-    if (!!this.props.Moves && this.props.Moves.variations !== undefined) {
-      this.gameId = this.props.Moves._id;
-      variation = this.props.Moves.variations;
+    if (!!game && game.variations !== undefined) {
+      variation = game.variations;
       let itemToBeRemoved = [];
       for (let i = 0; i < variation.cmi; i++) {
         if (itemToBeRemoved.indexOf(i) === -1) {

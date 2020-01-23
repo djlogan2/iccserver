@@ -102,6 +102,7 @@ const systemcss = {
     chatSendButton: "images/send-btn.png",
     toggleMenu: "images/menu-button-of-three-lines.svg",
     deleteSign: "images/delete-sign.png",
+    examine: "images/examine-icon.png",
     /**Main Page.jsx */
     infoIcon: "images/info-icon.png",
     checkedIcon: "images/checked.png",
