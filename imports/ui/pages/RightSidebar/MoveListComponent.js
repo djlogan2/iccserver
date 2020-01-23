@@ -98,7 +98,7 @@ export default class MoveListComponent extends Component {
           </button>
           <button
             style={this.props.cssmanager.buttonStyle()}
-            onClick={this.moveForwardEnd.bind(this, variation.cmi)}
+            onClick={this.moveForwardEnd.bind(this, 1)}
           >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("fastForwardNext")}

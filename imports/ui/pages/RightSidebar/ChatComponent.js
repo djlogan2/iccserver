@@ -78,7 +78,10 @@ export default class ChatComponent extends Component {
                   style={this.props.cssmanager.buttonStyle()}
                   onClick={this.removeAcknowledgeMessage.bind(this, message._id)}
                 >
-                  <img src="images/delete-sign.png" />
+                  <img
+                    src={this.props.cssmanager.buttonBackgroundImage("deleteSign")}
+                    alt="deleteSign"
+                  />
                 </button>
               </p>
             </div>
