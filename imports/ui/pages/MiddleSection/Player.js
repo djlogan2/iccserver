@@ -22,7 +22,8 @@ export default class Player extends Component {
           width: pw * 6,
           display: "inline-block",
           marginTop: "5px",
-          marginBottom: "5px"
+          marginBottom: "5px",
+          position: "relative"
         }}
       >
         <div style={{ width: pw * 3.7, display: "inline-block" }}>
@@ -48,14 +49,14 @@ export default class Player extends Component {
               </a>
             </div>
 
-            <div>
+            <div style={{ position: "absolute", bottom: "0" }}>
               <span
                 style={{
-                  color: "#fff",
+                  color: this.props.turnColor,
                   fontSize: pw / 6
                 }}
               >
-              {this.props.Playermsg}
+                {this.props.Playermsg}
               </span>
             </div>
           </div>

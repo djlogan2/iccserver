@@ -210,6 +210,9 @@ const systemcss = {
       flexWrap: "nowrap",
       position: "absolute",
       alignItems: "center"
+    },
+    examin: {
+      bottom: "0px"
     }
   },
   gameTopHeader: {
@@ -241,7 +244,6 @@ const systemcss = {
       flexWrap: "wrap",
       alignItems: "center"
     },
-
     bottom: {
       background: "#1565c0",
       paddingTop: "8px",
@@ -274,26 +276,20 @@ const systemcss = {
       borderTopRightRadius: "6px",
       color: "#1565c0"
     },
+    RoomChat: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
     PGN: {
       backgroundColor: "#fff",
       borderTop: "0px #1565c0 solid",
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
-      color: "#1565c0"
-    },
-    Friends: {
-      backgroundColor: "#fff",
-      borderTop: "0px #1565c0 solid",
-      borderTopLeftRadius: "6px",
-      borderTopRightRadius: "6px",
-      color: "#1565c0"
-    },
-    History: {
-      backgroundColor: "#fff",
-      borderTop: "0px #1565c0 solid",
-      borderTopLeftRadius: "6px",
-      borderTopRightRadius: "6px",
-      color: "#1565c0"
+      color: "#1565c0",
+      height: "75px"
     },
     Observers: {
       backgroundColor: "#fff",
@@ -302,7 +298,36 @@ const systemcss = {
       borderTopRightRadius: "6px",
       color: "#1565c0"
     },
-    RoomChat: {
+    Examiner: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0",
+      height: "75px"
+    },
+    FollowCoach: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    GameLibrary: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    GameHistory: {
+      backgroundColor: "#fff",
+      borderTop: "0px #1565c0 solid",
+      borderTopLeftRadius: "6px",
+      borderTopRightRadius: "6px",
+      color: "#1565c0"
+    },
+    AdjournedGame: {
       backgroundColor: "#fff",
       borderTop: "0px #1565c0 solid",
       borderTopLeftRadius: "6px",

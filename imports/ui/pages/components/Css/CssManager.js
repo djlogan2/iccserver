@@ -122,7 +122,7 @@ export default class CssManager {
     return style;
   }
   userFlag(side) {
-    var style = { maxWidth: side, height: "auto" };
+    var style = { maxWidth: side, height: "auto", marginLeft: "10px" };
     Object.assign(style, this._boardStyle.userFlag.all);
     return style;
   }
@@ -256,7 +256,7 @@ export default class CssManager {
   }
   tabListItem(tabActive, hover) {
     if (
-      tabActive !== undefined &&
+      !!tabActive &&
       (tabActive === "Game" ||
         tabActive === "Play" ||
         tabActive === "Tournaments" ||
@@ -269,18 +269,20 @@ export default class CssManager {
       return style;
     } else {
       var style = {};
-      if (tabActive) {
+      if (!!tabActive) {
         if (tabActive === "FEN/PGN") tabActive = "PGN";
         if (tabActive === "Room Chat") tabActive = "RoomChat";
+        if (tabActive === "Examiner") tabActive = "Examiner";
+        if (tabActive === "Follow Coach") tabActive = "FollowCoach";
+        if (tabActive === "Game Library") tabActive = "GameLibrary";
+        if (tabActive === "Game History") tabActive = "GameHistory";
+        if (tabActive === "Adjourned Game") tabActive = "AdjournedGame";
+
         Object.assign(style, this._systemStyle.tabListItem[tabActive]);
       }
+
       Object.assign(style, this._systemStyle.tabListItem.all);
-      if (hover) {
-        if (hover === "FEN/PGN") hover = "PGN";
-        if (hover === "Room Chat") hover = "RoomChat";
-        Object.assign(style, this._systemStyle.tabListItem[hover]);
-      }
-      if (!hover) Object.assign(style, this._systemStyle.tabListItem.all);
+
       return style;
     }
   }

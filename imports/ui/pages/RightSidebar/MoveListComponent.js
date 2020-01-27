@@ -21,7 +21,10 @@ export default class MoveListComponent extends Component {
     let variation;
     let game = this.props.game;
     this.gameId = game._id;
-    let status = game.status;
+    let displayButton = 1;
+    if (!!game.status && game.status === "examining" && this.props.currentGame === false)
+      displayButton = 0;
+
     if (!!game && game.variations !== undefined) {
       variation = game.variations;
       let itemToBeRemoved = [];
@@ -75,51 +78,58 @@ export default class MoveListComponent extends Component {
               ))
             : null}
         </div>
-
-        <div style={this.props.cssmanager.gameButtonMove()}>
-          <button
-            style={this.props.cssmanager.buttonStyle()}
-            onClick={this.moveBackwordBeginning.bind(this)}
-          >
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
-              alt="fast-forward"
-            />
-          </button>
-          <button
-            style={this.props.cssmanager.buttonStyle()}
-            onClick={this.moveBackword.bind(this)}
-          >
-            <img src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")} alt="previous" />
-          </button>
-          <button style={this.props.cssmanager.buttonStyle()} onClick={this.moveForward.bind(this)}>
-            <img src={this.props.cssmanager.buttonBackgroundImage("nextIconGray")} alt="next" />
-          </button>
-          <button
-            style={this.props.cssmanager.buttonStyle()}
-            onClick={this.moveForwardEnd.bind(this, 1)}
-          >
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage("fastForwardNext")}
-              alt="fast-forward-next"
-            />
-          </button>
-          <button style={this.props.cssmanager.buttonStyle()}>
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage("nextIconSingle")}
-              alt="next-single"
-            />
-          </button>
-          <button style={this.props.cssmanager.buttonStyle()} onClick={this.props.flip}>
-            <img src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
-          </button>
-          <button style={this.props.cssmanager.buttonStyle()}>
-            <img
-              src={this.props.cssmanager.buttonBackgroundImage("settingIcon")}
-              alt="setting-icon"
-            />
-          </button>
-        </div>
+        {displayButton ? (
+          <div style={this.props.cssmanager.gameButtonMove()}>
+            <button
+              style={this.props.cssmanager.buttonStyle()}
+              onClick={this.moveBackwordBeginning.bind(this)}
+            >
+              <img
+                src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
+                alt="fast-forward"
+              />
+            </button>
+            <button
+              style={this.props.cssmanager.buttonStyle()}
+              onClick={this.moveBackword.bind(this)}
+            >
+              <img
+                src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")}
+                alt="previous"
+              />
+            </button>
+            <button
+              style={this.props.cssmanager.buttonStyle()}
+              onClick={this.moveForward.bind(this)}
+            >
+              <img src={this.props.cssmanager.buttonBackgroundImage("nextIconGray")} alt="next" />
+            </button>
+            <button
+              style={this.props.cssmanager.buttonStyle()}
+              onClick={this.moveForwardEnd.bind(this, 1)}
+            >
+              <img
+                src={this.props.cssmanager.buttonBackgroundImage("fastForwardNext")}
+                alt="fast-forward-next"
+              />
+            </button>
+            <button style={this.props.cssmanager.buttonStyle()}>
+              <img
+                src={this.props.cssmanager.buttonBackgroundImage("nextIconSingle")}
+                alt="next-single"
+              />
+            </button>
+            <button style={this.props.cssmanager.buttonStyle()} onClick={this.props.flip}>
+              <img src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
+            </button>
+            <button style={this.props.cssmanager.buttonStyle()}>
+              <img
+                src={this.props.cssmanager.buttonBackgroundImage("settingIcon")}
+                alt="setting-icon"
+              />
+            </button>
+          </div>
+        ) : null}
       </div>
     );
   }

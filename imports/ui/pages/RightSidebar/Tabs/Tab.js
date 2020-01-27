@@ -44,7 +44,7 @@ class Tab extends Component {
     }
     return (
       <li
-        style={this.props.cssmanager.tabListItem(activeTabName, hover)}
+        style={this.props.cssmanager.tabListItem(activeTabName, tabListName)}
         onClick={onClick}
         /*    onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave} */

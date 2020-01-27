@@ -12,6 +12,7 @@ export default class GameComponent extends Component {
           cssmanager={this.props.cssmanager}
           game={this.props.game}
           flip={this.props.flip}
+          currentGame={this.props.currentGame}
         />
         <Action
           cssmanager={this.props.cssmanager}

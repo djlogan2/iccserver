@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import Tabs from "./Tabs/Tabs";
-import Chat from "./ChatComponent";
-/* import Events from "./EventsComponent";
+import Examiner from "./ExaminerComponent";
+import FollowCoach from "./FollowCoachComponent";
+import GameLibrary from "./GameLibraryComponent";
+import GameHistory from "./GameHistoryComponent";
+import AdjournedGame from "./AdjournedGameComponent";
 import PGN from "./PGNComponent";
-import Friends from "./FriendsComponent";
-import History from "./HistoryComponent"; */
-import Observers from "./ObserversComponent";
-import RoomChat from "./RoomChatComponent";
 
 import "./Tabs/BottomStyles";
 import i18n from "meteor/universe:i18n";
@@ -27,43 +26,50 @@ class RightBarBottom extends Component {
 
     return (
       <Tabs cssmanager={this.props.cssmanager} tabName="bottom">
-        <div
-          label={translator("chat")}
-          imgsrc="images/chat-icon-white.png"
-          hoverSrc="images/chat-icon-blue.png"
-        >
-          <Chat
+        <div label="Examiner" imgsrc="images/examiner.png" hoverSrc="images/examiner-active.png">
+          <Examiner
             cssmanager={this.props.cssmanager}
             gameRequest={this.props.gameRequest}
             clientMessage={this.props.clientMessage}
           />
         </div>
         <div
-          label="Observers"
-          imgsrc="images/event-icon-white.png"
-          hoverSrc="images/event-icon-blue.png"
+          label="Follow Coach"
+          imgsrc="images/follow-coach.png"
+          hoverSrc="images/follow-coach-active.png"
         >
-          <Observers
+          <FollowCoach
             cssmanager={this.props.cssmanager}
             examing={this.props.examing}
             clientMessage={this.props.clientMessage}
           />
         </div>
         <div
-          label="Room Chat"
-          imgsrc="images/fen-pgn-white-icon.png"
-          hoverSrc="images/fen-pgn-blue-icon.png"
+          label="Game Library"
+          imgsrc="images/game-library.png"
+          hoverSrc="images/game-library-active.png"
         >
-          <RoomChat cssmanager={this.props.cssmanager} clientMessage={this.props.clientMessage} />
+          <GameLibrary
+            cssmanager={this.props.cssmanager}
+            clientMessage={this.props.clientMessage}
+          />
         </div>
-        {/*
+
         <div
-          label={translator("events")}
-          imgsrc="images/event-icon-white.png"
-          hoverSrc="images/event-icon-blue.png"
+          label="Game History"
+          imgsrc="images/history-icon-white.png"
+          hoverSrc="images/history-icon-blue.png"
         >
-          <Events />
+          <GameHistory />
         </div>
+        <div
+          label="Adjourned Game"
+          imgsrc="images/adjourned-game.png"
+          hoverSrc="images/adjourned-game-active.png"
+        >
+          <AdjournedGame />
+        </div>
+
         <div
           label={translator("fen_pgn")}
           imgsrc="images/fen-pgn-white-icon.png"
@@ -71,21 +77,6 @@ class RightBarBottom extends Component {
         >
           <PGN />
         </div>
-        <div
-          label={translator("friends")}
-          imgsrc="images/friend-icon-white.png"
-          hoverSrc="images/friend-icon-blue.png"
-        >
-          <Friends />
-        </div>
-        <div
-          label={translator("history")}
-          imgsrc="images/history-icon-white.png"
-          hoverSrc="images/history-icon-blue.png"
-        >
-          <History />
-        </div>
-        */}
       </Tabs>
     );
   }

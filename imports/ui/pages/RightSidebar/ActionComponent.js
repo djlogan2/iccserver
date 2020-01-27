@@ -8,7 +8,8 @@ class ActionComponent extends Component {
     this.state = {
       action: "action",
       examinAction: "action",
-      gameRequest: props.gameRequest
+      gameRequest: props.gameRequest,
+      isexamin: true
     };
   }
   static getLang() {
@@ -91,7 +92,8 @@ class ActionComponent extends Component {
     );
   };
   _setGameToExamine() {
-    this.props.startgameExamine();
+    this.setState({ isexamin: false });
+    this.props.startGameExamine();
   }
   render() {
     this.gameId = this.props.game._id;
@@ -154,7 +156,7 @@ class ActionComponent extends Component {
               </span>
             </li>
           </ul>
-        ) : (
+        ) : this.state.isexamin ? (
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
@@ -185,7 +187,7 @@ class ActionComponent extends Component {
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
                 style={this.props.cssmanager.buttonStyle()}
-                onClick={this.props.startGameExamine}
+                onClick={() => this._setGameToExamine()}
               >
                 <img
                   src={this.props.cssmanager.buttonBackgroundImage("examine")}
@@ -217,7 +219,7 @@ class ActionComponent extends Component {
               </span>
             </li>
           </ul>
-        )}
+        ) : null}
       </div>
     );
   }

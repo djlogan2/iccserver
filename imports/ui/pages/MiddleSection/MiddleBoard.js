@@ -24,6 +24,7 @@ export default class MiddleBoard extends Component {
       black: props.MiddleBoardData.black,
       height: 500,
       width: 1000,
+      update: 0,
       isactive: true,
       current: 600000
     };
@@ -58,7 +59,15 @@ export default class MiddleBoard extends Component {
       this.setState({ top: this.props.top });
     }
   }
-
+  /* shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.update === 1) {
+      return true;
+    }
+    if (nextState.fen !== this.state.fen) {
+      return true;
+    }
+    //return true;
+  } */
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newTop });
@@ -79,7 +88,7 @@ export default class MiddleBoard extends Component {
   };
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.board.fen() !== prevState.fen) {
-      return { board: nextProps.board };
+      return { board: nextProps.board, update: 0 };
     }
   }
   nextRAF() {
@@ -116,7 +125,7 @@ export default class MiddleBoard extends Component {
       this.props.onDrop({
         move: moves
       });
-      this.setState({ fen: this.props.board.fen() });
+      this.setState({ fen: this.props.board.fen(), update: 1 });
     }
   };
   render() {
@@ -186,18 +195,23 @@ export default class MiddleBoard extends Component {
     }
     let topPlayermsg;
     let botPlayermsg;
+    let color;
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
         if (this.props.board.turn() === "b") {
-          botPlayermsg = "Your Turn";
+          botPlayermsg = "(Your Turn)";
+          color = "#4cd034";
         } else {
-          topPlayermsg = "waiting for opponent";
+          topPlayermsg = "(waiting for opponent)";
+          color = "#fff";
         }
       } else {
         if (this.props.board.turn() === "w") {
-          botPlayermsg = "Your Turn";
+          botPlayermsg = "(Your Turn)";
+          color = "#4cd034";
         } else {
-          topPlayermsg = "waiting for opponent";
+          topPlayermsg = "(waiting for opponent)";
+          color = "#fff";
         }
       }
     }
@@ -217,6 +231,7 @@ export default class MiddleBoard extends Component {
             cssmanager={this.props.cssmanager}
             side={size}
             color={tc}
+            turnColor={color}
             FallenSoldiers={topPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
             Playermsg={topPlayermsg}
@@ -252,6 +267,7 @@ export default class MiddleBoard extends Component {
             cssmanager={this.props.cssmanager}
             side={size}
             color={bc}
+            turnColor={color}
             FallenSoldiers={bottomPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
             Playermsg={botPlayermsg}
