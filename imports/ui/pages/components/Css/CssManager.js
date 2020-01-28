@@ -187,9 +187,10 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.gameMoveList.all);
     return style;
   }
-  gameButtonMove() {
+  gameButtonMove(display) {
     var style = {};
     Object.assign(style, this._systemStyle.gameButtonMove.all);
+    if (display === true) Object.assign(style, { bottom: "25px" });
     return style;
   }
   gameTopHeader() {
@@ -254,7 +255,7 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.matchUserButton.all);
     return style;
   }
-  tabListItem(tabActive, hover) {
+  tabListItem(tabActive, liName) {
     if (
       !!tabActive &&
       (tabActive === "Game" ||
@@ -280,8 +281,8 @@ export default class CssManager {
 
         Object.assign(style, this._systemStyle.tabListItem[tabActive]);
       }
-
       Object.assign(style, this._systemStyle.tabListItem.all);
+      if (liName === "FEN/PGN" || liName === "Examiner") Object.assign(style, { height: "78px" });
 
       return style;
     }

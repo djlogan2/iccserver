@@ -210,9 +210,6 @@ const systemcss = {
       flexWrap: "nowrap",
       position: "absolute",
       alignItems: "center"
-    },
-    examin: {
-      bottom: "0px"
     }
   },
   gameTopHeader: {

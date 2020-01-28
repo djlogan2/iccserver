@@ -264,7 +264,7 @@ export default class MainPage extends Component {
       GameRequest.type === "match" &&
       GameRequest.receiver_id === Meteor.userId()
     )
-      informativePopup = this.gameRequest("Opponent has requested for a game", GameRequest["_id"]);
+      informativePopup = this.gameRequest("Opponent has requests for a game", GameRequest["_id"]);
 
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
@@ -305,6 +305,9 @@ export default class MainPage extends Component {
       const actions = game.actions;
 
       if (!!actions && actions.length !== 0) {
+        let ack = actions[actions.length - 1];
+        if (!!ack["type"] && ack["type"] === "takeback_accepted") undo = true;
+
         for (const action of actions) {
           const issuer = action["issuer"];
           switch (action["type"]) {

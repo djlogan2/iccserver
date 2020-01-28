@@ -79,7 +79,7 @@ export default class MoveListComponent extends Component {
             : null}
         </div>
         {displayButton ? (
-          <div style={this.props.cssmanager.gameButtonMove()}>
+          <div style={this.props.cssmanager.gameButtonMove(this.props.currentGame)}>
             <button
               style={this.props.cssmanager.buttonStyle()}
               onClick={this.moveBackwordBeginning.bind(this)}
