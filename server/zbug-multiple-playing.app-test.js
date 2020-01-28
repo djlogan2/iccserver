@@ -3,8 +3,7 @@ import { Game } from "./Game";
 import { GameRequests } from "./GameRequest";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
-describe.only("Starting multiple games", function() {
-  this.timeout(500000);
+describe("Starting multiple games", function() {
   const self = TestHelpers.setupDescribe.call(this);
   it("should not be allowed - startLocalGame should fail if self is already playing", function() {
     const p1 = TestHelpers.createUser();

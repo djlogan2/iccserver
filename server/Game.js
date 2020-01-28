@@ -13,6 +13,7 @@ import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
+import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { GameHistorySchema } from "./GameHistorySchema";
@@ -2330,7 +2331,7 @@ function endGamePing(game_id) {
     throw new ICCMeteorError(
       "server",
       "Unable to update game ping",
-      "Unable to locate game to ping"
+      "Unable to locate game to ping (1)"
     );
   game_pings[game_id]["white"].end();
   game_pings[game_id]["black"].end();
@@ -2428,7 +2429,7 @@ Meteor.methods({
       throw new ICCMeteorError(
         "server",
         "Unable to update game ping",
-        "Unable to locate game to ping"
+        "Unable to locate game to ping (2)"
       );
     const game = GameCollection.findOne(
       { _id: game_id, status: "playing" },
@@ -2438,7 +2439,7 @@ Meteor.methods({
       throw new ICCMeteorError(
         "server",
         "Unable to update game ping",
-        "Unable to locate game to ping"
+        "Unable to locate game to ping (3)"
       );
     const color = game.white.id === user._id ? "white" : "black";
     game_pings[game_id][color].pongArrived(pong);

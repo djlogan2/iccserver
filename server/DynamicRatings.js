@@ -486,7 +486,7 @@ Meteor.startup(function() {
       white_increment_or_delay: [0, 900],
       white_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
       white_etime: [15, 600],
-      black_initial: [0, 14],
+      black_initial: [0, 600],
       black_increment_or_delay: [0, 900],
       black_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
       black_etime: [15, 600],
