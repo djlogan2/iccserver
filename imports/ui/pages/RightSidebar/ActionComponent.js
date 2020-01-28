@@ -8,7 +8,8 @@ class ActionComponent extends Component {
     this.state = {
       action: "action",
       examinAction: "action",
-      gameRequest: props.gameRequest
+      gameRequest: props.gameRequest,
+      isexamin: true
     };
   }
   static getLang() {
@@ -90,21 +91,14 @@ class ActionComponent extends Component {
       this.state.gameRequest.challenger_color_request
     );
   };
-  examinActionPopup = () => {
-    return (
-      <div>
-        Email <input type="text" name="email" />
-      </div>
-    );
-  };
-
+  _setGameToExamine() {
+    this.setState({ isexamin: false });
+    this.props.startGameExamine();
+  }
   render() {
-    this.userId = this.props.actionData.userId;
-    this.gameId = this.props.actionData.gameId;
+    this.gameId = this.props.game._id;
     let status = this.props.game.status;
-
     let display = status === "playing" ? true : false;
-
     let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
 
     return (
@@ -162,7 +156,7 @@ class ActionComponent extends Component {
               </span>
             </li>
           </ul>
-        ) : (
+        ) : this.state.isexamin ? (
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
@@ -191,6 +185,19 @@ class ActionComponent extends Component {
               </button>
             </li>
             <li style={this.props.cssmanager.drawSectionList()}>
+              <button
+                style={this.props.cssmanager.buttonStyle()}
+                onClick={() => this._setGameToExamine()}
+              >
+                <img
+                  src={this.props.cssmanager.buttonBackgroundImage("examine")}
+                  alt="examine"
+                  style={this.props.cssmanager.drawSectionButton()}
+                />
+                Examine
+              </button>
+            </li>
+            <li style={this.props.cssmanager.drawSectionList()}>
               <span style={this.props.cssmanager.spanStyle("form")}>
                 <select
                   style={{
@@ -212,7 +219,7 @@ class ActionComponent extends Component {
               </span>
             </li>
           </ul>
-        )}
+        ) : null}
       </div>
     );
   }

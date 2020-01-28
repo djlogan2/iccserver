@@ -48,7 +48,9 @@ export default class ObserversComponent extends React.Component {
           <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
             <thead>
               <tr>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }} />
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Players
+                </th>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
                   Result
                 </th>

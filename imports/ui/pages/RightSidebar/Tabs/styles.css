@@ -79,7 +79,7 @@
     font-weight: 700;
 }
 .right-top-content {
-    height: 55vh;
+    height: auto;
 }
 .right-top-content .tab-list-active {
     background-color: #efefef;
@@ -151,7 +151,7 @@ i.fa.fa-sort-down {
 }
 
 .right-bottom-content {
-    height: 45vh;
+    height: auto;
 }
 /*
 .right-bottom-content .tab-content {

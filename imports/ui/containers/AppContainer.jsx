@@ -301,11 +301,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
           onDrop={this._pieceSquareDragStop}
           onDrawCircle={this.drawCircle}
           onRemoveCircle={this.removeCircle}
-          history={this.props.history}
           ref="main_page"
           examing={gameExamin}
           circles={circles}
-          path={this.props.match.path}
         />
       </div>
     );

@@ -238,6 +238,9 @@ background: #efefef;
 .game-top-header span {
 	margin-left: 5px;
 }
+.right-section .right-content-desktop .rightBarBottomTabs ol li {
+	height: 78px;
+}
 
 @media (min-width: 992px) and (max-width: 1199px) {
 	.board-section .board-player-top {
@@ -251,7 +254,7 @@ background: #efefef;
 	.right-content-desktop {
 		display: none;
 	}
-
+	
 	.board-player-top {
 		position: relative;
 		display: flex;
