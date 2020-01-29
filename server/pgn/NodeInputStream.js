@@ -1,11 +1,11 @@
 require("antlr4/polyfills/codepointat");
 require("antlr4/polyfills/fromcodepoint");
 
-const Token = require('antlr4/Token').Token;
-const fs = require('fs');
+const Token = require("antlr4/Token").Token;
+const fs = require("fs");
 
 function NodeInputStream(fileName, decodeToUnicodeCodePoints) {
-  this.name = "<empty>";
+  this.name = fileName;
   this.file = fs.openSync(fileName);
   this._size = fs.statSync(fileName).size;
   this._bytesRead = 0;
@@ -24,13 +24,16 @@ Object.defineProperty(NodeInputStream.prototype, "size", {
   }
 });
 
-// Reset the stream so that it's in the same state it was
-// when the object was created *except* the data array is not
-// touched.
-//
-NodeInputStream.prototype.reset = function() {/*console.log("reset called")*/};
+NodeInputStream.prototype.reset = function() {
+  this._bytesRead = 0;
+};
 
-NodeInputStream.prototype.consume = function() {/*console.log("consume called")*/};
+NodeInputStream.prototype.consume = function() {
+  if (this._index >= this._bytesRead) {
+    throw new Error("cannot consume EOF");
+  }
+  this._bytesRead += 1;
+};
 
 /**
  * @return {number}
@@ -43,10 +46,24 @@ NodeInputStream.prototype.LA = function(offset) {
     offset += 1; // e.g., translate LA(-1) to use offset=0
   }
   var pos = this._bytesRead + offset - 1;
-  if (pos < 0 || pos >= this._size) { // invalid
+  if (pos < 0 || pos >= this._size) {
     return Token.EOF;
   }
-  return this.getText(pos, pos + 1); //this.data[pos];
+
+  if (
+    !this._currentBuffer ||
+    this._currentBufferStart > pos ||
+    this._currentBufferStart + this._currentBuffer.length <= pos
+  ) {
+    let size = 1024;
+    if (pos + size > this._size) size = this._size - pos;
+    const buffer = new Buffer(size);
+    fs.readSync(this.file, buffer, 0, size, pos);
+    this._currentBuffer = buffer;
+    this._currentBufferStart = pos;
+  }
+
+  return this._currentBuffer[pos - this._currentBufferStart];
 };
 
 /**
@@ -56,13 +73,11 @@ NodeInputStream.prototype.LT = function(offset) {
   return this.LA(offset);
 };
 
-// mark/release do nothing; we have entire buffer
 NodeInputStream.prototype.mark = function() {
-  return "no need";
+  return -1;
 };
 
-NodeInputStream.prototype.release = function(marker) {
-};
+NodeInputStream.prototype.release = function(marker) {}; //console.log("release, bytesRead=" + this._bytesRead);};
 
 NodeInputStream.prototype.seek = function(_index) {
   if (_index <= this._bytesRead) {
@@ -73,18 +88,30 @@ NodeInputStream.prototype.seek = function(_index) {
 };
 
 NodeInputStream.prototype.getText = function(start, stop) {
-  console.log("getText(" + start + "," + stop + ")");
-  if (stop >= this._size) {
-    stop = this._size - 1;
+  stop++; // Easy fix because the other input streams include the stop byte. Rather than figure out how to change the logic, just add one to stop.
+  if (stop >= this._size) stop = this._size - 1;
+
+  if (start >= this._size) return "";
+
+  if (
+    !this._currentBuffer ||
+    this._currentBufferStart > start ||
+    this._currentBufferStart + this._currentBuffer.length <= stop
+  ) {
+    let size = stop - start;
+    if (size < 1024) size = 1024;
+    if (start + size > this._size) size = this._size - start;
+    const buffer = new Buffer(size);
+    fs.readSync(this.file, buffer, 0, size, start);
+    this._currentBuffer = buffer;
+    this._currentBufferStart = start;
   }
-  if (start >= this._size) {
-    return "";
-  } else {
-    const result = new Buffer(stop - start);
-    fs.readSync(this.file, result, 0, stop - start, start);
-    this._bytesRead = stop;
-    return result.toString();
-  }
+
+  return this._currentBuffer.toString(
+    "utf8",
+    start - this._currentBufferStart,
+    stop - this._currentBufferStart
+  );
 };
 
 exports.NodeInputStream = NodeInputStream;

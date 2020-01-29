@@ -673,7 +673,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   let gameping = 0;
   const bw = self._id === game.white.id ? "white" : "black";
   const otherbw = bw === "white" ? "black" : "white";
-  const analyze = addMoveToMoveList(
+  const analyze = Game.addMoveToMoveList(
     variation,
     move,
     game.status === "playing" ? game.clocks[bw].current : null
@@ -2111,6 +2111,29 @@ Game.kibitz = function(game_id, text) {};
 
 Game.whisper = function(game_id, text) {};
 
+Game.addMoveToMoveList = function(variation_object, move, current) {
+  const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
+
+  if (exists) {
+    variation_object.cmi = exists;
+  } else {
+    const newi = variation_object.movelist.length;
+    variation_object.movelist.push({
+      move: move,
+      prev: variation_object.cmi,
+      current: current
+    });
+
+    if (!variation_object.movelist[variation_object.cmi].variations) {
+      variation_object.movelist[variation_object.cmi].variations = [newi];
+    } else {
+      variation_object.movelist[variation_object.cmi].variations.push(newi);
+    }
+    variation_object.cmi = newi;
+  }
+  return !exists;
+};
+
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
   switch (tag) {
     case "Event":
@@ -2256,29 +2279,6 @@ function buildPgnFromMovelist(movelist) {
   return addmove(1, false, true, movelist, 0);
 }
 
-function addMoveToMoveList(variation_object, move, current) {
-  const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
-
-  if (exists) {
-    variation_object.cmi = exists;
-  } else {
-    const newi = variation_object.movelist.length;
-    variation_object.movelist.push({
-      move: move,
-      prev: variation_object.cmi,
-      current: current
-    });
-
-    if (!variation_object.movelist[variation_object.cmi].variations) {
-      variation_object.movelist[variation_object.cmi].variations = [newi];
-    } else {
-      variation_object.movelist[variation_object.cmi].variations.push(newi);
-    }
-    variation_object.cmi = newi;
-  }
-  return !exists;
-}
-
 function startGamePing(game_id) {
   _startGamePing(game_id, "white");
   _startGamePing(game_id, "black");
@@ -2413,7 +2413,6 @@ Meteor.startup(function() {
 if (Meteor.isTest || Meteor.isAppTest) {
   Game.collection = GameCollection;
   GameHistory.collection = GameHistoryCollection;
-  Game.addMoveToMoveList = addMoveToMoveList;
   Game.buildPgnFromMovelist = buildPgnFromMovelist;
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
