@@ -1630,12 +1630,7 @@ Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
   check(self, Object);
 
   if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "INVALID_ARROW",
-      from, to
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
     return;
   }
   const game = GameCollection.findOne({ _id: game_id });
@@ -1681,12 +1676,7 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
   check(self, Object);
 
   if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "INVALID_ARROW",
-      from, to
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
     return;
   }
   const game = GameCollection.findOne({ _id: game_id });
@@ -1702,14 +1692,31 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
+  var unique = game.arrows.filter(obj => {
+    return obj.from === from && obj.to === to;
+  });
+
+  if (unique.length == 0 || !unique) { // TODO: this don't work!! darn tarnation!
+    return;
+  }
+
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: {
+          type: "remove_arrow",
+          issuer: self._id,
+          parameter: { from: from, to: to }
+        }
+      }
+    }
+  );
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
       $pull: {
         arrow: { from: from, to: to }
-      },
-      $push: {
-        actions: { type: "remove_arrow", issuer: self._id, parameter: { from: from, to: to } }
       }
     }
   );

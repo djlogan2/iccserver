@@ -294,7 +294,7 @@ describe("Game.drawArrow", function() {
     chai.assert.equal("c1", record.actions[0].parameter.from, "Failed to record a draw in actions");
   });
 });
-describe("Game.removeArrow", function() {
+describe.only("Game.removeArrow", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should have a function called removeArrow", function() {
     chai.assert.isFunction(Game.removeArrow, "Failed to identify Game.removeArrow as a function");
@@ -355,13 +355,18 @@ describe("Game.removeArrow", function() {
     chai.assert.equal(self.clientMessagesSpy.args[3][3], "i1");
     chai.assert.equal(self.clientMessagesSpy.args[3][4], "d2");
   });
-  it("should not have to remove the same square multiple times", function() {
+  it("should not produce another action if unable to remove", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.removeArrow("mi1", game_id, "c1", "d2");
-    Game.removeArrow("mi2", game_id, "c1", "d2");
     const record = Game.collection.findOne({ _id: game_id });
-    chai.assert.equal(record.arrows.length, 0);
+    chai.assert.equal(record.arrows.length, 0, "failed to ignore unremovable arrow action");
+    Game.drawArrow("mi2", game_id, "c1", "d2", "red", 3);
+    Game.removeArrow("mi2", game_id, "c1", "d2");
+    Game.removeArrow("mi2", game_id, "c1", "d2");
+    const record_2 = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal(record_2.actions[2].type, "remove_arrow", "failed to record remove_arrow");
+    chai.assert.equal(record_2.actions.length, 2, "failed to remove only once on arrow");
   });
   it("should remove the arrow from the game record if all is well", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -378,9 +383,17 @@ describe("Game.removeArrow", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawArrow("mi1", game_id, "c1", "d2", "red", 3);
+    const record_test = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal("c1", record_test.arrows[0].from, "failed to properly update arrows from");
+    chai.assert.equal("d2", record_test.arrows[0].to, "failed to properly update arrows to");
+    chai.assert.equal("draw_arrow", record_test.actions[0].type, "failed update draw_arrow action");
     Game.removeArrow("mi1", game_id, "c1", "d2");
     const record = Game.collection.findOne({ _id: game_id });
-    chai.assert.equal("remove_arrow", record.actions[1].type, "Failed to record a draw in actions");
+    chai.assert.equal("draw_arrow", record.actions[0].type, "Failed to record a draw in actions");
     chai.assert.equal("c1", record.actions[0].parameter.from, "Failed to record a draw in actions");
+    chai.assert.equal("d2", record.actions[0].parameter.to, "Failed to record a draw in actions");
+    chai.assert.equal("remove_arrow", record.actions[1].type, "Failed to record a draw in actions");
+    chai.assert.equal("c1", record.actions[1].parameter.from, "Failed to record a draw in actions");
+    chai.assert.equal("d2", record.actions[1].parameter.to, "Failed to record a draw in actions");
   });
 });
