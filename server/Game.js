@@ -2483,3 +2483,8 @@ Meteor.publish("observing_games", function() {
     "observers.id": this.userId
   });
 });
+Meteor.publish("game_history", function() {
+  return GameHistoryCollection.find({
+    $or: [{ "white.id": this.userId }, { "black.id": this.userId }]
+  });
+});

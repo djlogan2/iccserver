@@ -20,6 +20,7 @@ export default class MainPage extends Component {
     this.state = {
       examineGame: false,
       exnotification: false,
+      resignnotification: false,
       examinAction: "action"
     };
     this.Main = {
@@ -149,6 +150,45 @@ export default class MainPage extends Component {
       </div>
     );
   };
+  notificationPopup1 = (title, mid) => {
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        <button
+          style={{
+            position: "absolute",
+            top: "-17px",
+            right: "-16px",
+            background: "#b7bdc5",
+            borderRadius: "50%",
+            border: "3px solid #242f35",
+            focus: {
+              outline: "none"
+            }
+          }}
+          onClick={() => this.resignnotificationPopup()}
+        >
+          <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+        </button>
+        <div className="popup_inner">
+          <h3
+            style={{
+              margin: "10px 0px 20px",
+              color: "#000",
+              fontSize: "17px"
+            }}
+          >
+            {title}
+          </h3>
+          <button
+            onClick={() => this.resignnotificationPopup()}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
   examinActionPopup = action => {
     if (action === "complain") {
       return (
@@ -230,6 +270,9 @@ export default class MainPage extends Component {
   removeAcknowledgeMessage(messageId) {
     Meteor.call("acknowledge.client.message", messageId);
   }
+  resignnotificationPopup() {
+    this.setState({ resignnotification: true });
+  }
   notificationHandler() {
     this.setState({ notification: !this.state.notification });
   }
@@ -306,6 +349,12 @@ export default class MainPage extends Component {
 
       if (!!actions && actions.length !== 0) {
         let ack = actions[actions.length - 1];
+        if (!!ack["type"] && ack["type"] === "resign") {
+          if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
+            informativePopup = this.notificationPopup1("Opponent has resigend a game", "abort");
+          }
+        }
+
         if (!!ack["type"] && ack["type"] === "takeback_accepted") undo = true;
 
         for (const action of actions) {
@@ -348,7 +397,7 @@ export default class MainPage extends Component {
       this.intializeBoard();
     }
 
-    if (!!this.props.clientMessage) {
+    if (!!this.props.clientMessage && this.props.clientMessage.client_identifier !== "server") {
       informativePopup = this.notificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id

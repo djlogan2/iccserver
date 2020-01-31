@@ -64,7 +64,7 @@ export default class ObserversComponent extends React.Component {
             </thead>
             <tbody>
               {gamelist.map((game, index) => (
-                <tr onClick={this.setGameExaminMode.bind(this, game.id)}>
+                <tr onClick={this.setGameExaminMode.bind(this, game._id)}>
                   <td style={{ padding: "5px 5px" }}>
                     {game.white}-vs-{game.black}
                   </td>

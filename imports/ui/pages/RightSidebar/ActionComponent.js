@@ -98,12 +98,20 @@ class ActionComponent extends Component {
   render() {
     this.gameId = this.props.game._id;
     let status = this.props.game.status;
+    let statustbar = 0;
     let display = status === "playing" ? true : false;
+    if (display === true || this.state.isexamin === false) {
+      statustbar = 1;
+    }
+
     let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
 
     return (
       <div className="draw-section">
-        <div style={this.props.cssmanager.drawActionSection()}>Game status : {status}</div>
+        {statustbar ? (
+          <div style={this.props.cssmanager.drawActionSection()}>Game status : {status}</div>
+        ) : null}
+
         {display ? (
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
