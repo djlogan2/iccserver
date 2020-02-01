@@ -226,6 +226,7 @@ Game.startLocalGame = function(
   }
 
   Game.localUnobserveAllGames(message_identifier, self._id);
+  Game.localUnobserveAllGames(message_identifier, other_user._id);
 
   const chess = new Chess.Chess();
 
