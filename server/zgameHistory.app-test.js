@@ -1,6 +1,7 @@
 import chai from "chai";
 
-import { Game, GameHistory } from "./Game";
+import { Game } from "./Game";
+import { GameHistory } from "./GameHistory";
 import { TestHelpers, compare } from "../imports/server/TestHelpers";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 

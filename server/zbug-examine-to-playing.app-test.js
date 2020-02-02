@@ -2,7 +2,7 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 
-describe.only("When two players are examining a game", function() {
+describe("When two players are examining a game", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should remove both players as observers from the examined game when they begin a new game", function() {
     const p1 = TestHelpers.createUser();
