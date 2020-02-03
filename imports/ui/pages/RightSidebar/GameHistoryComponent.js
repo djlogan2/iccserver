@@ -1,10 +1,8 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
-import { Mongo } from "meteor/mongo";
+import { GameHistoryCollection } from "../../../api/collections";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 
-const GameHistoryCollection = new Mongo.Collection("game_history");
 export default class GameHistroyComponent extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);

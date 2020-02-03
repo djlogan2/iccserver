@@ -261,6 +261,83 @@ export default class MainPage extends Component {
       );
     }
   };
+  loadGameHistroyPopup(games) {
+    let result;
+    let gamelist = [];
+    for (let i = 0; i < games.length; i++) {
+      if (
+        (games[i].white.id === Meteor.userId() && games[i].result === "1-0") ||
+        (games[i].black.id === Meteor.userId() && games[i].result === "0-1")
+      ) {
+        result = "Won";
+      } else {
+        result = "Loss";
+      }
+      gamelist.push({
+        id: games[i]._id,
+        name: "3 minut arina",
+        white: games[i].white.name,
+        black: games[i].black.name,
+        result: result,
+        time: games[i].startTime.toDateString()
+      });
+    }
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        {gamelist.length > 0 ? (
+          <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Players
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Result
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Date
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  PGN
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {gamelist.map((game, index) => (
+                <tr
+                  key={index}
+                  onClick={this.setGameExaminMode.bind(this, game.id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <td style={{ padding: "5px 5px" }}>
+                    {game.white}-vs-{game.black}
+                  </td>
+                  <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                  <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                  <td style={{ padding: "5px 5px" }}>
+                    <img
+                      src="images/pgnicon.png"
+                      style={{ width: "25px", height: "25px" }}
+                      alt="close"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
+        <button
+          onClick={this.props.removeGameHistory}
+          style={this.props.cssmanager.innerPopupMain()}
+        >
+          close
+        </button>
+      </div>
+    );
+  }
+  setGameExaminMode(id) {
+    Meteor.call("examineGame", "ExaminedGame", id);
+  }
   startGameExamine() {
     this.setState({ examineGame: true });
   }
@@ -349,7 +426,7 @@ export default class MainPage extends Component {
 
       if (!!actions && actions.length !== 0) {
         let ack = actions[actions.length - 1];
-        if (!!ack["type"] && ack["type"] === "resign") {
+        if (!!ack["type"] && ack["type"] === "resign" && game.status !== "examining") {
           if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
             informativePopup = this.notificationPopup1("Opponent has resigend a game", "abort");
           }
@@ -396,14 +473,15 @@ export default class MainPage extends Component {
     } else {
       this.intializeBoard();
     }
-
+    if (!!this.props.GameHistory && this.props.GameHistory.length > 0) {
+      informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
+    }
     if (!!this.props.clientMessage && this.props.clientMessage.client_identifier !== "server") {
       informativePopup = this.notificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id
       );
     }
-
     let w;
     let h;
     if (!w) w = window.innerWidth;
@@ -416,10 +494,12 @@ export default class MainPage extends Component {
             cssmanager={this.props.cssmanager}
             LefSideBoarData={this.Main.LeftSection}
             history={this.props.history}
+            gameHistory={this.props.gameHistoryload}
           />
           <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
             {informativePopup}
             {exPopup}
+
             <MiddleBoard
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
@@ -436,6 +516,7 @@ export default class MainPage extends Component {
               gameStatus={status}
             />
           </div>
+
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             {actionPopup}
             <RightSidebar
@@ -470,8 +551,13 @@ let links = [
     active: true
   },
   {
+    label: "history",
+    link: "history",
+    src: "../../../images/learning-icon-white.png"
+  },
+  {
     label: "learn",
-    link: "#learn",
+    link: "learn",
     src: "../../../images/learning-icon-white.png"
   },
   {

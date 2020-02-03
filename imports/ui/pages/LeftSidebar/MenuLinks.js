@@ -34,10 +34,9 @@ class MenuLinks extends Component {
       }
     });
   }
-  handleClick = name => {
-    if (name === "logout") {
-      this.logout();
-    }
+  handleClick = (e, label) => {
+    e.preventDefault();
+    if (label === "history") this.props.gameHistory(label);
     /* 
     e.preventDefault();
     Meteor.logout(err => {
@@ -63,11 +62,11 @@ class MenuLinks extends Component {
 
     let linksMarkup = this.props.links.map((link, index) => {
       let linkMarkup = link.active ? (
-        <a href={link.link} className="active" onClick={this.handleClick.bind(this, link.label)}>
+        <a href="#" className="active" onClick={e => this.handleClick(e, link.label)}>
           <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
         </a>
       ) : (
-        <a href={link.link} onClick={this.handleClick.bind(this, link.label)}>
+        <a href="#" onClick={e => this.handleClick(e, link.label)}>
           <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
         </a>
       );

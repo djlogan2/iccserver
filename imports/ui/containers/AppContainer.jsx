@@ -11,7 +11,8 @@ import {
   mongoUser,
   Game,
   GameRequestCollection,
-  ClientMessagesCollection
+  ClientMessagesCollection,
+  GameHistoryCollection
 } from "../../api/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 const log = new Logger("client/AppContainer");
@@ -43,18 +44,22 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.userpending = null;
     this.state = {
       gameId: null,
+      GameHistory: null,
       subscription: {
         css: Meteor.subscribe("css"),
         game: Meteor.subscribe("playing_games"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
-        observingGames: Meteor.subscribe("observing_games")
+        observingGames: Meteor.subscribe("observing_games"),
+        gameHistory: Meteor.subscribe("game_history")
       },
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
     this.removeCircle = this.removeCircle.bind(this);
+    this.gameHistoryload = this.gameHistoryload.bind(this);
+    this.removeGameHistory = this.removeGameHistory.bind(this);
   }
   renderGameMessages() {
     const game = Game.findOne({
@@ -84,6 +89,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
     }).fetch();
 
     return game;
+  }
+  getGameHistory() {
+    return true;
   }
   renderGameRequest() {
     return GameRequestCollection.findOne(
@@ -136,6 +144,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.gameRequests.stop();
     this.state.subscription.clientMessages.stop();
     this.state.subscribtion.observingGames.stop();
+    this.state.subscription.gameHistory.stop();
   }
 
   componentWillMount() {
@@ -206,6 +215,18 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };
+  gameHistoryload(data) {
+    if (data === "history") {
+      const GameHistory = GameHistoryCollection.find({
+        $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+      }).fetch();
+
+      if (!!GameHistory) this.setState({ GameHistory: GameHistory });
+    }
+  }
+  removeGameHistory() {
+    this.setState({ GameHistory: null });
+  }
   _boardFromMongoMessages(game) {
     let moves = [];
     let variation = game.variations;
@@ -279,7 +300,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         this._examinBoard(game);
         if (!!game.circles) {
           let circleslist = game.circles;
-
           circleslist.forEach(circle => {
             let c1 = this.getCoordinatesToRank(circle);
             circles.push(c1);
@@ -288,124 +308,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       }
     }
     const capture = this._fallenSoldier();
-    let game1 = {
-      _id: "YiaXtYD4eQKigz9SS",
-      result: "1-0",
-      fen: "rnbqkbnr/pp1ppppp/2p5/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
-      tomove: "white",
-      white: {
-        id: "sBAs6EKd49Z6yNT7Z",
-        name: "amit",
-        rating: 1600
-      },
-      black: {
-        id: "zzrqD3toyyg9zDsnC",
-        name: "kalpesh",
-        rating: 1600
-      },
-      wild: 0,
-      rating_type: "standard",
-      rated: true,
-      clocks: {
-        white: {
-          initial: 14,
-          inc_or_delay: 1,
-          delaytype: "inc",
-          current: 838525,
-          starttime: 1579876933173
-        },
-        black: {
-          initial: 14,
-          inc_or_delay: 1,
-          delaytype: "inc",
-          current: 838674,
-          starttime: 1579876930786
-        }
-      },
-      status: "examining",
-      actions: [
-        {
-          type: "move",
-          issuer: "sBAs6EKd49Z6yNT7Z",
-          parameter: {
-            move: "e3",
-            lag: 12,
-            ping: 61,
-            gamelag: 75,
-            gameping: 93
-          },
-          time: "2020-01-24T14:42:10.788Z"
-        },
-        {
-          type: "move",
-          issuer: "zzrqD3toyyg9zDsnC",
-          parameter: {
-            move: "c6",
-            lag: 1,
-            ping: 2,
-            gamelag: 12,
-            gameping: 101
-          },
-          time: "2020-01-24T14:42:13.175Z"
-        },
-        {
-          type: "resign",
-          issuer: "zzrqD3toyyg9zDsnC",
-          time: "2020-01-24T14:42:14.624Z"
-        }
-      ],
-      observers: [
-        {
-          id: "sBAs6EKd49Z6yNT7Z",
-          username: "amit"
-        },
-        {
-          id: "zzrqD3toyyg9zDsnC",
-          username: "kalpesh"
-        }
-      ],
-      variations: {
-        hmtb: 0,
-        cmi: 2,
-        movelist: [
-          {
-            variations: [1]
-          },
-          {
-            move: "e3",
-            prev: 0,
-            current: 840000,
-            variations: [2]
-          },
-          {
-            move: "c6",
-            prev: 1,
-            current: 840073
-          }
-        ]
-      },
-      lag: {
-        white: {
-          active: [],
-          pings: [57, 93, 51, 45, 30, 37]
-        },
-        black: {
-          active: [],
-          pings: [143, 203, 124, 101, 77, 81]
-        }
-      },
-      startTime: "2020-01-24T14:42:14.624Z",
-      examiners: [
-        {
-          id: "sBAs6EKd49Z6yNT7Z",
-          username: "amit"
-        },
-        {
-          id: "zzrqD3toyyg9zDsnC",
-          username: "kalpesh"
-        }
-      ]
-    };
+
     return (
       <div>
         <MainPage
@@ -414,6 +317,9 @@ export default class AppContainer extends TrackerReact(React.Component) {
           capture={capture}
           len={actionlen}
           game={game}
+          gameHistoryload={this.gameHistoryload}
+          GameHistory={this.state.GameHistory}
+          removeGameHistory={this.removeGameHistory}
           gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}

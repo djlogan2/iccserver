@@ -42,7 +42,8 @@ Meteor.startup(() => {
         logIn: "Log in",
         singUp: "Sign up",
         help: "Help",
-        logout: "Logout"
+        logout: "Logout",
+        history: "History"
       },
       actionButtonLabel: {
         takeBack: "Take Back",
@@ -162,7 +163,8 @@ Meteor.startup(() => {
         topPlayers: "とあ事片そ",
         logIn: "ドを ドをドを",
         singUp: "とあ事片そ",
-        help: "ドを"
+        help: "ドを",
+        history: "ドを ド"
       },
       actionButtonLabel: {
         takeBack: "とあ事片",
