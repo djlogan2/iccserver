@@ -65,6 +65,7 @@ const x = [
 ];
 
 export const Game = {};
+
 Game.savePlayedGame = {}; // GameHistory will replace this
 
 const GameCollection = new Mongo.Collection("game");
@@ -2064,6 +2065,13 @@ Game.findById = function(game_id) {
   check(game_id, String);
   return GameCollection.findOne({_id: game_id});
 };
+
+Game.clearBoard = function(message_identifier, game_id) {}
+Game.setStartingPosition = function(message_identifier, game_id) {}
+Game.addPiece = function(message_identifier, game_id, color, piece, where) {}
+Game.removePiece = function(message_identifier, game_id, where) {}
+Game.setToMove = function(message_identifier, game_id, color) {}
+Game.setCastling = function(message_identifier, game_id, white, black) {}
 
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
   switch (tag) {

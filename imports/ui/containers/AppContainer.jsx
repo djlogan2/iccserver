@@ -7,15 +7,42 @@ import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
 import { Tracker } from "meteor/tracker";
 import {
-  mongoCss,
-  mongoUser,
-  Game,
-  GameRequestCollection,
   ClientMessagesCollection,
-  GameHistoryCollection
+  Game,
+  GameHistoryCollection,
+  GameRequestCollection,
+  mongoCss,
+  mongoUser
 } from "../../api/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
+
 const log = new Logger("client/AppContainer");
+
+let played_game_id;
+let game_timestamp_client;
+
+Game.find().observe({
+  changed(newDocument) {
+    if (newDocument.status === "examining") {
+      return;
+    }
+
+    const color =
+      newDocument.white.id === Meteor.userId()
+        ? "white"
+        : newDocument.black.id === Meteor.userId()
+        ? "black"
+        : "?";
+    if (color === "?") return;
+
+    if (played_game_id !== newDocument._id) {
+      game_timestamp_client = new TimestampClient("client game", (_, msg) =>
+        Meteor.call("gamepong", newDocument._id, msg)
+      );
+      newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
+    }
+  }
+});
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   // log.error(errorMsg + "::" + url + "::" + lineNumber);
@@ -61,38 +88,28 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.gameHistoryload = this.gameHistoryload.bind(this);
     this.removeGameHistory = this.removeGameHistory.bind(this);
   }
+
   renderGameMessages() {
-    const game = Game.findOne({
+    return Game.findOne({
       $and: [
         { status: "playing" },
-
         {
           $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
         }
       ]
     });
-    if (!!game) {
-      const color = game.white.id === Meteor.userId() ? "white" : "black";
-
-      if (!this.game_timestamp_client)
-        this.game_timestamp_client = new TimestampClient("client game", (_, msg) =>
-          Meteor.call("gamepong", game._id, msg)
-        );
-      game.lag[color].active.forEach(ping => this.game_timestamp_client.pingArrived(ping));
-    }
-
-    return game;
   }
-  examinGame() {
-    const game = Game.find({
+
+  examineGame() {
+    return Game.find({
       "observers.id": Meteor.userId()
     }).fetch();
-
-    return game;
   }
+
   getGameHistory() {
     return true;
   }
+
   renderGameRequest() {
     return GameRequestCollection.findOne(
       {
@@ -111,6 +128,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       }
     );
   }
+
   clientMessages() {
     return ClientMessagesCollection.findOne(
       {
@@ -152,11 +170,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this.props.history.push("/sign-up");
     }
   }
+
   componentDidMount() {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
     }
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
@@ -195,9 +215,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     return capturedSoldiers;
   }
+
   drawCircle(square, color, size) {
     Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size);
   }
+
   removeCircle(square) {
     Meteor.call("removeCircle", "RemoveCircle", this.gameId, square);
   }
@@ -205,7 +227,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _pieceSquareDragStop = raf => {
     let game = this.renderGameMessages();
     if (!game) {
-      let gameExamin = this.examinGame();
+      let gameExamin = this.examineGame();
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
       } else {
@@ -215,6 +237,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };
+
   gameHistoryload(data) {
     if (data === "history") {
       const GameHistory = GameHistoryCollection.find({
@@ -224,9 +247,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
       if (!!GameHistory) this.setState({ GameHistory: GameHistory });
     }
   }
+
   removeGameHistory() {
     this.setState({ GameHistory: null });
   }
+
   _boardFromMongoMessages(game) {
     let moves = [];
     let variation = game.variations;
@@ -261,9 +286,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this._boardfallensolder.move(moves[index]);
     }
   }
+
   _examinBoard(game) {
     this._board.load(game.fen);
   }
+
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
     let rank = parseInt(square.square.charAt(1));
@@ -271,12 +298,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
     let fileNo = fileNumber.indexOf(file);
     return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
   }
+
   render() {
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
     let circles = [];
     let actionlen;
-    let gameExamin = []; // this.examinGame();
+    let gameExamin = []; // this.examineGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
@@ -293,7 +321,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       actionlen = game.actions.length;
       this._boardFromMongoMessages(game);
     } else {
-      gameExamin = this.examinGame();
+      gameExamin = this.examineGame();
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
         this.gameId = game._id;
