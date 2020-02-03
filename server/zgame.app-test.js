@@ -3732,11 +3732,12 @@ describe("when playing a game", function() {
   });
 
   it("should throw an error if the meteor method is called with a an invalid game id", function(done) {
+    this.timeout(5000);
     self.loggedonuser = TestHelpers.createUser();
     Meteor.call("gamepong", "game_id", { msg: "msg" }, error => {
       chai.assert.equal(
         error.message,
-        "Unable to locate game to ping [Unable to update game ping]"
+        "Unable to locate game to ping (2) [Unable to update game ping]"
       );
       done();
     });
@@ -3773,7 +3774,7 @@ describe("when playing a game", function() {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(
           error.message,
-          "Unable to locate game to ping [Unable to update game ping]"
+          "Unable to locate game to ping (2) [Unable to update game ping]"
         );
         done();
       });
@@ -3783,6 +3784,7 @@ describe("when playing a game", function() {
   });
 
   it("should throw an error if the meteor method is called with a valid game but a non-active ping id", function(done) {
+    this.timeout(5000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;

@@ -220,7 +220,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       const GameHistory = GameHistoryCollection.find({
         $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
       }).fetch();
-
+      log.debug("Gamehistory", GameHistory);
       if (!!GameHistory) this.setState({ GameHistory: GameHistory });
     }
   }

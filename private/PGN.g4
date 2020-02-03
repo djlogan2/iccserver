@@ -92,9 +92,7 @@ element_sequence
 ///               <SAN-move>
 ///               <numeric-annotation-glyph>
 element
- : move_number_indication
- | san_move
- | NUMERIC_ANNOTATION_GLYPH
+ : move_number_indication | DOT_DOT_DOT | san_move numeric_annotation_glyph? brace_comment?
  ;
 
 move_number_indication
@@ -146,8 +144,8 @@ REST_OF_LINE_COMMENT
 /// loses its special meaning and is ignored.  A semicolon appearing inside of a
 /// brace comment loses its special meaning and is ignored.  Braces appearing
 /// inside of a semicolon comments lose their special meaning and are ignored.
-BRACE_COMMENT
- : '{' ~'}'* '}' -> skip
+brace_comment
+ : '{' ~'}'* '}'
  ;
 
 /// There is a special escape mechanism for PGN data.  This mechanism is triggered
@@ -191,6 +189,10 @@ INTEGER
 PERIOD
  : '.'
  ;
+
+DOT_DOT_DOT
+ : PERIOD PERIOD PERIOD
+ ;
 /// An asterisk character ("*") is a token by itself.  It is used as one of the
 /// possible game termination markers (see below); it indicates an incomplete game
 /// or a game with an unknown or otherwise unavailable result.  It is self
@@ -227,8 +229,8 @@ RIGHT_ANGLE_BRACKET
 /// dollar sign character ("$") immediately followed by one or more digit
 /// characters.  It is terminated just prior to the first non-digit character
 /// following the digit sequence.
-NUMERIC_ANNOTATION_GLYPH
- : '$' [0-9]+
+numeric_annotation_glyph
+ : '$' INTEGER
  ;
 /// A symbol token starts with a letter or digit character and is immediately
 /// followed by a sequence of zero or more symbol continuation characters.  These

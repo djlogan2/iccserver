@@ -37,6 +37,7 @@ class MenuLinks extends Component {
   handleClick = (e, label) => {
     e.preventDefault();
     if (label === "history") this.props.gameHistory(label);
+    if (label === "play") window.location.href = "/play";
     /* 
     e.preventDefault();
     Meteor.logout(err => {
