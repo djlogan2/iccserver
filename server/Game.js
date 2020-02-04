@@ -5,6 +5,7 @@ import { Mongo } from "meteor/mongo";
 
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
+import { Picker } from "meteor/meteorhacks:picker";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
@@ -304,6 +305,14 @@ Game.startLocalGame = function(
   const game_id = GameCollection.insert(game);
 
   active_games[game_id] = chess;
+  log.debug(
+    "Started local game, game_id=" +
+      game_id +
+      ", white=" +
+      white.username +
+      ", black=" +
+      black.username
+  );
   startGamePing(game_id);
   startMoveTimer(
     game_id,
@@ -1244,6 +1253,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
+  log.debug("requestLocalDraw ", game_id);
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
 
@@ -1315,6 +1325,8 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
+  log.debug("requestLocalAbort ", game_id);
+
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
 
@@ -1356,6 +1368,8 @@ Game.requestLocalAdjourn = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
+  log.debug("requestLocalAdjourn ", game_id);
+
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
 
@@ -1394,6 +1408,8 @@ Game.requestLocalAdjourn = function(message_identifier, game_id) {
 Game.acceptLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+
+  log.debug("acceptLocalDraw ", game_id);
 
   const self = Meteor.user();
   check(self, Object);
@@ -1447,6 +1463,8 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
 
+  log.debug("acceptLocalAbort ", game_id);
+
   const self = Meteor.user();
   check(self, Object);
 
@@ -1498,6 +1516,8 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
 Game.acceptLocalAdjourn = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
+
+  log.debug("acceptLocalAdjourn ", game_id);
 
   const self = Meteor.user();
   check(self, Object);
@@ -1648,6 +1668,8 @@ Game.declineLocalDraw = function(message_identifier, game_id) {
   const self = Meteor.user();
   const game = getAndCheck(message_identifier, game_id);
 
+  log.debug("declineLocalDraw ", game_id);
+
   if (!game) return;
 
   if (game.status !== "playing") {
@@ -1678,6 +1700,8 @@ Game.declineLocalAbort = function(message_identifier, game_id) {
   const self = Meteor.user();
   const game = getAndCheck(message_identifier, game_id);
 
+  log.debug("declineLocalAbort ", game_id);
+
   if (!game) return;
 
   if (game.status !== "playing") {
@@ -1707,6 +1731,8 @@ Game.declineLocalAdjourn = function(message_identifier, game_id) {
   check(game_id, String);
   const self = Meteor.user();
   const game = getAndCheck(message_identifier, game_id);
+
+  log.debug("declineLocalAdjourn ", game_id);
 
   if (!game) return;
 
@@ -1740,6 +1766,8 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   check(game_id, String);
   const self = Meteor.user();
   check(self, Object);
+
+  log.debug("resignLocalGame ", game_id);
 
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
@@ -2063,15 +2091,15 @@ Game.addMoveToMoveList = function(variation_object, move, current) {
 
 Game.findById = function(game_id) {
   check(game_id, String);
-  return GameCollection.findOne({_id: game_id});
+  return GameCollection.findOne({ _id: game_id });
 };
 
-Game.clearBoard = function(message_identifier, game_id) {}
-Game.setStartingPosition = function(message_identifier, game_id) {}
-Game.addPiece = function(message_identifier, game_id, color, piece, where) {}
-Game.removePiece = function(message_identifier, game_id, where) {}
-Game.setToMove = function(message_identifier, game_id, color) {}
-Game.setCastling = function(message_identifier, game_id, white, black) {}
+Game.clearBoard = function(message_identifier, game_id) {};
+Game.setStartingPosition = function(message_identifier, game_id) {};
+Game.addPiece = function(message_identifier, game_id, color, piece, where) {};
+Game.removePiece = function(message_identifier, game_id, where) {};
+Game.setToMove = function(message_identifier, game_id, color) {};
+Game.setCastling = function(message_identifier, game_id, white, black) {};
 
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
   switch (tag) {
@@ -2224,10 +2252,14 @@ function startGamePing(game_id) {
 }
 
 function _startGamePing(game_id, color) {
+  log.debug("_startGamePing game_id=" + game_id + ", color=" + color);
   if (!game_pings[game_id]) game_pings[game_id] = {};
   game_pings[game_id][color] = new TimestampServer(
     "server game",
     (key, msg) => {
+      log.debug(
+        "_startGamePing game_id=" + game_id + ", key=" + key + ", ping=" + JSON.stringify(msg)
+      );
       if (key === "ping") {
         const pushobject = {};
         pushobject["lag." + color + ".active"] = msg;
@@ -2266,6 +2298,7 @@ function _startGamePing(game_id, color) {
 }
 
 function endGamePing(game_id) {
+  log.debug("endGamePing game_id=" + game_id);
   if (!game_pings[game_id])
     throw new ICCMeteorError(
       "server",
@@ -2293,6 +2326,7 @@ function startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds
 }
 
 function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_milliseconds) {
+  log.debug("startMoveTimer, gameid=" + game_id + ", color=" + color);
   if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
 
   if (delay_milliseconds && delaytype === "us") {
@@ -2301,6 +2335,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
   }
 
   move_timers[game_id] = Meteor.setInterval(() => {
+    log.debug("startMoveTimer has expired! gameid=" + game_id + ", color=" + color);
     Meteor.clearInterval(move_timers[game_id]);
     delete move_timers[game_id];
     const game = GameCollection.findOne({ _id: game_id, status: "playing" });
@@ -2331,6 +2366,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
 }
 
 function endMoveTimer(game_id) {
+  log.debug("endMoveTimer, gameid=" + game_id);
   const interval_id = move_timers[game_id];
   if (!interval_id) return;
   Meteor.clearInterval(interval_id);
@@ -2418,4 +2454,44 @@ Meteor.publish("observing_games", function() {
   return GameCollection.find({
     "observers.id": this.userId
   });
+});
+
+function msToTime(duration) {
+  var milliseconds = parseInt((duration % 1000) / 100),
+    seconds = Math.floor((duration / 1000) % 60),
+    minutes = Math.floor((duration / (1000 * 60)) % 60),
+    hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+  hours = hours < 10 ? "0" + hours : hours;
+  minutes = minutes < 10 ? "0" + minutes : minutes;
+  seconds = seconds < 10 ? "0" + seconds : seconds;
+
+  return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
+}
+
+Picker.route("/debug/times/:_id", function(params, req, res, next) {
+  //  res.setHeader("content-type", "text/plain");
+
+  const game = GameCollection.findOne({ _id: params._id });
+  if (!game) {
+    res.write("no game");
+    res.end();
+    return;
+  }
+
+  const color = game.tomove;
+  const other = color === "white" ? "black" : "white";
+  let time1, time2;
+
+  const timediff = new Date().getTime() - game.clocks[color].starttime;
+
+  if (game.clocks[color].delaytype === "us" && (game.clocks[color].delay | 0) * 1000 <= timediff)
+    time1 = game.clocks[color].current;
+  else time1 = game.clocks[color].current - timediff;
+  time2 = game.clocks[other].current;
+  const t1str = msToTime(time1);
+  const t2str = msToTime(time2);
+  if (color === "white") res.write("[" + time1 + " / " + t1str + "," + time2 + " / " + t2str + "]");
+  else res.write("[" + time2 + " / " + t2str + "," + time1 + " / " + t1str + "]");
+  res.end();
 });

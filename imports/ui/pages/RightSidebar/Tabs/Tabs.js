@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Tab from "./Tab";
 import { Logger } from "../../../../../lib/client/Logger";
 
-const log = new Logger("Tabs/Tabs_js");
+const log = new Logger("client/Tabs_js");
 
 class Tabs extends Component {
   static propTypes = {

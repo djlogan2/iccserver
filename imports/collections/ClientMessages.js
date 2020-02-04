@@ -8,7 +8,7 @@ import { Logger } from "../../lib/server/Logger";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 
 // eslint-disable-next-line no-unused-vars
-let log = new Logger("ClientMessages_js");
+let log = new Logger("server/ClientMessages_js");
 const ClientMessagesCollection = new Mongo.Collection("client_messages");
 const ClientMessageSchema = {
   createDate: {
@@ -108,6 +108,14 @@ Meteor.methods({
 export const ClientMessages = {};
 
 ClientMessages.sendMessageToClient = function(user, client_identifier, i18n_message) {
+  log.debug(
+    "sendMessageToClient user=" +
+      user +
+      ", client_identifier=" +
+      client_identifier +
+      ", i18n_message=" +
+      i18n_message
+  );
   check(user, Match.OneOf(Object, String));
   check(client_identifier, String);
   check(

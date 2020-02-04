@@ -2,7 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import React from "react";
 import { Logger } from "../../../../lib/client/Logger";
-const log = new Logger("CreateGameComponent_js");
+const log = new Logger("client/CreateGameComponent_js");
 // TODO: What do we do when a user is logged on local AND legacy? They currently show up twice, as in localuser and legacyuser(L).
 //   I would assume we want to remove them from one of the lists...
 // TODO: Do users that are not logged on to legacy see legacy users? I think not, but at the moment, everyone will.

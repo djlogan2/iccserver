@@ -4,7 +4,7 @@ import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
 import { Logger } from "../../../../../lib/client/Logger";
 
-let log = new Logger("Board/PieceSquare_js");
+let log = new Logger("client/PieceSquare_js");
 /**
  * @param props React properties
  * @param props.rank The rank of the square being drawn
