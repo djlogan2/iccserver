@@ -67,7 +67,7 @@ const x = [
 
 export const Game = {};
 
-Game.savePlayedGame = {}; // GameHistory will replace this
+//Game.savePlayedGame = function() {throw new Error("Why is this function not replaced?");}; // GameHistory will replace this
 
 const GameCollection = new Mongo.Collection("game");
 
@@ -1157,7 +1157,6 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   let tomove = game.tomove;
-  let moves = game.moves;
   if (!game.pending[othercolor].takeback.number) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NO_TAKEBACK_PENDING");
     return;
@@ -1767,8 +1766,6 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
-  log.debug("resignLocalGame ", game_id);
-
   const game = getAndCheck(message_identifier, game_id);
   if (!game) return;
   if (game.status !== "playing") {
@@ -1776,15 +1773,21 @@ Game.resignLocalGame = function(message_identifier, game_id) {
     return;
   }
 
-  endGamePing(game_id);
-  endMoveTimer(game_id);
+  _resignLocalGame(message_identifier, game, self._id, "resign");
+};
 
-  const result = self._id === game.white.id ? "0-1" : "1-0";
+function _resignLocalGame(message_identifier, game, userId, reason) {
+  log.debug("resignLocalGame ", game._id + "," + reason + "," + userId);
+
+  endGamePing(game._id);
+  endMoveTimer(game._id);
+
+  const result = userId === game.white.id ? "0-1" : "1-0";
   GameCollection.update(
-    { _id: game_id, status: "playing" },
+    { _id: game._id, status: "playing" },
     {
       $push: {
-        actions: { type: "resign", issuer: self._id },
+        actions: { type: reason, issuer: userId },
         observers: {
           $each: [
             { id: game.white.id, username: game.white.name },
@@ -1805,8 +1808,8 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
-  Game.savePlayedGame(message_identifier, game_id);
-};
+  Game.savePlayedGame(message_identifier, game._id);
+}
 
 Game.recordLegacyOffers = function(
   message_identifier,
@@ -2019,6 +2022,13 @@ Game.localUnobserveAllGames = function(message_identifier, user_id) {
     .forEach(game => Game.localRemoveObserver("server", game._id, user_id));
 };
 
+Game.localResignAllGames = function(message_identifier, user_id, reason) {
+  const playing = GameCollection.find({
+    $and: [{ status: "playing" }, { $or: [{ "white.id": user_id }, { "black.id": user_id }] }]
+  }).fetch();
+  playing.forEach(game => _resignLocalGame("server", game, user_id, reason));
+};
+
 Game.exportToPGN = function(id) {
   check(id, String);
   const game = GameCollection.findOne({ _id: id });
@@ -2100,89 +2110,6 @@ Game.addPiece = function(message_identifier, game_id, color, piece, where) {};
 Game.removePiece = function(message_identifier, game_id, where) {};
 Game.setToMove = function(message_identifier, game_id, color) {};
 Game.setCastling = function(message_identifier, game_id, white, black) {};
-
-function updateGameRecordWithPGNTag(gamerecord, tag, value) {
-  switch (tag) {
-    case "Event":
-      break;
-    case "Site":
-      break;
-    case "Date":
-      gamerecord.startTime = Date.parse(value);
-      break;
-    case "Round":
-      break;
-    case "White":
-      gamerecord.white.name = value;
-      break;
-    case "Black":
-      gamerecord.black.name = value;
-      break;
-    case "Result":
-      gamerecord.result = value;
-      break;
-    case "WhiteTitle":
-      break;
-    case "BlackTitle":
-      break;
-    case "WhiteUSCF":
-    case "WhiteElo":
-      gamerecord.white.rating = parseInt(value);
-      break;
-    case "BlackUSCF":
-    case "BlackElo":
-      gamerecord.black.rating = parseInt(value);
-      break;
-    case "WhiteNA":
-      break;
-    case "BlackNA":
-      break;
-    case "WhiteType":
-      break;
-    case "BlackType":
-      break;
-    case "EventDate":
-      break;
-    case "EventSponsor":
-      break;
-    case "Section":
-      break;
-    case "Stage":
-      break;
-    case "Board":
-      break;
-    case "Opening":
-      break;
-    case "Variation":
-      break;
-    case "SubVariation":
-      break;
-    case "ECO":
-      break;
-    case "NIC":
-      break;
-    case "Time":
-      break;
-    case "UTCTime":
-      break;
-    case "UTCDate":
-      break;
-    case "TimeControl":
-      break;
-    case "SetUp":
-      break;
-    case "FEN":
-      break;
-    case "Termination":
-      break;
-    case "Annotator":
-      break;
-    case "Mode":
-      break;
-    case "PlyCount":
-      break;
-  }
-}
 
 function findVariation(move, idx, movelist) {
   if (
@@ -2382,7 +2309,11 @@ function testingCleanupMoveTimers() {
 
 Meteor.startup(function() {
   GameCollection.remove({});
-  Users.addLogoutHook(userId => Game.localUnobserveAllGames("", userId));
+  Users.addLogoutHook(userId => {
+    Game.localResignAllGames("server", userId, "disconnect");
+    Game.localUnobserveAllGames("server", userId);
+    Users.setGameStatus("server", userId, "none");
+  });
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
@@ -2469,7 +2400,7 @@ function msToTime(duration) {
   return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
 }
 
-Picker.route("/debug/times/:_id", function(params, req, res, next) {
+Picker.route("/debug/times/:_id", function(params, req, res) {
   //  res.setHeader("content-type", "text/plain");
 
   const game = GameCollection.findOne({ _id: params._id });

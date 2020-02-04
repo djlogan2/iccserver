@@ -15,10 +15,8 @@ const GameHistoryCollection = new Mongo.Collection("game_history");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
 GameHistory.savePlayedGame = function(message_identifier, game_id) {
-  const self = Meteor.user();
   check(message_identifier, String);
   check(game_id, String);
-  check(self, Object);
   const game = Game.findById(game_id);
   if (!game)
     throw new ICCMeteorError(
