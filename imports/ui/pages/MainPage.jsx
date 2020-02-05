@@ -9,6 +9,7 @@ import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
 import { GameRequestPopup, ActionPopup } from "./components/Popup/Popup";
+import i18n from "meteor/universe:i18n";
 const log = new Logger("client/MainPage");
 
 export default class MainPage extends Component {
@@ -16,7 +17,12 @@ export default class MainPage extends Component {
     super(props);
     this.gameId = null;
     this.userId = Meteor.userId();
-
+    this.state = {
+      examineGame: false,
+      exnotification: false,
+      resignnotification: false,
+      examinAction: "action"
+    };
     this.Main = {
       LeftSection: {
         MenuLinks: links
@@ -52,8 +58,19 @@ export default class MainPage extends Component {
         Action: {}
       }
     };
+    this.notificationHandler = this.notificationHandler.bind(this);
+    this.examineActionHandler = this.examineActionHandler.bind(this);
+    this.startGameExamine = this.startGameExamine.bind(this);
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!!this.props.len && !!nextProps.len) {
+      if (nextProps.len !== this.props.len)
+        if (this.props.game.status === "examining" || this.state.exnotification === true) {
+          this.setState({ exnotification: false });
+        }
+    }
+  }
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
       white: {
@@ -78,6 +95,7 @@ export default class MainPage extends Component {
       }
     });
   };
+
   gameRequest = (title, requestId) => {
     return (
       <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
@@ -93,16 +111,271 @@ export default class MainPage extends Component {
       />
     );
   };
+  notificationPopup = (title, mid) => {
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        <button
+          style={{
+            position: "absolute",
+            top: "-17px",
+            right: "-16px",
+            background: "#b7bdc5",
+            borderRadius: "50%",
+            border: "3px solid #242f35",
+            focus: {
+              outline: "none"
+            }
+          }}
+          onClick={() => this.removeAcknowledgeMessage(mid)}
+        >
+          <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+        </button>
+        <div className="popup_inner">
+          <h3
+            style={{
+              margin: "10px 0px 20px",
+              color: "#000",
+              fontSize: "17px"
+            }}
+          >
+            {title}
+          </h3>
+          <button
+            onClick={() => this.removeAcknowledgeMessage(mid)}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
+  notificationPopup1 = (title, mid) => {
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        <button
+          style={{
+            position: "absolute",
+            top: "-17px",
+            right: "-16px",
+            background: "#b7bdc5",
+            borderRadius: "50%",
+            border: "3px solid #242f35",
+            focus: {
+              outline: "none"
+            }
+          }}
+          onClick={() => this.resignnotificationPopup()}
+        >
+          <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+        </button>
+        <div className="popup_inner">
+          <h3
+            style={{
+              margin: "10px 0px 20px",
+              color: "#000",
+              fontSize: "17px"
+            }}
+          >
+            {title}
+          </h3>
+          <button
+            onClick={() => this.resignnotificationPopup()}
+            style={this.props.cssmanager.innerPopupMain()}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
+  examinActionPopup = action => {
+    if (action === "complain") {
+      return (
+        <div style={this.props.cssmanager.outerPopupMain()}>
+          <button
+            style={{
+              position: "absolute",
+              top: "-17px",
+              right: "-16px",
+              background: "#b7bdc5",
+              borderRadius: "50%",
+              border: "3px solid #242f35"
+            }}
+            onClick={() => this.examinActionCloseHandler()}
+          >
+            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+          </button>
+          <div className="popup_inner">
+            <div>
+              <label>Email</label>
+              <input type="text" name="email" />
+            </div>
+            <div>
+              <label>Complaint</label>
+              <textarea name="complaint" rows="4" cols="35" />
+            </div>
+            <div>
+              <button
+                onClick={() => this.examinActionCloseHandler()}
+                style={this.props.cssmanager.innerPopupMain()}
+              >
+                submit
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (action === "emailgame") {
+      return (
+        <div style={this.props.cssmanager.outerPopupMain()}>
+          <button
+            style={{
+              position: "absolute",
+              top: "-17px",
+              right: "-16px",
+              background: "#b7bdc5",
+              borderRadius: "50%",
+              border: "3px solid #242f35"
+            }}
+            onClick={() => this.examinActionCloseHandler()}
+          >
+            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+          </button>
+          <div className="popup_inner">
+            <div>
+              <label>Email</label>
+              <input type="text" name="email" />
+            </div>
 
+            <div>
+              <button
+                onClick={() => this.examinActionCloseHandler()}
+                style={this.props.cssmanager.innerPopupMain()}
+              >
+                submit
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+  loadGameHistroyPopup(games) {
+    let result;
+    let gamelist = [];
+    for (let i = 0; i < games.length; i++) {
+      if (
+        (games[i].white.id === Meteor.userId() && games[i].result === "1-0") ||
+        (games[i].black.id === Meteor.userId() && games[i].result === "0-1")
+      ) {
+        result = "Won";
+      } else {
+        result = "Loss";
+      }
+      gamelist.push({
+        id: games[i]._id,
+        name: "3 minut arina",
+        white: games[i].white.name,
+        black: games[i].black.name,
+        result: result,
+        time: games[i].startTime.toDateString()
+      });
+    }
+    return (
+      <div style={this.props.cssmanager.outerPopupMain()}>
+        {gamelist.length > 0 ? (
+          <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Players
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Result
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Date
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  PGN
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {gamelist.map((game, index) => (
+                <tr
+                  key={index}
+                  onClick={this.setGameExaminMode.bind(this, game.id)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <td style={{ padding: "5px 5px" }}>
+                    {game.white}-vs-{game.black}
+                  </td>
+                  <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                  <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                  <td style={{ padding: "5px 5px" }}>
+                    <img
+                      src="images/pgnicon.png"
+                      style={{ width: "25px", height: "25px" }}
+                      alt="close"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
+        <button
+          onClick={this.props.removeGameHistory}
+          style={this.props.cssmanager.innerPopupMain()}
+        >
+          close
+        </button>
+      </div>
+    );
+  }
+  setGameExaminMode(id) {
+    Meteor.call("examineGame", "ExaminedGame", id);
+  }
+  startGameExamine() {
+    this.setState({ examineGame: true });
+  }
+  examineActionHandler(action) {
+    this.setState({ exnotification: false, examinAction: action });
+  }
+  removeAcknowledgeMessage(messageId) {
+    Meteor.call("acknowledge.client.message", messageId);
+  }
+  resignnotificationPopup() {
+    this.setState({ resignnotification: true });
+  }
+  notificationHandler() {
+    this.setState({ notification: !this.state.notification });
+  }
+  examinActionCloseHandler() {
+    this.setState({ exnotification: true });
+  }
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
+  getLang() {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
   render() {
+    //  let translator = i18n.createTranslator("Common.chatBoxMessage", this.getLang());
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
     const GameRequest = this.props.gameRequest;
-    let informativePopup = null;
+    let exPopup = null;
     let actionPopup = null;
+    let informativePopup = null;
     let status = "others";
     let undo = false;
     let position = { top: "w" };
@@ -111,7 +384,7 @@ export default class MainPage extends Component {
       GameRequest.type === "match" &&
       GameRequest.receiver_id === Meteor.userId()
     )
-      informativePopup = this.gameRequest("Opponent has requested for a game", GameRequest["_id"]);
+      informativePopup = this.gameRequest("Opponent has requests for a game", GameRequest["_id"]);
 
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
@@ -127,27 +400,40 @@ export default class MainPage extends Component {
         { white: game.white },
         { clocks: game.clocks }
       );
+      if (status === "examining") {
+        undo = true;
 
-      if (gameTurn === "w") {
-        Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
-        Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
+        if (
+          this.state.exnotification === false &&
+          (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
+        ) {
+          exPopup = this.examinActionPopup(this.state.examinAction);
+        }
       } else {
-        Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
-        Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
+        if (gameTurn === "w") {
+          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
+          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
+        } else {
+          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
+          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
+        }
       }
       this.Main.RightSection.MoveList = game;
-      Object.assign(this.Main.RightSection.Action, {
-        gameId: this.gameId,
-        userId: this.userId,
-        user: Meteor.user().username
-      });
+
       const othercolor = this.userId === game.white.id ? "black" : "white";
 
       const actions = game.actions;
+
       if (!!actions && actions.length !== 0) {
-        //TODO: When takeback occure Chessbord not trash remove peice so write these code
         let ack = actions[actions.length - 1];
-        undo = ack["type"] === "takeback_accepted" || game.status === "examining" ? true : false;
+        if (!!ack["type"] && ack["type"] === "resign" && game.status !== "examining") {
+          if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
+            informativePopup = this.notificationPopup1("Opponent has resigend a game", "abort");
+          }
+        }
+
+        if (!!ack["type"] && ack["type"] === "takeback_accepted") undo = true;
+
         for (const action of actions) {
           const issuer = action["issuer"];
           switch (action["type"]) {
@@ -187,7 +473,15 @@ export default class MainPage extends Component {
     } else {
       this.intializeBoard();
     }
-
+    if (!!this.props.GameHistory && this.props.GameHistory.length > 0) {
+      informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
+    }
+    if (!!this.props.clientMessage && this.props.clientMessage.client_identifier !== "server") {
+      informativePopup = this.notificationPopup(
+        this.props.clientMessage.message,
+        this.props.clientMessage._id
+      );
+    }
     let w;
     let h;
     if (!w) w = window.innerWidth;
@@ -200,12 +494,16 @@ export default class MainPage extends Component {
             cssmanager={this.props.cssmanager}
             LefSideBoarData={this.Main.LeftSection}
             history={this.props.history}
+            gameHistory={this.props.gameHistoryload}
           />
           <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
             {informativePopup}
+            {exPopup}
+
             <MiddleBoard
               cssmanager={this.props.cssmanager}
               MiddleBoardData={this.Main.MiddleSection}
+              currentGame={this.state.examineGame}
               ref="middleBoard"
               capture={this.props.capture}
               board={this.props.board}
@@ -215,21 +513,24 @@ export default class MainPage extends Component {
               top={position.top}
               circles={this.props.circles}
               undo={undo}
+              gameStatus={status}
             />
           </div>
+
           <div className="col-sm-4 col-md-4 col-lg-4 right-section">
             {actionPopup}
             <RightSidebar
               cssmanager={this.props.cssmanager}
               RightSidebarData={this.Main.RightSection}
               gameStatus={status}
+              currentGame={this.state.examineGame}
               flip={this._flipboard}
-              actionData={this.Main.RightSection.Action}
               gameRequest={this.props.gameRequest}
               clientMessage={this.props.clientMessage}
               ref="right_sidebar"
               examing={this.props.examing}
-              path={this.props.path}
+              startGameExamine={this.startGameExamine}
+              examineAction={this.examineActionHandler}
             />
           </div>
         </div>
@@ -250,8 +551,13 @@ let links = [
     active: true
   },
   {
+    label: "history",
+    link: "history",
+    src: "../../../images/learning-icon-white.png"
+  },
+  {
     label: "learn",
-    link: "#learn",
+    link: "learn",
     src: "../../../images/learning-icon-white.png"
   },
   {

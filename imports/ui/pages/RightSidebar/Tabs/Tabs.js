@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Tab from "./Tab";
 import { Logger } from "../../../../../lib/client/Logger";
 
-const log = new Logger("Tabs/Tabs_js");
+const log = new Logger("client/Tabs_js");
 
 class Tabs extends Component {
   static propTypes = {
@@ -22,18 +22,18 @@ class Tabs extends Component {
   onClickTabItem = tab => {
     this.setState({ activeTab: tab });
   };
-  mouseOver = label => {
+  /* mouseOver = label => {
     this.setState({ onHover: label });
   };
 
   mouseOut = label => {
     this.setState({ hoverOut: label });
-  };
+  }; */
   render() {
     const {
       onClickTabItem,
-      mouseOver,
-      mouseOut,
+      /*   mouseOver,
+      mouseOut, */
       props: { children },
       state: { activeTab, onHover, hoverOut }
     } = this;
@@ -61,8 +61,8 @@ class Tabs extends Component {
                 label={label}
                 src={imgsrc}
                 onClick={onClickTabItem}
-                onMouseEnter={mouseOver}
-                onMouseLeave={mouseOut}
+                /*    onMouseEnter={mouseOver}
+                onMouseLeave={mouseOut} */
               />
             );
           })}

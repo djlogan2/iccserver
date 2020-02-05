@@ -5,7 +5,7 @@ import RankSquare from "./RankSquare.js";
 import FileSquare from "./FileSquare.js";
 import { Logger } from "../../../../../lib/client/Logger";
 
-const log = new Logger("Board/Board_js");
+const log = new Logger("client/Board_js");
 /**
  * @param props React properties
  * @param props.circle.lineWidth the line width for the circle

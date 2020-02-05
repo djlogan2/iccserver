@@ -174,6 +174,7 @@ Users.addToGroup = function(message_identifier, user, group) {
 Accounts.onLogin(function(user_parameter) {
   const user = user_parameter.user;
   const connection = user_parameter.connection;
+  Meteor.users.update({ _id: user._id }, { $set: { "status.game": "none" } });
 
   log.debug("user record", user);
   runLoginHooks(this, user, connection);

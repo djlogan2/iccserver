@@ -4,6 +4,7 @@ import Player from "./Player";
 import "../css/developmentboard.css";
 import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
+import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("client/MiddleBoard");
@@ -14,7 +15,7 @@ export default class MiddleBoard extends Component {
     this._circle = { lineWidth: 2, color: "red" };
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
-      board: props.board,
+      fen: props.board.fen(),
       istakeback: false,
       draw_rank_and_file: "bl",
       top: props.top,
@@ -23,6 +24,7 @@ export default class MiddleBoard extends Component {
       black: props.MiddleBoardData.black,
       height: 500,
       width: 1000,
+      update: 0,
       isactive: true,
       current: 600000
     };
@@ -51,12 +53,21 @@ export default class MiddleBoard extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
   }
+
   componentDidUpdate(prevProps) {
     if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
     }
   }
-
+  /* shouldComponentUpdate(nextProps, nextState) {
+    if (nextState.update === 1) {
+      return true;
+    }
+    if (nextState.fen !== this.state.fen) {
+      return true;
+    }
+    //return true;
+  } */
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newTop });
@@ -76,8 +87,8 @@ export default class MiddleBoard extends Component {
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.board !== prevState.board) {
-      return { board: nextProps.board };
+    if (nextProps.board.fen() !== prevState.fen) {
+      return { board: nextProps.board, update: 0 };
     }
   }
   nextRAF() {
@@ -101,7 +112,7 @@ export default class MiddleBoard extends Component {
   }
 
   onDrop = ({ sourceSquare, targetSquare }) => {
-    let move = this.state.board.move({
+    let move = this.props.board.move({
       from: sourceSquare,
       to: targetSquare,
       promotion: "q"
@@ -109,28 +120,31 @@ export default class MiddleBoard extends Component {
     if (move === null) {
       return;
     } else {
-      this.setState({ board: this.state.board });
-      let history = this.state.board.history();
+      let history = this.props.board.history();
       let moves = history[history.length - 1];
       this.props.onDrop({
         move: moves
       });
+      this.setState({ fen: this.props.board.fen(), update: 1 });
     }
   };
-
   render() {
     let w = this.state.width;
     let h = this.state.height;
     let d;
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
-
+    let bh = h;
+    let bw = w;
     d = h;
     w /= 2; // 1366/2
     h -= d / 9;
-    let mbh = h / 6;
-
     const size = Math.min(h, w);
+    d = bh;
+    bw = bw / 2;
+    bh -= d / 5;
+    let boardsize = Math.min(bh, bw);
+
     const newColor = this.state.top === "w" ? "Black" : "White";
 
     const raf = this.nextRAF()[1];
@@ -162,7 +176,46 @@ export default class MiddleBoard extends Component {
     } else {
       bordtop = "white";
     }
-    log.debug("Ok", this.props.istakeback);
+    let turn = false;
+    //TODO:DRAGEABLE FALSE AND TRUE ACCODING GAME TURN
+    if (
+      (this.props.MiddleBoardData.white.id === Meteor.userId() &&
+        this.props.board.turn() === "w" &&
+        this.props.gameStatus === "playing") ||
+      (this.props.gameStatus === "examining" && this.props.currentGame === true)
+    ) {
+      turn = true;
+    } else if (
+      (this.props.MiddleBoardData.black.id === Meteor.userId() &&
+        this.props.board.turn() === "b" &&
+        this.props.gameStatus === "playing") ||
+      (this.props.gameStatus === "examining" && this.props.currentGame === true)
+    ) {
+      turn = true;
+    }
+    let topPlayermsg;
+    let botPlayermsg;
+    let color;
+    if (this.props.gameStatus === "playing") {
+      if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
+        if (this.props.board.turn() === "b") {
+          botPlayermsg = "(Your Turn)";
+          color = "#4cd034";
+        } else {
+          topPlayermsg = "(waiting for opponent)";
+          color = "#fff";
+        }
+      } else {
+        if (this.props.board.turn() === "w") {
+          botPlayermsg = "(Your Turn)";
+          color = "#4cd034";
+        } else {
+          topPlayermsg = "(waiting for opponent)";
+          color = "#fff";
+        }
+      }
+    }
+
     return (
       <div>
         <button
@@ -178,8 +231,10 @@ export default class MiddleBoard extends Component {
             cssmanager={this.props.cssmanager}
             side={size}
             color={tc}
+            turnColor={color}
             FallenSoldiers={topPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
+            Playermsg={topPlayermsg}
           />
 
           <BlackPlayerClock
@@ -193,8 +248,8 @@ export default class MiddleBoard extends Component {
             id="allowDrag"
             darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
             lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
-            calcWidth={({ screenWidth }) => (screenWidth < 500 ? 350 : 480)}
-            position={this.state.board.fen()}
+            calcWidth={({ screenWidth }) => boardsize}
+            position={this.props.board.fen()}
             onDrop={this.onDrop}
             orientation={bordtop}
             undo={this.props.undo}
@@ -202,7 +257,7 @@ export default class MiddleBoard extends Component {
               borderRadius: "5px",
               boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
             }}
-            draggable={true}
+            draggable={turn}
           />
         </div>
         <div style={{ clear: "Left" }} />
@@ -212,8 +267,10 @@ export default class MiddleBoard extends Component {
             cssmanager={this.props.cssmanager}
             side={size}
             color={bc}
+            turnColor={color}
             FallenSoldiers={bottomPlayerFallenSoldier}
             rank_and_file={this.state.draw_rank_and_file}
+            Playermsg={botPlayermsg}
           />
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}

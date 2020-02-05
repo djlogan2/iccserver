@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
 import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../lib/client/Logger";
-const log = new Logger("SignUpPage/SignUpPage_js");
+const log = new Logger("client/SignUpPage_js");
 export default class SignUpPage extends Component {
   constructor(props) {
     super(props);

@@ -16,6 +16,7 @@ export const renderRoutes = () => (
       <Route path="/login" component={LoginPage} />
       <Route exact={true} path="/" component={HomeContainer} />
       <Route exact={true} path="/home" component={HomeContainer} />
+      <Route exact={true} path="/history" component={AppContainer} />
       <Route exact={true} path="/play" component={AppContainer} />
       <Route exact={true} path="/test/:what" component={TestContainer} />
     </div>

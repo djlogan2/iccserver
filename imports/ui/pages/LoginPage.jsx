@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../lib/client/Logger";
-const log = new Logger("LoginPage/LoginPage_js");
+const log = new Logger("client/LoginPage_js");
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);

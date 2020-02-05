@@ -1,32 +1,40 @@
 module.exports = {
   servers: {
     one: {
+      // TODO: set host address, username, and authentication method
       host: '34.216.171.157',
       username: 'david',
       pem: '~/.ssh/id_rsa'
+      // password: 'server-password'
+      // or neither for authenticate from ssh-agent
     }
   },
 
   app: {
+    // TODO: change app name and path
     name: 'iccserver',
     path: '../',
 
     servers: {
-      one: {},
+      one: {}
     },
 
     buildOptions: {
-      serverOnly: true,
+      serverOnly: true
     },
 
     env: {
+      // TODO: Change to your app's url
+      // If you are using ssl, it needs to start with https://
       ROOT_URL: 'http://34.216.171.157',
       MONGO_URL: 'mongodb://mongodb/meteor',
-      MONGO_OPLOG_URL: 'mongodb://mongodb/local',
+      MONGO_OPLOG_URL: 'mongodb://mongodb/local'
     },
 
     docker: {
-      image: 'iccserver_base' //'abernix/meteord:node-8-binbuild',
+      // change to 'abernix/meteord:base' if your app is using Meteor 1.4 - 1.5
+     //image: 'abernix/meteord:node-8.4.0-base',
+	image: 'iccserver_base'
     },
 
     // Show progress bar while uploading bundle to server
@@ -39,7 +47,7 @@ module.exports = {
     servers: {
       one: {}
     }
-  },
+  }
 
   // (Optional)
   // Use the proxy to setup ssl or to route requests to the correct

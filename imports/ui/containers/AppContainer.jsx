@@ -7,14 +7,42 @@ import CssManager from "../pages/components/Css/CssManager";
 import Chess from "chess.js";
 import { Tracker } from "meteor/tracker";
 import {
-  mongoCss,
-  mongoUser,
+  ClientMessagesCollection,
   Game,
+  GameHistoryCollection,
   GameRequestCollection,
-  ClientMessagesCollection
+  mongoCss,
+  mongoUser
 } from "../../api/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
+
 const log = new Logger("client/AppContainer");
+
+let played_game_id;
+let game_timestamp_client;
+
+Game.find().observe({
+  changed(newDocument) {
+    if (newDocument.status === "examining") {
+      return;
+    }
+
+    const color =
+      newDocument.white.id === Meteor.userId()
+        ? "white"
+        : newDocument.black.id === Meteor.userId()
+        ? "black"
+        : "?";
+    if (color === "?") return;
+
+    if (played_game_id !== newDocument._id) {
+      game_timestamp_client = new TimestampClient("client game", (_, msg) =>
+        Meteor.call("gamepong", newDocument._id, msg)
+      );
+      newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
+    }
+  }
+});
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
   // log.error(errorMsg + "::" + url + "::" + lineNumber);
@@ -28,6 +56,7 @@ Meteor.startup(() => {
     // the subscription is stopped on the server, cleaning up.
     //
     Meteor.subscribe("userData");
+    Meteor.subscribe("observing_games");
   });
 });
 
@@ -42,53 +71,52 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.userpending = null;
     this.state = {
       gameId: null,
+      GameHistory: null,
       subscription: {
         css: Meteor.subscribe("css"),
         game: Meteor.subscribe("playing_games"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
-        observingGames: Meteor.subscribe("observing_games")
+        observingGames: Meteor.subscribe("observing_games"),
+        gameHistory: Meteor.subscribe("game_history")
       },
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
     this.removeCircle = this.removeCircle.bind(this);
+    this.gameHistoryload = this.gameHistoryload.bind(this);
+    this.removeGameHistory = this.removeGameHistory.bind(this);
   }
+
   renderGameMessages() {
-    const game = Game.findOne({
+    return Game.findOne({
       $and: [
-        {
-          $or: [{ status: "playing" }, { status: "examining" }]
-        },
+        { status: "playing" },
         {
           $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
         }
       ]
     });
-    if (!!game) {
-      const color = game.white.id === Meteor.userId() ? "white" : "black";
-
-      if (!this.game_timestamp_client)
-        this.game_timestamp_client = new TimestampClient("client game", (_, msg) =>
-          Meteor.call("gamepong", game._id, msg)
-        );
-      game.lag[color].active.forEach(ping => this.game_timestamp_client.pingArrived(ping));
-    }
-
-    return game;
   }
-  examinGame() {
-    const game = Game.find({
+
+  examineGame() {
+    return Game.find({
       "observers.id": Meteor.userId()
     }).fetch();
-
-    return game;
   }
+
+  getGameHistory() {
+    return true;
+  }
+
   renderGameRequest() {
     return GameRequestCollection.findOne(
       {
         $or: [
+          {
+            challenger_id: Meteor.userId()
+          },
           {
             receiver_id: Meteor.userId()
           },
@@ -100,6 +128,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       }
     );
   }
+
   clientMessages() {
     return ClientMessagesCollection.findOne(
       {
@@ -133,6 +162,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.gameRequests.stop();
     this.state.subscription.clientMessages.stop();
     this.state.subscribtion.observingGames.stop();
+    this.state.subscription.gameHistory.stop();
   }
 
   componentWillMount() {
@@ -140,11 +170,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this.props.history.push("/sign-up");
     }
   }
+
   componentDidMount() {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
     }
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
@@ -183,9 +215,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     return capturedSoldiers;
   }
+
   drawCircle(square, color, size) {
     Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size);
   }
+
   removeCircle(square) {
     Meteor.call("removeCircle", "RemoveCircle", this.gameId, square);
   }
@@ -193,7 +227,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   _pieceSquareDragStop = raf => {
     let game = this.renderGameMessages();
     if (!game) {
-      const gameExamin = this.examinGame();
+      let gameExamin = this.examineGame();
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
       } else {
@@ -203,6 +237,21 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };
+
+  gameHistoryload(data) {
+    if (data === "history") {
+      const GameHistory = GameHistoryCollection.find({
+        $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+      }).fetch();
+      log.debug("Gamehistory", GameHistory);
+      if (!!GameHistory) this.setState({ GameHistory: GameHistory });
+    }
+  }
+
+  removeGameHistory() {
+    this.setState({ GameHistory: null });
+  }
+
   _boardFromMongoMessages(game) {
     let moves = [];
     let variation = game.variations;
@@ -237,11 +286,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
       this._boardfallensolder.move(moves[index]);
     }
   }
+
   _examinBoard(game) {
-    // if (this._board.fen() !== game.fen) {
     this._board.load(game.fen);
-    // }
   }
+
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
     let rank = parseInt(square.square.charAt(1));
@@ -249,11 +298,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
     let fileNo = fileNumber.indexOf(file);
     return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
   }
+
   render() {
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
     let circles = [];
-    const gameExamin = []; // this.examinGame();
+    let actionlen;
+    let gameExamin = []; // this.examineGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
@@ -267,41 +318,44 @@ export default class AppContainer extends TrackerReact(React.Component) {
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (!!game) {
       this.gameId = game._id;
+      actionlen = game.actions.length;
       this._boardFromMongoMessages(game);
     } else {
-      /*  if (!!gameExamin && gameExamin.length > 0) {
+      gameExamin = this.examineGame();
+      if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
         this.gameId = game._id;
         this._examinBoard(game);
         if (!!game.circles) {
           let circleslist = game.circles;
-
           circleslist.forEach(circle => {
             let c1 = this.getCoordinatesToRank(circle);
             circles.push(c1);
           });
         }
-      } */
+      }
     }
-
     const capture = this._fallenSoldier();
+
     return (
       <div>
         <MainPage
           cssmanager={css}
           board={this._board}
           capture={capture}
+          len={actionlen}
           game={game}
+          gameHistoryload={this.gameHistoryload}
+          GameHistory={this.state.GameHistory}
+          removeGameHistory={this.removeGameHistory}
           gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawCircle={this.drawCircle}
           onRemoveCircle={this.removeCircle}
-          history={this.props.history}
           ref="main_page"
           examing={gameExamin}
           circles={circles}
-          path={this.props.match.path}
         />
       </div>
     );
