@@ -17,10 +17,8 @@ const GameHistoryCollection = new Mongo.Collection("game_history");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
 GameHistory.savePlayedGame = function(message_identifier, game_id) {
-  const self = Meteor.user();
   check(message_identifier, String);
   check(game_id, String);
-  check(self, Object);
   const game = Game.findById(game_id);
   if (!game)
     throw new ICCMeteorError(
@@ -86,6 +84,7 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
     throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
   if (count > SystemConfiguration.maximumGameHistorySearchCount())
     count = SystemConfiguration.maximumGameHistorySearchCount();
+  // TODO: Do we want to leave search_parameters wide open? I can't think of a reason why not other than it's often inherently dangerous for reasons only hackers show you about... (djl)
   return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
 };
 

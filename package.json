@@ -14,7 +14,17 @@
     "start": "meteor run",
     "test": "meteor test --once --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 nyc meteor test --full-app --driver-package meteortesting:mocha",
-    "visualize": "meteor --production --extra-packages bundle-visualizer"
+    "visualize": "meteor --production --extra-packages bundle-visualizer",
+    "pretest": "npm run lint --silent",
+    "test-chrome": "TEST_BROWSER_DRIVER=chrome meteor test --once --driver-package meteortesting:mocha",
+    "test-app-chrome": "TEST_BROWSER_DRIVER=chrome meteor test --full-app --once --driver-package meteortesting:mocha",
+    "test-phantom": "TEST_BROWSER_DRIVER=phantomjs meteor test --once --driver-package meteortesting:mocha",
+    "test-app-phantom": "TEST_BROWSER_DRIVER=phantomjs meteor test --full-app --once --driver-package meteortesting:mocha",
+    "test-watch": "TEST_BROWSER_DRIVER=chrome meteor test --driver-package meteortesting:mocha",
+    "test-app-watch": "TEST_BROWSER_DRIVER=chrome meteor test --full-app --driver-package meteortesting:mocha",
+    "test-watch-browser": "meteor test --driver-package meteortesting:mocha",
+    "test-app-watch-browser": "meteor test --full-app --driver-package meteortesting:mocha",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@babel/runtime": "^7.7.7",
