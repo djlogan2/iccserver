@@ -218,12 +218,12 @@ export default class MiddleBoard extends Component {
 
     return (
       <div>
-        <button
+      {/*   <button
           onClick={this.switchSides.bind(this)}
           style={this.props.cssmanager.buttonStyle("middleBoard")}
         >
           <img src={this.props.cssmanager.buttonBackgroundImage("fullScreen")} alt="full-screen" />
-        </button>
+        </button> */}
 
         <div style={{ width: size }}>
           <Player

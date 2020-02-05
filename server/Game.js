@@ -2,7 +2,6 @@ import Chess from "chess.js";
 import { _ } from "underscore";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
-
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
@@ -16,6 +15,8 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
+
+import { GameHistory } from "./GameHistory";
 import date from "date-and-time";
 
 const x = [
@@ -66,6 +67,9 @@ const x = [
 
 export const Game = {};
 Game.savePlayedGame = {}; // GameHistory will replace this
+// TODO : After resign draw and abort game we find game history collection empty so we have change
+//Game.savePlayedGame(message_identifier, game_id); to
+//GameHistory.savePlayedGame(message_identifier, game_id);
 
 const GameCollection = new Mongo.Collection("game");
 
@@ -780,7 +784,8 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   if (setobject.result) {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
-    Game.savePlayedGame(message_identifier, game_id);
+    // Game.savePlayedGame(message_identifier, game_id);
+    GameHistory.savePlayedGame(message_identifier, game_id);
   }
 
   GameCollection.update(
@@ -1285,7 +1290,8 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
         }
       }
     );
-    Game.savePlayedGame(message_identifier, game_id);
+    //Game.savePlayedGame(message_identifier, game_id);
+    GameHistory.savePlayedGame(message_identifier, game_id);
     return;
   }
 
@@ -1435,8 +1441,8 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
-  Game.savePlayedGame(message_identifier, game_id);
-
+  // Game.savePlayedGame(message_identifier, game_id);
+  GameHistory.savePlayedGame(message_identifier, game_id);
   const othercolor = self._id === game.white.id ? "black" : "white";
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
   ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].draw, "DRAW_ACCEPTED");
@@ -1490,7 +1496,8 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
-  Game.savePlayedGame(message_identifier, game_id);
+  //Game.savePlayedGame(message_identifier, game_id);
+  GameHistory.savePlayedGame(message_identifier, game_id);
   ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].abort, "ABORT_ACCEPTED");
 };
 
@@ -1746,8 +1753,9 @@ Game.resignLocalGame = function(message_identifier, game_id) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
     return;
   }
-
+  log.debug("before calling endGamePing");
   endGamePing(game_id);
+  log.debug("After calling endGamePing");
   endMoveTimer(game_id);
 
   const result = self._id === game.white.id ? "0-1" : "1-0";
@@ -1776,7 +1784,7 @@ Game.resignLocalGame = function(message_identifier, game_id) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
-  Game.savePlayedGame(message_identifier, game_id);
+  GameHistory.savePlayedGame(message_identifier, game_id);
 };
 
 Game.recordLegacyOffers = function(
@@ -1992,11 +2000,15 @@ Game.localUnobserveAllGames = function(message_identifier, user_id) {
 
 Game.exportToPGN = function(id) {
   check(id, String);
+
   const game = GameCollection.findOne({ _id: id });
+
   if (!game) return;
   let pgn = "";
-  //-
-  pgn += "[Date " + date.format("YYYY.MM.DD", game.startTime) + "]\n";
+  //TODO: Your date format was not working that's why I've small changed the code format
+  let tmpdt = new Date(game.startTime);
+  let dt = tmpdt.toISOString().split("T")[0];
+  pgn += "[Date " + dt + "]\n";
   pgn += "[White " + game.white.name + "]\n";
   pgn += "[Black " + game.black.name + "]\n";
   pgn += "[Result " + game.result + "]\n";
@@ -2005,7 +2017,8 @@ Game.exportToPGN = function(id) {
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  pgn += "[Time " + date.format("hh:mm:ss", game.startTime) + "]\n";
+  //TODO: Your date format was not working that's why I've small changed the code format
+  pgn += "[Time " + tmpdt.getHours() + ":" + tmpdt.getMinutes() + ":" + tmpdt.getSeconds() + "]\n";
   if (!game.clocks) {
     pgn += "[TimeControl ?]\n";
   } else {
@@ -2062,7 +2075,7 @@ Game.addMoveToMoveList = function(variation_object, move, current) {
 
 Game.findById = function(game_id) {
   check(game_id, String);
-  return GameCollection.findOne({_id: game_id});
+  return GameCollection.findOne({ _id: game_id });
 };
 
 function updateGameRecordWithPGNTag(gamerecord, tag, value) {
@@ -2258,6 +2271,7 @@ function _startGamePing(game_id, color) {
 }
 
 function endGamePing(game_id) {
+  log.debug("inside endGame Ping while resign");
   if (!game_pings[game_id])
     throw new ICCMeteorError(
       "server",
@@ -2391,7 +2405,8 @@ Meteor.methods({
   removeCircle: Game.removeCircle,
   startLocalExaminedGame: Game.startLocalExaminedGame,
   moveBackword: Game.moveBackward,
-  moveForward: Game.moveForward
+  moveForward: Game.moveForward,
+  exportToPGN: Game.exportToPGN
 });
 
 Meteor.publish("playing_games", function() {

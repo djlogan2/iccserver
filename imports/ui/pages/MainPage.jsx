@@ -282,8 +282,10 @@ export default class MainPage extends Component {
         time: games[i].startTime.toDateString()
       });
     }
+    let style = this.props.cssmanager.outerPopupMain();
+    Object.assign(style, { width: "385px" });
     return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
+      <div style={style}>
         {gamelist.length > 0 ? (
           <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
             <thead>
@@ -304,21 +306,23 @@ export default class MainPage extends Component {
             </thead>
             <tbody>
               {gamelist.map((game, index) => (
-                <tr
-                  key={index}
-                  onClick={this.setGameExaminMode.bind(this, game.id)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <td style={{ padding: "5px 5px" }}>
+                <tr key={index} style={{ cursor: "pointer" }}>
+                  <td
+                    style={{ padding: "5px 5px" }}
+                    onClick={this.setGameExaminMode.bind(this, game.id)}
+                  >
                     {game.white}-vs-{game.black}
                   </td>
                   <td style={{ padding: "5px 5px" }}>{game.result}</td>
                   <td style={{ padding: "5px 5px" }}>{game.time}</td>
-                  <td style={{ padding: "5px 5px" }}>
+                  <td
+                    style={{ padding: "5px 5px" }}
+                    onClick={this.gamePgnExport.bind(this, game.id)}
+                  >
                     <img
-                      src="images/pgnicon.png"
+                      src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
                       style={{ width: "25px", height: "25px" }}
-                      alt="close"
+                      alt="pgnDownload"
                     />
                   </td>
                 </tr>
@@ -337,6 +341,11 @@ export default class MainPage extends Component {
   }
   setGameExaminMode(id) {
     Meteor.call("examineGame", "ExaminedGame", id);
+    this.setState({ examineGame: true });
+    this.props.removeGameHistory();
+  }
+  gamePgnExport(id) {
+    Meteor.call("exportToPGN", this.gameId);
   }
   startGameExamine() {
     this.setState({ examineGame: true });
@@ -551,8 +560,8 @@ let links = [
     active: true
   },
   {
-    label: "history",
-    link: "history",
+    label: "mygame",
+    link: "mygame",
     src: "../../../images/learning-icon-white.png"
   },
   {
