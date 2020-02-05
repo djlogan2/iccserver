@@ -1692,11 +1692,10 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  var unique = game.arrows.filter(obj => {
-    return obj.from === from && obj.to === to;
-  });
+  const unique = game.arrows.find(obj => obj.from === from && obj.to === to);
 
-  if (unique.length == 0 || !unique) { // TODO: this don't work!! darn tarnation!
+  if (unique.length == 0 || !unique) {
+    // TODO: this don't work!! darn tarnation!
     return;
   }
 

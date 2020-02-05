@@ -1,6 +1,7 @@
 import chai from "chai";
 import { Game } from "../server/Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
+import {ICCMeteorError} from "../lib/server/ICCMeteorError";
 
 describe("Game.drawCircle", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -302,7 +303,7 @@ describe.only("Game.removeArrow", function() {
   it("should fail if game does not exist", function() {
     chai.assert.throws(() => {
       Game.removeArrow("invalid_id", "invalid", "c1", "d2");
-    });
+    }, ICCMeteorError);
   });
   it("should return client message if game is not examined", function() {
     self.loggedonuser = TestHelpers.createUser();
