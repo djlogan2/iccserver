@@ -393,7 +393,10 @@ export default class MainPage extends Component {
       GameRequest.type === "match" &&
       GameRequest.receiver_id === Meteor.userId()
     )
-      informativePopup = this.gameRequest("Opponent has requests for a game", GameRequest["_id"]);
+      informativePopup = this.gameRequest(
+        GameRequest["challenger"] + " has requests for a game",
+        GameRequest["_id"]
+      );
 
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
