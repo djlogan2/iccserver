@@ -1660,6 +1660,19 @@ Game.isSquareValid = function(square) {
   return !(square[0] < "a" || square[0] > "h" || square[1] < "1" || square[1] > "8");
 };
 
+Game.squareOffset = function(square, which, offset) {
+  let file = square.charCodeAt(0) - 97; /* 'a' */
+  let rank = square.charCodeAt(1) - 49; /* '1' */
+  if (file < 0 || file > 7 || rank < 0 || rank > 7) return;
+  if (which === "rank") {
+    rank += offset;
+  } else if (which === "file") {
+    file += offset;
+  }
+  if (file < 0 || file > 7 || rank < 0 || rank > 7) return;
+  return String.fromCharCode(file + 97) + String.fromCharCode(rank + 49);
+};
+
 Game.declineLocalDraw = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
@@ -2104,12 +2117,303 @@ Game.findById = function(game_id) {
   return GameCollection.findOne({ _id: game_id });
 };
 
-Game.clearBoard = function(message_identifier, game_id) {};
-Game.setStartingPosition = function(message_identifier, game_id) {};
-Game.addPiece = function(message_identifier, game_id, color, piece, where) {};
-Game.removePiece = function(message_identifier, game_id, where) {};
-Game.setToMove = function(message_identifier, game_id, color) {};
-Game.setCastling = function(message_identifier, game_id, white, black) {};
+Game.clearBoard = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  active_games[game_id].clear();
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: { actions: { type: "clearboard", issuer: self._id } }
+      }
+    );
+  }
+};
+
+Game.setStartingPosition = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  active_games[game_id].reset();
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] }
+        },
+        $push: { actions: { type: "initialposition", issuer: self._id } }
+      }
+    );
+  }
+};
+
+Game.addPiece = function(message_identifier, game_id, color, piece, where) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(color, String);
+  check(piece, String);
+  check(where, String);
+  if (color !== "w" && color !== "b") throw new Match.Error("color must be 'w' or 'b'");
+  if (piece.length !== 1 || "rbnkqp".indexOf(piece) === -1)
+    throw new Match.Error("piece must be one of: r, b, n, k, q, p");
+  if (!Game.isSquareValid(where)) throw new Match.Error("where is invalid: " + where);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const result = active_games[game_id].put({ type: piece, color: color }, where);
+  if (!result) {
+    return;
+  }
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: {
+          actions: {
+            type: "addpiece",
+            issuer: self._id,
+            parameter: { color: color, piece: piece, square: where }
+          }
+        }
+      }
+    );
+  }
+};
+
+Game.removePiece = function(message_identifier, game_id, where) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(where, String);
+  if (!Game.isSquareValid(where)) throw new Match.Error("where is invalid: " + where);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const result = active_games[game_id].remove(where);
+  if (!result) {
+    return;
+  }
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: { actions: { type: "removepiece", issuer: self._id, parameter: { square: where } } }
+      }
+    );
+  }
+};
+
+Game.setToMove = function(message_identifier, game_id, color) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const fenarray = active_games[game_id].fen().split(" ");
+  fenarray[1] = color;
+  const newfen = fenarray.join(" ");
+  const valid = active_games[game_id].validate_fen(newfen);
+  if (!valid) {
+    return;
+  }
+  const result = active_games[game_id].load(newfen);
+  if (!result) {
+    return;
+  }
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          tomove: color === "w" ? "white" : "black",
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: { actions: { type: "tomove", issuer: self._id, parameter: { color: color } } }
+      }
+    );
+  }
+};
+
+Game.setCastling = function(message_identifier, game_id, white, black) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(white, String);
+  check(black, String);
+  if (white.length !== 0 && ["k", "q", "kq"].indexOf(white) === -1)
+    throw new Match.Error("castling must be empty (''), or 'k', 'q', 'kq'");
+  if (black.length !== 0 && ["k", "q", "kq"].indexOf(black) === -1)
+    throw new Match.Error("castling must be empty (''), or 'k', 'q', 'kq'");
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const fenarray = active_games[game_id].fen().split(" ");
+  fenarray[2] = white.toUpperCase() + black;
+  const newfen = fenarray.join(" ");
+  const valid = active_games[game_id].validate_fen(newfen);
+  if (!valid) {
+    return;
+  }
+  const result = active_games[game_id].load(newfen);
+  if (!result) {
+    return;
+  }
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: { actions: { type: "tomove", issuer: self._id, parameter: { castling: fenarray[2] } } }
+      }
+    );
+  }
+};
+
+Game.setEnPassant = function(message_identifier, game_id, where) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  if (!Game.isSquareValid(where)) throw new Match.Error("where is invalid: " + where);
+
+  const piece = active_games[game_id].get(where);
+  if (!piece || piece.type !== "p") return;
+  const newwhere = Game.squareOffset(where, "rank", piece.color === "w" ? -1 : 1);
+  if (!newwhere) return;
+  const fenarray = active_games[game_id].fen().split(" ");
+  fenarray[3] = newwhere;
+  const newfen = fenarray.join(" ");
+  const valid = active_games[game_id].validate_fen(newfen);
+  if (!valid) {
+    return;
+  }
+  const result = active_games[game_id].load(newfen);
+  if (!result) {
+    return;
+  }
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: { actions: { type: "setenpassant", issuer: self._id, parameter: { piece: where } } }
+      }
+    );
+  }
+};
+
+Game.setTag = function(message_identifier, game_id, tag, value) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(tag, String);
+  check(value, String);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+
+  const setobject = {};
+  switch (tag) {
+    case "Date":
+      setobject.startTime = Date.parse(value);
+      break;
+    case "Time":
+      this.x.y = "forced crash - Date plus Time is the total for startTime";
+      break;
+    case "White":
+      setobject["white.name"] = value;
+      break;
+    case "Black":
+      setobject["black.name"] = value;
+      break;
+    case "Result":
+      setobject.result = value;
+      break;
+    case "WhiteUSCF":
+    case "WhiteElo":
+      setobject["white.rating"] = parseInt(value);
+      break;
+    case "BlackUSCF":
+    case "BlackElo":
+      setobject["black.rating"] = parseInt(value);
+      break;
+    default:
+      break;
+  }
+  if (Object.entries(setobject).length === 0) setobject["tags." + tag] = value;
+  GameCollection.update({ _id: game_id, status: "examining" }, { $set: setobject, $push: {actions: { type: "settag", issuer: self._id, parameter: { tag: tag, value: value } }} });
+};
 
 function findVariation(move, idx, movelist) {
   if (

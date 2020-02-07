@@ -37,7 +37,15 @@ const actionSchema = new SimpleSchema({
       "move_backward",
       "move_forward",
       "draw_circle", // Used to draw circles
-      "remove_circle"
+      "remove_circle",
+        "clearboard",
+        "initialposition",
+        "addpiece",
+        "removepiece",
+        "tomove",
+        "setcastling",
+        "setenpassant",
+        "settag"
     ]
   },
   parameter: {
@@ -49,7 +57,11 @@ const actionSchema = new SimpleSchema({
   "parameter.square": { type: String, required: false },
   "parameter.size": { type: Number, required: false },
   "parameter.color": { type: String, required: false },
+  "parameter.piece": { type: String, required: false },
   "parameter.move": { type: String, required: false },
+  "parameter.castling": { type: String, required: false },
+  "parameter.tag": { type: String, required: false },
+  "parameter.value": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },
   "parameter.ping": { type: Number, required: false },
   "parameter.gamelag": { type: Number, required: false },
