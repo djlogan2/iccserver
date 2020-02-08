@@ -16,7 +16,7 @@
     "ICCMeteorError": "TRACE",
     "server/ClientMessages_js": "TRACE",
     "server/firstRunUsers_js": "ERROR",
-    "server/Game_js": "TRACE",
+    "server/Game_js": "ERROR",
     "server/GameRequest_js": "ERROR",
     "server/GameHistroy_js": "ERROR",
     "server/LegacyUsers": "ERROR",

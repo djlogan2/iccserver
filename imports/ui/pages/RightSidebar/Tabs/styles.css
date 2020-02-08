@@ -51,7 +51,7 @@
     background: #fff;
     position: absolute;
     width: 100%;
-    bottom: 290px;
+    bottom: 0px;
     z-index: 99;
 }
 .draw-section ul {
@@ -61,6 +61,7 @@
     display: flex;
     flex-wrap: nowrap;
     text-align: center;
+    width:93%;
 }
 .draw-section ul li {
     width: 25%;
@@ -236,3 +237,8 @@ span.sign {
     cursor: pointer;
 }
 */
+@media  (min-width: 1800px){
+    .left-col {
+        width: 14.666667%;
+    }
+}

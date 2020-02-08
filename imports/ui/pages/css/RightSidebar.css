@@ -243,6 +243,10 @@ background: #efefef;
 }
 
 @media (min-width: 992px) and (max-width: 1199px) {
+/* 	.right-section {
+		width: 48% !important;
+		max-width: 48% !important;
+	} */
 	.board-section .board-player-top {
 		display: none;
 	}
@@ -252,7 +256,7 @@ background: #efefef;
 	}
 
 	.right-content-desktop {
-		display: none;
+		display: block;
 	}
 	
 	.board-player-top {
@@ -347,16 +351,7 @@ background: #efefef;
 		margin-top: 13px;
 	}
 
-	.right-section {
-		max-width: 30.1%;
-		float: right;
-		flex: inherit;
-		margin-left: 0%;
-		background: #fff;
-		padding: 0;
-		margin-top: 1px;
-		height: 93vh;
-	}
+	
 
 	.ipad-right-section {
 		background: #000000;
@@ -395,6 +390,8 @@ background: #efefef;
 }
 
 @media (min-width: 992px) {
+	
+		
 	.ribbon-move-list {
 		display: none;
 	}
@@ -404,99 +401,6 @@ background: #efefef;
 	}
 }
 
-@media (min-width: 1200px) {
-	header.header.chess-header {
-		display: none;
-	}
-
-	.ipad-right-section {
-		display: none;
-	}
-
-	.move-list-buttons.ipad-768 {
-		display: none;
-	}
-
-	.captured-pieces {
-		display: none;
-	}
-
-	.ribbon-move-list {
-		display: none;
-	}
-
-	.user-pic {
-		width: 50px;
-		height: 50px;
-		border-radius: 50%;
-	}
-
-	.right-top-content {
-		height: 55vh;
-	}
-
-	.right-bottom-content {
-		height: 45vh;
-	}
-/*
-	.game-buttons-move {
-		bottom: 55.5vh;
-	}
-*/
-
-
-.event-content {
-    padding: 20px 15px;
-    max-height: 230px;
-    overflow-y: scroll;
-    min-height: 230px;
-    width: 100%;
-}
-.fen-label {
-    font-size: 18px;
-    color: #4f4f4f;
-    font-weight: 600;
-}
-
-.fen-input, .fen-input:focus {
-    background: #e3ecf5;
-    border: #d9d9d9 solid 1px;
-    margin-bottom: 15px;
-}
-.pgn-btn {
-    background: #1665c1;
-    font-size: 14px;
-    margin-right: 20px;
-    padding: 10px 20px;
-}
-	.draw-section {
-		bottom: 0vh;
-	}
-
-	.board-section {
-		width: 44%;
-		height: 100%;
-		padding-left: 5%;
-	}
-
-	.main-square {
-		width: 36vw;
-		height: 36vw;
-	}
-
-	.board-player-top {
-		width: 38vw;
-		height: 60px;
-	}
-
-	.board-player-bottom {
-		width: 38vw;
-	}
-
-	.clock-top {
-		top: 22px;
-	}
-}
 
 @media (min-width: 1900px) {
 	.user-pic {

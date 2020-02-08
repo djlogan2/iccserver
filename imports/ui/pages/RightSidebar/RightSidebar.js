@@ -30,7 +30,10 @@ class RightSidebar extends Component {
   render() {
     let topTabitem = null;
     let bottomTabitem = null;
-    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
+    if (
+      (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") &&
+      this.props.newOppenetRequest === false
+    ) {
       topTabitem = (
         <RightBarActiveTabs
           RightBarTopData={this.props.RightSidebarData}

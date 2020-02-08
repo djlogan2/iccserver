@@ -55,7 +55,7 @@ export default class BlackPlayerClock extends Component {
     return (
       <div
         style={{
-          width: cv * 2,
+          width: this.props.side * 0.25,
           display: "inline-block",
           position: "relative",
           verticalAlign: "top",

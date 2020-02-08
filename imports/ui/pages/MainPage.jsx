@@ -18,9 +18,12 @@ export default class MainPage extends Component {
     this.gameId = null;
     this.userId = Meteor.userId();
     this.state = {
+      width: window.innerWidth,
+      height: window.innerHeight,
       examineGame: false,
       exnotification: false,
       resignnotification: false,
+      newOppenetRequest: false,
       examinAction: "action"
     };
     this.Main = {
@@ -71,6 +74,26 @@ export default class MainPage extends Component {
         }
     }
   }
+  /**
+   * Add event listener
+   */
+  componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
+  }
+
+  /**
+   * Remove event listener
+   */
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
+  }
+  updateDimensions() {
+    this.setState({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
+  }
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
       white: {
@@ -112,24 +135,24 @@ export default class MainPage extends Component {
     );
   };
   notificationPopup = (title, mid) => {
+    let style = {
+      width: "385px",
+      height: "auto",
+      borderRadius: "15px",
+      background: "#ffffff",
+      position: "fixed",
+      zIndex: "99",
+      left: "0px",
+      right: "25%",
+      margin: "0px auto",
+      top: "27%",
+      padding: "20px",
+      textAlign: "center",
+      border: "1px solid #ccc",
+      boxShadow: "#0000004d"
+    };
     return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
-        <button
-          style={{
-            position: "absolute",
-            top: "-17px",
-            right: "-16px",
-            background: "#b7bdc5",
-            borderRadius: "50%",
-            border: "3px solid #242f35",
-            focus: {
-              outline: "none"
-            }
-          }}
-          onClick={() => this.removeAcknowledgeMessage(mid)}
-        >
-          <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-        </button>
+      <div style={style}>
         <div className="popup_inner">
           <h3
             style={{
@@ -152,7 +175,24 @@ export default class MainPage extends Component {
   };
   notificationPopup1 = (title, mid) => {
     return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
+      <div
+        style={{
+          width: "385px",
+          height: "auto",
+          borderRadius: "15px",
+          background: "#ffffff",
+          position: "fixed",
+          zIndex: "99",
+          left: "0px",
+          right: "25%",
+          margin: "0px auto",
+          top: "27%",
+          padding: "20px",
+          textAlign: "center",
+          border: "1px solid #ccc",
+          boxShadow: "#0000004d"
+        }}
+      >
         <button
           style={{
             position: "absolute",
@@ -190,22 +230,25 @@ export default class MainPage extends Component {
     );
   };
   examinActionPopup = action => {
+    let style = {
+      width: "385px",
+      height: "auto",
+      borderRadius: "15px",
+      background: "#ffffff",
+      position: "fixed",
+      zIndex: "99",
+      left: "0px",
+      right: "25%",
+      margin: "0px auto",
+      top: "27%",
+      padding: "20px",
+      textAlign: "center",
+      border: "1px solid #ccc",
+      boxShadow: "#0000004d"
+    };
     if (action === "complain") {
       return (
-        <div style={this.props.cssmanager.outerPopupMain()}>
-          <button
-            style={{
-              position: "absolute",
-              top: "-17px",
-              right: "-16px",
-              background: "#b7bdc5",
-              borderRadius: "50%",
-              border: "3px solid #242f35"
-            }}
-            onClick={() => this.examinActionCloseHandler()}
-          >
-            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-          </button>
+        <div style={style}>
           <div className="popup_inner">
             <div>
               <label>Email</label>
@@ -228,20 +271,7 @@ export default class MainPage extends Component {
       );
     } else if (action === "emailgame") {
       return (
-        <div style={this.props.cssmanager.outerPopupMain()}>
-          <button
-            style={{
-              position: "absolute",
-              top: "-17px",
-              right: "-16px",
-              background: "#b7bdc5",
-              borderRadius: "50%",
-              border: "3px solid #242f35"
-            }}
-            onClick={() => this.examinActionCloseHandler()}
-          >
-            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-          </button>
+        <div style={style}>
           <div className="popup_inner">
             <div>
               <label>Email</label>
@@ -282,8 +312,26 @@ export default class MainPage extends Component {
         time: games[i].startTime.toDateString()
       });
     }
-    let style = this.props.cssmanager.outerPopupMain();
-    Object.assign(style, { width: "385px" });
+    let style = {
+      width: "385px",
+      maxHeight: "350px",
+      overflowY: "auto",
+      borderRadius: "15px",
+      background: "#ffffff",
+      position: "fixed",
+      zIndex: "99",
+      left: "0px",
+      right: "25%",
+      margin: "0px auto",
+      top: "27%",
+      padding: "20px",
+      textAlign: "center",
+      border: "1px solid #ccc",
+      boxShadow: "#0000004d"
+    };
+    let btnstyle = this.props.cssmanager.innerPopupMain();
+    Object.assign(btnstyle, { marginTop: "15px" });
+
     return (
       <div style={style}>
         {gamelist.length > 0 ? (
@@ -330,11 +378,8 @@ export default class MainPage extends Component {
             </tbody>
           </table>
         ) : null}
-        <button
-          onClick={this.props.removeGameHistory}
-          style={this.props.cssmanager.innerPopupMain()}
-        >
-          close
+        <button onClick={this.props.removeGameHistory} style={btnstyle}>
+          Close
         </button>
       </div>
     );
@@ -351,7 +396,9 @@ export default class MainPage extends Component {
     this.setState({ examineGame: true });
   }
   examineActionHandler(action) {
-    this.setState({ exnotification: false, examinAction: action });
+    if (action === "newoppent") {
+      this.setState({ exnotification: false, newOppenetRequest: true });
+    } else this.setState({ exnotification: false, examinAction: action });
   }
   removeAcknowledgeMessage(messageId) {
     Meteor.call("acknowledge.client.message", messageId);
@@ -494,21 +541,52 @@ export default class MainPage extends Component {
         this.props.clientMessage._id
       );
     }
-    let w;
-    let h;
+    let w = this.state.width;
+    let h = this.state.height;
+
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
-    w /= 2;
+
+    let leftmenu = null;
+    let rightmenu = null;
+    if (w <= 1199) leftmenu = null;
+    else {
+      leftmenu = (
+        <LeftSidebar
+          cssmanager={this.props.cssmanager}
+          LefSideBoarData={this.Main.LeftSection}
+          history={this.props.history}
+          gameHistory={this.props.gameHistoryload}
+          // examineAction={this.examineActionHandler}
+        />
+      );
+    }
+    if (w > 600) {
+      rightmenu = (
+        <div className="col-sm-5 col-md-4 col-lg-5 right-section">
+          {actionPopup}
+          <RightSidebar
+            cssmanager={this.props.cssmanager}
+            RightSidebarData={this.Main.RightSection}
+            gameStatus={status}
+            currentGame={this.state.examineGame}
+            newOppenetRequest={this.state.newOppenetRequest}
+            flip={this._flipboard}
+            gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
+            ref="right_sidebar"
+            examing={this.props.examing}
+            startGameExamine={this.startGameExamine}
+            examineAction={this.examineActionHandler}
+          />
+        </div>
+      );
+    } else rightmenu = null;
     return (
       <div className="main">
         <div className="row">
-          <LeftSidebar
-            cssmanager={this.props.cssmanager}
-            LefSideBoarData={this.Main.LeftSection}
-            history={this.props.history}
-            gameHistory={this.props.gameHistoryload}
-          />
-          <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
+          {leftmenu}
+          <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
             {informativePopup}
             {exPopup}
 
@@ -525,26 +603,12 @@ export default class MainPage extends Component {
               top={position.top}
               circles={this.props.circles}
               undo={undo}
+              width={this.state.width}
+              height={this.state.height}
               gameStatus={status}
             />
           </div>
-
-          <div className="col-sm-4 col-md-4 col-lg-4 right-section">
-            {actionPopup}
-            <RightSidebar
-              cssmanager={this.props.cssmanager}
-              RightSidebarData={this.Main.RightSection}
-              gameStatus={status}
-              currentGame={this.state.examineGame}
-              flip={this._flipboard}
-              gameRequest={this.props.gameRequest}
-              clientMessage={this.props.clientMessage}
-              ref="right_sidebar"
-              examing={this.props.examing}
-              startGameExamine={this.startGameExamine}
-              examineAction={this.examineActionHandler}
-            />
-          </div>
+          {rightmenu}
         </div>
       </div>
     );

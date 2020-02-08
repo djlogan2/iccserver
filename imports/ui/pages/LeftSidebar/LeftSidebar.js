@@ -43,6 +43,7 @@ class LeftSidebar extends Component {
             links={this.props.LefSideBoarData.MenuLinks}
             history={this.props.history}
             gameHistory={this.props.gameHistory}
+            examineAction={this.props.examineAction}
           />
         </div>
       </div>

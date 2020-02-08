@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
+import { object } from "prop-types";
 const log = new Logger("MoveLIst_js");
 export default class MoveListComponent extends Component {
   _pgnView = (actionType, action) => {};
@@ -66,6 +67,13 @@ export default class MoveListComponent extends Component {
       }
     }
 
+    let mstyle = this.props.cssmanager.gameButtonMove();
+    if (this.props.currentGame === true) {
+      Object.assign(mstyle, { bottom: "26px" });
+    } else {
+      Object.assign(mstyle, { bottom: "85px" });
+    }
+
     return (
       <div>
         <div style={this.props.cssmanager.gameMoveList()}>
@@ -79,7 +87,7 @@ export default class MoveListComponent extends Component {
             : null}
         </div>
         {displayButton ? (
-          <div style={this.props.cssmanager.gameButtonMove(this.props.currentGame)}>
+          <div style={mstyle}>
             <button
               style={this.props.cssmanager.buttonStyle()}
               onClick={this.moveBackwordBeginning.bind(this)}

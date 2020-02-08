@@ -44,10 +44,9 @@
 	line-height: 24px;
 }
 .draw-section {
-	background: #fff;
+	background: #efefef;
 	position: absolute;
 	width: 100%;
-	bottom: 290px;
 	z-index: 99;
 }
 .draw-section ul {
