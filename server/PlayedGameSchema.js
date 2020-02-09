@@ -69,7 +69,6 @@ export const PlayedGameSchema = new SimpleSchema({
     }
   },
   pending: PendingSchema,
-  result: String,
   fen: String,
   tomove: String,
   legacy_game_number: {

@@ -237,7 +237,6 @@ Game.startLocalGame = function(
 
   const game = {
     starttime: new Date(),
-    result: "*",
     fen: chess.fen(),
     tomove: "white",
     pending: {
@@ -544,7 +543,6 @@ Game.startLegacyGame = function(
       }
     },
     status: played_game ? "playing" : "examining",
-    result: "*",
     pending: {
       white: {
         draw: "0",
@@ -1482,7 +1480,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
     {
       $set: {
         status: "examining",
-        result: "aborted",
+        result: "*",
         examiners: [
           { id: game.white.id, username: game.white.name },
           { id: game.black.id, username: game.black.name }
@@ -1539,7 +1537,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
     {
       $set: {
         status: "examining",
-        result: "adjourned",
+        result: "*",
         examiners: [
           { id: game.white.id, username: game.white.name },
           { id: game.black.id, username: game.black.name }
@@ -2162,7 +2160,8 @@ Game.setStartingPosition = function(message_identifier, game_id) {
       {
         $set: {
           fen: fen,
-          variations: { cmi: 0, movelist: [{}] }
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
         },
         $push: { actions: { type: "initialposition", issuer: self._id } }
       }
@@ -2258,7 +2257,7 @@ Game.setToMove = function(message_identifier, game_id, color) {
   const fenarray = active_games[game_id].fen().split(" ");
   fenarray[1] = color;
   const newfen = fenarray.join(" ");
-  const valid = active_games[game_id].validate_fen(newfen);
+  const valid = active_games[game_id].validate_fen(newfen).valid;
   if (!valid) {
     return;
   }
@@ -2277,7 +2276,7 @@ Game.setToMove = function(message_identifier, game_id, color) {
           variations: { cmi: 0, movelist: [{}] },
           "tags.FEN": fen
         },
-        $push: { actions: { type: "tomove", issuer: self._id, parameter: { color: color } } }
+        $push: { actions: { type: "settomove", issuer: self._id, parameter: { color: color } } }
       }
     );
   }
@@ -2302,7 +2301,7 @@ Game.setCastling = function(message_identifier, game_id, white, black) {
   const fenarray = active_games[game_id].fen().split(" ");
   fenarray[2] = white.toUpperCase() + black;
   const newfen = fenarray.join(" ");
-  const valid = active_games[game_id].validate_fen(newfen);
+  const valid = active_games[game_id].validate_fen(newfen).valid;
   if (!valid) {
     return;
   }
@@ -2320,7 +2319,9 @@ Game.setCastling = function(message_identifier, game_id, white, black) {
           variations: { cmi: 0, movelist: [{}] },
           "tags.FEN": fen
         },
-        $push: { actions: { type: "tomove", issuer: self._id, parameter: { castling: fenarray[2] } } }
+        $push: {
+          actions: { type: "setcastling", issuer: self._id, parameter: { castling: fenarray[2] } }
+        }
       }
     );
   }
@@ -2346,7 +2347,7 @@ Game.setEnPassant = function(message_identifier, game_id, where) {
   const fenarray = active_games[game_id].fen().split(" ");
   fenarray[3] = newwhere;
   const newfen = fenarray.join(" ");
-  const valid = active_games[game_id].validate_fen(newfen);
+  const valid = active_games[game_id].validate_fen(newfen).valid;
   if (!valid) {
     return;
   }
@@ -2385,34 +2386,52 @@ Game.setTag = function(message_identifier, game_id, tag, value) {
 
   const setobject = {};
   switch (tag) {
-    case "Date":
-      setobject.startTime = Date.parse(value);
-      break;
-    case "Time":
-      this.x.y = "forced crash - Date plus Time is the total for startTime";
+    case "FEN":
+      if (!active_games[game_id].validate_fen(value).valid) return;
+      if(!active_games[game_id].load(value)) return;
+      if (game.fen === active_games[game_id].fen()) return;
+      setobject.fen = active_games[game_id].fen();
+      setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
+      setobject.variations = { cmi: 0, movelist: [{}] };
       break;
     case "White":
+      if (game.white.name === value) return;
       setobject["white.name"] = value;
       break;
     case "Black":
+      if (game.black.name === value) return;
       setobject["black.name"] = value;
       break;
     case "Result":
+      if (game.result === value) return;
       setobject.result = value;
       break;
     case "WhiteUSCF":
     case "WhiteElo":
+      if (game.white.rating === parseInt(value)) return;
       setobject["white.rating"] = parseInt(value);
       break;
     case "BlackUSCF":
     case "BlackElo":
+      if (game.black.rating === parseInt(value)) return;
       setobject["black.rating"] = parseInt(value);
       break;
     default:
       break;
   }
-  if (Object.entries(setobject).length === 0) setobject["tags." + tag] = value;
-  GameCollection.update({ _id: game_id, status: "examining" }, { $set: setobject, $push: {actions: { type: "settag", issuer: self._id, parameter: { tag: tag, value: value } }} });
+  if (Object.entries(setobject).length === 0) {
+    if (!!game.tags && tag in game.tags && game.tags[tag] === value) return;
+    setobject["tags." + tag] = value;
+  }
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $set: setobject,
+      $push: {
+        actions: { type: "settag", issuer: self._id, parameter: { tag: tag, value: value } }
+      }
+    }
+  );
 };
 
 function findVariation(move, idx, movelist) {

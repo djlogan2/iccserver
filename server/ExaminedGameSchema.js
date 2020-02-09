@@ -38,14 +38,14 @@ const actionSchema = new SimpleSchema({
       "move_forward",
       "draw_circle", // Used to draw circles
       "remove_circle",
-        "clearboard",
-        "initialposition",
-        "addpiece",
-        "removepiece",
-        "tomove",
-        "setcastling",
-        "setenpassant",
-        "settag"
+      "clearboard",
+      "initialposition",
+      "addpiece",
+      "removepiece",
+      "settomove",
+      "setcastling",
+      "setenpassant",
+      "settag"
     ]
   },
   parameter: {
@@ -75,7 +75,7 @@ export const ExaminedGameSchema = new SimpleSchema({
       return new Date();
     }
   },
-  result: String,
+  result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*"] },
   fen: String,
   tomove: String,
   legacy_game_number: {
