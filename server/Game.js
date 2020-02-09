@@ -9,6 +9,7 @@ import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { PlayedGameSchema } from "./PlayedGameSchema";
+import { GameHistorySchema } from "./GameHistorySchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
@@ -17,7 +18,6 @@ import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 
-import { GameHistory } from "./GameHistory";
 import date from "date-and-time";
 
 const x = [
@@ -67,20 +67,17 @@ const x = [
 ];
 
 export const Game = {};
-Game.savePlayedGame = {}; // GameHistory will replace this
-// TODO : After resign draw and abort game we find game history collection empty so we have change
-//Game.savePlayedGame(message_identifier, game_id); to
-//GameHistory.savePlayedGame(message_identifier, game_id);
-
-//Game.savePlayedGame = function() {throw new Error("Why is this function not replaced?");}; // GameHistory will replace this
-
-const GameCollection = new Mongo.Collection("game");
-
-let log = new Logger("server/Game_js");
+export const GameHistory = {};
 
 let active_games = {};
 const game_pings = {};
 const move_timers = {};
+
+const GameCollection = new Mongo.Collection("game");
+const GameHistoryCollection = new Mongo.Collection("game_history");
+GameHistoryCollection.attachSchema(GameHistorySchema);
+
+let log = new Logger("server/Game_js");
 
 GameCollection.attachSchema(ExaminedGameSchema, {
   selector: { status: "examining" }
@@ -793,14 +790,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   if (setobject.result) {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
-    // Game.savePlayedGame(message_identifier, game_id);
-    GameHistory.savePlayedGame(message_identifier, game_id);
   }
 
   GameCollection.update(
     { _id: game_id, status: game.status },
     { $unset: unsetobject, $set: setobject, $push: pushobject }
   );
+
+  if (setobject.result)
+    GameHistory.savePlayedGame(message_identifier, game_id);
 
   if (analyze) {
     log.debug("Starting getting score for game " + game_id + " fen " + active_games[game_id].fen());
@@ -1299,7 +1297,6 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
         }
       }
     );
-    //Game.savePlayedGame(message_identifier, game_id);
     GameHistory.savePlayedGame(message_identifier, game_id);
     return;
   }
@@ -1427,11 +1424,11 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   endMoveTimer(game_id);
 
   GameCollection.update(
-    { _id: game_id, status: "playing" },
+    { _id: game_id },
     {
       $set: {
         status: "examining",
-        result: "1/2-1-2",
+        result: "1/2-1/2",
         examiners: [
           { id: game.white.id, username: game.white.name },
           { id: game.black.id, username: game.black.name }
@@ -1454,7 +1451,6 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
-  // Game.savePlayedGame(message_identifier, game_id);
   GameHistory.savePlayedGame(message_identifier, game_id);
   const othercolor = self._id === game.white.id ? "black" : "white";
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
@@ -1511,7 +1507,6 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
-  //Game.savePlayedGame(message_identifier, game_id);
   GameHistory.savePlayedGame(message_identifier, game_id);
   ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].abort, "ABORT_ACCEPTED");
 };
@@ -2119,11 +2114,6 @@ Game.addMoveToMoveList = function(variation_object, move, current) {
   return !exists;
 };
 
-Game.findById = function(game_id) {
-  check(game_id, String);
-  return GameCollection.findOne({ _id: game_id });
-};
-
 Game.clearBoard = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
@@ -2397,7 +2387,7 @@ Game.setTag = function(message_identifier, game_id, tag, value) {
   switch (tag) {
     case "FEN":
       if (!active_games[game_id].validate_fen(value).valid) return;
-      if(!active_games[game_id].load(value)) return;
+      if (!active_games[game_id].load(value)) return;
       if (game.fen === active_games[game_id].fen()) return;
       setobject.fen = active_games[game_id].fen();
       setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
@@ -2620,7 +2610,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     );
     Users.setGameStatus("server", game.white.id, "examining");
     Users.setGameStatus("server", game.black.id, "examining");
-    Game.savePlayedGame("server", game_id);
+    GameHistory.savePlayedGame("server", game_id);
   }, actual_milliseconds);
 }
 
@@ -2759,3 +2749,88 @@ Picker.route("/debug/times/:_id", function(params, req, res) {
   else res.write("[" + time2 + " / " + t2str + "," + time1 + " / " + t1str + "]");
   res.end();
 });
+
+GameHistory.savePlayedGame = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const game = GameCollection.findOne(game_id);
+  if (!game)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to save game to game history",
+      "Unable to find game to save"
+    );
+  return GameHistoryCollection.insert(game);
+};
+
+GameHistory.examineGame = function(message_identifier, game_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const hist = GameHistoryCollection.findOne({ _id: game_id });
+  if (!hist)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to examine saved game",
+      "Unable to find game"
+    );
+
+  if (Game.isPlayingGame(self._id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  Game.localUnobserveAllGames(message_identifier, self._id);
+
+  const chess = new Chess.Chess();
+  if (hist.tags && hist.tags.FEN) {
+    hist.fen = hist.tags.FEN;
+    if (!chess.loadfen(hist.tags.FEN))
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to examine saved game",
+        "FEN string is invalid"
+      );
+  } else {
+    hist.fen = chess.fen();
+  }
+
+  delete hist._id;
+  hist.tomove = chess.turn() === "w" ? "white" : "black";
+  hist.status = "examining";
+  hist.observers = [{ id: self._id, username: self.username }];
+  hist.examiners = [{ id: self._id, username: self.username }];
+  hist.variations.cmi = 0;
+  return Game.startLocalExaminedGameWithObject(hist, chess);
+};
+
+GameHistory.search = function(message_identifier, search_parameters, offset, count) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(search_parameters, Object);
+  check(offset, Number);
+  check(count, Number);
+  if (!Users.isAuthorized(self, "search_game_history"))
+    throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
+  if (count > SystemConfiguration.maximumGameHistorySearchCount())
+    count = SystemConfiguration.maximumGameHistorySearchCount();
+  // TODO: Do we want to leave search_parameters wide open? I can't think of a reason why not other than it's often inherently dangerous for reasons only hackers show you about... (djl)
+  return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
+};
+
+Meteor.methods({
+  searchGameHistory: GameHistory.search,
+  examineGame: GameHistory.examineGame
+});
+
+Meteor.publish("game_history", function() {
+  return GameHistoryCollection.find({
+    $or: [{ "white.id": this.userId }, { "black.id": this.userId }]
+  });
+});
+
+if (Meteor.isTest || Meteor.isAppTest) {
+  GameHistory.collection = GameHistoryCollection;
+}

@@ -781,7 +781,6 @@ describe("Game.saveLocalMove", function() {
     const game = Game.collection.findOne();
     chai.assert.isDefined(game);
     chai.assert.equal(game.status, "playing");
-    chai.assert.equal(game.result, "*");
 
     Game.requestLocalDraw("mi2", game_id);
 
@@ -3996,7 +3995,6 @@ describe("Game clocks", function() {
     self.clock.tick(100000); // 60s + 40s
 
     const game2 = Game.collection.findOne({});
-    chai.assert.equal(game2.result, "*");
     chai.assert.equal(game2.status, "playing");
 
     self.clock.tick(5000); // the last 5s
