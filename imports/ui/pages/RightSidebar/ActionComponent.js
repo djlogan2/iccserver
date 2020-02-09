@@ -51,6 +51,9 @@ class ActionComponent extends Component {
     this.setState({ examinAction: e.target.value });
     this.props.examineAction(e.target.value);
   };
+  requestFornewOppenent() {
+    this.props.examineAction("newoppent");
+  }
   _takeBackAction = number => {
     Meteor.call("requestTakeback", "takeBackRequest", this.gameId, number);
   };
@@ -73,7 +76,6 @@ class ActionComponent extends Component {
     } else {
       toUser = this.state.gameRequest.receiver_id;
     }
-
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
@@ -92,16 +94,23 @@ class ActionComponent extends Component {
     );
   };
   _setGameToExamine() {
-    this.setState({ isexamin: false });
     this.props.startGameExamine();
   }
   render() {
     this.gameId = this.props.game._id;
     let status = this.props.game.status;
-    let statustbar = 0;
-    let display = status === "playing" ? true : false;
-    if (display === true || this.state.isexamin === false) {
-      statustbar = 1;
+    let statustbar = 1;
+    let playingButton;
+    let examinButton;
+    if (this.props.currentGame === false && status === "playing") {
+      playingButton = true;
+    }
+    if (this.props.currentGame === true && status === "examining") {
+      examinButton = false;
+    }
+    if (this.props.currentGame === false && status === "examining") {
+      examinButton = true;
+      statustbar = 0;
     }
 
     let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
@@ -111,8 +120,7 @@ class ActionComponent extends Component {
         {statustbar ? (
           <div style={this.props.cssmanager.drawActionSection()}>Game status : {status}</div>
         ) : null}
-
-        {display ? (
+        {playingButton ? (
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
@@ -164,11 +172,12 @@ class ActionComponent extends Component {
               </span>
             </li>
           </ul>
-        ) : this.state.isexamin ? (
+        ) : null}
+        {examinButton ? (
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
-                onClick={event => (window.location.href = "/play")}
+                onClick={() => this.requestFornewOppenent()}
                 style={this.props.cssmanager.buttonStyle()}
               >
                 <img

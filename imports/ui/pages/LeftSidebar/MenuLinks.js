@@ -36,17 +36,16 @@ class MenuLinks extends Component {
   }
   handleClick = (e, label) => {
     e.preventDefault();
-    if (label === "history") this.props.gameHistory(label);
+    if (label === "mygame") this.props.gameHistory(label);
     if (label === "play") window.location.href = "/play";
-    /* 
-    e.preventDefault();
-    Meteor.logout(err => {
-      if (err) {
-        // console.log(err.reason);
-      } else {
-        this.props.history.push("/login");
-      }
-    }); */
+    if (label === "logout")
+      Meteor.logout(err => {
+        if (err) {
+          // console.log(err.reason);
+        } else {
+          window.location.href = "/login";
+        }
+      });
   };
 
   static getLang() {

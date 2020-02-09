@@ -43,7 +43,7 @@ Meteor.startup(() => {
         singUp: "Sign up",
         help: "Help",
         logout: "Logout",
-        history: "History"
+        mygame: "My Games"
       },
       actionButtonLabel: {
         takeBack: "Take Back",
@@ -164,7 +164,7 @@ Meteor.startup(() => {
         logIn: "ドを ドをドを",
         singUp: "とあ事片そ",
         help: "ドを",
-        history: "ドを ド"
+        mygame: "ドを ド"
       },
       actionButtonLabel: {
         takeBack: "とあ事片",

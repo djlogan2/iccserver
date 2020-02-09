@@ -20,6 +20,7 @@ export default class GameComponent extends Component {
           gameRequest={this.props.gameRequest}
           startGameExamine={this.props.startGameExamine}
           examineAction={this.props.examineAction}
+          currentGame={this.props.currentGame}
         />
       </div>
     );

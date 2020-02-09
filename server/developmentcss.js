@@ -18,14 +18,13 @@ const systemcss = {
     }
   },
   fullWidth: {
-    width: "100%",
-    height: "80vh"
+    width: "100%"
   },
   drawActionSection: {
     height: "auto",
     width: "auto",
     alignItems: "center",
-    backgroundColor: "#00BFFF",
+    backgroundColor: "#737373",
     fontSize: "16px",
     color: "white",
     padding: "2px 10px"
@@ -105,6 +104,7 @@ const systemcss = {
     examine: "images/examine-icon.png",
     /**Main Page.jsx */
     infoIcon: "images/info-icon.png",
+    pgnIcon: "images/pgnicon.png",
     checkedIcon: "images/checked.png",
     closeIcon: "images/close.png",
     logoWhite: "images/logo-white-lg.png",
@@ -204,7 +204,7 @@ const systemcss = {
       textAlign: "center",
       padding: "8px 0",
       width: "100%",
-      bottom: "90px",
+      bottom: "0px",
       zIndex: "999",
       display: "flex",
       flexWrap: "nowrap",
@@ -285,8 +285,7 @@ const systemcss = {
       borderTop: "0px #1565c0 solid",
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
-      color: "#1565c0",
-      height: "75px"
+      color: "#1565c0"
     },
     Observers: {
       backgroundColor: "#fff",
@@ -300,8 +299,7 @@ const systemcss = {
       borderTop: "0px #1565c0 solid",
       borderTopLeftRadius: "6px",
       borderTopRightRadius: "6px",
-      color: "#1565c0",
-      height: "75px"
+      color: "#1565c0"
     },
     FollowCoach: {
       backgroundColor: "#fff",

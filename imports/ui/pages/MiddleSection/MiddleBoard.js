@@ -32,27 +32,27 @@ export default class MiddleBoard extends Component {
   _flipboard() {
     this.switchSides();
   }
-  updateDimensions() {
+  /* updateDimensions() {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
     });
-  }
+  } */
 
   /**
    * Add event listener
    */
-  componentDidMount() {
+  /*  componentDidMount() {
     this.updateDimensions();
     window.addEventListener("resize", this.updateDimensions.bind(this));
-  }
+  } */
 
   /**
    * Remove event listener
    */
-  componentWillUnmount() {
+  /*  componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
-  }
+  } */
 
   componentDidUpdate(prevProps) {
     if (prevProps.top !== this.props.top) {
@@ -129,22 +129,20 @@ export default class MiddleBoard extends Component {
     }
   };
   render() {
-    let w = this.state.width;
-    let h = this.state.height;
+    let w = this.props.width;
+    let h = this.props.height;
     let d;
-    if (!w) w = window.innerWidth;
-    if (!h) h = window.innerHeight;
-    let bh = h;
-    let bw = w;
-    d = h;
-    w /= 2; // 1366/2
-    h -= d / 9;
-    const size = Math.min(h, w);
-    d = bh;
-    bw = bw / 2;
-    bh -= d / 5;
-    let boardsize = Math.min(bh, bw);
 
+    let boardsize = null;
+    let size = null;
+    let m = Math.min(w, h);
+    if (m > 600 && m < 1199) {
+      size = w / 2.5;
+      boardsize = w / 2.5;
+    } else {
+      boardsize = Math.min(h / 1.2, w / 1.2);
+      size = Math.min(h / 1.2, w / 1.2);
+    }
     const newColor = this.state.top === "w" ? "Black" : "White";
 
     const raf = this.nextRAF()[1];
@@ -218,12 +216,12 @@ export default class MiddleBoard extends Component {
 
     return (
       <div>
-        <button
+        {/*   <button
           onClick={this.switchSides.bind(this)}
           style={this.props.cssmanager.buttonStyle("middleBoard")}
         >
           <img src={this.props.cssmanager.buttonBackgroundImage("fullScreen")} alt="full-screen" />
-        </button>
+        </button> */}
 
         <div style={{ width: size }}>
           <Player
@@ -242,8 +240,7 @@ export default class MiddleBoard extends Component {
             ClockData={topPlayerClock}
             side={size}
           />
-        </div>
-        <div style={this.props.cssmanager.fullWidth()}>
+
           <Chessboard
             id="allowDrag"
             darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
@@ -259,9 +256,7 @@ export default class MiddleBoard extends Component {
             }}
             draggable={turn}
           />
-        </div>
-        <div style={{ clear: "Left" }} />
-        <div style={{ width: size }}>
+
           <Player
             PlayerData={bottomPlayer}
             cssmanager={this.props.cssmanager}
