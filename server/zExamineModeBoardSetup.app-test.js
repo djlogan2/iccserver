@@ -12,7 +12,7 @@ function checkLastAction(gamerecord, reverse_index, type, issuer, parameter) {
   }
 }
 
-describe.only("Board Setup", function() {
+describe("Board Setup", function() {
   const self = TestHelpers.setupDescribe.call(this);
   describe("clearboard", function() {
     it("should return a client message if done on a played game", function() {
