@@ -337,6 +337,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       gameExamin = this.examineGame();
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
+        actionlen = game.actions.length;
         this.gameId = game._id;
         this._examinBoard(game);
         if (!!game.circles) {

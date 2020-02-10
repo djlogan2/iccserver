@@ -102,8 +102,9 @@ class ActionComponent extends Component {
     let statustbar = 1;
     let playingButton;
     let examinButton;
-    if (this.props.currentGame === false && status === "playing") {
+    if (status === "playing") {
       playingButton = true;
+      examinButton = false;
     }
     if (this.props.currentGame === true && status === "examining") {
       examinButton = false;

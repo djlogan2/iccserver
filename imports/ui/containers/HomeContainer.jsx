@@ -22,6 +22,7 @@ export default class HomeContainer extends TrackerReact(React.Component) {
         gameRequests: Meteor.subscribe("game_requests")
       }
     };
+    this.examineActionHandler = this.examineActionHandler.bind(this);
   }
   gameRequest = (title, param, css) => {
     return (
@@ -107,6 +108,9 @@ export default class HomeContainer extends TrackerReact(React.Component) {
       "en-US"
     );
   }
+  examineActionHandler(action) {
+    window.location.href = "/play";
+  }
   render() {
     const systemCSS = this._systemCSS();
     const gameRequest = this.renderGameRequest();
@@ -134,6 +138,7 @@ export default class HomeContainer extends TrackerReact(React.Component) {
             cssmanager={css}
             LefSideBoarData={this.Main.LeftSection}
             history={this.props.history}
+            examineAction={this.examineActionHandler}
           />
           <div className="col-sm-10 col-md-10" style={css.parentPopup(h, w)}>
             {informativePopup}

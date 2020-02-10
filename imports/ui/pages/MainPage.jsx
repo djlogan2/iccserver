@@ -69,9 +69,18 @@ export default class MainPage extends Component {
   componentWillReceiveProps(nextProps) {
     if (!!this.props.len && !!nextProps.len) {
       if (nextProps.len !== this.props.len)
-        if (this.props.game.status === "examining" || this.state.exnotification === true) {
-          this.setState({ exnotification: false });
+        if (
+          this.props.game.status === "examining" &&
+          (this.state.exnotification === true || this.state.newOppenetRequest === true)
+        ) {
+          this.setState({ exnotification: false, newOppenetRequest: false });
         }
+      if (
+        this.props.game.status === "playing" &&
+        (this.state.newOppenetRequest === true || this.state.examineGame === true)
+      ) {
+        this.setState({ newOppenetRequest: false, examineGame: false });
+      }
     }
   }
   /**
@@ -193,22 +202,6 @@ export default class MainPage extends Component {
           boxShadow: "#0000004d"
         }}
       >
-        <button
-          style={{
-            position: "absolute",
-            top: "-17px",
-            right: "-16px",
-            background: "#b7bdc5",
-            borderRadius: "50%",
-            border: "3px solid #242f35",
-            focus: {
-              outline: "none"
-            }
-          }}
-          onClick={() => this.resignnotificationPopup()}
-        >
-          <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-        </button>
         <div className="popup_inner">
           <h3
             style={{
@@ -313,9 +306,7 @@ export default class MainPage extends Component {
       });
     }
     let style = {
-      width: "385px",
-      maxHeight: "350px",
-      overflowY: "auto",
+      width: "390px",
       borderRadius: "15px",
       background: "#ffffff",
       position: "fixed",
@@ -335,48 +326,53 @@ export default class MainPage extends Component {
     return (
       <div style={style}>
         {gamelist.length > 0 ? (
-          <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Players
-                </th>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Result
-                </th>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Date
-                </th>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  PGN
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {gamelist.map((game, index) => (
-                <tr key={index} style={{ cursor: "pointer" }}>
-                  <td
-                    style={{ padding: "5px 5px" }}
-                    onClick={this.setGameExaminMode.bind(this, game.id)}
-                  >
-                    {game.white}-vs-{game.black}
-                  </td>
-                  <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                  <td style={{ padding: "5px 5px" }}>{game.time}</td>
-                  <td
-                    style={{ padding: "5px 5px" }}
-                    onClick={this.gamePgnExport.bind(this, game.id)}
-                  >
-                    <img
-                      src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
-                      style={{ width: "25px", height: "25px" }}
-                      alt="pgnDownload"
-                    />
-                  </td>
+          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
+            <table
+              className="gamehistory"
+              style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
+            >
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Players
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Result
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Date
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    PGN
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {gamelist.map((game, index) => (
+                  <tr key={index} style={{ cursor: "pointer" }}>
+                    <td
+                      style={{ padding: "5px 5px" }}
+                      onClick={this.setGameExaminMode.bind(this, game.id)}
+                    >
+                      {game.white}-vs-{game.black}
+                    </td>
+                    <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                    <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                    <td
+                      style={{ padding: "5px 5px" }}
+                      onClick={this.gamePgnExport.bind(this, game.id)}
+                    >
+                      <img
+                        src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
+                        style={{ width: "25px", height: "25px" }}
+                        alt="pgnDownload"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : null}
         <button onClick={this.props.removeGameHistory} style={btnstyle}>
           Close
@@ -385,8 +381,10 @@ export default class MainPage extends Component {
     );
   }
   setGameExaminMode(id) {
-    Meteor.call("examineGame", "ExaminedGame", id);
-    this.setState({ examineGame: true });
+    Meteor.call("examineGame", "ExaminedGame", id, (error, response) => {
+      if (response) this.setState({ examineGame: true });
+    });
+
     this.props.removeGameHistory();
   }
   gamePgnExport(id) {
@@ -396,8 +394,8 @@ export default class MainPage extends Component {
     this.setState({ examineGame: true });
   }
   examineActionHandler(action) {
-    if (action === "newoppent") {
-      this.setState({ exnotification: false, newOppenetRequest: true });
+    if (action === "newoppent" || action === "play") {
+      this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
     } else this.setState({ exnotification: false, examinAction: action });
   }
   removeAcknowledgeMessage(messageId) {
@@ -485,7 +483,7 @@ export default class MainPage extends Component {
 
       if (!!actions && actions.length !== 0) {
         let ack = actions[actions.length - 1];
-        if (!!ack["type"] && ack["type"] === "resign" && game.status !== "examining") {
+        if (!!ack["type"] && ack["type"] === "resign") {
           if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
             informativePopup = this.notificationPopup1("Opponent has resigend a game", "abort");
           }
@@ -557,7 +555,7 @@ export default class MainPage extends Component {
           LefSideBoarData={this.Main.LeftSection}
           history={this.props.history}
           gameHistory={this.props.gameHistoryload}
-          // examineAction={this.examineActionHandler}
+          examineAction={this.examineActionHandler}
         />
       );
     }
