@@ -366,7 +366,7 @@ describe.only("Game.removeArrow", function() {
     Game.removeArrow("mi2", game_id, "c1", "d2");
     Game.removeArrow("mi2", game_id, "c1", "d2");
     const record_2 = Game.collection.findOne({ _id: game_id });
-    chai.assert.equal(record_2.actions[2].type, "remove_arrow", "failed to record remove_arrow");
+    chai.assert.equal(record_2.actions[1].type, "remove_arrow", "failed to record remove_arrow");
     chai.assert.equal(record_2.actions.length, 2, "failed to remove only once on arrow");
   });
   it("should remove the arrow from the game record if all is well", function() {

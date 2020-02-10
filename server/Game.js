@@ -146,7 +146,6 @@ Game.startLocalGame = function(
   check(black_increment_or_delay_type, String);
 
   check(self.ratings[rating_type], Object); // Rating type needs to be valid!
-
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -1157,6 +1156,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   let tomove = game.tomove;
+
   if (!game.pending[othercolor].takeback.number) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NO_TAKEBACK_PENDING");
     return;
@@ -1587,31 +1587,36 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   if (!game) {
     throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
   }
-  if (game.status !== "examining" || game.examiners.map(ex => ex.id).indexOf(self._id) === -1) {
+  if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-
-  const setobject = {};
-  const pushobject = {};
-
-  pushobject.actions = {
-    type: "draw_circle",
-    issuer: self._id,
-    parameter: { square: square, color: color, size: size }
-  };
-  if (!game.circles) setobject.circles = [{ square: square, color: color, size: size }];
-  else pushobject.circles = { square: square, color: color, size: size };
-
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const resultFind = game.circles.find(circle => circle.square === square);
+  if (resultFind) {
+    resultFind.color = color;
+    resultFind.size = size;
+  } else {
+    game.circles.push({ square: square, color: color, size: size });
+  }
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
-      $set: setobject,
-      $push: pushobject
+      $set: { circles: game.circles },
+      $push: {
+        actions: {
+          type: "draw_circle",
+          issuer: self._id,
+          parameter: { square: square, color: color, size: size }
+        }
+      }
     }
   );
 };
-
 Game.removeCircle = function(message_identifier, game_id, square) {
   check(message_identifier, String);
   check(square, String);
@@ -1629,30 +1634,115 @@ Game.removeCircle = function(message_identifier, game_id, square) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (
-    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
-  ) {
-    // TODO: Below condition is not working as examiners
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  for (var i = 0; i < game.circles.length; i++) {
-    if (game.circles[i].square === square) {
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        { $pull: { circles: { square: square } } }
-      );
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        {
-          $push: {
-            actions: { type: "remove_circle", issuer: "iccserver", parameter: { square: square } }
-          }
-        }
-      );
-      return;
+
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: { type: "remove_circle", issuer: self._id, parameter: { square: square } }
+      },
+      $pull: { circles: { square: square } }
     }
+  );
+};
+
+Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
+  check(message_identifier, String);
+  check(from, String);
+  check(to, String);
+  check(color, String);
+  check(size, Number);
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
+    return;
   }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to draw arrow", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const resultFind = game.arrows.find(arrow => arrow.from === from && arrow.to === to);
+  if (resultFind) {
+    resultFind.color = color;
+    resultFind.size = size;
+  } else {
+    game.arrows.push({ from: from, to: to, color: color, size: size });
+  }
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $set: { arrows: game.arrows },
+      $push: {
+        actions: {
+          type: "draw_arrow",
+          issuer: self._id,
+          parameter: { from: from, to: to, color: color, size: size }
+        }
+      }
+    }
+  );
+};
+Game.removeArrow = function(message_identifier, game_id, from, to) {
+  check(message_identifier, String);
+  check(from, String);
+  check(to, String);
+  let self;
+  self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
+    return;
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to remove arrow", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const resultFind = game.arrows.find(arrow => arrow.from === from && arrow.to === to);
+
+  if (!resultFind) {
+    return;
+  }
+// TODO: $pull is not functioning
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: {
+          type: "remove_arrow",
+          issuer: self._id,
+          parameter: { from: from, to: to }
+        }
+      },
+      $pull: { arrows: { from: from, to: to } }
+    }
+  );
 };
 
 Game.isSquareValid = function(square) {
@@ -2226,12 +2316,7 @@ function _startGamePing(game_id, color) {
 
 function endGamePing(game_id) {
   log.debug("endGamePing game_id=" + game_id);
-  if (!game_pings[game_id])
-    throw new ICCMeteorError(
-      "server",
-      "Unable to update game ping",
-      "Unable to locate game to ping (1)"
-    );
+  if (!game_pings[game_id]) throw new ICCMeteorError("server", "Unable to locate game to ping (1)");
   game_pings[game_id]["white"].end();
   game_pings[game_id]["black"].end();
   delete game_pings[game_id];
