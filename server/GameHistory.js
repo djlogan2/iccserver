@@ -4,11 +4,13 @@ import { Meteor } from "meteor/meteor";
 import { check } from "meteor/check";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { ClientMessages } from "../imports/collections/ClientMessages";
+import { Logger } from "../lib/server/Logger";
 import Chess from "chess.js";
 import { Users } from "../imports/collections/users";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { Game } from "./Game";
 
+let log = new Logger("server/GameHistroy_js");
 export const GameHistory = {};
 
 const GameHistoryCollection = new Mongo.Collection("game_history");
@@ -26,8 +28,8 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
     );
   return GameHistoryCollection.insert(game);
 };
-
-Game.savePlayedGame = GameHistory.savePlayedGame;
+//TODO: we can't figure out this.
+//Game.savePlayedGame = GameHistory.savePlayedGame;
 
 GameHistory.examineGame = function(message_identifier, game_id) {
   check(message_identifier, String);
@@ -82,6 +84,7 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
     throw new ICCMeteorError(message_identifier, "Unable to search games", "User not authorized");
   if (count > SystemConfiguration.maximumGameHistorySearchCount())
     count = SystemConfiguration.maximumGameHistorySearchCount();
+  // TODO: Do we want to leave search_parameters wide open? I can't think of a reason why not other than it's often inherently dangerous for reasons only hackers show you about... (djl)
   return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
 };
 

@@ -18,8 +18,7 @@ const systemcss = {
     }
   },
   fullWidth: {
-    width: "100%",
-    height: "80vh"
+    width: "100%"
   },
   drawActionSection: {
     height: "auto",
@@ -105,6 +104,7 @@ const systemcss = {
     examine: "images/examine-icon.png",
     /**Main Page.jsx */
     infoIcon: "images/info-icon.png",
+    pgnIcon: "images/pgnicon.png",
     checkedIcon: "images/checked.png",
     closeIcon: "images/close.png",
     logoWhite: "images/logo-white-lg.png",

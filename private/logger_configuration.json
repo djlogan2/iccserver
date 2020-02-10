@@ -18,6 +18,7 @@
     "server/firstRunUsers_js": "ERROR",
     "server/Game_js": "TRACE",
     "server/GameRequest_js": "ERROR",
+    "server/GameHistroy_js": "ERROR",
     "server/LegacyUsers": "ERROR",
     "server/main_js": "ERROR",
     "server/timestamp_js": "ERROR",

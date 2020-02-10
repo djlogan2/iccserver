@@ -105,11 +105,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       "observers.id": Meteor.userId()
     }).fetch();
   }
-
-  getGameHistory() {
-    return true;
-  }
-
   renderGameRequest() {
     return GameRequestCollection.findOne(
       {
@@ -239,11 +234,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
   };
 
   gameHistoryload(data) {
-    if (data === "history") {
+    if (data === "mygame") {
       const GameHistory = GameHistoryCollection.find({
         $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
       }).fetch();
-      log.debug("Gamehistory", GameHistory);
       if (!!GameHistory) this.setState({ GameHistory: GameHistory });
     }
   }
@@ -258,6 +252,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this._board.load(game.fen);
     this._boardfallensolder = new Chess.Chess();
     let itemToBeRemoved = [];
+
     for (let i = 0; i < variation.cmi; i++) {
       if (itemToBeRemoved.indexOf(i) === -1) {
         var moveListItem = variation.movelist[i];
@@ -308,6 +303,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     const clientMessage = this.clientMessages();
+    let capture = this._fallenSoldier();
     if (
       systemCSS === undefined ||
       boardCSS === undefined ||
@@ -335,7 +331,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         }
       }
     }
-    const capture = this._fallenSoldier();
 
     return (
       <div>
