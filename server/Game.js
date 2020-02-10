@@ -1718,7 +1718,7 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
     return;
   }
   const game = GameCollection.findOne({ _id: game_id });
-  if (!game) {
+  if (!game) { // TODO: SADLY this never happens because our collection 'generates' a game instance if not found.
     throw new ICCMeteorError(message_identifier, "Unable to remove arrow", "Game doesn't exist");
   }
   if (game.status !== "examining") {
@@ -1735,7 +1735,6 @@ Game.removeArrow = function(message_identifier, game_id, from, to) {
   if (!resultFind) {
     return;
   }
-// TODO: $pull is not functioning
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {

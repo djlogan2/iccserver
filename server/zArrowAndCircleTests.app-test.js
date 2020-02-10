@@ -295,7 +295,7 @@ describe("Game.drawArrow", function() {
     chai.assert.equal("c1", record.actions[0].parameter.from, "Failed to record a draw in actions");
   });
 });
-describe.only("Game.removeArrow", function() {
+describe("Game.removeArrow", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should have a function called removeArrow", function() {
     chai.assert.isFunction(Game.removeArrow, "Failed to identify Game.removeArrow as a function");
