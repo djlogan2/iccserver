@@ -8,7 +8,13 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
-import { GameRequestPopup, ActionPopup } from "./components/Popup/Popup";
+import {
+  GameRequestPopup,
+  GamenotificationPopup,
+  GameResignedPopup,
+  ExaminActionPopup,
+  ActionPopup
+} from "./components/Popup/Popup";
 import i18n from "meteor/universe:i18n";
 const log = new Logger("client/MainPage");
 
@@ -64,6 +70,8 @@ export default class MainPage extends Component {
     this.notificationHandler = this.notificationHandler.bind(this);
     this.examineActionHandler = this.examineActionHandler.bind(this);
     this.startGameExamine = this.startGameExamine.bind(this);
+    this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
+    this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -143,147 +151,30 @@ export default class MainPage extends Component {
       />
     );
   };
-  notificationPopup = (title, mid) => {
-    let style = {
-      width: "385px",
-      height: "auto",
-      borderRadius: "15px",
-      background: "#ffffff",
-      position: "fixed",
-      zIndex: "99",
-      left: "0px",
-      right: "25%",
-      margin: "0px auto",
-      top: "27%",
-      padding: "20px",
-      textAlign: "center",
-      border: "1px solid #ccc",
-      boxShadow: "#0000004d"
-    };
-    return (
-      <div style={style}>
-        <div className="popup_inner">
-          <h3
-            style={{
-              margin: "10px 0px 20px",
-              color: "#000",
-              fontSize: "17px"
-            }}
-          >
-            {title}
-          </h3>
-          <button
-            onClick={() => this.removeAcknowledgeMessage(mid)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
+
+  GamenotificationPopup = (title, mid) => {
+    return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
   };
-  notificationPopup1 = (title, mid) => {
+  GameResignedPopup = (title, mid) => {
     return (
-      <div
-        style={{
-          width: "385px",
-          height: "auto",
-          borderRadius: "15px",
-          background: "#ffffff",
-          position: "fixed",
-          zIndex: "99",
-          left: "0px",
-          right: "25%",
-          margin: "0px auto",
-          top: "27%",
-          padding: "20px",
-          textAlign: "center",
-          border: "1px solid #ccc",
-          boxShadow: "#0000004d"
-        }}
-      >
-        <div className="popup_inner">
-          <h3
-            style={{
-              margin: "10px 0px 20px",
-              color: "#000",
-              fontSize: "17px"
-            }}
-          >
-            {title}
-          </h3>
-          <button
-            onClick={() => this.resignnotificationPopup()}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Close
-          </button>
-        </div>
-      </div>
+      <GameResignedPopup
+        mid={mid}
+        title={title}
+        cssmanager={this.props.cssmanager}
+        resignNotificationCloseHandler={this.resignNotificationCloseHandler}
+      />
     );
   };
   examinActionPopup = action => {
-    let style = {
-      width: "385px",
-      height: "auto",
-      borderRadius: "15px",
-      background: "#ffffff",
-      position: "fixed",
-      zIndex: "99",
-      left: "0px",
-      right: "25%",
-      margin: "0px auto",
-      top: "27%",
-      padding: "20px",
-      textAlign: "center",
-      border: "1px solid #ccc",
-      boxShadow: "#0000004d"
-    };
-    if (action === "complain") {
-      return (
-        <div style={style}>
-          <div className="popup_inner">
-            <div>
-              <label>Email</label>
-              <input type="text" name="email" />
-            </div>
-            <div>
-              <label>Complaint</label>
-              <textarea name="complaint" rows="4" cols="35" />
-            </div>
-            <div>
-              <button
-                onClick={() => this.examinActionCloseHandler()}
-                style={this.props.cssmanager.innerPopupMain()}
-              >
-                submit
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (action === "emailgame") {
-      return (
-        <div style={style}>
-          <div className="popup_inner">
-            <div>
-              <label>Email</label>
-              <input type="text" name="email" />
-            </div>
-
-            <div>
-              <button
-                onClick={() => this.examinActionCloseHandler()}
-                style={this.props.cssmanager.innerPopupMain()}
-              >
-                submit
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
+    return (
+      <ExaminActionPopup
+        action={action}
+        cssmanager={this.props.cssmanager}
+        examinActionCloseHandler={this.examinActionCloseHandler}
+      />
+    );
   };
+
   loadGameHistroyPopup(games) {
     let result;
     let gamelist = [];
@@ -398,10 +289,7 @@ export default class MainPage extends Component {
       this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
     } else this.setState({ exnotification: false, examinAction: action });
   }
-  removeAcknowledgeMessage(messageId) {
-    Meteor.call("acknowledge.client.message", messageId);
-  }
-  resignnotificationPopup() {
+  resignNotificationCloseHandler() {
     this.setState({ resignnotification: true });
   }
   notificationHandler() {
@@ -423,7 +311,7 @@ export default class MainPage extends Component {
     );
   }
   render() {
-    //  let translator = i18n.createTranslator("Common.chatBoxMessage", this.getLang());
+    let translator = i18n.createTranslator("Common.MainPage", this.getLang());
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
     const GameRequest = this.props.gameRequest;
@@ -437,11 +325,10 @@ export default class MainPage extends Component {
       !!GameRequest &&
       GameRequest.type === "match" &&
       GameRequest.receiver_id === Meteor.userId()
-    )
-      informativePopup = this.gameRequest(
-        GameRequest["challenger"] + " has requests for a game",
-        GameRequest["_id"]
-      );
+    ) {
+      let msg = translator("gamerequest");
+      informativePopup = this.gameRequest(GameRequest["challenger"] + msg, GameRequest["_id"]);
+    }
 
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
@@ -464,7 +351,7 @@ export default class MainPage extends Component {
           this.state.exnotification === false &&
           (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
         ) {
-          exPopup = this.examinActionPopup(this.state.examinAction);
+          informativePopup = this.examinActionPopup(this.state.examinAction);
         }
       } else {
         if (gameTurn === "w") {
@@ -485,7 +372,8 @@ export default class MainPage extends Component {
         let ack = actions[actions.length - 1];
         if (!!ack["type"] && ack["type"] === "resign") {
           if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
-            informativePopup = this.notificationPopup1("Opponent has resigend a game", "abort");
+            let msg = translator("gameresign");
+            informativePopup = this.GameResignedPopup(msg, "abort");
           }
         }
 
@@ -499,11 +387,9 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].takeback.number > 0)
               ) {
-                let backCount =
-                  game.pending[othercolor].takeback.number === 1
-                    ? "Take Back 1 Move"
-                    : " Take Back 2 Moves";
-                actionPopup = this.actionPopup(backCount, "takeBack");
+                let moveCount =
+                  game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
+                actionPopup = this.actionPopup(translator(moveCount), "takeBack");
               }
               break;
             case "draw_requested":
@@ -511,7 +397,7 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].draw !== "0")
               ) {
-                actionPopup = this.actionPopup("Draw", "draw");
+                actionPopup = this.actionPopup(translator("draw"), "draw");
               }
               break;
             case "abort_requested":
@@ -519,7 +405,7 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].abort !== "0")
               ) {
-                actionPopup = this.actionPopup("Abort", "abort");
+                actionPopup = this.actionPopup(translator("abort"), "abort");
               }
               break;
             default:
@@ -534,7 +420,7 @@ export default class MainPage extends Component {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
     }
     if (!!this.props.clientMessage && this.props.clientMessage.client_identifier !== "server") {
-      informativePopup = this.notificationPopup(
+      informativePopup = this.GamenotificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id
       );

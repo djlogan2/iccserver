@@ -6,6 +6,7 @@ import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
+import i18n from "meteor/universe:i18n";
 
 const log = new Logger("client/MiddleBoard");
 
@@ -59,15 +60,6 @@ export default class MiddleBoard extends Component {
       this.setState({ top: this.props.top });
     }
   }
-  /* shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.update === 1) {
-      return true;
-    }
-    if (nextState.fen !== this.state.fen) {
-      return true;
-    }
-    //return true;
-  } */
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newTop });
@@ -128,7 +120,17 @@ export default class MiddleBoard extends Component {
       this.setState({ fen: this.props.board.fen(), update: 1 });
     }
   };
+  getLang() {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
   render() {
+    let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
     let w = this.props.width;
     let h = this.props.height;
     let d;
@@ -197,18 +199,18 @@ export default class MiddleBoard extends Component {
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
         if (this.props.board.turn() === "b") {
-          botPlayermsg = "(Your Turn)";
+          botPlayermsg = translator("yourturn");
           color = "#4cd034";
         } else {
-          topPlayermsg = "(waiting for opponent)";
+          topPlayermsg = translator("waitingforopponent");
           color = "#fff";
         }
       } else {
         if (this.props.board.turn() === "w") {
-          botPlayermsg = "(Your Turn)";
+          botPlayermsg = translator("yourturn");
           color = "#4cd034";
         } else {
-          topPlayermsg = "(waiting for opponent)";
+          topPlayermsg = translator("waitingforopponent");
           color = "#fff";
         }
       }
@@ -216,13 +218,6 @@ export default class MiddleBoard extends Component {
 
     return (
       <div>
-        {/*   <button
-          onClick={this.switchSides.bind(this)}
-          style={this.props.cssmanager.buttonStyle("middleBoard")}
-        >
-          <img src={this.props.cssmanager.buttonBackgroundImage("fullScreen")} alt="full-screen" />
-        </button> */}
-
         <div style={{ width: size }}>
           <Player
             PlayerData={topPlayer}

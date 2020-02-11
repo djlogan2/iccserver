@@ -797,8 +797,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     { $unset: unsetobject, $set: setobject, $push: pushobject }
   );
 
-  if (setobject.result)
-    GameHistory.savePlayedGame(message_identifier, game_id);
+  if (setobject.result) GameHistory.savePlayedGame(message_identifier, game_id);
 
   if (analyze) {
     log.debug("Starting getting score for game " + game_id + " fen " + active_games[game_id].fen());

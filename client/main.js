@@ -78,6 +78,34 @@ Meteor.startup(() => {
         random: "Random",
         submit: "Submit"
       },
+      GameRequestPopup: {
+        accept: "Accept",
+        decline: "Decline"
+      },
+      GamenotificationPopup: {
+        close: "Close"
+      },
+      GameResignedPopup: {
+        close: "Close"
+      },
+      ExaminActionPopup: {
+        email: "Email",
+        complaint: "Complaint",
+        submit: "Submit"
+      },
+      ActionPopup: {},
+      MainPage: {
+        gamerequest: " has requests for a game",
+        gameresign: "Opponent has resigned a game",
+        halfmove: "Take Back 1 Move",
+        fullmove: "Take Back 2 Moves",
+        abort: "Abort",
+        draw: "Draw"
+      },
+      MiddleBoard:{
+        yourturn: "( Your Turn )",
+        waitingforopponent: "( waiting for opponent )"
+      },
       chatBoxMessage: {
         NEW_MESSAGE: "NEW MESSAGE"
       }

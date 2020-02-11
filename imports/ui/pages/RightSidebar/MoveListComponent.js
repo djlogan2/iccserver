@@ -19,51 +19,67 @@ export default class MoveListComponent extends Component {
   };
   render() {
     let moves = [];
+    let movesString = [];
     let variation;
     let game = this.props.game;
     this.gameId = game._id;
     let displayButton = 1;
     if (!!game.status && game.status === "examining" && this.props.currentGame === false)
       displayButton = 0;
-
-    if (!!game && game.variations !== undefined) {
-      variation = game.variations;
-      let itemToBeRemoved = [];
-      for (let i = 0; i < variation.cmi; i++) {
-        if (itemToBeRemoved.indexOf(i) === -1) {
-          var moveListItem = variation.movelist[i];
-          if (moveListItem !== undefined) {
-            var variationI = moveListItem.variations;
-            if (variationI !== undefined) {
-              var len = variationI.length;
-              if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
-                moves.push(variation.movelist[variationI[0]].move);
-              } else if (len > 1) {
-                if (variation.movelist[variationI[len - 1]] !== undefined) {
-                  moves.push(variation.movelist[variationI[len - 1]].move);
-                }
-                if (variation.cmi === variationI[len - 1]) {
-                  break;
-                }
-                for (let n = variationI[0]; n < variationI[len - 1]; n++) {
-                  itemToBeRemoved.push(n);
+    if (!!game.status && game.status !== "examining") {
+      if (!!game && game.variations !== undefined) {
+        variation = game.variations;
+        let itemToBeRemoved = [];
+        for (let i = 0; i < variation.cmi; i++) {
+          if (itemToBeRemoved.indexOf(i) === -1) {
+            var moveListItem = variation.movelist[i];
+            if (moveListItem !== undefined) {
+              var variationI = moveListItem.variations;
+              if (variationI !== undefined) {
+                var len = variationI.length;
+                if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
+                  moves.push(variation.movelist[variationI[0]].move);
+                } else if (len > 1) {
+                  if (variation.movelist[variationI[len - 1]] !== undefined) {
+                    moves.push(variation.movelist[variationI[len - 1]].move);
+                  }
+                  if (variation.cmi === variationI[len - 1]) {
+                    break;
+                  }
+                  for (let n = variationI[0]; n < variationI[len - 1]; n++) {
+                    itemToBeRemoved.push(n);
+                  }
                 }
               }
             }
           }
         }
       }
-    }
 
-    let movesString = [];
-    if (moves != null || moves !== undefined) {
-      for (let i = 0; i < moves.length; ) {
-        if (i + 1 < moves.length) {
-          movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
-        } else {
-          movesString.push(" " + moves[i] + " ");
+      if (moves != null || moves !== undefined) {
+        for (let i = 0; i < moves.length; ) {
+          if (i + 1 < moves.length) {
+            movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
+          } else {
+            movesString.push(" " + moves[i] + " ");
+          }
+          i = i + 2;
         }
-        i = i + 2;
+      }
+    } else {
+      for (let i = 0; i < game.variations.movelist.length; i++) {
+        moves.push(game.variations.movelist[i]);
+      }
+
+      if (moves != null || moves !== undefined) {
+        for (let i = 1; i < moves.length; ) {
+          if (i + 1 < moves.length) {
+            movesString.push(" " + moves[i].move + " " + moves[i + 1].move + " ");
+          } else {
+            movesString.push(" " + moves[i].move + " ");
+          }
+          i = i + 2;
+        }
       }
     }
 
