@@ -5,11 +5,11 @@ import { object } from "prop-types";
 const log = new Logger("MoveLIst_js");
 export default class MoveListComponent extends Component {
   _pgnView = (actionType, action) => {};
-  moveBackwordBeginning = () => {
-    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1, 1);
+  moveBackwardBeginning = () => {
+    Meteor.call("moveBackward", "moveBackward", this.gameId, 1, 1);
   };
-  moveBackword = () => {
-    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1);
+  moveBackward = () => {
+    Meteor.call("moveBackward", "moveBackward", this.gameId, 1);
   };
   moveForward = () => {
     Meteor.call("moveForward", "MoveForward", this.gameId, 1);
@@ -90,7 +90,7 @@ export default class MoveListComponent extends Component {
           <div style={mstyle}>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this.moveBackwordBeginning.bind(this)}
+              onClick={this.moveBackwardBeginning.bind(this)}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
@@ -99,7 +99,7 @@ export default class MoveListComponent extends Component {
             </button>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this.moveBackword.bind(this)}
+              onClick={this.moveBackward.bind(this)}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")}

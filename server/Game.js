@@ -1008,14 +1008,15 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     if (!!self) ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
     return;
   }
-
+  // TODO: We need to be able to do this from places other than meteor method, so move this check to meteor method
+/*
   if (!!self && id_to_remove !== self._id)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to remove observer",
       "You can only remove yourself"
     );
-
+*/
   Users.setGameStatus(message_identifier, id_to_remove, "none");
 
   if (!!game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) {
@@ -2687,7 +2688,7 @@ Meteor.methods({
   drawCircle: Game.drawCircle,
   removeCircle: Game.removeCircle,
   startLocalExaminedGame: Game.startLocalExaminedGame,
-  moveBackword: Game.moveBackward,
+  moveBackward: Game.moveBackward,
   moveForward: Game.moveForward,
   exportToPGN: Game.exportToPGN
 });
