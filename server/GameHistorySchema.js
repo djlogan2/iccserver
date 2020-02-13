@@ -85,7 +85,6 @@ export const GameHistorySchema = new SimpleSchema({
   tags: { type: Object, required: false, blackbox: true },
   actions: [actionSchema],
   variations: { type: Object, required: false },
-  "variations.cmi": Number,
   "variations.movelist": Array,
   "variations.movelist.$": Object,
   "variations.movelist.$.prev": { type: Number, required: false },

@@ -1,0 +1,8 @@
+$ mup reconfig — reconfigures app with new environment variables, Meteor settings, and it updates the start script.
+$ mup stop — stop the app
+$ mup start — start the app
+$ mup restart — restart the app
+$ mup logs [-f — tail=50] — view the app’s logs. Supports all of the flags from docker logs.
+$ mup docker ps — view running docker container on remote server
+$ mup mongo logs — view mongodb logs of remote server
+$ mup status — view detailed info about docker images, port, env variables etc. of remote server
