@@ -2761,6 +2761,8 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
       "Unable to save game to game history",
       "Unable to find game to save"
     );
+  delete game.variations.hmtb;
+  delete game.variations.cmi;
   return GameHistoryCollection.insert(game);
 };
 
