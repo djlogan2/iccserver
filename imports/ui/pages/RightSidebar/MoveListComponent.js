@@ -4,18 +4,22 @@ import { Logger } from "../../../../lib/client/Logger";
 import { object } from "prop-types";
 const log = new Logger("MoveLIst_js");
 export default class MoveListComponent extends Component {
+  constructor(props) {
+    super(props);
+    this.cmi = 0;
+  }
   _pgnView = (actionType, action) => {};
-  moveBackwardBeginning = () => {
-    Meteor.call("moveBackward", "moveBackward", this.gameId, 1, 1);
+  moveBackwordBeginning = () => {
+    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1,1);
   };
-  moveBackward = () => {
-    Meteor.call("moveBackward", "moveBackward", this.gameId, 1);
+  moveBackword = () => {
+    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1);
   };
   moveForward = () => {
     Meteor.call("moveForward", "MoveForward", this.gameId, 1);
   };
   moveForwardEnd = cmi => {
-    Meteor.call("moveForward", "MoveForward", this.gameId, 1, cmi);
+    Meteor.call("moveForward", "MoveForward", this.gameId, this.cmi - 1);
   };
   render() {
     let moves = [];
@@ -67,6 +71,7 @@ export default class MoveListComponent extends Component {
         }
       }
     } else {
+      this.cmi = game.variations.movelist.length || 0;
       for (let i = 0; i < game.variations.movelist.length; i++) {
         moves.push(game.variations.movelist[i]);
       }
@@ -106,7 +111,7 @@ export default class MoveListComponent extends Component {
           <div style={mstyle}>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this.moveBackwardBeginning.bind(this)}
+              onClick={this.moveBackwordBeginning.bind(this)}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
@@ -115,7 +120,7 @@ export default class MoveListComponent extends Component {
             </button>
             <button
               style={this.props.cssmanager.buttonStyle()}
-              onClick={this.moveBackward.bind(this)}
+              onClick={this.moveBackword.bind(this)}
             >
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")}
