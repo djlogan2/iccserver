@@ -7,6 +7,10 @@ import "../lib/client/timestamp";
 
 Meteor.startup(() => {
   Meteor.logoutOtherClients();
+  // TODO: Hey guys, this should be in the database. It shouldn't be hard coded like this.
+  //       You can make your own collection, I suppose, but it seems to me it would make sense
+  //       to put it in ClientMessages, and maybe even just use a meteor method? I'm not sure
+  //       whata this package does, but you can't leave this like this.
   i18n.addTranslations("en-US", {
     Common: {
       HomeContainer: {
