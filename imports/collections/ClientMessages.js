@@ -38,6 +38,7 @@ export const DefinedClientMessagesMap = {
   NOT_AN_OBSERVER: {},
   ALREADY_AN_EXAMINER: {},
   NOT_AN_EXAMINER: {},
+  CHECK_MATE: {},
   NOT_PLAYING_A_GAME: {},
   UNABLE_TO_PLAY_OPPONENT: {},
   SERVER_ERROR: { parameters: ["message", "reason"] },

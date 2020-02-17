@@ -106,6 +106,12 @@ const messages = [
     "НЕ ЭКСПЕРТ {1}"
   ],
   [
+    "CHECK_MATE",
+    "CHECK MATE GAME OVER!{1}",
+    "El mensaje con el valor {1} como valor de parámetro",
+    "НЕ ЭКСПЕРТ {1}"
+  ],
+  [
     "END_OF_GAME",
     "END OF GAME {1}",
     "El mensaje con el valor {1} como valor de parámetro",
@@ -134,7 +140,7 @@ const messages = [
 
 export default function firstAddI18nMessage() {
   if (!Meteor.isTest && !Meteor.isAppTest && i18nCollection.find().count() === 0) {
-    i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
+  //  i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
     messages.forEach(i18nMessage => {
       const locales = ["x", "en_us", "es", "ru"];
       ////["messageid", "en_us", "es", "ru"]

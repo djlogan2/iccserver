@@ -704,6 +704,8 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       setobject.result = "1/2-1/2";
     } else if (active_games[game_id].in_checkmate()) {
       setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
+      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
+      //    ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
     }
 
     if (!!setobject.result) {
@@ -797,7 +799,13 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     { $unset: unsetobject, $set: setobject, $push: pushobject }
   );
 
-  if (setobject.result) GameHistory.savePlayedGame(message_identifier, game_id);
+  if (setobject.result) {
+    if (active_games[game_id].in_checkmate()) {
+      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
+      ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
+    }
+    GameHistory.savePlayedGame(message_identifier, game_id);
+  }
 
   if (analyze) {
     log.debug("Starting getting score for game " + game_id + " fen " + active_games[game_id].fen());
@@ -1008,7 +1016,7 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
     return;
   }
   // TODO: We need to be able to do this from places other than meteor method, so move this check to meteor method
-/*
+  /*
   if (!!self && id_to_remove !== self._id)
     throw new ICCMeteorError(
       message_identifier,
