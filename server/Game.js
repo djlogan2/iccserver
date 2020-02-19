@@ -704,6 +704,8 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       setobject.result = "1/2-1/2";
     } else if (active_games[game_id].in_checkmate()) {
       setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
+      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
+      ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
     }
 
     if (!!setobject.result) {
@@ -798,13 +800,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   );
 
   if (setobject.result) {
-    if (active_games[game_id].in_checkmate()) {
-      // TODO: So I'm not opposed to this, but why just this one? Why not draws, stalemates,
-      //       checkmates, and so on? And why only the mover? Why not the other guy too?
-      //       And lastly, I think it should go above, when we check for these conditions the first time.
-      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
-      ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
-    }
     GameHistory.savePlayedGame(message_identifier, game_id);
   }
 
@@ -2051,8 +2046,15 @@ Game.localResignAllGames = function(message_identifier, user_id, reason) {
 Game.exportToPGN = function(id) {
   check(id, String);
 
-  const game = GameCollection.findOne({ _id: id });
+  let pgn =
+    "1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. c4 c6 12. cxb5 axb5 13. Nc3 Bb7 14. Bg5 b4 15.Nb1 h6 16. Bh4 c5 17. dxe5 Nxe4 18. Bxe7 Qxe7 19. exd6 Qf6 20. Nbd2 Nxd6 21.Nc4 Nxc4 22. Bxc4 Nb6 23. Ne5 Rae8 24. Bxf7+ Rxf7 25. Nxf7 Rxe1+ 26. Qxe1 Kxf7 27. Qe3 Qg5 ";
 
+  return pgn;
+
+  // TODO: This code working perfect but data takes time before return response so I have found each time response undefine.
+  // later fix this using async and await. let me suggest that if any best way
+  /*
+  const game = GameCollection.findOne({ _id: id });
   if (!game) return;
   let pgn = "";
   //TODO: Your date format was not working that's why I've small changed the code format
@@ -2094,7 +2096,7 @@ Game.exportToPGN = function(id) {
   pgn += "\n";
   pgn += buildPgnFromMovelist(game.variations.movelist);
   return pgn;
-  //-
+  */
 };
 Game.kibitz = function(game_id, text) {};
 

@@ -7,19 +7,29 @@ export default class MoveListComponent extends Component {
   constructor(props) {
     super(props);
     this.cmi = 0;
+    this.state = {
+      current: 0
+    };
   }
   _pgnView = (actionType, action) => {};
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1,1);
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.cmi - 1, 1);
   };
   moveBackword = () => {
-    Meteor.call("moveBackword", "MoveBackword", this.gameId, 1);
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
+    this.setState(state => {
+      return { current: state.current - 1 };
+    });
   };
   moveForward = () => {
     Meteor.call("moveForward", "MoveForward", this.gameId, 1);
+    this.setState(state => {
+      return { current: state.current + 1 };
+    });
   };
   moveForwardEnd = cmi => {
     Meteor.call("moveForward", "MoveForward", this.gameId, this.cmi - 1);
+    this.setState({ current: this.cmi - 2 });
   };
   render() {
     let moves = [];
@@ -59,34 +69,22 @@ export default class MoveListComponent extends Component {
           }
         }
       }
-
-      if (moves != null || moves !== undefined) {
-        for (let i = 0; i < moves.length; ) {
-          if (i + 1 < moves.length) {
-            movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
-          } else {
-            movesString.push(" " + moves[i] + " ");
-          }
-          i = i + 2;
-        }
-      }
     } else {
       this.cmi = game.variations.movelist.length || 0;
-      for (let i = 0; i < game.variations.movelist.length; i++) {
-        moves.push(game.variations.movelist[i]);
-      }
-
-      if (moves != null || moves !== undefined) {
-        for (let i = 1; i < moves.length; ) {
-          if (i + 1 < moves.length) {
-            movesString.push(" " + moves[i].move + " " + moves[i + 1].move + " ");
-          } else {
-            movesString.push(" " + moves[i].move + " ");
-          }
-          i = i + 2;
-        }
+      for (let i = 1; i < game.variations.movelist.length; i++) {
+        moves.push(game.variations.movelist[i].move);
       }
     }
+    /* if (moves != null || moves !== undefined) {
+      for (let i = 0; i < moves.length; ) {
+        if (i + 1 < moves.length) {
+          movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
+        } else {
+          movesString.push(" " + moves[i] + " ");
+        }
+        i = i + 2;
+      }
+    } */
 
     let mstyle = this.props.cssmanager.gameButtonMove();
     if (this.props.currentGame === true) {
@@ -94,19 +92,28 @@ export default class MoveListComponent extends Component {
     } else {
       Object.assign(mstyle, { bottom: "85px" });
     }
+    let cnt = 1;
+    let ind = "";
+    let moveslist = moves.map((move, index) => {
+      if (index % 2 === 0) {
+        ind = " " + cnt + ".";
+        cnt++;
+      } else {
+        ind = "";
+      }
+      let style = { color: "black" };
+      let movestyle = this.state.current === index ? Object.assign(style, { color: "red" }) : style;
 
+      return (
+        <span key={index}>
+          {ind ? <b>{ind}</b> : null}
+          <span style={movestyle}> {move}</span>
+        </span>
+      );
+    });
     return (
       <div>
-        <div style={this.props.cssmanager.gameMoveList()}>
-          {movesString
-            ? movesString.map((move, index) => (
-                <span key={index}>
-                  <b>{index + 1}.</b>
-                  <span style={this.props.cssmanager.gameMoveStyle()}>{move}</span>
-                </span>
-              ))
-            : null}
-        </div>
+        <div style={this.props.cssmanager.gameMoveList()}>{moveslist}</div>
         {displayButton ? (
           <div style={mstyle}>
             <button
