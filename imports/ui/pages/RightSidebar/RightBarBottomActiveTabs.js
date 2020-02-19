@@ -27,6 +27,7 @@ class RightBarBottomActiveTabs extends Component {
           label={translator("chat")}
           imgsrc="images/chat-icon-white.png"
           hoverSrc="images/chat-icon-blue.png"
+          default="false"
         >
           <Chat
             cssmanager={this.props.cssmanager}
@@ -34,14 +35,24 @@ class RightBarBottomActiveTabs extends Component {
             clientMessage={this.props.clientMessage}
           />
         </div>
-        <div label="Observers" imgsrc="images/observers.png" hoverSrc="images/observers-active.png">
+        <div
+          label="Observers"
+          imgsrc="images/observers.png"
+          hoverSrc="images/observers-active.png"
+          default="false"
+        >
           <Observers
             cssmanager={this.props.cssmanager}
             examing={this.props.examing}
             clientMessage={this.props.clientMessage}
           />
         </div>
-        <div label="Room Chat" imgsrc="images/room-chat.png" hoverSrc="images/room-chat-active.png">
+        <div
+          label="Room Chat"
+          imgsrc="images/room-chat.png"
+          hoverSrc="images/room-chat-active.png"
+          default="roomchat"
+        >
           <RoomChat cssmanager={this.props.cssmanager} clientMessage={this.props.clientMessage} />
         </div>
       </Tabs>

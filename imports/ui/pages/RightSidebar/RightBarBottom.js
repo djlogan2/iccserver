@@ -23,9 +23,9 @@ class RightBarBottom extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
-
+    let tabNumber = this.props.activeTabnumber ? this.props.activeTabnumber : 0;
     return (
-      <Tabs cssmanager={this.props.cssmanager} tabName="bottom">
+      <Tabs cssmanager={this.props.cssmanager} tabName="bottom" defultactive={tabNumber}>
         <div label="Examiner" imgsrc="images/examiner.png" hoverSrc="images/examiner-active.png">
           <Examiner
             cssmanager={this.props.cssmanager}

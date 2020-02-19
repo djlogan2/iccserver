@@ -30,7 +30,8 @@ export default class MainPage extends Component {
       exnotification: false,
       resignnotification: false,
       newOppenetRequest: false,
-      examinAction: "action"
+      examinAction: "action",
+      activeTab: 0
     };
     this.Main = {
       LeftSection: {
@@ -251,7 +252,7 @@ export default class MainPage extends Component {
                     <td style={{ padding: "5px 5px" }}>{game.time}</td>
                     <td
                       style={{ padding: "5px 5px" }}
-                      onClick={this.gamePgnExport.bind(this, game.id)}
+                      onClick={this.gamePgnExport.bind(this, game.id, game.time)}
                     >
                       <img
                         src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
@@ -273,14 +274,23 @@ export default class MainPage extends Component {
   }
   setGameExaminMode(id) {
     Meteor.call("examineGame", "ExaminedGame", id, (error, response) => {
-      if (response) this.setState({ examineGame: true });
+      if (response) this.setState({ examineGame: true, activeTab: 3 });
     });
 
     this.props.removeGameHistory();
   }
-  gamePgnExport(id) {
-    Meteor.call("exportToPGN", this.gameId);
-  }
+  gamePgnExport(id, time) {
+    Meteor.call("exportToPGN", id, (error, result) => {
+      if (!!result) {
+        const element = document.createElement("a");
+        const file = new Blob([result], { type: "text/plain" });
+        element.href = URL.createObjectURL(file);
+        element.download = "PGN_" + time + ".txt";
+        document.body.appendChild(element);
+        element.click();
+      }
+    });
+  } 
   startGameExamine() {
     this.setState({ examineGame: true });
   }
@@ -419,7 +429,11 @@ export default class MainPage extends Component {
     if (!!this.props.GameHistory && this.props.GameHistory.length > 0) {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
     }
-    if (!!this.props.clientMessage && this.props.clientMessage.client_identifier !== "server") {
+    if (
+      !!this.props.clientMessage &&
+      this.props.clientMessage.client_identifier !== "MoveForward" &&
+      this.props.clientMessage.client_identifier !== "server"
+    ) {
       informativePopup = this.GamenotificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id
@@ -462,6 +476,7 @@ export default class MainPage extends Component {
             examing={this.props.examing}
             startGameExamine={this.startGameExamine}
             examineAction={this.examineActionHandler}
+            activeTabnumber={this.state.activeTab}
           />
         </div>
       );

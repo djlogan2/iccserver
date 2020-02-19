@@ -10,6 +10,12 @@ const messages = [
     "МАТЧ ОТКЛОНЕН {1}"
   ],
   [
+    "CHECK_MATE",
+    "CHECK MATE GAME OVER!{1}",
+    "El mensaje con el valor {1} como valor de parámetro",
+    "НЕ ЭКСПЕРТ {1}"
+  ],
+  [
     "CANNOT_MATCH_LOGGED_OFF_USER",
     "CANNOT MATCH LOGGED OFF USER {1}",
     "El mensaje con el valor {1} como valor de parámetro",
@@ -102,12 +108,6 @@ const messages = [
   [
     "NOT_AN_EXAMINER",
     "NOT AN EXAMINER {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ ЭКСПЕРТ {1}"
-  ],
-  [
-    "CHECK_MATE",
-    "CHECK MATE GAME OVER!{1}",
     "El mensaje con el valor {1} como valor de parámetro",
     "НЕ ЭКСПЕРТ {1}"
   ],

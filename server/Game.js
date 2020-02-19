@@ -754,13 +754,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   );
 
   if (setobject.result) {
-    if (active_games[game_id].in_checkmate()) {
-      // TODO: So I'm not opposed to this, but why just this one? Why not draws, stalemates,
-      //       checkmates, and so on? And why only the mover? Why not the other guy too?
-      //       And lastly, I think it should go above, when we check for these conditions the first time.
-      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
-      ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
-    }
     GameHistory.savePlayedGame(message_identifier, game_id);
   }
 
