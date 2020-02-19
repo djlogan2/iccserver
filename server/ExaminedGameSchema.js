@@ -76,6 +76,7 @@ export const ExaminedGameSchema = new SimpleSchema({
     }
   },
   result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*"] },
+  status2: { type: Number, required: false},
   fen: String,
   tomove: String,
   legacy_game_number: {

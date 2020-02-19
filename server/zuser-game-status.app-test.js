@@ -100,7 +100,9 @@ describe("Game status field in user record", function() {
   function transitionToCondition(user, condition) {
     switch (condition) {
       case "none":
-        const game = Game.collection.findOne({$or: [{"white.id": user._id}, {"black.id": user._id}, {"observers.id": user._id}]});
+        const game = Game.collection.findOne({
+          $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
+        });
         if (game && game.legacy_game_id) {
           Game.legacyGameEnded("mi2", game.legacy_game_number, false, "x", "x");
         } else if (game && game.status === "playing") {
@@ -125,8 +127,8 @@ describe("Game status field in user record", function() {
   }
 
   function playMoves(game, moves) {
-    const white = Meteor.users.findOne({_id: game.white.id});
-    const black = Meteor.users.findOne({_id: game.black.id});
+    const white = Meteor.users.findOne({ _id: game.white.id });
+    const black = Meteor.users.findOne({ _id: game.black.id });
     const tomove = [white, black];
     let tm = 0;
     moves.forEach(move => {
@@ -137,12 +139,13 @@ describe("Game status field in user record", function() {
   }
 
   function endGame(user, gameend) {
-    const game = Game.collection.findOne({$or: [{"white.id": user._id}, {"black.id": user._id}]});
-    if (!game || game.status !== "playing")
-      throw new Error("Game is not being played");
+    const game = Game.collection.findOne({
+      $or: [{ "white.id": user._id }, { "black.id": user._id }]
+    });
+    if (!game || game.status !== "playing") throw new Error("Game is not being played");
     const otherid = game.white.id === user._id ? game.black.id : game.white.id;
-    const other = Meteor.users.findOne({_id: otherid});
-    switch(gameend) {
+    const other = Meteor.users.findOne({ _id: otherid });
+    switch (gameend) {
       case "draw":
         self.loggedonuser = other;
         Game.requestLocalDraw("mi1", game._id);
@@ -169,18 +172,101 @@ describe("Game status field in user record", function() {
         playMoves(game, ["f4", "e6", "g4", "Qh4"]);
         break;
       case "stalemate":
-        playMoves(game, ["e3", "a5", "Qh5", "Ra6", "Qxa5", "h5", "h4", "Rah6", "Qxc7", "f6", "Qxd7", "Kf7", "Qxb7", "Qd3", "Qxb8", "Qh7", "Qxc8", "Kg6", "Qe6"]);
+        playMoves(game, [
+          "e3",
+          "a5",
+          "Qh5",
+          "Ra6",
+          "Qxa5",
+          "h5",
+          "h4",
+          "Rah6",
+          "Qxc7",
+          "f6",
+          "Qxd7",
+          "Kf7",
+          "Qxb7",
+          "Qd3",
+          "Qxb8",
+          "Qh7",
+          "Qxc8",
+          "Kg6",
+          "Qe6"
+        ]);
         break;
       case "repetition":
-        playMoves(game, ["e4", "e5", "Be2", "Be7", "Bf1", "Bf8", "Be2", "Be7", "Bf1", "Bf8", "Be2"]);
+        playMoves(game, [
+          "e4",
+          "e5",
+          "Be2",
+          "Be7",
+          "Bf1",
+          "Bf8",
+          "Be2",
+          "Be7",
+          "Bf1",
+          "Bf8",
+          "Be2"
+        ]);
         self.loggedonuser = user;
         Game.requestLocalDraw("mi3", game._id); // Should be automatic since we have a draw by repetition
         break;
       case "material":
-        playMoves(game, ["e4", "e5", "f4", "exf4", "g3", "fxg3", "Nf3", "gxh2", "Rxh2", "f5", "exf5", "d5", "d4", "c5", "dxc5", "b6", "cxb6", "Nc6", "bxa7", "Rxa7", "Qxd5", "Bxf5", "Rxh7", "Rxa2", "Rxh8", "Rxa1", "Rxg8", "Rxb1", "Rxf8", "Kxf8", "Qxc6", "Rxb2", "Qc8", "Rxc2", "Qxd8", "Kf7", "Nd4", "Rxc1", "Kd2", "Rxf1", "Nxf5", "Rxf5", "Qd7", "Kf6", "Qxg7", "Ke6", "Qg6", "Rf6", "Qxf6", "Kxf6"]);
+        playMoves(game, [
+          "e4",
+          "e5",
+          "f4",
+          "exf4",
+          "g3",
+          "fxg3",
+          "Nf3",
+          "gxh2",
+          "Rxh2",
+          "f5",
+          "exf5",
+          "d5",
+          "d4",
+          "c5",
+          "dxc5",
+          "b6",
+          "cxb6",
+          "Nc6",
+          "bxa7",
+          "Rxa7",
+          "Qxd5",
+          "Bxf5",
+          "Rxh7",
+          "Rxa2",
+          "Rxh8",
+          "Rxa1",
+          "Rxg8",
+          "Rxb1",
+          "Rxf8",
+          "Kxf8",
+          "Qxc6",
+          "Rxb2",
+          "Qc8",
+          "Rxc2",
+          "Qxd8",
+          "Kf7",
+          "Nd4",
+          "Rxc1",
+          "Kd2",
+          "Rxf1",
+          "Nxf5",
+          "Rxf5",
+          "Qd7",
+          "Kf6",
+          "Qxg7",
+          "Ke6",
+          "Qg6",
+          "Rf6",
+          "Qxf6",
+          "Kxf6"
+        ]);
         break;
       case "time":
-        self.clock.tick(15*60*1000); // Let the 15 minutes expire. The game should end
+        self.clock.tick(15 * 60 * 1000); // Let the 15 minutes expire. The game should end
         break;
     }
     self.loggedonuser = user;

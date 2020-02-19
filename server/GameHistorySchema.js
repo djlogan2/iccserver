@@ -55,6 +55,7 @@ export const GameHistorySchema = new SimpleSchema({
     }
   },
   result: String,
+  status2: Number,
   wild: Number,
   rating_type: String,
   rated: Boolean,

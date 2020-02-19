@@ -20,52 +20,6 @@ import { Users } from "../imports/collections/users";
 
 import date from "date-and-time";
 
-const x = [
-  [0, "Res", "Black resigns"],
-  [1, "Mat", "Black checkmated"],
-  [2, "Fla", "Black forfeits on time."],
-  [3, "Adj", "White declared the winner by adjudication"],
-  [4, "BQ", "Black disconnected and forfeits"],
-  [5, "BQ", "Black got disconnected and forfeits"],
-  [6, "BQ", "Unregistered player Black disconnected and forfeits"],
-  [7, "Res", "Black's partner resigns"],
-  [8, "Mat", "Black's partner checkmated"],
-  [9, "Fla", "Black's partner forfeits on time"],
-  [10, "BQ", "Black's partner disconnected and forfeits"],
-  [11, "BQ", "Black disconnected and forfeits [obsolete?]"],
-  [12, "1-0", "White wins [specific reason unknown]"],
-  [13, "Agr", "Game drawn by mutual agreement"],
-  [14, "Sta", "Black stalemated"],
-  [15, "Rep", "Game drawn by repetition"],
-  [16, "50", "Game drawn by the 50 move rule"],
-  [17, "TM", "Black ran out of time and White has no material to mate"],
-  [18, "NM", "Game drawn because neither player has mating material"],
-  [19, "NT", "Game drawn because both players ran out of time"],
-  [20, "Adj", "Game drawn by adjudication"],
-  [21, "Agr", "Partner's game drawn by mutual agreement"],
-  [22, "NT", " Partner's game drawn because both players ran"],
-  [23, "1/2", "Game drawn [specific reason unknown]"],
-  [24, "?", "Game adjourned by mutual agreement"],
-  [25, "?", "Game adjourned when Black disconnected"],
-  [26, "?", "Game adjourned by system shutdown"],
-  [27, "?", "Game courtesyadjourned by Black"],
-  [28, "?", "Game adjourned by an administrator"],
-  [29, "?", "Game adjourned when Black got disconnected"],
-  [30, "Agr", "Game aborted by mutual agreement"],
-  [31, "BQ", "Game aborted when Black disconnected"],
-  [32, "SD", "Game aborted by system shutdown"],
-  [33, "BA", "Game courtesyaborted by Black"],
-  [34, "Adj", "Game aborted by an administrator"],
-  [35, "Sho", "Game aborted because it's too short to adjourn"],
-  [36, "BQ", " Game aborted when Black's partner disconnected"],
-  [37, "Sho", "Game aborted by Black at move 1"],
-  [38, "Sho", "Game aborted by Black's partner at move 1"],
-  [39, "Sho", "Game aborted because it's too short"],
-  [40, "Adj", "Game aborted because Black's account expired"],
-  [41, "BQ", "Game aborted when Black got disconnected"],
-  [42, "?", "No result [specific reason unknown]"]
-];
-
 export const Game = {};
 export const GameHistory = {};
 
@@ -702,8 +656,10 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
       setobject.result = "1/2-1/2";
+      setobject.status2 = 15;
     } else if (active_games[game_id].in_checkmate()) {
-      setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
+      setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
+      setobject.status2 = 1;
     }
 
     if (!!setobject.result) {
@@ -896,6 +852,7 @@ Game.legacyGameEnded = function(
         $set: {
           result: score_string2,
           status: "examining",
+          status2: 0,
           examiners: examiners
         },
         $push: { observers: { $each: examiners } }
@@ -1299,6 +1256,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
         $set: {
           status: "examining",
           result: "1/2-1/2",
+          status2: 15,
           examiners: [
             { id: game.white.id, username: game.white.name },
             { id: game.black.id, username: game.black.name }
@@ -1438,6 +1396,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
       $set: {
         status: "examining",
         result: "1/2-1/2",
+        status2: 13,
         examiners: [
           { id: game.white.id, username: game.white.name },
           { id: game.black.id, username: game.black.name }
@@ -1491,6 +1450,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
       $set: {
         status: "examining",
         result: "*",
+        status2: 30,
         examiners: [
           { id: game.white.id, username: game.white.name },
           { id: game.black.id, username: game.black.name }
@@ -1548,6 +1508,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
       $set: {
         status: "examining",
         result: "*",
+        status2: 24,
         examiners: [
           { id: game.white.id, username: game.white.name },
           { id: game.black.id, username: game.black.name }
@@ -1794,19 +1755,33 @@ Game.resignLocalGame = function(message_identifier, game_id) {
     return;
   }
 
-  _resignLocalGame(message_identifier, game, self._id, "resign");
+  _resignLocalGame(message_identifier, game, self._id, 0);
 };
 
 function _resignLocalGame(message_identifier, game, userId, reason) {
+  check(reason, Number);
   endGamePing(game._id);
   endMoveTimer(game._id);
 
   const result = userId === game.white.id ? "0-1" : "1-0";
+  let action_string;
+
+  switch (reason) {
+    case 0:
+      action_string = "resign";
+      break;
+    case 4:
+      action_string = "disconnect";
+      break;
+    default:
+      throw new Meteor.Error("Unable to resign game", "Unknown reason code " + reason);
+  }
+
   GameCollection.update(
     { _id: game._id, status: "playing" },
     {
       $push: {
-        actions: { type: reason, issuer: userId },
+        actions: { type: action_string, issuer: userId },
         observers: {
           $each: [
             { id: game.white.id, username: game.white.name },
@@ -1821,7 +1796,8 @@ function _resignLocalGame(message_identifier, game, userId, reason) {
           { id: game.white.id, username: game.white.name },
           { id: game.black.id, username: game.black.name }
         ],
-        result: result
+        result: result,
+        status2: reason
       }
     }
   );
@@ -2602,6 +2578,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     const pushobject = {};
     setobject["clocks." + color + ".current"] = 0;
     setobject.result = color === "white" ? "0-1" : "1-0";
+    setobject.status2 = 2;
     setobject.status = "examining";
     setobject.examiners = [
       { id: game.white.id, username: game.white.name },
@@ -2641,7 +2618,7 @@ function testingCleanupMoveTimers() {
 Meteor.startup(function() {
   GameCollection.remove({});
   Users.addLogoutHook(userId => {
-    Game.localResignAllGames("server", userId, "disconnect");
+    Game.localResignAllGames("server", userId, 4);
     Game.localUnobserveAllGames("server", userId);
     Users.setGameStatus("server", userId, "none");
   });
