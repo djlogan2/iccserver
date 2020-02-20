@@ -24,12 +24,6 @@ const messages = [
   ["GAME_STATUS_30", "Game aborted by mutual agreement", "X", "X"],
   ["GAME_STATUS_37", "Game aborted by {1} at move 1", "X", "X"],
   [
-    "CHECK_MATE",
-    "CHECK MATE GAME OVER!{1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ ЭКСПЕРТ {1}"
-  ],
-  [
     "CANNOT_MATCH_LOGGED_OFF_USER",
     "CANNOT MATCH LOGGED OFF USER {1}",
     "El mensaje con el valor {1} como valor de parámetro",
