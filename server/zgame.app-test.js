@@ -710,7 +710,7 @@ describe("Game.saveLocalMove", function() {
     const game = Game.collection.findOne();
     chai.assert.isDefined(game);
     chai.assert.equal(game.status, "examining");
-    chai.assert.equal(game.result, "0-1");
+    chai.assert.equal(game.result, "1-0");
   });
   //
   it("should end the game if the move results in an insufficient material draw", function() {

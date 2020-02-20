@@ -660,12 +660,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     ) {
       setobject.result = "1/2-1/2";
       if (active_games[game_id].in_stalemate()) setobject.status2 = 14;
-      else if (active_games[game_id].insufficient_material()) setobject.status2 = 18;
-    } else if (active_games[game_id].in_checkmate()) {
-      setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
-      setobject.status2 = 1;
-      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
-      ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
+      else setobject.status2 = 18;
+    } else if (active_games[game_id].game_over()) {
+      if (active_games[game_id].in_checkmate()) {
+        setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
+        setobject.status2 = 1;
+      } else {
+        setobject.result = active_games[game_id].turn() === "*";
+        setobject.status2 = 42;
+      }
     }
 
     if (!!setobject.result) {
@@ -2030,7 +2033,7 @@ Game.localResignAllGames = function(message_identifier, user_id, reason) {
 Game.exportToPGN = function(id) {
   check(id, String);
 
-  const game = GameHistoryCollection.findOne({ _id: id });
+  const game = GameCollection.findOne({ _id: id });
 
   if (!game) return;
   let pgn = "";
