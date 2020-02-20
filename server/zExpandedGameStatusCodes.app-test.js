@@ -2,8 +2,8 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 
-describe("Expanded game status codes", function() {
-  //this.timeout(500000);
+describe.only("Expanded game status codes", function() {
+  this.timeout(500000);
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
   function playGame(moves) {
     const ret = {
@@ -94,16 +94,28 @@ describe("Expanded game status codes", function() {
   });
   //   [4, "?Q", "<color> disconnected and forfeits"],
   it("should record status2 of 4 when white disconnects and forfeits", function() {
-    chai.assert.fail("do me");
+    const result = playGame(["a4", "a5", "b4", "b5", "c4", "c5", "d4", "d5", "e4", "e5", "f4", "f5", "g4", "g5", "h4"]);
+    Game.gameLogoutHook(result.p1._id);
+    const game = Game.collection.findOne({_id: result.game_id});
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "0-1");
+    chai.assert.equal(game.status2, 4);
   });
+
   it("should record status2 of 4 when black disconnects and forfeits", function() {
-    chai.assert.fail("do me");
+    const result = playGame(["a4", "a5", "b4", "b5", "c4", "c5", "d4", "d5", "e4", "e5", "f4", "f5", "g4", "g5", "h4","h5"]);
+    Game.gameLogoutHook(result.p2._id);
+    const game = Game.collection.findOne({_id: result.game_id});
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "1-0");
+    chai.assert.equal(game.status2, 4);
   });
+
   //   [5, "?Q", "<color> got disconnected and forfeits"],
-  it("should record status2 of 5 when white gets disconnected and forfeits", function() {
+  it.skip("should record status2 of 5 when white gets disconnected and forfeits", function() {
     chai.assert.fail("do me");
   });
-  it("should record status2 of 5 when black gets disconnected and forfeits", function() {
+  it.skip("should record status2 of 5 when black gets disconnected and forfeits", function() {
     chai.assert.fail("do me");
   });
   //   [6, "?Q", "Unregistered player <color> disconnected and forfeits"],
@@ -117,14 +129,30 @@ describe("Expanded game status codes", function() {
   //   [12, "1-0", "<opposite-color> wins [specific reason unknown]"],
   //   [13, "Agr", "Game drawn by mutual agreement"],
   it("should record status2 of 13 when the game is drawn by mutual agreement", function() {
-    chai.assert.fail("do me");
+    const result = playGame(["a4", "a5", "b4", "b5", "c4", "c5", "d4", "d5", "e4", "e5", "f4", "f5", "g4", "g5", "h4"]);
+    Game.requestLocalDraw("mi2", result.game_id);
+    self.loggedonuser = result.p2;
+    Game.acceptLocalDraw("mi3", result.game_id);
+    const game = Game.collection.findOne({_id: result.game_id});
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "1/2-1/2");
+    chai.assert.equal(game.status2, 13);
   });
+
   //   [14, "Sta", "<color> stalemated"],
   it("should record status2 of 14 when white gets stalemated", function() {
-    chai.assert.fail("do me");
+    const result = playGame(["e3", "a5", "Qh5", "Ra6", "Qxa5", "h5", "Qxc7", "Rah6", "h4", "f6", "Qxd7", "Kf7", "Qxb7", "Qd3", "Qxb8", "Qh7", "Qxc8", "Kg6", "Qe6"]);
+    const game = Game.collection.findOne({_id: result.game_id});
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "1/2-1/2");
+    chai.assert.equal(game.status2, 14);
   });
   it("should record status2 of 14 when black gets stalemated", function() {
-    chai.assert.fail("do me");
+    const result = playGame(["d4", "d6", "Qd2", "e5", "a4", "e4", "Qf4", "f5", "h3", "Be7", "Qh2", "Be6", "Ra3", "c5", "Rg3", "Qa5", "Nd2", "Bh4", "f3", "Bb3", "d5", "e3", "c4", "f4"]);
+    const game = Game.collection.findOne({_id: result.game_id});
+    chai.assert.equal(game.status, "examining");
+    chai.assert.equal(game.result, "1/2-1/2");
+    chai.assert.equal(game.status2, 14);
   });
   //   [15, "Rep", "Game drawn by repetition"],
   it("should record status2 of 15 when there is a draw by repetition", function() {

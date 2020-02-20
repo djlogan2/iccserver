@@ -656,7 +656,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   if (game.status === "playing") {
     if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
       setobject.result = "1/2-1/2";
-      setobject.status2 = 15;
+      if (active_games[game_id].in_stalemate())
+        setobject.status2 = 14;
+      else if (active_games[game_id].insufficient_material())
+        setobject.status2 = 18;
+      else
+        setobject.status2 = 23;
     } else if (active_games[game_id].in_checkmate()) {
       setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
       setobject.status2 = 1;
@@ -2608,13 +2613,15 @@ function testingCleanupMoveTimers() {
   });
 }
 
+function gameLogoutHook(userId) {
+  Game.localResignAllGames("server", userId, 4);
+  Game.localUnobserveAllGames("server", userId);
+  Users.setGameStatus("server", userId, "none");
+}
+
 Meteor.startup(function() {
   GameCollection.remove({});
-  Users.addLogoutHook(userId => {
-    Game.localResignAllGames("server", userId, 4);
-    Game.localUnobserveAllGames("server", userId);
-    Users.setGameStatus("server", userId, "none");
-  });
+  Users.addLogoutHook(gameLogoutHook);
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
@@ -2622,6 +2629,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
   Game.buildPgnFromMovelist = buildPgnFromMovelist;
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
+  Game.gameLogoutHook = gameLogoutHook;
 }
 
 Meteor.methods({
