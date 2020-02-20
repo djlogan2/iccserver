@@ -9,6 +9,20 @@ const messages = [
     "El mensaje con el valor {1} como valor de parámetro",
     "МАТЧ ОТКЛОНЕН {1}"
   ],
+  ["GAME_STATUS_0", "{1} resigns", "X", "X"],
+  ["GAME_STATUS_1", "{1} checkmated", "X", "X"],
+  ["GAME_STATUS_2", "{1} forfeits on time.", "X", "X"],
+  ["GAME_STATUS_3", "{1} declared the winner by adjudication", "X", "X"],
+  ["GAME_STATUS_4", "{1} disconnected and forfeits", "X", "X"],
+  ["GAME_STATUS_13", "Game drawn by mutual agreement", "X", "X"],
+  ["GAME_STATUS_14", "{1} stalemated", "X", "X"],
+  ["GAME_STATUS_15", "Game drawn by repetition", "X", "X"],
+  ["GAME_STATUS_16", "Game drawn by the 50 move rule", "X", "X"],
+  ["GAME_STATUS_17", "{1} ran out of time and {2} has no material to mate", "X", "X"],
+  ["GAME_STATUS_18", "Game drawn because neither player has mating material", "X", "X"],
+  ["GAME_STATUS_24", "Game adjourned by mutual agreement", "X", "X"],
+  ["GAME_STATUS_30", "Game aborted by mutual agreement", "X", "X"],
+  ["GAME_STATUS_37", "Game aborted by {1} at move 1", "X", "X"],
   [
     "CHECK_MATE",
     "CHECK MATE GAME OVER!{1}",
@@ -140,7 +154,7 @@ const messages = [
 
 export default function firstAddI18nMessage() {
   if (!Meteor.isTest && !Meteor.isAppTest && i18nCollection.find().count() === 0) {
-  //  i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
+    //  i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
     messages.forEach(i18nMessage => {
       const locales = ["x", "en_us", "es", "ru"];
       ////["messageid", "en_us", "es", "ru"]

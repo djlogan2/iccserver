@@ -38,7 +38,6 @@ export const DefinedClientMessagesMap = {
   NOT_AN_OBSERVER: {},
   ALREADY_AN_EXAMINER: {},
   NOT_AN_EXAMINER: {},
-  CHECK_MATE: {},
   NOT_PLAYING_A_GAME: {},
   UNABLE_TO_PLAY_OPPONENT: {},
   SERVER_ERROR: { parameters: ["message", "reason"] },
@@ -47,13 +46,10 @@ export const DefinedClientMessagesMap = {
   TAKEBACK_ACCEPTED: {},
   TAKEBACK_DECLINED: {},
   MATCH_DECLINED: {},
-  DRAW_ACCEPTED: {},
   DRAW_DECLINED: {},
   DRAW_ALREADY_PENDING: {},
-  ABORT_ACCEPTED: {},
   ABORT_DECLINED: {},
   ABORT_ALREADY_PENDING: {},
-  ADJOURN_ACCEPTED: {},
   ADJOURN_DECLINED: {},
   ADJOURN_ALREADY_PENDING: {},
   BEGINNING_OF_GAME: {},
@@ -61,6 +57,20 @@ export const DefinedClientMessagesMap = {
   VARIATION_REQUIRED: {},
   INVALID_VARIATION: {},
   ALREADY_PLAYING: {},
+  GAME_STATUS_0: { parameters: ["losing_color"] },
+  GAME_STATUS_1: { parameters: ["losing_color"] },
+  GAME_STATUS_2: { parameters: ["losing_color"] },
+  GAME_STATUS_3: { parameters: ["winning_color"] },
+  GAME_STATUS_4: { parameters: ["losing_color"] },
+  GAME_STATUS_13: {},
+  GAME_STATUS_14: { parameters: ["losing_color"] },
+  GAME_STATUS_15: {},
+  GAME_STATUS_16: {},
+  GAME_STATUS_17: { parameters: ["losing_color", "winning_color"] },
+  GAME_STATUS_18: {},
+  GAME_STATUS_24: {},
+  GAME_STATUS_30: {},
+  GAME_STATUS_37: { parameters: ["offending_color"] },
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},
@@ -107,6 +117,18 @@ Meteor.methods({
 });
 
 export const ClientMessages = {};
+
+ClientMessages.messageParameters = function(i18n_message) {
+  check(
+    i18n_message,
+    Match.Where(() => {
+      if (DefinedClientMessagesMap[i18n_message] === undefined)
+        throw new Match.Error(i18n_message + " is not known to ClientMessages");
+      else return true;
+    })
+  ); // It has to be a known and supported message to the client
+  return DefinedClientMessagesMap[i18n_message];
+};
 
 ClientMessages.sendMessageToClient = function(user, client_identifier, i18n_message) {
   log.debug(
