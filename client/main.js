@@ -99,7 +99,7 @@ Meteor.startup(() => {
       },
       ActionPopup: {},
       MainPage: {
-        gamerequest: " has requests for a game",
+        gamerequest: " has requested for a game",
         gameresign: "Opponent has resigned a game",
         halfmove: "Take Back 1 Move",
         fullmove: "Take Back 2 Moves",

@@ -654,15 +654,18 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   );
 
   if (game.status === "playing") {
-    if (active_games[game_id].in_draw() && (active_games[game_id].in_stalemate() || active_games[game_id].insufficient_material())) {
+    if (
+      active_games[game_id].in_draw() &&
+      (active_games[game_id].in_stalemate() || active_games[game_id].insufficient_material())
+    ) {
       setobject.result = "1/2-1/2";
-      if (active_games[game_id].in_stalemate())
-        setobject.status2 = 14;
-      else if (active_games[game_id].insufficient_material())
-        setobject.status2 = 18;
+      if (active_games[game_id].in_stalemate()) setobject.status2 = 14;
+      else if (active_games[game_id].insufficient_material()) setobject.status2 = 18;
     } else if (active_games[game_id].in_checkmate()) {
       setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
       setobject.status2 = 1;
+      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
+      ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
     }
 
     if (!!setobject.result) {
@@ -1233,7 +1236,10 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     return;
   }
 
-  if (active_games[game_id].in_threefold_repetition() || (active_games[game_id].in_draw() && !active_games[game_id].insufficient_material())) {
+  if (
+    active_games[game_id].in_threefold_repetition() ||
+    (active_games[game_id].in_draw() && !active_games[game_id].insufficient_material())
+  ) {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
     const status2 = active_games[game_id].in_threefold_repetition() ? 15 : 16;
@@ -2024,7 +2030,7 @@ Game.localResignAllGames = function(message_identifier, user_id, reason) {
 Game.exportToPGN = function(id) {
   check(id, String);
 
-  const game = GameCollection.findOne({ _id: id });
+  const game = GameHistoryCollection.findOne({ _id: id });
 
   if (!game) return;
   let pgn = "";
@@ -2067,7 +2073,6 @@ Game.exportToPGN = function(id) {
   pgn += "\n";
   pgn += buildPgnFromMovelist(game.variations.movelist);
   return pgn;
-  //-
 };
 Game.kibitz = function(game_id, text) {};
 

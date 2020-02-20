@@ -220,7 +220,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _pieceSquareDragStop = raf => {
-    let game = this.renderGameMessages();
+    /* let game = this.renderGameMessages();
     if (!game) {
       let gameExamin = this.examineGame();
       if (!!gameExamin && gameExamin.length > 0) {
@@ -228,7 +228,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       } else {
         return;
       }
-    }
+    } */
 
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };

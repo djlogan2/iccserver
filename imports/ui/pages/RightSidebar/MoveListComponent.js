@@ -102,7 +102,10 @@ export default class MoveListComponent extends Component {
         ind = "";
       }
       let style = { color: "black" };
-      let movestyle = this.state.current === index ? Object.assign(style, { color: "red" }) : style;
+      let movestyle =
+        this.state.current === index && game.status !== "playing"
+          ? Object.assign(style, { color: "black" })
+          : style;
 
       return (
         <span key={index}>

@@ -80,8 +80,8 @@ export default class MiddleBoard extends Component {
   };
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.board.fen() !== prevState.fen) {
-      return { board: nextProps.board, update: 0 };
-    }
+      return { fen: nextProps.board.fen(), update: 0 };
+    } else return null;
   }
   nextRAF() {
     const values = ["tl", "tr", "bl", "br", "stl", "str", "sbl", "sbr"];
@@ -241,7 +241,7 @@ export default class MiddleBoard extends Component {
             darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
             lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
             calcWidth={({ screenWidth }) => boardsize}
-            position={this.props.board.fen()}
+            position={this.state.fen}
             onDrop={this.onDrop}
             orientation={bordtop}
             undo={this.props.undo}
