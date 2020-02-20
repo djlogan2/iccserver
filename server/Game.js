@@ -654,14 +654,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   );
 
   if (game.status === "playing") {
-    if (active_games[game_id].in_draw() && !active_games[game_id].in_threefold_repetition()) {
+    if (active_games[game_id].in_draw() && (active_games[game_id].in_stalemate() || active_games[game_id].insufficient_material())) {
       setobject.result = "1/2-1/2";
       if (active_games[game_id].in_stalemate())
         setobject.status2 = 14;
       else if (active_games[game_id].insufficient_material())
         setobject.status2 = 18;
-      else
-        setobject.status2 = 23;
     } else if (active_games[game_id].in_checkmate()) {
       setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
       setobject.status2 = 1;
@@ -1235,9 +1233,10 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     return;
   }
 
-  if (active_games[game_id].in_threefold_repetition()) {
+  if (active_games[game_id].in_threefold_repetition() || (active_games[game_id].in_draw() && !active_games[game_id].insufficient_material())) {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
+    const status2 = active_games[game_id].in_threefold_repetition() ? 15 : 16;
     GameCollection.update(
       { _id: game_id, status: "playing" },
       {
@@ -1254,7 +1253,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
         $set: {
           status: "examining",
           result: "1/2-1/2",
-          status2: 15,
+          status2: status2,
           examiners: [
             { id: game.white.id, username: game.white.name },
             { id: game.black.id, username: game.black.name }
