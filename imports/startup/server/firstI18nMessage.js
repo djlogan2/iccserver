@@ -84,28 +84,10 @@ const messages = [
     "ADJOURN УЖЕ В ОЖИДАНИИ {1}"
   ],
   [
-    "DRAW_ACCEPTED",
-    "DRAW ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "РИСУНОК ПРИНЯТО {1}"
-  ],
-  [
     "DRAW_DECLINED",
     "DRAW DECLINED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
     "РИСУНОК ОТКЛОНЕН {1]"
-  ],
-  [
-    "ABORT_ACCEPTED",
-    "ABORT ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО {1}"
-  ],
-  [
-    "ADJOURN_ACCEPTED",
-    "ADJOURN ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ПРИЛОЖЕНИЕ ПРИНЯТО {1}"
   ],
   [
     "ABORT_DECLINED",
