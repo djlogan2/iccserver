@@ -60,6 +60,7 @@ export default class MiddleBoard extends Component {
       this.setState({ top: this.props.top });
     }
   }
+
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newTop });
@@ -79,10 +80,11 @@ export default class MiddleBoard extends Component {
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.board.fen() !== prevState.fen) {
-      return { fen: nextProps.board.fen(), update: 0 };
-    } else return null;
+    // if (nextProps.board.fen() !== prevState.fen) {
+    return { fen: nextProps.board.fen() };
+    // } else return null;
   }
+
   nextRAF() {
     const values = ["tl", "tr", "bl", "br", "stl", "str", "sbl", "sbr"];
     const texts = [
@@ -117,7 +119,7 @@ export default class MiddleBoard extends Component {
       this.props.onDrop({
         move: moves
       });
-      this.setState({ fen: this.props.board.fen(), update: 1 });
+      this.setState({ update: 1 });
     }
   };
   getLang() {
@@ -244,12 +246,12 @@ export default class MiddleBoard extends Component {
             position={this.state.fen}
             onDrop={this.onDrop}
             orientation={bordtop}
-            undo={this.props.undo}
+        //    undo={this.props.undo}
             boardStyle={{
               borderRadius: "5px",
               boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
             }}
-            dropOffBoard="trash"
+        //    dropOffBoard="trash"
             draggable={turn}
           />
 

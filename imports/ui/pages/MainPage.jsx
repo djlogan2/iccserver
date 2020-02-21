@@ -501,6 +501,7 @@ export default class MainPage extends Component {
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
               circles={this.props.circles}
+            //  fen={this.props.fen}
               undo={undo}
               width={this.state.width}
               height={this.state.height}

@@ -355,6 +355,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         <MainPage
           cssmanager={css}
           board={this._board}
+         // fen={this._board.fen()}
           capture={capture}
           len={actionlen}
           game={game}
