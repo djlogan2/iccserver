@@ -660,12 +660,15 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
     ) {
       setobject.result = "1/2-1/2";
       if (active_games[game_id].in_stalemate()) setobject.status2 = 14;
-      else if (active_games[game_id].insufficient_material()) setobject.status2 = 18;
-    } else if (active_games[game_id].in_checkmate()) {
-      setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
-      setobject.status2 = 1;
-      const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
-      ClientMessages.sendMessageToClient(turn_id, message_identifier, "CHECK_MATE");
+      else setobject.status2 = 18;
+    } else if (active_games[game_id].game_over()) {
+      if (active_games[game_id].in_checkmate()) {
+        setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
+        setobject.status2 = 1;
+      } else {
+        setobject.result = active_games[game_id].turn() === "*";
+        setobject.status2 = 42;
+      }
     }
 
     if (!!setobject.result) {
@@ -761,6 +764,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   if (setobject.result) {
     GameHistory.savePlayedGame(message_identifier, game_id);
+    sendGameStatus(game, setobject.status2);
   }
 
   if (analyze) {
@@ -1268,6 +1272,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
       }
     );
     GameHistory.savePlayedGame(message_identifier, game_id);
+    sendGameStatus(game, status2);
     return;
   }
 
@@ -1318,6 +1323,48 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
 
   if (game.pending[color].abort !== "0") {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "ABORT_ALREADY_PENDING");
+    return;
+  }
+
+  if (
+    (game.tomove === "white" && game.variations.movelist.length === 1) ||
+    (game.tomove === "black" && game.variations.movelist.length === 2)
+  ) {
+    endGamePing(game_id);
+    endMoveTimer(game_id);
+
+    GameCollection.update(
+      { _id: game_id, status: "playing" },
+      {
+        $set: {
+          status: "examining",
+          result: "*",
+          status2: 37,
+          examiners: [
+            { id: game.white.id, username: game.white.name },
+            { id: game.black.id, username: game.black.name }
+          ]
+        },
+        $unset: { pending: "" },
+        $push: {
+          actions: {
+            type: "abort_requested",
+            issuer: self._id
+          },
+          observers: {
+            $each: [
+              { id: game.white.id, username: game.white.name },
+              { id: game.black.id, username: game.black.name }
+            ]
+          }
+        }
+      }
+    );
+
+    Users.setGameStatus(message_identifier, game.white.id, "examining");
+    Users.setGameStatus(message_identifier, game.black.id, "examining");
+    GameHistory.savePlayedGame(message_identifier, game_id);
+    sendGameStatus(game, 37);
     return;
   }
 
@@ -1423,9 +1470,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
   GameHistory.savePlayedGame(message_identifier, game_id);
-  const othercolor = self._id === game.white.id ? "black" : "white";
-  const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
-  ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].draw, "DRAW_ACCEPTED");
+  sendGameStatus(game, 13);
 };
 
 Game.acceptLocalAbort = function(message_identifier, game_id) {
@@ -1475,12 +1520,10 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
     }
   );
 
-  const othercolor = self._id === game.white.id ? "black" : "white";
-  const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
   GameHistory.savePlayedGame(message_identifier, game_id);
-  ClientMessages.sendMessageToClient(otheruser, game.pending[othercolor].abort, "ABORT_ACCEPTED");
+  sendGameStatus(game, 30);
 };
 
 Game.acceptLocalAdjourn = function(message_identifier, game_id) {
@@ -1532,15 +1575,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
       }
     }
   );
-
-  const othercolor = self._id === game.white.id ? "black" : "white";
-  const otheruser = self._id === game.white.id ? game.black.id : game.white.id;
-
-  ClientMessages.sendMessageToClient(
-    otheruser,
-    game.pending[othercolor].adjourn,
-    "ADJOURN_ACCEPTED"
-  );
+  sendGameStatus(game, 24);
 };
 
 Game.drawCircle = function(message_identifier, game_id, square, color, size) {
@@ -1807,6 +1842,7 @@ function _resignLocalGame(message_identifier, game, userId, reason) {
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
   GameHistory.savePlayedGame(message_identifier, game._id);
+  sendGameStatus(game, reason);
 }
 
 Game.recordLegacyOffers = function(
@@ -2030,7 +2066,7 @@ Game.localResignAllGames = function(message_identifier, user_id, reason) {
 Game.exportToPGN = function(id) {
   check(id, String);
 
-  const game = GameHistoryCollection.findOne({ _id: id });
+  const game = GameCollection.findOne({ _id: id });
 
   if (!game) return;
   let pgn = "";
@@ -2599,6 +2635,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     Users.setGameStatus("server", game.white.id, "examining");
     Users.setGameStatus("server", game.black.id, "examining");
     GameHistory.savePlayedGame("server", game_id);
+    sendGameStatus(game, 2);
   }, actual_milliseconds);
 }
 
@@ -2798,6 +2835,36 @@ GameHistory.examineGame = function(message_identifier, game_id) {
   hist.variations.cmi = 0;
   return Game.startLocalExaminedGameWithObject(hist, chess);
 };
+
+function sendGameStatus(game, status) {
+  const message_identifier = "server:game:" + game._id;
+  const cm_parameters = ClientMessages.messageParameters("GAME_STATUS_" + status);
+  const p1_call_parameters = [game.white.id, message_identifier, "GAME_STATUS_" + status];
+  const p2_call_parameters = [game.black.id, message_identifier, "GAME_STATUS_" + status];
+
+  if (cm_parameters.parameters) {
+    cm_parameters.parameters.forEach(p => {
+      switch (p) {
+        case "losing_color":
+          p1_call_parameters.push(game.result === "1-0" ? "black" : "white");
+          p2_call_parameters.push(game.result === "1-0" ? "black" : "white");
+          break;
+        case "winning_color":
+          p1_call_parameters.push(game.result === "1-0" ? "white" : "black");
+          p2_call_parameters.push(game.result === "1-0" ? "white" : "black");
+          break;
+        case "offending_color":
+          p1_call_parameters.push(game.tomove === "white" ? "black" : "white");
+          p2_call_parameters.push(game.tomove === "white" ? "black" : "white");
+          break;
+        default:
+          throw new Meteor.Error("Unknown parameter " + p);
+      }
+    });
+  }
+  ClientMessages.sendMessageToClient.apply(this, p1_call_parameters);
+  ClientMessages.sendMessageToClient.apply(this, p2_call_parameters);
+}
 
 GameHistory.search = function(message_identifier, search_parameters, offset, count) {
   const self = Meteor.user();

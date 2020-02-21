@@ -9,12 +9,20 @@ const messages = [
     "El mensaje con el valor {1} como valor de parámetro",
     "МАТЧ ОТКЛОНЕН {1}"
   ],
-  [
-    "CHECK_MATE",
-    "CHECK MATE GAME OVER!{1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ ЭКСПЕРТ {1}"
-  ],
+  ["GAME_STATUS_0", "{1} resigns", "X", "X"],
+  ["GAME_STATUS_1", "{1} checkmated", "X", "X"],
+  ["GAME_STATUS_2", "{1} forfeits on time.", "X", "X"],
+  ["GAME_STATUS_3", "{1} declared the winner by adjudication", "X", "X"],
+  ["GAME_STATUS_4", "{1} disconnected and forfeits", "X", "X"],
+  ["GAME_STATUS_13", "Game drawn by mutual agreement", "X", "X"],
+  ["GAME_STATUS_14", "{1} stalemated", "X", "X"],
+  ["GAME_STATUS_15", "Game drawn by repetition", "X", "X"],
+  ["GAME_STATUS_16", "Game drawn by the 50 move rule", "X", "X"],
+  ["GAME_STATUS_17", "{1} ran out of time and {2} has no material to mate", "X", "X"],
+  ["GAME_STATUS_18", "Game drawn because neither player has mating material", "X", "X"],
+  ["GAME_STATUS_24", "Game adjourned by mutual agreement", "X", "X"],
+  ["GAME_STATUS_30", "Game aborted by mutual agreement", "X", "X"],
+  ["GAME_STATUS_37", "Game aborted by {1} at move 1", "X", "X"],
   [
     "CANNOT_MATCH_LOGGED_OFF_USER",
     "CANNOT MATCH LOGGED OFF USER {1}",
@@ -70,28 +78,10 @@ const messages = [
     "ADJOURN УЖЕ В ОЖИДАНИИ {1}"
   ],
   [
-    "DRAW_ACCEPTED",
-    "DRAW ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "РИСУНОК ПРИНЯТО {1}"
-  ],
-  [
     "DRAW_DECLINED",
     "DRAW DECLINED {1}",
     "El mensaje con el valor {1} como valor de parámetro",
     "РИСУНОК ОТКЛОНЕН {1]"
-  ],
-  [
-    "ABORT_ACCEPTED",
-    "ABORT ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО {1}"
-  ],
-  [
-    "ADJOURN_ACCEPTED",
-    "ADJOURN ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ПРИЛОЖЕНИЕ ПРИНЯТО {1}"
   ],
   [
     "ABORT_DECLINED",
@@ -140,7 +130,7 @@ const messages = [
 
 export default function firstAddI18nMessage() {
   if (!Meteor.isTest && !Meteor.isAppTest && i18nCollection.find().count() === 0) {
-  //  i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
+    //  i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
     messages.forEach(i18nMessage => {
       const locales = ["x", "en_us", "es", "ru"];
       ////["messageid", "en_us", "es", "ru"]
