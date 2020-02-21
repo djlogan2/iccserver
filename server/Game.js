@@ -2875,8 +2875,8 @@ function sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
           p2_call_parameters.push(result === "1-0" ? "white" : "black");
           break;
         case "offending_color":
-          p1_call_parameters.push(tomove === "white" ? "black" : "white");
-          p2_call_parameters.push(tomove === "white" ? "black" : "white");
+          p1_call_parameters.push(tomove);
+          p2_call_parameters.push(tomove);
           break;
         default:
           throw new Meteor.Error("Unknown parameter " + p);
