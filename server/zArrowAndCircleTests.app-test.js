@@ -1,7 +1,7 @@
 import chai from "chai";
 import { Game } from "../server/Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
-import {ICCMeteorError} from "../lib/server/ICCMeteorError";
+import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 describe("Game.drawCircle", function() {
   const self = TestHelpers.setupDescribe.apply(this);

@@ -39,7 +39,7 @@ const actionSchema = new SimpleSchema({
       "draw_circle",
       "remove_circle",
       "draw_arrow",
-      "remove_arrow"
+      "remove_arrow",
       "draw_circle", // Used to draw circles
       "remove_circle",
       "clearboard",
@@ -82,7 +82,7 @@ export const ExaminedGameSchema = new SimpleSchema({
     }
   },
   result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*"] },
-  status2: { type: Number, required: false},
+  status2: { type: Number, required: false },
   fen: String,
   tomove: String,
   legacy_game_number: {
