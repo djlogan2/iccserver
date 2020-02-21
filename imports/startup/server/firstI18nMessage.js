@@ -5,136 +5,132 @@ import { Meteor } from "meteor/meteor";
 const messages = [
   [
     "MATCH_DECLINED",
-    "MATCH DECLINED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "МАТЧ ОТКЛОНЕН {1}"
+    "MATCH DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "МАТЧ ОТКЛОНЕН {0}"
   ],
+  ["GAME_STATUS_0", "{0} resigns", "X", "X"],
+  ["GAME_STATUS_1", "{0} checkmated", "X", "X"],
+  ["GAME_STATUS_2", "{0} forfeits on time.", "X", "X"],
+  ["GAME_STATUS_3", "{0} declared the winner by adjudication", "X", "X"],
+  ["GAME_STATUS_4", "{0} disconnected and forfeits", "X", "X"],
+  ["GAME_STATUS_13", "Game drawn by mutual agreement", "X", "X"],
+  ["GAME_STATUS_14", "{0} stalemated", "X", "X"],
+  ["GAME_STATUS_15", "Game drawn by repetition", "X", "X"],
+  ["GAME_STATUS_16", "Game drawn by the 50 move rule", "X", "X"],
+  ["GAME_STATUS_17", "{0} ran out of time and {0} has no material to mate", "X", "X"],
+  ["GAME_STATUS_18", "Game drawn because neither player has mating material", "X", "X"],
+  ["GAME_STATUS_24", "Game adjourned by mutual agreement", "X", "X"],
+  ["GAME_STATUS_30", "Game aborted by mutual agreement", "X", "X"],
+  ["GAME_STATUS_37", "Game aborted by {0} at move 1", "X", "X"],
   [
     "CANNOT_MATCH_LOGGED_OFF_USER",
-    "CANNOT MATCH LOGGED OFF USER {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ {1}"
+    "CANNOT MATCH LOGGED OFF USER {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ {0}"
   ],
   [
     "NO_MATCH_FOUND",
-    "NO MATCH FOUND {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО {1}"
+    "NO MATCH FOUND {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ НАЙДЕНО {0}"
   ],
   [
     "TAKEBACK_ACCEPTED",
-    "TAKEBACK ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ПРИНЯТЬ ОБРАТНО ПРИНЯТО {1}"
+    "TAKEBACK ACCEPTED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ПРИНЯТЬ ОБРАТНО ПРИНЯТО {0}"
   ],
   [
     "NOT_PLAYING_A_GAME",
-    "NOT PLAYING A GAME {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ ИГРАТЬ В ИГРУ {1}"
+    "NOT PLAYING A GAME {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ ИГРАТЬ В ИГРУ {0}"
   ],
   [
     "NO_TAKEBACK_PENDING",
-    "NO TAKEBACK PENDING {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕТ ВЕРНУТЬ В ОЖИДАНИИ {1}"
+    "NO TAKEBACK PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕТ ВЕРНУТЬ В ОЖИДАНИИ {0}"
   ],
   [
     "TAKEBACK_DECLINED",
-    "TAKEBACK DECLINED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО {1}"
+    "TAKEBACK DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ НАЙДЕНО {0}"
   ],
   [
     "DRAW_ALREADY_PENDING",
-    "DRAW ALREADY PENDING {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ВЕРНУТЬСЯ ОТКЛОНЕНО {1}"
+    "DRAW ALREADY PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ВЕРНУТЬСЯ ОТКЛОНЕНО {0}"
   ],
   [
     "ABORT_ALREADY_PENDING",
-    "ABORT ALREADY PENDING {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "АБОРТ УЖЕ В ОЖИДАНИИ {1}"
+    "ABORT ALREADY PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "АБОРТ УЖЕ В ОЖИДАНИИ {0}"
   ],
   [
     "ADJOURN_ALREADY_PENDING",
-    "ADJOURN ALREADY PENDING {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ADJOURN УЖЕ В ОЖИДАНИИ {1}"
-  ],
-  [
-    "DRAW_ACCEPTED",
-    "DRAW ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "РИСУНОК ПРИНЯТО {1}"
+    "ADJOURN ALREADY PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ADJOURN УЖЕ В ОЖИДАНИИ {0}"
   ],
   [
     "DRAW_DECLINED",
-    "DRAW DECLINED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "РИСУНОК ОТКЛОНЕН {1]"
-  ],
-  [
-    "ABORT_ACCEPTED",
-    "ABORT ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ НАЙДЕНО {1}"
-  ],
-  [
-    "ADJOURN_ACCEPTED",
-    "ADJOURN ACCEPTED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ПРИЛОЖЕНИЕ ПРИНЯТО {1}"
+    "DRAW DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "РИСУНОК ОТКЛОНЕН {0}"
   ],
   [
     "ABORT_DECLINED",
-    "ABORT DECLINED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "АБОРТ ОТКЛОНЕН {1}"
+    "ABORT DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "АБОРТ ОТКЛОНЕН {0}"
   ],
   [
     "ADJOURN_DECLINED",
-    "ADJOURN DECLINED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ADJOURN ОТКЛОНЕН {1}"
+    "ADJOURN DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ADJOURN ОТКЛОНЕН {0}"
   ],
   [
     "NOT_AN_EXAMINER",
-    "NOT AN EXAMINER {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "НЕ ЭКСПЕРТ {1}"
+    "NOT AN EXAMINER {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ ЭКСПЕРТ {0}"
   ],
   [
     "END_OF_GAME",
-    "END OF GAME {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "конец игры {1}"
+    "END OF GAME {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "конец игры {0}"
   ],
   [
     "INVALID_VARIATION",
-    "INVALID VARIATION {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "недопустимый вариант изменения {1}"
+    "INVALID VARIATION {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "недопустимый вариант изменения {0}"
   ],
   [
     "VARIATION_REQUIRED",
-    "VARIATION REQUIRED {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "ВАРИАЦИЯ ТРЕБУЕТСЯ {1}"
+    "VARIATION REQUIRED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ВАРИАЦИЯ ТРЕБУЕТСЯ {0}"
   ],
   [
     "UNABLE_TO_PLAY_OPPONENT",
-    "UNABLE TO PLAY OPPONENT {1}",
-    "El mensaje con el valor {1} como valor de parámetro",
-    "Невозможно играть противником {1}"
+    "UNABLE TO PLAY OPPONENT {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "Невозможно играть противником {0}"
   ],
-  ["SERVER_ERROR", "SERVER_ERROR. message={1} reason={2}", "SERVER_ERROR", "SERVER_ERROR"]
+  ["SERVER_ERROR", "SERVER_ERROR. message={0} reason={1}", "SERVER_ERROR", "SERVER_ERROR"]
 ];
 
 export default function firstAddI18nMessage() {
   if (!Meteor.isTest && !Meteor.isAppTest && i18nCollection.find().count() === 0) {
-    i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
+    //  i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
     messages.forEach(i18nMessage => {
       const locales = ["x", "en_us", "es", "ru"];
       ////["messageid", "en_us", "es", "ru"]

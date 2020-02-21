@@ -227,7 +227,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
                   borderRadius: "6px"
                 }}
               >
-                Create chellange Link
+                Create challenge Link
               </button>
             </div>
             <div style={{ display: "inline-block", paddingLeft: "20px" }}>10 min</div>

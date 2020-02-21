@@ -40,6 +40,16 @@ const actionSchema = new SimpleSchema({
       "remove_circle",
       "draw_arrow",
       "remove_arrow"
+      "draw_circle", // Used to draw circles
+      "remove_circle",
+      "clearboard",
+      "initialposition",
+      "addpiece",
+      "removepiece",
+      "settomove",
+      "setcastling",
+      "setenpassant",
+      "settag"
     ]
   },
   parameter: {
@@ -53,7 +63,11 @@ const actionSchema = new SimpleSchema({
   "parameter.to": { type: String, required: false },
   "parameter.size": { type: Number, required: false },
   "parameter.color": { type: String, required: false },
+  "parameter.piece": { type: String, required: false },
   "parameter.move": { type: String, required: false },
+  "parameter.castling": { type: String, required: false },
+  "parameter.tag": { type: String, required: false },
+  "parameter.value": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },
   "parameter.ping": { type: Number, required: false },
   "parameter.gamelag": { type: Number, required: false },
@@ -67,7 +81,8 @@ export const ExaminedGameSchema = new SimpleSchema({
       return new Date();
     }
   },
-  result: String,
+  result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*"] },
+  status2: { type: Number, required: false},
   fen: String,
   tomove: String,
   legacy_game_number: {

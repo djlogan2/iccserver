@@ -51,6 +51,9 @@ class ActionComponent extends Component {
     this.setState({ examinAction: e.target.value });
     this.props.examineAction(e.target.value);
   };
+  requestFornewOppenent() {
+    this.props.examineAction("newoppent");
+  }
   _takeBackAction = number => {
     Meteor.call("requestTakeback", "takeBackRequest", this.gameId, number);
   };
@@ -99,8 +102,9 @@ class ActionComponent extends Component {
     let statustbar = 1;
     let playingButton;
     let examinButton;
-    if (this.props.currentGame === false && status === "playing") {
+    if (status === "playing") {
       playingButton = true;
+      examinButton = false;
     }
     if (this.props.currentGame === true && status === "examining") {
       examinButton = false;
@@ -174,7 +178,7 @@ class ActionComponent extends Component {
           <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
-                onClick={event => (window.location.href = "/play")}
+                onClick={() => this.requestFornewOppenent()}
                 style={this.props.cssmanager.buttonStyle()}
               >
                 <img

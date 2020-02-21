@@ -8,7 +8,13 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
-import { GameRequestPopup, ActionPopup } from "./components/Popup/Popup";
+import {
+  GameRequestPopup,
+  GamenotificationPopup,
+  GameResignedPopup,
+  ExaminActionPopup,
+  ActionPopup
+} from "./components/Popup/Popup";
 import i18n from "meteor/universe:i18n";
 const log = new Logger("client/MainPage");
 
@@ -18,10 +24,14 @@ export default class MainPage extends Component {
     this.gameId = null;
     this.userId = Meteor.userId();
     this.state = {
+      width: window.innerWidth,
+      height: window.innerHeight,
       examineGame: false,
       exnotification: false,
       resignnotification: false,
-      examinAction: "action"
+      newOppenetRequest: false,
+      examinAction: "action",
+      activeTab: 0
     };
     this.Main = {
       LeftSection: {
@@ -61,15 +71,46 @@ export default class MainPage extends Component {
     this.notificationHandler = this.notificationHandler.bind(this);
     this.examineActionHandler = this.examineActionHandler.bind(this);
     this.startGameExamine = this.startGameExamine.bind(this);
+    this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
+    this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     if (!!this.props.len && !!nextProps.len) {
       if (nextProps.len !== this.props.len)
-        if (this.props.game.status === "examining" || this.state.exnotification === true) {
-          this.setState({ exnotification: false });
+        if (
+          this.props.game.status === "examining" &&
+          (this.state.exnotification === true || this.state.newOppenetRequest === true)
+        ) {
+          this.setState({ exnotification: false, newOppenetRequest: false });
         }
+      if (
+        this.props.game.status === "playing" &&
+        (this.state.newOppenetRequest === true || this.state.examineGame === true)
+      ) {
+        this.setState({ newOppenetRequest: false, examineGame: false });
+      }
     }
+  }
+  /**
+   * Add event listener
+   */
+  componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions.bind(this));
+  }
+
+  /**
+   * Remove event listener
+   */
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateDimensions.bind(this));
+  }
+  updateDimensions() {
+    this.setState({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
   }
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
@@ -111,156 +152,30 @@ export default class MainPage extends Component {
       />
     );
   };
-  notificationPopup = (title, mid) => {
-    return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
-        <button
-          style={{
-            position: "absolute",
-            top: "-17px",
-            right: "-16px",
-            background: "#b7bdc5",
-            borderRadius: "50%",
-            border: "3px solid #242f35",
-            focus: {
-              outline: "none"
-            }
-          }}
-          onClick={() => this.removeAcknowledgeMessage(mid)}
-        >
-          <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-        </button>
-        <div className="popup_inner">
-          <h3
-            style={{
-              margin: "10px 0px 20px",
-              color: "#000",
-              fontSize: "17px"
-            }}
-          >
-            {title}
-          </h3>
-          <button
-            onClick={() => this.removeAcknowledgeMessage(mid)}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    );
+
+  GamenotificationPopup = (title, mid) => {
+    return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
   };
-  notificationPopup1 = (title, mid) => {
+  GameResignedPopup = (title, mid) => {
     return (
-      <div style={this.props.cssmanager.outerPopupMain()}>
-        <button
-          style={{
-            position: "absolute",
-            top: "-17px",
-            right: "-16px",
-            background: "#b7bdc5",
-            borderRadius: "50%",
-            border: "3px solid #242f35",
-            focus: {
-              outline: "none"
-            }
-          }}
-          onClick={() => this.resignnotificationPopup()}
-        >
-          <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-        </button>
-        <div className="popup_inner">
-          <h3
-            style={{
-              margin: "10px 0px 20px",
-              color: "#000",
-              fontSize: "17px"
-            }}
-          >
-            {title}
-          </h3>
-          <button
-            onClick={() => this.resignnotificationPopup()}
-            style={this.props.cssmanager.innerPopupMain()}
-          >
-            Close
-          </button>
-        </div>
-      </div>
+      <GameResignedPopup
+        mid={mid}
+        title={title}
+        cssmanager={this.props.cssmanager}
+        resignNotificationCloseHandler={this.resignNotificationCloseHandler}
+      />
     );
   };
   examinActionPopup = action => {
-    if (action === "complain") {
-      return (
-        <div style={this.props.cssmanager.outerPopupMain()}>
-          <button
-            style={{
-              position: "absolute",
-              top: "-17px",
-              right: "-16px",
-              background: "#b7bdc5",
-              borderRadius: "50%",
-              border: "3px solid #242f35"
-            }}
-            onClick={() => this.examinActionCloseHandler()}
-          >
-            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-          </button>
-          <div className="popup_inner">
-            <div>
-              <label>Email</label>
-              <input type="text" name="email" />
-            </div>
-            <div>
-              <label>Complaint</label>
-              <textarea name="complaint" rows="4" cols="35" />
-            </div>
-            <div>
-              <button
-                onClick={() => this.examinActionCloseHandler()}
-                style={this.props.cssmanager.innerPopupMain()}
-              >
-                submit
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (action === "emailgame") {
-      return (
-        <div style={this.props.cssmanager.outerPopupMain()}>
-          <button
-            style={{
-              position: "absolute",
-              top: "-17px",
-              right: "-16px",
-              background: "#b7bdc5",
-              borderRadius: "50%",
-              border: "3px solid #242f35"
-            }}
-            onClick={() => this.examinActionCloseHandler()}
-          >
-            <img src={this.props.cssmanager.buttonBackgroundImage("deleteSign")} alt="Delete" />
-          </button>
-          <div className="popup_inner">
-            <div>
-              <label>Email</label>
-              <input type="text" name="email" />
-            </div>
-
-            <div>
-              <button
-                onClick={() => this.examinActionCloseHandler()}
-                style={this.props.cssmanager.innerPopupMain()}
-              >
-                submit
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    }
+    return (
+      <ExaminActionPopup
+        action={action}
+        cssmanager={this.props.cssmanager}
+        examinActionCloseHandler={this.examinActionCloseHandler}
+      />
+    );
   };
+
   loadGameHistroyPopup(games) {
     let result;
     let gamelist = [];
@@ -282,81 +197,109 @@ export default class MainPage extends Component {
         time: games[i].startTime.toDateString()
       });
     }
-    let style = this.props.cssmanager.outerPopupMain();
-    Object.assign(style, { width: "385px" });
+    let style = {
+      width: "390px",
+      borderRadius: "15px",
+      background: "#ffffff",
+      position: "fixed",
+      zIndex: "99",
+      left: "0px",
+      right: "25%",
+      margin: "0px auto",
+      top: "27%",
+      padding: "20px",
+      textAlign: "center",
+      border: "1px solid #ccc",
+      boxShadow: "#0000004d"
+    };
+    let btnstyle = this.props.cssmanager.innerPopupMain();
+    Object.assign(btnstyle, { marginTop: "15px" });
+
     return (
       <div style={style}>
         {gamelist.length > 0 ? (
-          <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
-            <thead>
-              <tr>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Players
-                </th>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Result
-                </th>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Date
-                </th>
-                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  PGN
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {gamelist.map((game, index) => (
-                <tr key={index} style={{ cursor: "pointer" }}>
-                  <td
-                    style={{ padding: "5px 5px" }}
-                    onClick={this.setGameExaminMode.bind(this, game.id)}
-                  >
-                    {game.white}-vs-{game.black}
-                  </td>
-                  <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                  <td style={{ padding: "5px 5px" }}>{game.time}</td>
-                  <td
-                    style={{ padding: "5px 5px" }}
-                    onClick={this.gamePgnExport.bind(this, game.id)}
-                  >
-                    <img
-                      src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
-                      style={{ width: "25px", height: "25px" }}
-                      alt="pgnDownload"
-                    />
-                  </td>
+          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
+            <table
+              className="gamehistory"
+              style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
+            >
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Players
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Result
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Date
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    PGN
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {gamelist.map((game, index) => (
+                  <tr key={index} style={{ cursor: "pointer" }}>
+                    <td
+                      style={{ padding: "5px 5px" }}
+                      onClick={this.setGameExaminMode.bind(this, game.id)}
+                    >
+                      {game.white}-vs-{game.black}
+                    </td>
+                    <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                    <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                    <td
+                      style={{ padding: "5px 5px" }}
+                      onClick={this.gamePgnExport.bind(this, game.id, game.time)}
+                    >
+                      <img
+                        src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
+                        style={{ width: "25px", height: "25px" }}
+                        alt="pgnDownload"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : null}
-        <button
-          onClick={this.props.removeGameHistory}
-          style={this.props.cssmanager.innerPopupMain()}
-        >
-          close
+        <button onClick={this.props.removeGameHistory} style={btnstyle}>
+          Close
         </button>
       </div>
     );
   }
   setGameExaminMode(id) {
-    Meteor.call("examineGame", "ExaminedGame", id);
-    this.setState({ examineGame: true });
+    Meteor.call("examineGame", "ExaminedGame", id, (error, response) => {
+      if (response) this.setState({ examineGame: true, activeTab: 3 });
+    });
+
     this.props.removeGameHistory();
   }
-  gamePgnExport(id) {
-    Meteor.call("exportToPGN", this.gameId);
-  }
+  gamePgnExport(id, time) {
+    Meteor.call("exportToPGN", id, (error, result) => {
+      if (!!result) {
+        const element = document.createElement("a");
+        const file = new Blob([result], { type: "text/plain" });
+        element.href = URL.createObjectURL(file);
+        element.download = "PGN_" + time + ".txt";
+        document.body.appendChild(element);
+        element.click();
+      }
+    });
+  } 
   startGameExamine() {
     this.setState({ examineGame: true });
   }
   examineActionHandler(action) {
-    this.setState({ exnotification: false, examinAction: action });
+    if (action === "newoppent" || action === "play") {
+      this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
+    } else this.setState({ exnotification: false, examinAction: action });
   }
-  removeAcknowledgeMessage(messageId) {
-    Meteor.call("acknowledge.client.message", messageId);
-  }
-  resignnotificationPopup() {
+  resignNotificationCloseHandler() {
     this.setState({ resignnotification: true });
   }
   notificationHandler() {
@@ -378,7 +321,7 @@ export default class MainPage extends Component {
     );
   }
   render() {
-    //  let translator = i18n.createTranslator("Common.chatBoxMessage", this.getLang());
+    let translator = i18n.createTranslator("Common.MainPage", this.getLang());
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
     const GameRequest = this.props.gameRequest;
@@ -392,8 +335,10 @@ export default class MainPage extends Component {
       !!GameRequest &&
       GameRequest.type === "match" &&
       GameRequest.receiver_id === Meteor.userId()
-    )
-      informativePopup = this.gameRequest("Opponent has requests for a game", GameRequest["_id"]);
+    ) {
+      let msg = translator("gamerequest");
+      informativePopup = this.gameRequest(GameRequest["challenger"] + msg, GameRequest["_id"]);
+    }
 
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
@@ -416,7 +361,7 @@ export default class MainPage extends Component {
           this.state.exnotification === false &&
           (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
         ) {
-          exPopup = this.examinActionPopup(this.state.examinAction);
+          informativePopup = this.examinActionPopup(this.state.examinAction);
         }
       } else {
         if (gameTurn === "w") {
@@ -435,9 +380,10 @@ export default class MainPage extends Component {
 
       if (!!actions && actions.length !== 0) {
         let ack = actions[actions.length - 1];
-        if (!!ack["type"] && ack["type"] === "resign" && game.status !== "examining") {
+        if (!!ack["type"] && ack["type"] === "resign") {
           if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
-            informativePopup = this.notificationPopup1("Opponent has resigend a game", "abort");
+            let msg = translator("gameresign");
+            informativePopup = this.GameResignedPopup(msg, "abort");
           }
         }
 
@@ -451,11 +397,9 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].takeback.number > 0)
               ) {
-                let backCount =
-                  game.pending[othercolor].takeback.number === 1
-                    ? "Take Back 1 Move"
-                    : " Take Back 2 Moves";
-                actionPopup = this.actionPopup(backCount, "takeBack");
+                let moveCount =
+                  game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
+                actionPopup = this.actionPopup(translator(moveCount), "takeBack");
               }
               break;
             case "draw_requested":
@@ -463,7 +407,7 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].draw !== "0")
               ) {
-                actionPopup = this.actionPopup("Draw", "draw");
+                actionPopup = this.actionPopup(translator("draw"), "draw");
               }
               break;
             case "abort_requested":
@@ -471,7 +415,7 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].abort !== "0")
               ) {
-                actionPopup = this.actionPopup("Abort", "abort");
+                actionPopup = this.actionPopup(translator("abort"), "abort");
               }
               break;
             default:
@@ -485,27 +429,63 @@ export default class MainPage extends Component {
     if (!!this.props.GameHistory && this.props.GameHistory.length > 0) {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
     }
-    if (!!this.props.clientMessage && this.props.clientMessage.client_identifier !== "server") {
-      informativePopup = this.notificationPopup(
+    if (
+      !!this.props.clientMessage &&
+      this.props.clientMessage.client_identifier !== "MoveForward" &&
+      this.props.clientMessage.client_identifier !== "server"
+    ) {
+      informativePopup = this.GamenotificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id
       );
     }
-    let w;
-    let h;
+    let w = this.state.width;
+    let h = this.state.height;
+
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
-    w /= 2;
+
+    let leftmenu = null;
+    let rightmenu = null;
+    if (w <= 1199) leftmenu = null;
+    else {
+      leftmenu = (
+        <LeftSidebar
+          cssmanager={this.props.cssmanager}
+          LefSideBoarData={this.Main.LeftSection}
+          history={this.props.history}
+          gameHistory={this.props.gameHistoryload}
+          examineAction={this.examineActionHandler}
+        />
+      );
+    }
+    if (w > 600) {
+      rightmenu = (
+        <div className="col-sm-5 col-md-4 col-lg-5 right-section">
+          {actionPopup}
+          <RightSidebar
+            cssmanager={this.props.cssmanager}
+            RightSidebarData={this.Main.RightSection}
+            gameStatus={status}
+            currentGame={this.state.examineGame}
+            newOppenetRequest={this.state.newOppenetRequest}
+            flip={this._flipboard}
+            gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
+            ref="right_sidebar"
+            examing={this.props.examing}
+            startGameExamine={this.startGameExamine}
+            examineAction={this.examineActionHandler}
+            activeTabnumber={this.state.activeTab}
+          />
+        </div>
+      );
+    } else rightmenu = null;
     return (
       <div className="main">
         <div className="row">
-          <LeftSidebar
-            cssmanager={this.props.cssmanager}
-            LefSideBoarData={this.Main.LeftSection}
-            history={this.props.history}
-            gameHistory={this.props.gameHistoryload}
-          />
-          <div className="col-sm-6 col-md-6" style={this.props.cssmanager.parentPopup(h, w)}>
+          {leftmenu}
+          <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
             {informativePopup}
             {exPopup}
 
@@ -522,26 +502,12 @@ export default class MainPage extends Component {
               top={position.top}
               circles={this.props.circles}
               undo={undo}
+              width={this.state.width}
+              height={this.state.height}
               gameStatus={status}
             />
           </div>
-
-          <div className="col-sm-4 col-md-4 col-lg-4 right-section">
-            {actionPopup}
-            <RightSidebar
-              cssmanager={this.props.cssmanager}
-              RightSidebarData={this.Main.RightSection}
-              gameStatus={status}
-              currentGame={this.state.examineGame}
-              flip={this._flipboard}
-              gameRequest={this.props.gameRequest}
-              clientMessage={this.props.clientMessage}
-              ref="right_sidebar"
-              examing={this.props.examing}
-              startGameExamine={this.startGameExamine}
-              examineAction={this.examineActionHandler}
-            />
-          </div>
+          {rightmenu}
         </div>
       </div>
     );

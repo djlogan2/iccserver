@@ -55,6 +55,7 @@ export const GameHistorySchema = new SimpleSchema({
     }
   },
   result: String,
+  status2: Number,
   wild: Number,
   rating_type: String,
   rated: Boolean,
@@ -85,8 +86,6 @@ export const GameHistorySchema = new SimpleSchema({
   tags: { type: Object, required: false, blackbox: true },
   actions: [actionSchema],
   variations: { type: Object, required: false },
-  "variations.hmtb": Number,
-  "variations.cmi": Number,
   "variations.movelist": Array,
   "variations.movelist.$": Object,
   "variations.movelist.$.prev": { type: Number, required: false },

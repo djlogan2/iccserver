@@ -5,5 +5,6 @@ describe("Login page", function() {
   it("needs to be tested", function() {
     chai.assert.isFalse(Meteor.isServer);
     chai.assert.isTrue(Meteor.isClient);
+    chai.assert.fail("Can we see this anywhere?");
   });
 });

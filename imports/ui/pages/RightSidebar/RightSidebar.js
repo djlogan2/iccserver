@@ -30,7 +30,10 @@ class RightSidebar extends Component {
   render() {
     let topTabitem = null;
     let bottomTabitem = null;
-    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
+    if (
+      (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") &&
+      this.props.newOppenetRequest === false
+    ) {
       topTabitem = (
         <RightBarActiveTabs
           RightBarTopData={this.props.RightSidebarData}
@@ -60,6 +63,7 @@ class RightSidebar extends Component {
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
           examing={this.props.examing}
+          activeTabnumber={this.props.activeTabnumber}
         />
       );
     } else if (this.props.gameStatus === "examining" && this.props.currentGame === false) {

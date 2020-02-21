@@ -19,7 +19,7 @@ export default class Player extends Component {
     return (
       <div
         style={{
-          width: pw * 6,
+          width: this.props.side * 0.75,
           display: "inline-block",
           marginTop: "5px",
           marginBottom: "5px",

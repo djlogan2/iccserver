@@ -8,7 +8,8 @@ export default class BlackPlayerClock extends Component {
     this.state = {
       time: Math.floor(props.ClockData.current / 1000),
       isActive: props.ClockData.isactive,
-      initial: 0
+      initial: 0,
+      mseconds: 9
     };
   }
 
@@ -16,13 +17,24 @@ export default class BlackPlayerClock extends Component {
     if (prevState.isactive !== this.state.isactive) {
       if (this.state.isactive) {
         this.intervalId = setInterval(() => {
-          const { time } = this.state;
-          if (time > 0) {
-            this.setState({
-              time: time - 1
-            });
+          const { mseconds, time } = this.state;
+
+          if (mseconds > 0) {
+            this.setState(({ mseconds }) => ({
+              mseconds: mseconds - 1
+            }));
           }
-        }, 1000);
+          if (mseconds === 0) {
+            if (time === 0 && mseconds === 0) {
+              clearInterval(this.myInterval);
+            } else {
+              this.setState(({ time }) => ({
+                time: time - 1,
+                mseconds: 9
+              }));
+            }
+          }
+        }, 100);
       } else clearInterval(this.intervalId);
     }
   }
@@ -40,6 +52,30 @@ export default class BlackPlayerClock extends Component {
 
     let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);
+    let mseconds = null;
+    let cv = this.props.side / 9;
+    let clockstyle = {
+      right: "0",
+      paddingTop: cv / 15,
+      paddingBottom: cv / 5,
+      textAlign: "center",
+      borderRadius: "3px",
+      fontSize: cv / 3,
+      color: "#fff",
+      top: "5px",
+      height: cv / 1.7,
+      width: cv * 1.3,
+      background: "#333333",
+      fontWeight: "700",
+      position: "absolute"
+    };
+    if (
+      Math.floor(time % TOTAL_MINUTES) < 10 &&
+      Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES) === 0
+    ) {
+      mseconds = `:${this.state.mseconds}`;
+      Object.assign(clockstyle, { color: "#fb0404" });
+    }
 
     if (isNaN(minutes) || isNaN(seconds)) {
       return null;
@@ -51,36 +87,21 @@ export default class BlackPlayerClock extends Component {
     if (seconds.length === 1) {
       seconds = `0${seconds}`;
     }
-    let cv = this.props.side / 9;
+
     return (
       <div
         style={{
-          width: cv * 2,
+          width: this.props.side * 0.25,
           display: "inline-block",
           position: "relative",
           verticalAlign: "top",
           marginTop: "8px"
         }}
       >
-        <div
-          style={{
-            right: "0",
-            paddingTop: cv / 15,
-            paddingBottom: cv / 5,
-            textAlign: "center",
-            borderRadius: "3px",
-            fontSize: cv / 3,
-            color: "#fff",
-            top: "5px",
-            height: cv / 1.7,
-            width: cv * 1.3,
-            background: "#333333",
-            fontWeight: "700",
-            position: "absolute"
-          }}
-        >
+        <div style={clockstyle}>
           {/* <div style={this.props.cssmanager.clock(time)}> */}
           {minutes}:{seconds}
+          {mseconds}
         </div>
       </div>
     );

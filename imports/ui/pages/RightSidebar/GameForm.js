@@ -63,7 +63,7 @@ class GameForm extends Component {
             <label style={this.props.cssmanager.formLabelStyle()}>{translator("minutes")}</label>
           </div>
           <div style={this.props.cssmanager.formMainHalf()}>
-            <span style={this.props.cssmanager.spanStyle("form")}>
+            {/*  <span style={this.props.cssmanager.spanStyle("form")}>
               <select onChange={this.handleChangeSecond} value={this.props.inc}>
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -71,8 +71,14 @@ class GameForm extends Component {
                 <option value="3">3</option>
                 <option value="4">4</option>
                 <option value="5">5</option>
-              </select>
-            </span>
+              </select> 
+            </span>*/}
+            <input
+              type="number"
+              value={this.props.inc}
+              style={{ width: "50px" }}
+              onChange={this.handleChangeSecond}
+            />
             <label style={this.props.cssmanager.formLabelStyle()}>
               {translator("secondPerMove")}
             </label>

@@ -6,6 +6,7 @@ import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
+import i18n from "meteor/universe:i18n";
 
 const log = new Logger("client/MiddleBoard");
 
@@ -32,42 +33,33 @@ export default class MiddleBoard extends Component {
   _flipboard() {
     this.switchSides();
   }
-  updateDimensions() {
+  /* updateDimensions() {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
     });
-  }
+  } */
 
   /**
    * Add event listener
    */
-  componentDidMount() {
+  /*  componentDidMount() {
     this.updateDimensions();
     window.addEventListener("resize", this.updateDimensions.bind(this));
-  }
+  } */
 
   /**
    * Remove event listener
    */
-  componentWillUnmount() {
+  /*  componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
-  }
+  } */
 
   componentDidUpdate(prevProps) {
     if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
     }
   }
-  /* shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.update === 1) {
-      return true;
-    }
-    if (nextState.fen !== this.state.fen) {
-      return true;
-    }
-    //return true;
-  } */
   switchSides = () => {
     const newTop = this.state.top === "w" ? "b" : "w";
     this.setState({ top: newTop });
@@ -88,8 +80,8 @@ export default class MiddleBoard extends Component {
   };
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.board.fen() !== prevState.fen) {
-      return { board: nextProps.board, update: 0 };
-    }
+      return { fen: nextProps.board.fen(), update: 0 };
+    } else return null;
   }
   nextRAF() {
     const values = ["tl", "tr", "bl", "br", "stl", "str", "sbl", "sbr"];
@@ -128,23 +120,31 @@ export default class MiddleBoard extends Component {
       this.setState({ fen: this.props.board.fen(), update: 1 });
     }
   };
+  getLang() {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  }
   render() {
-    let w = this.state.width;
-    let h = this.state.height;
+    let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
+    let w = this.props.width;
+    let h = this.props.height;
     let d;
-    if (!w) w = window.innerWidth;
-    if (!h) h = window.innerHeight;
-    let bh = h;
-    let bw = w;
-    d = h;
-    w /= 2; // 1366/2
-    h -= d / 9;
-    const size = Math.min(h, w);
-    d = bh;
-    bw = bw / 2;
-    bh -= d / 5;
-    let boardsize = Math.min(bh, bw);
 
+    let boardsize = null;
+    let size = null;
+    let m = Math.min(w, h);
+    if (m > 600 && m < 1199) {
+      size = w / 2.5;
+      boardsize = w / 2.5;
+    } else {
+      boardsize = Math.min(h / 1.2, w / 1.2);
+      size = Math.min(h / 1.2, w / 1.2);
+    }
     const newColor = this.state.top === "w" ? "Black" : "White";
 
     const raf = this.nextRAF()[1];
@@ -199,18 +199,18 @@ export default class MiddleBoard extends Component {
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
         if (this.props.board.turn() === "b") {
-          botPlayermsg = "(Your Turn)";
+          botPlayermsg = translator("yourturn");
           color = "#4cd034";
         } else {
-          topPlayermsg = "(waiting for opponent)";
+          topPlayermsg = translator("waitingforopponent");
           color = "#fff";
         }
       } else {
         if (this.props.board.turn() === "w") {
-          botPlayermsg = "(Your Turn)";
+          botPlayermsg = translator("yourturn");
           color = "#4cd034";
         } else {
-          topPlayermsg = "(waiting for opponent)";
+          topPlayermsg = translator("waitingforopponent");
           color = "#fff";
         }
       }
@@ -218,13 +218,6 @@ export default class MiddleBoard extends Component {
 
     return (
       <div>
-      {/*   <button
-          onClick={this.switchSides.bind(this)}
-          style={this.props.cssmanager.buttonStyle("middleBoard")}
-        >
-          <img src={this.props.cssmanager.buttonBackgroundImage("fullScreen")} alt="full-screen" />
-        </button> */}
-
         <div style={{ width: size }}>
           <Player
             PlayerData={topPlayer}
@@ -242,14 +235,13 @@ export default class MiddleBoard extends Component {
             ClockData={topPlayerClock}
             side={size}
           />
-        </div>
-        <div style={this.props.cssmanager.fullWidth()}>
+
           <Chessboard
             id="allowDrag"
             darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
             lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
             calcWidth={({ screenWidth }) => boardsize}
-            position={this.props.board.fen()}
+            position={this.state.fen}
             onDrop={this.onDrop}
             orientation={bordtop}
             undo={this.props.undo}
@@ -257,11 +249,10 @@ export default class MiddleBoard extends Component {
               borderRadius: "5px",
               boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
             }}
+            dropOffBoard="trash"
             draggable={turn}
           />
-        </div>
-        <div style={{ clear: "Left" }} />
-        <div style={{ width: size }}>
+
           <Player
             PlayerData={bottomPlayer}
             cssmanager={this.props.cssmanager}

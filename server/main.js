@@ -1,8 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 import { GameRequests } from "./GameRequest";
-import { Game } from "./Game";
-import { GameHistory } from "./GameHistory";
+import { Game, GameHistory } from "./Game";
 import "./PgnExport";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";

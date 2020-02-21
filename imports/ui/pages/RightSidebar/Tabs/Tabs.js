@@ -8,13 +8,17 @@ const log = new Logger("client/Tabs_js");
 class Tabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-    cssmanager: PropTypes.object.isRequired
+    cssmanager: PropTypes.object.isRequired,
+    defultactive: PropTypes.number
   };
 
   constructor(props) {
     super(props);
+    let df = 0;
+    df = this.props.defultactive || 0;
+    
     this.state = {
-      activeTab: this.props.children[0].props.label,
+      activeTab: this.props.children[df].props.label,
       onHover: "",
       hoverOut: ""
     };
