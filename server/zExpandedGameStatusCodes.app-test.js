@@ -71,11 +71,11 @@ describe("Expanded game status codes", function() {
   });
 
   //   [1, "Mat", "<color> checkmated"],
-  it("should record status2 of 1 when white is checkmated", function() {
+  it("should record status2 of 1 when black is checkmated", function() {
     const result = playGame(["e4", "f6", "d4", "g5", "Qh5"]);
     const game = Game.collection.findOne({ _id: result.game_id });
     chai.assert.equal(game.status, "examining");
-    chai.assert.equal(game.result, "0-1");
+    chai.assert.equal(game.result, "1-0");
     chai.assert.equal(game.status2, 1);
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
@@ -86,11 +86,11 @@ describe("Expanded game status codes", function() {
     chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_1");
   });
 
-  it("should record status2 of 1 when black is checkmated", function() {
+  it("should record status2 of 1 when white is checkmated", function() {
     const result = playGame(["f4", "e6", "g4", "Qh4"]);
     const game = Game.collection.findOne({ _id: result.game_id });
     chai.assert.equal(game.status, "examining");
-    chai.assert.equal(game.result, "1-0");
+    chai.assert.equal(game.result, "0-1");
     chai.assert.equal(game.status2, 1);
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
