@@ -663,7 +663,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       else setobject.status2 = 18;
     } else if (active_games[game_id].game_over()) {
       if (active_games[game_id].in_checkmate()) {
-        setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
+        setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
         setobject.status2 = 1;
       } else {
         setobject.result = active_games[game_id].turn() === "*";
@@ -764,7 +764,14 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   if (setobject.result) {
     GameHistory.savePlayedGame(message_identifier, game_id);
-    sendGameStatus(game, setobject.status2);
+    sendGameStatus(
+      game_id,
+      game.white.id,
+      game.black.id,
+      setobject.tomove,
+      setobject.result,
+      setobject.status2
+    );
   }
 
   if (analyze) {
@@ -1272,7 +1279,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
       }
     );
     GameHistory.savePlayedGame(message_identifier, game_id);
-    sendGameStatus(game, status2);
+    sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "1/2-1/2", status2);
     return;
   }
 
@@ -1328,7 +1335,7 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
 
   if (
     (game.tomove === "white" && game.variations.movelist.length === 1) ||
-    (game.tomove === "black" && game.variations.movelist.length === 2)
+    (game.tomove === "black" && game.variations.movelist.length <= 2)
   ) {
     endGamePing(game_id);
     endMoveTimer(game_id);
@@ -1364,7 +1371,14 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
     GameHistory.savePlayedGame(message_identifier, game_id);
-    sendGameStatus(game, 37);
+    sendGameStatus(
+      game_id,
+      game.white.id,
+      game.black.id,
+      self._id === game.white.id ? "white" : "black",
+      "*",
+      37
+    );
     return;
   }
 
@@ -1470,7 +1484,14 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
   GameHistory.savePlayedGame(message_identifier, game_id);
-  sendGameStatus(game, 13);
+  sendGameStatus(
+    game_id,
+    game.white.id,
+    game.black.id,
+    self._id === game.white.id ? "white" : "black",
+    "1/2-1/2",
+    13
+  );
 };
 
 Game.acceptLocalAbort = function(message_identifier, game_id) {
@@ -1523,7 +1544,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
   GameHistory.savePlayedGame(message_identifier, game_id);
-  sendGameStatus(game, 30);
+  sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "*", 30);
 };
 
 Game.acceptLocalAdjourn = function(message_identifier, game_id) {
@@ -1575,7 +1596,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
       }
     }
   );
-  sendGameStatus(game, 24);
+  sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "*", 24);
 };
 
 Game.drawCircle = function(message_identifier, game_id, square, color, size) {
@@ -1842,7 +1863,7 @@ function _resignLocalGame(message_identifier, game, userId, reason) {
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
   GameHistory.savePlayedGame(message_identifier, game._id);
-  sendGameStatus(game, reason);
+  sendGameStatus(game._id, game.white.id, game.black.id, game.tomove, result, reason);
 }
 
 Game.recordLegacyOffers = function(
@@ -2635,7 +2656,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     Users.setGameStatus("server", game.white.id, "examining");
     Users.setGameStatus("server", game.black.id, "examining");
     GameHistory.savePlayedGame("server", game_id);
-    sendGameStatus(game, 2);
+    sendGameStatus(game_id, game.white.id, game.black.id, color, setobject.result, 2);
   }, actual_milliseconds);
 }
 
@@ -2836,26 +2857,26 @@ GameHistory.examineGame = function(message_identifier, game_id) {
   return Game.startLocalExaminedGameWithObject(hist, chess);
 };
 
-function sendGameStatus(game, status) {
-  const message_identifier = "server:game:" + game._id;
+function sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
+  const message_identifier = "server:game:" + game_id;
   const cm_parameters = ClientMessages.messageParameters("GAME_STATUS_" + status);
-  const p1_call_parameters = [game.white.id, message_identifier, "GAME_STATUS_" + status];
-  const p2_call_parameters = [game.black.id, message_identifier, "GAME_STATUS_" + status];
+  const p1_call_parameters = [white_id, message_identifier, "GAME_STATUS_" + status];
+  const p2_call_parameters = [black_id, message_identifier, "GAME_STATUS_" + status];
 
   if (cm_parameters.parameters) {
     cm_parameters.parameters.forEach(p => {
       switch (p) {
         case "losing_color":
-          p1_call_parameters.push(game.result === "1-0" ? "black" : "white");
-          p2_call_parameters.push(game.result === "1-0" ? "black" : "white");
+          p1_call_parameters.push(result === "1-0" ? "black" : "white");
+          p2_call_parameters.push(result === "1-0" ? "black" : "white");
           break;
         case "winning_color":
-          p1_call_parameters.push(game.result === "1-0" ? "white" : "black");
-          p2_call_parameters.push(game.result === "1-0" ? "white" : "black");
+          p1_call_parameters.push(result === "1-0" ? "white" : "black");
+          p2_call_parameters.push(result === "1-0" ? "white" : "black");
           break;
         case "offending_color":
-          p1_call_parameters.push(game.tomove === "white" ? "black" : "white");
-          p2_call_parameters.push(game.tomove === "white" ? "black" : "white");
+          p1_call_parameters.push(tomove === "white" ? "black" : "white");
+          p2_call_parameters.push(tomove === "white" ? "black" : "white");
           break;
         default:
           throw new Meteor.Error("Unknown parameter " + p);
