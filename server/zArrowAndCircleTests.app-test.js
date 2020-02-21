@@ -302,6 +302,7 @@ describe("Game.removeArrow", function() {
   });
   it("should fail if game does not exist", function() {
     chai.assert.throws(() => {
+      self.loggedonuser = TestHelpers.createUser();
       Game.removeArrow("invalid_id", "invalid", "c1", "d2");
     }, ICCMeteorError);
   });
