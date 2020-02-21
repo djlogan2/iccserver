@@ -1326,6 +1326,48 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
     return;
   }
 
+  if (
+    (game.tomove === "white" && game.variations.movelist.length === 1) ||
+    (game.tomove === "black" && game.variations.movelist.length === 2)
+  ) {
+    endGamePing(game_id);
+    endMoveTimer(game_id);
+
+    GameCollection.update(
+      { _id: game_id, status: "playing" },
+      {
+        $set: {
+          status: "examining",
+          result: "*",
+          status2: 37,
+          examiners: [
+            { id: game.white.id, username: game.white.name },
+            { id: game.black.id, username: game.black.name }
+          ]
+        },
+        $unset: { pending: "" },
+        $push: {
+          actions: {
+            type: "abort_requested",
+            issuer: self._id
+          },
+          observers: {
+            $each: [
+              { id: game.white.id, username: game.white.name },
+              { id: game.black.id, username: game.black.name }
+            ]
+          }
+        }
+      }
+    );
+
+    Users.setGameStatus(message_identifier, game.white.id, "examining");
+    Users.setGameStatus(message_identifier, game.black.id, "examining");
+    GameHistory.savePlayedGame(message_identifier, game_id);
+    sendGameStatus(game, 37);
+    return;
+  }
+
   const setobject = {};
   setobject["pending." + color + ".abort"] = message_identifier;
 
@@ -1533,6 +1575,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
       }
     }
   );
+  sendGameStatus(game, 24);
 };
 
 Game.drawCircle = function(message_identifier, game_id, square, color, size) {
