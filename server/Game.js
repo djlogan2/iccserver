@@ -762,6 +762,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   );
 
   if (setobject.result) {
+    if (game.rated) updateUserRatings(game, setobject.result, setobject.status2);
     GameHistory.savePlayedGame(message_identifier, game_id);
     sendGameStatus(
       game_id,
@@ -1278,6 +1279,7 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
         }
       }
     );
+    if (game.rated) updateUserRatings(game, "1/2-1/2", status2);
     GameHistory.savePlayedGame(message_identifier, game_id);
     sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "1/2-1/2", status2);
     return;
@@ -1483,6 +1485,7 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
+  if (game.rated) updateUserRatings(game, "1/2-1/2", 13);
   GameHistory.savePlayedGame(message_identifier, game_id);
   sendGameStatus(
     game_id,
@@ -1951,6 +1954,7 @@ function _resignLocalGame(message_identifier, game, userId, reason) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
+  if (game.rated) updateUserRatings(game, "result", reason);
   GameHistory.savePlayedGame(message_identifier, game._id);
   sendGameStatus(game._id, game.white.id, game.black.id, game.tomove, result, reason);
 }
@@ -2179,11 +2183,23 @@ Game.exportToPGN = function(id) {
   const game = GameCollection.findOne({ _id: id });
 
   if (!game) return;
+  return finishExportToPGN(game);
+};
+
+GameHistory.exportToPGN = function(id) {
+  check(id, String);
+
+  const game = GameHistoryCollection.findOne({ _id: id });
+
+  if (!game) return;
+  return finishExportToPGN(game);
+};
+
+function finishExportToPGN(game) {
   let pgn = "";
-  //TODO: Your date format was not working that's why I've small changed the code format
   let tmpdt = new Date(game.startTime);
   let dt = tmpdt.toISOString().split("T")[0];
-  pgn += "[Date " + dt + "]\n";
+  pgn += "[Date " + date.format(game.startTime, "YYYY-MM-DD") + "]\n";
   pgn += "[White " + game.white.name + "]\n";
   pgn += "[Black " + game.black.name + "]\n";
   pgn += "[Result " + game.result + "]\n";
@@ -2192,8 +2208,7 @@ Game.exportToPGN = function(id) {
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  //TODO: Your date format was not working that's why I've small changed the code format
-  pgn += "[Time " + tmpdt.getHours() + ":" + tmpdt.getMinutes() + ":" + tmpdt.getSeconds() + "]\n";
+  pgn += "[Time " + date.format(game.startTime, "HH:mm:ss") + "]\n";
   if (!game.clocks) {
     pgn += "[TimeControl ?]\n";
   } else {
@@ -2219,7 +2234,8 @@ Game.exportToPGN = function(id) {
   pgn += "\n";
   pgn += buildPgnFromMovelist(game.variations.movelist);
   return pgn;
-};
+}
+
 Game.kibitz = function(game_id, text) {};
 
 Game.whisper = function(game_id, text) {};
@@ -2739,6 +2755,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     );
     Users.setGameStatus("server", game.white.id, "examining");
     Users.setGameStatus("server", game.black.id, "examining");
+    if (game.rated) updateUserRatings(game, setobject.result, 2);
     GameHistory.savePlayedGame("server", game_id);
     sendGameStatus(game_id, game.white.id, game.black.id, color, setobject.result, 2);
   }, actual_milliseconds);
@@ -2764,6 +2781,8 @@ function gameLogoutHook(userId) {
   Game.localUnobserveAllGames("server", userId);
   Users.setGameStatus("server", userId, "none");
 }
+
+function updateUserRatings(game, result, reason) {}
 
 Meteor.startup(function() {
   GameCollection.remove({});
@@ -2837,6 +2856,7 @@ Meteor.publish("playing_games", function() {
     { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
   );
 });
+
 Meteor.publish("observing_games", function() {
   return GameCollection.find({
     "observers.id": this.userId
@@ -2991,9 +3011,12 @@ Meteor.methods({
 });
 
 Meteor.publish("game_history", function() {
-  return GameHistoryCollection.find({
-    $or: [{ "white.id": this.userId }, { "black.id": this.userId }]
-  });
+  return GameHistoryCollection.find(
+    {
+      $or: [{ "white.id": this.userId }, { "black.id": this.userId }]
+    },
+    { sort: { startTime: -1 }, limit: SystemConfiguration.gameHistoryCount() }
+  );
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {

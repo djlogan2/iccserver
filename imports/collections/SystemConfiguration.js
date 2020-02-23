@@ -13,6 +13,10 @@ SystemConfiguration.minimumLag = function() {
   return 100;
 };
 
+SystemConfiguration.gameHistoryCount = function() {
+  return 20;
+}
+
 SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   //{ rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
   check(robject1, Object);
