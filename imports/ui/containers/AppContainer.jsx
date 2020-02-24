@@ -123,16 +123,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
       }
     );
   }
-
-  clientMessages() {
-    return ClientMessagesCollection.findOne(
-      {
-        to: Meteor.userId()
-      },
-      { sort: { createDate: -1, limit: 1 } }
-    );
-  }
-
   _systemCSS() {
     return mongoCss.findOne({ type: "system" });
   }
@@ -220,16 +210,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _pieceSquareDragStop = raf => {
-    /* let game = this.renderGameMessages();
-    if (!game) {
-      let gameExamin = this.examineGame();
-      if (!!gameExamin && gameExamin.length > 0) {
-        game = gameExamin[gameExamin.length - 1];
-      } else {
-        return;
-      }
-    } */
-
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };
 
@@ -308,6 +288,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
     return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
   }
 
+  clientMessages(id) {
+    return ClientMessagesCollection.findOne({
+      $and: [{ to: Meteor.userId() }, { client_identifier: id }]
+    });
+  }
   render() {
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
@@ -316,7 +301,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     let gameExamin = []; // this.examineGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
-    const clientMessage = this.clientMessages();
+    let clientMessage = null;
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
@@ -349,13 +334,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
         }
       }
     }
-
+    if (!!game) {
+      const message_identifier = "server:game:" + game._id;
+      clientMessage = this.clientMessages(message_identifier);
+    }
     return (
       <div>
         <MainPage
           cssmanager={css}
           board={this._board}
-         // fen={this._board.fen()}
+          // fen={this._board.fen()}
           capture={capture}
           len={actionlen}
           game={game}

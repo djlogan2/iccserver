@@ -380,13 +380,13 @@ export default class MainPage extends Component {
 
       if (!!actions && actions.length !== 0) {
         let ack = actions[actions.length - 1];
-        if (!!ack["type"] && ack["type"] === "resign") {
+       /*  if (!!ack["type"] && ack["type"] === "resign") {
           if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
             let msg = translator("gameresign");
             informativePopup = this.GameResignedPopup(msg, "abort");
           }
         }
-
+ */
         if (!!ack["type"] && ack["type"] === "takeback_accepted") undo = true;
 
         for (const action of actions) {
@@ -429,11 +429,7 @@ export default class MainPage extends Component {
     if (!!this.props.GameHistory && this.props.GameHistory.length > 0) {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
     }
-    if (
-      !!this.props.clientMessage &&
-      this.props.clientMessage.client_identifier !== "MoveForward" &&
-      this.props.clientMessage.client_identifier !== "server"
-    ) {
+    if (!!this.props.clientMessage) {
       informativePopup = this.GamenotificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id
