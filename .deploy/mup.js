@@ -20,7 +20,8 @@ module.exports = {
     },
 
     buildOptions: {
-      serverOnly: true
+      serverOnly: true,
+      debug: true
     },
 
     env: {

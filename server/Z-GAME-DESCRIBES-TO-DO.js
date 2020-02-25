@@ -58,6 +58,7 @@ describe("Game.acceptMoretime", function() {
   });
 });
 
+
 describe("Game.updateClock", function() {
   it("still needs to be written", function () {
     chai.assert.fail("do me");
@@ -68,7 +69,7 @@ describe("Game.updateClock", function() {
   it("requires color to exist and be 'white' or 'black'", function () {
     chai.assert.fail("do me");
   });
-  it("requires game_id to exist and be a valid game record", function () {
+  it("requires game_id to exist and be a valid examined game record", function () {
     chai.assert.fail("do me");
   });
   it("errors out if the game is not being played", function () {
@@ -81,7 +82,6 @@ describe("Game.updateClock", function() {
     chai.assert.fail("do me");
   });
 });
-
 describe("getLegacyUser", function() {
   it("still needs to be written", function () {
     chai.assert.fail("do me");

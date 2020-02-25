@@ -57,6 +57,8 @@ export const DefinedClientMessagesMap = {
   VARIATION_REQUIRED: {},
   INVALID_VARIATION: {},
   ALREADY_PLAYING: {},
+  INVALID_SQUARE: { parameters: ["square"] },
+  INVALID_ARROW: { parameters: ["from", "to"] },
   GAME_STATUS_0: { parameters: ["losing_color"] },
   GAME_STATUS_1: { parameters: ["losing_color"] },
   GAME_STATUS_2: { parameters: ["losing_color"] },

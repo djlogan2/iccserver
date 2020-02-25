@@ -102,7 +102,6 @@ Game.startLocalGame = function(
   check(black_increment_or_delay_type, String);
 
   check(self.ratings[rating_type], Object); // Rating type needs to be valid!
-
   if (!self.status.online) {
     throw new ICCMeteorError(
       message_identifier,
@@ -663,7 +662,7 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
       else setobject.status2 = 18;
     } else if (active_games[game_id].game_over()) {
       if (active_games[game_id].in_checkmate()) {
-        setobject.result = active_games[game_id].turn() === "w" ? "1-0" : "0-1";
+        setobject.result = active_games[game_id].turn() === "w" ? "0-1" : "1-0";
         setobject.status2 = 1;
       } else {
         setobject.result = active_games[game_id].turn() === "*";
@@ -763,8 +762,16 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   );
 
   if (setobject.result) {
+    if (game.rated) updateUserRatings(game, setobject.result, setobject.status2);
     GameHistory.savePlayedGame(message_identifier, game_id);
-    sendGameStatus(game, setobject.status2);
+    sendGameStatus(
+      game_id,
+      game.white.id,
+      game.black.id,
+      setobject.tomove,
+      setobject.result,
+      setobject.status2
+    );
   }
 
   if (analyze) {
@@ -1128,6 +1135,7 @@ Game.acceptLocalTakeback = function(message_identifier, game_id) {
 
   const othercolor = self._id === game.white.id ? "black" : "white";
   let tomove = game.tomove;
+
   if (!game.pending[othercolor].takeback.number) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NO_TAKEBACK_PENDING");
     return;
@@ -1271,8 +1279,9 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
         }
       }
     );
+    if (game.rated) updateUserRatings(game, "1/2-1/2", status2);
     GameHistory.savePlayedGame(message_identifier, game_id);
-    sendGameStatus(game, status2);
+    sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "1/2-1/2", status2);
     return;
   }
 
@@ -1328,7 +1337,7 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
 
   if (
     (game.tomove === "white" && game.variations.movelist.length === 1) ||
-    (game.tomove === "black" && game.variations.movelist.length === 2)
+    (game.tomove === "black" && game.variations.movelist.length <= 2)
   ) {
     endGamePing(game_id);
     endMoveTimer(game_id);
@@ -1364,7 +1373,14 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
     GameHistory.savePlayedGame(message_identifier, game_id);
-    sendGameStatus(game, 37);
+    sendGameStatus(
+      game_id,
+      game.white.id,
+      game.black.id,
+      self._id === game.white.id ? "white" : "black",
+      "*",
+      37
+    );
     return;
   }
 
@@ -1469,8 +1485,16 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
+  if (game.rated) updateUserRatings(game, "1/2-1/2", 13);
   GameHistory.savePlayedGame(message_identifier, game_id);
-  sendGameStatus(game, 13);
+  sendGameStatus(
+    game_id,
+    game.white.id,
+    game.black.id,
+    self._id === game.white.id ? "white" : "black",
+    "1/2-1/2",
+    13
+  );
 };
 
 Game.acceptLocalAbort = function(message_identifier, game_id) {
@@ -1523,7 +1547,7 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
   GameHistory.savePlayedGame(message_identifier, game_id);
-  sendGameStatus(game, 30);
+  sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "*", 30);
 };
 
 Game.acceptLocalAdjourn = function(message_identifier, game_id) {
@@ -1575,7 +1599,7 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
       }
     }
   );
-  sendGameStatus(game, 24);
+  sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "*", 24);
 };
 
 Game.drawCircle = function(message_identifier, game_id, square, color, size) {
@@ -1594,31 +1618,36 @@ Game.drawCircle = function(message_identifier, game_id, square, color, size) {
   if (!game) {
     throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
   }
-  if (game.status !== "examining" || game.examiners.map(ex => ex.id).indexOf(self._id) === -1) {
+  if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-
-  const setobject = {};
-  const pushobject = {};
-
-  pushobject.actions = {
-    type: "draw_circle",
-    issuer: self._id,
-    parameter: { square: square, color: color, size: size }
-  };
-  if (!game.circles) setobject.circles = [{ square: square, color: color, size: size }];
-  else pushobject.circles = { square: square, color: color, size: size };
-
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const resultFind = game.circles.find(circle => circle.square === square);
+  if (resultFind) {
+    resultFind.color = color;
+    resultFind.size = size;
+  } else {
+    game.circles.push({ square: square, color: color, size: size });
+  }
   GameCollection.update(
     { _id: game_id, status: "examining" },
     {
-      $set: setobject,
-      $push: pushobject
+      $set: { circles: game.circles },
+      $push: {
+        actions: {
+          type: "draw_circle",
+          issuer: self._id,
+          parameter: { square: square, color: color, size: size }
+        }
+      }
     }
   );
 };
-
 Game.removeCircle = function(message_identifier, game_id, square) {
   check(message_identifier, String);
   check(square, String);
@@ -1636,30 +1665,114 @@ Game.removeCircle = function(message_identifier, game_id, square) {
   if (game.status !== "examining") {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
-  } else if (
-    !GameCollection.findOne({ _id: game_id, status: "examining" }).examiners.includes(self._id)
-  ) {
-    // TODO: Below condition is not working as examiners
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  for (var i = 0; i < game.circles.length; i++) {
-    if (game.circles[i].square === square) {
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        { $pull: { circles: { square: square } } }
-      );
-      GameCollection.update(
-        { _id: game_id, status: "examining" },
-        {
-          $push: {
-            actions: { type: "remove_circle", issuer: "iccserver", parameter: { square: square } }
-          }
-        }
-      );
-      return;
+
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: { type: "remove_circle", issuer: self._id, parameter: { square: square } }
+      },
+      $pull: { circles: { square: square } }
     }
+  );
+};
+
+Game.drawArrow = function(message_identifier, game_id, from, to, color, size) {
+  check(message_identifier, String);
+  check(from, String);
+  check(to, String);
+  check(color, String);
+  check(size, Number);
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
+    return;
   }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to draw arrow", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const resultFind = game.arrows.find(arrow => arrow.from === from && arrow.to === to);
+  if (resultFind) {
+    resultFind.color = color;
+    resultFind.size = size;
+  } else {
+    game.arrows.push({ from: from, to: to, color: color, size: size });
+  }
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $set: { arrows: game.arrows },
+      $push: {
+        actions: {
+          type: "draw_arrow",
+          issuer: self._id,
+          parameter: { from: from, to: to, color: color, size: size }
+        }
+      }
+    }
+  );
+};
+Game.removeArrow = function(message_identifier, game_id, from, to) {
+  check(message_identifier, String);
+  check(from, String);
+  check(to, String);
+  let self;
+  self = Meteor.user();
+  check(self, Object);
+
+  if (!Game.isSquareValid(from) || !Game.isSquareValid(to)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
+    return;
+  }
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game) {
+    throw new ICCMeteorError(message_identifier, "Unable to remove arrow", "Game doesn't exist");
+  }
+  if (game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const examiner = game.examiners.find(examiner => examiner.id === self._id);
+  if (!examiner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  const resultFind = game.arrows.find(arrow => arrow.from === from && arrow.to === to);
+
+  if (!resultFind) {
+    return;
+  }
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    {
+      $push: {
+        actions: {
+          type: "remove_arrow",
+          issuer: self._id,
+          parameter: { from: from, to: to }
+        }
+      },
+      $pull: { arrows: { from: from, to: to } }
+    }
+  );
 };
 
 Game.isSquareValid = function(square) {
@@ -1841,8 +1954,9 @@ function _resignLocalGame(message_identifier, game, userId, reason) {
   );
   Users.setGameStatus(message_identifier, game.white.id, "examining");
   Users.setGameStatus(message_identifier, game.black.id, "examining");
+  if (game.rated) updateUserRatings(game, "result", reason);
   GameHistory.savePlayedGame(message_identifier, game._id);
-  sendGameStatus(game, reason);
+  sendGameStatus(game._id, game.white.id, game.black.id, game.tomove, result, reason);
 }
 
 Game.recordLegacyOffers = function(
@@ -2069,11 +2183,23 @@ Game.exportToPGN = function(id) {
   const game = GameCollection.findOne({ _id: id });
 
   if (!game) return;
+  return finishExportToPGN(game);
+};
+
+GameHistory.exportToPGN = function(id) {
+  check(id, String);
+
+  const game = GameHistoryCollection.findOne({ _id: id });
+
+  if (!game) return;
+  return finishExportToPGN(game);
+};
+
+function finishExportToPGN(game) {
   let pgn = "";
-  //TODO: Your date format was not working that's why I've small changed the code format
   let tmpdt = new Date(game.startTime);
   let dt = tmpdt.toISOString().split("T")[0];
-  pgn += "[Date " + dt + "]\n";
+  pgn += "[Date " + date.format(game.startTime, "YYYY-MM-DD") + "]\n";
   pgn += "[White " + game.white.name + "]\n";
   pgn += "[Black " + game.black.name + "]\n";
   pgn += "[Result " + game.result + "]\n";
@@ -2082,8 +2208,7 @@ Game.exportToPGN = function(id) {
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  //TODO: Your date format was not working that's why I've small changed the code format
-  pgn += "[Time " + tmpdt.getHours() + ":" + tmpdt.getMinutes() + ":" + tmpdt.getSeconds() + "]\n";
+  pgn += "[Time " + date.format(game.startTime, "HH:mm:ss") + "]\n";
   if (!game.clocks) {
     pgn += "[TimeControl ?]\n";
   } else {
@@ -2109,7 +2234,8 @@ Game.exportToPGN = function(id) {
   pgn += "\n";
   pgn += buildPgnFromMovelist(game.variations.movelist);
   return pgn;
-};
+}
+
 Game.kibitz = function(game_id, text) {};
 
 Game.whisper = function(game_id, text) {};
@@ -2571,12 +2697,7 @@ function _startGamePing(game_id, color) {
 
 function endGamePing(game_id) {
   log.debug("endGamePing game_id=" + game_id);
-  if (!game_pings[game_id])
-    throw new ICCMeteorError(
-      "server",
-      "Unable to update game ping",
-      "Unable to locate game to ping (1)"
-    );
+  if (!game_pings[game_id]) throw new ICCMeteorError("server", "Unable to locate game to ping (1)");
   game_pings[game_id]["white"].end();
   game_pings[game_id]["black"].end();
   delete game_pings[game_id];
@@ -2634,8 +2755,9 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     );
     Users.setGameStatus("server", game.white.id, "examining");
     Users.setGameStatus("server", game.black.id, "examining");
+    if (game.rated) updateUserRatings(game, setobject.result, 2);
     GameHistory.savePlayedGame("server", game_id);
-    sendGameStatus(game, 2);
+    sendGameStatus(game_id, game.white.id, game.black.id, color, setobject.result, 2);
   }, actual_milliseconds);
 }
 
@@ -2659,6 +2781,8 @@ function gameLogoutHook(userId) {
   Game.localUnobserveAllGames("server", userId);
   Users.setGameStatus("server", userId, "none");
 }
+
+function updateUserRatings(game, result, reason) {}
 
 Meteor.startup(function() {
   GameCollection.remove({});
@@ -2732,6 +2856,7 @@ Meteor.publish("playing_games", function() {
     { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
   );
 });
+
 Meteor.publish("observing_games", function() {
   return GameCollection.find({
     "observers.id": this.userId
@@ -2836,26 +2961,26 @@ GameHistory.examineGame = function(message_identifier, game_id) {
   return Game.startLocalExaminedGameWithObject(hist, chess);
 };
 
-function sendGameStatus(game, status) {
-  const message_identifier = "server:game:" + game._id;
+function sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
+  const message_identifier = "server:game:" + game_id;
   const cm_parameters = ClientMessages.messageParameters("GAME_STATUS_" + status);
-  const p1_call_parameters = [game.white.id, message_identifier, "GAME_STATUS_" + status];
-  const p2_call_parameters = [game.black.id, message_identifier, "GAME_STATUS_" + status];
+  const p1_call_parameters = [white_id, message_identifier, "GAME_STATUS_" + status];
+  const p2_call_parameters = [black_id, message_identifier, "GAME_STATUS_" + status];
 
   if (cm_parameters.parameters) {
     cm_parameters.parameters.forEach(p => {
       switch (p) {
         case "losing_color":
-          p1_call_parameters.push(game.result === "1-0" ? "black" : "white");
-          p2_call_parameters.push(game.result === "1-0" ? "black" : "white");
+          p1_call_parameters.push(result === "1-0" ? "black" : "white");
+          p2_call_parameters.push(result === "1-0" ? "black" : "white");
           break;
         case "winning_color":
-          p1_call_parameters.push(game.result === "1-0" ? "white" : "black");
-          p2_call_parameters.push(game.result === "1-0" ? "white" : "black");
+          p1_call_parameters.push(result === "1-0" ? "white" : "black");
+          p2_call_parameters.push(result === "1-0" ? "white" : "black");
           break;
         case "offending_color":
-          p1_call_parameters.push(game.tomove === "white" ? "black" : "white");
-          p2_call_parameters.push(game.tomove === "white" ? "black" : "white");
+          p1_call_parameters.push(tomove);
+          p2_call_parameters.push(tomove);
           break;
         default:
           throw new Meteor.Error("Unknown parameter " + p);
@@ -2886,9 +3011,12 @@ Meteor.methods({
 });
 
 Meteor.publish("game_history", function() {
-  return GameHistoryCollection.find({
-    $or: [{ "white.id": this.userId }, { "black.id": this.userId }]
-  });
+  return GameHistoryCollection.find(
+    {
+      $or: [{ "white.id": this.userId }, { "black.id": this.userId }]
+    },
+    { sort: { startTime: -1 }, limit: SystemConfiguration.gameHistoryCount() }
+  );
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
