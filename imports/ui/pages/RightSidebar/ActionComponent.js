@@ -119,7 +119,7 @@ class ActionComponent extends Component {
     return (
       <div className="draw-section">
         {statustbar ? (
-          <div style={this.props.cssmanager.drawActionSection()}>Game status : {status}</div>
+          <div style={this.props.cssmanager.drawActionSection()}>Gamestatus : {status}</div>
         ) : null}
         {playingButton ? (
           <ul>

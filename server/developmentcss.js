@@ -620,62 +620,33 @@ const usercss = {
       p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg"
     }
   },
-  fsquare: {
-    all: {
-      backgroundRepeat: "no-repeat",
-      backgroundSize: "100%",
-      backgroundPosition: "center",
-      borderRadius: "3px",
-      color: "#fff"
-    },
-    w: {
-      backgroundColor: "none"
-    },
-    b: {
-      backgroundColor: "none"
-    }
-  },
   fallendpieces: {
     all: {},
     w: {
-      r: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wR.png)`
-      },
-      b: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wB.png)`
-      },
-      n: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wN.png)`
-      },
-      q: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wQ.png)`
-      },
-      k: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wK.png)`
-      },
-      p: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/wP.png)`
-      }
+      r: "images/fallenpieces/wR.png",
+
+      b: "images/fallenpieces/wB.png",
+
+      n: "images/fallenpieces/wN.png",
+
+      q: "images/fallenpieces/wQ.png",
+
+      k: "images/fallenpieces/wK.png",
+
+      p: "images/fallenpieces/wP.png"
     },
     b: {
-      r: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bR.png)`
-      },
-      b: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bB.png)`
-      },
-      n: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bN.png)`
-      },
-      q: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bQ.png)`
-      },
-      k: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bK.png)`
-      },
-      p: {
-        backgroundImage: `url(http://localhost:3000/images/fallenpieces/bP.png)`
-      }
+      r: "images/fallenpieces/bR.png",
+
+      b: "images/fallenpieces/bB.png",
+
+      n: "images/fallenpieces/bN.png",
+
+      q: "images/fallenpieces/bQ.png",
+
+      k: "images/fallenpieces/bK.png",
+
+      p: "images/fallenpieces/bP.png"
     }
   }
 };

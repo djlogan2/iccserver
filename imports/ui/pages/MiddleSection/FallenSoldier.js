@@ -18,16 +18,14 @@ export default class FallenSoldier extends React.Component {
         );
       }
     }
-
     return items;
   }
 }
 
 class FallenSoldierSquare extends React.Component {
   render() {
-    const h = this.props.side / 2;
-    const w = this.props.side / 2;
-    let font_height_width = this.props.side * 0.75;
+    const h = this.props.side / 5.7;
+    const w = this.props.side / 5.7;
     let count = this.props.count;
 
     if (count > 1) {
@@ -36,34 +34,48 @@ class FallenSoldierSquare extends React.Component {
     } else {
       count = null;
     }
-    this._square_side = Math.min(h, w);
-    const squareStyle = this.props.cssmanager.fSquareStyle(
-      this.props.color,
-      this.props.piece,
-      this._square_side
-    );
+    const side = Math.min(h, w);
+    const peiceImage = this.props.cssmanager.fSquareStyle(this.props.color, this.props.piece);
+    let imageSide = {
+      width: h,
+      height: w
+    };
+    const imageStyle = {
+      backgroundRepeat: "no-repeat",
+      backgroundSize: "100%",
+      backgroundPosition: "center",
+      borderRadius: "3px",
+      color: "#fff",
+      backgroundColor: "none",
+      position: "relative"
+    };
     let countStyle = {
+      width: h / 1.5,
+      height: w / 1.5,
       background: "#1565c0",
       borderRadius: "50px",
-      height: font_height_width,
-      width: font_height_width,
       fontSize: "11px",
       padding: "2px",
-      marginLeft: "13px",
-      border: "#fff solid 1px"
+      border: "#fff solid 1px",
+      top: "-4px",
+      left: "-3px",
+      position: "absolute"
     };
     let notcountStyle = {
+      width: h / 1.5,
+      height: w / 1.5,
       borderRadius: "50px",
-      height: font_height_width,
-      width: font_height_width,
       fontSize: "11px",
       padding: "2px",
-      marginLeft: "13px"
+      top: "-4px",
+      left: "-3px",
+      position: "absolute"
     };
     let spanStyle = count ? countStyle : notcountStyle;
     return (
       <div style={{ display: "inline-block" }}>
-        <div style={squareStyle}>
+        <div style={imageStyle}>
+          <img src={peiceImage} alt="" style={imageSide} />
           <span style={spanStyle}>{count}</span>{" "}
         </div>
       </div>

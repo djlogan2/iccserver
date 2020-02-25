@@ -280,7 +280,7 @@ export default class MainPage extends Component {
     this.props.removeGameHistory();
   }
   gamePgnExport(id, time) {
-    Meteor.call("exportToPGN", id, (error, result) => {
+    Meteor.call("pgnExportFromHistory", id, (error, result) => {
       if (!!result) {
         const element = document.createElement("a");
         const file = new Blob([result], { type: "text/plain" });
@@ -290,7 +290,7 @@ export default class MainPage extends Component {
         element.click();
       }
     });
-  } 
+  }
   startGameExamine() {
     this.setState({ examineGame: true });
   }
@@ -380,7 +380,7 @@ export default class MainPage extends Component {
 
       if (!!actions && actions.length !== 0) {
         let ack = actions[actions.length - 1];
-       /*  if (!!ack["type"] && ack["type"] === "resign") {
+        /*  if (!!ack["type"] && ack["type"] === "resign") {
           if (ack["issuer"] !== this.userId && this.state.resignnotification === false) {
             let msg = translator("gameresign");
             informativePopup = this.GameResignedPopup(msg, "abort");
@@ -497,7 +497,7 @@ export default class MainPage extends Component {
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
               circles={this.props.circles}
-            //  fen={this.props.fen}
+              //  fen={this.props.fen}
               undo={undo}
               width={this.state.width}
               height={this.state.height}

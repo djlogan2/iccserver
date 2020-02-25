@@ -53,7 +53,7 @@ export default class BlackPlayerClock extends Component {
     let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
     let seconds = "" + Math.floor(time % TOTAL_MINUTES);
     let mseconds = null;
-    let cv = this.props.side / 9;
+    let cv = this.props.side / 10;
     let clockstyle = {
       right: "0",
       paddingTop: cv / 15,
@@ -91,7 +91,7 @@ export default class BlackPlayerClock extends Component {
     return (
       <div
         style={{
-          width: this.props.side * 0.25,
+          width: this.props.side * 0.2,
           display: "inline-block",
           position: "relative",
           verticalAlign: "top",

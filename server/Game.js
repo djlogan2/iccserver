@@ -2841,7 +2841,8 @@ Meteor.methods({
   startLocalExaminedGame: Game.startLocalExaminedGame,
   moveBackward: Game.moveBackward,
   moveForward: Game.moveForward,
-  exportToPGN: Game.exportToPGN
+  exportToPGN: Game.exportToPGN,
+  pgnExportFromHistory: GameHistory.exportToPGN
 });
 
 Meteor.publish("playing_games", function() {

@@ -10,25 +10,23 @@ export default class Player extends Component {
       userpic = this.props.PlayerData.userPicture;
     else userpic = "player-img-top.png";
 
-    const ph = this.props.side / 8.7;
-    const pw = this.props.side / 8.7;
+    const ph = this.props.side / 10;
+    const pw = this.props.side / 10;
 
-    this._square_side = Math.min(ph, pw);
-
-    let _user_side = pw / 1.4;
+    let _user_side = pw / 1.3;
     return (
       <div
         style={{
-          width: this.props.side * 0.75,
+          width: this.props.side * 0.8,
           display: "inline-block",
           marginTop: "5px",
           marginBottom: "5px",
           position: "relative"
         }}
       >
-        <div style={{ width: pw * 3.7, display: "inline-block" }}>
+        <div style={{ width: this.props.side * 0.45, display: "inline-block" }}>
           <img
-            style={this.props.cssmanager.userPicture(_user_side)}
+            style={this.props.cssmanager.userPicture(this.props.side * 0.08)}
             src={`images/${userpic}`}
             //src="images/player-img-top.png"
             alt="user"
@@ -40,7 +38,7 @@ export default class Player extends Component {
                 target="_blank"
                 style={{
                   color: "#fff",
-                  fontSize: pw / 4,
+                  fontSize: this.props.side * 0.029,
                   fontWeight: "600",
                   marginRight: "15px"
                 }}
@@ -53,7 +51,7 @@ export default class Player extends Component {
               <span
                 style={{
                   color: this.props.turnColor,
-                  fontSize: pw / 6
+                  fontSize: this.props.side * 0.019
                 }}
               >
                 {this.props.Playermsg}
@@ -61,16 +59,16 @@ export default class Player extends Component {
             </div>
           </div>
           <img
-            style={this.props.cssmanager.userFlag(_user_side)}
+            style={this.props.cssmanager.userFlag(this.props.side * 0.08)}
             src={this.props.cssmanager.flags("us")}
             alt="us"
           />
         </div>
 
-        <div style={{ width: pw * 2, display: "inline-block" }}>
+        <div style={{ width: this.props.side * 0.35, display: "inline-block" }}>
           <FallenSoldier
             cssmanager={this.props.cssmanager}
-            side={pw}
+            side={this.props.side * 0.35}
             color={this.props.color}
             FallenSoldiers={this.props.FallenSoldiers}
           />
