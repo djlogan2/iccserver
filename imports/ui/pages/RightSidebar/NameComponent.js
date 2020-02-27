@@ -32,7 +32,7 @@ export default class NameComponent extends Component {
 					 Game sheet download document Component
 					 Player can download PGN and FEN string for further uses . */}
 
-          <GameSheetDownloadComponent cssmanager={this.props.cssmanager} />
+          <GameSheetDownloadComponent cssmanager={this.props.cssmanager} game={this.props.game} />
 
           {/* 
 				    Game Analysis Component

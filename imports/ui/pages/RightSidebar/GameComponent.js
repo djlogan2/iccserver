@@ -7,7 +7,7 @@ export default class GameComponent extends Component {
   render() {
     return (
       <div>
-        <Name cssmanager={this.props.cssmanager} />
+        <Name cssmanager={this.props.cssmanager} game={this.props.game} />
         <MoveList
           cssmanager={this.props.cssmanager}
           game={this.props.game}

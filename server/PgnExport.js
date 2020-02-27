@@ -8,7 +8,7 @@ Picker.route("/export/pgn/:collection/:_id", function(params, req, res, next) {
       game = Game.exportToPGN(params._id);
       break;
     case "history":
-      game = GameHistory.exportToPGN(params.id);
+      game = GameHistory.exportToPGN(params._id);
       break;
     default:
       res.statusCode = 999;

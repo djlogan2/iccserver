@@ -38,7 +38,7 @@ export default class Player extends Component {
                 target="_blank"
                 style={{
                   color: "#fff",
-                  fontSize: this.props.side * 0.029,
+                  fontSize: this.props.side * 0.025,
                   fontWeight: "600",
                   marginRight: "15px"
                 }}
@@ -59,7 +59,7 @@ export default class Player extends Component {
             </div>
           </div>
           <img
-            style={this.props.cssmanager.userFlag(this.props.side * 0.08)}
+            style={this.props.cssmanager.userFlag(this.props.side * 0.07)}
             src={this.props.cssmanager.flags("us")}
             alt="us"
           />

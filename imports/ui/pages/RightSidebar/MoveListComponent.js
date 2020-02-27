@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
@@ -8,28 +9,44 @@ export default class MoveListComponent extends Component {
     super(props);
     this.cmi = 0;
     this.state = {
-      current: 0
+      current: null,
     };
   }
   _pgnView = (actionType, action) => {};
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.cmi - 1, 1);
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.cmi);
+    this.setState(state => {
+      return { current: null };
+    });
   };
   moveBackword = () => {
     Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
-    this.setState(state => {
-      return { current: state.current - 1 };
-    });
+    if(this.state.current!==null){
+      this.setState(state => {
+        return { current: state.current === 0 ? null : state.current - 1 };
+      });
+    }
+   
   };
   moveForward = () => {
     Meteor.call("moveForward", "MoveForward", this.gameId, 1);
+    if(this.state.current===null){
     this.setState(state => {
-      return { current: state.current + 1 };
+      return { current:  0 };
+    });
+  }else{
+    this.setState(state => {
+      return { current: state.current < this.cmi-1 ?state.current + 1 : this.cmi-1 };
     });
   };
+}
   moveForwardEnd = cmi => {
-    Meteor.call("moveForward", "MoveForward", this.gameId, this.cmi - 1);
-    this.setState({ current: this.cmi - 2 });
+    Meteor.call("moveForward", "MoveForward", this.gameId, this.cmi);
+    if(this.state.current===null){
+      this.setState(state => {
+        return { current: this.cmi-1 };
+      }); 
+    }
   };
   render() {
     let moves = [];
@@ -70,7 +87,7 @@ export default class MoveListComponent extends Component {
         }
       }
     } else {
-      this.cmi = game.variations.movelist.length || 0;
+      this.cmi = game.variations.movelist.length - 1 || 0;
       for (let i = 1; i < game.variations.movelist.length; i++) {
         moves.push(game.variations.movelist[i].move);
       }
@@ -102,11 +119,8 @@ export default class MoveListComponent extends Component {
         ind = "";
       }
       let style = { color: "black" };
-      let movestyle =
-        this.state.current === index && game.status !== "playing"
-          ? Object.assign(style, { color: "black" })
-          : style;
-
+      let movestyle = (this.state.current === index && !!game.status && game.status!=="playing") ? Object.assign(style, { color: "red" }) : style;
+    
       return (
         <span key={index}>
           {ind ? <b>{ind}</b> : null}
@@ -114,13 +128,18 @@ export default class MoveListComponent extends Component {
         </span>
       );
     });
+    let btnstyle = {}; 
+    btnstyle = this.props.cssmanager.buttonStyle();
+    Object.assign(btnstyle, { background:"#f1f1f1",borderRadius:"5px",margin: "5px",padding: "6px 28px"
+   });
+    
     return (
       <div>
-        <div style={this.props.cssmanager.gameMoveList()}>{moveslist}</div>
+        <div style={this.props.cssmanager.gameMoveList()} >{moveslist}</div>
         {displayButton ? (
-          <div style={mstyle}>
+          <div style={mstyle} className="moveAction">
             <button
-              style={this.props.cssmanager.buttonStyle()}
+              style={btnstyle}
               onClick={this.moveBackwordBeginning.bind(this)}
             >
               <img
@@ -129,7 +148,7 @@ export default class MoveListComponent extends Component {
               />
             </button>
             <button
-              style={this.props.cssmanager.buttonStyle()}
+              style={btnstyle}
               onClick={this.moveBackword.bind(this)}
             >
               <img
@@ -138,13 +157,13 @@ export default class MoveListComponent extends Component {
               />
             </button>
             <button
-              style={this.props.cssmanager.buttonStyle()}
+              style={btnstyle}
               onClick={this.moveForward.bind(this)}
             >
               <img src={this.props.cssmanager.buttonBackgroundImage("nextIconGray")} alt="next" />
             </button>
             <button
-              style={this.props.cssmanager.buttonStyle()}
+              style={btnstyle}
               onClick={this.moveForwardEnd.bind(this, 1)}
             >
               <img
@@ -152,21 +171,21 @@ export default class MoveListComponent extends Component {
                 alt="fast-forward-next"
               />
             </button>
-            <button style={this.props.cssmanager.buttonStyle()}>
+            <button style={btnstyle}>
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("nextIconSingle")}
                 alt="next-single"
               />
             </button>
-            <button style={this.props.cssmanager.buttonStyle()} onClick={this.props.flip}>
+            <button style={ btnstyle} onClick={this.props.flip}>
               <img src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
             </button>
-            <button style={this.props.cssmanager.buttonStyle()}>
+           {/*  <button style={btnstyle}>
               <img
                 src={this.props.cssmanager.buttonBackgroundImage("settingIcon")}
                 alt="setting-icon"
               />
-            </button>
+            </button> */}
           </div>
         ) : null}
       </div>

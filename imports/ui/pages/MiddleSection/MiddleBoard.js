@@ -86,10 +86,10 @@ export default class MiddleBoard extends Component {
     } else return null;
   } */
   componentWillReceiveProps(nextProps) {
-    //if (nextProps.board.fen() !== this.state.fen) {
+    if (this.props.gameStatus === "playing") {
     //Perform some operation
-    this.setState({ fen: nextProps.board.fen() });
-    //  }
+       this.setState({ fen: nextProps.board.fen() });
+    }
   }
 
   nextRAF() {
@@ -224,6 +224,9 @@ export default class MiddleBoard extends Component {
         }
       }
     }
+    let fen;
+    if (!!this.props.gameStatus && this.props.gameStatus === "playing") fen = this.state.fen;
+    else fen = this.props.board.fen();
 
     return (
       <div>
@@ -250,7 +253,7 @@ export default class MiddleBoard extends Component {
             darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
             lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
             calcWidth={({ screenWidth }) => boardsize}
-            position={this.state.fen}
+            position={fen}
             onDrop={this.onDrop}
             orientation={bordtop}
             undo={this.props.undo}

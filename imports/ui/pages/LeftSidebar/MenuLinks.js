@@ -34,10 +34,25 @@ class MenuLinks extends Component {
       }
     });
   }
+  startLocalExaminedGame(action) {
+    Meteor.call(
+      "startLocalExaminedGame",
+      "startlocalExaminedGame",
+      "Mr white",
+      "Mr black",
+      0,
+      (error, response) => {
+        if (response) {
+          this.props.examineAction(action);
+        }
+      }
+    );
+  }
   handleClick = (e, label) => {
     e.preventDefault();
     if (label === "mygame") this.props.gameHistory(label);
     if (label === "play") this.props.examineAction(label);
+    if (label === "examine") this.startLocalExaminedGame(label);
     if (label === "logout")
       Meteor.logout(err => {
         if (err) {

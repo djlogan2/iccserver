@@ -242,6 +242,13 @@ background: #efefef;
 	height: 78px;
 }
 
+/* Move button control to bottom. */
+.moveAction button:hover {
+	background:#6B6867 !important; 
+	opacity: 0.8;
+  }
+  
+  
 @media (min-width: 992px) and (max-width: 1199px) {
 /* 	.right-section {
 		width: 48% !important;

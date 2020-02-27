@@ -218,7 +218,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       const GameHistory = GameHistoryCollection.find({
         $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
       }).fetch();
-      if (!!GameHistory) this.setState({ GameHistory: GameHistory });
+      this.setState({ GameHistory: GameHistory });
     }
   }
 
@@ -338,7 +338,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       const message_identifier = "server:game:" + game._id;
       clientMessage = this.clientMessages(message_identifier);
     }
-   // let captur1 = { w: { p: 3, n: 2, b: 2, r: 2, q: 1 }, b: { p: 3, n: 2, b: 2, r: 2, q: 1 } };
+    // let captur1 = { w: { p: 3, n: 2, b: 2, r: 2, q: 1 }, b: { p: 3, n: 2, b: 2, r: 2, q: 1 } };
     return (
       <div>
         <MainPage
