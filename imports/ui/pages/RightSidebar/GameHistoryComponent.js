@@ -54,7 +54,10 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
     return (
       <div>
         {gamelist.length > 0 ? (
-          <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
+          <table
+            className="gamehistory"
+            style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
+          >
             <thead>
               <tr>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
@@ -73,7 +76,11 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
             </thead>
             <tbody>
               {gamelist.map((game, index) => (
-                <tr key={index} onClick={this.setGameExaminMode.bind(this, game.id)}>
+                <tr
+                  key={index}
+                  style={{ cursor: "pointer" }}
+                  onClick={this.setGameExaminMode.bind(this, game.id)}
+                >
                   <td style={{ padding: "5px 5px" }}>
                     {game.white}-vs-{game.black}
                   </td>
@@ -81,7 +88,11 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
                   <td style={{ padding: "5px 5px" }}>{game.time}</td>
                   <td style={{ padding: "5px 5px" }}>
                     <a href={"export/pgn/history/" + game.id}>
-                      <img src="images/pgnicon.png" style={{ width: "25px", height: "25px" }} />
+                      <img
+                        src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
+                        style={{ width: "25px", height: "25px" }}
+                        alt="PgnDownload"
+                      />
                     </a>
                   </td>
                 </tr>

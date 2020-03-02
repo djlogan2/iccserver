@@ -1,58 +1,47 @@
 import React, { Component } from "react";
 import { Logger } from "../../../../lib/client/Logger";
-const TOTAL_MINUTES = 60;
 let log = new Logger("server/BlackPlayerClock_JS");
 export default class BlackPlayerClock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      time: Math.floor(props.ClockData.current / 1000),
-      isActive: props.ClockData.isactive,
-      initial: 0,
-      mseconds: 9
+      initial: 0
     };
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.isactive !== this.state.isactive) {
-      if (this.state.isactive) {
-        this.intervalId = setInterval(() => {
-          const { mseconds, time } = this.state;
-
-          if (mseconds > 0) {
-            this.setState(({ mseconds }) => ({
-              mseconds: mseconds - 1
-            }));
-          }
-          if (mseconds === 0) {
-            if (time === 0 && mseconds === 0) {
-              clearInterval(this.myInterval);
-            } else {
-              this.setState(({ time }) => ({
-                time: time - 1,
-                mseconds: 9
-              }));
-            }
-          }
-        }, 100);
-      } else clearInterval(this.intervalId);
+  getTime(game_record, color) {
+    if (color !== game_record.tomove) return game_record.clocks[color].current;
+    const timediff = new Date().getTime() - game_record.clocks[color].starttime;
+    if (
+      game_record.clocks[color].delaytype === "us" &&
+      (game_record.clocks[color].delay | 0) * 1000 <= timediff
+    ) {
+      return game_record.clocks[color].current;
+    } else {
+      return game_record.clocks[color].current - timediff;
     }
-  }
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.ClockData.current !== prevState.initial) {
-      let time = Math.floor(nextProps.ClockData.current / 1000);
-      return { time: time, initial: nextProps.ClockData.current };
-    }
-    if (nextProps.ClockData.isactive !== prevState.isactive) {
-      return { isactive: nextProps.ClockData.isactive };
-    } else return null;
   }
   render() {
-    const { time } = this.state;
-
-    let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);
-    let seconds = "" + Math.floor(time % TOTAL_MINUTES);
-    let mseconds = null;
+    let time;
+    let minute = 0;
+    let second = 0;
+    let millisecond;
+    if (!!this.props.ClockData && this.props.ClockData.status === "playing") {
+      time = this.getTime(this.props.ClockData, this.props.color);
+      millisecond = time;
+      let hh = Math.floor(millisecond / 1000 / 60 / 60);
+      millisecond -= hh * 1000 * 60 * 60;
+      minute = Math.floor(millisecond / 1000 / 60);
+      millisecond -= minute * 1000 * 60;
+      second = Math.floor(millisecond / 1000);
+      millisecond -= second * 1000;
+      millisecond = millisecond / 100;
+    }
+    if (minute < 10) {
+      minute = `0${minute}`;
+    }
+    if (second < 10) {
+      second = `0${second}`;
+    }
     let cv = this.props.side / 10;
     let clockstyle = {
       right: "0",
@@ -69,24 +58,6 @@ export default class BlackPlayerClock extends Component {
       fontWeight: "700",
       position: "absolute"
     };
-    if (
-      Math.floor(time % TOTAL_MINUTES) < 10 &&
-      Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES) === 0
-    ) {
-      mseconds = `:${this.state.mseconds}`;
-      Object.assign(clockstyle, { color: "#fb0404" });
-    }
-
-    if (isNaN(minutes) || isNaN(seconds)) {
-      return null;
-    }
-
-    if (minutes.length === 1) {
-      minutes = `0${minutes}`;
-    }
-    if (seconds.length === 1) {
-      seconds = `0${seconds}`;
-    }
 
     return (
       <div
@@ -100,8 +71,7 @@ export default class BlackPlayerClock extends Component {
       >
         <div style={clockstyle}>
           {/* <div style={this.props.cssmanager.clock(time)}> */}
-          {minutes}:{seconds}
-          {mseconds}
+          {minute}:{second}
         </div>
       </div>
     );

@@ -10,47 +10,55 @@ export default class MoveListComponent extends Component {
     this.cmi = 0;
     this.state = {
       current: null,
+      cmi:0
     };
   }
-  _pgnView = (actionType, action) => {};
+  componentWillReceiveProps(nextProps){
+    if(nextProps.game.variations.cmi!==this.props.game.variations.cmi){
+        this.setState({cmi:nextProps.game.variations.cmi});
+    }
+  }
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.cmi);
-    this.setState(state => {
-      return { current: null };
-    });
+    
+    Meteor.call("moveBackward", "MoveBackward", this.gameId,this.state.cmi);
+    
   };
   moveBackword = () => {
     Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
-    if(this.state.current!==null){
-      this.setState(state => {
-        return { current: state.current === 0 ? null : state.current - 1 };
-      });
-    }
+    
    
   };
   moveForward = () => {
     Meteor.call("moveForward", "MoveForward", this.gameId, 1);
-    if(this.state.current===null){
-    this.setState(state => {
-      return { current:  0 };
-    });
-  }else{
-    this.setState(state => {
-      return { current: state.current < this.cmi-1 ?state.current + 1 : this.cmi-1 };
-    });
-  };
+   
 }
   moveForwardEnd = cmi => {
-    Meteor.call("moveForward", "MoveForward", this.gameId, this.cmi);
-    if(this.state.current===null){
-      this.setState(state => {
-        return { current: this.cmi-1 };
-      }); 
-    }
+   
+    Meteor.call("moveForward", "MoveForward", this.gameId,this.cmi-this.state.cmi);
+   
   };
+ addmove(move_number, variations, white_to_move, movelist, idx) { let string = "";
+  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
+  string += movelist[movelist[idx].variations[0]].move+"|";
+  let next_move_number = move_number;
+  let next_white_to_move = !white_to_move;
+  if (next_white_to_move) next_move_number++;
+   string +=
+   this.addmove(
+      next_move_number,
+      movelist[idx].variations.length > 1,
+      next_white_to_move,
+      movelist,
+      movelist[idx].variations[0]
+    );
+  return string;
+}
+ buildPgnFromMovelist(movelist) {
+ return this.addmove(1, false, true, movelist, 0);
+ 
+}
   render() {
     let moves = [];
-    let movesString = [];
     let variation;
     let game = this.props.game;
     this.gameId = game._id;
@@ -87,27 +95,16 @@ export default class MoveListComponent extends Component {
         }
       }
     } else {
-      this.cmi = game.variations.movelist.length - 1 || 0;
-      for (let i = 1; i < game.variations.movelist.length; i++) {
-        moves.push(game.variations.movelist[i].move);
-      }
+      let string = this.buildPgnFromMovelist(game.variations.movelist);
+      moves=string.split("|");
+      moves.splice(-1,1)
+      this.cmi=moves.length;
     }
-    /* if (moves != null || moves !== undefined) {
-      for (let i = 0; i < moves.length; ) {
-        if (i + 1 < moves.length) {
-          movesString.push(" " + moves[i] + " " + moves[i + 1] + " ");
-        } else {
-          movesString.push(" " + moves[i] + " ");
-        }
-        i = i + 2;
-      }
-    } */
-
     let mstyle = this.props.cssmanager.gameButtonMove();
     if (this.props.currentGame === true) {
-      Object.assign(mstyle, { bottom: "26px" });
+      Object.assign(mstyle, { bottom: "26px",padding:"0px" });
     } else {
-      Object.assign(mstyle, { bottom: "85px" });
+      Object.assign(mstyle, { bottom: "85px",padding:"0px" });
     }
     let cnt = 1;
     let ind = "";
@@ -119,7 +116,11 @@ export default class MoveListComponent extends Component {
         ind = "";
       }
       let style = { color: "black" };
-      let movestyle = (this.state.current === index && !!game.status && game.status!=="playing") ? Object.assign(style, { color: "red" }) : style;
+      let movestyle = (this.state.cmi === index+1 ) ? Object.assign(style, { color: "#904f4f",
+        fontWeight: "bold",
+        fontSize: "15px"
+      
+      }) : style;
     
       return (
         <span key={index}>
@@ -130,7 +131,7 @@ export default class MoveListComponent extends Component {
     });
     let btnstyle = {}; 
     btnstyle = this.props.cssmanager.buttonStyle();
-    Object.assign(btnstyle, { background:"#f1f1f1",borderRadius:"5px",margin: "5px",padding: "6px 28px"
+    Object.assign(btnstyle, { background:"#f1f1f1",borderRadius:"5px",margin: "5px",padding: "6px 25px"
    });
     
     return (

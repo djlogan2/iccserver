@@ -87,8 +87,8 @@ export default class MiddleBoard extends Component {
   } */
   componentWillReceiveProps(nextProps) {
     if (this.props.gameStatus === "playing") {
-    //Perform some operation
-       this.setState({ fen: nextProps.board.fen() });
+      //Perform some operation
+      this.setState({ fen: nextProps.board.fen() });
     }
   }
 
@@ -162,6 +162,9 @@ export default class MiddleBoard extends Component {
       this.state.top === "w" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
     const bottomPlayer =
       this.state.top === "b" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
+
+    const topPlayertime = this.state.top === "w" ? "white" : "black";
+    const bottomPlayertime = this.state.top === "b" ? "white" : "black";
 
     const topPlayerClock =
       this.state.top === "w"
@@ -244,7 +247,8 @@ export default class MiddleBoard extends Component {
 
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
-            ClockData={topPlayerClock}
+            ClockData={this.props.game}
+            color={topPlayertime}
             side={size}
           />
 
@@ -277,9 +281,10 @@ export default class MiddleBoard extends Component {
           />
           <BlackPlayerClock
             cssmanager={this.props.cssmanager}
-            ClockData={bottomPlayerClock}
+            ClockData={this.props.game}
+            color={bottomPlayertime}
             side={size}
-          />
+            />
         </div>
       </div>
     );

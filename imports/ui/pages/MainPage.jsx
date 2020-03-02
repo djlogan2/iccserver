@@ -114,6 +114,7 @@ export default class MainPage extends Component {
   }
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
+      tomove: "white",
       white: {
         name: "Player-1",
         rating: 1600,
@@ -318,7 +319,6 @@ export default class MainPage extends Component {
     let translator = i18n.createTranslator("Common.MainPage", this.getLang());
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-
     const GameRequest = this.props.gameRequest;
     let exPopup = null;
     let actionPopup = null;
@@ -487,6 +487,7 @@ export default class MainPage extends Component {
               width={this.state.width}
               height={this.state.height}
               gameStatus={status}
+              game={game}
             />
           </div>
           {rightmenu}

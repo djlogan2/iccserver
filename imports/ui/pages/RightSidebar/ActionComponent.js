@@ -114,12 +114,14 @@ class ActionComponent extends Component {
       statustbar = 0;
     }
 
-    let translator = i18n.createTranslator("Common.actionButtonLabel", ActionComponent.getLang());
+    let translator = i18n.createTranslator("Common.ActionComponent", ActionComponent.getLang());
 
     return (
       <div className="draw-section">
         {statustbar ? (
-          <div style={this.props.cssmanager.drawActionSection()}>Gamestatus : {status}</div>
+          <div style={this.props.cssmanager.drawActionSection()}>
+            {translator("Gamestatus")}: {translator(status)}
+          </div>
         ) : null}
         {playingButton ? (
           <ul>

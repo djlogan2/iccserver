@@ -60,7 +60,7 @@ class RightBarBottom extends Component {
           imgsrc="images/history-icon-white.png"
           hoverSrc="images/history-icon-blue.png"
         >
-          <GameHistory />
+          <GameHistory cssmanager={this.props.cssmanager} />
         </div>
         <div
           label="Adjourned Game"
