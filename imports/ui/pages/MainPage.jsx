@@ -180,12 +180,19 @@ export default class MainPage extends Component {
   loadGameHistroyPopup(games) {
     let result;
     let gamelist = [];
+    let title;
     if (!!games && games.length > 0) {
       for (let i = 0; i < games.length; i++) {
+        title =
+          games[i].white.id === Meteor.userId()
+            ? games[i].white.name + "-" + games[i].black.name + ".pgn"
+            : games[i].black.name + "-" + games[i].white.name + ".pgn";
         if (
           (games[i].white.id === Meteor.userId() && games[i].result === "1-0") ||
           (games[i].black.id === Meteor.userId() && games[i].result === "0-1")
         ) {
+          // username - opponentusername.pgn;
+
           result = "Won";
         } else {
           result = "Loss";
@@ -255,7 +262,7 @@ export default class MainPage extends Component {
                     <td style={{ padding: "5px 5px" }}>{game.result}</td>
                     <td style={{ padding: "5px 5px" }}>{game.time}</td>
                     <td style={{ padding: "5px 5px" }}>
-                      <a href={"export/pgn/history/" + game.id}>
+                      <a href={"export/pgn/history/" + game.id + "/" + title}>
                         <img
                           src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
                           style={{ width: "25px", height: "25px" }}
@@ -409,6 +416,7 @@ export default class MainPage extends Component {
         }
       }
     } else {
+      status = "idlemode";
       this.intializeBoard();
     }
     if (!!this.props.GameHistory) {

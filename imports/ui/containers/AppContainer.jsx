@@ -334,11 +334,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
         }
       }
     }
-    if (!!game) {
-      const message_identifier = "server:game:" + game._id;
+    if (!!this.gameId) {
+      const message_identifier = "server:game:" + this.gameId;
       clientMessage = this.clientMessages(message_identifier);
+      log.debug("clientMessage", clientMessage);
     }
-    // let captur1 = { w: { p: 3, n: 2, b: 2, r: 2, q: 1 }, b: { p: 3, n: 2, b: 2, r: 2, q: 1 } };
     return (
       <div>
         <MainPage

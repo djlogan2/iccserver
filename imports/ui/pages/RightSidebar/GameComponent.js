@@ -13,15 +13,10 @@ export default class GameComponent extends Component {
           game={this.props.game}
           flip={this.props.flip}
           currentGame={this.props.currentGame}
-        />
-        <Action
-          cssmanager={this.props.cssmanager}
-          game={this.props.game}
           gameRequest={this.props.gameRequest}
           startGameExamine={this.props.startGameExamine}
           examineAction={this.props.examineAction}
-          currentGame={this.props.currentGame}
-        />
+       />
       </div>
     );
   }

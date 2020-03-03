@@ -56,7 +56,7 @@ export default class MiddleBoard extends Component {
   } */
 
   componentDidUpdate(prevProps) {
-    if (prevProps.top !== this.props.top) {
+    if (this.props.gameStatus !== "idlemode" && prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
     }
   }
@@ -86,7 +86,7 @@ export default class MiddleBoard extends Component {
     } else return null;
   } */
   componentWillReceiveProps(nextProps) {
-    if (this.props.gameStatus === "playing") {
+    if (this.props.gameStatus === "playing" && this.state.fen !== nextProps.board.fen()) {
       //Perform some operation
       this.setState({ fen: nextProps.board.fen() });
     }
@@ -284,7 +284,7 @@ export default class MiddleBoard extends Component {
             ClockData={this.props.game}
             color={bottomPlayertime}
             side={size}
-            />
+          />
         </div>
       </div>
     );
