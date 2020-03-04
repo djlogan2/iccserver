@@ -30,7 +30,10 @@ describe.skip("kibitzes", function() {
   it("should not allow a user in the child_chat group to execute free-form kibitz", function() {
     chai.assert.fail("do me");
   });
-  it("should not allow any user to issue a child_chat kibitz", function() {
+  it("should only publish group kibitzes kibitzer is in a group and kibitzee is group restricted", function() {
+    chai.assert.fail("do me");
+  });
+  it("should publish all kibitzes even if a kibitzee is in a group when user is not group restricted", function() {
     chai.assert.fail("do me");
   });
 });

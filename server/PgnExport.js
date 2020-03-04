@@ -11,14 +11,14 @@ Picker.route("/export/pgn/:collection/:_id/:title", function(params, req, res, n
       game = GameHistory.exportToPGN(params._id);
       break;
     default:
-      res.statusCode = 999;
+      res.statusCode = 400;
       res.statusMessage = "Invalid collection";
       res.end("Invalid collection");
       return;
   }
 
   if (!game) {
-    res.statusCode = 999;
+    res.statusCode = 400;
     res.statusMessage = "Invalid ID";
     res.end("Invalid ID");
     return;
