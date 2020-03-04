@@ -49,7 +49,7 @@ Meteor.startup(() => {
         logout: "Logout",
         mygame: "My Games"
       },
-      ActionComponent: {
+      MoveListComponent: {
         takeBack: "Take Back",
         draw: "Draw",
         resign: "Resign",
@@ -201,11 +201,14 @@ Meteor.startup(() => {
         help: "ドを",
         mygame: "ドを ド"
       },
-      ActionComponent: {
+      MoveListComponent: {
         takeBack: "とあ事片",
         draw: "とあ片そ",
         resign: "とあ事",
-        abort: "とあ片そ"
+        abort: "とあ片そ",
+        Gamestatus: "とあ片そ",
+        examining: "Exaとあ片そmining",
+        playing: "とあ片"
       }
     }
   });

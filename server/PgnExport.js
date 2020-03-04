@@ -1,7 +1,7 @@
 import { Game, GameHistory } from "./Game";
 import { Picker } from "meteor/meteorhacks:picker";
 
-Picker.route("/export/pgn/:collection/:_id", function(params, req, res, next) {
+Picker.route("/export/pgn/:collection/:_id/:title", function(params, req, res, next) {
   let game;
   switch (params.collection) {
     case "game":
@@ -25,7 +25,7 @@ Picker.route("/export/pgn/:collection/:_id", function(params, req, res, next) {
   }
 
   res.setHeader("content-type", "text/plain");
-  res.setHeader("content-disposition", "attachment; filename=" + "icc-pgn-export.pgn");
+  res.setHeader("content-disposition", "attachment; filename=" + params.title);
   res.setHeader("content-length", game.length);
   res.write(game);
   res.end();
