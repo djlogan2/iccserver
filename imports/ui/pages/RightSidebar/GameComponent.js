@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import Name from "./NameComponent";
 import MoveList from "./MoveListComponent";
-import Action from "./ActionComponent";
 import "./Tabs/styles";
 export default class GameComponent extends Component {
   render() {
@@ -16,7 +15,7 @@ export default class GameComponent extends Component {
           gameRequest={this.props.gameRequest}
           startGameExamine={this.props.startGameExamine}
           examineAction={this.props.examineAction}
-       />
+        />
       </div>
     );
   }

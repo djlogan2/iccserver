@@ -56,7 +56,7 @@ export default class MiddleBoard extends Component {
   } */
 
   componentDidUpdate(prevProps) {
-    if (this.props.gameStatus !== "idlemode" && prevProps.top !== this.props.top) {
+    if (prevProps.top !== this.props.top) {
       this.setState({ top: this.props.top });
     }
   }
@@ -183,11 +183,13 @@ export default class MiddleBoard extends Component {
     const bc = this.state.top === "b" ? "b" : "w";
 
     let bordtop;
+
     if (this.state.top === "w") {
       bordtop = "black";
     } else {
       bordtop = "white";
     }
+
     let turn = false;
     //TODO:DRAGEABLE FALSE AND TRUE ACCODING GAME TURN
     if (

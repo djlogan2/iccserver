@@ -32,6 +32,14 @@ export default class MoveListComponent extends Component {
     if(nextProps.game.variations.cmi!==this.props.game.variations.cmi){
         this.setState({cmi:nextProps.game.variations.cmi});
     }
+    if (!!this.props.gameRequest) {
+      if (
+        nextProps.gameRequest !== this.props.gameRequest &&
+        this.props.gameRequest.type === "match"
+      ) {
+        this.setState({ gameRequest: this.props.gameRequest });
+      }
+    }
   }
   moveBackwordBeginning = () => {
       Meteor.call("moveBackward", "MoveBackward", this.gameId,this.state.cmi);
@@ -86,7 +94,7 @@ export default class MoveListComponent extends Component {
     Meteor.call("resignGame", "resignGame", this.gameId);
   };
   _reMatchGame = () => {
-   /*  let toUser;
+    let toUser;
     if (Meteor.userId() !== this.state.gameRequest.challenger_id) {
       toUser = this.state.gameRequest.challenger_id;
     } else {
@@ -107,7 +115,7 @@ export default class MoveListComponent extends Component {
       this.state.gameRequest.receiver_inc_or_delay,
       this.state.gameRequest.receiver_delaytype,
       this.state.gameRequest.challenger_color_request
-    ); */
+    ); 
   };
   handleChangeSecond = event => {
     let action = event.target.value;

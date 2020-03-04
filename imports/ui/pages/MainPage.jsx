@@ -333,6 +333,17 @@ export default class MainPage extends Component {
     let status = "others";
     let undo = false;
     let position = { top: "w" };
+    if (!!game) {
+      if (game.black.id === Meteor.userId()) {
+        this.top = "w";
+        Object.assign(position, { top: "w" });
+      } else {
+        this.top = "b";
+        Object.assign(position, { top: "b" });
+      }
+    } else {
+      Object.assign(position, { top: this.top });
+    }
     if (
       !!GameRequest &&
       GameRequest.type === "match" &&
@@ -345,11 +356,7 @@ export default class MainPage extends Component {
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
       this.gameId = game._id;
-      if (game.black.id === Meteor.userId()) {
-        Object.assign(position, { top: "w" });
-      } else {
-        Object.assign(position, { top: "b" });
-      }
+
       Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
       if (status === "examining") {
         undo = true;
@@ -417,7 +424,7 @@ export default class MainPage extends Component {
       }
     } else {
       status = "idlemode";
-      this.intializeBoard();
+      // this.intializeBoard();
     }
     if (!!this.props.GameHistory) {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
