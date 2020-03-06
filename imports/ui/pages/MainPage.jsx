@@ -205,7 +205,7 @@ export default class MainPage extends Component {
     }
 
     let style = {
-      width: "390px",
+      width: "490px",
       borderRadius: "15px",
       background: "#ffffff",
       position: "fixed",
@@ -225,7 +225,7 @@ export default class MainPage extends Component {
     return (
       <div style={style}>
         {gamelist.length > 0 ? (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
+          <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
             <table
               className="gamehistory"
               style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
@@ -258,7 +258,7 @@ export default class MainPage extends Component {
                     <td style={{ padding: "5px 5px" }}>{game.result}</td>
                     <td style={{ padding: "5px 5px" }}>{game.time}</td>
                     <td style={{ padding: "5px 5px" }}>
-                      <a href={"export/pgn/history/" + game.id}>
+                      <a href={"export/pgn/history/" + game.id} className="pgnbtn">
                         <img
                           src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
                           style={{ width: "25px", height: "25px" }}

@@ -132,8 +132,9 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
     // this.rating=this.getDynamicRatings();
+    let tabHading = this.props.cssmanager.formMain();
+    Object.assign(tabHading, { backgroundColor: "#eee", padding: "8px 5px", marginTop: "10px" });
 
-   
     //  console.log(userdata);
     let matchForm = null;
     if (this.state.user === null) {
@@ -157,13 +158,12 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     } else {
       matchForm = (
         <div style={this.props.cssmanager.subTabHeader()}>
-          <div style={this.props.cssmanager.formMain()}>
-            <div style={{ width: "75%", float: "left", paddingTop: "10px" }}>
-              <label style={this.props.cssmanager.formLabelStyle()}>
-                User Name : {this.state.user}
-              </label>
+          <div style={tabHading}>
+            <div style={{ width: "75%", float: "left" }}>
+              <label style={this.props.cssmanager.formLabelStyle()}>User Name :</label>
+              <span style={{ color: "#1565c0" }}>{this.state.user}</span>
             </div>
-            <div style={{ width: "25%", float: "left", textAlign: "right", paddingTop: "10px" }}>
+            <div style={{ width: "25%", float: "left", textAlign: "right" }}>
               <button
                 style={this.props.cssmanager.buttonStyle()}
                 onClick={this.removeUser.bind(this)}

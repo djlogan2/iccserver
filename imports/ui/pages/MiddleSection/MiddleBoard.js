@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-import "../css/ChessBoard";
 import Player from "./Player";
-import "../css/developmentboard.css";
 import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
 import { Meteor } from "meteor/meteor";

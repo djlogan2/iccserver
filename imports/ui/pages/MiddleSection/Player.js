@@ -14,6 +14,19 @@ export default class Player extends Component {
     const pw = this.props.side / 10;
 
     let _user_side = pw / 1.3;
+
+    let userPicture = this.props.cssmanager.userPicture(this.props.side * 0.08);
+    Object.assign(userPicture, { display: "inline-block", float: "left" });
+    let tagline = this.props.cssmanager.tagLine();
+    Object.assign(tagline, { marginTop: "5px", float: "left" });
+    let userflag = this.props.cssmanager.userFlag(this.props.side * 0.07);
+    Object.assign(userflag, {
+      float: "left",
+      position: "absolute",
+      top: "50%",
+      transform: "translateY(-50%)"
+    });
+
     return (
       <div
         style={{
@@ -24,23 +37,35 @@ export default class Player extends Component {
           position: "relative"
         }}
       >
-        <div style={{ width: this.props.side * 0.45, display: "inline-block" }}>
+        <div
+          style={{ width: this.props.side * 0.45, display: "inline-block", position: "relative" }}
+        >
           <img
-            style={this.props.cssmanager.userPicture(this.props.side * 0.08)}
+            style={userPicture}
             src={`images/${userpic}`}
             //src="images/player-img-top.png"
             alt="user"
           />
-          <div style={this.props.cssmanager.tagLine()}>
-            <div>
+          <div style={tagline}>
+            <div
+              style={{
+                display: "inline-block",
+                maxWidth: this.props.side * 0.25,
+                wordBreak: "break-word",
+                verticalAlign: "middle",
+                marginTop: "5px"
+              }}
+            >
               <a
                 href="#/"
                 target="_blank"
                 style={{
                   color: "#fff",
-                  fontSize: this.props.side * 0.025,
+                  fontSize: this.props.side * 0.022,
                   fontWeight: "600",
-                  marginRight: "15px"
+                  marginRight: "15px",
+                  display: "block",
+                  width: "100%"
                 }}
               >
                 {this.props.PlayerData.name}({this.props.PlayerData.rating})
@@ -58,11 +83,7 @@ export default class Player extends Component {
               </span>
             </div>
           </div>
-          <img
-            style={this.props.cssmanager.userFlag(this.props.side * 0.07)}
-            src={this.props.cssmanager.flags("us")}
-            alt="us"
-          />
+          <img style={userflag} src={this.props.cssmanager.flags("us")} alt="us" />
         </div>
 
         <div style={{ width: this.props.side * 0.35, display: "inline-block" }}>

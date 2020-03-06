@@ -44,15 +44,38 @@ class GameForm extends Component {
   render() {
     let translator = i18n.createTranslator("Common.GameForm", this.getLang());
     let radioStyle = this.props.cssmanager.formLabelStyle("radio");
+    let formlabel = this.props.cssmanager.formLabelStyle();
+    let minuteStyle = {};
+    Object.assign(formlabel, { display: "block" });
+    let selectorStyle = {
+      width: "40%",
+      height: "26px",
+      border: "1px solid #1565c0",
+      padding: "2px 6px"
+    };
+    let inputredio = {};
+    let formMainStyle = this.props.cssmanager.formMain();
+
+    Object.assign(formMainStyle, {
+      marginBottom: "10px",
+      float: "left",
+      paddingBottom: "10px",
+      borderBottom: "1px solid #eee",
+      paddingLeft: "0.70rem",
+      paddingRight: "0.70rem"
+    });
+
     return (
-      <div>
-        <div style={this.props.cssmanager.formMain()}>
+      <div style={{ display: "inline-block" }}>
+        <div style={formMainStyle}>
           <div style={this.props.cssmanager.formMainHalf()}>
-            <label style={this.props.cssmanager.formLabelStyle()}>
-              {translator("timeControl")}
-            </label>
+            <label style={formlabel}>{translator("timeControl")}</label>
             <span style={this.props.cssmanager.spanStyle("form")}>
-              <select onChange={this.handleChangeMinute} value={this.props.minute}>
+              <select
+                onChange={this.handleChangeMinute}
+                value={this.props.minute}
+                style={selectorStyle}
+              >
                 <option value="10">10</option>
                 <option value="15">15</option>
                 <option value="20">20</option>
@@ -60,7 +83,7 @@ class GameForm extends Component {
                 <option value="30">30</option>
               </select>
             </span>
-            <label style={this.props.cssmanager.formLabelStyle()}>{translator("minutes")}</label>
+            <span style={minuteStyle}>{translator("minutes")}</span>
           </div>
           <div style={this.props.cssmanager.formMainHalf()}>
             {/*  <span style={this.props.cssmanager.spanStyle("form")}>
@@ -73,16 +96,15 @@ class GameForm extends Component {
                 <option value="5">5</option>
               </select> 
             </span>*/}
+            <label style={formlabel}>{translator("secondPerMove")}</label>
             <input
               type="number"
               value={this.props.inc}
-              style={{ width: "50px" }}
+              style={selectorStyle}
               onChange={this.handleChangeSecond}
             />
-            <label style={this.props.cssmanager.formLabelStyle()}>
-              {translator("secondPerMove")}
-            </label>
           </div>
+          <div style={{ display: "block", content: "inherit", clear: "both" }} />
         </div>
         {/*
         <div style={this.props.cssmanager.formMain()}>
@@ -113,46 +135,53 @@ class GameForm extends Component {
             <label style={radioStyle}>{translator("bronstein")}</label>
           </div> 
         </div>*/}
-        <div style={this.props.cssmanager.formMain()}>
+        <div style={formMainStyle}>
           <div style={this.props.cssmanager.formMainHalf()}>
-            <label style={this.props.cssmanager.formLabelStyle()}>{translator("typeOfGame")}</label>
+            <label style={formlabel}>{translator("typeOfGame")}</label>
             <span style={this.props.cssmanager.spanStyle("form")}>
-              <select onChange={this.handleChangeGameType} value={this.props.type}>
+              <select
+                onChange={this.handleChangeGameType}
+                value={this.props.type}
+                style={selectorStyle}
+              >
                 <option value="standard">Standard</option>
                 <option value="chess">Chess</option>
               </select>
             </span>
           </div>
+
           <div style={this.props.cssmanager.formMainHalf()}>
             <span style={this.props.cssmanager.spanStyle("form")}>
               <input type="checkbox" checked={this.props.rated} onChange={this.handleRatedChange} />
               <label style={radioStyle}>{translator("rated")}</label>
             </span>
           </div>
+          <div style={{ display: "block", content: "inherit", clear: "both" }} />
         </div>
-        <div style={{ width: "100%", float: "left" }}>
-          <label style={this.props.cssmanager.formLabelStyle("first")}>
-            {translator("pickAcolor")}
-          </label>
+        <div style={{ width: "100%", float: "left", marginBottom: "10px", padding: "3px 5px" }}>
+          <span>{translator("pickAcolor")}</span>&nbsp;&nbsp;
           <input
             type="radio"
             value="white"
             checked={this.props.color === "white"}
             onChange={this.handleChangeColor}
+            style={inputredio}
           />
-          <label style={radioStyle}>{translator("white")}</label>
+          <label style={radioStyle}>{translator("white")}</label>&nbsp;&nbsp;
           <input
             type="radio"
             value="black"
             checked={this.props.color === "black"}
             onChange={this.handleChangeColor}
+            style={inputredio}
           />
-          <label style={radioStyle}>{translator("black")}</label>
+          <label style={radioStyle}>{translator("black")}</label>&nbsp;&nbsp;
           <input
             type="radio"
             value="random"
             checked={this.props.color === "random"}
             onChange={this.handleChangeColor}
+            style={inputredio}
           />
           <label style={radioStyle}>{translator("random")}</label>
         </div>
