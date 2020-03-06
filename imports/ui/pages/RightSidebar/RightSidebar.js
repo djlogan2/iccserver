@@ -50,6 +50,7 @@ class RightSidebar extends Component {
       topTabitem = (
         <RightBarTabs
           cssmanager={this.props.cssmanager}
+          gameRequest={this.props.gameRequest}
           flip={this.props.flip}
           ref="right_bar_top"
         />

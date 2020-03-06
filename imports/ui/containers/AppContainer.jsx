@@ -290,7 +290,10 @@ export default class AppContainer extends TrackerReact(React.Component) {
 
   clientMessages(id) {
     return ClientMessagesCollection.findOne({
-      $and: [{ to: Meteor.userId() }, { client_identifier: id }]
+      $or: [
+        { client_identifier: "matchRequest" },
+        { $and: [{ to: Meteor.userId() }, { client_identifier: id }] }
+      ]
     });
   }
   render() {
@@ -314,8 +317,13 @@ export default class AppContainer extends TrackerReact(React.Component) {
     )
       return <div>Loading...</div>;
     const css = new CssManager(this._systemCSS(), this._boardCSS());
+    if (!!gameRequest) {
+      this.gameId = gameRequest._id;
+      this.message_identifier = "server:game:" + this.gameId;
+    }
     if (!!game) {
       this.gameId = game._id;
+      this.message_identifier = "server:game:" + this.gameId;
       actionlen = game.actions.length;
       capture = this._boardFromMongoMessages(game);
     } else {
@@ -335,9 +343,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       }
     }
     if (!!this.gameId) {
-      const message_identifier = "server:game:" + this.gameId;
-      clientMessage = this.clientMessages(message_identifier);
-      log.debug("clientMessage", clientMessage);
+      clientMessage = this.clientMessages(this.message_identifier);
     }
     return (
       <div>

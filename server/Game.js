@@ -2188,14 +2188,21 @@ Game.exportToPGN = function(id) {
 
 GameHistory.exportToPGN = function(id) {
   check(id, String);
-
   const game = GameHistoryCollection.findOne({ _id: id });
-
   if (!game) return;
   return finishExportToPGN(game);
 };
 
 function finishExportToPGN(game) {
+
+  /* 
+  let title =
+    game.white.id === this.userId
+      ? game.white.name + "-" + game.black.name + ".pgn"
+      : game.black.name + "-" + game.white.name + ".pgn"; */
+
+  let title = game.white.name + "-" + game.black.name + ".pgn";
+
   let pgn = "";
   let tmpdt = new Date(game.startTime);
   let dt = tmpdt.toISOString().split("T")[0];
@@ -2233,7 +2240,7 @@ function finishExportToPGN(game) {
   }
   pgn += "\n";
   pgn += buildPgnFromMovelist(game.variations.movelist);
-  return pgn;
+  return { title, pgn };
 }
 
 Game.kibitz = function(game_id, text) {};

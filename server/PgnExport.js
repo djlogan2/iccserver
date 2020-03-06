@@ -1,10 +1,12 @@
 import { Game, GameHistory } from "./Game";
 import { Picker } from "meteor/meteorhacks:picker";
 
-Picker.route("/export/pgn/:collection/:_id/:title", function(params, req, res, next) {
+Picker.route("/export/pgn/:collection/:_id", function(params, req, res, next) {
   let game;
+  
   switch (params.collection) {
     case "game":
+      //   fileName = Game.getFileName(params._id);
       game = Game.exportToPGN(params._id);
       break;
     case "history":
@@ -16,7 +18,6 @@ Picker.route("/export/pgn/:collection/:_id/:title", function(params, req, res, n
       res.end("Invalid collection");
       return;
   }
-
   if (!game) {
     res.statusCode = 400;
     res.statusMessage = "Invalid ID";
@@ -25,8 +26,8 @@ Picker.route("/export/pgn/:collection/:_id/:title", function(params, req, res, n
   }
 
   res.setHeader("content-type", "text/plain");
-  res.setHeader("content-disposition", "attachment; filename=" + params.title);
-  res.setHeader("content-length", game.length);
-  res.write(game);
+  res.setHeader("content-disposition", "attachment; filename=" + game.title);
+  res.setHeader("content-length", game.pgn.length);
+  res.write(game.pgn);
   res.end();
 });

@@ -53,7 +53,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     });
   }
   handelUserClick = (user, Id) => {
-    this.setState({ user: user.username, userId: Id });
+    this.setState({ user: user, userId: Id });
   };
   handleChangeMinute = minute => {
     this.setState({ time: minute });
@@ -128,10 +128,13 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
     //  const _userdata = localUsers.map(user => user.username);
-    const userdata = localUsers.concat(legacyUsers.map(user => user.username + "(L)"));
+    let userdata = localUsers.concat(legacyUsers.map(user => user.username + "(L)"));
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
     // this.rating=this.getDynamicRatings();
+
+   
+    //  console.log(userdata);
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (
@@ -143,6 +146,9 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
                 style={this.props.cssmanager.matchUserButton()}
               >
                 {user.username}
+                {/*   {GameRequest.map(request => (
+                  <p>{request.receiver}</p>
+                ))} */}
               </button>
             </div>
           ))}

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 let log = new Logger("server/BlackPlayerClock_JS");
 export default class BlackPlayerClock extends Component {

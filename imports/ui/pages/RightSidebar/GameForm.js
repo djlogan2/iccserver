@@ -84,8 +84,9 @@ class GameForm extends Component {
             </label>
           </div>
         </div>
+        {/*
         <div style={this.props.cssmanager.formMain()}>
-          <div style={{ width: "100%", float: "left" }}>
+        <div style={{ width: "100%", float: "left" }}>
             <label style={this.props.cssmanager.formLabelStyle("first")}>
               {translator("incrementOrDelayType")}
             </label>
@@ -110,8 +111,8 @@ class GameForm extends Component {
               onChange={this.handleIncOrDelayTypeChange}
             />
             <label style={radioStyle}>{translator("bronstein")}</label>
-          </div>
-        </div>
+          </div> 
+        </div>*/}
         <div style={this.props.cssmanager.formMain()}>
           <div style={this.props.cssmanager.formMainHalf()}>
             <label style={this.props.cssmanager.formLabelStyle()}>{translator("typeOfGame")}</label>

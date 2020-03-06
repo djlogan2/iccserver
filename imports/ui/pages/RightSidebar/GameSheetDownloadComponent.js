@@ -6,13 +6,9 @@ export default class GameSheetDownloadComponent extends Component {
     let game = this.props.game;
     if (!!game) id = game._id;
 
-    let title =
-      game.white.id === Meteor.userId()
-        ? game.white.name + "-" + game.black.name + ".pgn"
-        : game.black.name + "-" + game.white.name + ".pgn";
     return (
       <button style={this.props.cssmanager.buttonStyle()}>
-        <a href={"export/pgn/game/" + id + "/" + title}>
+        <a href={"export/pgn/game/" + id}>
           <img
             src={this.props.cssmanager.buttonBackgroundImage("gameDownload")}
             alt="Game Download"

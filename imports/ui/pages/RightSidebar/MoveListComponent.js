@@ -61,6 +61,9 @@ export default class MoveListComponent extends Component {
          let remainMove= this.cmi-this.state.cmi;
          if(remainMove===0 || this.state.toggle===false){
                 clearInterval(this.intervalID);
+                if(remainMove===0)
+                  this.setState({toggle:false});
+                this.setState({toggle:!this.state.toggle});this.setState({toggle:!this.state.toggle});
          }else{
            this.moveForward();
          }
@@ -79,19 +82,19 @@ export default class MoveListComponent extends Component {
     this.props.examineAction("newoppent");
   }
   _takeBackAction = number => {
-    Meteor.call("requestTakeback", "takeBackRequest", this.gameId, number);
+    Meteor.call("requestTakeback", this.message_identifier, this.gameId, number);
   };
   _drawRequest = () => {
-    Meteor.call("requestToDraw", "drawRequest", this.gameId);
+    Meteor.call("requestToDraw", this.message_identifier, this.gameId);
   };
   _abortRequest = () => {
-    Meteor.call("requestToAbort", "abortRequest", this.gameId);
+    Meteor.call("requestToAbort", this.message_identifier, this.gameId);
   };
   _adjournRequest = () => {
-    Meteor.call("requestToAdjourn", "adjournRequest", this.gameId);
+    Meteor.call("requestToAdjourn", this.message_identifier, this.gameId);
   };
   _resignGame = () => {
-    Meteor.call("resignGame", "resignGame", this.gameId);
+    Meteor.call("resignGame", this.message_identifier, this.gameId);
   };
   _reMatchGame = () => {
     let toUser;
@@ -162,7 +165,10 @@ export default class MoveListComponent extends Component {
     let variation;
     let game = this.props.game;
     let status = this.props.game.status;
-    this.gameId = game._id;
+    if(!!game){
+      this.message_identifier = "server:game:" + this.gameId;
+      this.gameId = game._id;
+    }
     
     if (!!game.status && game.status !== "examining") {
       if (!!game && game.variations !== undefined) {
@@ -286,10 +292,17 @@ export default class MoveListComponent extends Component {
               />
             </button>
             <button style={btnstyle}  onClick={this.moveAutoForward.bind(this)}>
+            {this.state.toggle?( 
+             <img
+             src={this.props.cssmanager.buttonBackgroundImage("nextStop")}
+             alt="next-single"
+           />):( 
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("nextIconSingle")}
-                alt="next-single"
-              />
+              src={this.props.cssmanager.buttonBackgroundImage("nextStart")}
+              alt="next-single"
+            />)}
+              
+               
             </button>
             <button style={ btnstyle} onClick={this.props.flip}>
               <img src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
