@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Player from "./Player";
+import CircleAndArrow from "./CircleAndArrow";
 import BlackPlayerClock from "./BlackPlayerClock";
 import Chessboard from "chessboardjsx";
 import { Meteor } from "meteor/meteor";
@@ -208,6 +209,17 @@ export default class MiddleBoard extends Component {
     let topPlayermsg;
     let botPlayermsg;
     let color;
+    let circleAndArrow = null;
+    if (this.props.gameStatus === "examining") {
+      circleAndArrow = (
+        <CircleAndArrow
+          chardBoardName="allowDrag"
+          squareId="data-squareid"
+          boardsize={boardsize}
+        >
+        </CircleAndArrow>
+      );
+    }
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
         if (this.props.board.turn() === "b") {
@@ -251,24 +263,25 @@ export default class MiddleBoard extends Component {
             color={topPlayertime}
             side={size}
           />
-
-          <Chessboard
-            id="allowDrag"
-            darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
-            lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
-            calcWidth={({ screenWidth }) => boardsize}
-            position={fen}
-            onDrop={this.onDrop}
-            orientation={bordtop}
-            undo={this.props.undo}
-            boardStyle={{
-              borderRadius: "5px",
-              boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
-            }}
-            //    dropOffBoard="trash"
-            draggable={turn}
-          />
-
+          <div id="allowDrag">
+            <Chessboard
+              id="allowDrag"
+              darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
+              lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
+              calcWidth={({ screenWidth }) => boardsize}
+              position={fen}
+              onDrop={this.onDrop}
+              orientation={bordtop}
+              undo={this.props.undo}
+              boardStyle={{
+                borderRadius: "5px",
+                boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
+              }}
+              //    dropOffBoard="trash"
+              draggable={turn}
+            />
+          </div>
+          {circleAndArrow}
           <Player
             PlayerData={bottomPlayer}
             cssmanager={this.props.cssmanager}
