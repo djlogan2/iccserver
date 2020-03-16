@@ -24,6 +24,7 @@ export default class Player extends Component {
       float: "left",
       position: "absolute",
       top: "50%",
+      right: "10px",
       transform: "translateY(-50%)"
     });
 
@@ -72,7 +73,7 @@ export default class Player extends Component {
               </a>
             </div>
 
-            <div style={{ position: "absolute", bottom: "0" }}>
+            <div style={{ position: "absolute", bottom: "0", paddingRight: "40px" }}>
               <span
                 style={{
                   color: this.props.turnColor,
@@ -86,7 +87,14 @@ export default class Player extends Component {
           <img style={userflag} src={this.props.cssmanager.flags("us")} alt="us" />
         </div>
 
-        <div style={{ width: this.props.side * 0.35, display: "inline-block" }}>
+        <div
+          style={{
+            width: this.props.side * 0.35,
+            display: "inline-block",
+            verticalAlign: "top",
+            marginTop: "5px"
+          }}
+        >
           <FallenSoldier
             cssmanager={this.props.cssmanager}
             side={this.props.side * 0.35}

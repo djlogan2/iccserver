@@ -8,6 +8,7 @@ import "./css/leftsidebar";
 import "./css/RightSidebar";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
+import { ModalProvider } from "./ModalContext";
 import {
   GameRequestPopup,
   GamenotificationPopup,
@@ -21,6 +22,11 @@ const log = new Logger("client/MainPage");
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
+    this.toggleTheme = (data) => {
+      this.setState({
+        modalShow: data
+      });
+    };
     this.gameId = null;
     this.userId = Meteor.userId();
     this.state = {
@@ -31,7 +37,9 @@ export default class MainPage extends Component {
       resignnotification: false,
       newOppenetRequest: false,
       examinAction: "action",
-      activeTab: 0
+      activeTab: 0,
+      modalShow: 0,
+      toggleTheme: this.toggleTheme,
     };
     this.Main = {
       LeftSection: {
@@ -223,61 +231,63 @@ export default class MainPage extends Component {
     Object.assign(btnstyle, { marginTop: "15px" });
 
     return (
-      <div style={style}>
-        {gamelist.length > 0 ? (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
-            <table
-              className="gamehistory"
-              style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
-            >
-              <thead>
-                <tr>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Players
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Result
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Date
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    PGN
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {gamelist.map((game, index) => (
-                  <tr key={index} style={{ cursor: "pointer" }}>
-                    <td
-                      style={{ padding: "5px 5px" }}
-                      onClick={this.setGameExaminMode.bind(this, game.id)}
-                    >
-                      {game.white}-vs-{game.black}
-                    </td>
-                    <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                    <td style={{ padding: "5px 5px" }}>{game.time}</td>
-                    <td style={{ padding: "5px 5px" }}>
-                      <a href={"export/pgn/history/" + game.id} className="pgnbtn">
-                        <img
-                          src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
-                          style={{ width: "25px", height: "25px" }}
-                          alt="PgnDownload"
-                        />
-                      </a>
-                    </td>
+      <ModalProvider value={this.state}>
+        <div style={style}>
+          {gamelist.length > 0 ? (
+            <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
+              <table
+                className="gamehistory"
+                style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
+              >
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      Players
+                    </th>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      Result
+                    </th>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      Date
+                    </th>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      PGN
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>No Data Found</div>
-        )}
-        <button onClick={this.props.removeGameHistory} style={btnstyle}>
-          Close
-        </button>
-      </div>
+                </thead>
+                <tbody>
+                  {gamelist.map((game, index) => (
+                    <tr key={index} style={{ cursor: "pointer" }}>
+                      <td
+                        style={{ padding: "5px 5px" }}
+                        onClick={this.setGameExaminMode.bind(this, game.id)}
+                      >
+                        {game.white}-vs-{game.black}
+                      </td>
+                      <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                      <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                      <td style={{ padding: "5px 5px" }}>
+                        <a href={"export/pgn/history/" + game.id} className="pgnbtn">
+                          <img
+                            src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
+                            style={{ width: "25px", height: "25px" }}
+                            alt="PgnDownload"
+                          />
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>No Data Found</div>
+          )}
+          <button onClick={this.props.removeGameHistory} style={btnstyle}>
+            Close
+          </button>
+        </div>
+      </ModalProvider>
     );
   }
   setGameExaminMode(id) {
@@ -474,7 +484,8 @@ export default class MainPage extends Component {
       );
     } else rightmenu = null;
     return (
-      <div className="main">
+      <ModalProvider value={this.state}>
+        <div className="main">
         <div className="row">
           {leftmenu}
           <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
@@ -504,6 +515,7 @@ export default class MainPage extends Component {
           {rightmenu}
         </div>
       </div>
+      </ModalProvider>
     );
   }
 }

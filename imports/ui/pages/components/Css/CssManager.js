@@ -95,7 +95,7 @@ export default class CssManager {
       Object.assign(style, this._boardStyle.flags.all);
     Object.assign(style, this._boardStyle.flags[country]);
     return style;*/
-    var style;
+    var style ;
     if (this._boardStyle.flags.all) style = this._boardStyle.flags.all;
     style = this._boardStyle.flags[country];
     return style;
@@ -262,11 +262,11 @@ export default class CssManager {
         tabActive === "Seek a Game" ||
         tabActive === "Match User")
     ) {
-      var style = {};
+      var style = {cursor: "pointer"};
       Object.assign(style, this._systemStyle.tabListItem1.all);
       return style;
     } else {
-      var style = {};
+      var style = {cursor: "pointer"};
       if (!!tabActive) {
         if (tabActive === "FEN/PGN") tabActive = "PGN";
         if (tabActive === "Room Chat") tabActive = "RoomChat";
@@ -287,7 +287,7 @@ export default class CssManager {
         liName === "Adjourned Game" ||
         liName === "Game History"
       )
-        Object.assign(style, { fontSize: "12px", whiteSpace: "nowrap", padding: "8px 4px" });
+        Object.assign(style, { fontSize: "12px", whiteSpace: "nowrap", padding: "8px 4px"});
 
       return style;
     }

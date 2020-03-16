@@ -79,6 +79,12 @@
     padding: 8px 0;
     flex: auto;
 }
+.draw-section ul li:hover {
+    background: #d4d4d4;
+}
+.draw-section ul li:last-child {
+    background: none;
+}
 .draw-section ul li a {
     color: #777777;
 }

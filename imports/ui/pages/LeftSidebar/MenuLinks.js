@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
 import { Meteor } from "meteor/meteor";
+import ModalContext from "./../ModalContext";
 
 class MenuLinks extends Component {
+  static contextType = ModalContext;
   constructor(props) {
     super(props);
     this.state = {
@@ -16,6 +18,9 @@ class MenuLinks extends Component {
     }
   }
   componentDidMount() {
+    const data = this.context;
+    console.log(data);
+    //alert(1)
     if (!this.state.isAuthenticated) {
       this.props.history.push("/login");
     }
@@ -50,7 +55,10 @@ class MenuLinks extends Component {
   }
   handleClick = (e, label) => {
     e.preventDefault();
-    if (label === "mygame") this.props.gameHistory(label);
+    if (label === "mygame") {
+      this.props.gameHistory(label);
+      //this.props.toggleTheme();
+    }
     if (label === "play") this.props.examineAction(label);
     if (label === "examine") this.startLocalExaminedGame(label);
     if (label === "logout")

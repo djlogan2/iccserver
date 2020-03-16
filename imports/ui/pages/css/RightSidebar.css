@@ -244,7 +244,7 @@ background: #efefef;
 
 /* Move button control to bottom. */
 .moveAction button:hover {
-	background:#6B6867 !important; 
+	background:#d4d4d4 !important; 
 	opacity: 0.8;
   }
   
