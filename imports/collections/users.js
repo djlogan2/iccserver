@@ -58,6 +58,18 @@ Meteor.publish("userData", function() {
   return Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner });
 });
 
+Meteor.methods({
+  getPartialUsernames: function(prefix) {
+    check(prefix, String);
+    check(this.userId, String);
+    if (prefix.length === 0) return [];
+    return Meteor.users
+      .find({ username: { $regex: "^" + prefix } }, { username: 1 })
+      .fetch()
+      .map(rec => rec.username);
+  }
+});
+
 export const default_settings = {
   autoaccept: true
 };

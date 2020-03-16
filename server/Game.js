@@ -2792,6 +2792,7 @@ function gameLogoutHook(userId) {
 function updateUserRatings(game, result, reason) {}
 
 Meteor.startup(function() {
+  // TODO: Need to adjourn these, not just delete them
   GameCollection.remove({});
   Users.addLogoutHook(gameLogoutHook);
 });

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PieceSquare from "../pages/components/Board/PieceSquare";
 import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
@@ -11,6 +11,7 @@ import { Meteor } from "meteor/meteor";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 
 const css = new CssManager("developmentcss");
+
 class TestContainer extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
@@ -23,6 +24,7 @@ class TestContainer extends TrackerReact(React.Component) {
       what: this.props.match.params.what,
       from: null,
       to: null,
+      options: [],
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
         legacyUsers: Meteor.subscribe("legacyUsers")
@@ -71,19 +73,39 @@ class TestContainer extends TrackerReact(React.Component) {
     }
   }
 
+  partialUserListOnChange = e => {
+    Meteor.call("getPartialUsernames", e.target.value, (error, result) => {
+      this.setState({ options: result });
+    });
+  };
+
   renderUserList() {
     const localUsers = Meteor.users.find({}).fetch();
-    //const legacyUsers = legacyUsersC.find({}).fetch();
+    const children = this.state.options.map(opt => (
+      <tr>
+        <td>{opt}</td>
+      </tr>
+    ));
     return (
       <div>
+        <input
+          type="textbox"
+          onKeyUp={this.partialUserListKeyUp}
+          onChange={this.partialUserListOnChange}
+        />
         <table>
-          {localUsers.map(user => (
-            <tr>
-              {Object.keys(user).map(k => (
-                <td>{JSON.stringify(user[k])}</td>
-              ))}
-            </tr>
-          ))}
+          <tbody>{children}</tbody>
+        </table>
+        <table>
+          <tbody>
+            {localUsers.map(user => (
+              <tr>
+                {Object.keys(user).map(k => (
+                  <td>{JSON.stringify(user[k])}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     );
@@ -131,14 +153,18 @@ class TestContainer extends TrackerReact(React.Component) {
     if (i === values.length) return [null, "No rank and file"];
     else return [values[i], texts[i]];
   }
+
   gameUndo = () => {};
+
   static renderMoveList() {
     const moveList = ["d4", ["e6", "d6"], "c4", ["b6", ["f5", ["f4", ["e3", "g5", "f3"]]]]];
     return <MoveListComponent moves={moveList} />;
   }
+
   _pieceSquareDragStop = raf => {
     this.setState({ from: raf.from, to: raf.to });
   };
+
   renderBoard() {
     if (this.state.from != null && this.state.to != null) {
       this.chess.move({ from: this.state.from, to: this.state.to });
