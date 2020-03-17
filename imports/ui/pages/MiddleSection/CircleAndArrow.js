@@ -28,6 +28,7 @@ export default class CircleAndArrow extends Component {
         var currentElementId = "";
         var errorXAdjustment = 15;
         var handledRightClick = false;
+        var color = "#15781B";
         //below is the code for showing and hiding arrows
         $("#" + currentObject.props.chardBoardName).mousedown(function (ev) {
             if (ev.which == 3) {
@@ -48,11 +49,14 @@ export default class CircleAndArrow extends Component {
                 html = html.replace("circleItem", "circleItem-" + currentClick);
                 $("#mouseArrorwSVG").append(currentObject.parseSVG(html));
                 $("#lineItem-" + currentClick).hide();
+                $("#markerItem-" + currentClick + " path").attr("fill", color);
+                $("#lineItem-" + currentClick).attr("stroke", color);
                 $("#lineItem-" + currentClick).attr("x1", $(target).position().left + ($(target).width() / 2) - errorXAdjustment);
                 $("#lineItem-" + currentClick).attr("y1", $(target).position().top + ($(target).height() / 2));
                 $("#lineItem-" + currentClick).attr("stroke-width", $(target).width() / 7);
                 $("#lineItem-" + currentClick).attr("source-element", currentElementId);
 
+                $("#circleItem-" + currentClick).attr("stroke", color);
                 $("#circleItem-" + currentClick).attr("cx", $(target).position().left + ($(target).width() / 2) - errorXAdjustment);
                 $("#circleItem-" + currentClick).attr("cy", $(target).position().top + ($(target).height() / 2));
                 $("#circleItem-" + currentClick).attr("r", ($(target).width() / 2) - 1);
@@ -97,6 +101,18 @@ export default class CircleAndArrow extends Component {
 
         $(document).on('contextmenu', function (event) {
             event.preventDefault();
+        });
+        $("body").keydown(function (event) {
+            if (event.altKey || event.shiftKey || event.ctrlKey) {
+                if (event.altKey && event.shiftKey) {
+                    color = "red";
+                } else if (event.altKey && event.ctrlKey) {
+                    color = "yellow";
+                }
+                else if (event.altKey) {
+                    color = "green";
+                }
+            }
         });
     }
     parseSVG(s) {
