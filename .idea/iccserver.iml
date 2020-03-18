@@ -18,5 +18,6 @@
     <orderEntry type="module" module-name="legacy" />
     <orderEntry type="module" module-name="legacy" />
     <orderEntry type="module" module-name="legacy" />
+    <orderEntry type="module" module-name="icclegacy" />
   </component>
 </module>

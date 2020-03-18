@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../icclegacy/.idea/icclegacy.iml" filepath="$PROJECT_DIR$/../icclegacy/.idea/icclegacy.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/iccserver.iml" filepath="$PROJECT_DIR$/.idea/iccserver.iml" />
       <module fileurl="file://$PROJECT_DIR$/../icclegacy/.idea/legacy.iml" filepath="$PROJECT_DIR$/../icclegacy/.idea/legacy.iml" />
     </modules>
