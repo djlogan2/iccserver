@@ -18,8 +18,7 @@ class MenuLinks extends Component {
     }
   }
   componentDidMount() {
-    const data = this.context;
-    console.log(data);
+    
     //alert(1)
     if (!this.state.isAuthenticated) {
       this.props.history.push("/login");
@@ -57,7 +56,8 @@ class MenuLinks extends Component {
     e.preventDefault();
     if (label === "mygame") {
       this.props.gameHistory(label);
-      //this.props.toggleTheme();
+      const data = this.context;
+      data.toggleModal(true);
     }
     if (label === "play") this.props.examineAction(label);
     if (label === "examine") this.startLocalExaminedGame(label);

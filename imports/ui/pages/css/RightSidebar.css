@@ -247,6 +247,53 @@ background: #efefef;
 	background:#d4d4d4 !important; 
 	opacity: 0.8;
   }
+
+  /* game status css */
+
+  .gamestatus {
+    position: relative;
+}
+.gamestatus:before {
+    background: #777;
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    content: "";
+    border-radius: 100px;
+    left: 8px;
+    top: 6px;
+}
+.gamestatus span{
+	margin-left: 15px;
+}
+
+.gamestatus.active:before{
+	background: #4cd034;
+	
+}
+.gamestatus.active span {
+	color:#333;
+}
+.gamestatus.default span {
+	color:#333;
+}
+
+.gamestatus.default:before{
+	background:#1565c0;
+
+}
+
+/*popup css*/
+.modal-show .modal-overlay {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 9999;
+    top: 0;
+    left: 0;
+}
+
   
   
 @media (min-width: 992px) and (max-width: 1199px) {
