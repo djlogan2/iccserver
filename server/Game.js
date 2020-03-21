@@ -2243,7 +2243,29 @@ function finishExportToPGN(game) {
   return { title, pgn };
 }
 
-Game.kibitz = function(game_id, text) {};
+Game.kibitz = function(game_id, text) {
+  check(text, String);
+  check(game_id, String);
+
+  const self = Meteor.user();
+
+  const game = GameCollection.findOne({_id: game_id});
+
+  if (!game) {
+    throw new ICCMeteorError("mi1", "Unable to find game kibitzed to", "Game doesn't exist");
+  }
+
+  GameCollection.update({_id: game_id, status: game.status},{ $push: {
+      actions: {
+        type: "kibitz",
+        issuer: self._id,
+        parameter:  {what: text}
+
+      }
+    }
+    }
+  );
+};
 
 Game.whisper = function(game_id, text) {};
 

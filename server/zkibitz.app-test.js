@@ -1,11 +1,108 @@
 import chai from "chai";
+import { Game } from "../server/Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
+import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
-describe.skip("kibitzes", function() {
+describe.only("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should save an action in the game record", function() {
-    chai.assert.fail("do me");
+  it("should save an action in the game record for local games", function() {
+
+    const testText = "Hello I am a test string!";
+    const other = TestHelpers.createUser();
+    self.loggedonuser = other;
+    const game_id_local =  Game.startLocalGame("test_identifier",
+      other,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+
+    chai.assert.isFunction(Game.kibitz, "kibitz() failed to be a function when adding action to record");
+
+    Game.kibitz(game_id_local, testText);
+
+    const localCollection = Game.collection.findOne({_id: game_id_local});
+
+    chai.assert(localCollection.actions, "actions failed to be a field in local game collection when kibitz is used");
+
+    chai.assert.equal(localCollection.actions[0].type, "kibitz", "Failed to update game record's actions of local game with kibitz");
+
+    chai.assert.deepEqual(localCollection.actions[0].parameter, {what: testText}, "Failed to save action of kibitz in local game collection")
+
   });
+
+  it("should save an action in the game record for legacy games", function() {
+
+    const testText = "Hello I am a test string!";
+    const other = TestHelpers.createUser();
+    self.loggedonuser = other;
+    const game_id_legacy =  Game.startLegacyGame("test_identifier",
+      123,
+      other.profile.legacy.username,
+      "somebody",
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      1600,
+      1500,
+      "gameid",
+      [],
+      [],
+      "");
+
+
+    chai.assert.isFunction(Game.kibitz, "kibitz() failed to be a function when adding action to record");
+
+    Game.kibitz(game_id_legacy, testText);
+
+    const legacyCollection = Game.collection.findOne({_id: game_id_legacy});
+
+    chai.assert(legacyCollection.actions, "actions failed to be a field in legacy game collection when kibitz is used");
+
+    chai.assert.equal(legacyCollection.actions[0].type, "kibitz", "Failed to update game record's actions of legacy game with kibitz");
+
+    chai.assert.deepEqual(legacyCollection.actions[0].parameter, {what: testText}, "Failed to save action of kibitz in legacy game collection");
+
+  });
+
+  it("should save an action in the game record for examined games", function() {
+
+    const testText = "Hello I am a test string!";
+    const other = TestHelpers.createUser();
+    self.loggedonuser = other;
+    const game_id_examined =  Game.startLocalExaminedGame("test_identifier",
+      "someone",
+      "someother",
+    0);
+
+
+    chai.assert.isFunction(Game.kibitz, "kibitz() failed to be a function when adding action to record");
+
+    Game.kibitz(game_id_examined, testText);
+
+    const examinedCollection = Game.collection.findOne({_id: game_id_examined});
+
+    chai.assert(examinedCollection.actions, "actions failed to be a field in examined game collection when kibitz is used");
+
+    chai.assert.equal(examinedCollection.actions[0].type, "kibitz", "Failed to update game record's actions of examined game with kibitz");
+
+    chai.assert.deepEqual(examinedCollection.actions[0].parameter, {what: testText}, "Failed to save action of kibitz in examined game collection")
+
+  });
+
+
   it("should be viewable by both players during game play", function() {
     chai.assert.fail("do me");
   });
