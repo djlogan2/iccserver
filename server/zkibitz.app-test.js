@@ -1,7 +1,9 @@
+
 import chai from "chai";
 import { Game } from "../server/Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
 describe.only("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -103,8 +105,40 @@ describe.only("kibitzes", function() {
   });
 
 
-  it("should be viewable by both players during game play", function() {
-    chai.assert.fail("do me");
+  it.only("should be viewable by both players during game play", function() {
+
+    const testText = "Hello I am a test string!";
+    const player1 = TestHelpers.createUser();
+    self.loggedonuser = player1;
+    const player2 = TestHelpers.createUser();
+
+    const game_id_local =  Game.startLocalGame("test_identifier",
+      player1,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+
+    const player1Collector = new PublicationCollector({userId: player1._id});
+    const player2Collector = new PublicationCollector({userId: player2._id});
+    Game.kibitz(game_id_local, testText);
+
+    player1Collector.collect("kibitz", collections => {
+      chai.assert.equal(collections.length, 1, "Publication collector for player1 failed to store any kibitz");
+      chai.assert.equal(collections.what[0], testText, "Failed to find kibitz in player1's publications");
+    });
+
+    player2Collector.collect("kibitz", collections => {
+      chai.assert.equal(collections.length, 1, "Publications collector for player2 failed to store any kibitz");
+      chai.assert.equal(collections.what[0], testText, "Failed to find kibitz in player2's publications");
+    });
   });
   it("should be viewable by all observers", function() {
     chai.assert.fail("do me");

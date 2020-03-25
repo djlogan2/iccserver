@@ -19,6 +19,7 @@ import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 
 import date from "date-and-time";
+import { fields_viewable_by_account_owner } from "../imports/server/userConstants";
 
 export const Game = {};
 export const GameHistory = {};
@@ -2254,7 +2255,9 @@ Game.kibitz = function(game_id, text) {
   if (!game) {
     throw new ICCMeteorError("mi1", "Unable to find game kibitzed to", "Game doesn't exist");
   }
-
+  Meteor.publishComposite("kibitz", function(){
+    return GameCollection.find({_id: game_id, type: "kibitz", userId: this.userId});
+  });
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
       actions: {
         type: "kibitz",
