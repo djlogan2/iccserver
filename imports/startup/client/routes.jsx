@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import AppContainer from "../../ui/containers/AppContainer.jsx";
 import HomeContainer from "../../ui/containers/HomeContainer";
 import TestContainer from "../../ui/containers/TestContainer.jsx";
+import NewAppContainer from "../../ui/containers/NewAppContainer.jsx";
 // pages
 import SignUpPage from "../../ui/pages/SignupPage";
 import LoginPage from "../../ui/pages/LoginPage.jsx";
@@ -20,6 +21,8 @@ export const renderRoutes = () => (
       <Route exact={true} path="/play" component={AppContainer} />
       <Route exact={true} path="/mygame" component={AppContainer} />
       <Route exact={true} path="/test/:what" component={TestContainer} />
+      <Route exact={true} path="/test/:what" component={TestContainer} />
+      <Route exact={true} path="/newBoard" component={NewAppContainer} />
     </div>
   </Router>
 );
