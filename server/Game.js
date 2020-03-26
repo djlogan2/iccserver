@@ -11,6 +11,7 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { PlayedGameSchema } from "./PlayedGameSchema";
 import { GameHistorySchema } from "./GameHistorySchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
+import { ChatSchema} from "./ChatSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
@@ -29,6 +30,7 @@ const game_pings = {};
 const move_timers = {};
 
 const GameCollection = new Mongo.Collection("game");
+const ChatCollection = new Mongo.Collection("chat");
 const GameHistoryCollection = new Mongo.Collection("game_history");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
@@ -40,6 +42,8 @@ GameCollection.attachSchema(ExaminedGameSchema, {
 GameCollection.attachSchema(PlayedGameSchema, {
   selector: { status: "playing" }
 });
+//ChatCollection.attachSchema(ChatSchema);
+//TODO: fix this schema, it appears to not work properly
 
 function getAndCheck(message_identifier, game_id) {
   const self = Meteor.user();
@@ -2255,9 +2259,8 @@ Game.kibitz = function(game_id, text) {
   if (!game) {
     throw new ICCMeteorError("mi1", "Unable to find game kibitzed to", "Game doesn't exist");
   }
-  Meteor.publishComposite("kibitz", function(){
-    return GameCollection.find({_id: game_id, type: "kibitz", userId: this.userId});
-  });
+
+  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: text});
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
       actions: {
         type: "kibitz",
@@ -2268,8 +2271,12 @@ Game.kibitz = function(game_id, text) {
     }
     }
   );
-};
 
+
+};
+Meteor.publish("kibitz", function(){
+  return ChatCollection.find({type: "kibitz"});
+});
 Game.whisper = function(game_id, text) {};
 
 Game.addMoveToMoveList = function(variation_object, move, current) {

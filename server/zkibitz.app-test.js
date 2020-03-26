@@ -4,6 +4,7 @@ import { Game } from "../server/Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+import { Meteor } from "meteor/meteor";
 
 describe.only("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -105,8 +106,7 @@ describe.only("kibitzes", function() {
   });
 
 
-  it.only("should be viewable by both players during game play", function() {
-
+  it.only("should be viewable by both players during game play", function(done) {
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
     self.loggedonuser = player1;
@@ -125,20 +125,27 @@ describe.only("kibitzes", function() {
       "none",
       "white");
 
+    chai.assert.isDefined(player1);
+    chai.assert.isDefined(player1._id);
 
     const player1Collector = new PublicationCollector({userId: player1._id});
     const player2Collector = new PublicationCollector({userId: player2._id});
     Game.kibitz(game_id_local, testText);
 
     player1Collector.collect("kibitz", collections => {
-      chai.assert.equal(collections.length, 1, "Publication collector for player1 failed to store any kibitz");
-      chai.assert.equal(collections.what[0], testText, "Failed to find kibitz in player1's publications");
+      chai.assert.equal(collections.chat.length, 1, "Publication collector for player1 failed to store any kibitz");
+      chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
+      done();
     });
 
     player2Collector.collect("kibitz", collections => {
-      chai.assert.equal(collections.length, 1, "Publications collector for player2 failed to store any kibitz");
-      chai.assert.equal(collections.what[0], testText, "Failed to find kibitz in player2's publications");
+      chai.assert.equal(collections.chat.length, 1, "Publication collector for player2 failed to store any kibitz");
+      chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
+      done();
     });
+  });
+  it("chat records should be deleted when game records are deleted", function() {
+    chai.assert.fail("do me");
   });
   it("should be viewable by all observers", function() {
     chai.assert.fail("do me");
