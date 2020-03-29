@@ -2195,7 +2195,7 @@ GameHistory.exportToPGN = function(id) {
 
 function finishExportToPGN(game) {
 
-  /* 
+  /*
   let title =
     game.white.id === this.userId
       ? game.white.name + "-" + game.black.name + ".pgn"
@@ -2205,41 +2205,41 @@ function finishExportToPGN(game) {
 
   let pgn = "";
   let tmpdt = new Date(game.startTime);
-  let dt = tmpdt.toISOString().split("T")[0];
-  pgn += "[Date " + date.format(game.startTime, "YYYY-MM-DD") + "]\n";
-  pgn += "[White " + game.white.name + "]\n";
-  pgn += "[Black " + game.black.name + "]\n";
-  pgn += "[Result " + game.result + "]\n";
-  pgn += "[WhiteElo " + game.white.rating + "]\n";
-  pgn += "[BlackElo " + game.black.rating + "]\n";
+  pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
+  pgn += '[White "' + game.white.name + '"]\n';
+  pgn += '[Black "' + game.black.name + '"]\n';
+  pgn += '[Result "' + game.result + '"]\n';
+  pgn += '[WhiteElo "' + game.white.rating + '"]\n';
+  pgn += '[BlackElo "' + game.black.rating + '"]\n';
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  pgn += "[Time " + date.format(game.startTime, "HH:mm:ss") + "]\n";
+  pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
   if (!game.clocks) {
-    pgn += "[TimeControl ?]\n";
+    pgn += '[TimeControl "?"]\n';
   } else {
     switch (game.clocks.white.inc_or_delay_type) {
       case "none":
-        pgn += "[TimeControl " + game.clocks.white.initial / 1000 + "]\n";
+        pgn += '"[TimeControl ' + game.clocks.white.initial / 1000 + '"]\n';
         break;
       case "us":
       case "bronstein":
       case "inc":
         pgn +=
-          "[TimeControl " +
+          '[TimeControl "' +
           game.clocks.white.initial / 1000 +
           "+" +
           game.clocks.white.inc_or_delay +
-          "]\n";
+          '"]\n';
         break;
       default:
-        pgn += "[TimeControl ?]\n";
+        pgn += '[TimeControl "?"]\n';
         break;
     }
   }
   pgn += "\n";
   pgn += buildPgnFromMovelist(game.variations.movelist);
+  pgn += " " + game.result;
   return { title, pgn };
 }
 
