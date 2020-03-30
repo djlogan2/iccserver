@@ -8,7 +8,6 @@ import i18n from "meteor/universe:i18n";
 import Chess from "chess.js";
 import Chessground from "react-chessground";
 import "react-chessground/dist/assets/chessground.css";
-import "react-chessground/dist/assets/3d.css"; // Or your own chess theme
 import "react-chessground/dist/assets/theme.css"; // Or your own chess theme
 
 const log = new Logger("client/MiddleBoard");
@@ -147,18 +146,29 @@ export default class MiddleBoard extends Component {
       to: to,
       promotion: "q"
     });
-    console.log("moves from " + move);
+
     if (move === null) {
       return;
     } else {
       let history = this.props.board.history();
       let moves = history[history.length - 1];
-      console.log("moves", moves);
       this.props.onDrop({
         move: moves
       });
-     // this.setState({ fen: this.props.board.fen() });
-    }  
+      this.setState({ fen: this.props.board.fen() });
+    }
+  };
+  draggable() {
+    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
+      //Perform some operation
+      return {
+        enabled: true
+      };
+    } else {
+      return {
+        enabled: false
+      };
+    }
   }
   render() {
     let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
@@ -289,12 +299,12 @@ export default class MiddleBoard extends Component {
           />
           <div className="merida">
             <Chessground
-              width="500px"
-              height="500px"
+              draggable={this.draggable()}
+              width={boardsize}
+              height={boardsize}
               fen={fen}
               orientation={bordtop}
               onMove={this.onMove}
-              style={{ margin: "auto" }}
             />
           </div>
           <Player
