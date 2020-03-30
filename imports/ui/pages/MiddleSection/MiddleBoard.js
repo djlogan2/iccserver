@@ -300,6 +300,7 @@ export default class MiddleBoard extends Component {
           <div className="merida">
             <Chessground
               draggable={this.draggable()}
+              selectable={this.draggable()}
               width={boardsize}
               height={boardsize}
               fen={fen}
