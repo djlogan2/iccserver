@@ -33,8 +33,16 @@ export default class CssManager {
     return style;
   }
   drawActionSection() {
-    var style = {};
-    Object.assign(style, this._systemStyle.drawActionSection);
+    var style = { 
+          height: "auto",
+          width: "auto",
+          alignItems: "center",
+          backgroundColor: "#fff",
+          fontSize: "16px",
+          color: "blue",
+          padding: "2px 10px"
+      };
+    //Object.assign(style, this._systemStyle.drawActionSection);
     return style;
   }
   drawSectionButton() {

@@ -317,8 +317,8 @@ export default class MoveListComponent extends Component {
         ) : null}
            <div className="draw-section">
            {displayButton ? (
-          <div style={this.props.cssmanager.drawActionSection()}>
-            {translator("Gamestatus")}: {translator(status)}
+          <div  className={"gamestatus " + (status==='playing' ? 'active' : 'default')} style={this.props.cssmanager.drawActionSection()}>
+             <span>{translator(status)}</span>
           </div>
         ) : null}
             

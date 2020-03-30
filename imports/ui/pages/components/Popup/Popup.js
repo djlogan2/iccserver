@@ -25,7 +25,7 @@ class GameRequestPopup extends Component {
       borderRadius: "15px",
       background: "#ffffff",
       position: "fixed",
-      zIndex: "99",
+      zIndex: "99999",
       left: "0px",
       right: "25%",
       margin: "0px auto",

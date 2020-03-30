@@ -22,10 +22,13 @@ const log = new Logger("client/MainPage");
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
-    this.toggleTheme = (data) => {
+    this.toggleModal = data => {
       this.setState({
         modalShow: data
       });
+      if (!data) {
+        props.removeGameHistory();
+      }
     };
     this.gameId = null;
     this.userId = Meteor.userId();
@@ -39,7 +42,7 @@ export default class MainPage extends Component {
       examinAction: "action",
       activeTab: 0,
       modalShow: 0,
-      toggleTheme: this.toggleTheme,
+      toggleModal: this.toggleModal
     };
     this.Main = {
       LeftSection: {
@@ -217,11 +220,12 @@ export default class MainPage extends Component {
       borderRadius: "15px",
       background: "#ffffff",
       position: "fixed",
-      zIndex: "99",
+      zIndex: "99999",
       left: "0px",
-      right: "25%",
+      right: "0",
       margin: "0px auto",
-      top: "27%",
+      top: "50%",
+      transform: "translateY(-50%)",
       padding: "20px",
       textAlign: "center",
       border: "1px solid #ccc",
@@ -281,9 +285,11 @@ export default class MainPage extends Component {
               </table>
             </div>
           ) : (
-            <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>No Data Found</div>
+            <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
+              No Data Found
+            </div>
           )}
-          <button onClick={this.props.removeGameHistory} style={btnstyle}>
+          <button onClick={() => this.toggleModal(false)} style={btnstyle}>
             Close
           </button>
         </div>
@@ -292,7 +298,7 @@ export default class MainPage extends Component {
   }
   setGameExaminMode(id) {
     Meteor.call("examineGame", "ExaminedGame", id, (error, response) => {
-      if (response) this.setState({ examineGame: true, activeTab: 3 });
+      if (response) this.setState({ examineGame: true, activeTab: 3, modalShow: false });
     });
 
     this.props.removeGameHistory();
@@ -485,36 +491,37 @@ export default class MainPage extends Component {
     } else rightmenu = null;
     return (
       <ModalProvider value={this.state}>
-        <div className="main">
-        <div className="row">
-          {leftmenu}
-          <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
-            {informativePopup}
-            {exPopup}
+        <div className={"main " + (this.state.modalShow ? "modal-show" : "modal-hide")}>
+          <div className="modal-overlay" />
+          <div className="row">
+            {leftmenu}
+            <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
+              {informativePopup}
+              {exPopup}
 
-            <MiddleBoard
-              cssmanager={this.props.cssmanager}
-              MiddleBoardData={this.Main.MiddleSection}
-              currentGame={this.state.examineGame}
-              ref="middleBoard"
-              capture={this.props.capture}
-              board={this.props.board}
-              onDrop={this.props.onDrop}
-              onDrawCircle={this.props.onDrawCircle}
-              onRemoveCircle={this.props.onRemoveCircle}
-              top={position.top}
-              circles={this.props.circles}
-              //  fen={this.props.fen}
-              undo={undo}
-              width={this.state.width}
-              height={this.state.height}
-              gameStatus={status}
-              game={game}
-            />
+              <MiddleBoard
+                cssmanager={this.props.cssmanager}
+                MiddleBoardData={this.Main.MiddleSection}
+                currentGame={this.state.examineGame}
+                ref="middleBoard"
+                capture={this.props.capture}
+                board={this.props.board}
+                onDrop={this.props.onDrop}
+                onDrawCircle={this.props.onDrawCircle}
+                onRemoveCircle={this.props.onRemoveCircle}
+                top={position.top}
+                circles={this.props.circles}
+                //  fen={this.props.fen}
+                undo={undo}
+                width={this.state.width}
+                height={this.state.height}
+                gameStatus={status}
+                game={game}
+              />
+            </div>
+            {rightmenu}
           </div>
-          {rightmenu}
         </div>
-      </div>
       </ModalProvider>
     );
   }

@@ -24,9 +24,9 @@ const systemcss = {
     height: "auto",
     width: "auto",
     alignItems: "center",
-    backgroundColor: "#737373",
+    backgroundColor: "red",
     fontSize: "16px",
-    color: "white",
+    color: "blue",
     padding: "2px 10px"
   },
   drawSectionButton: {
