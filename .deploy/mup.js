@@ -3,10 +3,8 @@ module.exports = {
     one: {
       // TODO: set host address, username, and authentication method
       host: '34.216.171.157',
-      username: 'david',
-      pem: '~/.ssh/id_rsa'
-      // password: 'server-password'
-      // or neither for authenticate from ssh-agent
+      username: 'deploy',
+      pem: '~/.ssh/iccserver-deploy.key'
     }
   },
 
