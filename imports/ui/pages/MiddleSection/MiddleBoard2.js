@@ -2,15 +2,16 @@ import React, { Component } from "react";
 import Player from "./Player";
 import CircleAndArrow from "./CircleAndArrow";
 import BlackPlayerClock from "./BlackPlayerClock";
+import Chessboard from "chessboardjsx";
+import Chessground from "react-chessground";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 import i18n from "meteor/universe:i18n";
-import Chess from "chess.js";
-import Chessground from "react-chessground";
-import "react-chessground/dist/assets/chessground.css";
-import "react-chessground/dist/assets/theme.css"; // Or your own chess theme
-
+import "react-chessground/dist/styles/chessground.css";
+import { Chess } from "chess.js";
 const log = new Logger("client/MiddleBoard");
+//const chess = new Chess();
+const chess = new Chess();
 
 export default class MiddleBoard extends Component {
   constructor(props) {
@@ -18,7 +19,8 @@ export default class MiddleBoard extends Component {
     this._circle = { lineWidth: 2, color: "red" };
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
-      fen: props.board.fen(),
+      //fen: props.board.fen(),
+      fen: chess.fen(),
       istakeback: false,
       draw_rank_and_file: "bl",
       top: props.top,
@@ -31,6 +33,7 @@ export default class MiddleBoard extends Component {
       isactive: true,
       current: 600000
     };
+    this.chess = null;
   }
   _flipboard() {
     this.switchSides();
@@ -49,6 +52,9 @@ export default class MiddleBoard extends Component {
     this.updateDimensions();
     window.addEventListener("resize", this.updateDimensions.bind(this));
   } */
+  componentDidMount() {
+    //this.setState({ fen: chess.fen() });
+  }
 
   /**
    * Remove event listener
@@ -140,36 +146,6 @@ export default class MiddleBoard extends Component {
       "en-US"
     );
   }
-  onMove = (from, to) => {
-    let move = this.props.board.move({
-      from: from,
-      to: to,
-      promotion: "q"
-    });
-
-    if (move === null) {
-      return;
-    } else {
-      let history = this.props.board.history();
-      let moves = history[history.length - 1];
-      this.props.onDrop({
-        move: moves
-      });
-      this.setState({ fen: this.props.board.fen() });
-    }
-  };
-  draggable() {
-    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
-      //Perform some operation
-      return {
-        enabled: true
-      };
-    } else {
-      return {
-        enabled: false
-      };
-    }
-  }
   render() {
     let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
     let w = this.props.width;
@@ -243,17 +219,11 @@ export default class MiddleBoard extends Component {
     let botPlayermsg;
     let color;
     let circleAndArrow = null;
-    /*
     if (this.props.gameStatus === "examining") {
       circleAndArrow = (
-        <CircleAndArrow
-          chardBoardName="allowDrag"
-          squareId="data-squareid"
-          boardsize={boardsize}
-        >
-        </CircleAndArrow>
+        <CircleAndArrow chardBoardName="allowDrag" squareId="data-squareid" boardsize={boardsize} />
       );
-    }*/
+    }
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
         if (this.props.board.turn() === "b") {
@@ -297,17 +267,36 @@ export default class MiddleBoard extends Component {
             color={topPlayertime}
             side={size}
           />
-          <div className="merida">
-            <Chessground
-              draggable={this.draggable()}
-              selectable={this.draggable()}
-              width={boardsize}
-              height={boardsize}
-              fen={fen}
+          <div id="allowDrag">
+            {/* <Chessboard
+              id="allowDrag"
+              darkSquareStyle={{ backgroundColor: "rgb(21, 101, 192)" }}
+              lightSquareStyle={{ backgroundColor: "rgb(255, 255, 255)" }}
+              calcWidth={({ screenWidth }) => boardsize}
+              position={fen}
+              onDrop={this.onDrop}
               orientation={bordtop}
-              onMove={this.onMove}
+              undo={this.props.undo}
+              boardStyle={{
+                borderRadius: "5px",
+                boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`
+              }}
+              //    dropOffBoard="trash"
+              draggable={turn}
+            /> */}
+            <Chessground
+              width="38vw"
+              height="38vw"
+              fen={this.state.fen}
+              onMove={this.onDrop}
+              style={{ margin: "auto" }}
+              orientation="black"
+              ref={el => {
+                this.chessground = el;
+              }}
             />
           </div>
+          {circleAndArrow}
           <Player
             PlayerData={bottomPlayer}
             cssmanager={this.props.cssmanager}
