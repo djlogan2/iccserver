@@ -16,13 +16,13 @@ export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
     this._circle = { lineWidth: 2, color: "red" };
+    this.chess = new Chess.Chess();
     //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
-      fen: props.board.fen(),
+      fen: this.chess.fen(),
       istakeback: false,
       draw_rank_and_file: "bl",
       top: props.top,
-      boardTop: "black",
       white: props.MiddleBoardData.white,
       black: props.MiddleBoardData.black,
       height: 500,
@@ -68,10 +68,6 @@ export default class MiddleBoard extends Component {
     this.setState({ top: newTop });
   };
 
-  switchRAF = () => {
-    this.setState({ draw_rank_and_file: this.nextRAF()[0] });
-  };
-
   circleLineWidthChange = event => {
     this._circle.lineWidth = event.target.value;
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
@@ -81,56 +77,27 @@ export default class MiddleBoard extends Component {
     this._circle.color = event.target.value;
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
-  /*  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.board.fen() !== prevState.fen) {
-     this.setState({ prevState.fen:nextProps.board.fen()});
-      // return { prevState.fen: nextProps.board.fen() };
-    } else return null;
-  } */
+  /*
   componentWillReceiveProps(nextProps) {
-    if (this.props.gameStatus === "playing" && this.state.fen !== nextProps.board.fen()) {
-      //Perform some operation
-      this.setState({ fen: nextProps.board.fen() });
+    if (
+      !!nextProps.game &&
+      (this.props.gameStatus === "playing" || this.props.gameStatus === "examining")
+    ) {
+      console.log("cwill sf " + this.state.fen);
+      console.log("cwill np " + nextProps.game.fen);
+      //this.chess.load(game.fen);
+      this.setState({ fen: nextProps.game.fen });
+    }
+  }
+  */
+
+  componentWillReceiveProps(nextProps) {
+    if (!!nextProps.game) {
+      //this.chess.load(game.fen);
+      this.setState({ fen: nextProps.game.fen });
     }
   }
 
-  nextRAF() {
-    const values = ["tl", "tr", "bl", "br", "stl", "str", "sbl", "sbr"];
-    const texts = [
-      "Top left",
-      "Top right",
-      "Bottom left",
-      "Bottom right",
-      "External top left",
-      "External top right",
-      "External bottom left",
-      "External bottom right"
-    ];
-
-    if (!this.state.draw_rank_and_file) return [values[0], texts[0]];
-    let i = values.indexOf(this.state.draw_rank_and_file);
-    i++;
-    if (i === values.length) return [null, "No rank and file"];
-    else return [values[i], texts[i]];
-  }
-
-  onDrop = ({ sourceSquare, targetSquare }) => {
-    let move = this.props.board.move({
-      from: sourceSquare,
-      to: targetSquare,
-      promotion: "q"
-    });
-    if (move === null) {
-      return;
-    } else {
-      let history = this.props.board.history();
-      let moves = history[history.length - 1];
-      this.props.onDrop({
-        move: moves
-      });
-      this.setState({ fen: this.props.board.fen() });
-    }
-  };
   getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -141,26 +108,31 @@ export default class MiddleBoard extends Component {
     );
   }
   onMove = (from, to) => {
-    let move = this.props.board.move({
+    let move = this.chess.move({
       from: from,
       to: to,
       promotion: "q"
     });
 
     if (move === null) {
+      this.setState({ fen: this.chess.fen() });
+      // console.log("move has been "+ this.chess.fen());
       return;
     } else {
-      let history = this.props.board.history();
+      let history = this.chess.history();
       let moves = history[history.length - 1];
       this.props.onDrop({
         move: moves
       });
-      this.setState({ fen: this.props.board.fen() });
+      console.log("Draging start.. ");
+      this.setState({ fen: this.chess.fen() });
     }
   };
   draggable() {
-    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
-      //Perform some operation
+    if (
+      this.props.gameStatus === "playing" ||
+      (this.props.gameStatus === "examining" && this.props.currentGame === true)
+    ) {
       return {
         enabled: true
       };
@@ -171,10 +143,10 @@ export default class MiddleBoard extends Component {
     }
   }
   render() {
+    this.chess.load(this.state.fen);
     let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
     let w = this.props.width;
     let h = this.props.height;
-    let d;
 
     let boardsize = null;
     let size = null;
@@ -187,8 +159,6 @@ export default class MiddleBoard extends Component {
       size = Math.min(h / 1.2, w / 1.2);
     }
     const newColor = this.state.top === "w" ? "Black" : "White";
-
-    const raf = this.nextRAF()[1];
 
     const topPlayer =
       this.state.top === "w" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
@@ -222,23 +192,6 @@ export default class MiddleBoard extends Component {
       bordtop = "white";
     }
 
-    let turn = false;
-    //TODO:DRAGEABLE FALSE AND TRUE ACCODING GAME TURN
-    if (
-      (this.props.MiddleBoardData.white.id === Meteor.userId() &&
-        this.props.board.turn() === "w" &&
-        this.props.gameStatus === "playing") ||
-      (this.props.gameStatus === "examining" && this.props.currentGame === true)
-    ) {
-      turn = true;
-    } else if (
-      (this.props.MiddleBoardData.black.id === Meteor.userId() &&
-        this.props.board.turn() === "b" &&
-        this.props.gameStatus === "playing") ||
-      (this.props.gameStatus === "examining" && this.props.currentGame === true)
-    ) {
-      turn = true;
-    }
     let topPlayermsg;
     let botPlayermsg;
     let color;
@@ -256,7 +209,7 @@ export default class MiddleBoard extends Component {
     }*/
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
-        if (this.props.board.turn() === "b") {
+        if (this.chess.turn() === "b") {
           botPlayermsg = translator("yourturn");
           color = "#4cd034";
         } else {
@@ -264,7 +217,7 @@ export default class MiddleBoard extends Component {
           color = "#fff";
         }
       } else {
-        if (this.props.board.turn() === "w") {
+        if (this.chess.turn() === "w") {
           botPlayermsg = translator("yourturn");
           color = "#4cd034";
         } else {
@@ -274,8 +227,14 @@ export default class MiddleBoard extends Component {
       }
     }
     let fen;
-    if (!!this.props.gameStatus && this.props.gameStatus === "playing") fen = this.state.fen;
-    else fen = this.props.board.fen();
+    if (
+      !!this.props.gameStatus &&
+      (this.props.gameStatus === "examining" || this.props.gameStatus === "playing")
+    ) {
+      fen = this.state.fen;
+    } else {
+      fen = this.chess.fen();
+    }
 
     return (
       <div>

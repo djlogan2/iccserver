@@ -139,9 +139,11 @@ export default class MoveListComponent extends Component {
   _setGameToExamine() {
     this.props.startGameExamine();
   }
- addmove(move_number, variations, white_to_move, movelist, idx) { let string = "";
+ addmove(move_number, variations, white_to_move, movelist, idx) { 
+  let string = "";
   if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
   string += movelist[movelist[idx].variations[0]].move+"|";
+  
   let next_move_number = move_number;
   let next_white_to_move = !white_to_move;
   if (next_white_to_move) next_move_number++;
