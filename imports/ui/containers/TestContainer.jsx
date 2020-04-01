@@ -3,6 +3,7 @@ import PieceSquare from "../pages/components/Board/PieceSquare";
 import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
 import UploadMugshot from "../pages/components/FileUpload/UploadMugshot";
+import UploadPGN from "../pages/components/FileUpload/UploadPGN";
 import Board from "../pages/components/Board/Board";
 import CssManager from "../pages/components/Css/TestContainerCssManager";
 import Chess from "chess.js";
@@ -60,6 +61,8 @@ class TestContainer extends TrackerReact(React.Component) {
     switch (this.state.what) {
       case "mugshot":
         return this.renderMugshotUpload();
+      case "pgnimport":
+        return this.renderPgnImport();
       case "userlist":
         return this.renderUserList();
       case "square":
@@ -236,6 +239,14 @@ class TestContainer extends TrackerReact(React.Component) {
     return (
       <div>
         <UploadMugshot />
+      </div>
+    );
+  }
+
+  renderPgnImport() {
+    return (
+      <div>
+        <UploadPGN />
       </div>
     );
   }

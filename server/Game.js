@@ -2194,7 +2194,6 @@ GameHistory.exportToPGN = function(id) {
 };
 
 function finishExportToPGN(game) {
-
   /*
   let title =
     game.white.id === this.userId
@@ -2970,32 +2969,19 @@ GameHistory.examineGame = function(message_identifier, game_id) {
 
 function sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
   const message_identifier = "server:game:" + game_id;
-  const cm_parameters = ClientMessages.messageParameters("GAME_STATUS_" + status);
-  const p1_call_parameters = [white_id, message_identifier, "GAME_STATUS_" + status];
-  const p2_call_parameters = [black_id, message_identifier, "GAME_STATUS_" + status];
-
-  if (cm_parameters.parameters) {
-    cm_parameters.parameters.forEach(p => {
-      switch (p) {
-        case "losing_color":
-          p1_call_parameters.push(result === "1-0" ? "black" : "white");
-          p2_call_parameters.push(result === "1-0" ? "black" : "white");
-          break;
-        case "winning_color":
-          p1_call_parameters.push(result === "1-0" ? "white" : "black");
-          p2_call_parameters.push(result === "1-0" ? "white" : "black");
-          break;
-        case "offending_color":
-          p1_call_parameters.push(tomove);
-          p2_call_parameters.push(tomove);
-          break;
-        default:
-          throw new Meteor.Error("Unknown parameter " + p);
-      }
-    });
+  let color = tomove === "white" ? "w" : "b";
+  switch (result) {
+    case "1-0":
+      color = "w";
+      break;
+    case "0-1":
+      color = "b";
+      break;
+    default:
+      break;
   }
-  ClientMessages.sendMessageToClient.apply(this, p1_call_parameters);
-  ClientMessages.sendMessageToClient.apply(this, p2_call_parameters);
+  ClientMessages.sendMessageToClient(white_id, message_identifier, "GAME_STATUS_" + color + status);
+  ClientMessages.sendMessageToClient(black_id, message_identifier, "GAME_STATUS_" + color + status);
 }
 
 GameHistory.search = function(message_identifier, search_parameters, offset, count) {

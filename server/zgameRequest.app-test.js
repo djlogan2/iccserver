@@ -1468,8 +1468,7 @@ describe("game_requests collection", function() {
 describe("game_requests publication", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it.skip("should stop publishing records when played game is started", function() {
-    // TODO: I am having trouble with Meteor.publishComposite vs Meteor.publish. This runs with the latter, but so far, not with the former.
+  it("should stop publishing records when played game is started", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();

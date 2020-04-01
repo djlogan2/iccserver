@@ -396,11 +396,11 @@ export default class MainPage extends Component {
       if (!!actions && actions.length !== 0) {
         let ack = actions[actions.length - 1];
 
-        if (!!ack["type"] && ack["type"] === "takeback_accepted") undo = true;
+        if (!!ack.type && ack.type === "takeback_accepted") undo = true;
 
         for (const action of actions) {
-          const issuer = action["issuer"];
-          switch (action["type"]) {
+          const issuer = action.issuer;
+          switch (action.type) {
             case "takeback_requested":
               if (
                 issuer !== this.userId &&
