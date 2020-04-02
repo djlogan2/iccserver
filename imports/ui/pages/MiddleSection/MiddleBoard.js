@@ -6,56 +6,23 @@ import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
 import i18n from "meteor/universe:i18n";
 import Chess from "chess.js";
-import Chessground from "react-chessground";
-import "react-chessground/dist/assets/chessground.css";
-import "react-chessground/dist/assets/theme.css"; // Or your own chess theme
+import ChessBoard from "./ChessBoard";
 
 const log = new Logger("client/MiddleBoard");
 
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
-    this._circle = { lineWidth: 2, color: "red" };
     this.chess = new Chess.Chess();
-    //MiddleBoardData: {BlackPlayer: {…}, WhitePlayer: {…}
     this.state = {
       fen: this.chess.fen(),
-      istakeback: false,
-      draw_rank_and_file: "bl",
       top: props.top,
       white: props.MiddleBoardData.white,
       black: props.MiddleBoardData.black,
       height: 500,
-      width: 1000,
-      update: 0,
-      isactive: true,
-      current: 600000
+      width: 1000
     };
   }
-  _flipboard() {
-    this.switchSides();
-  }
-  /* updateDimensions() {
-    this.setState({
-      width: window.innerWidth,
-      height: window.innerHeight
-    });
-  } */
-
-  /**
-   * Add event listener
-   */
-  /*  componentDidMount() {
-    this.updateDimensions();
-    window.addEventListener("resize", this.updateDimensions.bind(this));
-  } */
-
-  /**
-   * Remove event listener
-   */
-  /*  componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions.bind(this));
-  } */
 
   componentDidUpdate(prevProps) {
     if (prevProps.top !== this.props.top) {
@@ -91,12 +58,12 @@ export default class MiddleBoard extends Component {
   }
   */
 
-  componentWillReceiveProps(nextProps) {
+  /*  componentWillReceiveProps(nextProps) {
     if (!!nextProps.game) {
       //this.chess.load(game.fen);
       this.setState({ fen: nextProps.game.fen });
     }
-  }
+  } */
 
   getLang() {
     return (
@@ -106,41 +73,6 @@ export default class MiddleBoard extends Component {
       navigator.userLanguage ||
       "en-US"
     );
-  }
-  onMove = (from, to) => {
-    let move = this.chess.move({
-      from: from,
-      to: to,
-      promotion: "q"
-    });
-
-    if (move === null) {
-      this.setState({ fen: this.chess.fen() });
-      // console.log("move has been "+ this.chess.fen());
-      return;
-    } else {
-      let history = this.chess.history();
-      let moves = history[history.length - 1];
-      this.props.onDrop({
-        move: moves
-      });
-      console.log("Draging start.. ");
-      this.setState({ fen: this.chess.fen() });
-    }
-  };
-  draggable() {
-    if (
-      this.props.gameStatus === "playing" ||
-      (this.props.gameStatus === "examining" && this.props.currentGame === true)
-    ) {
-      return {
-        enabled: true
-      };
-    } else {
-      return {
-        enabled: false
-      };
-    }
   }
   render() {
     this.chess.load(this.state.fen);
@@ -158,8 +90,6 @@ export default class MiddleBoard extends Component {
       boardsize = Math.min(h / 1.2, w / 1.2);
       size = Math.min(h / 1.2, w / 1.2);
     }
-    const newColor = this.state.top === "w" ? "Black" : "White";
-
     const topPlayer =
       this.state.top === "w" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
     const bottomPlayer =
@@ -184,29 +114,17 @@ export default class MiddleBoard extends Component {
     const tc = this.state.top === "w" ? "b" : "w";
     const bc = this.state.top === "b" ? "b" : "w";
 
-    let bordtop;
+    let boardtop;
 
     if (this.state.top === "w") {
-      bordtop = "black";
+      boardtop = "black";
     } else {
-      bordtop = "white";
+      boardtop = "white";
     }
 
     let topPlayermsg;
     let botPlayermsg;
     let color;
-    let circleAndArrow = null;
-    /*
-    if (this.props.gameStatus === "examining") {
-      circleAndArrow = (
-        <CircleAndArrow
-          chardBoardName="allowDrag"
-          squareId="data-squareid"
-          boardsize={boardsize}
-        >
-        </CircleAndArrow>
-      );
-    }*/
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
         if (this.chess.turn() === "b") {
@@ -231,7 +149,7 @@ export default class MiddleBoard extends Component {
       !!this.props.gameStatus &&
       (this.props.gameStatus === "examining" || this.props.gameStatus === "playing")
     ) {
-      fen = this.state.fen;
+      fen = this.props.game.fen;
     } else {
       fen = this.chess.fen();
     }
@@ -256,17 +174,15 @@ export default class MiddleBoard extends Component {
             color={topPlayertime}
             side={size}
           />
-          <div className="merida">
-            <Chessground
-              draggable={this.draggable()}
-              selectable={this.draggable()}
-              width={boardsize}
-              height={boardsize}
-              fen={fen}
-              orientation={bordtop}
-              onMove={this.onMove}
-            />
-          </div>
+          <ChessBoard
+            fen={fen}
+            height={boardsize}
+            width={boardsize}
+            orientation={boardtop}
+            onDrop={this.props.onDrop}
+            gameStatus={this.props.gameStatus}
+            currentGame={this.props.currentGame}
+          />
           <Player
             PlayerData={bottomPlayer}
             cssmanager={this.props.cssmanager}
