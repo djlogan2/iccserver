@@ -131,7 +131,7 @@ describe("Match requests and game starts", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 
-  it.only("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function() {
+  it("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -3063,7 +3063,7 @@ describe("Game.moveBackward", function() {
     );
     Game.collection.update(
       { _id: game_id, status: "examining" },
-      { $push: { examiners: {id: examiner._id, username: examiner.username} } }
+      { $push: { examiners: { id: examiner._id, username: examiner.username } } }
     );
     Game.moveBackward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -3306,7 +3306,7 @@ describe("Game.moveForward", function() {
     );
     Game.collection.update(
       { _id: game_id, status: "examining" },
-      { $push: { examiners: {id: examiner._id, username: examiner.username} } }
+      { $push: { examiners: { id: examiner._id, username: examiner.username } } }
     );
     Game.moveForward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");

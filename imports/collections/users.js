@@ -233,11 +233,7 @@ Meteor.startup(function() {
     Meteor.users.find({ "status.online": true }).observeChanges({
       removed(id) {
         runLogoutHooks(this, id);
-      } /*,
-      changed(id, fields) {
-        if ("status" in fields && "online" in fields.status && !fields.status.online)
-          runLogoutHooks(this, id);
-      }*/
+      }
     });
   }
   all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
