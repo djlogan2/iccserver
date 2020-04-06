@@ -75,7 +75,10 @@ export default class MiddleBoard extends Component {
     );
   }
   render() {
-    this.chess.load(this.state.fen);
+    if (!!this.props.game) {
+      this.chess.load(this.props.game.fen);
+    }
+
     let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
     let w = this.props.width;
     let h = this.props.height;
@@ -125,8 +128,10 @@ export default class MiddleBoard extends Component {
     let topPlayermsg;
     let botPlayermsg;
     let color;
+    let mypeiceColor;
     if (this.props.gameStatus === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
+        mypeiceColor = "black";
         if (this.chess.turn() === "b") {
           botPlayermsg = translator("yourturn");
           color = "#4cd034";
@@ -135,6 +140,7 @@ export default class MiddleBoard extends Component {
           color = "#fff";
         }
       } else {
+        mypeiceColor = "white";
         if (this.chess.turn() === "w") {
           botPlayermsg = translator("yourturn");
           color = "#4cd034";
@@ -180,6 +186,7 @@ export default class MiddleBoard extends Component {
             width={boardsize}
             orientation={boardtop}
             onDrop={this.props.onDrop}
+            mycolor={mypeiceColor}
             gameStatus={this.props.gameStatus}
             currentGame={this.props.currentGame}
           />

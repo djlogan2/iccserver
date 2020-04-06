@@ -139,6 +139,7 @@ export default class MoveListComponent extends Component {
   _setGameToExamine() {
     this.props.startGameExamine();
   }
+  /*
  addmove(move_number, variations, white_to_move, movelist, idx) { 
   let string = "";
   if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
@@ -155,6 +156,58 @@ export default class MoveListComponent extends Component {
       movelist,
       movelist[idx].variations[0]
     );
+  return string;
+}
+*/
+ addmove(move_number, variations, white_to_move, movelist, idx) {
+  let string = "";
+
+  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
+
+  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
+
+	if(movelist[idx].variations.length > 1){
+
+	}else{
+		string += movelist[movelist[idx].variations[0]].move+"|";
+	}
+	
+
+  let next_move_number = move_number;
+  let next_white_to_move = !white_to_move;
+  if (next_white_to_move) next_move_number++;
+
+  for (let x = 1; x < movelist[idx].variations.length; x++) {
+   
+     string +=
+              movelist[movelist[idx].variations[x]].move +
+         " |";
+       string +=
+        this.addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]);
+   
+   
+  }
+if(movelist[idx].variations.length > 1){
+
+this.addmove(
+      next_move_number,
+      movelist[idx].variations.length > 1,
+      next_white_to_move,
+      movelist,
+      movelist[idx].variations[0]
+    );
+}else{
+	string +=
+    " " +
+    this.addmove(
+      next_move_number,
+      movelist[idx].variations.length > 1,
+      next_white_to_move,
+      movelist,
+      movelist[idx].variations[0]
+    );	
+}
+  
   return string;
 }
  buildPgnFromMovelist(movelist) {
@@ -230,14 +283,18 @@ export default class MoveListComponent extends Component {
     let cnt = 1;
     let ind = "";
     let moveslist = moves.map((move, index) => {
+      index=index+1;
+      console.log(index);
       if (index % 2 === 0) {
+       
+        ind = "";
+
+      } else {
         ind = " " + cnt + ".";
         cnt++;
-      } else {
-        ind = "";
       }
       let style = { color: "black" };
-      let movestyle = (this.state.cmi === index+1 ) ? Object.assign(style, { color: "#904f4f",
+      let movestyle = (this.state.cmi === index ) ? Object.assign(style, { color: "#904f4f",
         fontWeight: "bold",
         fontSize: "15px"
       
