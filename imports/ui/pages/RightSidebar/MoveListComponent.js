@@ -139,34 +139,12 @@ export default class MoveListComponent extends Component {
   _setGameToExamine() {
     this.props.startGameExamine();
   }
-  /*
- addmove(move_number, variations, white_to_move, movelist, idx) { 
-  let string = "";
-  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
-  string += movelist[movelist[idx].variations[0]].move+"|";
-  
-  let next_move_number = move_number;
-  let next_white_to_move = !white_to_move;
-  if (next_white_to_move) next_move_number++;
-   string +=
-   this.addmove(
-      next_move_number,
-      movelist[idx].variations.length > 1,
-      next_white_to_move,
-      movelist,
-      movelist[idx].variations[0]
-    );
-  return string;
-}
-*/
+ 
  addmove(move_number, variations, white_to_move, movelist, idx) {
   let string = "";
 
   if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
-
-  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
-
-	if(movelist[idx].variations.length > 1){
+  if(movelist[idx].variations.length > 1){
 
 	}else{
 		string += movelist[movelist[idx].variations[0]].move+"|";
