@@ -304,7 +304,7 @@ export default class MainPage extends Component {
     this.props.removeGameHistory();
   }
   startGameExamine() {
-    this.setState({ examineGame: true });
+    this.setState({ examineGame: true, newOppenetRequest: false });
   }
   examineActionHandler(action) {
     if (action === "newoppent" || action === "play") {
