@@ -343,7 +343,6 @@ export default class MainPage extends Component {
     let actionPopup = null;
     let informativePopup = null;
     let status = "others";
-    let undo = false;
     let position = { top: "w" };
     if (!!game) {
       if (game.black.id === Meteor.userId()) {
@@ -371,8 +370,6 @@ export default class MainPage extends Component {
 
       Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
       if (status === "examining") {
-        undo = true;
-
         if (
           this.state.exnotification === false &&
           (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
@@ -396,9 +393,6 @@ export default class MainPage extends Component {
       const actions = game.actions;
 
       if (!!actions && actions.length !== 0) {
-        let ack = actions[actions.length - 1];
-
-        if (!!ack["type"] && ack["type"] === "takeback_accepted") undo = true;
 
         for (const action of actions) {
           const issuer = action["issuer"];
@@ -512,7 +506,7 @@ export default class MainPage extends Component {
                 top={position.top}
                 circles={this.props.circles}
                 //  fen={this.props.fen}
-                undo={undo}
+                
                 width={this.state.width}
                 height={this.state.height}
                 gameStatus={status}

@@ -210,7 +210,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _pieceSquareDragStop = raf => {
-    console.log("app container" + raf.move);
+    
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };
 

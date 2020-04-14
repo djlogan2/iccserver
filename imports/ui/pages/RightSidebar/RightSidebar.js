@@ -65,6 +65,7 @@ class RightSidebar extends Component {
           clientMessage={this.props.clientMessage}
           examing={this.props.examing}
           activeTabnumber={this.props.activeTabnumber}
+          Gamedata={this.props.RightSidebarData}
         />
       );
     } else if (this.props.gameStatus === "examining" && this.props.currentGame === false) {

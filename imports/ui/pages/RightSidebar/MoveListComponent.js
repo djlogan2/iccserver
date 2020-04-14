@@ -10,6 +10,7 @@ export default class MoveListComponent extends Component {
     super(props);
     this.cmi = 0;
     this.state = {
+      dt:0,
       current: null,
       cmi:0,
       toggle:false,
@@ -18,6 +19,8 @@ export default class MoveListComponent extends Component {
       gameRequest: props.gameRequest,
       isexamin: true
     };
+   /* this.inputChange=this.inputChange.bind(this);
+   this.inputChange1=this.inputChange1.bind(this);  */
   }
   static getLang() {
     return (
@@ -48,10 +51,12 @@ export default class MoveListComponent extends Component {
     Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
   };
   moveForward = () => {
-       Meteor.call("moveForward", "MoveForward", this.gameId, 1);
+    Meteor.call("moveForward", "MoveForward", this.gameId,1);
+   
+      
   }
   moveForwardEnd = cmi => {
-    Meteor.call("moveForward", "MoveForward", this.gameId,this.cmi-this.state.cmi);
+    Meteor.call("moveForward", "MoveForward", this.gameId,this.cmi);
  };
 
   moveAutoForward = () => {
@@ -137,6 +142,7 @@ export default class MoveListComponent extends Component {
     }
   };
   _setGameToExamine() {
+    this.moveBackwordBeginning();
     this.props.startGameExamine();
   }
  
@@ -156,11 +162,13 @@ export default class MoveListComponent extends Component {
   if (next_white_to_move) next_move_number++;
 
   for (let x = 1; x < movelist[idx].variations.length; x++) {
-   
+    if(x=movelist[idx].variations.length - 1){
+  		string +=
+           movelist[movelist[idx].variations[x]].move +
+      " |";
+
+	}
      string +=
-              movelist[movelist[idx].variations[x]].move +
-         " |";
-       string +=
         this.addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]);
    
    
@@ -192,6 +200,25 @@ this.addmove(
  return this.addmove(1, false, true, movelist, 0);
  
 }
+/*
+inputChange(event){
+  let dt=parseInt(event.target.value);
+  
+if(event.target.value!=""){
+  console.log("variation dt"+dt);
+    this.dt=dt;
+  }
+ }
+inputChange1(event){
+  let mc=parseInt(event.target.value);
+  console.log(this.dt+"--"+mc);
+  if(event.target.value!=""){
+  if(mc!=""){
+    Meteor.call("moveForward", "MoveForward", this.gameId,this.dt, mc);
+  }
+}
+}
+*/
   render() {
     let translator = i18n.createTranslator("Common.MoveListComponent", MoveListComponent.getLang());
     let moves = [];
@@ -235,8 +262,9 @@ this.addmove(
     } else {
       let string = this.buildPgnFromMovelist(game.variations.movelist);
       moves=string.split("|");
-      moves.splice(-1,1)
+      moves.splice(-1,1);
       this.cmi=moves.length;
+      console.log(this.cmi);
     }
 
     /* TODO: movlist button display operation*/
@@ -262,7 +290,7 @@ this.addmove(
     let ind = "";
     let moveslist = moves.map((move, index) => {
       index=index+1;
-      console.log(index);
+      
       if (index % 2 === 0) {
        
         ind = "";
@@ -293,6 +321,8 @@ this.addmove(
     return (
       <div>
         <div style={this.props.cssmanager.gameMoveList()} >{moveslist}</div>
+     {/*  <div><input type="text"  onChange={this.inputChange}/><input type="text"  onChange={this.inputChange1}/></div> */}
+        
         {displayButton ? (
           <div style={mbtnstyle} className="moveAction">
             <button

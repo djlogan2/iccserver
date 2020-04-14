@@ -297,13 +297,7 @@ background: #efefef;
   
   
 @media (min-width: 992px) and (max-width: 1199px) {
-/* 	.right-section {
-		width: 48% !important;
-		max-width: 48% !important;
-	} */
-	.board-section .board-player-top {
-		display: none;
-	}
+
 
 	.board-section .board-player-bottom {
 		display: none;
@@ -313,20 +307,7 @@ background: #efefef;
 		display: block;
 	}
 	
-	.board-player-top {
-		position: relative;
-		display: flex;
-		flex: 0 0 40px;
-		flex-direction: row;
-		height: 90px;
-		min-height: 90px;
-		padding-top: 0;
-		padding-bottom: 3px;
-		padding-left: 0;
-		line-height: 68px;
-		align-items: center;
-		width: 100%;
-	}
+	
 
 	.user-pic {
 		width: 50px;
@@ -493,14 +474,6 @@ background: #efefef;
 	.board-section {
 		width: 44%;
 		margin-left: 15.666667%;
-	}
-
-	.board-player-top {
-		height: 60px;
-		min-height: 45px;
-		padding-top: 5px;
-		padding-bottom: 3px;
-		width: 42vw;
 	}
 
 	.clock-top {
