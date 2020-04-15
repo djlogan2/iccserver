@@ -4,7 +4,9 @@ const stream = require("stream");
 const nearley = require("nearley");
 const grammar = require("./pgn.js");
 
-export const PGNImportStorageAdapter = function() {};
+export const PGNImportStorageAdapter = function() {
+  FS.StorageAdapter.call(this, "imported_pgns", null, this);
+};
 
 PGNImportStorageAdapter.prototype = Object.create(FS.StorageAdapter.prototype);
 
@@ -21,24 +23,26 @@ PGNImportStorageAdapter.prototype.createReadStream = function(fileKey, options) 
 PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
   var indeed = stream.PassThrough();
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-  const buffer = [""];
+  indeed.on('readable', () => {
+    let buffer = [""];
+    let chunk;
 
-  indeed.on("data", chunk => {
-    console.log("data:" + chunk);
-    const strings = chunk.toString().split("\n");
-    buffer[buffer.length - 1] += strings.shift();
-    buffer = buffer.concat(strings);
-    parser.feed(chunk.toString());
+    while(null !== (chunk = indeed.read())) {
+      console.log('chunk=' + chunk);
+      const strings = chunk.toString().split("\n");
+      buffer[buffer.length - 1] += strings.shift();
+      buffer = buffer.concat(strings);
+      while(buffer.length > 1) {
+        const str = buffer.shift();
+        console.log("str=" + str);
+        parser.feed(str);
+      }
+    }
   });
-
-  indeed.on("end", () => {
+  indeed.on('end', function(){
     console.log(parser.results);
-    console.log("end");
   });
 
-  indeed.on("error", error => {
-    console.log("error: " + error);
-  });
   return indeed;
 };
 

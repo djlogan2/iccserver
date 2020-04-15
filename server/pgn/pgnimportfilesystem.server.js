@@ -1,7 +1,7 @@
 import { FS } from "meteor/cfs:base-package";
 import { PGNImportStorageAdapter } from "./PGNImportStorageAdapter";
 
-FS.Store.PGNImportFileSystem = function() {
+FS.Store.PGNImportFileSystem = function(name, options) {
   var self = this;
   if (!(self instanceof FS.Store.PGNImportFileSystem))
     throw new Error('FS.Store.PGNImportFileSystem missing keyword "new"');

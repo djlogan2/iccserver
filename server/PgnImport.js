@@ -8,7 +8,7 @@ import "./pgn/pgnimportfilesystem.server";
 let log = new Logger("server/PgnImports_js");
 
 const PgnImportsCollection = new FS.Collection("uploaded_pgns", {
-  stores: [new FS.Store.PGNImportFileSystem()]
+  stores: [new FS.Store.PGNImportFileSystem("importedpgns")]
 });
 
 PgnImportsCollection.allow({
