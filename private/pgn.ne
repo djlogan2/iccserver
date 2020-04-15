@@ -1,13 +1,43 @@
 @{%
     const lexer = require("./pgnlexer.js").lexer;
+    const saver = require("./saveimportedgames.js").save;
  %}
 
 @lexer lexer
 
 database -> null | (game __ database) {% ([[g, _, d]]) => "[database " + g + ", " + d + "]" %}
 
-game -> tagsection __ movetextsection {% ([ts, _1, mt]) => {
-console.log("[game " +  ts + "," + mt + "]");
+game -> tagsection __ movetextsection {% ([ts, _1, game]) => {
+    game.tags = ts;
+    game.white = {name: "?", rating: 1600};
+    game.black = {name: "?", rating: 1600};
+
+    for(let tag in ts) {
+      switch (tag) {
+        case "White":
+          game.white.name = ts[tag];
+          break;
+        case "Black":
+            game.black.name = ts[tag];
+          break;
+        case "Result":
+            game.result = ts[tag];
+          break;
+        case "WhiteUSCF":
+        case "WhiteElo":
+            game.white.rating =  parseInt(ts[tag]);
+          break;
+        case "BlackUSCF":
+        case "BlackElo":
+          game.black.rating = parseInt(ts[tag]);
+          break;
+        default:
+          break;
+      }
+    }
+
+    saver(game);
+    return null;
 } %}
 
 tagsection -> null | (tagpair __ tagsection) {% ([[tp, _, ts]]) => {
@@ -20,14 +50,41 @@ tagpair -> %LBRACKET _ tagname __ tagvalue _ %RBRACKET {% ([_1, _2, tn, _3, tv])
 
 tagname -> %SYMBOL {% ([tn]) => tn.value %}
 
-tagvalue -> %STRING {% ([tv]) => tv.value %}
+tagvalue -> %STRING {% ([tv]) => tv.value.slice(1,tv.value.length - 1) %}
 
-movetextsection -> elementsequence gametermination {% ([es, gt]) => "[movetextsection " + es + ", " + gt + "]" %}
+movetextsection -> elementsequence gametermination {% ([es, gt]) => {
+        const movelist = [{}];
+        let cmi = 0;
+        for(let x = es.length - 1 ; x >= 0 ; x--) {
+            const [what, value] = es[x];
+            switch(what) {
+                case "movenumber":
+                    break;
+                case "move":
+                    if(!movelist[cmi].variations) movelist[cmi].variations = [];
+                    movelist[cmi].variations.push(movelist.length);
+                    movelist.push({move: value, prev: cmi});
+                    cmi = movelist.length - 1;
+                    break;
+                case "nag":
+                    movelist[cmi].nag = value;
+                    break;
+                case "comment":
+                    movelist[cmi].comment = value;
+                    break;
+                default:
+                    throw new Error("do me");
+                    break;
+            }
+        }
+        const game = {result: gt, variations: {movelist: movelist}};
+        return game;
+} %}
 
-elementsequence -> null | ((element | recursivevariation) __ elementsequence) {% ([[[[[what, value]]], _, es]]) => {
-                const game = Array.isArray(es) ? {} : es;
-                game[what] = value;
-                return game;
+elementsequence -> null | ((element | recursivevariation) __ elementsequence) {% (fuck) => {
+                const [[[[el_or_rv]], _, es]] = fuck;
+                es.push(el_or_rv);
+                return es;
                 }
 %}
 
@@ -47,9 +104,9 @@ numericannotationglyph -> %NAG {% (nag) => {return ["nag", nag.value];} %}
 
 comment -> (%COMMENT1 | %COMMENT2) {% ([[c]]) => {
         if(c.type === "COMMENT1")
-            return ["comment", c.value.slice(1,c.value.length - 1)];
+            return [["comment", c.value.slice(1,c.value.length - 1)]];
         else
-            return ["comment", c.value];
+            return [["comment", c.value]];
     }
 %}
 
@@ -60,7 +117,7 @@ recursivevariation -> %LPAREN _ elementsequence _ %RPAREN {% ([_1, _2, es]) =>
                             }
 %}
 
-gametermination -> %RESULT {% ([rl]) => "[result " + rl + "]" %}
+gametermination -> %RESULT {% ([rl]) => rl.value %}
 
 _ -> %WS:? {% () => "^" %}
 __ => %WS:+ {% () => "+" %}

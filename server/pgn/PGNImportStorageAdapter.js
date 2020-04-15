@@ -1,3 +1,4 @@
+import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { FS } from "meteor/cfs:base-package";
 const stream = require("stream");
@@ -38,10 +39,11 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
         parser.feed(str);
       }
     }
-  });
-  indeed.on('end', function(){
+  })
+
+  indeed.on('end', () => {
     console.log(parser.results);
-  });
+  })
 
   return indeed;
 };
