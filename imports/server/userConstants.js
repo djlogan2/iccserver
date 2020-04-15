@@ -20,7 +20,8 @@ export const all_roles = [
   "upload_mugshot",
   "delete_mugshot",
   "delete_any_mugshot",
-  "validate_mugshots"
+  "validate_mugshots",
+  "upload_pgn"
 ];
 
 export const standard_member_roles = [

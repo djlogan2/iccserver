@@ -6,7 +6,8 @@ import { Game } from "./Game";
 describe("Game timestamp", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-  it.only("should write a unique ping to active for white once a second", function() {
+/*
+  it("should write a unique ping to active for white once a second", function() {
     this.timeout(500000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -16,6 +17,7 @@ describe("Game timestamp", function() {
     const game = Game.collection.findOne();
     chai.assert.fail("do me ");
   });
+*/
   it("should write a unique ping to active for black once a second", function() {
     chai.assert.fail("do me ");
   });

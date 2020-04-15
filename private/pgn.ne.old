@@ -1,0 +1,181 @@
+@{%
+  const saver = require("./saveimportedgames.js");
+  const moo = require("moo");
+  const counts = {};
+  counts.plus = function(who) {
+    if(this[who] === undefined) this[who] = 0; this[who]++;
+    console.log(who + ": " + this[who]);
+  };
+  const lexer = moo.compile({
+    WS: { match: /[ \t\n]+/, lineBreaks: true },
+    STRING: /"(?:\\["\\]|[^\n"\\])*"/,
+    INTEGER: /[0-9]+/,
+    PERIOD: /\./,
+    LBRACKET: /\[/,
+    RBRACKET: /]/,
+    LPAREN: /\(/,
+    RPAREN: /\)/,
+    NAG: /\$[0-9]+/,
+    SYMBOL: /[a-zA-Z0-9_+#=:-]+/,
+    COMMENT1: /{.*?}/,
+    COMMENT2: /;.*?\n/,
+    ASTERISK: /\*/,
+    NL: { match: /\n/, lineBreaks: true }
+  });
+ %}
+
+@lexer lexer
+
+database -> %WS:* game:+ {%
+    function() {
+        console.log("---database---");
+        console.log(counts);
+    }
+%}
+
+game -> tagpairsection movetextsection %WS:* {%
+    function(game) {
+        counts.plus('game');
+        return;
+        const gamerecord = game[1];
+        gamerecord.white = {name: "Unknown", rating: 0};
+        gamerecord.black = {name: "Unknown", rating: 0};
+        gamerecord.tags = {};
+        for(let x = 0 ; x < game[0].length ; x++) {
+            const tag = game[0][x][0];
+            const value = game[0][x][1];
+          gamerecord.tags[tag] = value;
+          switch (tag) {
+            case "White":
+              gamerecord.white.name = value;
+              break;
+            case "Black":
+              gamerecord.black.name = value;
+              break;
+            case "Result":
+              gamerecord.result = value;
+              break;
+            case "WhiteUSCF":
+            case "WhiteElo":
+              gamerecord.white.rating = parseInt(value);
+              break;
+            case "BlackUSCF":
+            case "BlackElo":
+              gamerecord.black.rating = parseInt(value);
+              break;
+            default:
+              break;
+          }
+        }
+        saver.save(gamerecord);
+        //return gamerecord;
+    }
+%}
+
+tagpairsection -> %WS:* tag:+ {%
+    function(tps) {
+        counts.plus('tagpairsection');
+      return tps[1];
+    }
+%}
+
+tag -> %LBRACKET %WS:* %SYMBOL %WS:* tagvalues %WS:* %RBRACKET {%
+  function(tag) {
+        counts.plus('tag');
+    return [tag[2].value, tag[4].substr(1, tag[4].length - 2)];
+  }
+%}
+
+tagvalues -> %STRING (%COLON %STRING):* {%
+    function(tv) {
+        counts.plus('tagvalues');
+      return tv[1].value;
+    }
+%}
+
+movetextsection -> %WS:* (move:+ %WS:*)? gameresult {%
+    function(mts) {
+        counts.plus('movetextsection');
+        function expand(move_array, parent_cmi, move_list) {
+            if(!move_array || !move_array.length) return parent_cmi;
+
+            for(let x = 0 ; x < move_array.length ; x++) {
+
+                const move = {move: move_array[x].move};
+                if(move_array[x].nag) move.nag = move_array[x].nag;
+                if(move_array[x].comment) move.nag = move_array[x].comment;
+
+                if(!move_list[parent_cmi].variations) move_list[parent_cmi].variations = [];
+                move_list[parent_cmi].variations.push(move_list.length);
+                move.prev = parent_cmi;
+                parent_cmi = move_list.length;
+
+                move_list.push(move);
+
+                if(move_array[x].variations && move_array[x].variations.length) {
+                    move.variations = [];
+                    for(let y = 0 ; y < move_array[x].variations.length ; y++) {
+                        expand(move_array[x].variations[y], parent_cmi, move_list);
+                    }
+                }
+            }
+            return parent_cmi;
+        }
+
+        const move_list = [{variations: []}];
+        expand(mts[0], 0, move_list);
+        return {movelist: move_list, result: mts[1]};
+    }
+%}
+
+move -> movenumber:? movetextsan movecomment:? {%
+    function(move) {
+        counts.plus('move');
+        if(move[2])
+            move[1].comment = move[2];
+      return move[1];
+    }
+%}
+
+movenumber -> %INTEGER %PERIOD {%
+    function(mn) {
+        counts.plus('movenumber');
+      return mn[1].value;
+    }
+%}
+
+movetextsan -> %WS:* dotdotdot:? %WS:* %SYMBOL %WS:* %NAG:? variation:* {%
+  function(mts) {
+        counts.plus('movetextsan');
+    const movelist_item = {move: mts[2].value, variations: []};
+
+    if(mts[4])
+        movelist_item.nag = mts[4].value;
+    if(mts[5].length)
+        movelist_item.variations = mts[5];
+    return movelist_item;
+  }
+%}
+
+dotdotdot -> %PERIOD %PERIOD %PERIOD {% function() {counts.plus('dotdotdot');} %}
+
+movecomment -> %WS:* (%COMMENT1 | %COMMENT2) {%
+    function(mc) {
+        counts.plus('movecomment');
+        return mc[1].value.substr(1,mc[1].value.length -2);
+    }
+%}
+
+variation -> %WS:* %LPAREN move:+ %WS:* %RPAREN {%
+    function(variation) {
+        counts.plus('variation');
+        return variation[2];
+    }
+%}
+
+gameresult -> %WS:* ("1-0" | "0-1" | "1/2-1/2" | "*") {%
+    function(result) {
+        counts.plus('result');
+        return result[1][0].value;
+    }
+%}
