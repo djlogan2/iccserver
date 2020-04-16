@@ -5,7 +5,7 @@
 
 @lexer lexer
 
-database -> null | (game __ database) {% ([[g, _, d]]) => "[database " + g + ", " + d + "]" %}
+database -> null | (game __ database) {% () => null) %}
 
 game -> tagsection __ movetextsection {% ([ts, _1, game]) => {
     game.tags = ts;

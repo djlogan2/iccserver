@@ -17,7 +17,7 @@ PgnImportsCollection.allow({
       log.debug("PgnImportsCollection::allow::insert - no userId");
       return false;
     }
-    log.debug("User " + userId + " trying to upload a pgn");
+
     if (!doc || !doc.creatorId || doc.creatorId !== userId) {
       log.debug("PgnImportsCollection::allow::insert - no missing creatorId or userId mismatch");
       return false;
