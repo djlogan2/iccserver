@@ -37,7 +37,7 @@ PGNImportStorageAdapter.prototype.createReadStream = function(fileKey, options) 
   return null;
 };
 
-const streams = {};
+const parsers = {};
 
 PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
   const temp = TempUploadCollection.findOne({_id: fileKey, complete: {$ne: true}});
@@ -45,14 +45,11 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
   if(!temp)
     throw new Error("Unable to find temp record for PGNImportAdapter for id " + fileKey);
 
-  if(streams[fileKey]) {
-    return streams[fileKey];
-  }
-
-  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+  const parser = parsers[fileKey] === undefined ? new nearley.Parser(nearley.Grammar.fromCompiled(grammar)) : parsers[fileKey];
+  if(parsers[fileKey] === undefined)
+    parsers[fileKey] = parser;
 
   const indeed = stream.PassThrough();
-  streams[fileKey] = indeed;
 
   indeed.on("data", Meteor.bindEnvironment(chunk => {
     indeed.pause();
@@ -92,7 +89,7 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
           parser.feed(temp.string);
           temp.line++;
         }
-        delete streams[fileKey];
+        delete parsers[fileKey];
 
         indeed.emit('stored', {
           fileKey: fileKey,
