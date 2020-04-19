@@ -1,215 +1,163 @@
-.developmentboard-wr-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg) no-repeat;
-    background-size: 100%;
+/*
+ * Chessground base css properties.
+ *
+ * You need to include the css files in themes folder in order to have the
+ * board and pieces displayed!
+ */
+
+.cg-wrap {
+  width: 320px;
+  height: 320px;
+  position: relative;
+  display: block;
 }
 
-.developmentboard-wb-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg) no-repeat;
-    background-size: 100%;
+cg-helper {
+  position: absolute;
+  width: 12.5%;
+  padding-bottom: 12.5%;
+  display: table; /* hack: round to full pixel size in chrome */
+  bottom: 0;
 }
 
-.developmentboard-wn-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg) no-repeat;
-    background-size: 100%;
+cg-container {
+  position: absolute;
+  width: 800%;
+  height: 800%;
+  display: block;
+  bottom: 0;
 }
 
-.developmentboard-wq-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg) no-repeat;
-    background-size: 100%;
+cg-board {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  line-height: 0;
+  background-size: cover;
+  cursor: pointer;
 }
-
-.developmentboard-wk-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12.5%;
+  height: 12.5%;
+  pointer-events: none;
 }
-
-.developmentboard-wp-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.move-dest {
+  background:radial-gradient(rgba(116, 0, 204) 22%, #4e0cd0 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
+  
+  pointer-events: auto;
 }
-
-.developmentboard-br-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.premove-dest {
+  background: radial-gradient(rgba(22, 32, 90, 0.5) 22%, #203085 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
 }
-
-.developmentboard-bb-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.oc.move-dest {
+  background: radial-gradient(transparent 0%, transparent 80%, rgba(116, 0, 204) 80%);
 }
-
-.developmentboard-bn-dark {
-     background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.oc.premove-dest {
+  background: radial-gradient(transparent 0%, transparent 80%, rgba(20, 30, 85, 0.2) 80%);
 }
-
-.developmentboard-bq-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.move-dest:hover {
+  background: rgba(20, 85, 30, 0.3);
 }
-
-.developmentboard-bk-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.premove-dest:hover {
+  background: rgba(20, 30, 85, 0.2);
 }
-
-.developmentboard-bp-dark {
-    background: #1565c0 url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.last-move {
+  will-change: transform;
+  background-color: rgba(78, 61, 73, 0.5)
 }
-
-.developmentboard-wr-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.selected {
+  background-color: rgba(78, 61, 73, 0.5);
 }
-
-.developmentboard-wb-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.check {
+  background: radial-gradient(ellipse at center, rgba(255, 0, 0, 1) 0%, rgba(231, 0, 0, 1) 25%, rgba(169, 0, 0, 0) 89%, rgba(158, 0, 0, 0) 100%);
 }
-
-.developmentboard-wn-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg) no-repeat;
-    background-size: 100%;
+cg-board square.current-premove {
+  background-color: rgba(20, 30, 85, 0.5);
 }
-
-.developmentboard-wq-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg) no-repeat;
-    background-size: 100%;
+.cg-wrap piece {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12.5%;
+  height: 12.5%;
+  background-size: cover;
+  z-index: 2;
+  will-change: transform;
+  pointer-events: none;
 }
-
-.developmentboard-wk-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg) no-repeat;
-    background-size: 100%;
+cg-board piece.dragging {
+  cursor: move;
+  z-index: 9;
 }
-
-.developmentboard-wp-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg) no-repeat;
-    background-size: 100%;
+cg-board piece.anim {
+  z-index: 8;
 }
-
-.developmentboard-br-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg) no-repeat;
-    background-size: 100%;
+cg-board piece.fading {
+  z-index: 1;
+  opacity: 0.5;
 }
-
-.developmentboard-bb-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg) no-repeat;
-    background-size: 100%;
+.cg-wrap square.move-dest:hover {
+  background-color: rgba(20, 85, 30, 0.3);
 }
-
-.developmentboard-bn-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg) no-repeat;
-    background-size: 100%;
+.cg-wrap piece.ghost {
+  opacity: 0.3;
 }
-
-.developmentboard-bq-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg) no-repeat;
-    background-size: 100%;
+.cg-wrap svg {
+  overflow: hidden;
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.6;
 }
-
-.developmentboard-bk-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg) no-repeat;
-    background-size: 100%;
+.cg-wrap svg image {
+  opacity: 0.5;
 }
-
-.developmentboard-bp-light {
-    background:  #fff url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg) no-repeat;
-    background-size: 100%;
+.cg-wrap coords {
+  position: absolute;
+  display: flex;
+  pointer-events: none;
+  opacity: 0.8;
+  color:#ffffff;
+  font-size: 9px;
 }
-
-.developmentboard-dark {
-    background-color: #1565c0;
+.cg-wrap coords.ranks {
+  right: -15px;
+  top: 0;
+  flex-flow: column-reverse;
+  height: 100%;
+  width: 12px;
 }
-
-.developmentboard-light {
-    background-color: #fff;
+.cg-wrap coords.ranks.black {
+  flex-flow: column;
 }
-
-.square-div {
-    position: relative;
+.cg-wrap coords.files {
+  bottom: -16px;
+  left: 0;
+  flex-flow: row;
+  width: 100%;
+  height: 16px;
+  text-transform: uppercase;
+  text-align: center;
 }
-
-.square-normal {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 1;
+.cg-wrap coords.files.black {
+  flex-flow: row-reverse;
 }
-
-.square-canvas {
-    position: relative;
-    z-index: 2;
+.cg-wrap coords coord {
+  flex: 1 1 auto;
 }
-
-.square-text-bl-light {
-    color: red;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    z-index: 3;
-}
-
-.square-text-bl-dark {
-    color: white;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    z-index: 3;
-}
-
-.square-text-tl-light {
-    color: red;
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 3;
-}
-
-.square-text-tl-dark {
-    color: white;
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 3;
-}
-
-.square-text-br-light {
-    color: red;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    z-index: 3;
-}
-
-.square-text-br-dark {
-    color: white;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    z-index: 3;
-}
-
-.square-text-tr-light {
-    color: red;
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 3;
-}
-
-.square-text-tr-dark {
-    color: white;
-    position: absolute;
-    right: 0;
-    top: 0;
-    z-index: 3;
-}
-
-.chessboard-row {
-
-}
-
-.chessboard-square {
-    float: right;
+.cg-wrap coords.ranks coord {
+  transform: translateY(39%);
 }

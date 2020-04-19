@@ -36,12 +36,7 @@ class Tab extends Component {
     if (activeTab === label) {
       activeTabName = label;
     }
-    if (onHover === label) {
-      hover = label;
-    }
-    if (hoverOut === label) {
-      hover = "";
-    }
+   
     return (
       <li
          // style={{cursor: 'pointer', display: 'block'}}

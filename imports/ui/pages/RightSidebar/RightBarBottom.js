@@ -75,7 +75,7 @@ class RightBarBottom extends Component {
           imgsrc="images/fen-pgn-white-icon.png"
           hoverSrc="images/fen-pgn-blue-icon.png"
         >
-          <PGN />
+          <PGN cssmanager={this.props.cssmanager} Gamedata={this.props.Gamedata}/>
         </div>
       </Tabs>
     );

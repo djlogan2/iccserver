@@ -44,26 +44,7 @@ export default class MiddleBoard extends Component {
     this._circle.color = event.target.value;
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
-  /*
-  componentWillReceiveProps(nextProps) {
-    if (
-      !!nextProps.game &&
-      (this.props.gameStatus === "playing" || this.props.gameStatus === "examining")
-    ) {
-      console.log("cwill sf " + this.state.fen);
-      console.log("cwill np " + nextProps.game.fen);
-      //this.chess.load(game.fen);
-      this.setState({ fen: nextProps.game.fen });
-    }
-  }
-  */
-
-  /*  componentWillReceiveProps(nextProps) {
-    if (!!nextProps.game) {
-      //this.chess.load(game.fen);
-      this.setState({ fen: nextProps.game.fen });
-    }
-  } */
+  
 
   getLang() {
     return (
@@ -118,13 +99,15 @@ export default class MiddleBoard extends Component {
     const bc = this.state.top === "b" ? "b" : "w";
 
     let boardtop;
+   
 
+    if(this.props.gameStatus!=="idlemode"){
     if (this.state.top === "w") {
       boardtop = "black";
     } else {
       boardtop = "white";
     }
-
+  }
     let topPlayermsg;
     let botPlayermsg;
     let color;
