@@ -6,6 +6,8 @@ const stream = require("stream");
 const nearley = require("nearley");
 const grammar = require("./pgn.js");
 
+const TempUploadCollection = new Mongo.Collection("temp_pgn_imports");
+
 export const PGNImportStorageAdapter = function() {
   FS.StorageAdapter.call(this, "imported_pgns", null, this);
 };
@@ -14,82 +16,95 @@ PGNImportStorageAdapter.prototype = Object.create(FS.StorageAdapter.prototype);
 
 PGNImportStorageAdapter.prototype.typeName = "storage.pgnimportfilesystem";
 
+const current = {};
+
 PGNImportStorageAdapter.prototype.fileKey = function(fileObj) {
-  return fileObj._id;
-};
+  const temp = TempUploadCollection.findOne({ creatorId: fileObj.creatorId, name: fileObj.original.name, complete: {$ne: true}}, {_id: 1});
+  if(temp)
+    return temp._id;
+  return TempUploadCollection.insert({
+    creatorId: fileObj.creatorId,
+    name: fileObj.original.name,
+    line: 0,
+    chunks: 0,
+    originalsize: fileObj.original.size,
+    size: 0,
+    string: null
+  });
+}
 
 PGNImportStorageAdapter.prototype.createReadStream = function(fileKey, options) {
   return null;
 };
 
-const current = {};
+const streams = {};
 
 PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
-  const indeed = stream.PassThrough();
-  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-  if(!current[fileKey]) {
-    current[fileKey] = {
-      line: 0,
-      error: false,
-      string: null,
-      sigh: 0
-    };
+  const temp = TempUploadCollection.findOne({_id: fileKey, complete: {$ne: true}});
+
+  if(!temp)
+    throw new Error("Unable to find temp record for PGNImportAdapter for id " + fileKey);
+
+  if(streams[fileKey]) {
+    return streams[fileKey];
   }
 
-  indeed.on("data", (chunk) => {
+  const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+
+  const indeed = stream.PassThrough();
+  streams[fileKey] = indeed;
+
+  indeed.on("data", Meteor.bindEnvironment(chunk => {
+    indeed.pause();
+    temp.chunks++;
+    temp.size += chunk.length;
     let start = 0;
     let end;
 
-    if((++current[fileKey].sigh % 10000) === 0) console.log("chunks=" + current[fileKey].sigh);
-    return;
-    do {
-      end = chunk.indexOf('\n', start, "utf8");
-      if (end === -1) {
-        current[fileKey].string = chunk.toString("utf8", start);
-        start = chunk.length;
-      } else {
-        end++;
-        if(current[fileKey].string) {
-          console.log(current[fileKey].string + chunk.toString("utf8", start, end));
-          current[fileKey].string = null;
-        } else
-          console.log(chunk.toString("utf8", start, end));
-        start = end;
-        current[fileKey].line++;
+    try {
+      do {
+        end = chunk.indexOf('\n', start, "utf8");
+        if (end === -1) {
+          temp.string = chunk.toString("utf8", start);
+          start = chunk.length;
+        } else {
+          end++;
+          temp.line++;
+          if (temp.string) {
+            if(!temp.error)
+              parser.feed(temp.string + chunk.toString("utf8", start, end));
+            temp.string = null;
+          } else if(!temp.error) {
+              parser.feed(chunk.toString("utf8", start, end));
+          }
+          start = end;
+        }
+      } while (start < chunk.length);
+    } catch(e) {
+      console.log(e);
+      temp.error = e;
+      temp.error_line = [temp.line, (temp.string ? temp.string : "") + chunk.toString("utf8", start, end)];
+    } finally {
+      TempUploadCollection.update({ _id: fileKey }, temp);
+      //-
+      if(temp.size >= temp.originalsize) {
+        if (temp.string) {
+          parser.feed(temp.string);
+          temp.line++;
+        }
+        delete streams[fileKey];
+
+        indeed.emit('stored', {
+          fileKey: fileKey,
+          size: temp.size,
+          storedAt: new Date()
+        });
+        TempUploadCollection.update({_id: fileKey}, {$set: {complete: true}});
       }
-    } while (start < chunk.length);
-  });
-
-  indeed.on("end", (fileKey) => console.log("Ending " + fileKey));
-  indeed.on('stored', (fileKey) => {
-    if(current[fileKey].string) {
-      console.log(current[fileKey].string);
-      current[fileKey].line++;
+      //-
+      indeed.resume();
     }
-    console.log("does this work?");
-    console.log("lines=" + current[fileKey].line);
-    delete current[fileKey];
-  });
-
-  // while (!error && null !== (chunk = indeed.read())) {
-  //   console.log("--- new chunk=" + chunk.slice(0, 10));
-  //   const strings = chunk.toString().split("\n");
-  //   buffer[buffer.length - 1] += strings.shift();
-  //   buffer = buffer.concat(strings);
-  //   while (!error && buffer.length > 1) {
-  //     const str = buffer.shift();
-  //     try {
-  //       console.log("str=" + str);
-  //       parser.feed(str);
-  //       line++;
-  //     } catch (e) {
-  //       console.log("Error in line " + line + ": " + e);
-  //       error = true;
-  //     }
-  //   }
-  // }
-//};
-//)
+  }));
 
   return indeed;
 };

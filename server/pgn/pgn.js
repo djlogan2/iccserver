@@ -5,12 +5,13 @@ function id(x) { return x[0]; }
 
     const lexer = require("./pgnlexer.js").lexer;
     const saver = require("./saveimportedgames.js").save;
+    //const GameCollection = new Mongo.Collection("imported_games");
  var grammar = {
     Lexer: lexer,
     ParserRules: [
     {"name": "database", "symbols": []},
     {"name": "database$subexpression$1", "symbols": ["game", "__", "database"]},
-    {"name": "database", "symbols": ["database$subexpression$1"], "postprocess": ([[g, _, d]]) => "[database " + g + ", " + d + "]"},
+    {"name": "database", "symbols": ["database$subexpression$1"], "postprocess": () => null},
     {"name": "game", "symbols": ["tagsection", "__", "movetextsection"], "postprocess":  ([ts, _1, game]) => {
             game.tags = ts;
             game.white = {name: "?", rating: 1600};
@@ -41,6 +42,7 @@ function id(x) { return x[0]; }
             }
         
             saver(game);
+            //GameCollection.insert(game);
             return null;
         } },
     {"name": "tagsection", "symbols": []},

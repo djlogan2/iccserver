@@ -1,11 +1,12 @@
 @{%
     const lexer = require("./pgnlexer.js").lexer;
     const saver = require("./saveimportedgames.js").save;
+    //const GameCollection = new Mongo.Collection("imported_games");
  %}
 
 @lexer lexer
 
-database -> null | (game __ database) {% () => null) %}
+database -> null | (game __ database) {% () => null %}
 
 game -> tagsection __ movetextsection {% ([ts, _1, game]) => {
     game.tags = ts;
@@ -37,6 +38,7 @@ game -> tagsection __ movetextsection {% ([ts, _1, game]) => {
     }
 
     saver(game);
+    //GameCollection.insert(game);
     return null;
 } %}
 
