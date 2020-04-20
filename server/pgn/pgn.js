@@ -5,7 +5,6 @@ function id(x) { return x[0]; }
 
     const lexer = require("./pgnlexer.js").lexer;
     const saver = require("./saveimportedgames.js").save;
-    //const GameCollection = new Mongo.Collection("imported_games");
  var grammar = {
     Lexer: lexer,
     ParserRules: [
@@ -83,12 +82,13 @@ function id(x) { return x[0]; }
                 const game = {result: gt, variations: {movelist: movelist}};
                 return game;
         } },
-    {"name": "elementsequence", "symbols": []},
-    {"name": "elementsequence$subexpression$1$subexpression$1", "symbols": ["element"]},
-    {"name": "elementsequence$subexpression$1$subexpression$1", "symbols": ["recursivevariation"]},
-    {"name": "elementsequence$subexpression$1", "symbols": ["elementsequence$subexpression$1$subexpression$1", "__", "elementsequence"]},
-    {"name": "elementsequence", "symbols": ["elementsequence$subexpression$1"], "postprocess":  (fuck) => {
-        const [[[[el_or_rv]], _, es]] = fuck;
+    {"name": "elementsequence$ebnf$1$subexpression$1$subexpression$1", "symbols": ["element"]},
+    {"name": "elementsequence$ebnf$1$subexpression$1$subexpression$1", "symbols": ["recursivevariation"]},
+    {"name": "elementsequence$ebnf$1$subexpression$1", "symbols": ["elementsequence$ebnf$1$subexpression$1$subexpression$1", "__", "elementsequence"]},
+    {"name": "elementsequence$ebnf$1", "symbols": ["elementsequence$ebnf$1$subexpression$1"], "postprocess": id},
+    {"name": "elementsequence$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "elementsequence", "symbols": ["elementsequence$ebnf$1"], "postprocess":  (param) => {
+        const [[[[el_or_rv]], _, es]] = param;
         es.push(el_or_rv);
         return es;
         }
@@ -108,9 +108,7 @@ function id(x) { return x[0]; }
         return ["move", sm.value];
         } },
     {"name": "numericannotationglyph", "symbols": [(lexer.has("NAG") ? {type: "NAG"} : NAG)], "postprocess": (nag) => {return ["nag", nag.value];}},
-    {"name": "comment$subexpression$1", "symbols": [(lexer.has("COMMENT1") ? {type: "COMMENT1"} : COMMENT1)]},
-    {"name": "comment$subexpression$1", "symbols": [(lexer.has("COMMENT2") ? {type: "COMMENT2"} : COMMENT2)]},
-    {"name": "comment", "symbols": ["comment$subexpression$1"], "postprocess":  ([[c]]) => {
+    {"name": "comment", "symbols": [(lexer.has("COMMENT1") ? {type: "COMMENT1"} : COMMENT1)], "postprocess":  ([c]) => {
             if(c.type === "COMMENT1")
                 return [["comment", c.value.slice(1,c.value.length - 1)]];
             else
@@ -124,12 +122,13 @@ function id(x) { return x[0]; }
         }
         },
     {"name": "gametermination", "symbols": [(lexer.has("RESULT") ? {type: "RESULT"} : RESULT)], "postprocess": ([rl]) => rl.value},
-    {"name": "_$ebnf$1", "symbols": [(lexer.has("WS") ? {type: "WS"} : WS)], "postprocess": id},
-    {"name": "_$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": () => "^"},
-    {"name": "__$ebnf$1", "symbols": [(lexer.has("WS") ? {type: "WS"} : WS)]},
-    {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", (lexer.has("WS") ? {type: "WS"} : WS)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": () => "+"}
+    {"name": "_$ebnf$1", "symbols": []},
+    {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", "ws"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": () => null},
+    {"name": "__", "symbols": ["ws", "_"], "postprocess": () => null},
+    {"name": "ws$subexpression$1", "symbols": [(lexer.has("WS") ? {type: "WS"} : WS)]},
+    {"name": "ws$subexpression$1", "symbols": [(lexer.has("NL") ? {type: "NL"} : NL)]},
+    {"name": "ws", "symbols": ["ws$subexpression$1"], "postprocess": () => null}
 ]
   , ParserStart: "database"
 }

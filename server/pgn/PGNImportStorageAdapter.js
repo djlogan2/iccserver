@@ -60,7 +60,7 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
 
     try {
       do {
-        end = chunk.indexOf('\n', start, "utf8");
+        end = chunk.lastIndexOf("\n");
         if (end === -1) {
           temp.string = chunk.toString("utf8", start);
           start = chunk.length;
@@ -80,7 +80,8 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
     } catch(e) {
       console.log(e);
       temp.error = e;
-      temp.error_line = [temp.line, (temp.string ? temp.string : "") + chunk.toString("utf8", start, end)];
+      temp.error_line = e.toString();
+      //temp.error_line = [temp.line, (temp.string ? temp.string : "") + chunk.toString("utf8", start, end)];
     } finally {
       TempUploadCollection.update({ _id: fileKey }, temp);
       //-

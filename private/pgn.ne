@@ -1,7 +1,6 @@
 @{%
     const lexer = require("./pgnlexer.js").lexer;
     const saver = require("./saveimportedgames.js").save;
-    //const GameCollection = new Mongo.Collection("imported_games");
  %}
 
 @lexer lexer
@@ -83,8 +82,8 @@ movetextsection -> elementsequence gametermination {% ([es, gt]) => {
         return game;
 } %}
 
-elementsequence -> null | ((element | recursivevariation) __ elementsequence) {% (fuck) => {
-                const [[[[el_or_rv]], _, es]] = fuck;
+elementsequence -> ((element | recursivevariation) __ elementsequence):? {% (param) => {
+                const [[[[el_or_rv]], _, es]] = param;
                 es.push(el_or_rv);
                 return es;
                 }
@@ -104,7 +103,7 @@ return ["move", sm.value];
 
 numericannotationglyph -> %NAG {% (nag) => {return ["nag", nag.value];} %}
 
-comment -> (%COMMENT1 | %COMMENT2) {% ([[c]]) => {
+comment -> %COMMENT1 {% ([c]) => {
         if(c.type === "COMMENT1")
             return [["comment", c.value.slice(1,c.value.length - 1)]];
         else
@@ -121,5 +120,6 @@ recursivevariation -> %LPAREN _ elementsequence _ %RPAREN {% ([_1, _2, es]) =>
 
 gametermination -> %RESULT {% ([rl]) => rl.value %}
 
-_ -> %WS:? {% () => "^" %}
-__ => %WS:+ {% () => "+" %}
+_ => ws:* {% () => null %}
+__ => ws _ {% () => null %}
+ws -> (%WS | %NL) {% () => null %}
