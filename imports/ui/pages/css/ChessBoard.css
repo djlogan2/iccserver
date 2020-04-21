@@ -3,6 +3,9 @@
 .main .row {
     display: flex;
 }
+.pgn-btn {
+bottom: 1px;
+}
 /* All media css*/
 @media (max-width: 767px) {
   .pull-left.image img {

@@ -538,8 +538,8 @@ let links = [
     src: "../../../images/learning-icon-white.png"
   },
   {
-    label: "learn",
-    link: "learn",
+    label: "uploadpgn",
+    link: "upload-pgn",
     src: "../../../images/learning-icon-white.png"
   },
   {

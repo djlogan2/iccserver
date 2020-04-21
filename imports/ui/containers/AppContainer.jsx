@@ -220,6 +220,11 @@ export default class AppContainer extends TrackerReact(React.Component) {
         $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
       }).fetch();
       this.setState({ GameHistory: GameHistory });
+    }else if(data === "uploadpgn"){
+      const GameHistory = GameHistoryCollection.find({
+        $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+      }).fetch();
+      this.setState({ GameHistory: GameHistory });
     }
   }
 

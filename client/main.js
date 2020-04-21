@@ -47,7 +47,8 @@ Meteor.startup(() => {
         singUp: "Sign up",
         help: "Help",
         logout: "Logout",
-        mygame: "My Games"
+        mygame: "My Games",
+        uploadpgn: "Upload Pgn"
       },
       MoveListComponent: {
         takeBack: "Take Back",

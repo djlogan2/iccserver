@@ -56,7 +56,18 @@ export default class MoveListComponent extends Component {
       Meteor.call("moveForward", "MoveForward", this.gameId,1,idc);
  }
   moveForwardEnd = cmi => {
-    Meteor.call("moveForward", "MoveForward", this.gameId,this.cmi);
+    let movedata=this.moves;
+    let slicemoves=movedata.slice(this.currentindex+1,movedata.length);
+    for(let i=0;i<=slicemoves.length;i++){
+      console.log(slicemoves[i].idc);
+      Meteor.call("moveForward", "MoveForward", this.gameId,1,slicemoves[i].idc);
+    }
+    
+     // console.log(v.idc);
+     
+
+  
+  //  Meteor.call("moveForward", "MoveForward", this.gameId,movecount);
  };
 
   moveAutoForward = () => {
@@ -151,7 +162,7 @@ export default class MoveListComponent extends Component {
    if(movelist[idx].variations.length > 1){
  
    }else{
-     string += "0"+"-"+movelist[idx].variations[0]+"-"+movelist[movelist[idx].variations[0]].move+"|";
+     string += "0"+"*-"+movelist[idx].variations[0]+"*-"+movelist[movelist[idx].variations[0]].move+"|";
      
    }
    
@@ -162,7 +173,7 @@ export default class MoveListComponent extends Component {
    for (let x = 1; x < movelist[idx].variations.length; x++) {
      if(x=movelist[idx].variations.length - 1){
        string +=
-            x+"-"+movelist[idx].variations[x]+"-"+movelist[movelist[idx].variations[x]].move+" |";
+            x+"*-"+movelist[idx].variations[x]+"*-"+movelist[movelist[idx].variations[x]].move+" |";
  
        }
       string +=
@@ -215,29 +226,31 @@ export default class MoveListComponent extends Component {
       this.moves=[];
       this.moves.push({idc:0,idx:0,move:""});
       for (let i=0;i<chunks.length;i++){
-        let ch=chunks[i].split("-");
+        let ch=chunks[i].split("*-");
         this.moves.push({idc:parseInt(ch[0]),idx:parseInt(ch[1]),move:ch[2]});
     }
       
 
     /* TODO: movlist button display operation*/
-    let displayButton = 1;
+    let displayButton = 0;
+    let statuslabel=0;
     let isPlaying;
-    if (this.props.currentGame === false && status === "examining"){
-      displayButton = 0;
-    } 
+    
     let mbtnstyle = this.props.cssmanager.gameButtonMove();
-    if (this.props.currentGame === true || status === "playing") {
+    if (this.props.currentGame === true && status === "examining"){
+      displayButton = 1;
+      statuslabel=1;
       Object.assign(mbtnstyle, { bottom: "85px",padding:"0px" });
-     } else {
-      Object.assign(mbtnstyle, { bottom: "26px",padding:"0px" }); 
+    }else if(status === "playing"){
+      statuslabel=1;
     }
+   
     if (status === "playing") {
       isPlaying=true;
     }else{
       isPlaying=false;
     }
-   console.log(this.moves);
+   
     /*End of code */
     let cnt = 1;
     let ind = "";
@@ -342,7 +355,7 @@ export default class MoveListComponent extends Component {
           </div>
         ) : null}
            <div className="draw-section">
-           {displayButton ? (
+           {statuslabel ? (
           <div  className={"gamestatus " + (status==='playing' ? 'active' : 'default')} style={this.props.cssmanager.drawActionSection()}>
              <span>{translator(status)}</span>
           </div>
