@@ -88,7 +88,7 @@ function id(x) { return x[0]; }
     {"name": "elementsequence$ebnf$1", "symbols": ["elementsequence$ebnf$1$subexpression$1"], "postprocess": id},
     {"name": "elementsequence$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "elementsequence", "symbols": ["elementsequence$ebnf$1"], "postprocess":  (param) => {
-        const [[[[el_or_rv]], _, es]] = param;
+        const [[[el_or_rv], _, es]] = param;
         es.push(el_or_rv);
         return es;
         }

@@ -1,9 +1,13 @@
 import chai from "chai";
+import { TestHelpers } from "../../imports/server/TestHelpers";
+import { ImportedGames } from "./saveimportedgames";
 const nearley = require("nearley");
 const grammar = require("./pgn.js");
 const lexer = require("../../server/pgn/pgnlexer").lexer;
 
 describe.only("PGN Import", function() {
+  const self = TestHelpers.setupDescribe.apply(this);
+
   const valid = [
     "",
     '[a "b"] *',
@@ -49,6 +53,45 @@ describe.only("PGN Import", function() {
     "    ( 1. ... Nc6 2. Nc3 )\n" +
     "2. Nf3 *" +
     "\n";
+
+  const pgn1 =
+    '[Event "ICC 5 0 u"]\n' +
+    '[Site "Internet Chess Club"]\n' +
+    '[Date "2019.10.13"]\n' +
+    '[Round "-"]\n' +
+    '[White "uiuxtest1"]\n' +
+    '[Black "uiuxtest2"]\n' +
+    '[Result "*"]\n' +
+    '[ICCResult "Game adjourned when White disconnected"]\n' +
+    '[WhiteElo "1400"]\n' +
+    '[BlackElo "1400"]\n' +
+    '[Opening "Two knights defense"]\n' +
+    '[ECO "C55"]\n' +
+    '[NIC "IG.01"]\n' +
+    '[Time "13:08:42"]\n' +
+    '[TimeControl "300+0"]\n' +
+    "\n" +
+    "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. c3 d5 5. exd5 Nxd5 6. Qb3 Be6 7. O-O Be7\n" +
+    "8. d3 O-O 9. Re1 {Game adjourned when White disconnected} *\n" +
+    "\n" +
+    '[Event "ICC 5 0 u"]\n' +
+    '[Site "Internet Chess Club"]\n' +
+    '[Date "2019.10.13"]\n' +
+    '[Round "-"]\n' +
+    '[White "uiuxtest1"]\n' +
+    '[Black "uiuxtest2"]\n' +
+    '[Result "*"]\n' +
+    '[ICCResult "Game adjourned when White disconnected"]\n' +
+    '[WhiteElo "1400"]\n' +
+    '[BlackElo "1400"]\n' +
+    '[Opening "Two knights defense"]\n' +
+    '[ECO "C55"]\n' +
+    '[NIC "IG.01"]\n' +
+    '[Time "13:08:42"]\n' +
+    '[TimeControl "300+0"]\n' +
+    "\n" +
+    "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. c3 d5 5. exd5 Nxd5 6. Qb3 Be6 7. O-O Be7\n" +
+    "8. d3 O-O 9. Re1 {Game adjourned when White disconnected} *";
 
   valid.forEach(v =>
     it(v.replace(/[\r\n]/g, "^") + " is valid", function() {
@@ -138,20 +181,20 @@ describe.only("PGN Import", function() {
 
   it("should parse a basic tag and result", function() {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    chai.assert.doesNotThrow(() => parser.feed('[a "b"]\n*\n'));
-    chai.assert.equal(1, parser.results.length);
+    chai.assert.doesNotThrow(() => parser.feed('[a "b"]\n*'));
+    chai.assert.equal(1, ImportedGames.collection.find().count());
   });
 
   it("should parse a basic tag and result with windows newlines", function() {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
     chai.assert.doesNotThrow(() => parser.feed('[a "b"]\r\n[b "c"]\r\n[d "e"]\r\n*'));
-    chai.assert.equal(1, parser.results.length);
+    chai.assert.equal(1, ImportedGames.collection.find().count());
   });
 
   it("should parse a basic tag and result with unix newlines", function() {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
     chai.assert.doesNotThrow(() => parser.feed('[a "b"]\n[b "c"]\n[d "e"]\n*'));
-    chai.assert.equal(1, parser.results.length);
+    chai.assert.equal(1, ImportedGames.collection.find().count());
   });
 
   it("should parse a basic tag and result whitespace", function() {
@@ -159,18 +202,18 @@ describe.only("PGN Import", function() {
     parser.feed(
       '[a \r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n"b"]\r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n[b\r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n "c"]\n\n\n\t\r\n\n\n\t\t[d \r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n "e"]\t\t\t\n\n\n\r\n\r\n\n\n\t\t\t*'
     );
-    chai.assert.equal(1, parser.results.length);
+    chai.assert.equal(1, ImportedGames.collection.find().count());
   });
 
   it("should parse pgn correctly", function() {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    parser.feed(pgn);
-    chai.assert.equal(1, parser.results.length);
+    chai.assert.doesNotThrow(() => parser.feed(pgn));
+    chai.assert.equal(1, ImportedGames.collection.find().count());
   });
 
-  it.skip("should parse pgn1 correctly", function() {
+  it("should parse pgn1 correctly", function() {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    parser.feed(pgn1);
-    chai.assert.equal(4, parser.results.length);
+    chai.assert.doesNotThrow(() => parser.feed(pgn1));
+    chai.assert.equal(2, ImportedGames.collection.find().count());
   });
 });

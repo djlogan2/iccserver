@@ -83,7 +83,7 @@ movetextsection -> elementsequence gametermination {% ([es, gt]) => {
 } %}
 
 elementsequence -> ((element | recursivevariation) __ elementsequence):? {% (param) => {
-                const [[[[el_or_rv]], _, es]] = param;
+                const [[[el_or_rv], _, es]] = param;
                 es.push(el_or_rv);
                 return es;
                 }
