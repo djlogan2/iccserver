@@ -1,9 +1,6 @@
 import chai from "chai";
 import { TestHelpers } from "../../imports/server/TestHelpers";
-import { ImportedGames } from "./saveimportedgames";
-const nearley = require("nearley");
-const grammar = require("./pgn.js");
-const lexer = require("../../server/pgn/pgnlexer").lexer;
+import { Parser } from "./pgnsigh";
 
 describe.only("PGN Import", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -36,7 +33,11 @@ describe.only("PGN Import", function() {
     '[a "b"] 1. e4 (1. d4) (1. c4) e5 2. d4 d5 1-0',
     '[a "b"] 1. e4 (1. d4) (1. c4) {Other opening moves} e5 2. d4 d5 1-0',
     '[a "b"] 1. e4 (1. d4) (1. c4) {Other opening moves} e5 (1. ... c5) (1... f5) 2. d4 d5 1-0',
-    '[a "b"] 1. e4 (1. d4 d5 (... c5) (1... f5)(1. ... c5 2. Nc3) (1. c4) {Other opening moves} e5 2. d4 d5 1-0'
+    '[a "b"] 1. e4 (1. d4 d5 (... c5) (1... f5)(1. ... c5 2. Nc3) (1. c4) {Other opening moves} e5 2. d4 d5 1-0',
+    '[a "b"] 1. e4 (1. d4) (1. c4) e5 2. d4 d5 1-0',
+    '[a "b"] 1. e4 $1 (1. d4) (1. c4) {Other opening moves} e5 2. d4 d5 1-0',
+    '[a "b"] 1. e4 (1. d4 $2) (1. c4) {Other opening moves} e5 (1. ... c5) (1... f5) 2. d4 d5 1-0',
+    '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) {Other opening moves} e5 2. d4 d5 1-0'
   ];
   const pgn =
     '[Event "?"]\n' +
@@ -95,125 +96,21 @@ describe.only("PGN Import", function() {
 
   valid.forEach(v =>
     it(v.replace(/[\r\n]/g, "^") + " is valid", function() {
-      const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+      const parser = new Parser();
       chai.assert.doesNotThrow(() => parser.feed(v));
-      chai.assert.equal(1, parser.results.length);
+      chai.assert.equal(v.length == 0 ? 0 : 1, parser.collection.find().count());
     })
   );
 
-  it("should lex pgn strings into token correctly", function(done) {
-    const pgn = '[A "b"]\n1. e4 ((1. d4)(1.c4)) {comment1}\n... e5 2. Nf3 *';
-    const tokens = [
-      "LBRACKET",
-      "SYMBOL",
-      "WS",
-      "STRING",
-      "RBRACKET",
-      "NL",
-      "INTEGER",
-      "PERIOD",
-      "WS",
-      "SAN",
-      "WS",
-      "LPAREN",
-      "LPAREN",
-      "INTEGER",
-      "PERIOD",
-      "WS",
-      "SAN",
-      "RPAREN",
-      "LPAREN",
-      "INTEGER",
-      "PERIOD",
-      "SAN",
-      "RPAREN",
-      "RPAREN",
-      "WS",
-      "COMMENT1",
-      "NL",
-      "DOTDOTDOT",
-      "WS",
-      "SAN",
-      "WS",
-      "INTEGER",
-      "PERIOD",
-      "WS",
-      "SAN",
-      "WS",
-      "RESULT"
-    ];
-    lexer.reset(pgn);
-    let x = 0;
-    let token = lexer.next();
-    while (true) {
-      if (x === tokens.length && !token) {
-        done();
-        return;
-      }
-      if (x === tokens.length)
-        chai.assert.fail("Expected end of tokens, but got " + token + " at location " + x);
-      else if (!token)
-        chai.assert.fail("Expected " + tokens[x] + " but did not get a token at location " + x);
-      else if (token.type !== tokens[x])
-        chai.assert.fail(
-          "Expected " + tokens[x] + " but received " + token.type + " at location " + x
-        );
-      x++;
-      token = lexer.next();
-    }
-  });
-
-  it("should parse an empty file", function() {
-    this.timeout(500000);
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar), { keepHistory: true });
-    chai.assert.doesNotThrow(() => parser.feed(""));
-  });
-
-  function printme(prefix, states, wantedby) {
-    for (let x = 0; x < states.length; x++) {
-      if (states[x].isComplete || wantedby) {
-        console.log(prefix + states[x].rule.name);
-        if (states[x].wantedBy) printme(prefix + "  ", states[x].wantedBy, true);
-      }
-    }
-  }
-  /* for (let x = 0; x < parser.table.length; x++) printme("" + x + ": ", parser.table[x].states); */
-
-  it("should parse a basic tag and result", function() {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    chai.assert.doesNotThrow(() => parser.feed('[a "b"]\n*'));
-    chai.assert.equal(1, ImportedGames.collection.find().count());
-  });
-
-  it("should parse a basic tag and result with windows newlines", function() {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    chai.assert.doesNotThrow(() => parser.feed('[a "b"]\r\n[b "c"]\r\n[d "e"]\r\n*'));
-    chai.assert.equal(1, ImportedGames.collection.find().count());
-  });
-
-  it("should parse a basic tag and result with unix newlines", function() {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    chai.assert.doesNotThrow(() => parser.feed('[a "b"]\n[b "c"]\n[d "e"]\n*'));
-    chai.assert.equal(1, ImportedGames.collection.find().count());
-  });
-
-  it("should parse a basic tag and result whitespace", function() {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-    parser.feed(
-      '[a \r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n"b"]\r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n[b\r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n "c"]\n\n\n\t\r\n\n\n\t\t[d \r\n\t\t\r\n\n\n\r\n\t\t\n\n\r\n "e"]\t\t\t\n\n\n\r\n\r\n\n\n\t\t\t*'
-    );
-    chai.assert.equal(1, ImportedGames.collection.find().count());
-  });
-
   it("should parse pgn correctly", function() {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+    const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn));
-    chai.assert.equal(1, ImportedGames.collection.find().count());
+    chai.assert.equal(1, parser.collection.find().count());
   });
 
   it("should parse pgn1 correctly", function() {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+    const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn1));
-    chai.assert.equal(2, ImportedGames.collection.find().count());
+    chai.assert.equal(2, parser.collection.find().count());
   });
 });

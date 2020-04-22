@@ -1,10 +1,9 @@
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { FS } from "meteor/cfs:base-package";
+import { Parser } from "./pgnsigh";
 
 const stream = require("stream");
-const nearley = require("nearley");
-const grammar = require("./pgn.js");
 
 const TempUploadCollection = new Mongo.Collection("temp_pgn_imports");
 
@@ -34,6 +33,7 @@ PGNImportStorageAdapter.prototype.fileKey = function(fileObj) {
 }
 
 PGNImportStorageAdapter.prototype.createReadStream = function(fileKey, options) {
+  console.log("--- CREATEREADSTREAM ---");
   return null;
 };
 
@@ -45,7 +45,7 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
   if(!temp)
     throw new Error("Unable to find temp record for PGNImportAdapter for id " + fileKey);
 
-  const parser = parsers[fileKey] === undefined ? new nearley.Parser(nearley.Grammar.fromCompiled(grammar)) : parsers[fileKey];
+  const parser = parsers[fileKey] === undefined ? new Parser() : parsers[fileKey];
   if(parsers[fileKey] === undefined)
     parsers[fileKey] = parser;
 
@@ -61,7 +61,7 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
     try {
       do {
         end = chunk.lastIndexOf("\n");
-        if (end === -1) {
+        if (end === -1 || end <= start) {
           temp.string = chunk.toString("utf8", start);
           start = chunk.length;
         } else {
@@ -78,10 +78,8 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
         }
       } while (start < chunk.length);
     } catch(e) {
-      console.log(e);
       temp.error = e;
       temp.error_line = e.toString();
-      //temp.error_line = [temp.line, (temp.string ? temp.string : "") + chunk.toString("utf8", start, end)];
     } finally {
       TempUploadCollection.update({ _id: fileKey }, temp);
       //-
@@ -108,6 +106,7 @@ PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
 };
 
 PGNImportStorageAdapter.prototype.remove = function(fileKey, callback) {
+  console.log("--- REMOVE ---");
   /*
     // this is the Storage adapter scope
     var filepath = path.join(absolutePath, fileKey);
@@ -127,6 +126,7 @@ PGNImportStorageAdapter.prototype.remove = function(fileKey, callback) {
 };
 
 PGNImportStorageAdapter.prototype.stats = function(fileKey, callback) {
+  console.log("--- STATS ---");
   /*
     // this is the Storage adapter scope
     var filepath = path.join(absolutePath, fileKey);
@@ -140,4 +140,5 @@ PGNImportStorageAdapter.prototype.stats = function(fileKey, callback) {
 };
 
 PGNImportStorageAdapter.prototype.parse = function(chunk) {
+  console.log("--- PARSE ---");
 };
