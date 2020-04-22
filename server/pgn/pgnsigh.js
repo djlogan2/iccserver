@@ -1,9 +1,8 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
-
 const moo = require("moo");
 
-const GameCollection = new Mongo.Collection("imported_games");
+export const ImportedGameCollection = new Mongo.Collection("imported_games");
 
 export function Parser() {
   this.x = "y";
@@ -27,11 +26,16 @@ export function Parser() {
   this.info = null;
   this.line = 1;
   this.state = this.game;
+
   if (Meteor.isTest || Meteor.isAppTest) {
-    this.collection = GameCollection;
+    this.collection = ImportedGameCollection;
   }
 }
-
+Meteor.publish("imported_games", function() {
+  return ImportedGameCollection.find({}
+    
+  );
+});
 Parser.prototype.feed = function(chunk) {
   this.lexer.reset(chunk, this.info);
   this.info = this.lexer.save();

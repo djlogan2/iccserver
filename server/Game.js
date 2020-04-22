@@ -16,7 +16,8 @@ import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
-import { Users } from "../imports/collections/users";
+import { Users } from "../imports/collections/users"
+import { ImportedGameCollection } from "../server/pgn/pgnsigh";
 
 import date from "date-and-time";
 
@@ -2924,13 +2925,18 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
   return GameHistoryCollection.insert(game);
 };
 
-GameHistory.examineGame = function(message_identifier, game_id) {
+GameHistory.examineGame = function(message_identifier, game_id,is_imported_game) {
   check(message_identifier, String);
   check(game_id, String);
+  check(is_imported_game,Boolean)
   const self = Meteor.user();
   check(self, Object);
-
-  const hist = GameHistoryCollection.findOne({ _id: game_id });
+  let hist;
+if(!!is_imported_game){
+   hist = ImportedGameCollection.findOne({ _id: game_id });
+}else{
+  hist=GameHistoryCollection.findOne({ _id: game_id });
+}
   if (!hist)
     throw new ICCMeteorError(
       message_identifier,
@@ -2955,6 +2961,7 @@ GameHistory.examineGame = function(message_identifier, game_id) {
         "FEN string is invalid"
       );
   } else {
+    
     hist.fen = chess.fen();
   }
 

@@ -230,7 +230,7 @@ export default class MoveListComponent extends Component {
         this.moves.push({idc:parseInt(ch[0]),idx:parseInt(ch[1]),move:ch[2]});
     }
       
-
+console.log(this.moves);
     /* TODO: movlist button display operation*/
     let displayButton = 0;
     let statuslabel=0;
