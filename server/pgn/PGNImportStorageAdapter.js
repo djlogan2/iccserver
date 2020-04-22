@@ -5,7 +5,92 @@ import { Parser } from "./pgnsigh";
 
 const stream = require("stream");
 
+const parsers = {};
+
+const GameCollection = new Mongo.Collection("imported_games");
 const TempUploadCollection = new Mongo.Collection("temp_pgn_imports");
+
+const update = Meteor.bindEnvironment((temp, callback) => {
+  let count = 0;
+  if (temp.gamelist && temp.gamelist.length) {
+    console.log("Saving " + temp.gamelist.length + " games");
+    temp.gamelist.forEach(game => GameCollection.insert(game, e1 => {
+      if (++count === temp.gamelist.length) {
+        delete temp.gamelist;
+        TempUploadCollection.update({ _id: temp._id }, temp, e2 => {
+          if (callback && typeof callback === "function") {
+            let err = temp.error_line || "";
+            if (e1) err += ":" + e1.toString();
+            if (e2) err += ":" + e2.toString();
+            if (err && err.length)
+              callback(new Error(err));
+            else
+              callback();
+          }
+        });
+      } else {
+        TempUploadCollection.update({ _id: temp._id }, temp, e2 => {
+          if(callback && typeof callback === "function") {
+            if (temp.error_line)
+              callback(new Error(temp.error_line));
+            else if (e2)
+              callback(new Error(e2));
+            else
+              callback();
+          }
+        });
+      }
+    }));
+  }
+});
+
+class MyWriter extends stream.Writable {
+  constructor(temp) {
+    super({});
+    this.temp = temp;
+  }
+
+  _write(chunk, encoding, callback) {
+    const parser = parsers[this.temp._id] === undefined ? new Parser() : parsers[this.temp._id];
+    if (parsers[this.temp._id] === undefined)
+      parsers[this.temp._id] = parser;
+
+    this.temp.chunks++;
+    this.temp.size += chunk.length;
+    let end;
+
+    try {
+      end = chunk.lastIndexOf("\n");
+      if (end === -1) {
+        this.temp.string = chunk.toString("utf8");
+      } else {
+        end++;
+        if (this.temp.string) {
+          if (!this.temp.error) {
+            parser.feed(this.temp.string + chunk.toString("utf8", 0, end));
+          }
+        } else if (!this.temp.error) {
+          parser.feed(chunk.toString("utf8", 0, end));
+        }
+      }
+      this.temp.string = chunk.toString("utf8", end);
+      this.temp.gamelist = parser.gamelist;
+      delete parser.gamelist;
+    } catch (e) {
+      this.temp.error = e;
+      this.temp.error_line = e.toString();
+    } finally {
+      if (this.temp.size >= this.temp.originalsize) {
+        if (this.temp.string) {
+          parser.feed(this.temp.string);
+        }
+        delete parsers[this.temp._id];
+        this.temp.complete = true;
+      }
+      update(this.temp, callback);
+    }
+  }
+}
 
 export const PGNImportStorageAdapter = function() {
   FS.StorageAdapter.call(this, "imported_pgns", null, this);
@@ -15,94 +100,36 @@ PGNImportStorageAdapter.prototype = Object.create(FS.StorageAdapter.prototype);
 
 PGNImportStorageAdapter.prototype.typeName = "storage.pgnimportfilesystem";
 
-const current = {};
-
 PGNImportStorageAdapter.prototype.fileKey = function(fileObj) {
-  const temp = TempUploadCollection.findOne({ creatorId: fileObj.creatorId, name: fileObj.original.name, complete: {$ne: true}}, {_id: 1});
-  if(temp)
-    return temp._id;
-  return TempUploadCollection.insert({
-    creatorId: fileObj.creatorId,
-    name: fileObj.original.name,
-    line: 0,
-    chunks: 0,
-    originalsize: fileObj.original.size,
-    size: 0,
-    string: null
-  });
-}
+  const temp = TempUploadCollection.findOne({
+    fileKey: fileObj._id
+  }, { _id: 1 });
+  if (!temp)
+    TempUploadCollection.insert({
+      fileKey: fileObj._id,
+      creatorId: fileObj.creatorId,
+      name: fileObj.original.name,
+      line: 0,
+      chunks: 0,
+      originalsize: fileObj.original.size,
+      size: 0,
+      string: null
+    });
+  return fileObj._id;
+};
 
 PGNImportStorageAdapter.prototype.createReadStream = function(fileKey, options) {
   console.log("--- CREATEREADSTREAM ---");
   return null;
 };
 
-const parsers = {};
-
 PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
-  const temp = TempUploadCollection.findOne({_id: fileKey, complete: {$ne: true}});
+  const temp = TempUploadCollection.findOne({ fileKey: fileKey });
 
-  if(!temp)
+  if (!temp)
     throw new Error("Unable to find temp record for PGNImportAdapter for id " + fileKey);
 
-  const parser = parsers[fileKey] === undefined ? new Parser() : parsers[fileKey];
-  if(parsers[fileKey] === undefined)
-    parsers[fileKey] = parser;
-
-  const indeed = stream.PassThrough();
-
-  indeed.on("data", Meteor.bindEnvironment(chunk => {
-    indeed.pause();
-    temp.chunks++;
-    temp.size += chunk.length;
-    let start = 0;
-    let end;
-
-    try {
-      do {
-        end = chunk.lastIndexOf("\n");
-        if (end === -1 || end <= start) {
-          temp.string = chunk.toString("utf8", start);
-          start = chunk.length;
-        } else {
-          end++;
-          temp.line++;
-          if (temp.string) {
-            if(!temp.error)
-              parser.feed(temp.string + chunk.toString("utf8", start, end));
-            temp.string = null;
-          } else if(!temp.error) {
-              parser.feed(chunk.toString("utf8", start, end));
-          }
-          start = end;
-        }
-      } while (start < chunk.length);
-    } catch(e) {
-      temp.error = e;
-      temp.error_line = e.toString();
-    } finally {
-      TempUploadCollection.update({ _id: fileKey }, temp);
-      //-
-      if(temp.size >= temp.originalsize) {
-        if (temp.string) {
-          parser.feed(temp.string);
-          temp.line++;
-        }
-        delete parsers[fileKey];
-
-        indeed.emit('stored', {
-          fileKey: fileKey,
-          size: temp.size,
-          storedAt: new Date()
-        });
-        TempUploadCollection.update({_id: fileKey}, {$set: {complete: true}});
-      }
-      //-
-      indeed.resume();
-    }
-  }));
-
-  return indeed;
+  return new MyWriter(temp);
 };
 
 PGNImportStorageAdapter.prototype.remove = function(fileKey, callback) {
