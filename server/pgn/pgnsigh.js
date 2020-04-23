@@ -2,7 +2,6 @@ const moo = require("moo");
 
 export class Parser {
   constructor() {
-    this.x = "y";
     this.lexer = moo.compile({
       WS: /[ \t]+/,
       STRING: /"(?:\\["\\]|[^\n"\\])*"/,
