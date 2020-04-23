@@ -7,9 +7,12 @@ const stream = require("stream");
 const async = require("async");
 const parsers = {};
 
-const GameCollection = new Mongo.Collection("imported_games");
+export const ImportedGameCollection = new Mongo.Collection("imported_games");
 export const TempUploadCollection = new Mongo.Collection("temp_pgn_imports");
-let testme = 0;
+
+Meteor.publish("imported_games", function(){
+  return ImportedGameCollection.find({creatorId: Meteor.userId()});
+});
 
 function findTempRecord(fileKey, first) {
   return new Promise((resolve, reject) => {
@@ -66,6 +69,7 @@ function parseUpToLastNewLine(temp, chunk) {
       temp.string = chunk.toString("utf8", end);
       temp.gamelist = parser.gamelist;
       delete parser.gamelist;
+      temp.gamelist.forEach(game => {game.creatorId = temp.creatorId; game.fileId = temp._id;})
       resolve(temp);
     } catch (e) {
       reject(e);
@@ -101,7 +105,7 @@ function saveParsedGames(temp) {
     return Promise.resolve(temp);
 
   return new Promise((resolve, reject) => {
-    GameCollection.rawCollection().insertMany(temp.gamelist, (err, res) => {
+    ImportedGameCollection.rawCollection().insertMany(temp.gamelist, (err, res) => {
       delete temp.gamelist;
       if(err) reject(err);
       else resolve(temp);

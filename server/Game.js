@@ -16,8 +16,8 @@ import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
-import { Users } from "../imports/collections/users"
-import { ImportedGameCollection } from "../server/pgn/pgnsigh";
+import { Users } from "../imports/collections/users";
+import { ImportedGameCollection } from "../server/pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
 
@@ -262,11 +262,11 @@ Game.startLocalGame = function(
   active_games[game_id] = chess;
   log.debug(
     "Started local game, game_id=" +
-      game_id +
-      ", white=" +
-      white.username +
-      ", black=" +
-      black.username
+    game_id +
+    ", white=" +
+    white.username +
+    ", black=" +
+    black.username
   );
   startGamePing(game_id);
   startMoveTimer(
@@ -618,19 +618,19 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   log.debug(
     "Trying to make move " +
-      move +
-      " for user " +
-      self._id +
-      ", username=" +
-      self.username +
-      ", white=" +
-      game.white.id +
-      "," +
-      game.white.name +
-      ", black=" +
-      game.black.id +
-      "," +
-      game.black.name
+    move +
+    " for user " +
+    self._id +
+    ", username=" +
+    self.username +
+    ", white=" +
+    game.white.id +
+    "," +
+    game.white.name +
+    ", black=" +
+    game.black.id +
+    "," +
+    game.black.name
   );
   const result = chessObject.move(move);
   if (!result) {
@@ -737,12 +737,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   const move_parameter =
     game.status === "playing"
       ? {
-          move: move,
-          lag: Timestamp.averageLag(self._id),
-          ping: Timestamp.pingTime(self._id),
-          gamelag: gamelag,
-          gameping: gameping
-        }
+        move: move,
+        lag: Timestamp.averageLag(self._id),
+        ping: Timestamp.pingTime(self._id),
+        gamelag: gamelag,
+        gameping: gameping
+      }
       : move;
 
   const pushobject = {
@@ -2205,35 +2205,35 @@ function finishExportToPGN(game) {
 
   let pgn = "";
   let tmpdt = new Date(game.startTime);
-  pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
-  pgn += '[White "' + game.white.name + '"]\n';
-  pgn += '[Black "' + game.black.name + '"]\n';
-  pgn += '[Result "' + game.result + '"]\n';
-  pgn += '[WhiteElo "' + game.white.rating + '"]\n';
-  pgn += '[BlackElo "' + game.black.rating + '"]\n';
+  pgn += "[Date \"" + date.format(game.startTime, "YYYY-MM-DD") + "\"]\n";
+  pgn += "[White \"" + game.white.name + "\"]\n";
+  pgn += "[Black \"" + game.black.name + "\"]\n";
+  pgn += "[Result \"" + game.result + "\"]\n";
+  pgn += "[WhiteElo \"" + game.white.rating + "\"]\n";
+  pgn += "[BlackElo \"" + game.black.rating + "\"]\n";
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
+  pgn += "[Time \"" + date.format(game.startTime, "HH:mm:ss") + "\"]\n";
   if (!game.clocks) {
-    pgn += '[TimeControl "?"]\n';
+    pgn += "[TimeControl \"?\"]\n";
   } else {
     switch (game.clocks.white.inc_or_delay_type) {
       case "none":
-        pgn += '"[TimeControl ' + game.clocks.white.initial / 1000 + '"]\n';
+        pgn += "\"[TimeControl " + game.clocks.white.initial / 1000 + "\"]\n";
         break;
       case "us":
       case "bronstein":
       case "inc":
         pgn +=
-          '[TimeControl "' +
+          "[TimeControl \"" +
           game.clocks.white.initial / 1000 +
           "+" +
           game.clocks.white.inc_or_delay +
-          '"]\n';
+          "\"]\n";
         break;
       default:
-        pgn += '[TimeControl "?"]\n';
+        pgn += "[TimeControl \"?\"]\n";
         break;
     }
   }
@@ -2243,9 +2243,11 @@ function finishExportToPGN(game) {
   return { title, pgn };
 }
 
-Game.kibitz = function(game_id, text) {};
+Game.kibitz = function(game_id, text) {
+};
 
-Game.whisper = function(game_id, text) {};
+Game.whisper = function(game_id, text) {
+};
 
 Game.addMoveToMoveList = function(variation_object, move, current) {
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
@@ -2698,7 +2700,8 @@ function _startGamePing(game_id, color) {
         );
       }
     },
-    () => {}
+    () => {
+    }
   );
 }
 
@@ -2789,7 +2792,8 @@ function gameLogoutHook(userId) {
   Users.setGameStatus("server", userId, "none");
 }
 
-function updateUserRatings(game, result, reason) {}
+function updateUserRatings(game, result, reason) {
+}
 
 Meteor.startup(function() {
   // TODO: Need to adjourn these, not just delete them
@@ -2925,18 +2929,18 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
   return GameHistoryCollection.insert(game);
 };
 
-GameHistory.examineGame = function(message_identifier, game_id,is_imported_game) {
+GameHistory.examineGame = function(message_identifier, game_id, is_imported_game) {
   check(message_identifier, String);
-  check(game_id, String);
-  check(is_imported_game,Boolean)
+  //check(game_id, Match.OneOf(String, Object));
+  check(is_imported_game, Boolean);
   const self = Meteor.user();
   check(self, Object);
   let hist;
-if(!!is_imported_game){
-   hist = ImportedGameCollection.findOne({ _id: game_id });
-}else{
-  hist=GameHistoryCollection.findOne({ _id: game_id });
-}
+  if (!!is_imported_game) {
+    hist = ImportedGameCollection.findOne({ _id: game_id });
+  } else {
+    hist = GameHistoryCollection.findOne({ _id: game_id });
+  }
   if (!hist)
     throw new ICCMeteorError(
       message_identifier,
@@ -2961,16 +2965,31 @@ if(!!is_imported_game){
         "FEN string is invalid"
       );
   } else {
-    
+
     hist.fen = chess.fen();
   }
 
   delete hist._id;
+
+  if(!hist.clocks) {
+    hist.clocks = {
+      white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
+      black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+    }
+  }
+
+  if(!hist.wild)
+    hist.wild = 0;
+
+  if(!hist.startTime)
+    hist.startTime = new Date();
+
   hist.tomove = chess.turn() === "w" ? "white" : "black";
   hist.status = "examining";
   hist.observers = [{ id: self._id, username: self.username }];
   hist.examiners = [{ id: self._id, username: self.username }];
   hist.variations.cmi = 0;
+  hist.actions = [];
   return Game.startLocalExaminedGameWithObject(hist, chess);
 };
 
