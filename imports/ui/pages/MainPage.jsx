@@ -208,8 +208,8 @@ uploadPgn(){
         } else {
           result = "Loss";
         }
-        let time=(!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
-        
+        let time="Fix me"; // TODO: This line is crashing (!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
+
       // console.log();
         gamelist.push({
           id: games[i]._id,
@@ -272,7 +272,7 @@ uploadPgn(){
                     <tr key={index} style={{ cursor: "pointer" }}>
                       <td
                         style={{ padding: "5px 5px" }}
-                        onClick={this.setGameExaminMode.bind(this, game.id,game.is_imported)}
+                        onClick={this.setGameExaminMode.bind(this, game.id, game.is_imported)}
                       >
                         {game.white}-vs-{game.black}
                       </td>
@@ -304,9 +304,9 @@ uploadPgn(){
       </ModalProvider>
     );
   }
-  setGameExaminMode(id,is_imported) {
-    
-    Meteor.call("examineGame", "ExaminedGame", id,is_imported,(error, response) => {
+  setGameExaminMode(id, is_imported) {
+
+    Meteor.call("examineGame", "ExaminedGame", id, is_imported,(error, response) => {
       if (error) {
         log.debug(error);
         console.log(error);
@@ -314,7 +314,7 @@ uploadPgn(){
       }else{
         this.setState({ examineGame: true, activeTab: 3, modalShow: false });
       }
-      
+
     });
 
     this.props.removeGameHistory();
@@ -527,7 +527,7 @@ uploadPgn(){
                 top={position.top}
                 circles={this.props.circles}
                 //  fen={this.props.fen}
-                
+
                 width={this.state.width}
                 height={this.state.height}
                 gameStatus={status}
