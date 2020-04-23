@@ -48,7 +48,7 @@ Meteor.startup(() => {
         help: "Help",
         logout: "Logout",
         mygame: "My Games",
-        uploadpgn: "Upload Pgn"
+        uploadpgn: "Imported PGNs"
       },
       MoveListComponent: {
         takeBack: "Take Back",

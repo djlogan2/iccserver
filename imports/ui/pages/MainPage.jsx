@@ -204,13 +204,17 @@ export default class MainPage extends Component {
         } else {
           result = "Loss";
         }
+        let time=(!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
+        
+      // console.log();
         gamelist.push({
           id: games[i]._id,
           name: "3 minut arina",
-          white: games[i].white.name,
-          black: games[i].black.name,
+          white: (games[i].white.name).replace(/"/g, ''),
+          black:(games[i].black.name).replace(/"/g, ''),
           result: result,
-          time: games[i].startTime.toDateString()
+          time:time,
+          is_imported:games.is_imported
         });
       }
     }
@@ -264,7 +268,7 @@ export default class MainPage extends Component {
                     <tr key={index} style={{ cursor: "pointer" }}>
                       <td
                         style={{ padding: "5px 5px" }}
-                        onClick={this.setGameExaminMode.bind(this, game.id)}
+                        onClick={this.setGameExaminMode.bind(this, game.id,game.is_imported)}
                       >
                         {game.white}-vs-{game.black}
                       </td>
@@ -296,9 +300,17 @@ export default class MainPage extends Component {
       </ModalProvider>
     );
   }
-  setGameExaminMode(id) {
-    Meteor.call("examineGame", "ExaminedGame", id, (error, response) => {
-      if (response) this.setState({ examineGame: true, activeTab: 3, modalShow: false });
+  setGameExaminMode(id,is_imported) {
+    
+    Meteor.call("examineGame", "ExaminedGame", id,is_imported,(error, response) => {
+      if (error) {
+        log.debug(error);
+        console.log(error);
+        this.setState({ modalShow: false });
+      }else{
+        this.setState({ examineGame: true, activeTab: 3, modalShow: false });
+      }
+      
     });
 
     this.props.removeGameHistory();
