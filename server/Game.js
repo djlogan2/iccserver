@@ -281,8 +281,21 @@ Game.startLocalGame = function(
 };
 
 Game.startLocalExaminedGameWithObject = function(game_object, chess_object) {
+
+const self = Meteor.user();
+
+  check(self, Object);
   check(game_object, Object);
   check(chess_object, Object);
+  
+  if (!game_object.status) game_object.status = "examining";
+  if (!game_object.white.rating) game_object.white.rating= 1600;
+  
+  if (!game_object.black.rating) game_object.black.rating = 1600;
+  if (!game_object.wild) game_object.wild = 0;
+  if(!game_object.action){
+        game_object.actions=[]; 
+  }
   delete game_object._id; // For safety
   const game_id = GameCollection.insert(game_object);
   active_games[game_id] = chess_object;
@@ -2937,6 +2950,7 @@ if(!!is_imported_game){
 }else{
   hist=GameHistoryCollection.findOne({ _id: game_id });
 }
+//log.debug(hist);
   if (!hist)
     throw new ICCMeteorError(
       message_identifier,
@@ -2948,7 +2962,7 @@ if(!!is_imported_game){
     ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
     return;
   }
-
+  
   Game.localUnobserveAllGames(message_identifier, self._id);
 
   const chess = new Chess.Chess();
@@ -2966,6 +2980,7 @@ if(!!is_imported_game){
   }
 
   delete hist._id;
+  hist.result=(hist.result).replace(/"/g, '');
   hist.tomove = chess.turn() === "w" ? "white" : "black";
   hist.status = "examining";
   hist.observers = [{ id: self._id, username: self.username }];

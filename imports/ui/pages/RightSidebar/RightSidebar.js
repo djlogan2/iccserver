@@ -27,6 +27,7 @@ class RightSidebar extends Component {
       }
     }
   }
+  
   render() {
     let topTabitem = null;
     let bottomTabitem = null;
@@ -66,6 +67,7 @@ class RightSidebar extends Component {
           examing={this.props.examing}
           activeTabnumber={this.props.activeTabnumber}
           Gamedata={this.props.RightSidebarData}
+          uploadPgn={this.props.uploadPgn}
         />
       );
     } else if (this.props.gameStatus === "examining" && this.props.currentGame === false) {

@@ -208,7 +208,7 @@ Parser.prototype.savegame = function(result) {
     }
   }
 
-  GameCollection.insert(this.gameobject);
+  ImportedGameCollection.insert(this.gameobject);
   delete this.gameobject;
   this.state = this.game;
 };

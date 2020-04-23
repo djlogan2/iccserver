@@ -37,7 +37,7 @@ export default class MainPage extends Component {
       height: window.innerHeight,
       examineGame: false,
       exnotification: false,
-      resignnotification: false,
+      notification: false,
       newOppenetRequest: false,
       examinAction: "action",
       activeTab: 0,
@@ -79,11 +79,12 @@ export default class MainPage extends Component {
         Action: {}
       }
     };
-    this.notificationHandler = this.notificationHandler.bind(this);
+  //  this.notificationHandler = this.notificationHandler.bind(this);
     this.examineActionHandler = this.examineActionHandler.bind(this);
     this.startGameExamine = this.startGameExamine.bind(this);
     this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
     this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
+    this.uploadPgn=this.uploadPgn.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -187,7 +188,10 @@ export default class MainPage extends Component {
       />
     );
   };
-
+uploadPgn(){
+  
+  this.setState({notification:true});
+}
   loadGameHistroyPopup(games) {
     let result;
     let gamelist = [];
@@ -326,11 +330,12 @@ export default class MainPage extends Component {
     } else this.setState({ exnotification: false, examinAction: action });
   }
   resignNotificationCloseHandler() {
-    this.setState({ resignnotification: true });
-  }
-  notificationHandler() {
     this.setState({ notification: !this.state.notification });
   }
+  /*
+  notificationHandler() {
+    this.setState({ notification: !this.state.notification });
+  }*/
   examinActionCloseHandler() {
     this.setState({ exnotification: true });
   }
@@ -453,6 +458,9 @@ export default class MainPage extends Component {
         this.props.clientMessage._id
       );
     }
+    if(!!this.state.notification){
+      informativePopup=this.GameResignedPopup("File upload succeshfully","mid"); 
+   }
     let w = this.state.width;
     let h = this.state.height;
 
@@ -491,6 +499,7 @@ export default class MainPage extends Component {
             startGameExamine={this.startGameExamine}
             examineAction={this.examineActionHandler}
             activeTabnumber={this.state.activeTab}
+            uploadPgn={this.uploadPgn}
           />
         </div>
       );

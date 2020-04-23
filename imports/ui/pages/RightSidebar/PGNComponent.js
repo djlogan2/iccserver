@@ -8,23 +8,35 @@ const PgnImports = new FS.Collection("uploaded_pgns", {
 
 
 class PGN extends Component {
+  constructor(props){
+  super (props);
+  this.state={
+    msg:null
+  }
+  this.changeFilehandler=this.changeFilehandler.bind(this);
 
+}
 changeFilehandler(event){
 
   let file =event.target.files[0];
+  
+let upload=false;
  if(!!file){
   var msFile = new FS.File(file);
   ///console.log(msFile);
   msFile.creatorId = Meteor.userId();
   //msFile.owner=Meteor.userId();
-
-
-    PgnImports.insert(msFile, function(err, fileObj) {
+  
+    let confirm=PgnImports.insert(msFile, function(err, fileObj) {
     if (err) {
-      alert("Upload PGN error: " + err);
+        alert("Upload PGN error: " + err);
 
     }
+    
   });
+   if(confirm){
+    this.props.uploadPgn();
+  }
  }
 
 
@@ -38,6 +50,7 @@ changeFilehandler(event){
     if (!!game) id =game._id;
     return (
       <div style={{padding: "20px"}}>
+        <p>{this.state.msg}</p>
         <label className="fen-label">FEN</label>
         <input className="form-control fen-input" />
         <label className="fen-label">PGN</label>
@@ -57,7 +70,7 @@ changeFilehandler(event){
             PGN Import</label>
 
 
-            <input id="files" style={{visibility:"hidden"}} type="file" onChange={this.changeFilehandler.bind(this)} />
+            <input id="files" style={{visibility:"hidden"}} type="file" onChange={(e)=>this.changeFilehandler(e)} />
         </div>
       </div>
     );
