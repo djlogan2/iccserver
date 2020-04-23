@@ -17,6 +17,7 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
+import {TempUploadCollection} from "../server/pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
 
@@ -2924,13 +2925,15 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
   return GameHistoryCollection.insert(game);
 };
 
-GameHistory.examineGame = function(message_identifier, game_id) {
+GameHistory.examineGame = function(message_identifier, game_id, imported) {
   check(message_identifier, String);
   check(game_id, String);
+  check(imported, Boolean);
+
   const self = Meteor.user();
   check(self, Object);
 
-  const hist = GameHistoryCollection.findOne({ _id: game_id });
+  const hist = imported ? TempUploadCollection.findOne(game_id) : GameHistoryCollection.findOne({ _id: game_id });
   if (!hist)
     throw new ICCMeteorError(
       message_identifier,

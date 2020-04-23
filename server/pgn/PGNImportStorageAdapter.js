@@ -8,7 +8,7 @@ const async = require("async");
 const parsers = {};
 
 const GameCollection = new Mongo.Collection("imported_games");
-const TempUploadCollection = new Mongo.Collection("temp_pgn_imports");
+export const TempUploadCollection = new Mongo.Collection("temp_pgn_imports");
 let testme = 0;
 
 function findTempRecord(fileKey, first) {
