@@ -10,14 +10,14 @@ const parsers = {};
 export const ImportedGameCollection = new Mongo.Collection("imported_games");
 export const TempUploadCollection = new Mongo.Collection("temp_pgn_imports");
 
-Meteor.publish("imported_games", function(){
-  return ImportedGameCollection.find({creatorId: Meteor.userId()});
+Meteor.publish("imported_games", function() {
+  return ImportedGameCollection.find({ creatorId: Meteor.userId() });
 });
 
 function findTempRecord(fileKey, first) {
   return new Promise((resolve, reject) => {
     TempUploadCollection.rawCollection().findOne({ fileKey: fileKey }, (error, record) => {
-      if(first)
+      if (first)
         record.offset = 0;
       if (error) reject(error);
       else if (!record) reject(new Error("Unable to find temp record"));
@@ -32,8 +32,8 @@ function parseUpToLastNewLine(temp, chunk) {
 
       let start = 0;
 
-      if(temp.offset < temp.size) {
-        if((temp.offset + chunk.length) <= temp.size) {
+      if (temp.offset < temp.size) {
+        if ((temp.offset + chunk.length) <= temp.size) {
           temp.offset += chunk.length;
           resolve(temp);
           return;
@@ -69,7 +69,10 @@ function parseUpToLastNewLine(temp, chunk) {
       temp.string = chunk.toString("utf8", end);
       temp.gamelist = parser.gamelist;
       delete parser.gamelist;
-      temp.gamelist.forEach(game => {game.creatorId = temp.creatorId; game.fileId = temp._id;})
+      temp.gamelist.forEach(game => {
+        game.creatorId = temp.creatorId;
+        game.fileId = temp._id;
+      });
       resolve(temp);
     } catch (e) {
       reject(e);
@@ -83,7 +86,7 @@ function finishIfFinished(temp) {
       if (temp.string) {
         try {
           parser.feed(temp.string);
-          if(parser.gamelist && parser.gamelist.length) {
+          if (parser.gamelist && parser.gamelist.length) {
             if (temp.gamelist)
               temp.gamelist = temp.gamelist.concat(parser.gamelist);
             else
@@ -101,13 +104,13 @@ function finishIfFinished(temp) {
 }
 
 function saveParsedGames(temp) {
-  if(!temp.gamelist || !temp.gamelist.length)
+  if (!temp.gamelist || !temp.gamelist.length)
     return Promise.resolve(temp);
 
   return new Promise((resolve, reject) => {
     ImportedGameCollection.rawCollection().insertMany(temp.gamelist, (err, res) => {
       delete temp.gamelist;
-      if(err) reject(err);
+      if (err) reject(err);
       else resolve(temp);
     });
   });
@@ -115,8 +118,8 @@ function saveParsedGames(temp) {
 
 function updateTempRecord(temp) {
   return new Promise((resolve, reject) => {
-    TempUploadCollection.rawCollection().update({_id: temp._id},temp, (err, res) => {
-      if(err) reject(err);
+    TempUploadCollection.rawCollection().update({ _id: temp._id }, temp, (err, res) => {
+      if (err) reject(err);
       else resolve(temp);
       testme = 0;
     });
@@ -160,7 +163,7 @@ const q = async.queue(function(work, callback) {
   let ended = false;
   let first = true;
 
-  work.stream.on('data', function(chunk){
+  work.stream.on("data", function(chunk) {
     this.pause();
     data = true;
     const self = this;
@@ -174,15 +177,15 @@ const q = async.queue(function(work, callback) {
         data = false;
         first = false;
         self.resume();
-        if(ended) {
+        if (ended) {
           callback();
         }
       });
   });
 
-  work.stream.on('end', function(){
+  work.stream.on("end", function() {
     ended = true;
-    if(!data) {
+    if (!data) {
       callback();
     }
   });
@@ -190,9 +193,10 @@ const q = async.queue(function(work, callback) {
 
 PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
   const pass = new stream.PassThrough();
-  q.push({fileKey: fileKey, stream: pass}, (err) => {});
+  q.push({ fileKey: fileKey, stream: pass }, (err) => {
+  });
   return pass;
-}
+};
 
 PGNImportStorageAdapter.prototype.remove = function(fileKey, callback) {
   console.log("--- REMOVE ---");

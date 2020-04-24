@@ -280,25 +280,53 @@ Game.startLocalGame = function(
   return game_id;
 };
 
-Game.startLocalExaminedGameWithObject = function(game_object, chess_object) {
+Game.startLocalExaminedGameWithObject = function(message_identifier, game_object) {
 
-const self = Meteor.user();
+  const self = Meteor.user();
 
   check(self, Object);
+  check(message_identifier, String);
   check(game_object, Object);
-  check(chess_object, Object);
-  
+
   if (!game_object.status) game_object.status = "examining";
-  if (!game_object.white.rating) game_object.white.rating= 1600;
-  
+  if (!game_object.white) game_object.white = { name: "?", rating: 1600 };
+  if (!game_object.black) game_object.black = { name: "?", rating: 1600 };
+  if (!game_object.white.name) game_object.white.name = "?";
+  if (!game_object.black.name) game_object.black.name = "?";
+  if (!game_object.white.rating) game_object.white.rating = 1600;
   if (!game_object.black.rating) game_object.black.rating = 1600;
   if (!game_object.wild) game_object.wild = 0;
-  if(!game_object.action){
-        game_object.actions=[]; 
+  if (!game_object.actions) game_object.actions = [];
+  if (!game_object.clocks) game_object.clocks = {
+    white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
+    black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+  };
+  if (!game_object.startTime) game_object.startTime = new Date();
+  if (!game_object.tomove) game_object.tomove = "w";
+  if (!game_object.actions) game_object.actions = [];
+  if (!game_object.variations) game_object.variations = { movelist: [{}] };
+  if (!game_object.variations.cmi) game_object.variations.cmi = 0;
+
+  game_object.examiners = [{id: self._id, username: self.username}];
+  game_object.observers = [{id: self._id, username: self.username}];
+
+  const chess = new Chess.Chess();
+  if (game_object.tags && game_object.tags.FEN) {
+    game_object.fen = game_object.tags.FEN;
+    if (!chess.load(game_object.tags.FEN))
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to examine saved game",
+        "FEN string is invalid"
+      );
+    game_object.tomove = chess.turn() === "w" ? "white" : "black";
+  } else {
+    game_object.fen = chess.fen();
   }
+
   delete game_object._id; // For safety
   const game_id = GameCollection.insert(game_object);
-  active_games[game_id] = chess_object;
+  active_games[game_id] = chess;
   return game_id;
 };
 
@@ -2965,45 +2993,9 @@ GameHistory.examineGame = function(message_identifier, game_id, is_imported_game
     ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
     return;
   }
-  
+
   Game.localUnobserveAllGames(message_identifier, self._id);
-
-  const chess = new Chess.Chess();
-  if (hist.tags && hist.tags.FEN) {
-    hist.fen = hist.tags.FEN;
-    if (!chess.loadfen(hist.tags.FEN))
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to examine saved game",
-        "FEN string is invalid"
-      );
-  } else {
-
-    hist.fen = chess.fen();
-  }
-
-  delete hist._id;
-
-  if(!hist.clocks) {
-    hist.clocks = {
-      white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
-      black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
-    }
-  }
-
-  if(!hist.wild)
-    hist.wild = 0;
-
-  if(!hist.startTime)
-    hist.startTime = new Date();
-
-  hist.tomove = chess.turn() === "w" ? "white" : "black";
-  hist.status = "examining";
-  hist.observers = [{ id: self._id, username: self.username }];
-  hist.examiners = [{ id: self._id, username: self.username }];
-  hist.variations.cmi = 0;
-  hist.actions = [];
-  return Game.startLocalExaminedGameWithObject(hist, chess);
+  return Game.startLocalExaminedGameWithObject(message_identifier, hist);
 };
 
 function sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
