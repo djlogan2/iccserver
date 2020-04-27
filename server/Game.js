@@ -876,7 +876,7 @@ Game.legacyGameEnded = function(
   } else {
     if (game.white.id) Users.setGameStatus(message_identifier, game.white.id, "none");
     if (game.black.id) Users.setGameStatus(message_identifier, game.black.id, "none");
-    GameCollection.remove({ _id: game._id });
+    removeGameRecord({ _id: game._id });
   }
 };
 
@@ -1000,7 +1000,7 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   Users.setGameStatus(message_identifier, id_to_remove, "none");
 
   if (!!game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) {
-    GameCollection.remove({ _id: game_id });
+    removeGameRecord({ _id: game_id });
     delete active_games[game_id];
   } else {
     GameCollection.update(
@@ -1053,7 +1053,7 @@ Game.removeLegacyGame = function(message_identifier, game_id) {
   const self = Meteor.user();
   check(self, Object);
 
-  const count = GameCollection.remove({ legacy_game_number: game_id });
+  const count = removeGameRecord({ legacy_game_number: game_id });
   if (!count)
     throw new ICCMeteorError(
       message_identifier,
@@ -2274,9 +2274,14 @@ Game.kibitz = function(game_id, text) {
 
 
 };
+
 Meteor.publish("kibitz", function(){
+
   return ChatCollection.find({type: "kibitz"});
 });
+
+
+
 Game.whisper = function(game_id, text) {};
 
 Game.addMoveToMoveList = function(variation_object, move, current) {
@@ -2820,17 +2825,21 @@ function gameLogoutHook(userId) {
   Game.localUnobserveAllGames("server", userId);
   Users.setGameStatus("server", userId, "none");
 }
-
+function removeGameRecord(selector){
+  GameCollection.find(selector).fetch().forEach(game => ChatCollection.remove({game_id: game._id}));
+  GameCollection.remove(selector);
+}
 function updateUserRatings(game, result, reason) {}
 
 Meteor.startup(function() {
   // TODO: Need to adjourn these, not just delete them
-  GameCollection.remove({});
+  removeGameRecord({});
   Users.addLogoutHook(gameLogoutHook);
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
   Game.collection = GameCollection;
+  Game.chatCollection = ChatCollection;
   Game.buildPgnFromMovelist = buildPgnFromMovelist;
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;

@@ -1,6 +1,10 @@
 import SimpleSchema from "simpl-schema";
 
 export const ChatSchema = new SimpleSchema({
+  game_id:{
+    type: String,
+    optional: false
+  },
   issuer: {
     type: String,
     optional: true
