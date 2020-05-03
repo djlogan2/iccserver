@@ -216,6 +216,33 @@ x
 
   });
   it.only("should fail if the user is not in the 'kibitz' role", function() {
+    const testText = "Hello I am a test string!";
+    const player1 = TestHelpers.createUser({role: true});
+    const player2 = TestHelpers.createUser({role: true});
+    self.loggedonuser = player1;
+    self.role = "not kibitz";
+
+
+    const game_id_local =  Game.startLocalGame("test_identifier",
+      player2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+    chai.assert.isDefined(player1);
+    chai.assert.isDefined(player1._id);
+
+    chai.assert.throws(() => {
+      Game.kibitz(game_id_local, testText);
+    }, "Failed to not kibitz when user is not of kibitz role");
+
 
     chai.assert.fail("do me");
   });

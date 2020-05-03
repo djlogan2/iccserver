@@ -2253,6 +2253,10 @@ Game.kibitz = function(game_id, text) {
   check(game_id, String);
 
   const self = Meteor.user();
+  if(!self.role.equals('kibitz')) {
+    throw new ICCMeteorError("mi2", "Unable to kibitz unless role of user is 'kibitz'", "Self has incorrect role");
+
+  }
 
   const game = GameCollection.findOne({_id: game_id});
 
