@@ -31,7 +31,8 @@ export const standard_member_roles = [
   "show_users",
   "upload_mugshot",
   "delete_mugshot",
-  "validate_mugshots"
+  "validate_mugshots",
+  "kibitz" //todo: hopefully what is wanted
 ];
 
 export const fields_viewable_by_account_owner = {

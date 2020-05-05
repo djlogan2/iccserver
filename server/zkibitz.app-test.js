@@ -5,6 +5,7 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { Meteor } from "meteor/meteor";
+import { standard_member_roles } from "../imports/server/userConstants";
 
 describe.only("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -217,11 +218,14 @@ x
   });
   it.only("should fail if the user is not in the 'kibitz' role", function() {
     const testText = "Hello I am a test string!";
-    const player1 = TestHelpers.createUser({role: true});
-    const player2 = TestHelpers.createUser({role: true});
-    self.loggedonuser = player1;
-    self.role = "not kibitz";
+    self.loggedonuser = TestHelpers.createUser();
+    const player1 = TestHelpers.createUser();
 
+    const player2 = TestHelpers.createUser();
+
+    self.loggedonuser = player1;
+
+    player1.roles[8].assigned = false;
 
     const game_id_local =  Game.startLocalGame("test_identifier",
       player2,
@@ -242,9 +246,12 @@ x
     chai.assert.throws(() => {
       Game.kibitz(game_id_local, testText);
     }, "Failed to not kibitz when user is not of kibitz role");
+    self.loggedonuser = player2;
+    chai.assert.doesNotThrow(() => {
+      Game.kibitz(game_id_local, testText);
+    }, "Throwed kibitz when role was valid");
 
 
-    chai.assert.fail("do me");
   });
   it("should indicate if the kibitz is a child_chat kibitz", function() {
     chai.assert.fail("do me");

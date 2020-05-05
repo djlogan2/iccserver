@@ -20,7 +20,7 @@ import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 
 import date from "date-and-time";
-import { fields_viewable_by_account_owner } from "../imports/server/userConstants";
+import { fields_viewable_by_account_owner, standard_member_roles } from "../imports/server/userConstants";
 
 export const Game = {};
 export const GameHistory = {};
@@ -2253,9 +2253,9 @@ Game.kibitz = function(game_id, text) {
   check(game_id, String);
 
   const self = Meteor.user();
-  if(!self.role.equals('kibitz')) {
-    throw new ICCMeteorError("mi2", "Unable to kibitz unless role of user is 'kibitz'", "Self has incorrect role");
 
+  if(!self.roles[8].assigned) { //hardcoded for now
+    throw new ICCMeteorError("mi2", "Unable to kibitz unless role of user is 'kibitz'", "Self has incorrect role");
   }
 
   const game = GameCollection.findOne({_id: game_id});
