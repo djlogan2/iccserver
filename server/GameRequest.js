@@ -949,35 +949,33 @@ function seekMatchesUser(message_identifier, user, seek) {
   return !seek.maxrating || seek.maxrating >= myrating;
 }
 
-Meteor.publishComposite("game_requests", function() {
-  return {
-    find: function() {
-      log.debug("publishComposite user, userid=" + this.userId);
-      return Meteor.users.find(
-        { _id: this.userId, "status.online": true },
-        { fields: { "status.game": 1 } }
-      );
-    },
-    children: [
-      {
-        find(user) {
-          log.debug("publishComposite game_requests, userid=" + user._id);
-          if (user.status.game === "playing") return GameRequestCollection.find({ _id: "0" });
-          return GameRequestCollection.find(
-            {
-              $or: [
-                { challenger_id: user._id },
-                { receiver_id: user._id },
-                { owner: user._id },
-                { matchingusers: user._id }
-              ]
-            },
-            { fields: { matchingusers: 0 } }
-          );
-        }
+Meteor.publishComposite("game_requests", {
+  find: function() {
+    log.debug("publishComposite user, userid=" + this.userId);
+    return Meteor.users.find(
+      { _id: this.userId, "status.online": true },
+      { fields: { "status.game": 1 } }
+    );
+  },
+  children: [
+    {
+      find(user) {
+        log.debug("publishComposite game_requests, userid=" + user._id);
+        if (user.status.game === "playing") return GameRequestCollection.find({ _id: "0" });
+        return GameRequestCollection.find(
+          {
+            $or: [
+              { challenger_id: user._id },
+              { receiver_id: user._id },
+              { owner: user._id },
+              { matchingusers: user._id }
+            ]
+          },
+          { fields: { matchingusers: 0 } }
+        );
       }
-    ]
-  };
+    }
+  ]
 });
 
 GameRequests.removeUserFromAllSeeks = function(userId) {

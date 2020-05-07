@@ -1,9 +1,23 @@
 import chai from "chai";
 
+import { TestHelpers } from "../imports/server/TestHelpers";
+import { Game } from "./Game";
+
 describe("Game timestamp", function() {
+  const self = TestHelpers.setupDescribe.call(this, { timer: true });
+
+/*
   it("should write a unique ping to active for white once a second", function() {
+    this.timeout(500000);
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+    self.clock.tick(60 * 1000); // 1 minute
+    const game = Game.collection.findOne();
     chai.assert.fail("do me ");
   });
+*/
   it("should write a unique ping to active for black once a second", function() {
     chai.assert.fail("do me ");
   });

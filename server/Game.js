@@ -18,6 +18,7 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
+import { ImportedGameCollection } from "../server/pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
 import { fields_viewable_by_account_owner, standard_member_roles } from "../imports/server/userConstants";
@@ -266,11 +267,11 @@ Game.startLocalGame = function(
   active_games[game_id] = chess;
   log.debug(
     "Started local game, game_id=" +
-      game_id +
-      ", white=" +
-      white.username +
-      ", black=" +
-      black.username
+    game_id +
+    ", white=" +
+    white.username +
+    ", black=" +
+    black.username
   );
   startGamePing(game_id);
   startMoveTimer(
@@ -284,12 +285,53 @@ Game.startLocalGame = function(
   return game_id;
 };
 
-Game.startLocalExaminedGameWithObject = function(game_object, chess_object) {
+Game.startLocalExaminedGameWithObject = function(message_identifier, game_object) {
+
+  const self = Meteor.user();
+
+  check(self, Object);
+  check(message_identifier, String);
   check(game_object, Object);
-  check(chess_object, Object);
+
+  if (!game_object.status) game_object.status = "examining";
+  if (!game_object.white) game_object.white = { name: "?", rating: 1600 };
+  if (!game_object.black) game_object.black = { name: "?", rating: 1600 };
+  if (!game_object.white.name) game_object.white.name = "?";
+  if (!game_object.black.name) game_object.black.name = "?";
+  if (!game_object.white.rating) game_object.white.rating = 1600;
+  if (!game_object.black.rating) game_object.black.rating = 1600;
+  if (!game_object.wild) game_object.wild = 0;
+  if (!game_object.actions) game_object.actions = [];
+  if (!game_object.clocks) game_object.clocks = {
+    white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
+    black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+  };
+  if (!game_object.startTime) game_object.startTime = new Date();
+  if (!game_object.tomove) game_object.tomove = "w";
+  if (!game_object.actions) game_object.actions = [];
+  if (!game_object.variations) game_object.variations = { movelist: [{}] };
+  if (!game_object.variations.cmi) game_object.variations.cmi = 0;
+
+  game_object.examiners = [{id: self._id, username: self.username}];
+  game_object.observers = [{id: self._id, username: self.username}];
+
+  const chess = new Chess.Chess();
+  if (game_object.tags && game_object.tags.FEN) {
+    game_object.fen = game_object.tags.FEN;
+    if (!chess.load(game_object.tags.FEN))
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to examine saved game",
+        "FEN string is invalid"
+      );
+    game_object.tomove = chess.turn() === "w" ? "white" : "black";
+  } else {
+    game_object.fen = chess.fen();
+  }
+
   delete game_object._id; // For safety
   const game_id = GameCollection.insert(game_object);
-  active_games[game_id] = chess_object;
+  active_games[game_id] = chess;
   return game_id;
 };
 
@@ -622,19 +664,19 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   log.debug(
     "Trying to make move " +
-      move +
-      " for user " +
-      self._id +
-      ", username=" +
-      self.username +
-      ", white=" +
-      game.white.id +
-      "," +
-      game.white.name +
-      ", black=" +
-      game.black.id +
-      "," +
-      game.black.name
+    move +
+    " for user " +
+    self._id +
+    ", username=" +
+    self.username +
+    ", white=" +
+    game.white.id +
+    "," +
+    game.white.name +
+    ", black=" +
+    game.black.id +
+    "," +
+    game.black.name
   );
   const result = chessObject.move(move);
   if (!result) {
@@ -741,12 +783,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   const move_parameter =
     game.status === "playing"
       ? {
-          move: move,
-          lag: Timestamp.averageLag(self._id),
-          ping: Timestamp.pingTime(self._id),
-          gamelag: gamelag,
-          gameping: gameping
-        }
+        move: move,
+        lag: Timestamp.averageLag(self._id),
+        ping: Timestamp.pingTime(self._id),
+        gamelag: gamelag,
+        gameping: gameping
+      }
       : move;
 
   const pushobject = {
@@ -2199,7 +2241,6 @@ GameHistory.exportToPGN = function(id) {
 };
 
 function finishExportToPGN(game) {
-
   /*
   let title =
     game.white.id === this.userId
@@ -2210,35 +2251,35 @@ function finishExportToPGN(game) {
 
   let pgn = "";
   let tmpdt = new Date(game.startTime);
-  pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
-  pgn += '[White "' + game.white.name + '"]\n';
-  pgn += '[Black "' + game.black.name + '"]\n';
-  pgn += '[Result "' + game.result + '"]\n';
-  pgn += '[WhiteElo "' + game.white.rating + '"]\n';
-  pgn += '[BlackElo "' + game.black.rating + '"]\n';
+  pgn += "[Date \"" + date.format(game.startTime, "YYYY-MM-DD") + "\"]\n";
+  pgn += "[White \"" + game.white.name + "\"]\n";
+  pgn += "[Black \"" + game.black.name + "\"]\n";
+  pgn += "[Result \"" + game.result + "\"]\n";
+  pgn += "[WhiteElo \"" + game.white.rating + "\"]\n";
+  pgn += "[BlackElo \"" + game.black.rating + "\"]\n";
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
+  pgn += "[Time \"" + date.format(game.startTime, "HH:mm:ss") + "\"]\n";
   if (!game.clocks) {
-    pgn += '[TimeControl "?"]\n';
+    pgn += "[TimeControl \"?\"]\n";
   } else {
     switch (game.clocks.white.inc_or_delay_type) {
       case "none":
-        pgn += '"[TimeControl ' + game.clocks.white.initial / 1000 + '"]\n';
+        pgn += "\"[TimeControl " + game.clocks.white.initial / 1000 + "\"]\n";
         break;
       case "us":
       case "bronstein":
       case "inc":
         pgn +=
-          '[TimeControl "' +
+          "[TimeControl \"" +
           game.clocks.white.initial / 1000 +
           "+" +
           game.clocks.white.inc_or_delay +
-          '"]\n';
+          "\"]\n";
         break;
       default:
-        pgn += '[TimeControl "?"]\n';
+        pgn += "[TimeControl \"?\"]\n";
         break;
     }
   }
@@ -2298,7 +2339,8 @@ Meteor.publish("kibitz", function(){
 
 
 
-Game.whisper = function(game_id, text) {};
+Game.whisper = function(game_id, text) {
+};
 
 Game.addMoveToMoveList = function(variation_object, move, current) {
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
@@ -2751,7 +2793,8 @@ function _startGamePing(game_id, color) {
         );
       }
     },
-    () => {}
+    () => {
+    }
   );
 }
 
@@ -2846,6 +2889,7 @@ function removeGameRecord(selector){
   GameCollection.remove(selector);
 }
 function updateUserRatings(game, result, reason) {}
+
 
 Meteor.startup(function() {
   // TODO: Need to adjourn these, not just delete them
@@ -2982,13 +3026,18 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
   return GameHistoryCollection.insert(game);
 };
 
-GameHistory.examineGame = function(message_identifier, game_id) {
+GameHistory.examineGame = function(message_identifier, game_id, is_imported_game) {
   check(message_identifier, String);
-  check(game_id, String);
+  //check(game_id, Match.OneOf(String, Object));
+  check(is_imported_game, Boolean);
   const self = Meteor.user();
   check(self, Object);
-
-  const hist = GameHistoryCollection.findOne({ _id: game_id });
+  let hist;
+  if (!!is_imported_game) {
+    hist = ImportedGameCollection.findOne({ _id: game_id });
+  } else {
+    hist = GameHistoryCollection.findOne({ _id: game_id });
+  }
   if (!hist)
     throw new ICCMeteorError(
       message_identifier,
@@ -3002,57 +3051,24 @@ GameHistory.examineGame = function(message_identifier, game_id) {
   }
 
   Game.localUnobserveAllGames(message_identifier, self._id);
-
-  const chess = new Chess.Chess();
-  if (hist.tags && hist.tags.FEN) {
-    hist.fen = hist.tags.FEN;
-    if (!chess.loadfen(hist.tags.FEN))
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to examine saved game",
-        "FEN string is invalid"
-      );
-  } else {
-    hist.fen = chess.fen();
-  }
-
-  delete hist._id;
-  hist.tomove = chess.turn() === "w" ? "white" : "black";
-  hist.status = "examining";
-  hist.observers = [{ id: self._id, username: self.username }];
-  hist.examiners = [{ id: self._id, username: self.username }];
-  hist.variations.cmi = 0;
-  return Game.startLocalExaminedGameWithObject(hist, chess);
+  return Game.startLocalExaminedGameWithObject(message_identifier, hist);
 };
 
 function sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
   const message_identifier = "server:game:" + game_id;
-  const cm_parameters = ClientMessages.messageParameters("GAME_STATUS_" + status);
-  const p1_call_parameters = [white_id, message_identifier, "GAME_STATUS_" + status];
-  const p2_call_parameters = [black_id, message_identifier, "GAME_STATUS_" + status];
-
-  if (cm_parameters.parameters) {
-    cm_parameters.parameters.forEach(p => {
-      switch (p) {
-        case "losing_color":
-          p1_call_parameters.push(result === "1-0" ? "black" : "white");
-          p2_call_parameters.push(result === "1-0" ? "black" : "white");
-          break;
-        case "winning_color":
-          p1_call_parameters.push(result === "1-0" ? "white" : "black");
-          p2_call_parameters.push(result === "1-0" ? "white" : "black");
-          break;
-        case "offending_color":
-          p1_call_parameters.push(tomove);
-          p2_call_parameters.push(tomove);
-          break;
-        default:
-          throw new Meteor.Error("Unknown parameter " + p);
-      }
-    });
+  let color = tomove === "white" ? "w" : "b";
+  switch (result) {
+    case "1-0":
+      color = "w";
+      break;
+    case "0-1":
+      color = "b";
+      break;
+    default:
+      break;
   }
-  ClientMessages.sendMessageToClient.apply(this, p1_call_parameters);
-  ClientMessages.sendMessageToClient.apply(this, p2_call_parameters);
+  ClientMessages.sendMessageToClient(white_id, message_identifier, "GAME_STATUS_" + color + status);
+  ClientMessages.sendMessageToClient(black_id, message_identifier, "GAME_STATUS_" + color + status);
 }
 
 GameHistory.search = function(message_identifier, search_parameters, offset, count) {

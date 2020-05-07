@@ -127,6 +127,16 @@ describe("Client Messages", function() {
     chai.assert.throws(() => method.apply({ userId: user2._id }, [id1]), ICCMeteorError);
     sinon.restore();
   });
+
+  it("should throw an error if the message doesn't exist", function() {
+    chai.assert.throws(() => ClientMessages.messageParameters("DOES NOT EXIST"), Match.Error);
+  });
+
+  it("should not throw an error if the message doesn't exist", function() {
+    let response;
+    chai.assert.doesNotThrow(() => ClientMessages.messageParameters("FOR_TESTING_10"));
+    chai.assert.deepEqual({parameters: ["a","b","c","d","e","f","g","h","i","j"]}, ClientMessages.messageParameters("FOR_TESTING_10"));
+  });
 });
 
 describe("Client Messages publication", function() {

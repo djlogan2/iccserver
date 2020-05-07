@@ -20,7 +20,8 @@ export const all_roles = [
   "upload_mugshot",
   "delete_mugshot",
   "delete_any_mugshot",
-  "validate_mugshots"
+  "validate_mugshots",
+  "upload_pgn"
 ];
 
 export const standard_member_roles = [
@@ -32,7 +33,8 @@ export const standard_member_roles = [
   "upload_mugshot",
   "delete_mugshot",
   "validate_mugshots",
-  "kibitz" //todo: hopefully what is wanted
+  "kibitz",
+  "upload_pgn"
 ];
 
 export const fields_viewable_by_account_owner = {

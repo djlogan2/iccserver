@@ -11,6 +11,10 @@ import "./Tabs/BottomStyles";
 import i18n from "meteor/universe:i18n";
 
 class RightBarBottom extends Component {
+  constructor(props){
+    super(props);
+  //  this.uploadPgn=this.uploadPgn.bind(this);
+  }
   getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -20,7 +24,6 @@ class RightBarBottom extends Component {
       "en-US"
     );
   }
-
   render() {
     let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
     let tabNumber = this.props.activeTabnumber ? this.props.activeTabnumber : 0;
@@ -75,7 +78,7 @@ class RightBarBottom extends Component {
           imgsrc="images/fen-pgn-white-icon.png"
           hoverSrc="images/fen-pgn-blue-icon.png"
         >
-          <PGN />
+          <PGN cssmanager={this.props.cssmanager} Gamedata={this.props.Gamedata} uploadPgn={this.props.uploadPgn}/>
         </div>
       </Tabs>
     );

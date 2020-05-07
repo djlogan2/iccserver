@@ -59,6 +59,11 @@ class MenuLinks extends Component {
       const data = this.context;
       data.toggleModal(true);
     }
+    if (label === "uploadpgn") {
+      this.props.gameHistory(label);
+      const data = this.context;
+      data.toggleModal(true);
+    }
     if (label === "play") this.props.examineAction(label);
     if (label === "examine") this.startLocalExaminedGame(label);
     if (label === "logout")

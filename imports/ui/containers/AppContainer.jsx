@@ -9,6 +9,7 @@ import { Tracker } from "meteor/tracker";
 import {
   ClientMessagesCollection,
   Game,
+  ImportedGameCollection,
   GameHistoryCollection,
   GameRequestCollection,
   mongoCss,
@@ -78,7 +79,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
         observingGames: Meteor.subscribe("observing_games"),
-        gameHistory: Meteor.subscribe("game_history")
+        gameHistory: Meteor.subscribe("game_history"),
+        importedGame:Meteor.subscribe("imported_games")
       },
       isAuthenticated: Meteor.userId() !== null
     };
@@ -148,6 +150,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.state.subscription.clientMessages.stop();
     this.state.subscribtion.observingGames.stop();
     this.state.subscription.gameHistory.stop();
+    this.state.subscription.importedGame.stop();
   }
 
   componentWillMount() {
@@ -210,6 +213,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   _pieceSquareDragStop = raf => {
+    
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
   };
 
@@ -218,7 +222,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
       const GameHistory = GameHistoryCollection.find({
         $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
       }).fetch();
+    GameHistory.is_imported=false;
       this.setState({ GameHistory: GameHistory });
+    }else if(data === "uploadpgn"){
+      const importedGame = ImportedGameCollection.find({}).fetch();
+      importedGame.is_imported=true;
+      this.setState({GameHistory: importedGame});
     }
   }
 
@@ -342,6 +351,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         }
       }
     }
+    
     if (!!this.gameId) {
       clientMessage = this.clientMessages(this.message_identifier);
     }

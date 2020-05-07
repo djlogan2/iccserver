@@ -37,7 +37,7 @@ export default class MainPage extends Component {
       height: window.innerHeight,
       examineGame: false,
       exnotification: false,
-      resignnotification: false,
+      notification: false,
       newOppenetRequest: false,
       examinAction: "action",
       activeTab: 0,
@@ -79,11 +79,12 @@ export default class MainPage extends Component {
         Action: {}
       }
     };
-    this.notificationHandler = this.notificationHandler.bind(this);
+  //  this.notificationHandler = this.notificationHandler.bind(this);
     this.examineActionHandler = this.examineActionHandler.bind(this);
     this.startGameExamine = this.startGameExamine.bind(this);
     this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
     this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
+    this.uploadPgn=this.uploadPgn.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -187,7 +188,10 @@ export default class MainPage extends Component {
       />
     );
   };
-
+uploadPgn(){
+  
+  this.setState({notification:true});
+}
   loadGameHistroyPopup(games) {
     let result;
     let gamelist = [];
@@ -204,13 +208,17 @@ export default class MainPage extends Component {
         } else {
           result = "Loss";
         }
+        let time="Fix me"; // TODO: This line is crashing (!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
+
+      // console.log();
         gamelist.push({
           id: games[i]._id,
           name: "3 minut arina",
-          white: games[i].white.name,
-          black: games[i].black.name,
+          white: (games[i].white.name).replace(/"/g, ''),
+          black:(games[i].black.name).replace(/"/g, ''),
           result: result,
-          time: games[i].startTime.toDateString()
+          time:time,
+          is_imported:games.is_imported
         });
       }
     }
@@ -264,7 +272,7 @@ export default class MainPage extends Component {
                     <tr key={index} style={{ cursor: "pointer" }}>
                       <td
                         style={{ padding: "5px 5px" }}
-                        onClick={this.setGameExaminMode.bind(this, game.id)}
+                        onClick={this.setGameExaminMode.bind(this, game.id, game.is_imported)}
                       >
                         {game.white}-vs-{game.black}
                       </td>
@@ -296,15 +304,23 @@ export default class MainPage extends Component {
       </ModalProvider>
     );
   }
-  setGameExaminMode(id) {
-    Meteor.call("examineGame", "ExaminedGame", id, (error, response) => {
-      if (response) this.setState({ examineGame: true, activeTab: 3, modalShow: false });
+  setGameExaminMode(id, is_imported) {
+
+    Meteor.call("examineGame", "ExaminedGame", id, is_imported,(error, response) => {
+      if (error) {
+        log.debug(error);
+        console.log(error);
+        this.setState({ modalShow: false });
+      }else{
+        this.setState({ examineGame: true, activeTab: 3, modalShow: false });
+      }
+
     });
 
     this.props.removeGameHistory();
   }
   startGameExamine() {
-    this.setState({ examineGame: true });
+    this.setState({ examineGame: true, newOppenetRequest: false });
   }
   examineActionHandler(action) {
     if (action === "newoppent" || action === "play") {
@@ -314,11 +330,12 @@ export default class MainPage extends Component {
     } else this.setState({ exnotification: false, examinAction: action });
   }
   resignNotificationCloseHandler() {
-    this.setState({ resignnotification: true });
-  }
-  notificationHandler() {
     this.setState({ notification: !this.state.notification });
   }
+  /*
+  notificationHandler() {
+    this.setState({ notification: !this.state.notification });
+  }*/
   examinActionCloseHandler() {
     this.setState({ exnotification: true });
   }
@@ -343,7 +360,6 @@ export default class MainPage extends Component {
     let actionPopup = null;
     let informativePopup = null;
     let status = "others";
-    let undo = false;
     let position = { top: "w" };
     if (!!game) {
       if (game.black.id === Meteor.userId()) {
@@ -371,8 +387,6 @@ export default class MainPage extends Component {
 
       Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
       if (status === "examining") {
-        undo = true;
-
         if (
           this.state.exnotification === false &&
           (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
@@ -396,9 +410,6 @@ export default class MainPage extends Component {
       const actions = game.actions;
 
       if (!!actions && actions.length !== 0) {
-        let ack = actions[actions.length - 1];
-
-        if (!!ack["type"] && ack["type"] === "takeback_accepted") undo = true;
 
         for (const action of actions) {
           const issuer = action["issuer"];
@@ -447,6 +458,9 @@ export default class MainPage extends Component {
         this.props.clientMessage._id
       );
     }
+    if(!!this.state.notification){
+      informativePopup=this.GameResignedPopup("File upload succeshfully","mid"); 
+   }
     let w = this.state.width;
     let h = this.state.height;
 
@@ -485,6 +499,7 @@ export default class MainPage extends Component {
             startGameExamine={this.startGameExamine}
             examineAction={this.examineActionHandler}
             activeTabnumber={this.state.activeTab}
+            uploadPgn={this.uploadPgn}
           />
         </div>
       );
@@ -512,7 +527,7 @@ export default class MainPage extends Component {
                 top={position.top}
                 circles={this.props.circles}
                 //  fen={this.props.fen}
-                undo={undo}
+
                 width={this.state.width}
                 height={this.state.height}
                 gameStatus={status}
@@ -544,8 +559,8 @@ let links = [
     src: "../../../images/learning-icon-white.png"
   },
   {
-    label: "learn",
-    link: "learn",
+    label: "uploadpgn",
+    link: "upload-pgn",
     src: "../../../images/learning-icon-white.png"
   },
   {

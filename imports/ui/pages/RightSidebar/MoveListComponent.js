@@ -10,7 +10,6 @@ export default class MoveListComponent extends Component {
     super(props);
     this.cmi = 0;
     this.state = {
-      current: null,
       cmi:0,
       toggle:false,
       action: "action",
@@ -18,6 +17,7 @@ export default class MoveListComponent extends Component {
       gameRequest: props.gameRequest,
       isexamin: true
     };
+   
   }
   static getLang() {
     return (
@@ -42,28 +42,42 @@ export default class MoveListComponent extends Component {
     }
   }
   moveBackwordBeginning = () => {
-      Meteor.call("moveBackward", "MoveBackward", this.gameId,this.state.cmi);
+      Meteor.call("moveBackward", "MoveBackward", this.gameId,this.currentindex);
    };
   moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
+  Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
   };
   moveForward = () => {
-       Meteor.call("moveForward", "MoveForward", this.gameId, 1);
-  }
+    let ind=this.currentindex+1;
+    let idc=0;
+    if(ind<=this.cmi){
+      idc=this.moves[ind].idc;
+    }
+      Meteor.call("moveForward", "MoveForward", this.gameId,1,idc);
+ }
   moveForwardEnd = cmi => {
-    Meteor.call("moveForward", "MoveForward", this.gameId,this.cmi-this.state.cmi);
+    let movedata=this.moves;
+    let slicemoves=movedata.slice(this.currentindex+1,movedata.length);
+    for(let i=0;i<=slicemoves.length;i++){
+      console.log(slicemoves[i].idc);
+      Meteor.call("moveForward", "MoveForward", this.gameId,1,slicemoves[i].idc);
+    }
+    
+     // console.log(v.idc);
+     
+
+  
+  //  Meteor.call("moveForward", "MoveForward", this.gameId,movecount);
  };
 
   moveAutoForward = () => {
     clearInterval(this.intervalID);
      this.setState({toggle:!this.state.toggle});
        this.intervalID=setInterval(() =>{
-         let remainMove= this.cmi-this.state.cmi;
+         let remainMove= this.cmi-this.currentindex;
          if(remainMove===0 || this.state.toggle===false){
                 clearInterval(this.intervalID);
-                if(remainMove===0)
-                  this.setState({toggle:false});
-                this.setState({toggle:!this.state.toggle});this.setState({toggle:!this.state.toggle});
+                this.setState({toggle:!this.state.toggle});
          }else{
            this.moveForward();
          }
@@ -137,28 +151,64 @@ export default class MoveListComponent extends Component {
     }
   };
   _setGameToExamine() {
+    this.moveBackwordBeginning();
     this.props.startGameExamine();
   }
- addmove(move_number, variations, white_to_move, movelist, idx) { let string = "";
-  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
-  string += movelist[movelist[idx].variations[0]].move+"|";
-  let next_move_number = move_number;
-  let next_white_to_move = !white_to_move;
-  if (next_white_to_move) next_move_number++;
+ 
+  addmove(move_number, variations, white_to_move, movelist, idx) {
+    let string = "";
+ 
+   if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
+   if(movelist[idx].variations.length > 1){
+ 
+   }else{
+     string += "0"+"*-"+movelist[idx].variations[0]+"*-"+movelist[movelist[idx].variations[0]].move+"|";
+     
+   }
+   
+   let next_move_number = move_number;
+   let next_white_to_move = !white_to_move;
+   if (next_white_to_move) next_move_number++;
+ 
+   for (let x = 1; x < movelist[idx].variations.length; x++) {
+     if(x=movelist[idx].variations.length - 1){
+       string +=
+            x+"*-"+movelist[idx].variations[x]+"*-"+movelist[movelist[idx].variations[x]].move+" |";
+ 
+       }
+      string +=
+         this.addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]);
+      
+   }
+ 
+ if(movelist[idx].variations.length > 1){
+ 
+ this.addmove(
+       next_move_number,
+       movelist[idx].variations.length > 1,
+       next_white_to_move,
+       movelist,
+       movelist[idx].variations[0]
+     );
+ }else{
    string +=
-   this.addmove(
-      next_move_number,
-      movelist[idx].variations.length > 1,
-      next_white_to_move,
-      movelist,
-      movelist[idx].variations[0]
-    );
-  return string;
-}
+     " " +
+     this.addmove(
+       next_move_number,
+       movelist[idx].variations.length > 1,
+       next_white_to_move,
+       movelist,
+       movelist[idx].variations[0]
+     );	
+ }
+   return string;
+ }
  buildPgnFromMovelist(movelist) {
  return this.addmove(1, false, true, movelist, 0);
  
 }
+
+
   render() {
     let translator = i18n.createTranslator("Common.MoveListComponent", MoveListComponent.getLang());
     let moves = [];
@@ -169,55 +219,32 @@ export default class MoveListComponent extends Component {
       this.message_identifier = "server:game:" + this.gameId;
       this.gameId = game._id;
     }
-    
-    if (!!game.status && game.status !== "examining") {
-      if (!!game && game.variations !== undefined) {
-        variation = game.variations;
-        let itemToBeRemoved = [];
-        for (let i = 0; i < variation.cmi; i++) {
-          if (itemToBeRemoved.indexOf(i) === -1) {
-            var moveListItem = variation.movelist[i];
-            if (moveListItem !== undefined) {
-              var variationI = moveListItem.variations;
-              if (variationI !== undefined) {
-                var len = variationI.length;
-                if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
-                  moves.push(variation.movelist[variationI[0]].move);
-                } else if (len > 1) {
-                  if (variation.movelist[variationI[len - 1]] !== undefined) {
-                    moves.push(variation.movelist[variationI[len - 1]].move);
-                  }
-                  if (variation.cmi === variationI[len - 1]) {
-                    break;
-                  }
-                  for (let n = variationI[0]; n < variationI[len - 1]; n++) {
-                    itemToBeRemoved.push(n);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    } else {
       let string = this.buildPgnFromMovelist(game.variations.movelist);
-      moves=string.split("|");
-      moves.splice(-1,1)
-      this.cmi=moves.length;
+      let chunks=string.split("|");
+      chunks.splice(-1,1);
+      this.cmi=chunks.length;
+      this.moves=[];
+      this.moves.push({idc:0,idx:0,move:""});
+      for (let i=0;i<chunks.length;i++){
+        let ch=chunks[i].split("*-");
+        this.moves.push({idc:parseInt(ch[0]),idx:parseInt(ch[1]),move:ch[2]});
     }
-
+      
+console.log(this.moves);
     /* TODO: movlist button display operation*/
-    let displayButton = 1;
+    let displayButton = 0;
+    let statuslabel=0;
     let isPlaying;
-    if (this.props.currentGame === false && status === "examining"){
-      displayButton = 0;
-    } 
+    
     let mbtnstyle = this.props.cssmanager.gameButtonMove();
-    if (this.props.currentGame === true || status === "playing") {
+    if (this.props.currentGame === true && status === "examining"){
+      displayButton = 1;
+      statuslabel=1;
       Object.assign(mbtnstyle, { bottom: "85px",padding:"0px" });
-     } else {
-      Object.assign(mbtnstyle, { bottom: "26px",padding:"0px" }); 
+    }else if(status === "playing"){
+      statuslabel=1;
     }
+   
     if (status === "playing") {
       isPlaying=true;
     }else{
@@ -227,24 +254,34 @@ export default class MoveListComponent extends Component {
     /*End of code */
     let cnt = 1;
     let ind = "";
-    let moveslist = moves.map((move, index) => {
+    this.currentindex=0;
+    let moveslist = this.moves.map((move, index) => {
+      let mv=this.moves[index].move;
+      let idx=this.moves[index].idx;
       if (index % 2 === 0) {
+         ind = "";
+      } else {
         ind = " " + cnt + ".";
         cnt++;
-      } else {
-        ind = "";
       }
       let style = { color: "black" };
-      let movestyle = (this.state.cmi === index+1 ) ? Object.assign(style, { color: "#904f4f",
+      let movestyle;
+      if(this.state.cmi === idx ) {
+        Object.assign(style, { color: "#904f4f",
         fontWeight: "bold",
         fontSize: "15px"
       
-      }) : style;
+      });
+      movestyle=style;
+      this.currentindex=index;
+      } else{
+        movestyle=style;
+      } 
     
       return (
         <span key={index}>
           {ind ? <b>{ind}</b> : null}
-          <span style={movestyle}> {move}</span>
+          <span style={movestyle}> {mv}</span>
         </span>
       );
     });
@@ -256,6 +293,8 @@ export default class MoveListComponent extends Component {
     return (
       <div>
         <div style={this.props.cssmanager.gameMoveList()} >{moveslist}</div>
+       
+        
         {displayButton ? (
           <div style={mbtnstyle} className="moveAction">
             <button
@@ -316,7 +355,7 @@ export default class MoveListComponent extends Component {
           </div>
         ) : null}
            <div className="draw-section">
-           {displayButton ? (
+           {statuslabel ? (
           <div  className={"gamestatus " + (status==='playing' ? 'active' : 'default')} style={this.props.cssmanager.drawActionSection()}>
              <span>{translator(status)}</span>
           </div>

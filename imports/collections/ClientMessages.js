@@ -59,20 +59,34 @@ export const DefinedClientMessagesMap = {
   ALREADY_PLAYING: {},
   INVALID_SQUARE: { parameters: ["square"] },
   INVALID_ARROW: { parameters: ["from", "to"] },
-  GAME_STATUS_0: { parameters: ["losing_color"] },
-  GAME_STATUS_1: { parameters: ["losing_color"] },
-  GAME_STATUS_2: { parameters: ["losing_color"] },
-  GAME_STATUS_3: { parameters: ["winning_color"] },
-  GAME_STATUS_4: { parameters: ["losing_color"] },
-  GAME_STATUS_13: {},
-  GAME_STATUS_14: { parameters: ["losing_color"] },
-  GAME_STATUS_15: {},
-  GAME_STATUS_16: {},
-  GAME_STATUS_17: { parameters: ["losing_color", "winning_color"] },
-  GAME_STATUS_18: {},
-  GAME_STATUS_24: {},
-  GAME_STATUS_30: {},
-  GAME_STATUS_37: { parameters: ["offending_color"] },
+  GAME_STATUS_w0: {},
+  GAME_STATUS_w1: {},
+  GAME_STATUS_w2: {},
+  GAME_STATUS_w3: {},
+  GAME_STATUS_w4: {},
+  GAME_STATUS_w13: {},
+  GAME_STATUS_w14: {},
+  GAME_STATUS_w15: {},
+  GAME_STATUS_w16: {},
+  GAME_STATUS_w17: {},
+  GAME_STATUS_w18: {},
+  GAME_STATUS_w24: {},
+  GAME_STATUS_w30: {},
+  GAME_STATUS_w37: {},
+  GAME_STATUS_b0: {},
+  GAME_STATUS_b1: {},
+  GAME_STATUS_b2: {},
+  GAME_STATUS_b3: {},
+  GAME_STATUS_b4: {},
+  GAME_STATUS_b13: {},
+  GAME_STATUS_b14: {},
+  GAME_STATUS_b15: {},
+  GAME_STATUS_b16: {},
+  GAME_STATUS_b17: {},
+  GAME_STATUS_b18: {},
+  GAME_STATUS_b24: {},
+  GAME_STATUS_b30: {},
+  GAME_STATUS_b37: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},
@@ -188,12 +202,6 @@ function logoutHook(userId) {
 }
 
 Meteor.startup(function() {
-  //DOUBT: I am not sure that I have create an index on createDate for automatically discard a document in 1 minute.
-  // if it is not required then I will remove later.
-  ClientMessagesCollection.rawCollection().createIndex(
-    { createDate: 1 },
-    { expireAfterSeconds: 60 }
-  );
   Users.addLogoutHook(logoutHook);
 
   if (Meteor.isTest || Meteor.isAppTest) {

@@ -884,7 +884,6 @@ describe("Game.legacyGameEnded", function() {
   });
 
   it("should fail if game is not being played", function() {
-    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     chai.assert.doesNotThrow(() =>
@@ -1507,8 +1506,8 @@ describe("Takeback behavior", function() {
     Game.acceptLocalTakeback("mi4", game_id);
 
     const game = Game.collection.findOne();
-    chai.assert.equal(game.clocks["white"].current, current[2]);
-    chai.assert.equal(game.clocks["black"].current, current[3]);
+    chai.assert.equal(game.clocks.white.current, current[2]);
+    chai.assert.equal(game.clocks.black.current, current[3]);
   });
 
   // giver_request  -> giver_request(same)        -> message, already pending
@@ -2412,25 +2411,34 @@ describe("Local game abort behavior", function() {
       "none",
       "white"
     );
-    checkAbort(Game.collection.findOne(), "0", "0");
-    Game.requestLocalAbort("mi2", game_id);
-    checkAbort(Game.collection.findOne(), "mi2", "0");
-    Game.saveLocalMove("mi3", game_id, "e4");
-    checkAbort(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = us;
+    Game.saveLocalMove("mi2", game_id, "e4");
     self.loggedonuser = opp;
-    Game.saveLocalMove("mi4", game_id, "e5");
+    Game.saveLocalMove("mi3", game_id, "e5");
+    self.loggedonuser = us;
+    Game.saveLocalMove("mi4", game_id, "Nc3");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi5", game_id, "Nf6");
+    self.loggedonuser = us;
+    checkAbort(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAbort("mi6", game_id);
+    checkAbort(Game.collection.findOne(), "mi6", "0");
+    Game.saveLocalMove("mi8", game_id, "Nf3");
+    checkAbort(Game.collection.findOne(), "mi6", "0");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi10", game_id, "Nc6");
 
     const game = Game.collection.findOne();
     checkAbort(game, "0", "0");
     checkLastAction(game, 0, "move", opp._id, {
-      move: "e5",
+      move: "Nc6",
       ping: 456,
       lag: 0,
       gamelag: 0,
       gameping: 0
     });
     checkLastAction(game, 1, "move", us._id, {
-      move: "e4",
+      move: "Nf3",
       ping: 456,
       lag: 0,
       gamelag: 0,
@@ -2439,7 +2447,7 @@ describe("Local game abort behavior", function() {
     checkLastAction(game, 2, "abort_requested", us._id);
   });
 
-  it("should explicitly decline the abort with a client message if a abort request is declined", function() {
+  it("should explicitly decline the abort with a client message if an abort request is declined", function() {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2457,19 +2465,27 @@ describe("Local game abort behavior", function() {
       "none",
       "white"
     );
-    checkAbort(Game.collection.findOne(), "0", "0");
-    Game.requestLocalAbort("mi2", game_id);
-    checkAbort(Game.collection.findOne(), "mi2", "0");
-    Game.saveLocalMove("mi3", game_id, "e4");
-    checkAbort(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi2", game_id, "e4");
     self.loggedonuser = opp;
-    Game.declineLocalAbort("mi4", game_id);
+    Game.saveLocalMove("mi3", game_id, "e5");
+    self.loggedonuser = us;
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi5", game_id, "Nc6");
+    checkAbort(Game.collection.findOne(), "0", "0");
+    self.loggedonuser = us;
+    Game.requestLocalAbort("mi6", game_id);
+    checkAbort(Game.collection.findOne(), "mi6", "0");
+    Game.saveLocalMove("mi7", game_id, "Nc3");
+    checkAbort(Game.collection.findOne(), "mi6", "0");
+    self.loggedonuser = opp;
+    Game.declineLocalAbort("mi8", game_id);
 
     const game = Game.collection.findOne();
     checkAbort(game, "0", "0");
     checkLastAction(game, 0, "abort_declined", opp._id);
     checkLastAction(game, 1, "move", us._id, {
-      move: "e4",
+      move: "Nc3",
       ping: 456,
       lag: 0,
       gamelag: 0,
@@ -2479,7 +2495,7 @@ describe("Local game abort behavior", function() {
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi6");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_DECLINED");
   });
 
@@ -2501,19 +2517,29 @@ describe("Local game abort behavior", function() {
       "none",
       "white"
     );
-    checkAbort(Game.collection.findOne(), "0", "0");
-    Game.requestLocalAbort("mi2", game_id);
-    checkAbort(Game.collection.findOne(), "mi2", "0");
+
     Game.saveLocalMove("mi3", game_id, "e4");
-    checkAbort(Game.collection.findOne(), "mi2", "0");
     self.loggedonuser = opp;
-    Game.acceptLocalAbort("mi4", game_id);
+    Game.saveLocalMove("mi4", game_id, "e5");
+    self.loggedonuser = us;
+    Game.saveLocalMove("mi5", game_id, "Nf3");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi6", game_id, "Nc6");
+
+    self.loggedonuser = us;
+    checkAbort(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAbort("mi7", game_id);
+    checkAbort(Game.collection.findOne(), "mi7", "0");
+    Game.saveLocalMove("mi8", game_id, "Nc3");
+    checkAbort(Game.collection.findOne(), "mi7", "0");
+    self.loggedonuser = opp;
+    Game.acceptLocalAbort("mi9", game_id);
 
     const game = Game.collection.findOne();
     checkAbort(game, "0", "0");
     checkLastAction(game, 0, "abort_accepted", opp._id);
     checkLastAction(game, 1, "move", us._id, {
-      move: "e4",
+      move: "Nc3",
       ping: 456,
       lag: 0,
       gamelag: 0,
@@ -2523,7 +2549,7 @@ describe("Local game abort behavior", function() {
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi9");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_ACCEPTED");
 
     chai.assert.equal(game.status, "examining");
@@ -3037,7 +3063,7 @@ describe("Game.moveBackward", function() {
     );
     Game.collection.update(
       { _id: game_id, status: "examining" },
-      { $push: { examiners: {id: examiner._id, username: examiner.username} } }
+      { $push: { examiners: { id: examiner._id, username: examiner.username } } }
     );
     Game.moveBackward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -3280,7 +3306,7 @@ describe("Game.moveForward", function() {
     );
     Game.collection.update(
       { _id: game_id, status: "examining" },
-      { $push: { examiners: {id: examiner._id, username: examiner.username} } }
+      { $push: { examiners: { id: examiner._id, username: examiner.username } } }
     );
     Game.moveForward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
