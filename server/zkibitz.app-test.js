@@ -12,8 +12,8 @@ describe.only("kibitzes", function() {
   it("should save an action in the game record for local games", function() {
 
     const testText = "Hello I am a test string!";
+    self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
-    self.loggedonuser = other;
     const game_id_local =  Game.startLocalGame("test_identifier",
       other,
       0,
@@ -29,7 +29,7 @@ describe.only("kibitzes", function() {
 
 
     chai.assert.isFunction(Game.kibitz, "kibitz() failed to be a function when adding action to record");
-x
+
     Game.kibitz(game_id_local, testText);
 
     const localCollection = Game.collection.findOne({_id: game_id_local});
@@ -136,14 +136,14 @@ x
     player1Collector.collect("kibitz", collections => {
       chai.assert.equal(collections.chat.length, 1, "Publication collector for player1 failed to store any kibitz");
       chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
-      done();
+      player2Collector.collect("kibitz", collections => {
+        chai.assert.equal(collections.chat.length, 1, "Publication collector for player2 failed to store any kibitz");
+        chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
+        done();
+      });
     });
 
-    player2Collector.collect("kibitz", collections => {
-      chai.assert.equal(collections.chat.length, 1, "Publication collector for player2 failed to store any kibitz");
-      chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
-      done();
-    });
+
   });
   it("chat records should be deleted when game records are deleted", function() {
     const testText = "Hello I am a test string!";
@@ -206,26 +206,25 @@ x
     player1Collector.collect("kibitz", collections => {
       chai.assert.equal(collections.chat.length, 1, "Publication collector for player1 failed to store any kibitz");
       chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
-      done();
+      player2Collector.collect("kibitz", collections => {
+        chai.assert.equal(collections.chat.length, 1, "Publication collector for player2 failed to store any kibitz");
+        chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
+        done();
+      });
     });
 
-    player2Collector.collect("kibitz", collections => {
-      chai.assert.equal(collections.chat.length, 1, "Publication collector for player2 failed to store any kibitz");
-      chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
-      done();
-    });
+
 
   });
-  it.only("should fail if the user is not in the 'kibitz' role", function() {
+  it("should fail if the user is not in the 'kibitz' role", function() {
     const testText = "Hello I am a test string!";
     self.loggedonuser = TestHelpers.createUser();
     const player1 = TestHelpers.createUser();
-
+    Meteor.users.update({username: player1.username ,"roles._id": 'kibitz'}, {$set: { 'roles.$.assigned': false}});
     const player2 = TestHelpers.createUser();
 
-    self.loggedonuser = player1;
 
-    player1.roles[8].assigned = false;
+    self.loggedonuser = player1;
 
     const game_id_local =  Game.startLocalGame("test_identifier",
       player2,
@@ -243,9 +242,10 @@ x
     chai.assert.isDefined(player1);
     chai.assert.isDefined(player1._id);
 
+
     chai.assert.throws(() => {
       Game.kibitz(game_id_local, testText);
-    }, "Failed to not kibitz when user is not of kibitz role");
+    },"Unable to kibitz unless role of user is 'kibitz'");
     self.loggedonuser = player2;
     chai.assert.doesNotThrow(() => {
       Game.kibitz(game_id_local, testText);

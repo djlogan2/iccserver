@@ -2247,6 +2247,18 @@ function finishExportToPGN(game) {
   pgn += " " + game.result;
   return { title, pgn };
 }
+Game.validKibitz = function(player){
+  var element = 0;
+  // This could be cleaned up to be a for-each or filter later on
+  while(element < player.roles.length){
+
+    if(player.roles[element]._id =='kibitz'){
+      return player.roles[element].assigned;
+    }
+    element++;
+  }
+  return false;
+}
 
 Game.kibitz = function(game_id, text) {
   check(text, String);
@@ -2254,7 +2266,7 @@ Game.kibitz = function(game_id, text) {
 
   const self = Meteor.user();
 
-  if(!self.roles[8].assigned) { //hardcoded for now
+  if(!Game.validKibitz(self)) {
     throw new ICCMeteorError("mi2", "Unable to kibitz unless role of user is 'kibitz'", "Self has incorrect role");
   }
 
