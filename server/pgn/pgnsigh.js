@@ -2,22 +2,32 @@ const moo = require("moo");
 
 export class Parser {
   constructor() {
-    this.lexer = moo.compile({
-      WS: /[ \t]+/,
-      STRING: /"(?:\\["\\]|[^\n"\\])*"/,
-      NAG: /\$[0-9]+/,
-      RESULT: ["0-1", "1-0", "1/2-1/2", "*"],
-      INTEGER: /[0-9]+/,
-      DOTDOTDOT: /\.\.\./,
-      PERIOD: /\./,
-      LBRACKET: /\[/,
-      RBRACKET: /]/,
-      LPAREN: /\(/,
-      RPAREN: /\)/,
-      SAN: /(?:(?:[RQKBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[RQBN])?)|O-O(?:-O)?)[+#]?/,
-      SYMBOL: /[a-zA-Z0-9_]+/,
-      COMMENT1: /{.*?}/,
-      NL: { match: /\r?\n/, lineBreaks: true }
+    this.lexer = moo.states({
+      notcomment: {
+        WS: /[ \t]+/,
+        STRING: /"(?:\\["\\]|[^\n"\\])*"/,
+        NAG: /\$[0-9]+/,
+        RESULT: ["0-1", "1-0", "1/2-1/2", "*"],
+        INTEGER: /[0-9]+/,
+        DOTDOTDOT: /\.\.\./,
+        PERIOD: /\./,
+        LBRACKET: /\[/,
+        RBRACKET: /]/,
+        LPAREN: /\(/,
+        RPAREN: /\)/,
+        LBRACE: { match: /{/, push: "comment1" },
+        SEMICOLON: { match: /;/, push: "comment2" },
+        SAN: /(?:(?:[RQKBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[RQBN])?)|O-O(?:-O)?)[+#]?/,
+        SYMBOL: /[a-zA-Z0-9_]+/,
+        NL: { match: /\r?\n/, lineBreaks: true }
+      },
+      comment1: {
+        C1: { match: /.*?}/, pop: 1 },
+        C1NL: { match: /.*?\r?\n/, lineBreaks: true }
+      },
+      comment2: {
+        C2: { match: /.*?\r?\n/, lineBreaks: true, pop: 1 }
+      }
     });
     this.info = null;
     this.line = 1;
@@ -25,7 +35,8 @@ export class Parser {
   }
 
   feed(chunk) {
-    this.lexer.reset(chunk, this.info);
+    // eslint-disable-next-line no-control-regex
+    this.lexer.reset(chunk.replace(/[^\x00-\x7F]/g, " "), this.info);
     this.info = this.lexer.save();
     let token;
     while ((token = this.lexer.next()) !== undefined) {
@@ -139,12 +150,31 @@ export class Parser {
   }
 
   comment(token) {
-    if (token.type === "COMMENT1") {
-      this.gameobject.variations.movelist[this.cmi].comment = token.value.slice(
-        1,
-        token.value.length - 1
-      );
+    if (token.type === "LBRACE" || token.type === "SEMICOLON") {
+      this.state = this.commenttext;
+      this.gameobject.variations.movelist[this.cmi].comment = "";
     } else this.recursive(token);
+  }
+
+  commenttext(token) {
+    switch (token.type) {
+      case "C1NL":
+        this.gameobject.variations.movelist[this.cmi].comment += token.value;
+        return;
+      case "C1":
+        this.gameobject.variations.movelist[this.cmi].comment += token.value.substring(
+          0,
+          token.value.length - 1
+        );
+        this.state = this.nag;
+        return;
+      case "C2":
+        this.gameobject.variations.movelist[this.cmi].comment += token.value.replace(/\r?\n/, "");
+        this.state = this.nag;
+        return;
+      default:
+        throw new Error("What is the correct thing to do here?");
+    }
   }
 
   recursive(token) {

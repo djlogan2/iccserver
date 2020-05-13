@@ -95,6 +95,7 @@ MugshotCollection.allow({
     }
     log.debug("User " + userId + " trying to upload a mugshot");
     if (!doc || !doc.creatorId || doc.creatorId !== userId || doc.validated !== false) {
+      console.log(doc);
       log.debug(
         "MugshotCollection::allow::insert - no missing creatorId or userId mismatch or missing validated: false"
       );

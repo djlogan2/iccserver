@@ -262,11 +262,11 @@ Game.startLocalGame = function(
   active_games[game_id] = chess;
   log.debug(
     "Started local game, game_id=" +
-    game_id +
-    ", white=" +
-    white.username +
-    ", black=" +
-    black.username
+      game_id +
+      ", white=" +
+      white.username +
+      ", black=" +
+      black.username
   );
   startGamePing(game_id);
   startMoveTimer(
@@ -281,7 +281,6 @@ Game.startLocalGame = function(
 };
 
 Game.startLocalExaminedGameWithObject = function(message_identifier, game_object) {
-
   const self = Meteor.user();
 
   check(self, Object);
@@ -297,18 +296,19 @@ Game.startLocalExaminedGameWithObject = function(message_identifier, game_object
   if (!game_object.black.rating) game_object.black.rating = 1600;
   if (!game_object.wild) game_object.wild = 0;
   if (!game_object.actions) game_object.actions = [];
-  if (!game_object.clocks) game_object.clocks = {
-    white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
-    black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
-  };
+  if (!game_object.clocks)
+    game_object.clocks = {
+      white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
+      black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+    };
   if (!game_object.startTime) game_object.startTime = new Date();
   if (!game_object.tomove) game_object.tomove = "w";
   if (!game_object.actions) game_object.actions = [];
   if (!game_object.variations) game_object.variations = { movelist: [{}] };
   if (!game_object.variations.cmi) game_object.variations.cmi = 0;
 
-  game_object.examiners = [{id: self._id, username: self.username}];
-  game_object.observers = [{id: self._id, username: self.username}];
+  game_object.examiners = [{ id: self._id, username: self.username }];
+  game_object.observers = [{ id: self._id, username: self.username }];
 
   const chess = new Chess.Chess();
   if (game_object.tags && game_object.tags.FEN) {
@@ -659,19 +659,19 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   log.debug(
     "Trying to make move " +
-    move +
-    " for user " +
-    self._id +
-    ", username=" +
-    self.username +
-    ", white=" +
-    game.white.id +
-    "," +
-    game.white.name +
-    ", black=" +
-    game.black.id +
-    "," +
-    game.black.name
+      move +
+      " for user " +
+      self._id +
+      ", username=" +
+      self.username +
+      ", white=" +
+      game.white.id +
+      "," +
+      game.white.name +
+      ", black=" +
+      game.black.id +
+      "," +
+      game.black.name
   );
   const result = chessObject.move(move);
   if (!result) {
@@ -778,12 +778,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   const move_parameter =
     game.status === "playing"
       ? {
-        move: move,
-        lag: Timestamp.averageLag(self._id),
-        ping: Timestamp.pingTime(self._id),
-        gamelag: gamelag,
-        gameping: gameping
-      }
+          move: move,
+          lag: Timestamp.averageLag(self._id),
+          ping: Timestamp.pingTime(self._id),
+          gamelag: gamelag,
+          gameping: gameping
+        }
       : move;
 
   const pushobject = {
@@ -2236,45 +2236,39 @@ GameHistory.exportToPGN = function(id) {
 };
 
 function finishExportToPGN(game) {
-  /*
-  let title =
-    game.white.id === this.userId
-      ? game.white.name + "-" + game.black.name + ".pgn"
-      : game.black.name + "-" + game.white.name + ".pgn"; */
-
   let title = game.white.name + "-" + game.black.name + ".pgn";
 
   let pgn = "";
   let tmpdt = new Date(game.startTime);
-  pgn += "[Date \"" + date.format(game.startTime, "YYYY-MM-DD") + "\"]\n";
-  pgn += "[White \"" + game.white.name + "\"]\n";
-  pgn += "[Black \"" + game.black.name + "\"]\n";
-  pgn += "[Result \"" + game.result + "\"]\n";
-  pgn += "[WhiteElo \"" + game.white.rating + "\"]\n";
-  pgn += "[BlackElo \"" + game.black.rating + "\"]\n";
+  pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
+  pgn += '[White "' + game.white.name + '"]\n';
+  pgn += '[Black "' + game.black.name + '"]\n';
+  pgn += '[Result "' + game.result + '"]\n';
+  pgn += '[WhiteElo "' + game.white.rating + '"]\n';
+  pgn += '[BlackElo "' + game.black.rating + '"]\n';
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  pgn += "[Time \"" + date.format(game.startTime, "HH:mm:ss") + "\"]\n";
+  pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
   if (!game.clocks) {
-    pgn += "[TimeControl \"?\"]\n";
+    pgn += '[TimeControl "?"]\n';
   } else {
     switch (game.clocks.white.inc_or_delay_type) {
       case "none":
-        pgn += "\"[TimeControl " + game.clocks.white.initial / 1000 + "\"]\n";
+        pgn += '"[TimeControl ' + game.clocks.white.initial / 1000 + '"]\n';
         break;
       case "us":
       case "bronstein":
       case "inc":
         pgn +=
-          "[TimeControl \"" +
+          '[TimeControl "' +
           game.clocks.white.initial / 1000 +
           "+" +
           game.clocks.white.inc_or_delay +
-          "\"]\n";
+          '"]\n';
         break;
       default:
-        pgn += "[TimeControl \"?\"]\n";
+        pgn += '[TimeControl "?"]\n';
         break;
     }
   }
@@ -2284,11 +2278,26 @@ function finishExportToPGN(game) {
   return { title, pgn };
 }
 
-Game.kibitz = function(game_id, text) {
-};
+Game.kibitz = function(game_id, text) {};
 
-Game.whisper = function(game_id, text) {
-};
+Game.whisper = function(game_id, text) {};
+
+function findVariation(move, idx, movelist) {
+  if (
+    !move ||
+    !movelist ||
+    idx === undefined ||
+    idx === null ||
+    idx >= movelist.length ||
+    !movelist[idx].variations
+  )
+    return;
+
+  for (let x = 0; x < movelist[idx].variations.length; x++) {
+    const vi = movelist[idx].variations[x];
+    if (movelist[vi].move === move) return vi;
+  }
+}
 
 Game.addMoveToMoveList = function(variation_object, move, current) {
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
@@ -2362,6 +2371,37 @@ Game.setStartingPosition = function(message_identifier, game_id) {
           "tags.FEN": fen
         },
         $push: { actions: { type: "initialposition", issuer: self._id } }
+      }
+    );
+  }
+};
+
+Game.loadFen = function(message_identifier, game_id, fen_string) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(fen_string, String);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  if (!active_games[game_id].load(fen_string)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN");
+    return;
+  }
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: { actions: { type: "loadfen", issuer: self._id, fen: fen_string } }
       }
     );
   }
@@ -2632,66 +2672,68 @@ Game.setTag = function(message_identifier, game_id, tag, value) {
   );
 };
 
-function findVariation(move, idx, movelist) {
-  if (
-    !move ||
-    !movelist ||
-    idx === undefined ||
-    idx === null ||
-    idx >= movelist.length ||
-    !movelist[idx].variations
-  )
-    return;
-
-  for (let x = 0; x < movelist[idx].variations.length; x++) {
-    const vi = movelist[idx].variations[x];
-    if (movelist[vi].move === move) return vi;
-  }
-}
-
-function addmove(move_number, variations, white_to_move, movelist, idx) {
+function exportNode(node, move_number, write_move_number, white_to_move, with_variations) {
   let string = "";
 
-  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
-
-  if (white_to_move) {
-    string += move_number + ".";
-  } else {
-    if (variations) string = move_number + "...";
-    else string = " ";
+  if (write_move_number || white_to_move) {
+    string += move_number + ". ";
+    if (!white_to_move) string += "... ";
   }
-  string += movelist[movelist[idx].variations[0]].move;
 
-  let next_move_number = move_number;
-  let next_white_to_move = !white_to_move;
-  if (next_white_to_move) next_move_number++;
+  string += node.move;
 
-  for (let x = 1; x < movelist[idx].variations.length; x++) {
+  if (node.nag) string += " " + node.nag;
+  if (node.comment) string += " {" + node.comment + "}";
+
+  if (!with_variations || !node.variations) return string;
+  let sp = " (";
+
+  node.variations.forEach(v => {
     string +=
-      " (" +
-      move_number +
-      (white_to_move ? "." : "...") +
-      movelist[movelist[idx].variations[x]].move +
-      " ";
-    string +=
-      addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]) +
-      ") ";
-  }
+      sp +
+      exportNode(movelist[v], move_number, white_to_move) +
+      exportVariations(movelist, v, move_number, true, white_to_move) +
+      ")";
+    sp = "(";
+  });
+
+  return string;
+}
+
+function exportVariations(movelist, cmi, move_number, write_move_number, white_to_move) {
+  if (!movelist[cmi].variations) return "";
+
+  let main = movelist[cmi].variations[0];
+  let variations = movelist[cmi].variations.slice(1);
+
+  let string = exportNode(movelist[main], move_number, write_move_number, white_to_move, false);
+  let sp = " (";
+
+  variations.forEach(v => {
+    string += sp + exportNode(movelist[v], move_number, true, white_to_move) + ")";
+    sp = "(";
+  });
 
   string +=
     " " +
-    addmove(
-      next_move_number,
-      movelist[idx].variations.length > 1,
-      next_white_to_move,
-      movelist,
-      movelist[idx].variations[0]
-    );
+    exportVariations(movelist, main, move_number + (white_to_move ? 0 : 1), false, !white_to_move);
+
   return string;
 }
 
 function buildPgnFromMovelist(movelist) {
-  return addmove(1, false, true, movelist, 0);
+  let long_string = exportVariations(movelist, 0, 1, true, true);
+  let reformatted = "";
+  while (long_string.length > 255) {
+    const idx1 = long_string.lastIndexOf(" ", 255);
+    const idx2 = long_string.indexOf("\n"); // May be in a comment. Also we just want the first one!
+    const idx3 = long_string.lastIndexOf("\t", 255); // May be in a comment
+    const idx = Math.min(idx1, idx2, idx3);
+    reformatted = long_string.substr(0, idx) + "\n";
+    long_string = long_string.substring(idx);
+  }
+  reformatted += long_string;
+  return reformatted;
 }
 
 function startGamePing(game_id) {
@@ -2741,8 +2783,7 @@ function _startGamePing(game_id, color) {
         );
       }
     },
-    () => {
-    }
+    () => {}
   );
 }
 
@@ -2833,8 +2874,7 @@ function gameLogoutHook(userId) {
   Users.setGameStatus("server", userId, "none");
 }
 
-function updateUserRatings(game, result, reason) {
-}
+function updateUserRatings(game, result, reason) {}
 
 Meteor.startup(function() {
   // TODO: Need to adjourn these, not just delete them
@@ -2893,7 +2933,18 @@ Meteor.methods({
   removeCircle: Game.removeCircle,
   startLocalExaminedGame: Game.startLocalExaminedGame,
   moveBackward: Game.moveBackward,
-  moveForward: Game.moveForward
+  moveForward: Game.moveForward,
+  searchGameHistory: GameHistory.search,
+  examineGame: GameHistory.examineGame,
+  clearBoard: Game.clearBoard,
+  setStartingPosition: Game.setStartingPosition,
+  loadFen: Game.loadFen,
+  addPiece: Game.addPiece,
+  removePiece: Game.removePiece,
+  setToMove: Game.setToMove,
+  setCastling: Game.setCastling,
+  setEnPassant: Game.setEnPassant,
+  setTag: Game.setTag
 });
 
 Meteor.publish("playing_games", function() {
@@ -3028,11 +3079,6 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
   // TODO: Do we want to leave search_parameters wide open? I can't think of a reason why not other than it's often inherently dangerous for reasons only hackers show you about... (djl)
   return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
 };
-
-Meteor.methods({
-  searchGameHistory: GameHistory.search,
-  examineGame: GameHistory.examineGame
-});
 
 Meteor.publish("game_history", function() {
   return GameHistoryCollection.find(
