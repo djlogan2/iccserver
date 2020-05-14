@@ -2288,33 +2288,29 @@ function finishExportToPGN(game) {
   pgn += " " + game.result;
   return { title, pgn };
 }
-Game.validKibitz = function(player){
-  var element = 0;
-  // This could be cleaned up to be a for-each or filter later on
-  while(element < player.roles.length){
 
-    if(player.roles[element]._id =='kibitz'){
-      return player.roles[element].assigned;
-    }
-    element++;
-  }
-  return false;
-}
 
-Game.kibitz = function(game_id, text) {
+Game.kibitz = function(message_identifier,game_id, text) {
+  check(message_identifier, String);
   check(text, String);
   check(game_id, String);
 
-  const self = Meteor.user();
 
-  if(!Game.validKibitz(self)) {
-    throw new ICCMeteorError("mi2", "Unable to kibitz unless role of user is 'kibitz'", "Self has incorrect role");
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if(!Users.isAuthorized(self, "kibitz")){
+    //TODO: add i18n messages
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
+    return;
   }
 
   const game = GameCollection.findOne({_id: game_id});
 
   if (!game) {
-    throw new ICCMeteorError("mi1", "Unable to find game kibitzed to", "Game doesn't exist");
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
+    return;
   }
 
   ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: text});
