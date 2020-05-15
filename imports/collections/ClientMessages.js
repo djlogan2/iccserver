@@ -110,7 +110,11 @@ export const DefinedClientMessagesMap = {
   LOGIN_FAILED_21: {},
   LOGIN_FAILED_22: {},
   FOR_TESTING: {},
-  FOR_TESTING_10: { parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] }
+  FOR_TESTING_10: { parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] },
+  //TODO: check if valid messages
+  NOT_ALLOWED_TO_KIBITZ: {},
+  INVALID_GAME: {},
+  CHILD_CHAT_FREEFORM_NOT_ALLOWED: {}
 };
 
 Meteor.publish("client_messages", function() {

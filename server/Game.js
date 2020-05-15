@@ -2299,12 +2299,19 @@ Game.kibitz = function(message_identifier,game_id, text) {
 
   const self = Meteor.user();
   check(self, Object);
+//TODO: ask where childchat is called/used, apply here accordingly
+
+  if(Users.isAuthorized(self, "child_chat")){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    return;
+  }
 
   if(!Users.isAuthorized(self, "kibitz")){
-    //TODO: add i18n messages
+
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
     return;
   }
+
 
   const game = GameCollection.findOne({_id: game_id});
 

@@ -22,7 +22,8 @@ export const all_roles = [
   "delete_any_mugshot",
   "validate_mugshots",
   "upload_pgn",
-  "kibitz"
+  "kibitz",
+  "child_chat" // TODO: ask if this role is ok
 ];
 
 export const standard_member_roles = [
@@ -36,6 +37,7 @@ export const standard_member_roles = [
   "validate_mugshots",
   "kibitz",
   "upload_pgn"
+  //TODO: ask about scope of child_chat
 ];
 
 export const fields_viewable_by_account_owner = {
