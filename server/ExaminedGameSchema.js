@@ -66,6 +66,7 @@ const actionSchema = new SimpleSchema({
   "parameter.piece": { type: String, required: false },
   "parameter.move": { type: String, required: false },
   "parameter.castling": { type: String, required: false },
+  "parameter.fen": { type: String, required: false },
   "parameter.tag": { type: String, required: false },
   "parameter.value": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },

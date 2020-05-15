@@ -1,6 +1,7 @@
 import chai from "chai";
 import { TestHelpers } from "../../imports/server/TestHelpers";
 import { Parser } from "./pgnsigh";
+import { Game } from "../Game";
 
 describe("PGN Import", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -37,7 +38,11 @@ describe("PGN Import", function() {
     '[a "b"] 1. e4 (1. d4) (1. c4) e5 2. d4 d5 1-0',
     '[a "b"] 1. e4 $1 (1. d4) (1. c4) {Other opening moves} e5 2. d4 d5 1-0',
     '[a "b"] 1. e4 (1. d4 $2) (1. c4) {Other opening moves} e5 (1. ... c5) (1... f5) 2. d4 d5 1-0',
-    '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) {Other opening moves} e5 2. d4 d5 1-0'
+    '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) {Other opening moves} e5 2. d4 d5 1-0',
+    '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) {Other\nopening\nmoves} e5 2. d4 d5 1-0',
+    '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) {Other\r\nopening\r\nmoves} e5 2. d4 d5 1-0',
+    '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) ;Other opening moves\n e5 2. d4 d5 1-0',
+    '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) ;Other opening moves\r\n e5 2. d4 d5 1-0'
   ];
   const pgn =
     '[Event "?"]\n' +
@@ -98,19 +103,85 @@ describe("PGN Import", function() {
     it(v.replace(/[\r\n]/g, "^") + " is valid", function() {
       const parser = new Parser();
       chai.assert.doesNotThrow(() => parser.feed(v));
-      chai.assert.equal(v.length == 0 ? 0 : 1, parser.collection.find().count());
+      if(v.length === 0)
+        chai.assert.isUndefined(parser.gamelist);
+      else
+        chai.assert.equal(1, parser.gamelist.length);
     })
   );
 
   it("should parse pgn correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn));
-    chai.assert.equal(1, parser.collection.find().count());
+    chai.assert.equal(1, parser.gamelist.length);
   });
 
   it("should parse pgn1 correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn1));
-    chai.assert.equal(2, parser.collection.find().count());
+    chai.assert.equal(2, parser.gamelist.length);
+  });
+
+  it("should export and import their own games correctly", function() {
+    this.timeout(500000);
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.saveLocalMove("mi2", game_id, "e4");
+    Game.saveLocalMove("mi2", game_id, "e5");
+    Game.moveBackward("mi2", game_id);
+    Game.saveLocalMove("mi2", game_id, "d5");
+    Game.setTag("mi2", game_id, "Result", "1/2-1/2");
+    const pgn = Game.exportToPGN(game_id);
+    const game = Game.collection.findOne();
+    const parser = new Parser();
+    chai.assert.doesNotThrow(() => parser.feed(pgn.pgn));
+    chai.assert.equal(1, parser.gamelist.length);
+
+    function compareMovelist(cmi1, cmi2, v1, v2) {
+      chai.assert.equal(
+        v1.movelist[cmi1].move,
+        v2.movelist[cmi2].move,
+        "Move for cmi " +
+          cmi1 +
+          " does not match. parser=" +
+          v1.movelist[cmi1].move +
+          ", actual=" +
+          v2.movelist[cmi2].move
+      );
+      chai.assert.equal(
+        v1.movelist[cmi1].prev,
+        v2.movelist[cmi2].prev,
+        "Prev for cmi " +
+          cmi1 +
+          " does not match. parser=" +
+          v1.movelist[cmi1].prev +
+          ", actual=" +
+          v2.movelist[cmi2].prev
+      );
+      if (v1.movelist[cmi1].variations && !v2.movelist[cmi2].variations) {
+        chai.assert.fail(
+          "Parser has a variation at cmi " + cmi1 + ", whereas the actual game does not"
+        );
+      } else if (!v1.movelist[cmi1].variations && v2.movelist[cmi2].variations) {
+        chai.assert.fail(
+          "Parser does not have a variation at cmi " + cmi1 + ", whereas the actual game does"
+        );
+      } else if (v1.movelist[cmi1].variations && v2.movelist[cmi2].variations) {
+        chai.assert.equal(
+          v1.movelist[cmi1].variations.length,
+          v2.movelist[cmi2].variations.length,
+          "Variations differ for cmi " +
+            cmi1 +
+            ". parser=" +
+            v1.movelist[cmi1].variations +
+            ", actual=" +
+            v2.movelist[cmi2].variations
+        );
+        for (let x = 0; x < v1.movelist[cmi1].variations.length; x++)
+          compareMovelist(v1.movelist[cmi1].variations[x], v2.movelist[cmi2].variations[x], v1, v2);
+      }
+    }
+
+    compareMovelist(0, 0, parser.gamelist[0].variations, game.variations);
   });
 });

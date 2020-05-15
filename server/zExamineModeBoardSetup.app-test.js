@@ -570,4 +570,60 @@ describe("Board Setup", function() {
       });
     });
   });
+
+  describe("Setting a fen string", function() {
+    it("should return a client message if done on a played game", function() {
+      const p1 = TestHelpers.createUser();
+      const p2 = TestHelpers.createUser();
+      self.loggedonuser = p1;
+      const game_id = Game.startLocalGame(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "inc"
+      );
+      Game.loadFen("mi2", game_id, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
+      chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+      chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+      chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_FEN");
+    });
+
+    it("should succeed on an examined game", function() {
+      self.loggedonuser = TestHelpers.createUser();
+      const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+      Game.loadFen("mi2", game_id, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
+      chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+      const game = Game.collection.findOne({ _id: game_id });
+      chai.assert.equal(game.fen, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
+      chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+      chai.assert.equal(
+        game.tags.FEN,
+        "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4"
+      );
+      checkLastAction(game, 0, "loadfen", self.loggedonuser._id, {
+        fen: "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4",
+      });
+      chai.assert.equal(game.actions.length, 1);
+    });
+
+    it("should not be doable by an observer", function() {
+      self.loggedonuser = TestHelpers.createUser();
+      const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+      self.loggedonuser = TestHelpers.createUser();
+      Game.localAddObserver("mi2", game_id, self.loggedonuser._id);
+      Game.loadFen("mi2", game_id, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
+      chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+      chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+      chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
+    });
+  });
 });
