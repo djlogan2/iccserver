@@ -2672,7 +2672,13 @@ Game.setTag = function(message_identifier, game_id, tag, value) {
   );
 };
 
-function exportNode(node, move_number, write_move_number, white_to_move, with_variations) {
+function exportNode(movelist, cmi, move_number, write_move_number, white_to_move) {
+  let variations = movelist[cmi].variations;
+  if (!variations) return "";
+
+  let main = variations[0];
+  variations = variations.slice(1);
+
   let string = "";
 
   if (write_move_number || white_to_move) {
@@ -2680,49 +2686,34 @@ function exportNode(node, move_number, write_move_number, white_to_move, with_va
     if (!white_to_move) string += "... ";
   }
 
-  string += node.move;
+  string += movelist[main].move;
 
-  if (node.nag) string += " " + node.nag;
-  if (node.comment) string += " {" + node.comment + "}";
-
-  if (!with_variations || !node.variations) return string;
-  let sp = " (";
-
-  node.variations.forEach(v => {
-    string +=
-      sp +
-      exportNode(movelist[v], move_number, white_to_move) +
-      exportVariations(movelist, v, move_number, true, white_to_move) +
-      ")";
-    sp = "(";
-  });
-
-  return string;
-}
-
-function exportVariations(movelist, cmi, move_number, write_move_number, white_to_move) {
-  if (!movelist[cmi].variations) return "";
-
-  let main = movelist[cmi].variations[0];
-  let variations = movelist[cmi].variations.slice(1);
-
-  let string = exportNode(movelist[main], move_number, write_move_number, white_to_move, false);
+  if (movelist[main].nag) string += " " + movelist[main].nag;
+  if (movelist[main].comment) string += " {" + movelist[main].comment + "}";
   let sp = " (";
 
   variations.forEach(v => {
-    string += sp + exportNode(movelist[v], move_number, true, white_to_move) + ")";
+    const variation_string = exportNode(movelist, v, move_number, true, white_to_move);
+    if (variation_string) string += sp + variation_string + ")";
     sp = "(";
   });
 
-  string +=
-    " " +
-    exportVariations(movelist, main, move_number + (white_to_move ? 0 : 1), false, !white_to_move);
+  if (!movelist[main].variations) return string;
+
+  let nextmove = exportNode(
+    movelist,
+    main,
+    move_number + white_to_move ? 0 : 1,
+    false,
+    !white_to_move
+  );
+  if (nextmove) string += " " + nextmove;
 
   return string;
 }
 
 function buildPgnFromMovelist(movelist) {
-  let long_string = exportVariations(movelist, 0, 1, true, true);
+  let long_string = exportNode(movelist, 0, 1, false, true);
   let reformatted = "";
   while (long_string.length > 255) {
     const idx1 = long_string.lastIndexOf(" ", 255);
@@ -2890,63 +2881,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
   Game.gameLogoutHook = gameLogoutHook;
 }
 
-Meteor.methods({
-  gamepong(game_id, pong) {
-    const user = Meteor.user();
-    check(game_id, String);
-    check(pong, Object);
-    check(user, Object);
-    if (!game_pings[game_id])
-      throw new ICCMeteorError(
-        "server",
-        "Unable to update game ping",
-        "Unable to locate game to ping (2)"
-      );
-    const game = GameCollection.findOne(
-      { _id: game_id, status: "playing" },
-      { fields: { "white.id": 1 } }
-    );
-    if (!game)
-      throw new ICCMeteorError(
-        "server",
-        "Unable to update game ping",
-        "Unable to locate game to ping (3)"
-      );
-    const color = game.white.id === user._id ? "white" : "black";
-    game_pings[game_id][color].pongArrived(pong);
-  },
-  addGameMove: Game.saveLocalMove,
-  requestTakeback: Game.requestLocalTakeback,
-  acceptTakeBack: Game.acceptLocalTakeback,
-  declineTakeback: Game.declineLocalTakeback,
-  resignGame: Game.resignLocalGame,
-  requestToDraw: Game.requestLocalDraw,
-  acceptDraw: Game.acceptLocalDraw,
-  declineDraw: Game.declineLocalDraw,
-  requestToAbort: Game.requestLocalAbort,
-  acceptAbort: Game.acceptLocalAbort,
-  declineAbort: Game.declineLocalAbort,
-  requestToAdjourn: Game.requestLocalAdjourn,
-  acceptAdjourn: Game.acceptLocalAdjourn,
-  declineAdjourn: Game.declineLocalAdjourn,
-  drawCircle: Game.drawCircle,
-  removeCircle: Game.removeCircle,
-  startLocalExaminedGame: Game.startLocalExaminedGame,
-  moveBackward: Game.moveBackward,
-  moveForward: Game.moveForward,
-  searchGameHistory: GameHistory.search,
-  examineGame: GameHistory.examineGame,
-  clearBoard: Game.clearBoard,
-  setStartingPosition: Game.setStartingPosition,
-  loadFen: Game.loadFen,
-  addPiece: Game.addPiece,
-  removePiece: Game.removePiece,
-  setToMove: Game.setToMove,
-  setCastling: Game.setCastling,
-  setEnPassant: Game.setEnPassant,
-  setTag: Game.setTag
-});
-
 Meteor.publish("playing_games", function() {
   log.debug("Playing games method called for " + this.userId);
   return GameCollection.find(
@@ -3092,3 +3026,60 @@ Meteor.publish("game_history", function() {
 if (Meteor.isTest || Meteor.isAppTest) {
   GameHistory.collection = GameHistoryCollection;
 }
+
+Meteor.methods({
+  gamepong(game_id, pong) {
+    const user = Meteor.user();
+    check(game_id, String);
+    check(pong, Object);
+    check(user, Object);
+    if (!game_pings[game_id])
+      throw new ICCMeteorError(
+        "server",
+        "Unable to update game ping",
+        "Unable to locate game to ping (2)"
+      );
+    const game = GameCollection.findOne(
+      { _id: game_id, status: "playing" },
+      { fields: { "white.id": 1 } }
+    );
+    if (!game)
+      throw new ICCMeteorError(
+        "server",
+        "Unable to update game ping",
+        "Unable to locate game to ping (3)"
+      );
+    const color = game.white.id === user._id ? "white" : "black";
+    game_pings[game_id][color].pongArrived(pong);
+  },
+  addGameMove: Game.saveLocalMove,
+  requestTakeback: Game.requestLocalTakeback,
+  acceptTakeBack: Game.acceptLocalTakeback,
+  declineTakeback: Game.declineLocalTakeback,
+  resignGame: Game.resignLocalGame,
+  requestToDraw: Game.requestLocalDraw,
+  acceptDraw: Game.acceptLocalDraw,
+  declineDraw: Game.declineLocalDraw,
+  requestToAbort: Game.requestLocalAbort,
+  acceptAbort: Game.acceptLocalAbort,
+  declineAbort: Game.declineLocalAbort,
+  requestToAdjourn: Game.requestLocalAdjourn,
+  acceptAdjourn: Game.acceptLocalAdjourn,
+  declineAdjourn: Game.declineLocalAdjourn,
+  drawCircle: Game.drawCircle,
+  removeCircle: Game.removeCircle,
+  startLocalExaminedGame: Game.startLocalExaminedGame,
+  moveBackward: Game.moveBackward,
+  moveForward: Game.moveForward,
+  searchGameHistory: GameHistory.search,
+  examineGame: GameHistory.examineGame,
+  clearBoard: Game.clearBoard,
+  setStartingPosition: Game.setStartingPosition,
+  loadFen: Game.loadFen,
+  addPiece: Game.addPiece,
+  removePiece: Game.removePiece,
+  setToMove: Game.setToMove,
+  setCastling: Game.setCastling,
+  setEnPassant: Game.setEnPassant,
+  setTag: Game.setTag
+});
