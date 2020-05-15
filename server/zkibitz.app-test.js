@@ -7,7 +7,7 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { Meteor } from "meteor/meteor";
 import { standard_member_roles } from "../imports/server/userConstants";
 
-describe("kibitzes", function() {
+describe.only("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should save an action in the game record for local games", function() {
 
