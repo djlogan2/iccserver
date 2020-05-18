@@ -2715,14 +2715,12 @@ function nextMove(movelist, cmi, move_number, white_to_move) {
   const variations = allVariations(movelist, cmi, move_number, white_to_move);
   let nextmove = nextMove(movelist, movelist[cmi].variations[0], next_move_number, next_to_move);
 
-  if (!!variations && !!nextmove) {
-    let mn = next_move_number + ". ";
-    if (!next_to_move) mn += "... ";
-    nextmove = mn + nextmove;
-  }
-
   if (!!variations) string += " " + variations;
-  if (!!nextmove) string += " " + nextmove;
+
+  if (!!nextmove) {
+    if (!!variations && white_to_move) string += " " + next_move_number + ". ...";
+    string += " " + nextmove;
+  }
 
   return string;
 }
@@ -3032,7 +3030,7 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
 GameHistory.examineGame = function(message_identifier, game_id, is_imported_game) {
   check(message_identifier, String);
   //check(game_id, Match.OneOf(String, Object));
-  check(is_imported_game, Boolean);
+  check(is_imported_game, Match.Maybe(Boolean));
   const self = Meteor.user();
   check(self, Object);
   let hist;

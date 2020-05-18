@@ -18,8 +18,7 @@ describe("PGN exports", function() {
   // [misc tags]
   //
 
-  it.only("should ...", function() {
-    this.timeout(500000);
+  it("should ...", function() {
     self.loggedonuser = TestHelpers.createUser();
     const imported_pgn =
       '[Event "?"]\n' +

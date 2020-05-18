@@ -386,7 +386,7 @@ describe("Game history", function() {
     compare(game_history_fields, game);
   });
 
-  it("needs to add/create all of the necessaray game collection fields when copying to game/examine", function() {
+  it("needs to add/create all of the necessary game collection fields when copying to game/examine", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const p3 = TestHelpers.createUser();

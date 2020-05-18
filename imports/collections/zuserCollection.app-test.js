@@ -131,7 +131,6 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
-    this.timeout(500000);
     const user1 = TestHelpers.createUser({ login: true });
     const user2 = TestHelpers.createUser({ login: true });
     chai.assert.isDefined(user1);
@@ -146,7 +145,6 @@ describe("Users", function() {
   });
 
   it("should only get logged on users with the loggedOnUsers subscription", function(done) {
-    this.timeout(500000);
     const user1 = TestHelpers.createUser({ login: false });
     const user2 = TestHelpers.createUser({ login: true });
     const user3 = TestHelpers.createUser({ login: true });

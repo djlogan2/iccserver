@@ -3,7 +3,7 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 
-describe("Game timestamp", function() {
+describe.skip("Game timestamp", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
 /*

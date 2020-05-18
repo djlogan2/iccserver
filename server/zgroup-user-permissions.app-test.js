@@ -472,7 +472,6 @@ describe("User groups", function() {
   });
 
   it("should show only logged on group members if 'limit_to_group' setting is set to 'true'", function(done) {
-    this.timeout(500000);
     TestHelpers.createUser();
     TestHelpers.createUser({ groups: "group1" });
     TestHelpers.createUser({ groups: "group2" });
@@ -485,7 +484,6 @@ describe("User groups", function() {
   });
 
   it("should show all logged on group members if group 'limit_to_group' setting is set to 'false'", function(done) {
-    this.timeout(500000);
     TestHelpers.createUser();
     TestHelpers.createUser({ groups: "group1" });
     TestHelpers.createUser({ groups: "group2" });

@@ -123,7 +123,6 @@ describe("PGN Import", function() {
   });
 
   it("should export and import their own games correctly", function() {
-    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.saveLocalMove("mi2", game_id, "e4");

@@ -593,7 +593,7 @@ describe("Board Setup", function() {
       chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
       chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
       chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-      chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_FEN");
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
     });
 
     it("should succeed on an examined game", function() {
@@ -619,7 +619,7 @@ describe("Board Setup", function() {
       const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
       self.loggedonuser = TestHelpers.createUser();
       Game.localAddObserver("mi2", game_id, self.loggedonuser._id);
-      Game.loadFen("mi2", game_id, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
+      Game.loadFen("mi3", game_id, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
       chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
       chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
       chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
