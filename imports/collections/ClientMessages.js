@@ -27,7 +27,7 @@ ClientMessagesCollection.attachSchema(ClientMessageSchema);
 // You can put whatever you want in the array for the parameters. It's for documentation only at the time of this writing.
 // The code checks for the parameter COUNT, but does not otherwise verify.
 //
-export const DefinedClientMessagesMap = {
+const DefinedClientMessagesMap = {
   UNABLE_TO_PLAY_RATED_GAMES: {},
   UNABLE_TO_PLAY_UNRATED_GAMES: {},
   LEGACY_MATCH_REMOVED: { parameters: ["legacy_explanation_string"] },
@@ -113,6 +113,94 @@ export const DefinedClientMessagesMap = {
   FOR_TESTING_10: { parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] }
 };
 
+class ClientMessages {
+  messageParameters = function(i18n_message) {
+    check(
+      i18n_message,
+      Match.Where(() => {
+        if (DefinedClientMessagesMap[i18n_message] === undefined)
+          throw new Match.Error(i18n_message + " is not known to ClientMessages");
+        else return true;
+      })
+    ); // It has to be a known and supported message to the client
+    return DefinedClientMessagesMap[i18n_message];
+  };
+
+  sendMessageToClient = function(user, client_identifier, i18n_message) {
+    log.debug(
+      "sendMessageToClient user=" +
+        user +
+        ", client_identifier=" +
+        client_identifier +
+        ", i18n_message=" +
+        i18n_message
+    );
+    check(user, Match.OneOf(Object, String));
+    check(client_identifier, String);
+    check(
+      i18n_message,
+      Match.Where(() => {
+        if (DefinedClientMessagesMap[i18n_message] === undefined)
+          throw new Match.Error(i18n_message + " is not known to ClientMessages");
+        else return true;
+      })
+    ); // It has to be a known and supported message to the client
+    const parms = [];
+    for (let x = 3; x < arguments.length; x++)
+      if (Array.isArray(arguments[x])) arguments[x].forEach(arg => parms.push(arg));
+      else parms.push(arguments[x]);
+    const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
+      ? 0
+      : DefinedClientMessagesMap[i18n_message].parameters.length;
+
+    if (required_parms !== parms.length)
+      throw new Match.Error(
+        i18n_message +
+          " is required to have " +
+          required_parms +
+          " parameters, but only had " +
+          parms.length +
+          " parameters"
+      );
+    const id = typeof user === "object" ? user._id : user;
+    const touser = Meteor.users.findOne({ _id: id, "status.online": true });
+    if (!touser) return;
+    // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
+    const locale = touser.locale || "en-us";
+
+    const message = i18n.localizeMessage(locale, i18n_message, parms);
+
+    return ClientMessagesCollection.insert({
+      to: id,
+      client_identifier: client_identifier,
+      message: message
+    });
+  };
+}
+
+//
+// I had to create a singleton specifically because our testing framework uses this
+// class extensively, and kept running into the import from "different/paths" problem.
+//
+if (!global._clientMessages) {
+  global._clientMessages = new ClientMessages();
+}
+
+module.exports.ClientMessages = global._clientMessages;
+
+function logoutHook(userId) {
+  ClientMessagesCollection.remove({ to: userId });
+}
+
+Meteor.startup(function() {
+  Users.addLogoutHook(logoutHook);
+
+  if (Meteor.isTest || Meteor.isAppTest) {
+    global._clientMessages.collection = ClientMessagesCollection;
+    global._clientMessages.logoutHook = logoutHook;
+  }
+});
+
 Meteor.publish("client_messages", function() {
   return ClientMessagesCollection.find({ to: this.userId });
 });
@@ -129,83 +217,5 @@ Meteor.methods({
         "We should not be deleting a client message that does not belong to us"
       );
     ClientMessagesCollection.remove({ _id: id });
-  }
-});
-
-export const ClientMessages = {};
-
-ClientMessages.messageParameters = function(i18n_message) {
-  check(
-    i18n_message,
-    Match.Where(() => {
-      if (DefinedClientMessagesMap[i18n_message] === undefined)
-        throw new Match.Error(i18n_message + " is not known to ClientMessages");
-      else return true;
-    })
-  ); // It has to be a known and supported message to the client
-  return DefinedClientMessagesMap[i18n_message];
-};
-
-ClientMessages.sendMessageToClient = function(user, client_identifier, i18n_message) {
-  log.debug(
-    "sendMessageToClient user=" +
-      user +
-      ", client_identifier=" +
-      client_identifier +
-      ", i18n_message=" +
-      i18n_message
-  );
-  check(user, Match.OneOf(Object, String));
-  check(client_identifier, String);
-  check(
-    i18n_message,
-    Match.Where(() => {
-      if (DefinedClientMessagesMap[i18n_message] === undefined)
-        throw new Match.Error(i18n_message + " is not known to ClientMessages");
-      else return true;
-    })
-  ); // It has to be a known and supported message to the client
-  const parms = [];
-  for (let x = 3; x < arguments.length; x++)
-    if (Array.isArray(arguments[x])) arguments[x].forEach(arg => parms.push(arg));
-    else parms.push(arguments[x]);
-  const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
-    ? 0
-    : DefinedClientMessagesMap[i18n_message].parameters.length;
-
-  if (required_parms !== parms.length)
-    throw new Match.Error(
-      i18n_message +
-        " is required to have " +
-        required_parms +
-        " parameters, but only had " +
-        parms.length +
-        " parameters"
-    );
-  const id = typeof user === "object" ? user._id : user;
-  const touser = Meteor.users.findOne({ _id: id, "status.online": true });
-  if (!touser) return;
-  // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
-  const locale = touser.locale || "en-us";
-
-  const message = i18n.localizeMessage(locale, i18n_message, parms);
-
-  return ClientMessagesCollection.insert({
-    to: id,
-    client_identifier: client_identifier,
-    message: message
-  });
-};
-
-function logoutHook(userId) {
-  ClientMessagesCollection.remove({ to: userId });
-}
-
-Meteor.startup(function() {
-  Users.addLogoutHook(logoutHook);
-
-  if (Meteor.isTest || Meteor.isAppTest) {
-    ClientMessages.collection = ClientMessagesCollection;
-    ClientMessages.logoutHook = logoutHook;
   }
 });

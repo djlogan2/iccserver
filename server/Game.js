@@ -2400,7 +2400,7 @@ Game.loadFen = function(message_identifier, game_id, fen_string) {
           variations: { cmi: 0, movelist: [{}] },
           "tags.FEN": fen
         },
-        $push: { actions: { type: "loadfen", issuer: self._id, fen: fen_string } }
+        $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } }
       }
     );
   }

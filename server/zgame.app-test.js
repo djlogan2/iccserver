@@ -156,10 +156,10 @@ describe("Match requests and game starts", function() {
     self.loggedonuser = us;
     Game.resignLocalGame("mi4", game_id);
     Game.saveLocalMove("mi5", game_id, "Nc3");
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi5");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
+    chai.assert.isTrue(self.clientMessagesSpy.calledThrice); // The first two are the game status messages
+    chai.assert.equal(self.clientMessagesSpy.args[2][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[2][1], "mi5");
+    chai.assert.equal(self.clientMessagesSpy.args[2][2], "ILLEGAL_MOVE");
   });
 });
 
@@ -2314,10 +2314,10 @@ describe("Local game draw behavior", function() {
     });
     checkLastAction(game, 2, "draw_requested", us._id);
 
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "DRAW_ACCEPTED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b13");
 
     chai.assert.equal(game.status, "examining");
   });
@@ -2547,10 +2547,10 @@ describe("Local game abort behavior", function() {
     });
     checkLastAction(game, 2, "abort_requested", us._id);
 
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi9");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_ACCEPTED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b30");
 
     chai.assert.equal(game.status, "examining");
   });
@@ -2573,6 +2573,11 @@ describe("Local game abort behavior", function() {
       "none",
       "white"
     );
+    ["a4", "a5", "b4", "b5", "c4", "c5", "d4", "d5", "e4", "e5"].forEach(move => {
+      Game.saveLocalMove(move, game_id, move);
+      if (self.loggedonuser._id === us._id) self.loggedonuser = opp;
+      else self.loggedonuser = us;
+    });
     checkAbort(Game.collection.findOne(), "0", "0");
     Game.requestLocalAbort("mi2", game_id);
     checkAbort(Game.collection.findOne(), "mi2", "0");
@@ -2584,7 +2589,7 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_ALREADY_PENDING");
-    chai.assert.equal(game.actions.length, 1);
+    chai.assert.equal(game.actions.length, 11);
     checkLastAction(game, 0, "abort_requested", us._id);
   });
 
@@ -2753,10 +2758,10 @@ describe("Local game adjourn behavior", function() {
     });
     checkLastAction(game, 2, "adjourn_requested", us._id);
 
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ADJOURN_ACCEPTED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b24");
 
     chai.assert.equal(game.status, "examining");
   });
@@ -3271,7 +3276,8 @@ describe("Takebacks", function() {
     const pgn = Game.buildPgnFromMovelist(game.variations.movelist);
     // I got this from an SCID export of these moves, but removed the whitespace around the parens
     // SCID wrote: ( 1. e4 ) ... and I changed it to (1.e4)
-    const expectedpgn = "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. O-O (4. c3 d6 (4. ... d5 5. d4) 5. d4) 4. ... d5) 3. ... Be7 4. d4 (4. c3 d6 5. d4 exd4 6. cxd4) 4. ... Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4";
+    const expectedpgn =
+      "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. O-O (4. c3 d6 (4. ... d5 5. d4) 5. d4) 4. ... d5) 3. ... Be7 4. d4 (4. c3 d6 5. d4 exd4 6. cxd4) 4. ... Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4";
     //const expectedpgn =
     //  "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
     // So Let's not remove the whitespace, and it should match exactly.

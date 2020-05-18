@@ -609,7 +609,7 @@ describe("Board Setup", function() {
         "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4"
       );
       checkLastAction(game, 0, "loadfen", self.loggedonuser._id, {
-        fen: "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4",
+        fen: "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4"
       });
       chai.assert.equal(game.actions.length, 1);
     });

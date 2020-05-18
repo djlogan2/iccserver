@@ -49,7 +49,8 @@ const actionSchema = new SimpleSchema({
       "settomove",
       "setcastling",
       "setenpassant",
-      "settag"
+      "settag",
+      "loadfen"
     ]
   },
   parameter: {
