@@ -75,7 +75,8 @@ const actionSchema = new SimpleSchema({
   "parameter.gamelag": { type: Number, required: false },
   "parameter.gameping": { type: Number, required: false },
   "parameter.what": {type: String, required: false},
-  "parameter.childChatId": {type: String, required: false}
+  "parameter.childChatId": {type: String, required: false},
+  "parameter.childChatExemptText": {type: String, required: false}
 });
 
 export const ExaminedGameSchema = new SimpleSchema({

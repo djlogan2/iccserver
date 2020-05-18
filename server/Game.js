@@ -43,8 +43,7 @@ GameCollection.attachSchema(ExaminedGameSchema, {
 GameCollection.attachSchema(PlayedGameSchema, {
   selector: { status: "playing" }
 });
-//ChatCollection.attachSchema(ChatSchema);
-//TODO: fix this schema, it appears to not work properly
+ChatCollection.attachSchema(ChatSchema);
 
 function getAndCheck(message_identifier, game_id) {
   const self = Meteor.user();
@@ -2327,6 +2326,49 @@ Game.kibitz = function(message_identifier,game_id, txt) {
 
 };
 
+Game.childChatExemptKibitz = function(message_identifier,game_id, txt) {
+  check(message_identifier, String);
+  check(txt, String);
+  check(game_id, String);
+
+
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if(Users.isAuthorized(self, "child_chat")){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    return;
+  }
+
+  if(!Users.isAuthorized(self, "child_chat_exempt")){
+
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHILD_CHAT_EXEMPT_KIBITZ");
+    return;
+  }
+
+
+  const game = GameCollection.findOne({_id: game_id});
+
+  if (!game) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
+    return;
+  }
+
+  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, childChatExemptText: txt});
+  GameCollection.update({_id: game_id, status: game.status},{ $push: {
+        actions: {
+          type: "kibitz",
+          issuer: self._id,
+          parameter:  {childChatExemptText: txt}
+
+        }
+      }
+    }
+  );
+
+
+};
 
 Game.childChatKibitz = function(message_identifier,game_id, ccid) {
   check(message_identifier, String);
@@ -2367,7 +2409,7 @@ Game.childChatKibitz = function(message_identifier,game_id, ccid) {
 
 
 Meteor.publish("kibitz", function(){
-
+// TODO: how the hell do i get the id of subscriber in publish?
   return ChatCollection.find({type: "kibitz"});
 });
 

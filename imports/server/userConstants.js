@@ -23,7 +23,8 @@ export const all_roles = [
   "validate_mugshots",
   "upload_pgn",
   "kibitz",
-  "child_chat"
+  "child_chat",
+  "child_chat_exempt"
 ];
 
 export const standard_member_roles = [

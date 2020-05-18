@@ -380,10 +380,73 @@ describe.only("kibitzes", function() {
 
   });
   it("should also indicate if the kibitz is a child_chat_exempt kibitz", function() {
-    chai.assert.fail("do me");
+    const testText = "I am a test String!";
+    self.loggedonuser = TestHelpers.createUser();
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+    Roles.addUsersToRoles(player1._id, "child_chat_exempt");
+    self.loggedonuser = player1;
+
+    const game_id_local = Game.startLocalGame("test_identifier",
+      player2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+
+    Game.childChatExemptKibitz("mi1", game_id_local, testText);
+    chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
+    chai.assert.isUndefined(Game.chatCollection.findOne({}).what, "Exempt kibitz set the what field incorrectly")
+    chai.assert.isUndefined(Game.chatCollection.findOne({}).childChatId, "Exempt Kibitz set the child chat field");
+    chai.assert.equal(Game.chatCollection.findOne({}).childChatExemptText.length,testText.length, "Exempt Kibitz failed to set exempt field");
+
   });
   it("should not publish non-compliant kibitzes (child_chat, child_chat_exempt) when user record indicates user is child_chat protected", function() {
-    chai.assert.fail("do me");
+    const testText = "Hello I am a test string!";
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+
+    Roles.addUsersToRoles(player1._id, "kibitz");
+    Roles.addUsersToRoles(player2._id, "child_chat");
+    self.loggedonuser = player1;
+
+    const game_id_local = Game.startLocalGame("test_identifier",
+      player2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+    chai.assert.isDefined(player1);
+    chai.assert.isDefined(player1._id);
+
+    const player1Collector = new PublicationCollector({ userId: player1._id });
+    const player2Collector = new PublicationCollector({ userId: player2._id });
+    Game.kibitz("mi1", game_id_local, testText);
+
+    player1Collector.collect("kibitz", collections => {
+      chai.assert.equal(collections.chat.length, 1, "Publication collector for player1 failed to store any kibitz");
+      chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
+      player2Collector.collect("kibitz", collections => {
+        chai.assert.equal(collections.chat.length, 0, "Publication collector for player2 failed ignore any kibitz");
+        chai.assert.isUndefined(collections.chat[0].what, "player 2 viewed non-exempt kibitz in child chat");
+        done();
+      });
+
+    });
   });
   it("should not allow a user in the child_chat group to execute free-form kibitz", function() {
     chai.assert.fail("do me");
@@ -430,6 +493,3 @@ describe.skip("whispers", function() {
   });
 });
 
-// Deadlines:
-// JULY 1:
-// Tourn(no time), examine mode(taken), coaching, chatting features, stockfish best lines, bots,
