@@ -14,7 +14,7 @@ describe.only("kibitzes", function() {
     const testText = "Hello I am a test string!";
     self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
-    const game_id_local =  Game.startLocalGame("test_identifier",
+    const game_id_local = Game.startLocalGame("test_identifier",
       other,
       0,
       "standard",
@@ -30,15 +30,15 @@ describe.only("kibitzes", function() {
 
     chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1",game_id_local, testText);
+    Game.kibitz("mi1", game_id_local, testText);
 
-    const localCollection = Game.collection.findOne({_id: game_id_local});
+    const localCollection = Game.collection.findOne({ _id: game_id_local });
 
     chai.assert(localCollection.actions, "actions failed to be a field in local game collection when kibitz is used");
 
     chai.assert.equal(localCollection.actions[0].type, "kibitz", "Failed to update game record's actions of local game with kibitz");
 
-    chai.assert.deepEqual(localCollection.actions[0].parameter, {what: testText}, "Failed to save action of kibitz in local game collection")
+    chai.assert.deepEqual(localCollection.actions[0].parameter, { what: testText }, "Failed to save action of kibitz in local game collection")
 
   });
 
@@ -47,7 +47,7 @@ describe.only("kibitzes", function() {
     const testText = "Hello I am a test string!";
     const other = TestHelpers.createUser();
     self.loggedonuser = other;
-    const game_id_legacy =  Game.startLegacyGame("test_identifier",
+    const game_id_legacy = Game.startLegacyGame("test_identifier",
       123,
       other.profile.legacy.username,
       "somebody",
@@ -69,15 +69,15 @@ describe.only("kibitzes", function() {
 
     chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1",game_id_legacy, testText);
+    Game.kibitz("mi1", game_id_legacy, testText);
 
-    const legacyCollection = Game.collection.findOne({_id: game_id_legacy});
+    const legacyCollection = Game.collection.findOne({ _id: game_id_legacy });
 
     chai.assert(legacyCollection.actions, "actions failed to be a field in legacy game collection when kibitz is used");
 
     chai.assert.equal(legacyCollection.actions[0].type, "kibitz", "Failed to update game record's actions of legacy game with kibitz");
 
-    chai.assert.deepEqual(legacyCollection.actions[0].parameter, {what: testText}, "Failed to save action of kibitz in legacy game collection");
+    chai.assert.deepEqual(legacyCollection.actions[0].parameter, { what: testText }, "Failed to save action of kibitz in legacy game collection");
 
   });
 
@@ -86,23 +86,23 @@ describe.only("kibitzes", function() {
     const testText = "Hello I am a test string!";
     const other = TestHelpers.createUser();
     self.loggedonuser = other;
-    const game_id_examined =  Game.startLocalExaminedGame("test_identifier",
+    const game_id_examined = Game.startLocalExaminedGame("test_identifier",
       "someone",
       "someother",
-    0);
+      0);
 
 
     chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1",game_id_examined, testText);
+    Game.kibitz("mi1", game_id_examined, testText);
 
-    const examinedCollection = Game.collection.findOne({_id: game_id_examined});
+    const examinedCollection = Game.collection.findOne({ _id: game_id_examined });
 
     chai.assert(examinedCollection.actions, "actions failed to be a field in examined game collection when kibitz is used");
 
     chai.assert.equal(examinedCollection.actions[0].type, "kibitz", "Failed to update game record's actions of examined game with kibitz");
 
-    chai.assert.deepEqual(examinedCollection.actions[0].parameter, {what: testText}, "Failed to save action of kibitz in examined game collection")
+    chai.assert.deepEqual(examinedCollection.actions[0].parameter, { what: testText }, "Failed to save action of kibitz in examined game collection")
 
   });
 
@@ -113,7 +113,7 @@ describe.only("kibitzes", function() {
     self.loggedonuser = player1;
     const player2 = TestHelpers.createUser();
 
-    const game_id_local =  Game.startLocalGame("test_identifier",
+    const game_id_local = Game.startLocalGame("test_identifier",
       player1,
       0,
       "standard",
@@ -129,9 +129,9 @@ describe.only("kibitzes", function() {
     chai.assert.isDefined(player1);
     chai.assert.isDefined(player1._id);
 
-    const player1Collector = new PublicationCollector({userId: player1._id});
-    const player2Collector = new PublicationCollector({userId: player2._id});
-    Game.kibitz("mi1",game_id_local, testText);
+    const player1Collector = new PublicationCollector({ userId: player1._id });
+    const player2Collector = new PublicationCollector({ userId: player2._id });
+    Game.kibitz("mi1", game_id_local, testText);
 
     player1Collector.collect("kibitz", collections => {
       chai.assert.equal(collections.chat.length, 1, "Publication collector for player1 failed to store any kibitz");
@@ -151,7 +151,7 @@ describe.only("kibitzes", function() {
     self.loggedonuser = player1;
     const player2 = TestHelpers.createUser();
 
-    const game_id_local =  Game.startLocalGame("test_identifier",
+    const game_id_local = Game.startLocalGame("test_identifier",
       player2,
       0,
       "standard",
@@ -166,15 +166,15 @@ describe.only("kibitzes", function() {
 
     chai.assert.isDefined(player1);
     chai.assert.isDefined(player1._id);
-    Game.kibitz("mi1",game_id_local, testText);
+    Game.kibitz("mi1", game_id_local, testText);
     Game.resignLocalGame("mi1", game_id_local);
-    Game.localRemoveObserver("mi2",game_id_local,player1._id);
+    Game.localRemoveObserver("mi2", game_id_local, player1._id);
     self.loggedonuser = player2;
     chai.assert.isDefined(player2);
     chai.assert.isDefined(player2._id);
-    Game.localRemoveObserver("mi2", game_id_local,player2._id);
+    Game.localRemoveObserver("mi2", game_id_local, player2._id);
 
-    chai.assert.equal(Game.chatCollection.find({}).count(),0, "failed to remove chat record with game record");
+    chai.assert.equal(Game.chatCollection.find({}).count(), 0, "failed to remove chat record with game record");
 
   });
   it("should be viewable by all observers", function(done) {
@@ -183,7 +183,7 @@ describe.only("kibitzes", function() {
     self.loggedonuser = player1;
     const player2 = TestHelpers.createUser();
 
-    const game_id_local =  Game.startLocalGame("test_identifier",
+    const game_id_local = Game.startLocalGame("test_identifier",
       player2,
       0,
       "standard",
@@ -199,9 +199,9 @@ describe.only("kibitzes", function() {
     Game.resignLocalGame("mi1", game_id_local);
     chai.assert.isDefined(player1);
     chai.assert.isDefined(player1._id);
-    const player1Collector = new PublicationCollector({userId: player1._id});
-    const player2Collector = new PublicationCollector({userId: player2._id});
-    Game.kibitz("mi1",game_id_local, testText);
+    const player1Collector = new PublicationCollector({ userId: player1._id });
+    const player2Collector = new PublicationCollector({ userId: player2._id });
+    Game.kibitz("mi1", game_id_local, testText);
 
     player1Collector.collect("kibitz", collections => {
       chai.assert.equal(collections.chat.length, 1, "Publication collector for player1 failed to store any kibitz");
@@ -223,7 +223,7 @@ describe.only("kibitzes", function() {
 
     self.loggedonuser = player1;
 
-    const game_id_local =  Game.startLocalGame("test_identifier",
+    const game_id_local = Game.startLocalGame("test_identifier",
       player2,
       0,
       "standard",
@@ -240,55 +240,22 @@ describe.only("kibitzes", function() {
     chai.assert.isDefined(player1._id);
 
 
-    Game.kibitz("mi1",game_id_local, testText);
+    Game.kibitz("mi1", game_id_local, testText);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_KIBITZ", "Failed to prevent incorrect role kibitz");
     self.loggedonuser = player2;
-    Game.kibitz("mi1",game_id_local, testText);
+    Game.kibitz("mi1", game_id_local, testText);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
 
 
-    
   });
   it("should indicate if the kibitz is a child_chat kibitz", function() {
-    const testText = "Hello I am a test string!";
-    self.loggedonuser = TestHelpers.createUser();
-    const player1 = TestHelpers.createUser();
-    const player2 = TestHelpers.createUser();
-    Roles.removeUsersFromRoles(player2._id, "child_chat");
-    Roles.addUsersToRoles(player1._id, "child_chat");
-    self.loggedonuser = player1;
-
-    const game_id_local =  Game.startLocalGame("test_identifier",
-      player2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white");
-
-
-
-    Game.kibitz("mi1",game_id_local, testText);
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED", "Failed to prevent incorrect role child_chat");
-    self.loggedonuser = player2;
-    Game.kibitz("mi1",game_id_local, testText);
-    chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
-    chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
-
+   chai.assert.fail("do me");
   });
-  it("should also indicate if the kibitz is not a child_chat kibitz", function() {
+  it("should indicate if child_chat kibitz is not in child_chat role", function(){
     const testId = "HELLO";
     self.loggedonuser = TestHelpers.createUser();
     const player1 = TestHelpers.createUser();
@@ -321,6 +288,45 @@ describe.only("kibitzes", function() {
     Game.childChatKibitz("mi1",game_id_local, testId);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
+
+  });
+  it("should indicate if the kibitz is in child_chat role", function(){
+    const testText = "Hello I am a test string!";
+    self.loggedonuser = TestHelpers.createUser();
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+    Roles.removeUsersFromRoles(player2._id, "child_chat");
+    Roles.addUsersToRoles(player1._id, "child_chat");
+    self.loggedonuser = player1;
+
+    const game_id_local = Game.startLocalGame("test_identifier",
+      player2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+
+    Game.kibitz("mi1", game_id_local, testText);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED", "Failed to prevent incorrect role child_chat");
+    self.loggedonuser = player2;
+    Game.kibitz("mi1", game_id_local, testText);
+    chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
+    chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
+
+  });
+  it("should indicate if the kibitz is not a child_chat kibitz", function() {
+    // TODO: have to differentiate on collection side about difference
+    chai.assert.fail("do me");
 
   });
   it("should also indicate if the kibitz is a child_chat_exempt kibitz", function() {
@@ -373,3 +379,7 @@ describe.skip("whispers", function() {
     chai.assert.fail("do me");
   });
 });
+
+// Deadlines:
+// JULY 1:
+// Tourn(no time), examine mode(taken), coaching, chatting features, stockfish best lines, bots,
