@@ -2282,9 +2282,9 @@ function finishExportToPGN(game) {
   return { title, pgn };
 }
 
-Game.kibitz = function(message_identifier,game_id, text) {
+Game.kibitz = function(message_identifier,game_id, txt) {
   check(message_identifier, String);
-  check(text, String);
+  check(txt, String);
   check(game_id, String);
 
 
@@ -2312,12 +2312,12 @@ Game.kibitz = function(message_identifier,game_id, text) {
     return;
   }
 
-  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: text});
+  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt});
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
       actions: {
         type: "kibitz",
         issuer: self._id,
-        parameter:  {what: text}
+        parameter:  {what: txt}
 
       }
     }
@@ -2350,12 +2350,12 @@ Game.childChatKibitz = function(message_identifier,game_id, ccid) {
     return;
   }
 
-  ChatCollection.insert(  {game_id: game_id, type: "child_chat_kibitz", issuer: self._id, what: ccid});
+  ChatCollection.insert(  {game_id: game_id, type: "child_chat_kibitz", issuer: self._id, childChatId: ccid});
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
         actions: {
           type: "child_chat_kibitz",
           issuer: self._id,
-          parameter:  {what: ccid}
+          parameter:  {childChatId: ccid}
 
         }
       }

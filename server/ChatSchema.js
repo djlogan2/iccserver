@@ -24,6 +24,10 @@ export const ChatSchema = new SimpleSchema({
     optional: true
 
   },
+  childChatId: {
+    type: String,
+    optional: true
+  },
   role: {
     type: String,
     optional: true

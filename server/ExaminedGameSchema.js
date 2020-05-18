@@ -41,7 +41,7 @@ const actionSchema = new SimpleSchema({
       "remove_circle",
       "draw_arrow",
       "remove_arrow",
-      "draw_circle", // Used to draw circles
+      "draw_circle",
       "remove_circle",
       "clearboard",
       "initialposition",
@@ -74,7 +74,8 @@ const actionSchema = new SimpleSchema({
   "parameter.ping": { type: Number, required: false },
   "parameter.gamelag": { type: Number, required: false },
   "parameter.gameping": { type: Number, required: false },
-  "parameter.what": {type: String, required: false}
+  "parameter.what": {type: String, required: false},
+  "parameter.childChatId": {type: String, required: false}
 });
 
 export const ExaminedGameSchema = new SimpleSchema({

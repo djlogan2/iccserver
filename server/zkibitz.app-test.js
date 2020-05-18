@@ -253,7 +253,33 @@ describe.only("kibitzes", function() {
 
   });
   it("should indicate if the kibitz is a child_chat kibitz", function() {
-   chai.assert.fail("do me");
+    const testId = "01";
+    self.loggedonuser = TestHelpers.createUser();
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+    Roles.addUsersToRoles(player1._id, "child_chat");
+    self.loggedonuser = player1;
+
+    const game_id_local = Game.startLocalGame("test_identifier",
+      player2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+
+    Game.childChatKibitz("mi1", game_id_local, testId);
+    chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
+    chai.assert.isUndefined(Game.chatCollection.findOne({}).what, "child chat kibitz set the child chat field");
+
+    chai.assert.equal(Game.chatCollection.findOne({}).childChatId.length,testId.length, "child chat kibitz failed to set what field");
+
   });
   it("should indicate if child_chat kibitz is not in child_chat role", function(){
     const testId = "HELLO";
@@ -325,8 +351,32 @@ describe.only("kibitzes", function() {
 
   });
   it("should indicate if the kibitz is not a child_chat kibitz", function() {
-    // TODO: have to differentiate on collection side about difference
-    chai.assert.fail("do me");
+    const testText = "I am a test String!";
+    self.loggedonuser = TestHelpers.createUser();
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+    Roles.addUsersToRoles(player1._id, "kibitz");
+    self.loggedonuser = player1;
+
+    const game_id_local = Game.startLocalGame("test_identifier",
+      player2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+
+    Game.kibitz("mi1", game_id_local, testText);
+    chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
+    chai.assert.isUndefined(Game.chatCollection.findOne({}).childChatId, "Kibitz set the child chat field");
+    chai.assert.equal(Game.chatCollection.findOne({}).what.length,testText.length, "Kibitz failed to set what field");
+
 
   });
   it("should also indicate if the kibitz is a child_chat_exempt kibitz", function() {
