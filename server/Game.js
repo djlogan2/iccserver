@@ -2244,7 +2244,6 @@ function finishExportToPGN(game) {
   let title = game.white.name + "-" + game.black.name + ".pgn";
 
   let pgn = "";
-  let tmpdt = new Date(game.startTime);
   pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
   pgn += '[White "' + game.white.name + '"]\n';
   pgn += '[Black "' + game.black.name + '"]\n';
@@ -2768,13 +2767,7 @@ Game.setTag = function(message_identifier, game_id, tag, value) {
   );
 };
 
-function exportNode(movelist, cmi, move_number, write_move_number, white_to_move) {
-  let variations = movelist[cmi].variations;
-  if (!variations) return "";
-
-  let main = variations[0];
-  variations = variations.slice(1);
-
+function thisMove(node, move_number, write_move_number, white_to_move) {
   let string = "";
 
   if (write_move_number || white_to_move) {
@@ -2782,24 +2775,86 @@ function exportNode(movelist, cmi, move_number, write_move_number, white_to_move
     if (!white_to_move) string += "... ";
   }
 
-  string += movelist[main].move;
+  string += node.move;
 
-  if (movelist[main].nag) string += " " + movelist[main].nag;
-  if (movelist[main].comment) string += " {" + movelist[main].comment + "}";
+  if (node.nag) string += " " + node.nag;
+  if (node.comment) string += " {" + node.comment + "}";
+
+  return string;
+}
+
+function allVariations(movelist, cmi, move_number, white_to_move) {
+  if (!movelist[cmi].variations) return "";
+
+  let string = "";
+  const variations = movelist[cmi].variations.slice(1);
+  const next_move_number = move_number + (white_to_move ? 0 : 1);
+  const next_to_move = !white_to_move;
+
+  variations.forEach(v => {
+    string += "(" + thisMove(movelist[v], move_number, true, white_to_move);
+    const nextmove = nextMove(movelist, v, next_move_number, next_to_move);
+    if (nextmove) string += " " + nextmove;
+    string += ")";
+  });
+
+  return string;
+}
+
+function nextMove(movelist, cmi, move_number, white_to_move) {
+  if (!movelist[cmi].variations) return "";
+
+  const next_move_number = move_number + (white_to_move ? 0 : 1);
+  const next_to_move = !white_to_move;
+
+  let string = thisMove(movelist[movelist[cmi].variations[0]], move_number, false, white_to_move);
+  const variations = allVariations(movelist, cmi, move_number, white_to_move);
+  let nextmove = nextMove(movelist, movelist[cmi].variations[0], next_move_number, next_to_move);
+
+  if (!!variations) string += " " + variations;
+
+  if (!!nextmove) {
+    if (!!variations && white_to_move) string += " " + next_move_number + ". ...";
+    string += " " + nextmove;
+  }
+
+  return string;
+}
+
+function start(movelist) {
+  return nextMove(movelist, 0, 1, true);
+}
+
+function _exportNode(movelist, cmi, move_number, write_move_number, white_to_move) {
+  let string = "";
+
+  if (write_move_number || white_to_move) {
+    string += move_number + ". ";
+    if (!white_to_move) string += "... ";
+  }
+
+  string += movelist[cmi].move;
+
+  if (movelist[cmi].nag) string += " " + movelist[cmi].nag;
+  if (movelist[cmi].comment) string += " {" + movelist[cmi].comment + "}";
+
+  let variations = movelist[cmi].variations;
+  if (!variations) return string;
+
+  let main = variations[0];
+  variations = variations.slice(1);
   let sp = " (";
 
   variations.forEach(v => {
-    const variation_string = exportNode(movelist, v, move_number, true, white_to_move);
+    const variation_string = _exportNode(movelist, v, move_number, true, white_to_move);
     if (variation_string) string += sp + variation_string + ")";
     sp = "(";
   });
 
-  if (!movelist[main].variations) return string;
-
-  let nextmove = exportNode(
+  const nextmove = _exportNode(
     movelist,
     main,
-    move_number + white_to_move ? 0 : 1,
+    move_number + (white_to_move ? 0 : 1),
     false,
     !white_to_move
   );
@@ -2808,8 +2863,25 @@ function exportNode(movelist, cmi, move_number, write_move_number, white_to_move
   return string;
 }
 
+function _exportNodeVariations(movelist) {
+  let variations = movelist[0].variations;
+  if (!variations) return "";
+
+  let string = "";
+  let sp = "";
+
+  variations.forEach(v => {
+    const variation_string = _exportNode(movelist, v, 1, true, true);
+    if (variation_string) string += sp + variation_string + ")";
+    if (!sp.length) sp = " (";
+    else sp = "(";
+  });
+
+  return string;
+}
+
 function buildPgnFromMovelist(movelist) {
-  let long_string = exportNode(movelist, 0, 1, false, true);
+  let long_string = start(movelist);
   let reformatted = "";
   while (long_string.length > 255) {
     const idx1 = long_string.lastIndexOf(" ", 255);
@@ -3059,7 +3131,7 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
 GameHistory.examineGame = function(message_identifier, game_id, is_imported_game) {
   check(message_identifier, String);
   //check(game_id, Match.OneOf(String, Object));
-  check(is_imported_game, Boolean);
+  check(is_imported_game, Match.Maybe(Boolean));
   const self = Meteor.user();
   check(self, Object);
   let hist;

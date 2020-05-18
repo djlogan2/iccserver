@@ -3271,7 +3271,7 @@ describe("Takebacks", function() {
     const pgn = Game.buildPgnFromMovelist(game.variations.movelist);
     // I got this from an SCID export of these moves, but removed the whitespace around the parens
     // SCID wrote: ( 1. e4 ) ... and I changed it to (1.e4)
-    const expectedpgn = "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3)(2. Nf3 Nc6 3. Bc4 Be7 4. c3 d6 5. d4 exd4 6. cxd4) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. O-O (4. c3 d6 (4. ... d5 5. d4) 5. d4) 4. ... d5) 3. ... Be7 4. d4 (4. c3 d6 5. d4 exd4 6. cxd4) 4. ... Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4";
+    const expectedpgn = "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. O-O (4. c3 d6 (4. ... d5 5. d4) 5. d4) 4. ... d5) 3. ... Be7 4. d4 (4. c3 d6 5. d4 exd4 6. cxd4) 4. ... Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4";
     //const expectedpgn =
     //  "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
     // So Let's not remove the whitespace, and it should match exactly.
