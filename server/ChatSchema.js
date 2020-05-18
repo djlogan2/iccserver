@@ -14,7 +14,8 @@ export const ChatSchema = new SimpleSchema({
     allowedValues: [
       "move",
       "kibitz",
-      "whisper"
+      "whisper",
+      "child_chat_kibitz"
     ],
     optional: true
   },

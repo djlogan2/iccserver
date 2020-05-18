@@ -13,6 +13,7 @@ const actionSchema = new SimpleSchema({
     allowedValues: [
       "move",
       "kibitz",
+      "child_chat_kibitz",
       "whisper",
       "disconnect",
       "connect",

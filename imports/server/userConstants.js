@@ -23,7 +23,7 @@ export const all_roles = [
   "validate_mugshots",
   "upload_pgn",
   "kibitz",
-  "child_chat" // TODO: ask if this role is ok
+  "child_chat"
 ];
 
 export const standard_member_roles = [

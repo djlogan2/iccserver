@@ -27,6 +27,7 @@ const actionSchema = new SimpleSchema({
     allowedValues: [
       "move", // Obviously a normal move
       "kibitz", // A kibitz
+      "child_chat_kibitz",
       "whisper", // A whisper
       "disconnect", // When a user disconnects during a game, or disconnects while this game is adjourned
       "connect", // When a user reconnects while this game is adjourned (we can see how many sessions we have had with this game adjourned, and comparing it to his opponent, we can see how many opportunities there were to resume.)

@@ -2328,6 +2328,45 @@ Game.kibitz = function(message_identifier,game_id, text) {
 
 };
 
+
+Game.childChatKibitz = function(message_identifier,game_id, ccid) {
+  check(message_identifier, String);
+  check(ccid, String);
+  check(game_id, String);
+
+
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if(!Users.isAuthorized(self, "child_chat")){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_NOT_ALLOWED");
+    return;
+  }
+
+  const game = GameCollection.findOne({_id: game_id});
+
+  if (!game) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
+    return;
+  }
+
+  ChatCollection.insert(  {game_id: game_id, type: "child_chat_kibitz", issuer: self._id, what: ccid});
+  GameCollection.update({_id: game_id, status: game.status},{ $push: {
+        actions: {
+          type: "child_chat_kibitz",
+          issuer: self._id,
+          parameter:  {what: ccid}
+
+        }
+      }
+    }
+  );
+
+
+};
+
+
 Meteor.publish("kibitz", function(){
 
   return ChatCollection.find({type: "kibitz"});

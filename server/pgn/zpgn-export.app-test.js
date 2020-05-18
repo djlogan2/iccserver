@@ -3,7 +3,7 @@ import { Parser } from "./pgnsigh";
 import { Game } from "../Game";
 import { TestHelpers } from "../../imports/server/TestHelpers";
 
-describe.only("PGN exports", function() {
+describe("PGN exports", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   // [Event]
   // [Site]

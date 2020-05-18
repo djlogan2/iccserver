@@ -212,9 +212,6 @@ describe.only("kibitzes", function() {
         done();
       });
     });
-
-
-
   });
   it("should indicate if the user is not in the 'kibitz' role", function() {
     const testText = "Hello I am a test string!";
@@ -292,7 +289,39 @@ describe.only("kibitzes", function() {
 
   });
   it("should also indicate if the kibitz is not a child_chat kibitz", function() {
-    chai.assert.fail("do me");
+    const testId = "HELLO";
+    self.loggedonuser = TestHelpers.createUser();
+    const player1 = TestHelpers.createUser();
+    const player2 = TestHelpers.createUser();
+    Roles.removeUsersFromRoles(player1._id, "child_chat");
+    Roles.addUsersToRoles(player2._id, "child_chat");
+    self.loggedonuser = player1;
+
+    const game_id_local =  Game.startLocalGame("test_identifier",
+      player2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white");
+
+
+
+    Game.childChatKibitz("mi1",game_id_local, testId);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_NOT_ALLOWED", "Failed to prevent incorrect role child_chat");
+    self.loggedonuser = player2;
+    Game.childChatKibitz("mi1",game_id_local, testId);
+    chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
+    chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
+
   });
   it("should also indicate if the kibitz is a child_chat_exempt kibitz", function() {
     chai.assert.fail("do me");
