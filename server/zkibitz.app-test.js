@@ -408,7 +408,7 @@ describe.only("kibitzes", function() {
     chai.assert.equal(Game.chatCollection.findOne({}).childChatExemptText.length,testText.length, "Exempt Kibitz failed to set exempt field");
 
   });
-  it("should not publish non-compliant kibitzes (child_chat, child_chat_exempt) when user record indicates user is child_chat protected", function() {
+  it("should not publish non-compliant kibitzes (child_chat, child_chat_exempt) when user record indicates user is child_chat protected", function(done) {
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
     const player2 = TestHelpers.createUser();
@@ -445,7 +445,6 @@ describe.only("kibitzes", function() {
         chai.assert.isUndefined(collections.chat[0].what, "player 2 viewed non-exempt kibitz in child chat");
         done();
       });
-
     });
   });
   it("should not allow a user in the child_chat group to execute free-form kibitz", function() {
