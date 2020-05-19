@@ -21,7 +21,11 @@ export const all_roles = [
   "delete_mugshot",
   "delete_any_mugshot",
   "validate_mugshots",
-  "upload_pgn"
+  "upload_pgn",
+  "allow_change_owner",
+  "allow_private_games",
+  "allow_restrict_chat",
+  "allow_restrict_analysis"
 ];
 
 export const standard_member_roles = [

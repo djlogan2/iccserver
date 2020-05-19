@@ -5,7 +5,6 @@ import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
 import { TestHelpers, compare } from "../server/TestHelpers";
 import { Users } from "./users";
-import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 
 //
 // TODO: Check guest roles
@@ -108,7 +107,10 @@ describe("Users", function() {
         legacy: { username: "icc1", password: "pw1", autologin: true }
       }
     });
-    Meteor.users.update({username: "user1"},{ $push: { groups: "group1"}, $set: {limit_to_group: true} });
+    Meteor.users.update(
+      { username: "user1" },
+      { $push: { groups: "group1" }, $set: { limit_to_group: true } }
+    );
     const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);

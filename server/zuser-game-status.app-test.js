@@ -89,7 +89,7 @@ describe("Game status field in user record", function() {
         self.loggedonuser = user;
         Game.localAddObserver("mi2", game_id2, user._id);
         self.loggedonuser = owner;
-        Game.localAddExamainer("mi3", game_id2, user._id);
+        Game.localAddExaminer("mi3", game_id2, user._id);
         self.loggedonuser = user;
         break;
       default:
@@ -267,6 +267,8 @@ describe("Game status field in user record", function() {
         break;
       case "time":
         self.clock.tick(15 * 60 * 1000); // Let the 15 minutes expire. The game should end
+        break;
+      default:
         break;
     }
     self.loggedonuser = user;

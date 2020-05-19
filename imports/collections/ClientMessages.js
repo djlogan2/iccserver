@@ -59,6 +59,8 @@ const DefinedClientMessagesMap = {
   ALREADY_PLAYING: {},
   INVALID_SQUARE: { parameters: ["square"] },
   INVALID_ARROW: { parameters: ["from", "to"] },
+  UNABLE_TO_PRIVATIZE: {},
+  UNABLE_TO_CHANGE_OWNER: {},
   GAME_STATUS_w0: {},
   GAME_STATUS_w1: {},
   GAME_STATUS_w2: {},

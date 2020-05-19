@@ -923,19 +923,19 @@ describe("Game.localAddExaminer", function() {
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     self.loggedonuser = undefined;
-    chai.assert.throws(() => Game.localAddExamainer("mi2", game_id, newguy._id), Match.Error);
+    chai.assert.throws(() => Game.localAddExaminer("mi2", game_id, newguy._id), Match.Error);
   });
 
   it("should fail if game_id is null", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
-    chai.assert.throws(() => Game.localAddExamainer("mi2", null, newguy), Match.Error);
+    chai.assert.throws(() => Game.localAddExaminer("mi2", null, newguy), Match.Error);
   });
 
   it("should fail if game cannot be found", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
-    chai.assert.throws(() => Game.localAddExamainer("mi2", "xyz", newguy._id), ICCMeteorError);
+    chai.assert.throws(() => Game.localAddExaminer("mi2", "xyz", newguy._id), ICCMeteorError);
   });
 
   // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
@@ -956,7 +956,7 @@ describe("Game.localAddExaminer", function() {
       0,
       "none"
     );
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -967,7 +967,7 @@ describe("Game.localAddExaminer", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -983,7 +983,7 @@ describe("Game.localAddExaminer", function() {
     Game.localAddObserver("mi2", game_id, newguy1._id);
     self.loggedonuser = newguy2;
     Game.localAddObserver("mi2", game_id, newguy2._id);
-    Game.localAddExamainer("mi2", game_id, newguy1._id);
+    Game.localAddExaminer("mi2", game_id, newguy1._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -998,8 +998,8 @@ describe("Game.localAddExaminer", function() {
     self.loggedonuser = newguy1;
     Game.localAddObserver("mi2", game_id, newguy1._id);
     self.loggedonuser = us;
-    Game.localAddExamainer("mi2", game_id, newguy1._id);
-    Game.localAddExamainer("mi2", game_id, newguy1._id);
+    Game.localAddExaminer("mi2", game_id, newguy1._id);
+    Game.localAddExaminer("mi2", game_id, newguy1._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -1029,7 +1029,7 @@ describe("Game.localAddExaminer", function() {
 
     self.loggedonuser = us;
     for (let x = 0; x < 5; x++) {
-      Game.localAddExamainer("add-examiner-" + x, game_id, observers[x]._id);
+      Game.localAddExaminer("add-examiner-" + x, game_id, observers[x]._id);
       examiners.push(observers[x]);
     }
 
@@ -1052,7 +1052,7 @@ describe("Game.localRemoveExaminer", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     self.loggedonuser = undefined;
     chai.assert.throws(() => Game.localRemoveExaminer("mi2", game_id, newguy._id), Match.Error);
   });
@@ -1093,7 +1093,7 @@ describe("Game.localRemoveExaminer", function() {
     const newguy = TestHelpers.createUser();
     const observer = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     self.loggedonuser = observer;
     Game.localAddObserver("mi3", game_id, observer._id);
     self.loggedonuser = observer;
@@ -1127,7 +1127,7 @@ describe("Game.localRemoveExaminer", function() {
 
     self.loggedonuser = us;
     for (let x = 0; x < 5; x++) {
-      Game.localAddExamainer("add-examiner-" + x, game_id, observers[x]._id);
+      Game.localAddExaminer("add-examiner-" + x, game_id, observers[x]._id);
       examiners.push(observers[x]);
     }
 
@@ -2021,7 +2021,7 @@ describe("Game.requestLocalTakeback", function() {
     }); // It is blacks move here.
     self.loggedonuser = us;
     Game.requestLocalTakeback("mi2", game_id, 5);
-    const game1 = Game.collection.findOne();
+    Game.collection.findOne();
     self.loggedonuser = them;
     Game.acceptLocalTakeback("mi3", game_id);
     const game2 = Game.collection.findOne();
@@ -3281,8 +3281,8 @@ describe("Takebacks", function() {
     //const expectedpgn =
     //  "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
     // So Let's not remove the whitespace, and it should match exactly.
-    const actualpgn = pgn; //pgn.replace(/\s/g, "");
-    chai.assert.equal(actualpgn, expectedpgn);
+    //pgn.replace(/\s/g, "");
+    chai.assert.equal(pgn, expectedpgn);
   });
 });
 
@@ -4350,8 +4350,7 @@ describe("Starting a game", function() {
 describe("Starting an examined game", function() {
   const self = TestHelpers.setupDescribe.call(this);
   it("should fail if the user starting an examined game is not online", function() {
-    const p1 = TestHelpers.createUser({ login: false });
-    self.loggedonuser = p1;
+    self.loggedonuser = TestHelpers.createUser({ login: false });
     chai.assert.throws(
       () => Game.startLocalExaminedGame("mi1", "white", "black", 0),
       ICCMeteorError
@@ -4398,8 +4397,7 @@ describe("Starting an examined game", function() {
       Mode: "dialog",
       PlyCount: "500"
     };
-    const p1 = TestHelpers.createUser();
-    self.loggedonuser = p1;
+    self.loggedonuser = TestHelpers.createUser();
     Game.startLocalExaminedGame("mi1", "white", "black", 0, coolheaders);
     const game = Game.collection.findOne({});
     chai.assert.deepEqual(game.tags, coolheaders);
