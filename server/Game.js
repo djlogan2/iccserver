@@ -1032,7 +1032,10 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   Users.setGameStatus(message_identifier, id_to_remove, "none");
   if (game.owner === self._id && game.private) {
     Game.setPrivate(message_identifier, game_id, false);
-    GameCollection.update({ _id: game_id, status: "examining" }, { $unset: { owner: 1 } });
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      { $unset: { owner: 1, deny_chat: 1 } }
+    );
   }
 
   if (!!game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) {
@@ -2801,6 +2804,50 @@ Game.allowChat = function(message_identifier, game_id, allow_chat) {
   );
 };
 
+Game.allowAnalysis = function(message_identifier, game_id, user_id, allow_analysis) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(user_id, String);
+  check(allow_analysis, Boolean);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "allow_restrict_chat")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_CHAT");
+    return;
+  }
+
+  const otherguy = Meteor.users.findOne({ _id: user_id });
+  check(otherguy);
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game || game.status !== "examining" || game.owner !== self._id || !game.private) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
+    return;
+  }
+  if (!game.observers.some(ob => ob.id === user_id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
+    return;
+  }
+  if (
+    (!allow_analysis && !game.analysis) ||
+    (!!game.analysis && allow_analysis === game.analysis.some(a => a.id === user_id))
+  )
+    return; // Already in or not
+
+  const updateobject = {};
+  if (game.analysis) {
+    updateobject[allow_analysis ? "$push" : "$pull"] = {
+      analysis: { id: user_id, username: otherguy.username }
+    };
+  } else if (allow_analysis) {
+    updateobject.$set = { analysis: [{ id: user_id, username: otherguy.username }] };
+  }
+
+  GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+};
+
 function thisMove(node, move_number, write_move_number, white_to_move) {
   let string = "";
 
@@ -3232,5 +3279,6 @@ Meteor.methods({
   changeOwner: Game.changeOwner,
   setPrivate: Game.setPrivate,
   allowRequests: Game.allowRequests,
-  allowChat: Game.allowChat
+  allowChat: Game.allowChat,
+  allowAnalysis: Game.allowAnalysis
 });

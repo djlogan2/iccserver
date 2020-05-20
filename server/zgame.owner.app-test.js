@@ -102,6 +102,7 @@ describe.only("Game owners", function() {
   });
 
   it("will unset the owner if the owner issues a localRemoveObserver to remove himself from the game. It will also make it public", function() {
+    this.timeout(500000);
     const owner = (self.loggedonuser = TestHelpers.createUser({
       roles: [
         "allow_change_owner",
@@ -129,8 +130,8 @@ describe.only("Game owners", function() {
     const game2 = Game.collection.findOne();
     chai.assert.isUndefined(game2.owner);
     chai.assert.isFalse(game2.private);
-    chai.assert.isFalse(game2.deny_requests);
-    chai.assert.isFalse(game2.deny_chat);
+    chai.assert.isUndefined(game2.deny_requests);
+    chai.assert.isUndefined(game2.deny_chat);
     chai.assert.sameDeepMembers([{ id: other._id, username: other.username }], game2.examiners);
     chai.assert.sameDeepMembers([{ id: other._id, username: other.username }], game2.observers);
   });
@@ -163,8 +164,8 @@ describe.only("Game owners", function() {
     const game2 = Game.collection.findOne();
     chai.assert.isUndefined(game2.owner);
     chai.assert.isFalse(game2.private);
-    chai.assert.isFalse(game2.deny_requests);
-    chai.assert.isFalse(game2.deny_chat);
+    chai.assert.isUndefined(game2.deny_requests);
+    chai.assert.isUndefined(game2.deny_chat);
     chai.assert.sameDeepMembers(
       [{ id: owner._id, username: owner.username }, { id: other._id, username: other.username }],
       game2.examiners
@@ -508,7 +509,7 @@ describe.only("Game owners", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "REQUEST_SENT_OR_SOMETHING");
     self.loggedonuser = abuser;
-    chai.assert.throws(() => Game.allowObserver("mi4", game_id, requestor._id, true));
+    chai.assert.throws(() => Game.localAddObserver("mi4", game_id, requestor._id));
     const game2 = Game.collection.findOne();
     chai.assert.sameDeepMembers([owner._id], game2.observers);
     chai.assert.sameDeepMembers([owner._id], game2.examiners);
@@ -533,7 +534,7 @@ describe.only("Game owners", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "REQUEST_SENT_OR_SOMETHING");
     self.loggedonuser = abuser;
-    chai.assert.throws(() => Game.allowObserver("mi4", game_id, requestor._id, false));
+    chai.assert.throws(() => Game.localDenyObserver("mi4", game_id, requestor._id));
     Game.collection.findOne();
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game.observers);
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game.examiners);
@@ -551,7 +552,7 @@ describe.only("Game owners", function() {
     self.loggedonuser = requestor;
     Game.localAddObserver("mi3", game_id, requestor._id);
     self.loggedonuser = owner;
-    Game.allowObserver("mi4", game_id, true);
+    Game.localAddObserver("mi4", game_id, requestor.id);
     const game = Game.collection.findOne();
     chai.assert.sameDeepMembers(
       [
@@ -609,7 +610,7 @@ describe.only("Game owners", function() {
     self.loggedonuser = requestor;
     Game.localAddObserver("mi3", game_id, requestor._id);
     self.loggedonuser = owner;
-    Game.allowObserver("mi4", game_id, true);
+    Game.localAddObserver("mi4", game_id, requestor._id);
     const game = Game.collection.findOne();
     chai.assert.sameDeepMembers(
       [
@@ -653,11 +654,11 @@ describe.only("Game owners", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     const game = Game.collection.findOne();
     chai.assert.isDefined(game.owner);
-    chai.assert.isFalse(game.private);
+    chai.assert.isUndefined(game.private);
     chai.assert.equal(self.loggedonuser._id, game.owner);
     chai.assert.throws(() => Game.allowRequests("mi1", game_id, true));
     const game2 = Game.collection.findOne();
-    chai.assert.isFalse(game2.private);
+    chai.assert.isUndefined(game2.private);
   });
 
   it("will delete 'allow observe requests' flag if changing game from private to public", function() {
@@ -667,7 +668,7 @@ describe.only("Game owners", function() {
     const game = Game.collection.findOne();
     chai.assert.isDefined(game.owner);
     chai.assert.isTrue(game.private);
-    chai.assert.isFalse(game.deny_requests);
+    chai.assert.isUndefined(game.deny_requests);
     chai.assert.equal(self.loggedonuser._id, game.owner);
     Game.allowRequests("mi3", game_id, false);
     const game2 = Game.collection.findOne();
@@ -693,7 +694,7 @@ describe.only("Game owners", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     const game = Game.collection.findOne();
     chai.assert.isDefined(game.owner);
-    chai.assert.isFalse(game.deny_chat);
+    chai.assert.isUndefined(game.deny_chat);
     chai.assert.equal(self.loggedonuser._id, game.owner);
     Game.setRestrictChat("mi1", game_id, true);
     const game2 = Game.collection.findOne();
@@ -706,7 +707,7 @@ describe.only("Game owners", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     const game = Game.collection.findOne();
     chai.assert.isDefined(game.owner);
-    chai.assert.isFalse(game.deny_chat);
+    chai.assert.isUndefined(game.deny_chat);
     chai.assert.equal(self.loggedonuser._id, game.owner);
     chai.assert.throws(() => Game.setRestrictChat("mi1", game_id, true));
     const game2 = Game.collection.findOne();
@@ -754,7 +755,7 @@ describe.only("Game owners", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     const game = Game.collection.findOne();
     chai.assert.isDefined(game.owner);
-    chai.assert.isFalse(game.deny_chat);
+    chai.assert.isUndefined(game.deny_chat);
     chai.assert.equal(self.loggedonuser._id, game.owner);
     Game.setRestrictChat("mi1", game_id, true);
     const game2 = Game.collection.findOne();
@@ -768,46 +769,79 @@ describe.only("Game owners", function() {
   //
   // Allow analysis
   //
-  it("can change 'allow analysis' flag in examined games if in allow_restrict_analysis role", function() {
-    self.loggedonuser = TestHelpers.createUser({ roles: ["allow_restrict_analysis"] });
+  it("will put all observers in the analysis array when going from public to private", function() {
+    const owner = TestHelpers.createUser({roles: ["allow_private_games"]});
+    self.loggedonuser = owner;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    for (let x = 0; x < 5; x++) {
+      const observer = (self.loggedonuser = TestHelpers.createUser());
+      Game.localAddObserver("mi2-" + x, game_id, observer._id);
+    }
+    self.loggedonuser = owner;
+    Game.setPrivate("mi3", game_id, true);
     const game = Game.collection.findOne();
-    chai.assert.isDefined(game.owner);
-    chai.assert.equal(self.loggedonuser._id, game.owner);
-    chai.assert.isUndefined(game.deny_analysis);
-    Game.setAllowAnalysis("mi1", game_id, false);
-    const game2 = Game.collection.findOne();
-    chai.assert.isTrue(game2.deny_analysis);
+    chai.assert.isTrue(game.private);
+    chai.assert.sameDeepMembers(game.observers, game.analysis);
+    chai.assert.fail("do me");
   });
 
-  it("can not change 'allow analysis' flag in examined games if not in allow_restrict_analysis role", function() {
-    self.loggedonuser = TestHelpers.createUser();
+  it("can add and remove users from the analysis array in examined games if in allow_restrict_analysis role", function() {
+    const owner = TestHelpers.createUser({roles: ["allow_private_games", "allow_restrict_analysis"]});
+    self.loggedonuser = owner;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    const observer = (self.loggedonuser = TestHelpers.createUser());
+    Game.localAddObserver("mi2", game_id, observer._id);
+    self.loggedonuser = owner;
+    Game.setPrivate("mi3", game_id, true);
     const game = Game.collection.findOne();
-    chai.assert.isDefined(game.owner);
-    chai.assert.equal(self.loggedonuser._id, game.owner);
-    chai.assert.isUndefined(game.deny_analysis);
-    chai.assert.throws(() => Game.setAllowAnalysis("mi1", game_id, false));
+    chai.assert.isTrue(game.private);
+    chai.assert.sameDeepMembers(game.observers, game.analysis);
+    Game.allowAnalysis("mi4", game_id, observer._id, false);
     const game2 = Game.collection.findOne();
-    chai.assert.isFalse(game2.deny_analysis);
+    chai.assert.isFalse(game2.analysis.some(a => a.id === observer._id));
+    Game.allowAnalysis("mi4", game_id, observer._id, true);
+    const game3 = Game.collection.findOne();
+    chai.assert.isTrue(game3.analysis.some(a => a.id === observer._id));
   });
 
-  it("will always send computer analysis to owner regardless of setting", function(done) {
-    self.loggedonuser = TestHelpers.createUser({ roles: ["allow_restrict_analysis"] });
+  it("can not add nor remove users from the analysis array in examined games if not in allow_restrict_analysis role", function() {
+    const owner = TestHelpers.createUser({roles: ["allow_private_games"]});
+    self.loggedonuser = owner;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    const observer = (self.loggedonuser = TestHelpers.createUser());
+    Game.localAddObserver("mi2", game_id, observer._id);
+    self.loggedonuser = owner;
+    Game.setPrivate("mi3", game_id, true);
     const game = Game.collection.findOne();
-    chai.assert.isDefined(game.owner);
-    chai.assert.equal(self.loggedonuser._id, game.owner);
-    chai.assert.isUndefined(game.deny_analysis);
-    Game.setAllowAnalysis("mi1", game_id, false);
+    chai.assert.isTrue(game.private);
+    chai.assert.sameDeepMembers(game.observers, game.analysis);
+    Game.allowAnalysis("mi4", game_id, observer._id, false);
     const game2 = Game.collection.findOne();
-    chai.assert.isTrue(game2.deny_analysis);
-    const collector = new PublicationCollector({ userId: self.loggedonuser._id });
-    collector.collect("observing_games", collections => {
-      chai.assert.equal(collections.games.length, 1);
-      chai.assert.equal(collections.games[0].something, "computer analysis");
-      done();
-    });
+    chai.assert.isTrue(game2.analysis.some(a => a.id === observer._id));
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_RESTRICT_ANALYSIS");
+  });
+
+  it("will not allow owner to be removed from the analysis array", function(done) {
+    const owner = TestHelpers.createUser({roles: ["allow_private_games", "allow_restrict_analysis"]});
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    const observer = (self.loggedonuser = TestHelpers.createUser());
+    Game.localAddObserver("mi2", game_id, observer._id);
+    self.loggedonuser = owner;
+    Game.setPrivate("mi3", game_id, true);
+    const game = Game.collection.findOne();
+    chai.assert.isTrue(game.private);
+    chai.assert.sameDeepMembers(game.observers, game.analysis);
+    Game.allowAnalysis("mi4", game_id, owner._id, false);
+    const game2 = Game.collection.findOne();
+    chai.assert.isTrue(game2.analysis.some(a => a.id === owner._id));
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_RESTRICT_ANALYSIS");
+  });
+
+  it.skip("will send computer analysis to everyone in a public game", function() {
+    chai.assert.fail("do me");
   });
 
   it("will send computer analysis to a player when they are in the analysis array", function(done) {
@@ -857,7 +891,11 @@ describe.only("Game owners", function() {
     });
   });
 
-  it("will not sensitive game record fields to client subscriptions (owner)", function(done) {
+  it("will fail if a non-owner tries to add or remove people from the analysis array", function() {
+    chai.assert.fail("do me");
+  });
+
+  it("will not send sensitive game record fields to client subscriptions (owner)", function(done) {
     const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
     const outsideguy = TestHelpers.createUser();
     const insideguy_analysis = TestHelpers.createUser();

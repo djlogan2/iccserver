@@ -97,7 +97,6 @@ export const ExaminedGameSchema = new SimpleSchema({
   "analysis.username": String,
   deny_requests: { type: Boolean, required: false },
   deny_chat: { type: Boolean, required: false },
-  deny_analysis: { type: Boolean, required: false },
   fen: String,
   tomove: String,
   legacy_game_number: {
