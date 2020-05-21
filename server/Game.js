@@ -943,6 +943,11 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
       "Issuer is not an examiner"
     );
 
+  if (game.private && game.owner !== self._id) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
+
   if (!game.examiners || game.examiners.map(e => e.id).indexOf(id_to_remove) === -1) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
@@ -974,6 +979,11 @@ Game.localAddExaminer = function(message_identifier, game_id, id_to_add) {
 
   if (!game.examiners || game.examiners.map(e => e.id).indexOf(self._id) === -1) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+
+  if (game.private && self._id !== game.owner) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
     return;
   }
 
@@ -1073,12 +1083,48 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
     );
   if (game.legacy_game_number)
     throw new ICCMeteorError(message_identifier, "Unable to add observer", "Game is a legacy game");
-  if (self._id !== id_to_add)
+
+  if (game.private) {
+    if (self._id === game.owner) {
+      let requestor;
+      if (game.requestors) requestor = game.requestors.find(r => r.id === id_to_add);
+      if (!requestor) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_A_REQUESTOR");
+        return;
+      }
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        { $pull: { requestors: { id: id_to_add } } }
+      );
+      ClientMessages.sendMessageToClient(id_to_add, requestor.mid, "PRIVATE_ENTRY_ACCEPTED");
+      // fall through here to do the normal observer stuff to the user
+    } else if (self._id !== id_to_add) {
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to add observer",
+        "Currently no support for adding another observer"
+      );
+    } else {
+      if (game.deny_requests) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "PRIVATE_GAME");
+        return;
+      }
+      if (!game.requestors) game.requestors = [];
+      game.requestors.push({ id: self._id, username: self.username, mid: message_identifier });
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        { $set: { requestors: game.requestors } }
+      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "PRIVATE_ENTRY_REQUESTED");
+      return;
+    }
+  } else if (self._id !== id_to_add)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to add observer",
       "Currently no support for adding another observer"
     );
+
   Users.setGameStatus(message_identifier, id_to_add, "observing");
   GameCollection.update(
     { _id: game_id, status: game.status },
@@ -2702,9 +2748,18 @@ Game.changeOwner = function(message_identifier, game_id, new_id) {
     return;
   }
 
+  // For now anyway, a new owner must also be an observer at least
+  if (!!new_id && !game.observers.some(e => e.id === new_id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
+    return;
+  }
+
   if (!new_id) {
     Game.setPrivate(message_identifier, game_id, false);
-    GameCollection.update({ _id: game_id, status: "examining" }, { $unset: { owner: 1 } });
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      { $unset: { owner: 1, deny_chat: 1 } }
+    );
   } else {
     GameCollection.update({ _id: game_id, status: "examining" }, { $set: { owner: new_id } });
   }
@@ -2846,6 +2901,34 @@ Game.allowAnalysis = function(message_identifier, game_id, user_id, allow_analys
   }
 
   GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+};
+
+Game.localDenyObserver = function(message_identifier, game_id, requestor_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(requestor_id, String);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (self._id === requestor_id)
+    throw new ICCMeteorError(message_identifier, "Unable to deny observer", "Cannot deny yourself");
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game || game.status !== "examining" || self._id !== game.owner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
+
+  let requestor;
+  if (game.requestors) requestor = game.requestors.find(r => r.id === requestor_id);
+  if (!requestor) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NO_REQUESTOR");
+    return;
+  }
+
+  ClientMessages.sendMessageToClient(requestor_id, requestor.mid, "PRIVATE_ENTRY_DENIED");
+  GameCollection.update({ _id: game_id, status: "examining" }, { $pull: { requestors: { id: requestor_id } } });
 };
 
 function thisMove(node, move_number, write_move_number, white_to_move) {
@@ -3280,5 +3363,6 @@ Meteor.methods({
   setPrivate: Game.setPrivate,
   allowRequests: Game.allowRequests,
   allowChat: Game.allowChat,
-  allowAnalysis: Game.allowAnalysis
+  allowAnalysis: Game.allowAnalysis,
+  localDenyObserver: Game.localDenyObserver
 });
