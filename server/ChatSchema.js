@@ -16,7 +16,7 @@ export const ChatSchema = new SimpleSchema({
       "kibitz",
       "whisper",
       "child_chat_kibitz",
-      "child_chat_exempt_kibitz"
+      "child_chat_exempt_kibitz",
     ],
     optional: true
   },
@@ -36,6 +36,10 @@ export const ChatSchema = new SimpleSchema({
   childChatExemptText: {
     type: String,
     optional: true
+  },
+  group: {
+    type: String,
+    optional: true,
   },
   role: {
     type: String,

@@ -2281,11 +2281,12 @@ function finishExportToPGN(game) {
   return { title, pgn };
 }
 
-Game.kibitz = function(message_identifier,game_id,flag, txt) {
+Game.kibitz = function(message_identifier,game_id,flag, txt, group) {
   check(message_identifier, String);
   check(txt, String);
   check(game_id, String);
   check(flag, String);
+  check(group, String);
 
 
   const self = Meteor.user();
@@ -2360,22 +2361,38 @@ if(flag == "child_chat_kibitz") {
   );
   return;
 }
-
+  if(flag == "group_restricted_kibitz") {
+    ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, flag: flag, group: group}); //TODO: might not work
+    GameCollection.update({_id: game_id, status: game.status},{ $push: {
+          actions: {
+            type: "kibitz",
+            issuer: self._id,
+            parameter:  {what: txt}
+          }
+        }
+      }
+    );
+    return;
+  }
 
 };
 
 
 
 Meteor.publish("kibitz", function(){
-// TODO: change publishing to allow only in group if restricted flag, only exempt and cc if cc, only examined whisper
+  if((Users.isAuthorized(Meteor.user(), "kibitz") || Users.isAuthorized(Meteor.user(), "child_chat_exempt"))){
+
+    return ChatCollection.find({$or: [{flag: "kibitz"}, {flag: "child_chat_exempt_kibitz"}, {$and: [{flag: "group_restricted_kibitz"}, {group:{ $in: Meteor.user.groups}}]}]});
+    //TODO: would work if Meteor.users.groups updated from addToGroups, not sure why it doesn't yet
+  }
 
   if(Users.isAuthorized(Meteor.user(), "child_chat")){
       return ChatCollection.find({$or: [{flag: "child_chat_kibitz"},{flag: "child_chat_exempt_kibitz"}]});
   }
 
-  if(Users.isAuthorized(Meteor.user(), "kibitz") || Users.isAuthorized(Meteor.user(), "child_chat_exempt")){
-    return ChatCollection.find({type: "kibitz"});
-  }
+  //if(Users.isAuthorized(Meteor.user(), "kibitz") || Users.isAuthorized(Meteor.user(), "child_chat_exempt")){
+ //   return ChatCollection.find({type: "kibitz"}, {$not: {flag: "group_restricted_kibitz"}});
+ // }
 
 
 });

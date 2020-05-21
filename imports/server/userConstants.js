@@ -24,7 +24,8 @@ export const all_roles = [
   "upload_pgn",
   "kibitz",
   "child_chat",
-  "child_chat_exempt"
+  "child_chat_exempt",
+  "group_restricted"
 ];
 
 export const standard_member_roles = [
