@@ -1026,27 +1026,37 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
       "game id does not exist"
     );
 
-  if (!game.observers || game.observers.map(o => o.id).indexOf(id_to_remove) === -1) {
-    if (!!self) ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
+  if (game.private && !!game.owner && self._id !== game.owner) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
     return;
   }
-  // TODO: We need to be able to do this from places other than meteor method, so move this check to meteor method
-  /*
-  if (!!self && id_to_remove !== self._id)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to remove observer",
-      "You can only remove yourself"
-    );
-*/
+
+  if (!game.examiners || !game.examiners.some(e => e.id === self._id)) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+
+  if (!game.observers || !game.observers.some(o => o.id === id_to_remove)) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
+    return;
+  }
+
   Users.setGameStatus(message_identifier, id_to_remove, "none");
-  if (game.owner === self._id && game.private) {
+
+  if (game.owner === id_to_remove && game.private) {
     Game.setPrivate(message_identifier, game_id, false);
     GameCollection.update(
       { _id: game_id, status: "examining" },
       { $unset: { owner: 1, deny_chat: 1 } }
     );
   }
+
+  if (game.private && self._id !== id_to_remove)
+    ClientMessages.sendMessageToClient(
+      id_to_remove,
+      "server:game:" + game_id,
+      "PRIVATE_ENTRY_REMOVED"
+    );
 
   if (!!game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) {
     GameCollection.remove({ _id: game_id });
@@ -2928,7 +2938,10 @@ Game.localDenyObserver = function(message_identifier, game_id, requestor_id) {
   }
 
   ClientMessages.sendMessageToClient(requestor_id, requestor.mid, "PRIVATE_ENTRY_DENIED");
-  GameCollection.update({ _id: game_id, status: "examining" }, { $pull: { requestors: { id: requestor_id } } });
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $pull: { requestors: { id: requestor_id } } }
+  );
 };
 
 function thisMove(node, move_number, write_move_number, white_to_move) {

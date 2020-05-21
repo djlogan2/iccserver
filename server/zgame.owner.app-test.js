@@ -571,9 +571,12 @@ describe.only("Game owners", function() {
     self.loggedonuser = abuser;
     chai.assert.throws(() => Game.localAddObserver("mi4", game_id, requestor._id));
     const game2 = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{id: owner._id, username: owner.username}], game2.observers);
-    chai.assert.sameDeepMembers([{id: owner._id, username: owner.username}], game2.examiners);
-    chai.assert.sameDeepMembers([{id: requestor._id, username: requestor.username, mid: "mi3"}], game.requestors);
+    chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game2.observers);
+    chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game2.examiners);
+    chai.assert.sameDeepMembers(
+      [{ id: requestor._id, username: requestor.username, mid: "mi3" }],
+      game.requestors
+    );
   });
 
   it("will not allow a non-owner to deny a users observe request", function() {
@@ -594,12 +597,14 @@ describe.only("Game owners", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "PRIVATE_ENTRY_REQUESTED");
     self.loggedonuser = abuser;
-    chai.assert.throws(() => Game.localRemoveObserver("mi4", game_id, requestor._id));
+    Game.localRemoveObserver("mi4", game_id, requestor._id);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "NOT_THE_OWNER");
     Game.collection.findOne();
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game.observers);
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game.examiners);
     chai.assert.sameDeepMembers(
-      [{ id: requestor._id, username: requestor.username, mid: "mi2" }],
+      [{ id: requestor._id, username: requestor.username, mid: "mi3" }],
       game.requestors
     );
   });
@@ -624,8 +629,8 @@ describe.only("Game owners", function() {
     Game.localRemoveObserver("mi5", game_id, requestor._id);
     const game2 = Game.collection.findOne();
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game2.observers);
-    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "PRIVATE_ENTRY_REMOVED");
+    chai.assert.isTrue(self.clientMessagesSpy.calledThrice);
+    chai.assert.equal(self.clientMessagesSpy.args[2][2], "PRIVATE_ENTRY_REMOVED");
   });
 
   it("can not remove users from public games", function() {
@@ -1056,5 +1061,21 @@ describe.only("Game owners", function() {
       chai.assert.isUndefined(collections.games[0].analysis);
       done();
     });
+  });
+
+  it.skip("does not support setting a legacy game private", function() {
+    chai.assert.fail("do me");
+  });
+  it.skip("does not support setting an owner in a legacy game", function() {
+    chai.assert.fail("do me");
+  });
+  it.skip("does not support allowing/denying chat in a legacy game", function() {
+    chai.assert.fail("do me");
+  });
+  it.skip("does not support allowing/denying analysis in a legacy game", function() {
+    chai.assert.fail("do me");
+  });
+  it.skip("does not support allowing/denying requests in a legacy game", function() {
+    chai.assert.fail("do me");
   });
 });
