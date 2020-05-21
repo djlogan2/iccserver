@@ -2281,81 +2281,60 @@ function finishExportToPGN(game) {
   return { title, pgn };
 }
 
-Game.kibitz = function(message_identifier,game_id, txt) {
+Game.kibitz = function(message_identifier,game_id,flag, txt) {
   check(message_identifier, String);
   check(txt, String);
   check(game_id, String);
-
+  check(flag, String);
 
 
   const self = Meteor.user();
   check(self, Object);
-//TODO: ask where childchat is called/used, apply here accordingly
 
-  if(Users.isAuthorized(self, "child_chat")){
-    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+
+
+  const game = GameCollection.findOne({ _id: game_id });
+
+  if (!game) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
     return;
   }
 
-  if(!Users.isAuthorized(self, "kibitz")){
-
+  if(Users.isAuthorized(self, "child_chat") && flag == "kibitz" || Users.isAuthorized(self, "child_chat") && flag == "child_chat_exempt_kibitz"){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    return;
+  }
+  if(!Users.isAuthorized(self, "child_chat")&& flag == "child_chat_kibitz"){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_NOT_ALLOWED");
+    return;
+  }
+  if(!Users.isAuthorized(self, "child_chat_exempt") && flag == "child_chat_exempt_kibitz"){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_EXEMPT_KIBITZ_NOT_ALLOWED");
+    return;
+  }
+  if(!Users.isAuthorized(self, "kibitz") && !Users.isAuthorized(self, "child_chat_exempt") && flag == "kibitz"){
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
     return;
   }
 
+  if (flag == "kibitz") {
 
-  const game = GameCollection.findOne({_id: game_id});
+    ChatCollection.insert({ game_id: game_id, type: "kibitz", issuer: self._id, what: txt , flag: flag});
+    GameCollection.update({ _id: game_id, status: game.status }, {
+        $push: {
+          actions: {
+            type: "kibitz",
+            issuer: self._id,
+            parameter: { what: txt }
 
-  if (!game) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
-    return;
-  }
-
-  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt});
-  GameCollection.update({_id: game_id, status: game.status},{ $push: {
-      actions: {
-        type: "kibitz",
-        issuer: self._id,
-        parameter:  {what: txt}
-
+          }
+        }
       }
-    }
-    }
-  );
-
-
-};
-
-Game.childChatExemptKibitz = function(message_identifier,game_id, txt) {
-  check(message_identifier, String);
-  check(txt, String);
-  check(game_id, String);
-
-
-
-  const self = Meteor.user();
-  check(self, Object);
-
-  if(Users.isAuthorized(self, "child_chat")){
-    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    );
     return;
   }
-
-  if(!Users.isAuthorized(self, "child_chat_exempt")){
-
-    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHILD_CHAT_EXEMPT_KIBITZ");
-    return;
-  }
-
-
-  const game = GameCollection.findOne({_id: game_id});
-
-  if (!game) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
-    return;
-  }
-
-  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, childChatExemptText: txt});
+if(flag == "child_chat_exempt_kibitz") {
+  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, childChatExemptText: txt, flag: flag});
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
         actions: {
           type: "kibitz",
@@ -2366,51 +2345,39 @@ Game.childChatExemptKibitz = function(message_identifier,game_id, txt) {
       }
     }
   );
-
-
-};
-
-Game.childChatKibitz = function(message_identifier,game_id, ccid) {
-  check(message_identifier, String);
-  check(ccid, String);
-  check(game_id, String);
-
-
-
-  const self = Meteor.user();
-  check(self, Object);
-
-  if(!Users.isAuthorized(self, "child_chat")){
-    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_NOT_ALLOWED");
-    return;
-  }
-
-  const game = GameCollection.findOne({_id: game_id});
-
-  if (!game) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
-    return;
-  }
-
-  ChatCollection.insert(  {game_id: game_id, type: "child_chat_kibitz", issuer: self._id, childChatId: ccid});
+  return;
+}
+if(flag == "child_chat_kibitz") {
+  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, childChatId: txt, flag: flag});
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
         actions: {
-          type: "child_chat_kibitz",
+          type: "kibitz",
           issuer: self._id,
-          parameter:  {childChatId: ccid}
-
+          parameter:  {childChatId: txt}
         }
       }
     }
   );
+  return;
+}
 
 
 };
 
 
+
 Meteor.publish("kibitz", function(){
-// TODO: how the hell do i get the id of subscriber in publish?
-  return ChatCollection.find({type: "kibitz"});
+// TODO: change publishing to allow only in group if restricted flag, only exempt and cc if cc, only examined whisper
+
+  if(Users.isAuthorized(Meteor.user(), "child_chat")){
+      return ChatCollection.find({$or: [{flag: "child_chat_kibitz"},{flag: "child_chat_exempt_kibitz"}]});
+  }
+
+  if(Users.isAuthorized(Meteor.user(), "kibitz") || Users.isAuthorized(Meteor.user(), "child_chat_exempt")){
+    return ChatCollection.find({type: "kibitz"});
+  }
+
+
 });
 
 

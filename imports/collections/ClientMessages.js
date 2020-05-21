@@ -115,7 +115,8 @@ export const DefinedClientMessagesMap = {
   NOT_ALLOWED_TO_KIBITZ: {},
   INVALID_GAME: {},
   CHILD_CHAT_FREEFORM_NOT_ALLOWED: {},
-  CHILD_CHAT_NOT_ALLOWED: {}
+  CHILD_CHAT_NOT_ALLOWED: {},
+  CHILD_CHAT_EXEMPT_KIBITZ_NOT_ALLOWED: {}
 };
 
 Meteor.publish("client_messages", function() {

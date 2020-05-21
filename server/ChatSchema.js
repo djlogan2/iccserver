@@ -25,6 +25,10 @@ export const ChatSchema = new SimpleSchema({
     optional: true
 
   },
+  flag: {
+    type: String,
+    optional: true
+  },
   childChatId: {
     type: String,
     optional: true
