@@ -102,7 +102,6 @@ describe("Game owners", function() {
   });
 
   it("will unset the owner if the owner issues a localRemoveObserver to remove himself from the game. It will also make it public", function() {
-    this.timeout(500000);
     const owner = (self.loggedonuser = TestHelpers.createUser({
       roles: [
         "allow_change_owner",
@@ -631,26 +630,6 @@ describe("Game owners", function() {
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game2.observers);
     chai.assert.isTrue(self.clientMessagesSpy.calledThrice);
     chai.assert.equal(self.clientMessagesSpy.args[2][2], "PRIVATE_ENTRY_REMOVED");
-  });
-
-  it("can not remove users from public games", function() {
-    const owner = (self.loggedonuser = TestHelpers.createUser({ roles: ["allow_private_games"] }));
-    const requestor = TestHelpers.createUser();
-    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    self.loggedonuser = requestor;
-    Game.localAddObserver("mi3", game_id, requestor._id);
-    const game2 = Game.collection.findOne();
-    chai.assert.sameDeepMembers(
-      [
-        { id: owner._id, username: owner.username },
-        { id: requestor._id, username: requestor.username }
-      ],
-      game2.observers
-    );
-    self.loggedonuser = owner;
-    Game.localRemoveObserver("mi4", game_id, requestor._id);
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "COMMAND_INVALID_ON_PUBLIC_GAME");
   });
 
   it("can not set a game private in examined games not the owner", function() {

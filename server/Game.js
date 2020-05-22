@@ -183,8 +183,8 @@ Game.startLocalGame = function(
     return;
   }
 
-  Game.localUnobserveAllGames(message_identifier, self._id);
-  Game.localUnobserveAllGames(message_identifier, other_user._id);
+  Game.localUnobserveAllGames(message_identifier, self._id, true);
+  Game.localUnobserveAllGames(message_identifier, other_user._id, true);
 
   const chess = new Chess.Chess();
 
@@ -499,7 +499,7 @@ Game.startLegacyGame = function(
     return;
   }
 
-  Game.localUnobserveAllGames(message_identifier, self._id);
+  Game.localUnobserveAllGames(message_identifier, self._id, true);
 
   const game = {
     starttime: new Date(),
@@ -1003,17 +1003,20 @@ Game.localAddExaminer = function(message_identifier, game_id, id_to_add) {
   GameCollection.update({ _id: game_id, status: "examining" }, { $push: { examiners: observer } });
 };
 
-Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
+Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove, server_command) {
   check(message_identifier, String);
   check(game_id, String);
   check(id_to_remove, String);
+  check(server_command, Match.Maybe(Boolean));
 
   // Since we call this on logout, we have to allow an invalid 'self'
   let self;
-  if (message_identifier !== "server") {
-    self = Meteor.user();
-    check(self, Object);
-  } else self = { _id: "server" };
+  if (!server_command) self = Meteor.user();
+  else {
+    self = Meteor.users.findOne({ _id: id_to_remove });
+    if (message_identifier === "server") message_identifier = "server:game:" + game_id;
+  }
+  check(self, Object);
 
   const game = GameCollection.findOne({
     _id: game_id
@@ -1026,24 +1029,21 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
       "game id does not exist"
     );
 
-  if (game.private && self._id !== game.owner) {
-    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
-    return;
-  } else if (!game.private) {
-    ClientMessages.sendMessageToClient(
-      self._id,
-      message_identifier,
-      "COMMAND_INVALID_ON_PUBLIC_GAME"
-    );
-    return;
-  }
-
-  if (!game.examiners || !game.examiners.some(e => e.id === self._id)) {
+  if (game.private) {
+    if (self._id !== game.owner) {
+      ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
+      return;
+    }
+  } else if (
+    !server_command &&
+    self._id !== id_to_remove &&
+    (!game.examiners || !game.examiners.some(e => e.id === self._id))
+  ) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
 
-  if (!game.observers || !game.observers.some(o => o.id === id_to_remove)) {
+  if (!server_command && (!game.observers || !game.observers.some(o => o.id === id_to_remove))) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
     return;
   }
@@ -1059,11 +1059,7 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
   }
 
   if (game.private && self._id !== id_to_remove)
-    ClientMessages.sendMessageToClient(
-      id_to_remove,
-      "server:game:" + game_id,
-      "PRIVATE_ENTRY_REMOVED"
-    );
+    ClientMessages.sendMessageToClient(id_to_remove, message_identifier, "PRIVATE_ENTRY_REMOVED");
 
   if (!!game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) {
     GameCollection.remove({ _id: game_id });
@@ -1149,6 +1145,7 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
   if (!game.private)
     updateobject.$push.analysis = { id: adding_user._id, username: adding_user.username };
 
+  Game.localUnobserveAllGames(message_identifier, id_to_add, id_to_add !== self._id);
   Users.setGameStatus(message_identifier, id_to_add, "observing");
   GameCollection.update({ _id: game_id, status: game.status }, updateobject);
 };
@@ -2273,12 +2270,17 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
   );
 };
 
-Game.localUnobserveAllGames = function(message_identifier, user_id) {
+//
+// Obviously, make sure you never expose "server_command" through any Meteor.method().
+// As of this writing, no Meteor.method() calls this.
+//
+Game.localUnobserveAllGames = function(message_identifier, user_id, server_command) {
   check(message_identifier, String);
   check(user_id, String);
+  check(server_command, Match.Maybe(Boolean));
   GameCollection.find({ "observers.id": user_id }, { _id: 1 })
     .fetch()
-    .forEach(game => Game.localRemoveObserver("server", game._id, user_id));
+    .forEach(game => Game.localRemoveObserver("server", game._id, user_id, server_command));
 };
 
 Game.localResignAllGames = function(message_identifier, user_id, reason) {
@@ -3171,7 +3173,7 @@ function testingCleanupMoveTimers() {
 
 function gameLogoutHook(userId) {
   Game.localResignAllGames("server", userId, 4);
-  Game.localUnobserveAllGames("server", userId);
+  Game.localUnobserveAllGames("server", userId, true);
   Users.setGameStatus("server", userId, "none");
 }
 
@@ -3225,8 +3227,8 @@ Meteor.publishComposite("observing_games", {
               {
                 $and: [
                   { "observers.id": user._id },
-                  { "analysis.id": user._id },
-                  { owner: { $ne: user._id } }
+                  { owner: { $ne: user._id } },
+                  { $or: [{ status: "playing" }, { "analysis.id": user._id }] }
                 ]
               }
             ]
