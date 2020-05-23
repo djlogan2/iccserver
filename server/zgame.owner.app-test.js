@@ -1,7 +1,7 @@
 import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
-import { Users } from "../imports/collections/users";
+import { Meteor } from "meteor/meteor";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
 describe("Game owners", function() {
@@ -93,12 +93,97 @@ describe("Game owners", function() {
     chai.assert.sameDeepMembers([{ id: us._id, username: us.username }], game3.examiners);
   });
 
-  it.skip("will not delete the game when owner logs off if observers are still present", function() {
-    chai.assert.fail("do me");
+  it("will not delete a private game when owner logs off if observers are still present", function() {
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi2", game_id, observer._id);
+    self.loggedonuser = owner;
+    Game.setPrivate("mi3", game_id, true);
+    Game.gameLogoutHook(owner._id);
+    const game1 = Game.collection.findOne();
+    chai.assert.isDefined(game1);
+    chai.assert.isTrue(game1.private);
+    chai.assert.equal(game1.owner, owner._id);
+    chai.assert.sameDeepMembers(
+      [{ id: observer._id, username: observer.username }],
+      game1.observers
+    );
   });
 
-  it.skip("will delete the game when owner logs off if there are no other examiners or observers", function() {
-    chai.assert.fail("do me");
+  it("will set the users status back to examining immediately upon login if he's got a lingering private game", function() {
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi2", game_id, observer._id);
+    self.loggedonuser = owner;
+    Game.setPrivate("mi3", game_id, true);
+    Game.gameLogoutHook(owner._id);
+    const game1 = Game.collection.findOne();
+    chai.assert.isDefined(game1);
+    chai.assert.isTrue(game1.private);
+    chai.assert.equal(game1.owner, owner._id);
+    chai.assert.sameDeepMembers(
+      [{ id: observer._id, username: observer.username }],
+      game1.observers
+    );
+
+    Game.gameLoginHook(owner);
+    const userRecord = Meteor.users.findOne({ _id: owner._id });
+    chai.assert.isDefined(userRecord);
+    chai.assert.equal(userRecord.status.game, "examining");
+
+    const game2 = Game.collection.findOne();
+    chai.assert.sameDeepMembers(
+      [
+        { id: owner._id, username: owner.username },
+        { id: observer._id, username: observer.username }
+      ],
+      game2.observers
+    );
+    chai.assert.sameDeepMembers(
+      [
+        { id: owner._id, username: owner.username },
+        { id: observer._id, username: observer.username }
+      ],
+      game2.observers
+    );
+    chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game2.examiners);
+    chai.assert.sameDeepMembers(
+      [
+        { id: owner._id, username: owner.username },
+        { id: observer._id, username: observer.username }
+      ],
+      game2.analysis
+    );
+  });
+
+  it("will delete a public game when owner logs off if observers are still present", function() {
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi2", game_id, observer._id);
+    self.loggedonuser = owner;
+    Game.gameLogoutHook(owner._id);
+    const game1 = Game.collection.findOne();
+    chai.assert.isUndefined(game1);
+  });
+
+  it("will delete a private game when owner logs off if there are no other observers", function() {
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    self.loggedonuser = owner;
+    Game.setPrivate("mi3", game_id, true);
+    Game.gameLogoutHook(owner._id);
+    const game1 = Game.collection.findOne();
+    chai.assert.isUndefined(game1);
   });
 
   it("will unset the owner if the owner issues a localRemoveObserver to remove himself from the game. It will also make it public", function() {
@@ -210,10 +295,6 @@ describe("Game owners", function() {
     chai.assert.isTrue(game2.deny_chat);
   });
 
-  it.skip("will automatically reattach user to game if owner, upon logon", function() {
-    chai.assert.fail("do me");
-  });
-
   it("can unset the owner", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["allow_change_owner"] });
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
@@ -271,10 +352,6 @@ describe("Game owners", function() {
     chai.assert.equal(self.loggedonuser._id, game2.owner);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_CHANGE_OWNER");
-  });
-
-  it.skip("how does the owner delete this game?", function() {
-    chai.assert.fail("do me");
   });
 
   //
@@ -416,54 +493,19 @@ describe("Game owners", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PRIVATIZE");
   });
 
-  it.skip("has their private game set to public if they are removed from the allow_private_games role", function() {
-    //
-    // We have to figure out how to set up a role removal. We may have to just let the guys current game finish.
-    // (i.e. abandon this test...the role change would have no effect on the current game. It's easiest, for sure.)
-    //
-    const owner = (self.loggedonuser = TestHelpers.createUser({ roles: ["allow_private_games"] }));
-    const requestor = TestHelpers.createUser();
-    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    const game = Game.collection.findOne();
-    chai.assert.isDefined(game.owner);
-    chai.assert.equal(self.loggedonuser._id, game.owner);
-    Game.setPrivate("mi1", game_id, true);
-    self.loggedonuser = requestor;
-    Game.localAddObserver("mi2", game_id, requestor._id);
-    const game2 = Game.collection.findOne();
-    chai.assert.isTrue(game2.private);
-    chai.assert.isDefined(game2.requestors);
-    chai.assert.sameDeepMembers(
-      [{ id: requestor._id, username: requestor.username }],
-      game2.requestors
-    );
-    Users.removeUsersFromRoles(self.loggedonuser._id, "allow_private_games");
-    const game3 = Game.collection.findOne();
-    chai.assert.isUndefined(game3.private);
-    chai.assert.isUndefined(game3.requestors);
-    chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game3.examiners);
-    chai.assert.sameDeepMembers(
-      [
-        { id: owner._id, username: owner.username },
-        { id: requestor._id, username: requestor.username }
-      ],
-      game3.observers
-    );
-  });
-
-  it.skip("will not set users status to observing in a private game when they are on the requestors list", function() {
+  it("will not set users status to observing in a private game when they are on the requestors list", function() {
     chai.assert.fail("do me");
   });
-  it.skip("will set users status to observing in a private game when they are moved from the requestors list to the observers list", function() {
+  it("will set users status to observing in a private game when they are moved from the requestors list to the observers list", function() {
     chai.assert.fail("do me");
   });
-  it.skip("will not allow a user to make a request if they are playing a game", function() {
+  it("will not allow a user to make a request if they are playing a game", function() {
     chai.assert.fail("do me");
   });
-  it.skip("will remove a user from the requestors list if they start playing a game", function() {
+  it("will remove a user from the requestors list if they start playing a game", function() {
     chai.assert.fail("do me");
   });
-  it.skip("will remove a user from all other examined games if their request is accepted", function() {
+  it("will remove a user from all other examined games if their request is accepted", function() {
     chai.assert.fail("do me");
   });
 
@@ -735,7 +777,7 @@ describe("Game owners", function() {
   it("will set 'allow observe requests' flag to true by default if changing game from public to private", function() {
     // already done in will delete 'allow observe requests' flag if changing game from private to public
   });
-  it.skip("will not allow you to change allow observe requests if you are not the owner", function() {
+  it("will not allow you to change allow observe requests if you are not the owner", function() {
     chai.assert.fail("do me");
   });
 
@@ -919,10 +961,6 @@ describe("Game owners", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_RESTRICT_ANALYSIS");
   });
 
-  it.skip("will send computer analysis to everyone in a public game", function() {
-    chai.assert.fail("do me");
-  });
-
   it("will send computer analysis to a player when they are in the analysis array", function(done) {
     const owner = (self.loggedonuser = TestHelpers.createUser({
       roles: ["allow_restrict_analysis", "allow_private_games"]
@@ -973,7 +1011,7 @@ describe("Game owners", function() {
     });
   });
 
-  it.skip("will fail if a non-owner tries to add or remove people from the analysis array", function() {
+  it("will fail if a non-owner tries to add or remove people from the analysis array", function() {
     chai.assert.fail("do me");
   });
 
@@ -1083,19 +1121,19 @@ describe("Game owners", function() {
     });
   });
 
-  it.skip("does not support setting a legacy game private", function() {
+  it("does not support setting a legacy game private", function() {
     chai.assert.fail("do me");
   });
-  it.skip("does not support setting an owner in a legacy game", function() {
+  it("does not support setting an owner in a legacy game", function() {
     chai.assert.fail("do me");
   });
-  it.skip("does not support allowing/denying chat in a legacy game", function() {
+  it("does not support allowing/denying chat in a legacy game", function() {
     chai.assert.fail("do me");
   });
-  it.skip("does not support allowing/denying analysis in a legacy game", function() {
+  it("does not support allowing/denying analysis in a legacy game", function() {
     chai.assert.fail("do me");
   });
-  it.skip("does not support allowing/denying requests in a legacy game", function() {
+  it("does not support allowing/denying requests in a legacy game", function() {
     chai.assert.fail("do me");
   });
 });

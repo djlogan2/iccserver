@@ -1003,11 +1003,18 @@ Game.localAddExaminer = function(message_identifier, game_id, id_to_add) {
   GameCollection.update({ _id: game_id, status: "examining" }, { $push: { examiners: observer } });
 };
 
-Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove, server_command) {
+Game.localRemoveObserver = function(
+  message_identifier,
+  game_id,
+  id_to_remove,
+  server_command,
+  due_to_logout
+) {
   check(message_identifier, String);
   check(game_id, String);
   check(id_to_remove, String);
   check(server_command, Match.Maybe(Boolean));
+  check(due_to_logout, Match.Maybe(Boolean));
 
   // Since we call this on logout, we have to allow an invalid 'self'
   let self;
@@ -1050,7 +1057,18 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove, s
 
   Users.setGameStatus(message_identifier, id_to_remove, "none");
 
-  if (game.owner === id_to_remove && game.private) {
+  let delete_game =
+    !!game.examiners &&
+    game.examiners.length === 1 &&
+    game.examiners[0].id === id_to_remove &&
+    (!game.private ||
+      !game.observers ||
+      game.observers.length < 2); /* i.e. only us, no other observer */
+
+  if (game.private && self._id !== id_to_remove)
+    ClientMessages.sendMessageToClient(id_to_remove, message_identifier, "PRIVATE_ENTRY_REMOVED");
+
+  if (game.owner === id_to_remove && game.private && (!due_to_logout || delete_game)) {
     Game.setPrivate(message_identifier, game_id, false);
     GameCollection.update(
       { _id: game_id, status: "examining" },
@@ -1058,16 +1076,19 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove, s
     );
   }
 
-  if (game.private && self._id !== id_to_remove)
-    ClientMessages.sendMessageToClient(id_to_remove, message_identifier, "PRIVATE_ENTRY_REMOVED");
-
-  if (!!game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) {
+  if (delete_game) {
     GameCollection.remove({ _id: game_id });
     delete active_games[game_id];
   } else {
     GameCollection.update(
       { _id: game_id, status: game.status },
-      { $pull: { examiners: { id: id_to_remove }, observers: { id: id_to_remove } } }
+      {
+        $pull: {
+          examiners: { id: id_to_remove },
+          observers: { id: id_to_remove },
+          analysis: { id: id_to_remove }
+        }
+      }
     );
   }
 };
@@ -2274,13 +2295,16 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
 // Obviously, make sure you never expose "server_command" through any Meteor.method().
 // As of this writing, no Meteor.method() calls this.
 //
-Game.localUnobserveAllGames = function(message_identifier, user_id, server_command) {
+Game.localUnobserveAllGames = function(message_identifier, user_id, server_command, due_to_logout) {
   check(message_identifier, String);
   check(user_id, String);
   check(server_command, Match.Maybe(Boolean));
+  check(due_to_logout, Match.Maybe(Boolean));
   GameCollection.find({ "observers.id": user_id }, { _id: 1 })
     .fetch()
-    .forEach(game => Game.localRemoveObserver("server", game._id, user_id, server_command));
+    .forEach(game =>
+      Game.localRemoveObserver("server", game._id, user_id, server_command, due_to_logout)
+    );
 };
 
 Game.localResignAllGames = function(message_identifier, user_id, reason) {
@@ -3171,9 +3195,22 @@ function testingCleanupMoveTimers() {
   });
 }
 
+function gameLoginHook(user, connection) {
+  const game = GameCollection.findOne({ owner: user._id, status: "examining" });
+  if (!game) return;
+  Users.setGameStatus("server", user, "examining");
+  const guy = { id: user._id, username: user.username };
+  GameCollection.update(
+    { _id: game._id, status: "examining" },
+    {
+      $push: { observers: guy, examiners: guy, analysis: guy }
+    }
+  );
+}
+
 function gameLogoutHook(userId) {
   Game.localResignAllGames("server", userId, 4);
-  Game.localUnobserveAllGames("server", userId, true);
+  Game.localUnobserveAllGames("server", userId, true, true);
   Users.setGameStatus("server", userId, "none");
 }
 
@@ -3183,6 +3220,7 @@ Meteor.startup(function() {
   // TODO: Need to adjourn these, not just delete them
   GameCollection.remove({});
   Users.addLogoutHook(gameLogoutHook);
+  Users.addLoginHook(gameLoginHook);
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
@@ -3191,6 +3229,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
   Game.gameLogoutHook = gameLogoutHook;
+  Game.gameLoginHook = gameLoginHook;
 }
 
 Meteor.publish("playing_games", function() {
