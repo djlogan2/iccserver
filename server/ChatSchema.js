@@ -25,20 +25,18 @@ export const ChatSchema = new SimpleSchema({
     optional: true
 
   },
-  flag: {
-    type: String,
+  kibitz: {
+    type: Boolean,
     optional: true
   },
-  childChatId: {
-    type: String,
+  child_chat: {
+    type: Boolean,
     optional: true
   },
-  childChatExemptText: {
-    type: String,
-    optional: true
-  },
-  group: {
-    type: String,
+  groups: {type: Array, defaultValue: [] },
+    "groups.$": String,
+  restricted: {
+    type: Boolean,
     optional: true,
   },
   role: {

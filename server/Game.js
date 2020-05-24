@@ -2280,14 +2280,16 @@ function finishExportToPGN(game) {
   pgn += " " + game.result;
   return { title, pgn };
 }
-
-Game.kibitz = function(message_identifier,game_id,flag, txt, group) {
+// TODO: replace all kibitz calls with this new arg set
+Game.kibitz = function(message_identifier,game_id,child_chat_exempt,child_chat,kibitz,restricted,groups, txt) {
   check(message_identifier, String);
   check(txt, String);
   check(game_id, String);
-  check(flag, String);
-  check(group, String);
-
+  check(groups, Array);
+  check(child_chat_exempt, Boolean);
+  check(child_chat, Boolean);
+  check(kibitz, Boolean);
+  check(restricted, Boolean);
 
   const self = Meteor.user();
   check(self, Object);
@@ -2301,26 +2303,26 @@ Game.kibitz = function(message_identifier,game_id,flag, txt, group) {
     return;
   }
 
-  if(Users.isAuthorized(self, "child_chat") && flag == "kibitz" || Users.isAuthorized(self, "child_chat") && flag == "child_chat_exempt_kibitz"){
+  if(Users.isAuthorized(self, "child_chat") && kibitz || Users.isAuthorized(self, "child_chat") && child_chat_exempt){
     ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
     return;
   }
-  if(!Users.isAuthorized(self, "child_chat")&& flag == "child_chat_kibitz"){
+  if(!Users.isAuthorized(self, "child_chat")&& child_chat){
     ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_NOT_ALLOWED");
     return;
   }
-  if(!Users.isAuthorized(self, "child_chat_exempt") && flag == "child_chat_exempt_kibitz"){
+  if(!Users.isAuthorized(self, "child_chat_exempt") && child_chat_exempt){
     ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_EXEMPT_KIBITZ_NOT_ALLOWED");
     return;
   }
-  if(!Users.isAuthorized(self, "kibitz") && !Users.isAuthorized(self, "child_chat_exempt") && flag == "kibitz"){
+  if(!Users.isAuthorized(self, "kibitz") && !Users.isAuthorized(self, "child_chat_exempt") && kibitz){
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
     return;
   }
 
-  if (flag == "kibitz") {
+  if (kibitz) {
 
-    ChatCollection.insert({ game_id: game_id, type: "kibitz", issuer: self._id, what: txt , flag: flag});
+    ChatCollection.insert({ game_id: game_id, type: "kibitz", issuer: self._id, what: txt , child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
     GameCollection.update({ _id: game_id, status: game.status }, {
         $push: {
           actions: {
@@ -2334,13 +2336,13 @@ Game.kibitz = function(message_identifier,game_id,flag, txt, group) {
     );
     return;
   }
-if(flag == "child_chat_exempt_kibitz") {
-  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, childChatExemptText: txt, flag: flag});
+if(child_chat_exempt) {
+  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
         actions: {
           type: "kibitz",
           issuer: self._id,
-          parameter:  {childChatExemptText: txt}
+          parameter:  {what: txt}
 
         }
       }
@@ -2348,21 +2350,21 @@ if(flag == "child_chat_exempt_kibitz") {
   );
   return;
 }
-if(flag == "child_chat_kibitz") {
-  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, childChatId: txt, flag: flag});
+if(child_chat) {
+  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
   GameCollection.update({_id: game_id, status: game.status},{ $push: {
         actions: {
           type: "kibitz",
           issuer: self._id,
-          parameter:  {childChatId: txt}
+          parameter:  {what: txt}
         }
       }
     }
   );
   return;
 }
-  if(flag == "group_restricted_kibitz") {
-    ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, flag: flag, group: group}); //TODO: might not work
+  if(restricted) {
+    ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups}); //TODO: might not work
     GameCollection.update({_id: game_id, status: game.status},{ $push: {
           actions: {
             type: "kibitz",
@@ -2379,23 +2381,57 @@ if(flag == "child_chat_kibitz") {
 
 
 
-Meteor.publish("kibitz", function(){
-  if((Users.isAuthorized(Meteor.user(), "kibitz") || Users.isAuthorized(Meteor.user(), "child_chat_exempt"))){
+Meteor.publish("kibitz", function() {
 
-    return ChatCollection.find({$or: [{flag: "kibitz"}, {flag: "child_chat_exempt_kibitz"}, {$and: [{flag: "group_restricted_kibitz"}, {group:{ $in: Meteor.user.groups}}]}]});
-    //TODO: would work if Meteor.users.groups updated from addToGroups, not sure why it doesn't yet
+const games = GameCollection.find({$or: [{"white.id":Meteor.user()._id},{"black.id":Meteor.user()._id},{"observers.$._id":Meteor.user()._id}]});
+let ids = [];
+games.forEach(function(game){
+    ids.push(game._id);
+  });
+
+
+  console.log(ids);
+//TODO: this doesn't work need to find way to pull game_id(s)
+  const query = { $and: [{ game_id: {$in: ids}, groups: { $in: Meteor.user().groups || [] } }] };
+  console.log(ChatCollection.find(query).fetch());
+  //
+  //
+  // Kibitz collection:
+  // _id: the <- id
+  // game_id: <- the game id
+  // issuer: <- The guy doing the talking
+  // kibitz: true/false <- false if it's a whisper
+  // child_chat: true/false <- turn this on if a child does a child chat thing, or an exempt person writes anything
+  // groups: [] <- you need the list of groups of the guy that wrote this
+  // restricted: <- Whether this guy is a restricted guy
+  //
+  // In the kibitz/whisper, it's going to be something like this:
+  //    kibitz.child_chat = user.child_chat or user.exempt;
+  //    kibitz.groups = user.groups || [];
+  //    kibitz.restricted = user.restricted;
+  //
+  // select * from chats
+  //  where game_id = :game_id
+  //  [and child_chat = true]
+  //   and restricted = false                        <- receiver is not in group(s)
+  //   and (restricted = false or groups/intersect)  <- receiver is in group(s) but not restricted
+  //   and (groups/intersect)                        <- receiver restricted
+
+  if (Users.isAuthorized("child_chat")) {
+    query.$and.push({ child_chat: true });
   }
-
-  if(Users.isAuthorized(Meteor.user(), "child_chat")){
-      return ChatCollection.find({$or: [{flag: "child_chat_kibitz"},{flag: "child_chat_exempt_kibitz"}]});
+  console.log(ChatCollection.find(query).fetch());
+  if (!Meteor.user().groups) {
+    query.$and.push({ restricted: false });
+  } else if (Meteor.user().restricted) {
+    query.$and.push({ groups: { $in: Meteor.user().groups } });
+  } else {
+    query.$and.push({ $or: [{ restricted: false }, { groups: { $in: Meteor.user().groups } }] });
   }
-
-  //if(Users.isAuthorized(Meteor.user(), "kibitz") || Users.isAuthorized(Meteor.user(), "child_chat_exempt")){
- //   return ChatCollection.find({type: "kibitz"}, {$not: {flag: "group_restricted_kibitz"}});
- // }
-
-
+  console.log(ChatCollection.find(query).fetch());
+  return ChatCollection.find(query);
 });
+
 
 
 

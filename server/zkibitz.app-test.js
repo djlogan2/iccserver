@@ -31,7 +31,7 @@ describe.only("kibitzes", function() {
 
     chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[], testText);
 
     const localCollection = Game.collection.findOne({ _id: game_id_local });
 
@@ -70,7 +70,7 @@ describe.only("kibitzes", function() {
 
     chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1", game_id_legacy,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_legacy,false,false,true,false,[], testText);
 
     const legacyCollection = Game.collection.findOne({ _id: game_id_legacy });
 
@@ -95,7 +95,7 @@ describe.only("kibitzes", function() {
 
     chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1", game_id_examined,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_examined,false,false,true,false,[], testText);
 
     const examinedCollection = Game.collection.findOne({ _id: game_id_examined });
 
@@ -134,7 +134,7 @@ describe.only("kibitzes", function() {
 
     const player1Collector = new PublicationCollector({ userId: player1._id });
     const player2Collector = new PublicationCollector({ userId: player2._id });
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[], testText);
 
     player1Collector.collect("kibitz", collections => {
       self.loggedonuser = player1;
@@ -171,7 +171,7 @@ describe.only("kibitzes", function() {
 
     chai.assert.isDefined(player1);
     chai.assert.isDefined(player1._id);
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[],testText);
     Game.resignLocalGame("mi1", game_id_local);
     Game.localRemoveObserver("mi2", game_id_local, player1._id);
     self.loggedonuser = player2;
@@ -208,7 +208,7 @@ describe.only("kibitzes", function() {
     chai.assert.isDefined(player2._id);
     const player1Collector = new PublicationCollector({ userId: player1._id });
     const player2Collector = new PublicationCollector({ userId: player2._id });
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[],testText);
 
     player1Collector.collect("kibitz", collections => {
 
@@ -249,13 +249,13 @@ describe.only("kibitzes", function() {
     chai.assert.isDefined(player1._id);
 
 
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[],testText);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_KIBITZ", "Failed to prevent incorrect role kibitz");
     self.loggedonuser = player2;
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[], testText);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
 
@@ -283,7 +283,7 @@ describe.only("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local,"child_chat_kibitz", testId, "");
+    Game.kibitz("mi1", game_id_local,false,true,true,false,[],testId);
     chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
     chai.assert.isUndefined(Game.chatCollection.findOne({}).what, "child chat kibitz set the child chat field");
 
@@ -314,13 +314,13 @@ describe.only("kibitzes", function() {
 
 
 
-    Game.kibitz("mi1",game_id_local,"child_chat_kibitz", testId, "");
+    Game.kibitz("mi1",game_id_local,false,true,true,false,[], testId);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_NOT_ALLOWED", "Failed to prevent incorrect role child_chat");
     self.loggedonuser = player2;
-    Game.kibitz("mi1",game_id_local,"child_chat_kibitz", testId, "");
+    Game.kibitz("mi1",game_id_local,false,true,true,false,[], testId);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
 
@@ -348,13 +348,13 @@ describe.only("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1",game_id_local,"kibitz", game_id_local, testText, "");
+    Game.kibitz("mi1",game_id_local,false,false,true,false,[], testText);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED", "Failed to prevent incorrect role child_chat");
     self.loggedonuser = player2;
-    Game.kibitz("mi1",game_id_local, "kibitz", testText, "");
+    Game.kibitz("mi1",game_id_local, false,false,true,false,[], testText);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
 
@@ -381,9 +381,9 @@ describe.only("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[], testText);
     chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
-    chai.assert.isUndefined(Game.chatCollection.findOne({}).childChatId, "Kibitz set the child chat field");
+    chai.assert.isUndefined(Game.chatCollection.findOne({}).what, "Kibitz set the child chat field");
     chai.assert.equal(Game.chatCollection.findOne({}).what.length,testText.length, "Kibitz failed to set what field");
 
 
@@ -410,11 +410,10 @@ describe.only("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local,"child_chat_exempt_kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,true,false,true,false,[], testText);
     chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
-    chai.assert.isUndefined(Game.chatCollection.findOne({}).what, "Exempt kibitz set the what field incorrectly")
-    chai.assert.isUndefined(Game.chatCollection.findOne({}).childChatId, "Exempt Kibitz set the child chat field");
-    chai.assert.equal(Game.chatCollection.findOne({}).childChatExemptText.length,testText.length, "Exempt Kibitz failed to set exempt field");
+    chai.assert.isUndefined(Game.chatCollection.findOne({}).what, "Exempt kibitz set the what field incorrectly");
+    chai.assert.equal(Game.chatCollection.findOne({}).what.length,testText.length, "Exempt Kibitz failed to set exempt field");
 
   });
   it("should not publish non-compliant kibitzes (child_chat, child_chat_exempt) when user record indicates user is child_chat protected", function(done) {
@@ -446,7 +445,7 @@ describe.only("kibitzes", function() {
     chai.assert.isDefined(player2._id);
     const player1Collector = new PublicationCollector({ userId: player1._id });
     const player2Collector = new PublicationCollector({ userId: player2._id });
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[], testText);
 
     player1Collector.collect("kibitz", collections => {
 
@@ -481,7 +480,7 @@ describe.only("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1",game_id_local,"kibitz", game_id_local, testText, "");
+    Game.kibitz("mi1",game_id_local,false,false,true,false,[], testText);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
@@ -533,9 +532,9 @@ describe.only("kibitzes", function() {
     const player2Collector = new PublicationCollector({ userId: player2._id });
     const player3Collector = new PublicationCollector({ userId: player3._id });
 
-    Game.kibitz("mi1", game_id_local,"kibitz", testText, "testGroup");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,["testGroup"], testText);
     self.loggedonuser = player2;
-    Game.kibitz("mi2", game_id_local, "group_restricted_kibitz", testText2, "testGroup");
+    Game.kibitz("mi2", game_id_local, false,false,true,true,["testGroup"], testText2);
     self.loggedonuser = player1;
 
     player1Collector.collect("kibitz", collections => {
@@ -598,11 +597,11 @@ describe.only("kibitzes", function() {
     const player2Collector = new PublicationCollector({ userId: player2._id });
     const player3Collector = new PublicationCollector({ userId: player3._id });
 
-    Game.kibitz("mi1", game_id_local,"kibitz", testText,"");
+    Game.kibitz("mi1", game_id_local,false,false,true,false,[], testText);
     self.loggedonuser = player2;
-    Game.kibitz("mi2", game_id_local, "kibitz", testText2,"testGroup");
+    Game.kibitz("mi2", game_id_local, false,false,true,false,["testGroup"], testText2);
     self.loggedonuser = player3;
-    Game.kibitz("mi5", game_id_local, "group_restricted_kibitz", testText3, "testGroup");
+    Game.kibitz("mi5", game_id_local, false,false,true,true,["testGroup"], testText3);
     self.loggedonuser = player1;
     player1Collector.collect("kibitz", collections => {
       chai.assert.equal(collections.chat.length, 2, "public members got a restricted kibitz");
