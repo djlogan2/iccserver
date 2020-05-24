@@ -4,7 +4,6 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 
 describe("Game status field in user record", function() {
-  this.timeout(30000);
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   const statii = ["none", "playing_local", "playing_legacy", "observing", "examining"];
@@ -33,10 +32,10 @@ describe("Game status field in user record", function() {
           0,
           "standard",
           true,
-          15,
+          1,
           0,
           "none",
-          15,
+          1,
           0,
           "none"
         );
@@ -72,10 +71,10 @@ describe("Game status field in user record", function() {
           0,
           "standard",
           true,
-          15,
+          1,
           0,
           "none",
-          15,
+          1,
           0,
           "none"
         );
@@ -275,7 +274,7 @@ describe("Game status field in user record", function() {
         ]);
         break;
       case "time":
-        self.clock.tick(15 * 60 * 1000); // Let the 15 minutes expire. The game should end
+        self.clock.tick(1 * 60 * 1000); // Let the 15 minutes expire. The game should end
         break;
       default:
         break;
@@ -287,6 +286,7 @@ describe("Game status field in user record", function() {
     it(
       "should correctly set user status when transitioning from " + from + " to " + to,
       function() {
+        this.timeout(62000);
         const user = TestHelpers.createUser();
         chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, "none");
         setupCondition(user, from);
@@ -314,14 +314,14 @@ describe("Game status field in user record", function() {
   }
 
   gameends.forEach(ge => {
-    it("should correctly set status to examining when game ends by " + ge, function() {
-      this.timeout(30000);
+    it("should correctly set status to examining when game ends by " + ge, function(done) {
       const user = TestHelpers.createUser();
       chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, "none");
       setupCondition(user, "playing_local");
       chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, "playing");
       endGame(user, ge);
       chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, "examining");
+      done();
     });
   });
 });
