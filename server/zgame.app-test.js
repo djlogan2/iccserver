@@ -4007,6 +4007,7 @@ describe("Game clocks", function() {
   });
 
   it("should automatically end the game when time expires", function() {
+    this.timeout(200000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;

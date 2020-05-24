@@ -494,19 +494,138 @@ describe("Game owners", function() {
   });
 
   it("will not set users status to observing in a private game when they are on the requestors list", function() {
-    chai.assert.fail("do me");
+    this.timeout(500000);
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.setPrivate("mi2", game_id, true);
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi3", game_id, observer._id);
+    const game = Game.collection.findOne();
+    chai.assert.sameDeepMembers(
+      [{ id: observer._id, username: observer.username, mid: "mi3" }],
+      game.requestors
+    );
+    const observer_user = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user.status.game, "none");
   });
+
   it("will set users status to observing in a private game when they are moved from the requestors list to the observers list", function() {
-    chai.assert.fail("do me");
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.setPrivate("mi2", game_id, true);
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi3", game_id, observer._id);
+    const game1 = Game.collection.findOne();
+    chai.assert.sameDeepMembers(
+      [{ id: observer._id, username: observer.username, mid: "mi3" }],
+      game1.requestors
+    );
+    const observer_user1 = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user1.status.game, "none");
+    self.loggedonuser = owner;
+    Game.localAddObserver("mi4", game_id, observer._id);
+    const game2 = Game.collection.findOne();
+    chai.assert.sameDeepMembers(
+      [
+        { id: observer._id, username: observer.username },
+        { id: owner._id, username: owner.username }
+      ],
+      game2.observers
+    );
+    const observer_user2 = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user2.status.game, "observing");
   });
+
   it("will not allow a user to make a request if they are playing a game", function() {
-    chai.assert.fail("do me");
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.setPrivate("mi2", game_id, true);
+    self.loggedonuser = observer;
+    Game.startLocalGame("mi3", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+    const observer_user1 = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user1.status.game, "playing");
+    Game.localAddObserver("mi3", game_id, observer._id);
+    const game = Game.collection.findOne();
+    chai.assert.isTrue(!game.requestors || !game.requestors.length);
+    const observer_user2 = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user2.status.game, "playing");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_PLAYING");
   });
+
   it("will remove a user from the requestors list if they start playing a game", function() {
+    this.timeout(500000);
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.setPrivate("mi2", game_id, true);
+    self.loggedonuser = observer;
+    Game.localAddObserver("mi3", game_id, observer._id);
+    const game1 = Game.collection.findOne();
+    chai.assert.sameDeepMembers(
+      [{ id: observer._id, username: observer.username, mid: "mi3" }],
+      game1.requestors
+    );
+    const observer_user1 = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user1.status.game, "none");
+    Game.startLocalGame("mi3", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+    const game2 = Game.collection.findOne();
+    chai.assert.isTrue(!game2.requestors || !game2.requestors.length);
+    const observer_user2 = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user2.status.game, "playing");
+  });
+
+  it("will not allow an owner of a private game to start a played game", function() {
     chai.assert.fail("do me");
   });
-  it("will remove a user from all other examined games if their request is accepted", function() {
+  it("will not allow an owner of a private game to start an examined game", function() {
     chai.assert.fail("do me");
+  });
+  it("will not allow an owner of a private game to observe any other game", function() {
+    chai.assert.fail("do me");
+  });
+
+  it("will remove a user from all other examined games if their request is accepted", function() {
+    const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const observer = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const game_id1 = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.setPrivate("mi2", game_id1, true);
+    self.loggedonuser = observer;
+    Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.localAddObserver("mi3", game_id1, observer._id);
+    const game_collection = Game.collection.find().fetch();
+    chai.assert.equal(game_collection.length, 2);
+    const game1 = game_collection.find(g => g._id === game_id1);
+    chai.assert.sameDeepMembers(
+      [{ id: observer._id, username: observer.username, mid: "mi3" }],
+      game1.requestors
+    );
+    const observer_user = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user.status.game, "examining");
+    self.loggedonuser = owner;
+    Game.localAddObserver("mi4", game_id1, observer._id);
+    const game_collection2 = Game.collection.find().fetch();
+    chai.assert.equal(game_collection2.length, 1);
+    const game2 = game_collection2[0];
+    chai.assert.sameDeepMembers(
+      [
+        { id: observer._id, username: observer.username },
+        { id: owner._id, username: owner.username }
+      ],
+      game2.observers
+    );
+    const observer_user2 = Meteor.users.findOne({ _id: observer._id });
+    chai.assert.equal(observer_user2.status.game, "observing");
   });
 
   it("will add a requestor to the requestors list if they try to observe a private game allowing observe requests", function() {

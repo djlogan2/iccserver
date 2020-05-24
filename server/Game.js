@@ -385,6 +385,7 @@ Game.startLocalExaminedGame = function(message_identifier, white_name, black_nam
     variations: { hmtb: 0, cmi: 0, movelist: [{}] }
   };
 
+  Users.setGameStatus(message_identifier, self, "examining");
   const game_id = GameCollection.insert(game);
   active_games[game_id] = chess;
   return game_id;
@@ -1036,7 +1037,7 @@ Game.localRemoveObserver = function(
       "game id does not exist"
     );
 
-  if (game.private) {
+  if (game.private && self._id !== id_to_remove) {
     if (self._id !== game.owner) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
       return;
@@ -1050,7 +1051,12 @@ Game.localRemoveObserver = function(
     return;
   }
 
-  if (!server_command && (!game.observers || !game.observers.some(o => o.id === id_to_remove))) {
+  if (game.requestors && game.requestors.some(r => r.id === id_to_remove)) {
+    // We have a requestor to remove
+  } else if (
+    !server_command &&
+    (!game.observers || !game.observers.some(o => o.id === id_to_remove))
+  ) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
     return;
   }
@@ -1086,6 +1092,7 @@ Game.localRemoveObserver = function(
         $pull: {
           examiners: { id: id_to_remove },
           observers: { id: id_to_remove },
+          requestors: { id: id_to_remove },
           analysis: { id: id_to_remove }
         }
       }
@@ -1117,6 +1124,11 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
     );
   if (game.legacy_game_number)
     throw new ICCMeteorError(message_identifier, "Unable to add observer", "Game is a legacy game");
+
+  if (Game.isPlayingGame(id_to_add)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
 
   if (game.private) {
     if (self._id === game.owner) {
@@ -2300,7 +2312,10 @@ Game.localUnobserveAllGames = function(message_identifier, user_id, server_comma
   check(user_id, String);
   check(server_command, Match.Maybe(Boolean));
   check(due_to_logout, Match.Maybe(Boolean));
-  GameCollection.find({ "observers.id": user_id }, { _id: 1 })
+  GameCollection.find(
+    { $or: [{ "observers.id": user_id }, { "requestors.id": user_id }] },
+    { _id: 1 }
+  )
     .fetch()
     .forEach(game =>
       Game.localRemoveObserver("server", game._id, user_id, server_command, due_to_logout)

@@ -20,7 +20,7 @@ describe("Game status field in user record", function() {
     "time"
   ];
 
-  function setupCondition(user, condition) {
+  function setupCondition(user, condition, fromcondition) {
     switch (condition) {
       case "none":
         self.loggedonuser = user;
@@ -83,6 +83,15 @@ describe("Game status field in user record", function() {
         Game.localAddObserver("mi2", game_id, user._id);
         break;
       case "examining":
+        const game = Game.collection.findOne({
+          $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
+        });
+        if (!!game && (game.white.id === user._id || game.black.id === user._id)) {
+          if (!!game.legacy_game_number)
+            Game.legacyGameEnded("mi4", game.legacy_game_number, true, "grc", "0-1");
+          else Game.resignLocalGame("mi5", game._id);
+          return;
+        }
         const owner = TestHelpers.createUser();
         self.loggedonuser = owner;
         const game_id2 = Game.startLocalExaminedGame("mi2", "white", "black", 0);
@@ -298,6 +307,7 @@ describe("Game status field in user record", function() {
     for (let y = x + 1; y < statii.length; y++) {
       if (statii[x] === "playing_local" && statii[y] === "playing_legacy") continue;
       if (statii[x] === "playing_local" && statii[y] === "observing") continue;
+      if (statii[x] === "playing_legacy" && statii[y] === "observing") continue;
       if (statii[x] !== "playing_local" || statii[y] !== "examining") doit(statii[x], statii[y]);
       doit(statii[y], statii[x]);
     }
