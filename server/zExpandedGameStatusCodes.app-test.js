@@ -3,7 +3,6 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 
 describe("Expanded game status codes", function() {
-  //this.timeout(500000);
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   function playGame(moves) {
@@ -47,10 +46,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_0");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b0");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_0");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b0");
   });
 
   it("should record status2 of zero when black resigns", function() {
@@ -64,10 +63,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_0");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w0");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_0");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w0");
   });
 
   //   [1, "Mat", "<color> checkmated"],
@@ -80,10 +79,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w1");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_1");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w1");
   });
 
   it("should record status2 of 1 when white is checkmated", function() {
@@ -95,10 +94,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b1");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_1");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b1");
   });
 
   //   [2, "Fla", "<color> forfeits on time."],
@@ -114,10 +113,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b2");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_2");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b2");
   });
 
   it("should record status2 of 2 when black runs out of time", function() {
@@ -132,10 +131,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w2");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_2");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w2");
   });
 
   //   [3, "Adj", "<opposite-color> declared the winner by adjudication"],
@@ -159,10 +158,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b4");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_4");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b4");
   });
 
   it("should record status2 of 4 when black disconnects and forfeits", function() {
@@ -176,10 +175,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w4");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_4");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w4");
   });
 
   //   [5, "?Q", "<color> got disconnected and forfeits"],
@@ -213,10 +212,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_13");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b13");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_13");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b13");
   });
 
   //   [14, "Sta", "<color> stalemated"],
@@ -230,10 +229,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_14");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b14");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_14");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b14");
   });
 
   it("should record status2 of 14 when black gets stalemated", function() {
@@ -246,10 +245,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_14");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w14");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_14");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w14");
   });
 
   //   [15, "Rep", "Game drawn by repetition"],
@@ -264,14 +263,15 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_15");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w15");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_15");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w15");
   });
 
   //   [16, "50", "Game drawn by the 50 move rule"],
   it("should record status2 of 16 when white draws by the 50 move rule", function() {
+    this.timeout(5000);
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["e3","e6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nc3","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Be2","Bf8","Bf1","Nc6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nge2","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Ng3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Bc5","Bd3","Bb4","Bc4","Ba3","Bb5","Bb4","Ba6","Bc5","Bb5","Bd6","Bc4","Be7","Bd3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Nge7","Bd3","Bc5","Bc4","Bb4","Bb5","Ba3","Ba6","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","O-O","Be2","Bc5","O-O","Bb4","Bd3","Ba3","Bc4","Bb4","Bb5","Bc5","Ba6","Bd6","Bb5","Bc5","Bc4","Bd6","Re1","Re8"]);
     Game.requestLocalDraw("mi2", result.game_id);
@@ -282,13 +282,14 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_16");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w16");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_16");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w16");
   });
 
   it("should record status2 of 16 when black draws by the 50 move rule", function() {
+    this.timeout(5000);
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["e3","e6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nc3","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Be2","Bf8","Bf1","Nc6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nge2","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Ng3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Bc5","Bd3","Bb4","Bc4","Ba3","Bb5","Bb4","Ba6","Bc5","Bb5","Bd6","Bc4","Be7","Bd3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Nge7","Bd3","Bc5","Bc4","Bb4","Bb5","Ba3","Ba6","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","O-O","Be2","Bc5","O-O","Bb4","Bd3","Ba3","Bc4","Bb4","Bb5","Bc5","Ba6","Bd6","Bb5","Bc5","Bc4","Bd6","Bd3","Re8","Re1"]);
     Game.requestLocalDraw("mi2", result.game_id);
@@ -299,10 +300,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_16");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b16");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_16");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b16");
   });
 
   //   [17, "TM", "<color> ran out of time and <opposite-color> has no material to mate"],
@@ -319,10 +320,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_17");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w17");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_17");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w17");
   });
 
   it.skip("should record status2 of 17 when black ran out of time without white having mating material", function() {
@@ -338,10 +339,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_17");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w17");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_17");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w17");
   });
 
   //   [18, "NM", "Game drawn because neither player has mating material"],
@@ -355,10 +356,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_18");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b18");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_18");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b18");
   });
   //   [19, "NT", "Game drawn because both players ran out of time"],
   //   [20, "Adj", "Game drawn by adjudication"],
@@ -382,10 +383,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_24");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b24");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_24");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b24");
   });
   //   [25, "?", "Game adjourned when <color> disconnected"],
   //   [26, "?", "Game adjourned by system shutdown"],
@@ -409,10 +410,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_30");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b30");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_30");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b30");
   });
   //   [31, "?Q", "Game aborted when <color> disconnected"],
   it.skip("should record status2 of 31 when white disconnected and game was aborted", function() {
@@ -447,10 +448,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_37");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_w37");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_37");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_w37");
   });
 
   it("should record status2 of 37 when black aborted at move 1", function() {
@@ -464,10 +465,10 @@ describe("Expanded game status codes", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], result.p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_37");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b37");
     chai.assert.equal(self.clientMessagesSpy.args[1][0], result.p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[1][1], "server:game:" + game._id);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_37");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "GAME_STATUS_b37");
   });
   //   [38, "Sho", "Game aborted by <color>'s partner at move 1"],
   //   [39, "Sho", "Game aborted because it's too short"],

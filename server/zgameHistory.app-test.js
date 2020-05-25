@@ -386,7 +386,7 @@ describe("Game history", function() {
     compare(game_history_fields, game);
   });
 
-  it("needs to add/create all of the necessaray game collection fields when copying to game/examine", function() {
+  it("needs to add/create all of the necessary game collection fields when copying to game/examine", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const p3 = TestHelpers.createUser();
@@ -434,8 +434,8 @@ describe("Game history", function() {
     GameHistory.examineGame("mi2", hgame._id);
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 1);
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_PLAYING");
+    chai.assert.isTrue(self.clientMessagesSpy.calledThrice);
+    chai.assert.equal(self.clientMessagesSpy.args[2][2], "ALREADY_PLAYING");
   });
 
   it("needs to unobserve all other games if a user examines a game history game", function() {

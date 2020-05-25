@@ -459,34 +459,31 @@ describe("User groups", function() {
     });
   });
 
-  it.skip("should not show any logged on members if user is not in the 'show_users' role", function(done) {
-    // TODO: I am having trouble with Meteor.publishComposite vs Meteor.publish. This runs with the latter, but so far, not with the former.
+  it("should not show any logged on members if user is not in the 'show_users' role", function(done) {
     const user = TestHelpers.createUser({ roles: ["login"] });
     for (let x = 0; x < 4; x++) TestHelpers.createUser();
     self.loggedonuser = user;
     chai.assert.equal(Meteor.users.find({ "status.online": true }).count(), 5);
     const collector = new PublicationCollector({ userId: self.loggedonuser._id });
     collector.collect("loggedOnUsers", collections => {
-      chai.assert.equal(collections.users.length, 0); // Just us and our other group guy
+      chai.assert.equal(collections.users.length, 1);
       done();
     });
   });
 
-  it.skip("should show only logged on group members if 'limit_to_group' setting is set to 'true'", function(done) {
-    // TODO: I am having trouble with Meteor.publishComposite vs Meteor.publish. This runs with the latter, but so far, not with the former.
+  it("should show only logged on group members if 'limit_to_group' setting is set to 'true'", function(done) {
     TestHelpers.createUser();
     TestHelpers.createUser({ groups: "group1" });
     TestHelpers.createUser({ groups: "group2" });
     self.loggedonuser = TestHelpers.createUser({ groups: "group2", limit_to_group: true });
     const collector = new PublicationCollector({ userId: self.loggedonuser._id });
     collector.collect("loggedOnUsers", collections => {
-      chai.assert.equal(collections.users.length, 2); // Just us and our other group guy
+      chai.assert.equal(collections.users.length, 2);
       done();
     });
   });
 
-  it.skip("should show all logged on group members if group 'limit_to_group' setting is set to 'false'", function(done) {
-    // TODO: I am having trouble with Meteor.publishComposite vs Meteor.publish. This runs with the latter, but so far, not with the former.
+  it("should show all logged on group members if group 'limit_to_group' setting is set to 'false'", function(done) {
     TestHelpers.createUser();
     TestHelpers.createUser({ groups: "group1" });
     TestHelpers.createUser({ groups: "group2" });

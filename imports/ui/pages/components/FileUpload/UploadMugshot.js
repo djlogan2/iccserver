@@ -12,13 +12,13 @@ export default class UploadMugshot extends FileUpload {
     msFile.creatorId = Meteor.userId();
     msFile.validated = false;
     MugshotCollection.insert(msFile, function(err, fileObj) {
-      if (!err) {
-        Meteor.call("validatemugshot", "mi1", fileObj._id);
-        //alert("Upload mugshot complete");
-        // do callback stuff
-      } else {
-        alert("Upload mugshot error: " + err);
-      }
+      // if (!err) {
+      //   Meteor.call("validatemugshot", "mi1", fileObj._id);
+      //   //alert("Upload mugshot complete");
+      //   // do callback stuff
+      // } else {
+      //   alert("Upload mugshot error: " + err);
+      // }
     });
   }
 }

@@ -49,7 +49,8 @@ const actionSchema = new SimpleSchema({
       "settomove",
       "setcastling",
       "setenpassant",
-      "settag"
+      "settag",
+      "loadfen"
     ]
   },
   parameter: {
@@ -66,6 +67,7 @@ const actionSchema = new SimpleSchema({
   "parameter.piece": { type: String, required: false },
   "parameter.move": { type: String, required: false },
   "parameter.castling": { type: String, required: false },
+  "parameter.fen": { type: String, required: false },
   "parameter.tag": { type: String, required: false },
   "parameter.value": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },
@@ -83,6 +85,19 @@ export const ExaminedGameSchema = new SimpleSchema({
   },
   result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*"] },
   status2: { type: Number, required: false },
+  owner: { type: String, required: false },
+  private: { type: Boolean, required: false },
+  requestors: { type: Array, required: false },
+  "requestors.$": Object,
+  "requestors.$.id": String,
+  "requestors.$.username": String,
+  "requestors.$.mid": String,
+  analysis: { type: Array, required: false },
+  "analysis.$": Object,
+  "analysis.$.id": String,
+  "analysis.$.username": String,
+  deny_requests: { type: Boolean, required: false },
+  deny_chat: { type: Boolean, required: false },
   fen: String,
   tomove: String,
   legacy_game_number: {

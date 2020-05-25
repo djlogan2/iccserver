@@ -17,6 +17,7 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
+import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
 
@@ -182,8 +183,8 @@ Game.startLocalGame = function(
     return;
   }
 
-  Game.localUnobserveAllGames(message_identifier, self._id);
-  Game.localUnobserveAllGames(message_identifier, other_user._id);
+  Game.localUnobserveAllGames(message_identifier, self._id, true);
+  Game.localUnobserveAllGames(message_identifier, other_user._id, true);
 
   const chess = new Chess.Chess();
 
@@ -279,22 +280,59 @@ Game.startLocalGame = function(
   return game_id;
 };
 
-Game.startLocalExaminedGameWithObject = function(game_object, chess_object) {
+Game.startLocalExaminedGameWithObject = function(message_identifier, game_object) {
+  const self = Meteor.user();
+
+  check(self, Object);
+  check(message_identifier, String);
   check(game_object, Object);
-  check(chess_object, Object);
+
+  game_object.owner = self._id;
+
+  if (!game_object.status) game_object.status = "examining";
+  if (!game_object.white) game_object.white = { name: "?", rating: 1600 };
+  if (!game_object.black) game_object.black = { name: "?", rating: 1600 };
+  if (!game_object.white.name) game_object.white.name = "?";
+  if (!game_object.black.name) game_object.black.name = "?";
+  if (!game_object.white.rating) game_object.white.rating = 1600;
+  if (!game_object.black.rating) game_object.black.rating = 1600;
+  if (!game_object.wild) game_object.wild = 0;
+  if (!game_object.actions) game_object.actions = [];
+  if (!game_object.clocks)
+    game_object.clocks = {
+      white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
+      black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+    };
+  if (!game_object.startTime) game_object.startTime = new Date();
+  if (!game_object.tomove) game_object.tomove = "w";
+  if (!game_object.actions) game_object.actions = [];
+  if (!game_object.variations) game_object.variations = { movelist: [{}] };
+  if (!game_object.variations.cmi) game_object.variations.cmi = 0;
+
+  game_object.examiners = [{ id: self._id, username: self.username }];
+  game_object.observers = [{ id: self._id, username: self.username }];
+
+  const chess = new Chess.Chess();
+  if (game_object.tags && game_object.tags.FEN) {
+    game_object.fen = game_object.tags.FEN;
+    if (!chess.load(game_object.tags.FEN))
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to examine saved game",
+        "FEN string is invalid"
+      );
+    game_object.tomove = chess.turn() === "w" ? "white" : "black";
+  } else {
+    game_object.fen = chess.fen();
+  }
+
   delete game_object._id; // For safety
   const game_id = GameCollection.insert(game_object);
-  active_games[game_id] = chess_object;
+  active_games[game_id] = chess;
   return game_id;
 };
 
-Game.startLocalExaminedGame = function(
-  message_identifier,
-  white_name,
-  black_name,
-  wild_number,
-  other_headers
-) {
+Game.startLocalExaminedGame = function(message_identifier, white_name, black_name, wild_number) {
   const self = Meteor.user();
 
   check(self, Object);
@@ -302,7 +340,6 @@ Game.startLocalExaminedGame = function(
   check(white_name, String);
   check(black_name, String);
   check(wild_number, Number);
-  check(other_headers, Match.Maybe(Object));
 
   if (!self.status.online) {
     throw new ICCMeteorError(
@@ -327,6 +364,7 @@ Game.startLocalExaminedGame = function(
   const chess = new Chess.Chess();
 
   const game = {
+    owner: self._id,
     starttime: new Date(),
     result: "*",
     fen: chess.fen(),
@@ -347,7 +385,7 @@ Game.startLocalExaminedGame = function(
     variations: { hmtb: 0, cmi: 0, movelist: [{}] }
   };
 
-  if (!!other_headers) game.tags = other_headers;
+  Users.setGameStatus(message_identifier, self, "examining");
   const game_id = GameCollection.insert(game);
   active_games[game_id] = chess;
   return game_id;
@@ -462,7 +500,7 @@ Game.startLegacyGame = function(
     return;
   }
 
-  Game.localUnobserveAllGames(message_identifier, self._id);
+  Game.localUnobserveAllGames(message_identifier, self._id, true);
 
   const game = {
     starttime: new Date(),
@@ -906,6 +944,11 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
       "Issuer is not an examiner"
     );
 
+  if (game.private && game.owner !== self._id) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
+
   if (!game.examiners || game.examiners.map(e => e.id).indexOf(id_to_remove) === -1) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
@@ -919,7 +962,7 @@ Game.localRemoveExaminer = function(message_identifier, game_id, id_to_remove) {
   );
 };
 
-Game.localAddExamainer = function(message_identifier, game_id, id_to_add) {
+Game.localAddExaminer = function(message_identifier, game_id, id_to_add) {
   check(message_identifier, String);
   check(game_id, String);
   check(id_to_add, String);
@@ -940,6 +983,11 @@ Game.localAddExamainer = function(message_identifier, game_id, id_to_add) {
     return;
   }
 
+  if (game.private && self._id !== game.owner) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
+
   const observer = game.observers && game.observers.find(o => o.id === id_to_add);
   if (!observer) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
@@ -956,17 +1004,27 @@ Game.localAddExamainer = function(message_identifier, game_id, id_to_add) {
   GameCollection.update({ _id: game_id, status: "examining" }, { $push: { examiners: observer } });
 };
 
-Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
+Game.localRemoveObserver = function(
+  message_identifier,
+  game_id,
+  id_to_remove,
+  server_command,
+  due_to_logout
+) {
   check(message_identifier, String);
   check(game_id, String);
   check(id_to_remove, String);
+  check(server_command, Match.Maybe(Boolean));
+  check(due_to_logout, Match.Maybe(Boolean));
 
   // Since we call this on logout, we have to allow an invalid 'self'
   let self;
-  if (message_identifier !== "server") {
-    self = Meteor.user();
-    check(self, Object);
+  if (!server_command) self = Meteor.user();
+  else {
+    self = Meteor.users.findOne({ _id: id_to_remove });
+    if (message_identifier === "server") message_identifier = "server:game:" + game_id;
   }
+  check(self, Object);
 
   const game = GameCollection.findOne({
     _id: game_id
@@ -979,28 +1037,65 @@ Game.localRemoveObserver = function(message_identifier, game_id, id_to_remove) {
       "game id does not exist"
     );
 
-  if (!game.observers || game.observers.map(o => o.id).indexOf(id_to_remove) === -1) {
-    if (!!self) ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
+  if (game.private && self._id !== id_to_remove) {
+    if (self._id !== game.owner) {
+      ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
+      return;
+    }
+  } else if (
+    !server_command &&
+    self._id !== id_to_remove &&
+    (!game.examiners || !game.examiners.some(e => e.id === self._id))
+  ) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
     return;
   }
-  // TODO: We need to be able to do this from places other than meteor method, so move this check to meteor method
-  /*
-  if (!!self && id_to_remove !== self._id)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to remove observer",
-      "You can only remove yourself"
-    );
-*/
+
+  if (game.requestors && game.requestors.some(r => r.id === id_to_remove)) {
+    // We have a requestor to remove
+  } else if (
+    !server_command &&
+    (!game.observers || !game.observers.some(o => o.id === id_to_remove))
+  ) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
+    return;
+  }
+
   Users.setGameStatus(message_identifier, id_to_remove, "none");
 
-  if (!!game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) {
+  let delete_game =
+    !!game.examiners &&
+    game.examiners.length === 1 &&
+    game.examiners[0].id === id_to_remove &&
+    (!game.private ||
+      !game.observers ||
+      game.observers.length < 2); /* i.e. only us, no other observer */
+
+  if (game.private && self._id !== id_to_remove)
+    ClientMessages.sendMessageToClient(id_to_remove, message_identifier, "PRIVATE_ENTRY_REMOVED");
+
+  if (game.owner === id_to_remove && game.private && (!due_to_logout || delete_game)) {
+    Game.setPrivate(message_identifier, game_id, false);
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      { $unset: { owner: 1, deny_chat: 1 } }
+    );
+  }
+
+  if (delete_game) {
     GameCollection.remove({ _id: game_id });
     delete active_games[game_id];
   } else {
     GameCollection.update(
       { _id: game_id, status: game.status },
-      { $pull: { examiners: { id: id_to_remove }, observers: { id: id_to_remove } } }
+      {
+        $pull: {
+          examiners: { id: id_to_remove },
+          observers: { id: id_to_remove },
+          requestors: { id: id_to_remove },
+          analysis: { id: id_to_remove }
+        }
+      }
     );
   }
 };
@@ -1029,17 +1124,63 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
     );
   if (game.legacy_game_number)
     throw new ICCMeteorError(message_identifier, "Unable to add observer", "Game is a legacy game");
-  if (self._id !== id_to_add)
+
+  if (Game.isPlayingGame(id_to_add)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  if (game.private) {
+    if (self._id === game.owner) {
+      let requestor;
+      if (game.requestors) requestor = game.requestors.find(r => r.id === id_to_add);
+      if (!requestor) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_A_REQUESTOR");
+        return;
+      }
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        { $pull: { requestors: { id: id_to_add } } }
+      );
+      ClientMessages.sendMessageToClient(id_to_add, requestor.mid, "PRIVATE_ENTRY_ACCEPTED");
+      // fall through here to do the normal observer stuff to the user
+    } else if (self._id !== id_to_add) {
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to add observer",
+        "Currently no support for adding another observer"
+      );
+    } else {
+      if (game.deny_requests) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "PRIVATE_GAME");
+        return;
+      }
+      if (!game.requestors) game.requestors = [];
+      game.requestors.push({ id: self._id, username: self.username, mid: message_identifier });
+      GameCollection.update(
+        { _id: game_id, status: "examining" },
+        { $set: { requestors: game.requestors } }
+      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "PRIVATE_ENTRY_REQUESTED");
+      return;
+    }
+  } else if (self._id !== id_to_add)
     throw new ICCMeteorError(
       message_identifier,
       "Unable to add observer",
       "Currently no support for adding another observer"
     );
+
+  const updateobject = {
+    $push: { observers: { id: adding_user._id, username: adding_user.username } }
+  };
+
+  if (!game.private)
+    updateobject.$push.analysis = { id: adding_user._id, username: adding_user.username };
+
+  Game.localUnobserveAllGames(message_identifier, id_to_add, id_to_add !== self._id);
   Users.setGameStatus(message_identifier, id_to_add, "observing");
-  GameCollection.update(
-    { _id: game_id, status: game.status },
-    { $push: { observers: { id: adding_user._id, username: adding_user.username } } }
-  );
+  GameCollection.update({ _id: game_id, status: game.status }, updateobject);
 };
 
 Game.removeLegacyGame = function(message_identifier, game_id) {
@@ -2162,12 +2303,23 @@ Game.moveBackward = function(message_identifier, game_id, move_count) {
   );
 };
 
-Game.localUnobserveAllGames = function(message_identifier, user_id) {
+//
+// Obviously, make sure you never expose "server_command" through any Meteor.method().
+// As of this writing, no Meteor.method() calls this.
+//
+Game.localUnobserveAllGames = function(message_identifier, user_id, server_command, due_to_logout) {
   check(message_identifier, String);
   check(user_id, String);
-  GameCollection.find({ "observers.id": user_id }, { _id: 1 })
+  check(server_command, Match.Maybe(Boolean));
+  check(due_to_logout, Match.Maybe(Boolean));
+  GameCollection.find(
+    { $or: [{ "observers.id": user_id }, { "requestors.id": user_id }] },
+    { _id: 1 }
+  )
     .fetch()
-    .forEach(game => Game.localRemoveObserver("server", game._id, user_id));
+    .forEach(game =>
+      Game.localRemoveObserver("server", game._id, user_id, server_command, due_to_logout)
+    );
 };
 
 Game.localResignAllGames = function(message_identifier, user_id, reason) {
@@ -2194,17 +2346,9 @@ GameHistory.exportToPGN = function(id) {
 };
 
 function finishExportToPGN(game) {
-
-  /*
-  let title =
-    game.white.id === this.userId
-      ? game.white.name + "-" + game.black.name + ".pgn"
-      : game.black.name + "-" + game.white.name + ".pgn"; */
-
   let title = game.white.name + "-" + game.black.name + ".pgn";
 
   let pgn = "";
-  let tmpdt = new Date(game.startTime);
   pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
   pgn += '[White "' + game.white.name + '"]\n';
   pgn += '[Black "' + game.black.name + '"]\n';
@@ -2246,6 +2390,23 @@ function finishExportToPGN(game) {
 Game.kibitz = function(game_id, text) {};
 
 Game.whisper = function(game_id, text) {};
+
+function findVariation(move, idx, movelist) {
+  if (
+    !move ||
+    !movelist ||
+    idx === undefined ||
+    idx === null ||
+    idx >= movelist.length ||
+    !movelist[idx].variations
+  )
+    return;
+
+  for (let x = 0; x < movelist[idx].variations.length; x++) {
+    const vi = movelist[idx].variations[x];
+    if (movelist[vi].move === move) return vi;
+  }
+}
 
 Game.addMoveToMoveList = function(variation_object, move, current) {
   const exists = findVariation(move, variation_object.cmi, variation_object.movelist);
@@ -2319,6 +2480,37 @@ Game.setStartingPosition = function(message_identifier, game_id) {
           "tags.FEN": fen
         },
         $push: { actions: { type: "initialposition", issuer: self._id } }
+      }
+    );
+  }
+};
+
+Game.loadFen = function(message_identifier, game_id, fen_string) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(fen_string, String);
+  const self = Meteor.user();
+  check(self, Object);
+  const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+  if (!game || game.status !== "examining") {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+    return;
+  }
+  if (!active_games[game_id].load(fen_string)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN");
+    return;
+  }
+  const fen = active_games[game_id].fen();
+  if (game.fen !== fen) {
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          fen: fen,
+          variations: { cmi: 0, movelist: [{}] },
+          "tags.FEN": fen
+        },
+        $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } }
       }
     );
   }
@@ -2589,66 +2781,301 @@ Game.setTag = function(message_identifier, game_id, tag, value) {
   );
 };
 
-function findVariation(move, idx, movelist) {
-  if (
-    !move ||
-    !movelist ||
-    idx === undefined ||
-    idx === null ||
-    idx >= movelist.length ||
-    !movelist[idx].variations
-  )
+Game.changeOwner = function(message_identifier, game_id, new_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(new_id, Match.Maybe(String));
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "allow_change_owner")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
     return;
-
-  for (let x = 0; x < movelist[idx].variations.length; x++) {
-    const vi = movelist[idx].variations[x];
-    if (movelist[vi].move === move) return vi;
   }
-}
 
-function addmove(move_number, variations, white_to_move, movelist, idx) {
+  if (new_id !== undefined && new_id !== null) {
+    const other = Meteor.users.findOne({ _id: new_id });
+
+    if (!other) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
+      return;
+    }
+  }
+
+  const game = GameCollection.findOne({ _id: game_id });
+
+  if (!game || game.status !== "examining" || game.owner !== self._id) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
+    return;
+  }
+
+  // For now anyway, a new owner must also be an observer at least
+  if (!!new_id && !game.observers.some(e => e.id === new_id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
+    return;
+  }
+
+  if (!new_id) {
+    Game.setPrivate(message_identifier, game_id, false);
+    GameCollection.update(
+      { _id: game_id, status: "examining" },
+      { $unset: { owner: 1, deny_chat: 1 } }
+    );
+  } else {
+    GameCollection.update({ _id: game_id, status: "examining" }, { $set: { owner: new_id } });
+  }
+};
+
+Game.setPrivate = function(message_identifier, game_id, is_private) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(is_private, Match.Maybe(Boolean));
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "allow_private_games")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PRIVATIZE");
+    return;
+  }
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game || game.status !== "examining" || game.owner !== self._id) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PRIVATIZE");
+    return;
+  }
+
+  if (game.private === is_private) return;
+
+  const updateobject = {};
+  updateobject.$set = { private: is_private };
+
+  if (!is_private) {
+    if (game.requestors !== undefined)
+      updateobject.$push = { observers: { $each: game.requestors } };
+    updateobject.$unset = { requestors: 1, deny_requests: 1 };
+  } else {
+    updateobject.$set.analysis = game.observers;
+  }
+
+  GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+};
+
+Game.allowRequests = function(message_identifier, game_id, allow_requests) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(allow_requests, Boolean);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "allow_private_games")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_AREQUEST");
+    return;
+  }
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game || game.status !== "examining" || game.owner !== self._id || !game.private) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_AREQUEST");
+    return;
+  }
+
+  if (game.deny_requests === !allow_requests) return;
+
+  const updateobject = {};
+  updateobject.$set = { deny_requests: !allow_requests };
+
+  if (!allow_requests && game.requestors !== undefined) {
+    updateobject.$unset = { requestors: 1 };
+    game.requestors.forEach(req =>
+      ClientMessages.sendMessageToClient(req.id, "server:privaterequest:" + game_id, "DENIED?")
+    );
+  }
+
+  GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+};
+
+Game.allowChat = function(message_identifier, game_id, allow_chat) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(allow_chat, Boolean);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "allow_restrict_chat")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_CHAT");
+    return;
+  }
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game || game.status !== "examining" || game.owner !== self._id || !game.private) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_CHAT");
+    return;
+  }
+
+  if (game.deny_chat === !allow_chat) return;
+
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $set: { deny_chat: !allow_chat } }
+  );
+};
+
+Game.allowAnalysis = function(message_identifier, game_id, user_id, allow_analysis) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(user_id, String);
+  check(allow_analysis, Boolean);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "allow_restrict_analysis")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
+    return;
+  }
+
+  const otherguy = Meteor.users.findOne({ _id: user_id });
+  check(otherguy, Object);
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (
+    !game ||
+    game.status !== "examining" ||
+    self._id !== game.owner ||
+    !game.private ||
+    user_id === game.owner
+  ) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
+    return;
+  }
+
+  if (!game.observers.some(ob => ob.id === user_id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
+    return;
+  }
+  if (
+    (!allow_analysis && !game.analysis) ||
+    (!!game.analysis && allow_analysis === game.analysis.some(a => a.id === user_id))
+  )
+    return; // Already in or not
+
+  const updateobject = {};
+  if (game.analysis) {
+    updateobject[allow_analysis ? "$push" : "$pull"] = {
+      analysis: { id: user_id, username: otherguy.username }
+    };
+  } else if (allow_analysis) {
+    updateobject.$set = { analysis: [{ id: user_id, username: otherguy.username }] };
+  }
+
+  GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+};
+
+Game.localDenyObserver = function(message_identifier, game_id, requestor_id) {
+  check(message_identifier, String);
+  check(game_id, String);
+  check(requestor_id, String);
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (self._id === requestor_id)
+    throw new ICCMeteorError(message_identifier, "Unable to deny observer", "Cannot deny yourself");
+
+  const game = GameCollection.findOne({ _id: game_id });
+  if (!game || game.status !== "examining" || self._id !== game.owner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
+
+  let requestor;
+  if (game.requestors) requestor = game.requestors.find(r => r.id === requestor_id);
+  if (!requestor) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NO_REQUESTOR");
+    return;
+  }
+
+  ClientMessages.sendMessageToClient(requestor_id, requestor.mid, "PRIVATE_ENTRY_DENIED");
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $pull: { requestors: { id: requestor_id } } }
+  );
+};
+
+function thisMove(node, move_number, write_move_number, white_to_move) {
   let string = "";
 
-  if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
-
-  if (white_to_move) {
-    string += move_number + ".";
-  } else {
-    if (variations) string = move_number + "...";
-    else string = " ";
-  }
-  string += movelist[movelist[idx].variations[0]].move;
-
-  let next_move_number = move_number;
-  let next_white_to_move = !white_to_move;
-  if (next_white_to_move) next_move_number++;
-
-  for (let x = 1; x < movelist[idx].variations.length; x++) {
-    string +=
-      " (" +
-      move_number +
-      (white_to_move ? "." : "...") +
-      movelist[movelist[idx].variations[x]].move +
-      " ";
-    string +=
-      addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]) +
-      ") ";
+  if (write_move_number || white_to_move) {
+    string += move_number + ". ";
+    if (!white_to_move) string += "... ";
   }
 
-  string +=
-    " " +
-    addmove(
-      next_move_number,
-      movelist[idx].variations.length > 1,
-      next_white_to_move,
-      movelist,
-      movelist[idx].variations[0]
-    );
+  string += node.move;
+
+  if (node.nag) string += " " + node.nag;
+  if (node.comment) string += " {" + node.comment + "}";
+
   return string;
 }
 
+function allVariations(movelist, cmi, move_number, white_to_move) {
+  if (!movelist[cmi].variations) return "";
+
+  let string = "";
+  const variations = movelist[cmi].variations.slice(1);
+  const next_move_number = move_number + (white_to_move ? 0 : 1);
+  const next_to_move = !white_to_move;
+
+  variations.forEach(v => {
+    string += "(" + thisMove(movelist[v], move_number, true, white_to_move);
+    const nextmove = nextMove(movelist, v, next_move_number, next_to_move);
+    if (nextmove) string += " " + nextmove;
+    string += ")";
+  });
+
+  return string;
+}
+
+function nextMove(movelist, cmi, move_number, white_to_move) {
+  if (!movelist[cmi].variations) return "";
+
+  const next_move_number = move_number + (white_to_move ? 0 : 1);
+  const next_to_move = !white_to_move;
+
+  let string = thisMove(movelist[movelist[cmi].variations[0]], move_number, false, white_to_move);
+  const variations = allVariations(movelist, cmi, move_number, white_to_move);
+  let nextmove = nextMove(movelist, movelist[cmi].variations[0], next_move_number, next_to_move);
+
+  if (!!variations) string += " " + variations;
+
+  if (!!nextmove) {
+    if (!!variations && white_to_move) string += " " + next_move_number + ". ...";
+    string += " " + nextmove;
+  }
+
+  return string;
+}
+
+function start(movelist) {
+  return nextMove(movelist, 0, 1, true);
+}
+
 function buildPgnFromMovelist(movelist) {
-  return addmove(1, false, true, movelist, 0);
+  let long_string = start(movelist);
+  let reformatted = "";
+  while (long_string.length > 255) {
+    const idx1 = long_string.lastIndexOf(" ", 255);
+    const idx2 = long_string.indexOf("\n"); // May be in a comment. Also we just want the first one!
+    const idx3 = long_string.lastIndexOf("\t", 255); // May be in a comment
+    const idx = Math.min(idx1, idx2, idx3);
+    reformatted = long_string.substr(0, idx) + "\n";
+    long_string = long_string.substring(idx);
+  }
+  reformatted += long_string;
+  return reformatted;
 }
 
 function startGamePing(game_id) {
@@ -2783,9 +3210,22 @@ function testingCleanupMoveTimers() {
   });
 }
 
+function gameLoginHook(user, connection) {
+  const game = GameCollection.findOne({ owner: user._id, status: "examining" });
+  if (!game) return;
+  Users.setGameStatus("server", user, "examining");
+  const guy = { id: user._id, username: user.username };
+  GameCollection.update(
+    { _id: game._id, status: "examining" },
+    {
+      $push: { observers: guy, examiners: guy, analysis: guy }
+    }
+  );
+}
+
 function gameLogoutHook(userId) {
   Game.localResignAllGames("server", userId, 4);
-  Game.localUnobserveAllGames("server", userId);
+  Game.localUnobserveAllGames("server", userId, true, true);
   Users.setGameStatus("server", userId, "none");
 }
 
@@ -2795,6 +3235,7 @@ Meteor.startup(function() {
   // TODO: Need to adjourn these, not just delete them
   GameCollection.remove({});
   Users.addLogoutHook(gameLogoutHook);
+  Users.addLoginHook(gameLoginHook);
 });
 
 if (Meteor.isTest || Meteor.isAppTest) {
@@ -2803,8 +3244,10 @@ if (Meteor.isTest || Meteor.isAppTest) {
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;
   Game.gameLogoutHook = gameLogoutHook;
+  Game.gameLoginHook = gameLoginHook;
 }
 
+<<<<<<< HEAD
 Meteor.methods({
   gamepong(game_id, pong) {
     const user = Meteor.user();
@@ -2853,6 +3296,8 @@ Meteor.methods({
   moveForward: Game.moveForward
 });
 
+=======
+>>>>>>> ea4295866904dfe4d9d49232c714e5cd706c09a0
 Meteor.publish("playing_games", function() {
   log.debug("Playing games method called for " + this.userId);
   return GameCollection.find(
@@ -2866,11 +3311,68 @@ Meteor.publish("playing_games", function() {
   );
 });
 
-Meteor.publish("observing_games", function() {
-  return GameCollection.find({
-    "observers.id": this.userId
-  });
+Meteor.publishComposite("observing_games", {
+  find() {
+    return Meteor.users.find({ _id: this.userId, "status.online": true });
+  },
+  children: [
+    {
+      // Firstly, owners see everything
+      find(user) {
+        return GameCollection.find({ owner: user._id, status: "examining" });
+      }
+    },
+    {
+      // Thenly, people with allowed analysis can see that (or anyone if game is public).
+      find(user) {
+        return GameCollection.find(
+          {
+            $or: [
+              { private: false },
+              {
+                $and: [
+                  { "observers.id": user._id },
+                  { owner: { $ne: user._id } },
+                  { $or: [{ status: "playing" }, { "analysis.id": user._id }] }
+                ]
+              }
+            ]
+          },
+          { fields: { requestors: 0, deny_requests: 0, analysis: 0, actions: 0 } }
+        );
+      }
+    },
+    {
+      find(user) {
+        // Lastly, people without analysis cannot see computer analysis
+        return GameCollection.find(
+          {
+            $and: [
+              { private: true },
+              { "observers.id": user._id },
+              { "analysis.id": { $ne: user._id } },
+              { owner: { $ne: user._id } }
+            ]
+          },
+          {
+            fields: {
+              requestors: 0,
+              deny_requests: 0,
+              analysis: 0,
+              action: 0,
+              "variations.movelist.score": 0
+            }
+          }
+        );
+      }
+    }
+  ]
 });
+// Meteor.publish("observing_games", function() {
+//   return GameCollection.find({
+//     "observers.id": this.userId
+//   });
+// });
 
 function msToTime(duration) {
   var milliseconds = parseInt((duration % 1000) / 100),
@@ -2927,13 +3429,18 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
   return GameHistoryCollection.insert(game);
 };
 
-GameHistory.examineGame = function(message_identifier, game_id) {
+GameHistory.examineGame = function(message_identifier, game_id, is_imported_game) {
   check(message_identifier, String);
-  check(game_id, String);
+  //check(game_id, Match.OneOf(String, Object));
+  check(is_imported_game, Match.Maybe(Boolean));
   const self = Meteor.user();
   check(self, Object);
-
-  const hist = GameHistoryCollection.findOne({ _id: game_id });
+  let hist;
+  if (!!is_imported_game) {
+    hist = ImportedGameCollection.findOne({ _id: game_id });
+  } else {
+    hist = GameHistoryCollection.findOne({ _id: game_id });
+  }
   if (!hist)
     throw new ICCMeteorError(
       message_identifier,
@@ -2947,57 +3454,24 @@ GameHistory.examineGame = function(message_identifier, game_id) {
   }
 
   Game.localUnobserveAllGames(message_identifier, self._id);
-
-  const chess = new Chess.Chess();
-  if (hist.tags && hist.tags.FEN) {
-    hist.fen = hist.tags.FEN;
-    if (!chess.loadfen(hist.tags.FEN))
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to examine saved game",
-        "FEN string is invalid"
-      );
-  } else {
-    hist.fen = chess.fen();
-  }
-
-  delete hist._id;
-  hist.tomove = chess.turn() === "w" ? "white" : "black";
-  hist.status = "examining";
-  hist.observers = [{ id: self._id, username: self.username }];
-  hist.examiners = [{ id: self._id, username: self.username }];
-  hist.variations.cmi = 0;
-  return Game.startLocalExaminedGameWithObject(hist, chess);
+  return Game.startLocalExaminedGameWithObject(message_identifier, hist);
 };
 
 function sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
   const message_identifier = "server:game:" + game_id;
-  const cm_parameters = ClientMessages.messageParameters("GAME_STATUS_" + status);
-  const p1_call_parameters = [white_id, message_identifier, "GAME_STATUS_" + status];
-  const p2_call_parameters = [black_id, message_identifier, "GAME_STATUS_" + status];
-
-  if (cm_parameters.parameters) {
-    cm_parameters.parameters.forEach(p => {
-      switch (p) {
-        case "losing_color":
-          p1_call_parameters.push(result === "1-0" ? "black" : "white");
-          p2_call_parameters.push(result === "1-0" ? "black" : "white");
-          break;
-        case "winning_color":
-          p1_call_parameters.push(result === "1-0" ? "white" : "black");
-          p2_call_parameters.push(result === "1-0" ? "white" : "black");
-          break;
-        case "offending_color":
-          p1_call_parameters.push(tomove);
-          p2_call_parameters.push(tomove);
-          break;
-        default:
-          throw new Meteor.Error("Unknown parameter " + p);
-      }
-    });
+  let color = tomove === "white" ? "w" : "b";
+  switch (result) {
+    case "1-0":
+      color = "w";
+      break;
+    case "0-1":
+      color = "b";
+      break;
+    default:
+      break;
   }
-  ClientMessages.sendMessageToClient.apply(this, p1_call_parameters);
-  ClientMessages.sendMessageToClient.apply(this, p2_call_parameters);
+  ClientMessages.sendMessageToClient(white_id, message_identifier, "GAME_STATUS_" + color + status);
+  ClientMessages.sendMessageToClient(black_id, message_identifier, "GAME_STATUS_" + color + status);
 }
 
 GameHistory.search = function(message_identifier, search_parameters, offset, count) {
@@ -3014,11 +3488,6 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
   return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
 };
 
-Meteor.methods({
-  searchGameHistory: GameHistory.search,
-  examineGame: GameHistory.examineGame
-});
-
 Meteor.publish("game_history", function() {
   return GameHistoryCollection.find(
     {
@@ -3031,3 +3500,66 @@ Meteor.publish("game_history", function() {
 if (Meteor.isTest || Meteor.isAppTest) {
   GameHistory.collection = GameHistoryCollection;
 }
+
+Meteor.methods({
+  gamepong(game_id, pong) {
+    const user = Meteor.user();
+    check(game_id, String);
+    check(pong, Object);
+    check(user, Object);
+    if (!game_pings[game_id])
+      throw new ICCMeteorError(
+        "server",
+        "Unable to update game ping",
+        "Unable to locate game to ping (2)"
+      );
+    const game = GameCollection.findOne(
+      { _id: game_id, status: "playing" },
+      { fields: { "white.id": 1 } }
+    );
+    if (!game)
+      throw new ICCMeteorError(
+        "server",
+        "Unable to update game ping",
+        "Unable to locate game to ping (3)"
+      );
+    const color = game.white.id === user._id ? "white" : "black";
+    game_pings[game_id][color].pongArrived(pong);
+  },
+  addGameMove: Game.saveLocalMove,
+  requestTakeback: Game.requestLocalTakeback,
+  acceptTakeBack: Game.acceptLocalTakeback,
+  declineTakeback: Game.declineLocalTakeback,
+  resignGame: Game.resignLocalGame,
+  requestToDraw: Game.requestLocalDraw,
+  acceptDraw: Game.acceptLocalDraw,
+  declineDraw: Game.declineLocalDraw,
+  requestToAbort: Game.requestLocalAbort,
+  acceptAbort: Game.acceptLocalAbort,
+  declineAbort: Game.declineLocalAbort,
+  requestToAdjourn: Game.requestLocalAdjourn,
+  acceptAdjourn: Game.acceptLocalAdjourn,
+  declineAdjourn: Game.declineLocalAdjourn,
+  drawCircle: Game.drawCircle,
+  removeCircle: Game.removeCircle,
+  startLocalExaminedGame: Game.startLocalExaminedGame,
+  moveBackward: Game.moveBackward,
+  moveForward: Game.moveForward,
+  searchGameHistory: GameHistory.search,
+  examineGame: GameHistory.examineGame,
+  clearBoard: Game.clearBoard,
+  setStartingPosition: Game.setStartingPosition,
+  loadFen: Game.loadFen,
+  addPiece: Game.addPiece,
+  removePiece: Game.removePiece,
+  setToMove: Game.setToMove,
+  setCastling: Game.setCastling,
+  setEnPassant: Game.setEnPassant,
+  setTag: Game.setTag,
+  changeOwner: Game.changeOwner,
+  setPrivate: Game.setPrivate,
+  allowRequests: Game.allowRequests,
+  allowChat: Game.allowChat,
+  allowAnalysis: Game.allowAnalysis,
+  localDenyObserver: Game.localDenyObserver
+});

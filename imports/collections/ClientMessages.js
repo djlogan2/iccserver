@@ -27,7 +27,7 @@ ClientMessagesCollection.attachSchema(ClientMessageSchema);
 // You can put whatever you want in the array for the parameters. It's for documentation only at the time of this writing.
 // The code checks for the parameter COUNT, but does not otherwise verify.
 //
-export const DefinedClientMessagesMap = {
+const DefinedClientMessagesMap = {
   UNABLE_TO_PLAY_RATED_GAMES: {},
   UNABLE_TO_PLAY_UNRATED_GAMES: {},
   LEGACY_MATCH_REMOVED: { parameters: ["legacy_explanation_string"] },
@@ -59,20 +59,45 @@ export const DefinedClientMessagesMap = {
   ALREADY_PLAYING: {},
   INVALID_SQUARE: { parameters: ["square"] },
   INVALID_ARROW: { parameters: ["from", "to"] },
-  GAME_STATUS_0: { parameters: ["losing_color"] },
-  GAME_STATUS_1: { parameters: ["losing_color"] },
-  GAME_STATUS_2: { parameters: ["losing_color"] },
-  GAME_STATUS_3: { parameters: ["winning_color"] },
-  GAME_STATUS_4: { parameters: ["losing_color"] },
-  GAME_STATUS_13: {},
-  GAME_STATUS_14: { parameters: ["losing_color"] },
-  GAME_STATUS_15: {},
-  GAME_STATUS_16: {},
-  GAME_STATUS_17: { parameters: ["losing_color", "winning_color"] },
-  GAME_STATUS_18: {},
-  GAME_STATUS_24: {},
-  GAME_STATUS_30: {},
-  GAME_STATUS_37: { parameters: ["offending_color"] },
+  UNABLE_TO_PRIVATIZE: {},
+  UNABLE_TO_CHANGE_OWNER: {},
+  UNABLE_TO_RESTRICT_CHAT: {},
+  UNABLE_TO_RESTRICT_ANALYSIS: {},
+  NOT_THE_OWNER: {},
+  PRIVATE_GAME: {},
+  PRIVATE_ENTRY_REQUESTED: {},
+  PRIVATE_ENTRY_DENIED: {},
+  PRIVATE_ENTRY_ACCEPTED: {},
+  PRIVATE_ENTRY_REMOVED: {},
+  COMMAND_INVALID_ON_PUBLIC_GAME: {},
+  GAME_STATUS_w0: {},
+  GAME_STATUS_w1: {},
+  GAME_STATUS_w2: {},
+  GAME_STATUS_w3: {},
+  GAME_STATUS_w4: {},
+  GAME_STATUS_w13: {},
+  GAME_STATUS_w14: {},
+  GAME_STATUS_w15: {},
+  GAME_STATUS_w16: {},
+  GAME_STATUS_w17: {},
+  GAME_STATUS_w18: {},
+  GAME_STATUS_w24: {},
+  GAME_STATUS_w30: {},
+  GAME_STATUS_w37: {},
+  GAME_STATUS_b0: {},
+  GAME_STATUS_b1: {},
+  GAME_STATUS_b2: {},
+  GAME_STATUS_b3: {},
+  GAME_STATUS_b4: {},
+  GAME_STATUS_b13: {},
+  GAME_STATUS_b14: {},
+  GAME_STATUS_b15: {},
+  GAME_STATUS_b16: {},
+  GAME_STATUS_b17: {},
+  GAME_STATUS_b18: {},
+  GAME_STATUS_b24: {},
+  GAME_STATUS_b30: {},
+  GAME_STATUS_b37: {},
   LOGIN_FAILED_1: {},
   LOGIN_FAILED_2: {},
   LOGIN_FAILED_3: {},
@@ -99,6 +124,94 @@ export const DefinedClientMessagesMap = {
   FOR_TESTING_10: { parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] }
 };
 
+class ClientMessages {
+  messageParameters = function(i18n_message) {
+    check(
+      i18n_message,
+      Match.Where(() => {
+        if (DefinedClientMessagesMap[i18n_message] === undefined)
+          throw new Match.Error(i18n_message + " is not known to ClientMessages");
+        else return true;
+      })
+    ); // It has to be a known and supported message to the client
+    return DefinedClientMessagesMap[i18n_message];
+  };
+
+  sendMessageToClient = function(user, client_identifier, i18n_message) {
+    log.debug(
+      "sendMessageToClient user=" +
+        user +
+        ", client_identifier=" +
+        client_identifier +
+        ", i18n_message=" +
+        i18n_message
+    );
+    check(user, Match.OneOf(Object, String));
+    check(client_identifier, String);
+    check(
+      i18n_message,
+      Match.Where(() => {
+        if (DefinedClientMessagesMap[i18n_message] === undefined)
+          throw new Match.Error(i18n_message + " is not known to ClientMessages");
+        else return true;
+      })
+    ); // It has to be a known and supported message to the client
+    const parms = [];
+    for (let x = 3; x < arguments.length; x++)
+      if (Array.isArray(arguments[x])) arguments[x].forEach(arg => parms.push(arg));
+      else parms.push(arguments[x]);
+    const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
+      ? 0
+      : DefinedClientMessagesMap[i18n_message].parameters.length;
+
+    if (required_parms !== parms.length)
+      throw new Match.Error(
+        i18n_message +
+          " is required to have " +
+          required_parms +
+          " parameters, but only had " +
+          parms.length +
+          " parameters"
+      );
+    const id = typeof user === "object" ? user._id : user;
+    const touser = Meteor.users.findOne({ _id: id, "status.online": true });
+    if (!touser) return;
+    // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
+    const locale = touser.locale || "en-us";
+
+    const message = i18n.localizeMessage(locale, i18n_message, parms);
+
+    return ClientMessagesCollection.insert({
+      to: id,
+      client_identifier: client_identifier,
+      message: message
+    });
+  };
+}
+
+//
+// I had to create a singleton specifically because our testing framework uses this
+// class extensively, and kept running into the import from "different/paths" problem.
+//
+if (!global._clientMessages) {
+  global._clientMessages = new ClientMessages();
+}
+
+module.exports.ClientMessages = global._clientMessages;
+
+function logoutHook(userId) {
+  ClientMessagesCollection.remove({ to: userId });
+}
+
+Meteor.startup(function() {
+  Users.addLogoutHook(logoutHook);
+
+  if (Meteor.isTest || Meteor.isAppTest) {
+    global._clientMessages.collection = ClientMessagesCollection;
+    global._clientMessages.logoutHook = logoutHook;
+  }
+});
+
 Meteor.publish("client_messages", function() {
   return ClientMessagesCollection.find({ to: this.userId });
 });
@@ -115,89 +228,5 @@ Meteor.methods({
         "We should not be deleting a client message that does not belong to us"
       );
     ClientMessagesCollection.remove({ _id: id });
-  }
-});
-
-export const ClientMessages = {};
-
-ClientMessages.messageParameters = function(i18n_message) {
-  check(
-    i18n_message,
-    Match.Where(() => {
-      if (DefinedClientMessagesMap[i18n_message] === undefined)
-        throw new Match.Error(i18n_message + " is not known to ClientMessages");
-      else return true;
-    })
-  ); // It has to be a known and supported message to the client
-  return DefinedClientMessagesMap[i18n_message];
-};
-
-ClientMessages.sendMessageToClient = function(user, client_identifier, i18n_message) {
-  log.debug(
-    "sendMessageToClient user=" +
-      user +
-      ", client_identifier=" +
-      client_identifier +
-      ", i18n_message=" +
-      i18n_message
-  );
-  check(user, Match.OneOf(Object, String));
-  check(client_identifier, String);
-  check(
-    i18n_message,
-    Match.Where(() => {
-      if (DefinedClientMessagesMap[i18n_message] === undefined)
-        throw new Match.Error(i18n_message + " is not known to ClientMessages");
-      else return true;
-    })
-  ); // It has to be a known and supported message to the client
-  const parms = [];
-  for (let x = 3; x < arguments.length; x++)
-    if (Array.isArray(arguments[x])) arguments[x].forEach(arg => parms.push(arg));
-    else parms.push(arguments[x]);
-  const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
-    ? 0
-    : DefinedClientMessagesMap[i18n_message].parameters.length;
-
-  if (required_parms !== parms.length)
-    throw new Match.Error(
-      i18n_message +
-        " is required to have " +
-        required_parms +
-        " parameters, but only had " +
-        parms.length +
-        " parameters"
-    );
-  const id = typeof user === "object" ? user._id : user;
-  const touser = Meteor.users.findOne({ _id: id, "status.online": true });
-  if (!touser) return;
-  // Actually, let's go ahead and i18n convert this puppy here, and just save the message itself!
-  const locale = touser.locale || "en-us";
-
-  const message = i18n.localizeMessage(locale, i18n_message, parms);
-
-  return ClientMessagesCollection.insert({
-    to: id,
-    client_identifier: client_identifier,
-    message: message
-  });
-};
-
-function logoutHook(userId) {
-  ClientMessagesCollection.remove({ to: userId });
-}
-
-Meteor.startup(function() {
-  //DOUBT: I am not sure that I have create an index on createDate for automatically discard a document in 1 minute.
-  // if it is not required then I will remove later.
-  ClientMessagesCollection.rawCollection().createIndex(
-    { createDate: 1 },
-    { expireAfterSeconds: 60 }
-  );
-  Users.addLogoutHook(logoutHook);
-
-  if (Meteor.isTest || Meteor.isAppTest) {
-    ClientMessages.collection = ClientMessagesCollection;
-    ClientMessages.logoutHook = logoutHook;
   }
 });

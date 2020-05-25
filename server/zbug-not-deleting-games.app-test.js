@@ -2,7 +2,7 @@ import chai from "chai";
 import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
-describe.only("Starting new games", function() {
+describe("Starting new games", function() {
   const self = TestHelpers.setupDescribe.call(this);
   it("should delete an examined game if two players begin another game with the same color", function() {
     const p1 = TestHelpers.createUser();

@@ -20,7 +20,10 @@ import { Users } from "./users";
 //
 const logged_on_user_fields = {
   _id: 1,
-  username: 1
+  username: 1,
+  status: {
+    game: 1
+  }
 };
 
 const our_allowed_user_fields = {
@@ -41,7 +44,9 @@ const our_allowed_user_fields = {
   },
   status: {
     game: 1
-  }
+  },
+  groups: 1,
+  limit_to_group: 1
 };
 
 const all_fields = {
@@ -78,7 +83,9 @@ const all_fields = {
     //   ipAddr: 1,
     //   userAgent: 1
     // }
-  }
+  },
+  groups: 1,
+  limit_to_group: 1
   // services: {
   //   resume: {
   //     loginTokens: 1
@@ -100,6 +107,10 @@ describe("Users", function() {
         legacy: { username: "icc1", password: "pw1", autologin: true }
       }
     });
+    Meteor.users.update(
+      { username: "user1" },
+      { $push: { groups: "group1" }, $set: { limit_to_group: true } }
+    );
     const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
@@ -107,8 +118,7 @@ describe("Users", function() {
     chai.assert.isUndefined(msg);
   });
 
-  it.skip("should only get a subset of the entire user record in the userData subscription", function(done) {
-    // TODO: I am having trouble with Meteor.publishComposite vs Meteor.publish. This runs with the latter, but so far, not with the former.
+  it("should only get a subset of the entire user record in the userData subscription", function(done) {
     const user1 = TestHelpers.createUser({ login: false });
     TestHelpers.createUser({ login: false });
     chai.assert.isDefined(user1);
@@ -117,12 +127,12 @@ describe("Users", function() {
     collector.collect("userData", collections => {
       chai.assert.equal(collections.users.length, 1);
       const msg = compare(our_allowed_user_fields, collections.users[0]);
-      done(msg);
+      if (!!msg) done(new Error(msg));
+      else done();
     });
   });
 
-  it.skip("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
-    // TODO: I am having trouble with Meteor.publishComposite vs Meteor.publish. This runs with the latter, but so far, not with the former.
+  it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
     const user1 = TestHelpers.createUser({ login: true });
     const user2 = TestHelpers.createUser({ login: true });
     chai.assert.isDefined(user1);
@@ -136,15 +146,13 @@ describe("Users", function() {
     });
   });
 
-  it.skip("should only get logged on users with the loggedOnUsers subscription", function(done) {
-    // TODO: I am having trouble with Meteor.publishComposite vs Meteor.publish. This runs with the latter, but so far, not with the former.
-    this.timeout(500000);
+  it("should only get logged on users with the loggedOnUsers subscription", function(done) {
     const user1 = TestHelpers.createUser({ login: false });
     const user2 = TestHelpers.createUser({ login: true });
     const user3 = TestHelpers.createUser({ login: true });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
-    const collector = new PublicationCollector({ userId: user1._id });
+    const collector = new PublicationCollector({ userId: user3._id });
     collector.collect("loggedOnUsers", collections => {
       chai.assert.equal(collections.users.length, 2);
       chai.assert.sameMembers(

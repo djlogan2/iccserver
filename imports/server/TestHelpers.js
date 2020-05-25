@@ -4,7 +4,7 @@ import { Roles } from "meteor/alanning:roles";
 import faker from "faker";
 import "../../imports/collections/users";
 import sinon from "sinon";
-import { ClientMessages } from "../collections/ClientMessages";
+//import { ClientMessages } from "../collections/ClientMessages";
 import { i18n } from "../collections/i18n";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { UCI } from "../../server/UCI";
@@ -116,7 +116,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
         })
       );
 
-      self.clientMessagesSpy = self.sandbox.spy(ClientMessages, "sendMessageToClient");
+      self.clientMessagesSpy = self.sandbox.spy(global._clientMessages, "sendMessageToClient");
 
       self.sandbox.replace(
         Timestamp,
@@ -145,7 +145,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
     });
 
     afterEach.call(this, function() {
-      ClientMessages.sendMessageToClient.restore();
+      global._clientMessages.sendMessageToClient.restore();
       self.sandbox.restore();
       delete self.meteorUsersFake;
       delete self.clientMessagesSpy;

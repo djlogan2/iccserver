@@ -18,35 +18,36 @@ let log = new Logger("server/users_js");
 
 export const Users = {};
 
-Meteor.publishComposite("loggedOnUsers", function() {
-  return {
-    find() {
-      return Meteor.users.find(
-        { _id: this.userId, "status.online": true },
-        { fields: fields_viewable_by_account_owner }
-      );
-    },
-    children: [
-      {
-        find(user) {
-          const find = {};
-          if (!Users.isAuthorized(user, "show_users")) return [];
-          else if (user.limit_to_group) {
-            find["status.online"] = true;
-            find["groups"] = { $in: user.groups };
-          } else {
-            find["$and"] = [{ "status.online": true }];
-            if (user.groups && user.groups.length)
-              find["$and"].push({
-                $or: [{ limit_to_group: { $in: [null, false] } }, { groups: { $in: user.groups } }]
-              });
-            else find["$and"].push({ limit_to_group: { $in: [null, false] } });
-          }
-          return Meteor.users.find(find, { fields: viewable_logged_on_user_fields });
+Meteor.publishComposite("loggedOnUsers", {
+  find() {
+    return Meteor.users.find(
+      { _id: this.userId, "status.online": true },
+      { fields: fields_viewable_by_account_owner }
+    );
+  },
+  children: [
+    {
+      find(user) {
+        const find = {};
+        const group_array =
+          !!user.groups && Array.isArray(user.groups) ? user.groups : [user.groups];
+        if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
+        else if (user.limit_to_group) {
+          find["status.online"] = true;
+          find.groups = { $in: group_array };
+          find._id = { $ne: user._id };
+        } else {
+          find.$and = [{ "status.online": true }, { _id: { $ne: user._id } }];
+          if (group_array && group_array.length)
+            find.$and.push({
+              $or: [{ limit_to_group: { $in: [null, false] } }, { groups: { $in: group_array } }]
+            });
+          else find.$and.push({ limit_to_group: { $in: [null, false] } });
         }
+        return Meteor.users.find(find, { fields: viewable_logged_on_user_fields });
       }
-    ]
-  };
+    }
+  ]
 });
 
 // TODO: Add a method that is draining the server (i.e. not allowing anyone to login)
@@ -178,7 +179,7 @@ Users.addToGroup = function(message_identifier, user, group) {
     );
 
   const modifier = { $push: { groups: group } };
-  if (victim.limit_to_group === undefined) modifier["$set"] = { limit_to_group: true };
+  if (victim.limit_to_group === undefined) modifier.$set = { limit_to_group: true };
   Meteor.users.update({ _id: user }, modifier);
   group_change_hooks.forEach(f => f(message_identifier, user));
 };
@@ -232,11 +233,7 @@ Meteor.startup(function() {
     Meteor.users.find({ "status.online": true }).observeChanges({
       removed(id) {
         runLogoutHooks(this, id);
-      } /*,
-      changed(id, fields) {
-        if ("status" in fields && "online" in fields.status && !fields.status.online)
-          runLogoutHooks(this, id);
-      }*/
+      }
     });
   }
   all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
