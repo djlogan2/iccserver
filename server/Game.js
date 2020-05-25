@@ -2831,6 +2831,8 @@ Meteor.methods({
     game_pings[game_id][color].pongArrived(pong);
   },
   addGameMove: Game.saveLocalMove,
+  clearBoard: Game.clearBoard,
+  setStartingPosition: Game.setStartingPosition,
   requestTakeback: Game.requestLocalTakeback,
   acceptTakeBack: Game.acceptLocalTakeback,
   declineTakeback: Game.declineLocalTakeback,

@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.9.2",
-    "antd": "^4.0.4",
+    "antd": "^4.2.2",
     "antlr4": "^4.8.0",
     "bcrypt": "^3.0.8",
     "chess.js": "git+https://github.com/jhlywa/chess.js.git",

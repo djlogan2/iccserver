@@ -1,0 +1,27 @@
+.spare {
+    width: 68px;
+    padding-top: 30px;
+    background: rgb(199, 203, 213);
+}
+.spare .cg-wrap {
+    background-image: none;
+    width: auto;
+    height: auto;
+    position: relative;
+    display: block;
+}
+
+.spare__wrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.spare piece {
+    display: block;
+    position: static;
+    width: 80%;
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin: 0 auto;
+}
