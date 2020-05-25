@@ -90,11 +90,7 @@ meteortoys:toggle@4.0.0
 meteortoys:toykit@4.0.2
 minifier-css@1.5.0
 minifier-js@2.6.0
-<<<<<<< HEAD
-minimongo@1.5.0
-=======
 minimongo@1.6.0
->>>>>>> ea4295866904dfe4d9d49232c714e5cd706c09a0
 mizzao:timesync@0.5.1
 mizzao:user-status@0.6.8
 mobile-experience@1.1.0

@@ -3247,57 +3247,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
   Game.gameLoginHook = gameLoginHook;
 }
 
-<<<<<<< HEAD
-Meteor.methods({
-  gamepong(game_id, pong) {
-    const user = Meteor.user();
-    check(game_id, String);
-    check(pong, Object);
-    check(user, Object);
-    if (!game_pings[game_id])
-      throw new ICCMeteorError(
-        "server",
-        "Unable to update game ping",
-        "Unable to locate game to ping (2)"
-      );
-    const game = GameCollection.findOne(
-      { _id: game_id, status: "playing" },
-      { fields: { "white.id": 1 } }
-    );
-    if (!game)
-      throw new ICCMeteorError(
-        "server",
-        "Unable to update game ping",
-        "Unable to locate game to ping (3)"
-      );
-    const color = game.white.id === user._id ? "white" : "black";
-    game_pings[game_id][color].pongArrived(pong);
-  },
-  addGameMove: Game.saveLocalMove,
-  clearBoard: Game.clearBoard,
-  setStartingPosition: Game.setStartingPosition,
-  requestTakeback: Game.requestLocalTakeback,
-  acceptTakeBack: Game.acceptLocalTakeback,
-  declineTakeback: Game.declineLocalTakeback,
-  resignGame: Game.resignLocalGame,
-  requestToDraw: Game.requestLocalDraw,
-  acceptDraw: Game.acceptLocalDraw,
-  declineDraw: Game.declineLocalDraw,
-  requestToAbort: Game.requestLocalAbort,
-  acceptAbort: Game.acceptLocalAbort,
-  declineAbort: Game.declineLocalAbort,
-  requestToAdjourn: Game.requestLocalAdjourn,
-  acceptAdjourn: Game.acceptLocalAdjourn,
-  declineAdjourn: Game.declineLocalAdjourn,
-  drawCircle: Game.drawCircle,
-  removeCircle: Game.removeCircle,
-  startLocalExaminedGame: Game.startLocalExaminedGame,
-  moveBackward: Game.moveBackward,
-  moveForward: Game.moveForward
-});
-
-=======
->>>>>>> ea4295866904dfe4d9d49232c714e5cd706c09a0
 Meteor.publish("playing_games", function() {
   log.debug("Playing games method called for " + this.userId);
   return GameCollection.find(

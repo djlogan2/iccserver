@@ -5,8 +5,11 @@ const Spare = props => {
     let pieceEl = e.target.children[0]
     let color = pieceEl.getAttribute('datacolor');
     let role = pieceEl.getAttribute('datarole');
-    props.onDropStart(role, color, e);
+    props.onDropStart({ role: role, color: color }, e);
   };
+  const trashDown = e => {
+    rops.onDropStart('trash', color, e);
+  }
   const dragStart = e => {
     console.log("start");
     // props.onDropStart(e);
@@ -58,11 +61,11 @@ const Spare = props => {
             </div>
           </div>
           <div className="no-square trash">
-            <div>
+            <div onMouseDown={mouseDown}>
               {/* <div className="drag-card" onMouseDown={mouseDown} datacolor="black" datarole="pawn">
                 drag black pawn
               </div> */}
-              <piece className="trash" />
+              <piece className="trash"/>
             </div>
           </div>
           <div className="no-square selected-square">

@@ -81,11 +81,13 @@ class Editor extends React.Component {
     this.setState({
       fen: this.chessground.cg.getFen()
     });
+    Meteor.call("loadFen", "loadFen", this.state.gameId, this.chessground.cg.getFen());
   };
 
-  handleDropStart = (role, color, e) => {
+  handleDropStart = (piece, e) => {
     // piece, event, force
-    this.chessground.cg.dragNewPiece({ role: role, color: color }, e, true);
+    // this.chessground.cg.dragNewPiece("pointer", e, true);
+    this.chessground.cg.dragNewPiece(piece, e, true);
 
     // this.chessground.cg.state.events.dropnewpiece()
     // this.chessground.cg.newPiece({ role: "rook", color: "white" }, "f3");
