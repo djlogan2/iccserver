@@ -7,7 +7,9 @@ class EditorRightSidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fen: props.fen
+      fen: props.fen,
+      whiteCastling: props.whiteCastling,
+      blackCastling: props.blackCastling
     };
   }
 
@@ -15,14 +17,46 @@ class EditorRightSidebar extends Component {
     if (prevProps.fen !== this.props.fen) {
       this.setState({ fen: this.props.fen });
     }
+    if (prevProps.whiteCastling !== this.props.whiteCastling) {
+      this.setState({ whiteCastling: this.props.whiteCastling });
+    }
+    if (prevProps.blackCastling !== this.props.blackCastling) {
+      this.setState({ blackCastling: this.props.blackCastling });
+    }
   }
 
   handleFen = e => {
-    this.props.onFen(e.target.value);
-    this.setState({fen: e.target.value}, () => {
-      this.props.handleFen(e.target.value);
-    })
+    let that = this;
+    let { value } = e.target;
+    this.setState({ fen: value }, () => {
+      that.props.onFen(value);
+    });
   };
+
+  handleCastling = (color, value) => {
+    if (color === "white") {
+      this.setState({ whiteCastling: value });
+      this.props.onCastling(
+        this.convertCastling(value),
+        this.convertCastling(this.state.blackCastling)
+      );
+    } else if (color === "black") {
+      this.setState({ blackCastling: value });
+      this.props.onCastling(
+        this.convertCastling(this.state.whiteCastling),
+        this.convertCastling(value)
+      );
+    }
+  };
+
+  convertCastling(castlingValue) {
+    if (castlingValue.length > 1) {
+      return castlingValue.join("")
+    } else if (castlingValue.length === 1) {
+      return castlingValue.join("")
+    }
+    return "";
+  }
 
   render() {
     const radioStyle = {
@@ -30,8 +64,8 @@ class EditorRightSidebar extends Component {
       height: "30px",
       lineHeight: "30px"
     };
-
-    const options = [{ label: "0-0", value: "0-0" }, { label: "0-0-0", value: "0-0-0" }];
+    const whiteOptions = [{ label: "0-0", value: "K" }, { label: "0-0-0", value: "Q" }];
+    const blackOptions = [{ label: "0-0", value: "k" }, { label: "0-0-0", value: "q" }];
     const handleColor = e => {
       this.props.onColorChange(e.target.value);
     };
@@ -62,16 +96,20 @@ class EditorRightSidebar extends Component {
                 <h3 className="editor-right-sidebar__check-name">White</h3>
                 <Checkbox.Group
                   className="editor-right-sidebar__checkbox-list"
-                  options={options}
-                  onChange={() => {}}
+                  options={whiteOptions}
+                  value={this.state.whiteCastling}
+                  name="white"
+                  onChange={data => this.handleCastling("white", data)}
                 />
               </div>
               <div className="editor-right-sidebar__block">
                 <h3 className="editor-right-sidebar__check-name">Black</h3>
                 <Checkbox.Group
                   className="editor-right-sidebar__checkbox-list"
-                  options={options}
-                  onChange={() => {}}
+                  options={blackOptions}
+                  value={this.state.blackCastling}
+                  name="black"
+                  onChange={data => this.handleCastling("black", data)}
                 />
               </div>
             </div>

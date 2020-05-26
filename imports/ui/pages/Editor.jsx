@@ -5,6 +5,7 @@ import { mongoCss, GameHistoryCollection, Game } from "./../../api/collections.j
 import Chess from "chess.js";
 import Chessground from "react-chessground";
 import ChessBoard from "./MiddleSection/ChessBoard.js";
+import FenParser from "@chess-fu/fen-parser";
 import { Icon, List, Col, Row, Modal, Button, Avatar } from "antd";
 import { Link } from "react-router-dom";
 
@@ -30,6 +31,8 @@ class Editor extends React.Component {
 
   state = {
     gameId: null,
+    whiteCastling: [],
+    blackCastling: [],
     orientation: "white",
     selectVisible: false,
     visibleUserwin: false,
@@ -68,14 +71,35 @@ class Editor extends React.Component {
       let game = this.props.observed_games[0];
       this.setInitial(game);
     }
+    if (prevProps.observed_games.length > 0) {
+      if (prevProps.observed_games[0].fen !== this.props.observed_games[0].fen) {
+        let newFen = this.props.observed_games[0].fen;
+        this.chessground.cg.set({ fen: newFen });
+        this.setState({ fen: newFen });
+      }
+    }
   }
 
   setInitial = game => {
-    this.setState({ gameId: game._id });
+    const fenParser = new FenParser(game.fen);
+    let { whiteCastling, blackCastling } = this.getCastling(fenParser.castles);
+    this.setState({ gameId: game._id, whiteCastling, blackCastling });
     setTimeout(() => {
       this.chessground.cg.set({ fen: game.fen });
     }, 0);
   };
+
+  getCastling(castling) {
+    let result = { whiteCastling: [], blackCastling: [] };
+    castling.split("").forEach(letter => {
+      if (letter === letter.toUpperCase()) {
+        result.whiteCastling.push(letter);
+        return;
+      }
+      result.blackCastling.push(letter);
+    });
+    return result;
+  }
 
   handleChange = e => {
     this.setState({
@@ -91,6 +115,11 @@ class Editor extends React.Component {
 
     // this.chessground.cg.state.events.dropnewpiece()
     // this.chessground.cg.newPiece({ role: "rook", color: "white" }, "f3");
+  };
+
+  handleCastling = (white, black) => {
+    // 'k', 'q', 'kq'
+    Meteor.call("setCastling", "setCastling", this.state.gameId, white.toLowerCase(), black);
   };
 
   handleStartPosition = () => {
@@ -131,6 +160,8 @@ class Editor extends React.Component {
 
   render() {
     const {
+      whiteCastling,
+      blackCastling,
       orientation,
       selectVisible,
       userTimeout,
@@ -197,9 +228,6 @@ class Editor extends React.Component {
                   // current?: DragCurrent;
                 }}
                 onChange={this.handleChange}
-                onDropNewPiece={data => {
-                  debugger;
-                }}
                 resizable={true}
                 // viewOnly={true}
                 // lastMove={lastMove}
@@ -218,12 +246,15 @@ class Editor extends React.Component {
             <Spare onDropStart={this.handleDropStart} />
             <EditorRightSidebar
               onStartPosition={this.handleStartPosition}
+              onCastling={this.handleCastling}
               onClear={this.handleClear}
               onFlip={this.handleFlip}
               onFen={this.handleNewFen}
               onColorChange={this.handleColorChange}
               fen={fen}
               orientation={orientation}
+              whiteCastling={whiteCastling}
+              blackCastling={blackCastling}
             />
           </Col>
         </Row>
