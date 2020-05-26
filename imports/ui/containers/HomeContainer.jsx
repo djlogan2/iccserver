@@ -10,11 +10,7 @@ import { mongoCss, GameRequestCollection } from "../../api/collections";
 export default class HomeContainer extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
-    this.Main = {
-      LeftSection: {
-        MenuLinks: links
-      }
-    };
+    this.Main = {};
     this.state = {
       isAuthenticated: Meteor.userId() !== null,
       subscription: {
@@ -89,12 +85,7 @@ export default class HomeContainer extends TrackerReact(React.Component) {
       this.props.history.push("/login");
     }
   }
-  /*
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/home");
-    }
-  } */
+
   componentWillUnmount() {
     this.state.subscription.css.stop();
     this.state.subscription.gameRequests.stop();
@@ -136,7 +127,7 @@ export default class HomeContainer extends TrackerReact(React.Component) {
         <div className="row1">
           <LeftSidebar
             cssmanager={css}
-            LefSideBoarData={this.Main.LeftSection}
+            // LefSideBoarData={this.Main.LeftSection}
             history={this.props.history}
             examineAction={this.examineActionHandler}
           />
@@ -167,41 +158,3 @@ export default class HomeContainer extends TrackerReact(React.Component) {
   }
 }
 
-let links = [
-  {
-    label: "play",
-    link: "play",
-    src: "../../../images/play-icon-white.png",
-    active: true
-  },
-  {
-    label: "learn",
-    link: "#learn",
-    src: "../../../images/learning-icon-white.png"
-  },
-  {
-    label: "connect",
-    link: "#connect",
-    src: "../../../images/connect-icon-white.png"
-  },
-  {
-    label: "examine",
-    link: "#examine",
-    src: "../../../images/examine-icon-white.png"
-  },
-  {
-    label: "topPlayers",
-    link: "#top-players",
-    src: "../../../images/top-player-icon-white.png"
-  },
-  {
-    label: "logout",
-    link: "#",
-    src: "../../../images/login-icon-white.png"
-  },
-  {
-    label: "help",
-    link: "#help",
-    src: "../../../images/help-icon-white.png"
-  }
-];

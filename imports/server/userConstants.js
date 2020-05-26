@@ -22,6 +22,11 @@ export const all_roles = [
   "delete_any_mugshot",
   "validate_mugshots",
   "upload_pgn",
+  "allow_change_owner",
+  "allow_private_games",
+  "allow_restrict_chat",
+  "allow_restrict_analysis"
+  "upload_pgn",
   "kibitz",
   "child_chat",
   "child_chat_exempt",
@@ -39,7 +44,6 @@ export const standard_member_roles = [
   "validate_mugshots",
   "kibitz",
   "upload_pgn"
-  //TODO: ask about scope of child_chat
 ];
 
 export const fields_viewable_by_account_owner = {

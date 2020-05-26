@@ -27,10 +27,13 @@ class LeftSidebar extends Component {
             this.state.visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"
           }
         >
-          <div className="pull-left image">
+          <div className="image">
             <img src={this.props.cssmanager.buttonBackgroundImage("logoWhite")} alt="logo" />
           </div>
-          <button style={this.props.cssmanager.buttonStyle(buttonStyle)} onClick={this.toggleMenu}>
+          <button
+            style={this.props.cssmanager.buttonStyle(buttonStyle)}
+            onClick={this.toggleMenu}
+          >
             <img
               src={this.props.cssmanager.buttonBackgroundImage("toggleMenu")}
               style={this.props.cssmanager.toggleMenuHeight()}
@@ -40,7 +43,6 @@ class LeftSidebar extends Component {
 
           <MenuLinks
             cssmanager={this.props.cssmanager}
-            links={this.props.LefSideBoarData.MenuLinks}
             history={this.props.history}
             gameHistory={this.props.gameHistory}
             examineAction={this.props.examineAction}

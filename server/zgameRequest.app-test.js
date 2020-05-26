@@ -1502,7 +1502,7 @@ describe("game_requests publication", function() {
         return collector.collect("game_requests");
       })
       .then(collections => {
-        chai.assert.equal(collections.game_requests.length, 0);
+        if (!!collections.game_requests) chai.assert.equal(collections.game_requests.length, 0);
         Game.resignLocalGame("mi2", gameid);
         return Promise.resolve();
       })

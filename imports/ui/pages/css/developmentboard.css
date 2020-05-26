@@ -52,7 +52,7 @@ cg-board square {
 }
 cg-board square.move-dest {
   background:radial-gradient(rgba(116, 0, 204) 22%, #4e0cd0 0, rgba(0, 0, 0, 0.3) 0, rgba(0, 0, 0, 0) 0);
-  
+
   pointer-events: auto;
 }
 cg-board square.premove-dest {
@@ -161,3 +161,4 @@ cg-board piece.fading {
 .cg-wrap coords.ranks coord {
   transform: translateY(39%);
 }
+

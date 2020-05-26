@@ -156,10 +156,10 @@ describe("Match requests and game starts", function() {
     self.loggedonuser = us;
     Game.resignLocalGame("mi4", game_id);
     Game.saveLocalMove("mi5", game_id, "Nc3");
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi5");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
+    chai.assert.isTrue(self.clientMessagesSpy.calledThrice); // The first two are the game status messages
+    chai.assert.equal(self.clientMessagesSpy.args[2][0]._id, us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[2][1], "mi5");
+    chai.assert.equal(self.clientMessagesSpy.args[2][2], "ILLEGAL_MOVE");
   });
 });
 
@@ -923,19 +923,19 @@ describe("Game.localAddExaminer", function() {
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     self.loggedonuser = undefined;
-    chai.assert.throws(() => Game.localAddExamainer("mi2", game_id, newguy._id), Match.Error);
+    chai.assert.throws(() => Game.localAddExaminer("mi2", game_id, newguy._id), Match.Error);
   });
 
   it("should fail if game_id is null", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
-    chai.assert.throws(() => Game.localAddExamainer("mi2", null, newguy), Match.Error);
+    chai.assert.throws(() => Game.localAddExaminer("mi2", null, newguy), Match.Error);
   });
 
   it("should fail if game cannot be found", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
-    chai.assert.throws(() => Game.localAddExamainer("mi2", "xyz", newguy._id), ICCMeteorError);
+    chai.assert.throws(() => Game.localAddExaminer("mi2", "xyz", newguy._id), ICCMeteorError);
   });
 
   // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
@@ -956,7 +956,7 @@ describe("Game.localAddExaminer", function() {
       0,
       "none"
     );
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -967,7 +967,7 @@ describe("Game.localAddExaminer", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -983,7 +983,7 @@ describe("Game.localAddExaminer", function() {
     Game.localAddObserver("mi2", game_id, newguy1._id);
     self.loggedonuser = newguy2;
     Game.localAddObserver("mi2", game_id, newguy2._id);
-    Game.localAddExamainer("mi2", game_id, newguy1._id);
+    Game.localAddExaminer("mi2", game_id, newguy1._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -998,8 +998,8 @@ describe("Game.localAddExaminer", function() {
     self.loggedonuser = newguy1;
     Game.localAddObserver("mi2", game_id, newguy1._id);
     self.loggedonuser = us;
-    Game.localAddExamainer("mi2", game_id, newguy1._id);
-    Game.localAddExamainer("mi2", game_id, newguy1._id);
+    Game.localAddExaminer("mi2", game_id, newguy1._id);
+    Game.localAddExaminer("mi2", game_id, newguy1._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -1029,7 +1029,7 @@ describe("Game.localAddExaminer", function() {
 
     self.loggedonuser = us;
     for (let x = 0; x < 5; x++) {
-      Game.localAddExamainer("add-examiner-" + x, game_id, observers[x]._id);
+      Game.localAddExaminer("add-examiner-" + x, game_id, observers[x]._id);
       examiners.push(observers[x]);
     }
 
@@ -1052,7 +1052,7 @@ describe("Game.localRemoveExaminer", function() {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     self.loggedonuser = undefined;
     chai.assert.throws(() => Game.localRemoveExaminer("mi2", game_id, newguy._id), Match.Error);
   });
@@ -1093,7 +1093,7 @@ describe("Game.localRemoveExaminer", function() {
     const newguy = TestHelpers.createUser();
     const observer = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    Game.localAddExamainer("mi2", game_id, newguy._id);
+    Game.localAddExaminer("mi2", game_id, newguy._id);
     self.loggedonuser = observer;
     Game.localAddObserver("mi3", game_id, observer._id);
     self.loggedonuser = observer;
@@ -1127,7 +1127,7 @@ describe("Game.localRemoveExaminer", function() {
 
     self.loggedonuser = us;
     for (let x = 0; x < 5; x++) {
-      Game.localAddExamainer("add-examiner-" + x, game_id, observers[x]._id);
+      Game.localAddExaminer("add-examiner-" + x, game_id, observers[x]._id);
       examiners.push(observers[x]);
     }
 
@@ -1193,7 +1193,8 @@ describe("Game.localAddObserver", function() {
   it("should succeed if everything else is well", function() {
     const us = TestHelpers.createUser();
     const opponent = TestHelpers.createUser();
-    const observer = TestHelpers.createUser();
+    const observer1 = TestHelpers.createUser();
+    const observer2 = TestHelpers.createUser();
     const randomguy = TestHelpers.createUser();
 
     self.loggedonuser = us;
@@ -1214,9 +1215,10 @@ describe("Game.localAddObserver", function() {
     self.loggedonuser = randomguy;
     const game_id2 = Game.startLocalExaminedGame("mi2", "whiteguy", "blackguy", 0);
 
-    self.loggedonuser = observer;
-    Game.localAddObserver("mi3", game_id1, observer._id);
-    Game.localAddObserver("mi4", game_id2, observer._id);
+    self.loggedonuser = observer1;
+    Game.localAddObserver("mi3", game_id1, observer1._id);
+    self.loggedonuser = observer2;
+    Game.localAddObserver("mi4", game_id2, observer2._id);
 
     const ipgame = Game.collection.findOne({ status: "playing" });
     const exgame = Game.collection.findOne({ status: "examining" });
@@ -1227,14 +1229,18 @@ describe("Game.localAddObserver", function() {
     chai.assert.equal(ipgame.observers.length, 1);
     chai.assert.equal(exgame.observers.length, 2);
 
-    chai.assert.sameMembers(ipgame.observers.map(ob => ob.id), [observer._id]);
-    chai.assert.sameMembers(exgame.observers.map(ob => ob.id), [randomguy._id, observer._id]);
+    chai.assert.sameMembers(ipgame.observers.map(ob => ob.id), [observer1._id]);
+    chai.assert.sameMembers(exgame.observers.map(ob => ob.id), [randomguy._id, observer2._id]);
 
     self.loggedonuser = opponent;
     Game.resignLocalGame("mi5", game_id1);
 
     const game3 = Game.collection.findOne({ _id: game_id1 });
-    chai.assert.sameMembers(game3.observers.map(ob => ob.id), [us._id, opponent._id, observer._id]);
+    chai.assert.sameMembers(game3.observers.map(ob => ob.id), [
+      us._id,
+      opponent._id,
+      observer1._id
+    ]);
     chai.assert.sameMembers(game3.examiners.map(ex => ex.id), [us._id, opponent._id]);
   });
 });
@@ -1277,29 +1283,7 @@ describe("Game.localRemoveObserver", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_OBSERVER");
   });
 
-  /*
-  This is no longer a valid test. There are cases where the internal code must be able to remove another
-  user. So this test must be moved to a Meteor.method call (TODO)
-  it("should fail if user is trying to evict another user", function() {
-    const us = TestHelpers.createUser();
-    const abuser = TestHelpers.createUser();
-    const victim = TestHelpers.createUser();
-
-    self.loggedonuser = us;
-    const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    self.loggedonuser = victim;
-    Game.localAddObserver("mi2", game_id, victim._id);
-    self.loggedonuser = abuser;
-    Game.localAddObserver("mi2", game_id, abuser._id);
-    self.loggedonuser = us;
-    Game.localAddExamainer("mi3", game_id, abuser._id); // Make him an examiner just to maximize ability!
-    self.loggedonuser = abuser;
-    chai.assert.throws(() => Game.localRemoveObserver("mi2", game_id, victim._id), ICCMeteorError);
-    chai.assert.throws(() => Game.localRemoveObserver("mi2", game_id, us._id), ICCMeteorError); // Might as well check this one too
-  });
-   */
-
-  it("should succeed if everything else is well", function() {
+  it("should only allow a user to observe one game at a time", function() {
     const us = TestHelpers.createUser();
     const opponent = TestHelpers.createUser();
     const examiner = TestHelpers.createUser();
@@ -1325,15 +1309,21 @@ describe("Game.localRemoveObserver", function() {
 
     self.loggedonuser = observer;
     Game.localAddObserver("mi3", playing_game, observer._id);
+
+    const pg3 = Game.collection.findOne({ status: "playing" });
+    const ex3 = Game.collection.findOne({ status: "examining" });
+
+    chai.assert.notEqual(pg3.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal(ex3.observers.map(ob => ob.id).indexOf(observer._id), -1);
+
     Game.localAddObserver("mi4", examined_game, observer._id);
 
     const pg1 = Game.collection.findOne({ status: "playing" });
     const ex1 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.notEqual(pg1.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal(pg1.observers.map(ob => ob.id).indexOf(observer._id), -1);
     chai.assert.notEqual(ex1.observers.map(ob => ob.id).indexOf(observer._id), -1);
 
-    Game.localRemoveObserver("mi5", playing_game, observer._id);
     Game.localRemoveObserver("mi5", examined_game, observer._id);
 
     const pg2 = Game.collection.findOne({ status: "playing" });
@@ -1459,7 +1449,7 @@ describe("Takeback behavior", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   it("restores both clocks to the same time as the move taken back to", function() {
-    this.timeout(5000);
+    this.timeout(30000);
     // So if say:
     // move 20, white clock: 25:00, black clock: 15:00,
     // at move 22, white clock: 5:00, black clock: 2:00,
@@ -2021,7 +2011,7 @@ describe("Game.requestLocalTakeback", function() {
     }); // It is blacks move here.
     self.loggedonuser = us;
     Game.requestLocalTakeback("mi2", game_id, 5);
-    const game1 = Game.collection.findOne();
+    Game.collection.findOne();
     self.loggedonuser = them;
     Game.acceptLocalTakeback("mi3", game_id);
     const game2 = Game.collection.findOne();
@@ -2314,10 +2304,10 @@ describe("Local game draw behavior", function() {
     });
     checkLastAction(game, 2, "draw_requested", us._id);
 
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "DRAW_ACCEPTED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b13");
 
     chai.assert.equal(game.status, "examining");
   });
@@ -2547,10 +2537,10 @@ describe("Local game abort behavior", function() {
     });
     checkLastAction(game, 2, "abort_requested", us._id);
 
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi9");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_ACCEPTED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b30");
 
     chai.assert.equal(game.status, "examining");
   });
@@ -2573,6 +2563,11 @@ describe("Local game abort behavior", function() {
       "none",
       "white"
     );
+    ["a4", "a5", "b4", "b5", "c4", "c5", "d4", "d5", "e4", "e5"].forEach(move => {
+      Game.saveLocalMove(move, game_id, move);
+      if (self.loggedonuser._id === us._id) self.loggedonuser = opp;
+      else self.loggedonuser = us;
+    });
     checkAbort(Game.collection.findOne(), "0", "0");
     Game.requestLocalAbort("mi2", game_id);
     checkAbort(Game.collection.findOne(), "mi2", "0");
@@ -2584,7 +2579,7 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_ALREADY_PENDING");
-    chai.assert.equal(game.actions.length, 1);
+    chai.assert.equal(game.actions.length, 11);
     checkLastAction(game, 0, "abort_requested", us._id);
   });
 
@@ -2753,10 +2748,10 @@ describe("Local game adjourn behavior", function() {
     });
     checkLastAction(game, 2, "adjourn_requested", us._id);
 
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ADJOURN_ACCEPTED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b24");
 
     chai.assert.equal(game.status, "examining");
   });
@@ -3271,12 +3266,13 @@ describe("Takebacks", function() {
     const pgn = Game.buildPgnFromMovelist(game.variations.movelist);
     // I got this from an SCID export of these moves, but removed the whitespace around the parens
     // SCID wrote: ( 1. e4 ) ... and I changed it to (1.e4)
-    const expectedpgn = "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. O-O (4. c3 d6 (4. ... d5 5. d4) 5. d4) 4. ... d5) 3. ... Be7 4. d4 (4. c3 d6 5. d4 exd4 6. cxd4) 4. ... Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4";
+    const expectedpgn =
+      "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. O-O (4. c3 d6 (4. ... d5 5. d4) 5. d4) 4. ... d5) 3. ... Be7 4. d4 (4. c3 d6 5. d4 exd4 6. cxd4) 4. ... Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4";
     //const expectedpgn =
     //  "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
     // So Let's not remove the whitespace, and it should match exactly.
-    const actualpgn = pgn; //pgn.replace(/\s/g, "");
-    chai.assert.equal(actualpgn, expectedpgn);
+    //pgn.replace(/\s/g, "");
+    chai.assert.equal(pgn, expectedpgn);
   });
 });
 
@@ -3503,39 +3499,32 @@ describe("Game publication", function() {
     chai.assert.equal(game.black.id, p2._id);
     chai.assert.sameMembers(game.observers.map(ob => ob.id), [o1._id, o2._id]);
 
-    function check(user, hasComputerMoves) {
+    function check(user, playing, player) {
       return new Promise(resolve => {
         self.loggedonuser = user;
-        const playing_collector = new PublicationCollector({
-          userId: user._id
-        });
-        const observing_collector = new PublicationCollector({
+        const collector = new PublicationCollector({
           userId: user._id
         });
 
-        playing_collector.collect("playing_games", playing_collection => {
-          observing_collector.collect("observing_games", observing_collection => {
-            if (playing_collection.game.length)
-              if (observing_collection.game.length)
-                if (hasComputerMoves) {
-                  chai.assert.equal(playing_collection.game.length, 0);
-                  chai.assert.equal(observing_collection.game.length, 1);
-                  chai.assert.isDefined(observing_collection.game[0].variations.movelist[1].score);
-                } else {
-                  chai.assert.equal(playing_collection.game.length, 1);
-                  chai.assert.equal(observing_collection.game.length, 0);
-                  chai.assert.isUndefined(playing_collection.game[0].variations.movelist[1].score);
-                }
-            resolve();
-          });
+        collector.collect(playing ? "playing_games" : "observing_games", collection => {
+          if (playing === player) {
+            chai.assert.equal(collection.game.length, 1);
+            if (playing) chai.assert.isUndefined(collection.game[0].variations.movelist[1].score);
+            else chai.assert.isDefined(collection.game[0].variations.movelist[1].score);
+          } else chai.assert.isTrue(!collection.game || !collection.game.length);
+          resolve();
         });
       });
     }
 
-    check(p1, false)
-      .then(() => check(p2, false))
-      .then(() => check(o1, true))
-      .then(() => check(o2, true))
+    check(p1, false, true)
+      .then(() => check(p1, true, true))
+      .then(() => check(p2, false, true))
+      .then(() => check(p2, true, true))
+      .then(() => check(o1, false, false))
+      .then(() => check(o1, true, false))
+      .then(() => check(o2, false, false))
+      .then(() => check(o2, true, false))
       .then(() => done());
   });
 });
@@ -4018,6 +4007,7 @@ describe("Game clocks", function() {
   });
 
   it("should automatically end the game when time expires", function() {
+    this.timeout(200000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -4344,58 +4334,10 @@ describe("Starting a game", function() {
 describe("Starting an examined game", function() {
   const self = TestHelpers.setupDescribe.call(this);
   it("should fail if the user starting an examined game is not online", function() {
-    const p1 = TestHelpers.createUser({ login: false });
-    self.loggedonuser = p1;
+    self.loggedonuser = TestHelpers.createUser({ login: false });
     chai.assert.throws(
       () => Game.startLocalExaminedGame("mi1", "white", "black", 0),
       ICCMeteorError
     );
-  });
-
-  it("should save any other headers we pass in", function() {
-    const coolheaders = {
-      Event: "event",
-      Site: "site",
-      Date: "2015-12-25",
-      Round: "1",
-      White: "coolguy jones",
-      Black: "badguy bob",
-      Result: "1-0",
-      WhiteTitle: "Mister master",
-      BlackTitle: "Miss mater",
-      WhiteUSCF: "1234",
-      WhiteElo: "5678",
-      BlackUSCF: "2345",
-      BlackElo: "6789",
-      WhiteNA: "what?",
-      BlackNA: "no idea",
-      WhiteType: "still no",
-      BlackType: "nope",
-      EventDate: "2010-01-25",
-      EventSponsor: "icc or course",
-      Section: "open",
-      Stage: "left",
-      Board: "10",
-      Opening: "Sicilian",
-      Variation: "dunno",
-      SubVariation: "maybe",
-      ECO: "B00",
-      NIC: "123",
-      Time: "23:56",
-      UTCTime: "12:14",
-      UTCDate: "1998-12-24",
-      TimeControl: "45/45 G30",
-      SetUp: "?",
-      FEN: "4K3/k3p1P1/2P1p3/1Bpq2Bn/8/5pP1/1b1N4/2Q5 w - - 0 1",
-      Termination: "robocop",
-      Annotator: "David Logan",
-      Mode: "dialog",
-      PlyCount: "500"
-    };
-    const p1 = TestHelpers.createUser();
-    self.loggedonuser = p1;
-    Game.startLocalExaminedGame("mi1", "white", "black", 0, coolheaders);
-    const game = Game.collection.findOne({});
-    chai.assert.deepEqual(game.tags, coolheaders);
   });
 });

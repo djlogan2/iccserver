@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
 import { Meteor } from "meteor/meteor";
 import ModalContext from "./../ModalContext";
+import { links, sidebarBottom } from "./../hardcode.json";
 
 class MenuLinks extends Component {
   static contextType = ModalContext;
@@ -12,23 +13,7 @@ class MenuLinks extends Component {
     };
     this.logout = this.logout.bind(this);
   }
-  componentWillMount() {
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/login");
-    }
-  }
-  componentDidMount() {
-    
-    //alert(1)
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/login");
-    }
-  }
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/login");
-    }
-  }
+
   logout() {
     Meteor.logout(err => {
       if (err) {
@@ -38,6 +23,7 @@ class MenuLinks extends Component {
       }
     });
   }
+
   startLocalExaminedGame(action) {
     Meteor.call(
       "startLocalExaminedGame",
@@ -52,6 +38,7 @@ class MenuLinks extends Component {
       }
     );
   }
+
   handleClick = (e, label) => {
     e.preventDefault();
     if (label === "mygame") {
@@ -88,7 +75,7 @@ class MenuLinks extends Component {
   render() {
     let translator = i18n.createTranslator("Common.menuLinkLabel", MenuLinks.getLang());
 
-    let linksMarkup = this.props.links.map((link, index) => {
+    let linksMarkup = links.map((link, index) => {
       let linkMarkup = link.active ? (
         <a href="#" className="active" onClick={e => this.handleClick(e, link.label)}>
           <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
@@ -100,14 +87,27 @@ class MenuLinks extends Component {
       );
 
       return (
-        <li key={index} style={this.props.cssmanager.showLg()}>
+        <li className="menu-link__item" key={index}>
           {linkMarkup}
         </li>
       );
     });
 
     return (
-      <ul className="list-sidebar bg-defoult list-unstyled components desktop">{linksMarkup}</ul>
+      <div className="menu-links">
+        <ul className="list-sidebar bg-defoult list-unstyled components desktop">{linksMarkup}</ul>
+        <div className="menu-links__bottom">
+          {sidebarBottom.map((link, index) => {
+            return (
+              <li key={index} className="menu-link__item" key={index}>
+                <a href="#" onClick={e => this.handleClick(e, link.label)}>
+                  <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
+                </a>
+              </li>
+            );
+          })}
+        </div>
+      </div>
     );
   }
 }

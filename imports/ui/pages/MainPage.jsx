@@ -6,6 +6,7 @@ import RightSidebar from "./RightSidebar/RightSidebar";
 import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
+import { links, tournament } from "./hardcode.json";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
 import { ModalProvider } from "./ModalContext";
@@ -72,7 +73,7 @@ export default class MainPage extends Component {
       },
       RightSection: {
         TournamentList: {
-          Tournaments: Tournament
+          Tournaments: tournament
         },
         MoveList: {},
         status: "other",
@@ -189,7 +190,7 @@ export default class MainPage extends Component {
     );
   };
 uploadPgn(){
-  
+
   this.setState({notification:true});
 }
   loadGameHistroyPopup(games) {
@@ -410,7 +411,6 @@ uploadPgn(){
       const actions = game.actions;
 
       if (!!actions && actions.length !== 0) {
-
         for (const action of actions) {
           const issuer = action["issuer"];
           switch (action["type"]) {
@@ -459,7 +459,7 @@ uploadPgn(){
       );
     }
     if(!!this.state.notification){
-      informativePopup=this.GameResignedPopup("File upload succeshfully","mid"); 
+      informativePopup=this.GameResignedPopup("File upload succeshfully","mid");
    }
     let w = this.state.width;
     let h = this.state.height;
@@ -474,7 +474,7 @@ uploadPgn(){
       leftmenu = (
         <LeftSidebar
           cssmanager={this.props.cssmanager}
-          LefSideBoarData={this.Main.LeftSection}
+          // LefSideBoarData={this.Main.LeftSection}
           history={this.props.history}
           gameHistory={this.props.gameHistoryload}
           examineAction={this.examineActionHandler}
@@ -545,79 +545,3 @@ uploadPgn(){
 MainPage.propTypes = {
   username: PropTypes.string
 };
-
-let links = [
-  {
-    label: "play",
-    link: "play",
-    src: "../../../images/play-icon-white.png",
-    active: true
-  },
-  {
-    label: "mygame",
-    link: "mygame",
-    src: "../../../images/learning-icon-white.png"
-  },
-  {
-    label: "uploadpgn",
-    link: "upload-pgn",
-    src: "../../../images/learning-icon-white.png"
-  },
-  {
-    label: "connect",
-    link: "#connect",
-    src: "../../../images/connect-icon-white.png"
-  },
-  {
-    label: "examine",
-    link: "#examine",
-    src: "../../../images/examine-icon-white.png"
-  },
-  {
-    label: "topPlayers",
-    link: "#top-players",
-    src: "../../../images/top-player-icon-white.png"
-  },
-  {
-    label: "logout",
-    link: "#",
-    src: "../../../images/login-icon-white.png"
-  },
-  {
-    label: "help",
-    link: "#help",
-    src: "../../../images/help-icon-white.png"
-  }
-];
-let Tournament = [
-  {
-    name: "3|2 Blitz Arena",
-    status: "Round 1 of 5",
-    count: "15",
-    src: "images/blitz-icon.png"
-  },
-  {
-    name: "1|0 Bullet Arena",
-    status: "in 4 min",
-    count: "40 ",
-    src: "images/rapid-icon.png"
-  },
-  {
-    name: "15|10 Rapid Swiss ",
-    status: "Round 1 of 5",
-    count: "54",
-    src: "images/bullet-icon.png"
-  },
-  {
-    name: "1|0 Bullet Arena",
-    status: "Round 1 of 5",
-    count: "35",
-    src: "images/blitz-icon.png"
-  },
-  {
-    name: "3|2 Blitz Arena",
-    status: "Round 1 of 7",
-    count: "49",
-    src: "images/rapid-icon.png"
-  }
-];
