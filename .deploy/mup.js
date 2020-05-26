@@ -3,15 +3,15 @@ module.exports = {
     one: {
       // TODO: set host address, username, and authentication method
       host: '34.216.171.157',
-      username: 'david',
-      pem: '~/.ssh/id_rsa'
+      username: 'ihnat',
+      pem: '~/.ssh/chess_rsa'
     }
   },
 
   app: {
     // TODO: change app name and path
     name: 'iccserver',
-    path: '../',
+      path: '../',
 
     servers: {
       one: {}
