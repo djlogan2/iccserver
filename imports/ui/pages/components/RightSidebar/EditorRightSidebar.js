@@ -79,13 +79,13 @@ class EditorRightSidebar extends Component {
           <div className="editor-right-sidebar__color-block">
             <Radio.Group
               className="editor-right-sidebar__select"
-              defaultValue="white"
-              value={this.props.orientation}
+              defaultValue="w"
+              value={this.props.color}
               buttonStyle="solid"
               onChange={handleColor}
             >
-              <Radio.Button value="white">White to play</Radio.Button>
-              <Radio.Button value="black">Black to play</Radio.Button>
+              <Radio.Button value="w">White to play</Radio.Button>
+              <Radio.Button value="b">Black to play</Radio.Button>
             </Radio.Group>
           </div>
 

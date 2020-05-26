@@ -1,6 +1,7 @@
 .editor-right-sidebar-wrapper {
     display: flex;
     flex-direction: row;
+    height: 100%;
 }
 .editor-right-sidebar {
     display: flex;

@@ -2,6 +2,7 @@
     width: 68px;
     padding-top: 30px;
     background: rgb(199, 203, 213);
+    overflow: auto;
 }
 .spare .cg-wrap {
     background-image: none;

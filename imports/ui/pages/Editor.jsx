@@ -22,6 +22,7 @@ import RightSidebar from "./RightSidebar/RightSidebar";
 
 import "./css/developmentboard.css";
 import "./css/Spare.css";
+import "./css/Editor.css";
 import "react-chessground/dist/assets/theme.css";
 
 const log = new Logger("client/LoginPage_js");
@@ -31,9 +32,11 @@ class Editor extends React.Component {
 
   state = {
     gameId: null,
+    game: null,
     whiteCastling: [],
     blackCastling: [],
     orientation: "white",
+    color: "w",
     selectVisible: false,
     visibleUserwin: false,
     visibleComwin: false,
@@ -73,9 +76,10 @@ class Editor extends React.Component {
     }
     if (prevProps.observed_games.length > 0) {
       if (prevProps.observed_games[0].fen !== this.props.observed_games[0].fen) {
-        let newFen = this.props.observed_games[0].fen;
+        let game = this.props.observed_games[0];
+        let newFen = game.fen;
         this.chessground.cg.set({ fen: newFen });
-        this.setState({ fen: newFen });
+        this.setState({ fen: newFen, game: game });
       }
     }
   }
@@ -83,7 +87,7 @@ class Editor extends React.Component {
   setInitial = game => {
     const fenParser = new FenParser(game.fen);
     let { whiteCastling, blackCastling } = this.getCastling(fenParser.castles);
-    this.setState({ gameId: game._id, whiteCastling, blackCastling });
+    this.setState({ game: game, gameId: game._id, whiteCastling, blackCastling });
     setTimeout(() => {
       this.chessground.cg.set({ fen: game.fen });
     }, 0);
@@ -101,11 +105,23 @@ class Editor extends React.Component {
     return result;
   }
 
+  generateFen = () => {
+    let miniFen = this.chessground.cg.getFen();
+    let serverFen = this.state.game.fen;
+    let flags = serverFen
+      .split(" ")
+      .slice(1)
+      .join(" ");
+    return `${miniFen} ${flags}`;
+  };
+
   handleChange = e => {
-    this.setState({
-      fen: this.chessground.cg.getFen()
+    let newFen = this.generateFen();
+    this.setState({ fen: newFen });
+    Meteor.call("loadFen", "loadFen", this.state.gameId, newFen, (err, response) => {
+      console.log(err);
+      debugger;
     });
-    Meteor.call("loadFen", "loadFen", this.state.gameId, this.chessground.cg.getFen());
   };
 
   handleDropStart = (piece, e) => {
@@ -135,9 +151,10 @@ class Editor extends React.Component {
   handleClear = () => {
     // const FEN_DATA = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
     this.chess.clear();
-    this.chessground.cg.set({ fen: this.chess.fen() });
+    let newFen = this.generateFen();
+    this.chessground.cg.set({ fen: newFen });
     this.setState({
-      fen: this.chess.fen()
+      fen: newFen
     });
     Meteor.call("clearBoard", "clearBoard", this.state.gameId);
   };
@@ -149,13 +166,16 @@ class Editor extends React.Component {
   };
 
   handleColorChange = color => {
-    this.setState({
-      orientation: color
+    this.setState({ color });
+    Meteor.call("setToMove", "setToMove", this.state.gameId, color, (err, response) => {
+      console.log(err);
     });
   };
 
   handleNewFen = newFen => {
-    this.chessground.cg.set({ fen: newFen });
+    Meteor.call("loadFen", "loadFen", this.state.gameId, newFen, (err, response) => {
+      console.log(err);
+    });
   };
 
   render() {
@@ -163,6 +183,7 @@ class Editor extends React.Component {
       whiteCastling,
       blackCastling,
       orientation,
+      color,
       selectVisible,
       userTimeout,
       comTimeout,
@@ -199,8 +220,8 @@ class Editor extends React.Component {
       color: "white"
     };
     return (
-      <div style={{ background: "#2b313c", height: "100vh" }}>
-        <Row>
+      <div style={{ background: "#2b313c", height: "100vh", minHeight: "600px" }}>
+        <Row className="editor__row">
           <Col span={3}>
             {css && (
               <LeftSidebar
@@ -214,32 +235,27 @@ class Editor extends React.Component {
           </Col>
           <Col span={12}>
             <div className="merida" style={{ margin: "58px" }}>
-              <Chessground
-                width="40vw"
-                height="40vw"
-                orientation={orientation}
-                draggable={{
-                  enabled: true, // allow moves & premoves to use drag'n drop
-                  distance: 1, // minimum distance to initiate a drag; in pixels
-                  autoDistance: true, // lets chessground set distance to zero when user drags pieces
-                  centerPiece: true, // center the piece on cursor at drag start
-                  showGhost: true, // show ghost of piece being dragged
-                  deleteOnDropOff: true // delete a piece when it is dropped off the board
-                  // current?: DragCurrent;
-                }}
-                onChange={this.handleChange}
-                resizable={true}
-                // viewOnly={true}
-                // lastMove={lastMove}
-                // scoreUser={scoreUser}
-                // scoreCom={scoreCom}
-                // fen={fen}
-                //   fen={"rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 0 1"}
-                // onMove={this.onMove}
-                ref={el => {
-                  this.chessground = el;
-                }}
-              />
+              {this.state.game !== null && (
+                <Chessground
+                  width="40vw"
+                  height="40vw"
+                  orientation={orientation}
+                  draggable={{
+                    enabled: true, // allow moves & premoves to use drag'n drop
+                    distance: 1, // minimum distance to initiate a drag; in pixels
+                    autoDistance: true, // lets chessground set distance to zero when user drags pieces
+                    centerPiece: true, // center the piece on cursor at drag start
+                    showGhost: true, // show ghost of piece being dragged
+                    deleteOnDropOff: true // delete a piece when it is dropped off the board
+                    // current?: DragCurrent;
+                  }}
+                  onChange={this.handleChange}
+                  resizable={true}
+                  ref={el => {
+                    this.chessground = el;
+                  }}
+                />
+              )}
             </div>
           </Col>
           <Col span={9} className="editor-right-sidebar-wrapper">
@@ -253,6 +269,7 @@ class Editor extends React.Component {
               onColorChange={this.handleColorChange}
               fen={fen}
               orientation={orientation}
+              color={color}
               whiteCastling={whiteCastling}
               blackCastling={blackCastling}
             />
