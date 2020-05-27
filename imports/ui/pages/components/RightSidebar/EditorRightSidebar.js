@@ -72,7 +72,7 @@ class EditorRightSidebar extends Component {
     return (
       <div className="editor-right-sidebar">
         <div className="editor-right-sidebar__head">
-          <Button className="editor-right-sidebar__back-btn">Back to Play</Button>
+          <Button href="/play" className="editor-right-sidebar__back-btn">Back to Play</Button>
           <h2 className="editor-right-sidebar__title">Board set up</h2>
         </div>
         <div className="editor-right-sidebar__content">
@@ -116,13 +116,13 @@ class EditorRightSidebar extends Component {
           </div>
 
           <div className="editor-right-sidebar__btn-list">
-            <Button className="editor-right-sidebar__btn" onClick={this.props.onStartPosition}>
+            <Button className="editor-right-sidebar__btn editor-right-sidebar__btn--starting-pos" onClick={this.props.onStartPosition}>
               Starting position
             </Button>
-            <Button className="editor-right-sidebar__btn" onClick={this.props.onClear}>
+            <Button className="editor-right-sidebar__btn editor-right-sidebar__btn--clear" onClick={this.props.onClear}>
               Clear board
             </Button>
-            <Button className="editor-right-sidebar__btn" onClick={this.props.onFlip}>
+            <Button className="editor-right-sidebar__btn editor-right-sidebar__btn--flip" onClick={this.props.onFlip}>
               Flip board
             </Button>
           </div>

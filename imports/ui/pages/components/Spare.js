@@ -65,7 +65,7 @@ const Spare = props => {
               {/* <div className="drag-card" onMouseDown={mouseDown} datacolor="black" datarole="pawn">
                 drag black pawn
               </div> */}
-              <piece className="trash"/>
+              <piece draggable="true" className="trash"/>
             </div>
           </div>
           <div className="no-square selected-square">
