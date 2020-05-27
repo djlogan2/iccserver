@@ -1,3 +1,8 @@
 .editor__row {
     height: 100%;
 }
+
+.editor__main {
+    overflow: auto;
+    height: 100%;
+}
