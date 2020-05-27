@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../../lib/client/Logger";
@@ -17,7 +18,7 @@ export default class MoveListComponent extends Component {
       gameRequest: props.gameRequest,
       isexamin: true
     };
-   
+
   }
   static getLang() {
     return (
@@ -62,11 +63,11 @@ export default class MoveListComponent extends Component {
       console.log(slicemoves[i].idc);
       Meteor.call("moveForward", "MoveForward", this.gameId,1,slicemoves[i].idc);
     }
-    
-     // console.log(v.idc);
-     
 
-  
+     // console.log(v.idc);
+
+
+
   //  Meteor.call("moveForward", "MoveForward", this.gameId,movecount);
  };
 
@@ -81,10 +82,10 @@ export default class MoveListComponent extends Component {
          }else{
            this.moveForward();
          }
-       
+
        } , 1000);
    }
-  
+
   componentWillUnmount() {
     clearInterval(this.intervalID);
   }
@@ -132,7 +133,7 @@ export default class MoveListComponent extends Component {
       this.state.gameRequest.receiver_inc_or_delay,
       this.state.gameRequest.receiver_delaytype,
       this.state.gameRequest.challenger_color_request
-    ); 
+    );
   };
   handleChangeSecond = event => {
     let action = event.target.value;
@@ -154,35 +155,35 @@ export default class MoveListComponent extends Component {
     this.moveBackwordBeginning();
     this.props.startGameExamine();
   }
- 
+
   addmove(move_number, variations, white_to_move, movelist, idx) {
     let string = "";
- 
+
    if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
    if(movelist[idx].variations.length > 1){
- 
+
    }else{
      string += "0"+"*-"+movelist[idx].variations[0]+"*-"+movelist[movelist[idx].variations[0]].move+"|";
-     
+
    }
-   
+
    let next_move_number = move_number;
    let next_white_to_move = !white_to_move;
    if (next_white_to_move) next_move_number++;
- 
+
    for (let x = 1; x < movelist[idx].variations.length; x++) {
      if(x=movelist[idx].variations.length - 1){
        string +=
             x+"*-"+movelist[idx].variations[x]+"*-"+movelist[movelist[idx].variations[x]].move+" |";
- 
+
        }
       string +=
          this.addmove(next_move_number, false, next_white_to_move, movelist, movelist[idx].variations[x]);
-      
+
    }
- 
+
  if(movelist[idx].variations.length > 1){
- 
+
  this.addmove(
        next_move_number,
        movelist[idx].variations.length > 1,
@@ -199,13 +200,13 @@ export default class MoveListComponent extends Component {
        next_white_to_move,
        movelist,
        movelist[idx].variations[0]
-     );	
+     );
  }
    return string;
  }
  buildPgnFromMovelist(movelist) {
  return this.addmove(1, false, true, movelist, 0);
- 
+
 }
 
 
@@ -229,13 +230,13 @@ export default class MoveListComponent extends Component {
         let ch=chunks[i].split("*-");
         this.moves.push({idc:parseInt(ch[0]),idx:parseInt(ch[1]),move:ch[2]});
     }
-      
+
 console.log(this.moves);
     /* TODO: movlist button display operation*/
     let displayButton = 0;
     let statuslabel=0;
     let isPlaying;
-    
+
     let mbtnstyle = this.props.cssmanager.gameButtonMove();
     if (this.props.currentGame === true && status === "examining"){
       displayButton = 1;
@@ -244,13 +245,13 @@ console.log(this.moves);
     }else if(status === "playing"){
       statuslabel=1;
     }
-   
+
     if (status === "playing") {
       isPlaying=true;
     }else{
       isPlaying=false;
     }
-   
+
     /*End of code */
     let cnt = 1;
     let ind = "";
@@ -270,14 +271,14 @@ console.log(this.moves);
         Object.assign(style, { color: "#904f4f",
         fontWeight: "bold",
         fontSize: "15px"
-      
+
       });
       movestyle=style;
       this.currentindex=index;
       } else{
         movestyle=style;
-      } 
-    
+      }
+
       return (
         <span key={index}>
           {ind ? <b>{ind}</b> : null}
@@ -285,16 +286,16 @@ console.log(this.moves);
         </span>
       );
     });
-    let btnstyle = {}; 
+    let btnstyle = {};
     btnstyle = this.props.cssmanager.buttonStyle();
     Object.assign(btnstyle, { background:"#f1f1f1",borderRadius:"5px",margin: "5px",padding: "6px 25px"
    });
-  
+
     return (
       <div>
         <div style={this.props.cssmanager.gameMoveList()} >{moveslist}</div>
-       
-        
+
+
         {displayButton ? (
           <div style={mbtnstyle} className="moveAction">
             <button
@@ -331,17 +332,17 @@ console.log(this.moves);
               />
             </button>
             <button style={btnstyle}  onClick={this.moveAutoForward.bind(this)}>
-            {this.state.toggle?( 
+            {this.state.toggle?(
              <img
              src={this.props.cssmanager.buttonBackgroundImage("nextStop")}
              alt="next-single"
-           />):( 
+           />):(
               <img
               src={this.props.cssmanager.buttonBackgroundImage("nextStart")}
               alt="next-single"
             />)}
-              
-               
+
+
             </button>
             <button style={ btnstyle} onClick={this.props.flip}>
               <img src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
@@ -360,7 +361,7 @@ console.log(this.moves);
              <span>{translator(status)}</span>
           </div>
         ) : null}
-            
+
           {isPlaying?( <ul>
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
@@ -375,6 +376,7 @@ console.log(this.moves);
                 {translator("draw")}
               </button>
             </li>
+
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
                 style={this.props.cssmanager.buttonStyle()}
@@ -438,6 +440,9 @@ console.log(this.moves);
                 Rematch
               </button>
             </li>
+            <li>
+              <a href="/editor">Editor</a>
+            </li>
             <li style={this.props.cssmanager.drawSectionList()}>
               <button
                 style={this.props.cssmanager.buttonStyle()}
@@ -472,8 +477,8 @@ console.log(this.moves);
                 </select>
               </span>
             </li>
-          </ul>)}  
-          
+          </ul>)}
+
       </div>
       </div>
     );
