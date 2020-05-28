@@ -109,7 +109,7 @@ describe("Users", function() {
     });
     Meteor.users.update(
       { username: "user1" },
-      { $push: { groups: "group1" }, $set: { limit_to_group: true } }
+      { $addToSet: { groups: "group1" }, $set: { limit_to_group: true } }
     );
     const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);

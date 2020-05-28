@@ -1013,7 +1013,7 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
   if (add.length)
     GameRequestCollection.update(
       { _id: { $in: add }, type: "seek" },
-      { $push: { matchingusers: user._id } },
+      { $addToSet: { matchingusers: user._id } },
       { multi: true }
     );
 
@@ -1037,7 +1037,7 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
             if (matches) {
               GameRequestCollection.update(
                 { _id: seek._id, type: seek.type },
-                { $push: { matchingusers: onlineuser._id } }
+                { $addToSet: { matchingusers: onlineuser._id } }
               );
             } else {
               GameRequestCollection.update(
