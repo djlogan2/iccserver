@@ -782,9 +782,6 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
         }
       : move;
 
-  const pushobject = {
-    actions: { type: "move", issuer: self._id, parameter: move_parameter }
-  };
   setobject.variations = variation;
   setobject.tomove = otherbw;
   setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
@@ -796,7 +793,11 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   GameCollection.update(
     { _id: game_id, status: game.status },
-    { $unset: unsetobject, $set: setobject, $push: pushobject }
+    {
+      $unset: unsetobject,
+      $set: setobject,
+      $push: { actions: { type: "move", issuer: self._id, parameter: move_parameter } }
+    }
   );
 
   if (setobject.result) {
@@ -903,7 +904,7 @@ Game.legacyGameEnded = function(
           status2: 0,
           examiners: examiners
         },
-        $push: { observers: { $each: examiners } }
+        $addToSet: { observers: { $each: examiners } }
       }
     );
   } else {
@@ -1001,7 +1002,10 @@ Game.localAddExaminer = function(message_identifier, game_id, id_to_add) {
 
   Users.setGameStatus(message_identifier, id_to_add, "examining");
 
-  GameCollection.update({ _id: game_id, status: "examining" }, { $push: { examiners: observer } });
+  GameCollection.update(
+    { _id: game_id, status: "examining" },
+    { $addToSet: { examiners: observer } }
+  );
 };
 
 Game.localRemoveObserver = function(
@@ -1172,11 +1176,11 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
     );
 
   const updateobject = {
-    $push: { observers: { id: adding_user._id, username: adding_user.username } }
+    $addToSet: { observers: { id: adding_user._id, username: adding_user.username } }
   };
 
   if (!game.private)
-    updateobject.$push.analysis = { id: adding_user._id, username: adding_user.username };
+    updateobject.$addToSet.analysis = { id: adding_user._id, username: adding_user.username };
 
   Game.localUnobserveAllGames(message_identifier, id_to_add, id_to_add !== self._id);
   Users.setGameStatus(message_identifier, id_to_add, "observing");
@@ -1399,14 +1403,16 @@ Game.requestLocalDraw = function(message_identifier, game_id) {
     GameCollection.update(
       { _id: game_id, status: "playing" },
       {
-        $push: {
-          actions: { type: "draw", issuer: self._id },
+        $addToSet: {
           observers: {
             $each: [
               { id: game.white.id, username: game.white.name },
               { id: game.black.id, username: game.black.name }
             ]
           }
+        },
+        $push: {
+          actions: { type: "draw", issuer: self._id }
         },
         $unset: { pending: "" },
         $set: {
@@ -1496,16 +1502,18 @@ Game.requestLocalAbort = function(message_identifier, game_id) {
           ]
         },
         $unset: { pending: "" },
-        $push: {
-          actions: {
-            type: "abort_requested",
-            issuer: self._id
-          },
+        $addToSet: {
           observers: {
             $each: [
               { id: game.white.id, username: game.white.name },
               { id: game.black.id, username: game.black.name }
             ]
+          }
+        },
+        $push: {
+          actions: {
+            type: "abort_requested",
+            issuer: self._id
           }
         }
       }
@@ -1610,16 +1618,18 @@ Game.acceptLocalDraw = function(message_identifier, game_id) {
         ]
       },
       $unset: { pending: "" },
-      $push: {
-        actions: {
-          type: "draw_accepted",
-          issuer: self._id
-        },
+      $addToSet: {
         observers: {
           $each: [
             { id: game.white.id, username: game.white.name },
             { id: game.black.id, username: game.black.name }
           ]
+        }
+      },
+      $push: {
+        actions: {
+          type: "draw_accepted",
+          issuer: self._id
         }
       }
     }
@@ -1670,16 +1680,18 @@ Game.acceptLocalAbort = function(message_identifier, game_id) {
         ]
       },
       $unset: { pending: "" },
-      $push: {
-        actions: {
-          type: "abort_accepted",
-          issuer: self._id
-        },
+      $addToSet: {
         observers: {
           $each: [
             { id: game.white.id, username: game.white.name },
             { id: game.black.id, username: game.black.name }
           ]
+        }
+      },
+      $push: {
+        actions: {
+          type: "abort_accepted",
+          issuer: self._id
         }
       }
     }
@@ -1726,16 +1738,18 @@ Game.acceptLocalAdjourn = function(message_identifier, game_id) {
         ]
       },
       $unset: { pending: "" },
-      $push: {
-        actions: {
-          type: "adjourn_accepted",
-          issuer: self._id
-        },
+      $addToSet: {
         observers: {
           $each: [
             { id: game.white.id, username: game.white.name },
             { id: game.black.id, username: game.black.name }
           ]
+        }
+      },
+      $push: {
+        actions: {
+          type: "adjourn_accepted",
+          issuer: self._id
         }
       }
     }
@@ -2072,14 +2086,16 @@ function _resignLocalGame(message_identifier, game, userId, reason) {
   GameCollection.update(
     { _id: game._id, status: "playing" },
     {
-      $push: {
-        actions: { type: action_string, issuer: userId },
+      $addToSet: {
         observers: {
           $each: [
             { id: game.white.id, username: game.white.name },
             { id: game.black.id, username: game.black.name }
           ]
         }
+      },
+      $push: {
+        actions: { type: action_string, issuer: userId }
       },
       $unset: { pending: "" },
       $set: {
@@ -2853,7 +2869,7 @@ Game.setPrivate = function(message_identifier, game_id, is_private) {
 
   if (!is_private) {
     if (game.requestors !== undefined)
-      updateobject.$push = { observers: { $each: game.requestors } };
+      updateobject.$addToSet = { observers: { $each: game.requestors } };
     updateobject.$unset = { requestors: 1, deny_requests: 1 };
   } else {
     updateobject.$set.analysis = game.observers;
@@ -2964,7 +2980,7 @@ Game.allowAnalysis = function(message_identifier, game_id, user_id, allow_analys
 
   const updateobject = {};
   if (game.analysis) {
-    updateobject[allow_analysis ? "$push" : "$pull"] = {
+    updateobject[allow_analysis ? "$addToSet" : "$pull"] = {
       analysis: { id: user_id, username: otherguy.username }
     };
   } else if (allow_analysis) {
@@ -3168,7 +3184,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     const game = GameCollection.findOne({ _id: game_id, status: "playing" });
     if (!game) throw new ICCMeteorError("server", "Unable to find a game to expire time on");
     const setobject = {};
-    const pushobject = {};
+    const addtosetobject = {};
     setobject["clocks." + color + ".current"] = 0;
     setobject.result = color === "white" ? "0-1" : "1-0";
     setobject.status2 = 2;
@@ -3177,7 +3193,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
       { id: game.white.id, username: game.white.name },
       { id: game.black.id, username: game.black.name }
     ];
-    pushobject.observers = {
+    addtosetobject.observers = {
       $each: [
         { id: game.white.id, username: game.white.name },
         { id: game.black.id, username: game.black.name }
@@ -3185,7 +3201,7 @@ function startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_mi
     };
     GameCollection.update(
       { _id: game_id },
-      { $set: setobject, $push: pushobject, $unset: { pending: 1 } }
+      { $set: setobject, $addToSet: addtosetobject, $unset: { pending: 1 } }
     );
     Users.setGameStatus("server", game.white.id, "examining");
     Users.setGameStatus("server", game.black.id, "examining");
@@ -3210,7 +3226,7 @@ function testingCleanupMoveTimers() {
   });
 }
 
-function gameLoginHook(user, connection) {
+function gameLoginHook(user) {
   const game = GameCollection.findOne({ owner: user._id, status: "examining" });
   if (!game) return;
   Users.setGameStatus("server", user, "examining");
@@ -3218,7 +3234,7 @@ function gameLoginHook(user, connection) {
   GameCollection.update(
     { _id: game._id, status: "examining" },
     {
-      $push: { observers: guy, examiners: guy, analysis: guy }
+      $addToSet: { observers: guy, examiners: guy, analysis: guy }
     }
   );
 }

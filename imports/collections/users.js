@@ -178,7 +178,7 @@ Users.addToGroup = function(message_identifier, user, group) {
       "User already in group"
     );
 
-  const modifier = { $push: { groups: group } };
+  const modifier = { $addToSet: { groups: group } };
   if (victim.limit_to_group === undefined) modifier.$set = { limit_to_group: true };
   Meteor.users.update({ _id: user }, modifier);
   group_change_hooks.forEach(f => f(message_identifier, user));
