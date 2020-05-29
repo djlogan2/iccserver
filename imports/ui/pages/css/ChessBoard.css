@@ -361,6 +361,7 @@ bottom: 1px;
     width: 170px;
     z-index: 999;
     height: 100%;
+    min-height: 100vh;
     background-color: #1565c0;
     transition: all 0.5s ease-in-out;
     position: fixed !important;
