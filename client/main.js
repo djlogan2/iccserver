@@ -1,6 +1,4 @@
 import { Meteor } from "meteor/meteor";
-import { Accounts } from "meteor/accounts-base";
-import { BrowserRouter as Router } from "react-router-dom";
 import { render } from "react-dom";
 import { renderRoutes } from "../imports/startup/client/routes.jsx";
 import i18n from "meteor/universe:i18n";
@@ -10,13 +8,6 @@ import { Logger } from "../lib/client/Logger";
 const log = new Logger("client/main_js");
 
 Meteor.startup(() => {
-  Accounts.onLogin(function() {
-    Meteor.logoutOtherClients(function(error) {
-      if (error) {
-        log.error(error);
-      }
-    });
-  });
   // TODO: Hey guys, this should be in the database. It shouldn't be hard coded like this.
   //       You can make your own collection, I suppose, but it seems to me it would make sense
   //       to put it in ClientMessages, and maybe even just use a meteor method? I'm not sure
