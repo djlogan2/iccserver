@@ -35,6 +35,7 @@
     "chess.js": "git+https://github.com/jhlywa/chess.js.git",
     "date-and-time": "^0.12.0",
     "faker": "^4.1.0",
+    "fingerprintjs2": "^2.1.0",
     "icclegacy": "file:../icclegacy/",
     "is-whitespace-character": "^1.0.4",
     "meteor-node-stubs": "^0.4.1",

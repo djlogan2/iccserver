@@ -585,13 +585,64 @@ describe("Game owners", function() {
   });
 
   it("will not allow an owner of a private game to start a played game", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser({ roles: ["allow_private_games", "play_rated_games"] });
+    const p2 = TestHelpers.createUser();
+    const p3 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalExaminedGame("mi1", "w", "b", 0);
+    self.loggedonuser = p2;
+    Game.localAddObserver("mi2", game_id, p2._id);
+    self.loggedonuser = p1;
+    Game.setPrivate("mi3", game_id, true);
+    Game.startLocalGame("mi4", p3, 0, "standard", true, 1, 0, "none", 1, 0, "none");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "COMMAND_INVALID_WITH_OWNED_GAME");
   });
+
+  it("will not allow an owner of a private game to start a played game", function() {
+    const p1 = TestHelpers.createUser({ roles: ["allow_private_games", "play_rated_games"] });
+    const p2 = TestHelpers.createUser();
+    const p3 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalExaminedGame("mi1", "w", "b", 0);
+    self.loggedonuser = p2;
+    Game.localAddObserver("mi2", game_id, p2._id);
+    self.loggedonuser = p1;
+    Game.setPrivate("mi3", game_id, true);
+    self.loggedonuser = p3;
+    Game.startLocalGame("mi4", p1, 0, "standard", true, 1, 0, "none", 1, 0, "none");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
+  });
+
   it("will not allow an owner of a private game to start an examined game", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalExaminedGame("mi1", "w", "b", 0);
+    self.loggedonuser = p2;
+    Game.localAddObserver("mi2", game_id, p2._id);
+    self.loggedonuser = p1;
+    Game.setPrivate("mi3", game_id, true);
+    Game.startLocalExaminedGame("mi4", "ww", "bb", 0);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "COMMAND_INVALID_WITH_OWNED_GAME");
   });
+
   it("will not allow an owner of a private game to observe any other game", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = TestHelpers.createUser();
+    const other_game_id = Game.startLocalExaminedGame("mi1", "ww", "bb", 0);
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalExaminedGame("mi2", "w", "b", 0);
+    self.loggedonuser = p2;
+    Game.localAddObserver("mi3", game_id, p2._id);
+    self.loggedonuser = p1;
+    Game.setPrivate("mi4", game_id, true);
+    Game.localAddObserver("mi5", other_game_id, p1._id);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "COMMAND_INVALID_WITH_OWNED_GAME");
   });
 
   it("will remove a user from all other examined games if their request is accepted", function() {
@@ -870,9 +921,11 @@ describe("Game owners", function() {
     chai.assert.isDefined(game.owner);
     chai.assert.isUndefined(game.private);
     chai.assert.equal(self.loggedonuser._id, game.owner);
-    chai.assert.throws(() => Game.allowRequests("mi1", game_id, true));
+    Game.allowRequests("mi1", game_id, true);
     const game2 = Game.collection.findOne();
     chai.assert.isUndefined(game2.private);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "COMMAND_INVALID_ON_PUBLIC_GAME");
   });
 
   it("will delete 'allow observe requests' flag if changing game from private to public", function() {
@@ -897,7 +950,18 @@ describe("Game owners", function() {
     // already done in will delete 'allow observe requests' flag if changing game from private to public
   });
   it("will not allow you to change allow observe requests if you are not the owner", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const p2 = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalExaminedGame("mi1", "w", "b", 0);
+    self.loggedonuser = p2;
+    Game.localAddObserver("mi2", game_id, p2._id);
+    self.loggedonuser = p1;
+    Game.setPrivate("mi3", game_id, true);
+    self.loggedonuser = p2;
+    Game.allowRequests("mi4", game_id, false);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_THE_OWNER");
   });
 
   //
@@ -1131,7 +1195,25 @@ describe("Game owners", function() {
   });
 
   it("will fail if a non-owner tries to add or remove people from the analysis array", function() {
-    chai.assert.fail("do me");
+    const p1 = TestHelpers.createUser({
+      roles: ["allow_private_games", "allow_restrict_analysis"]
+    });
+    const p2 = TestHelpers.createUser({
+      roles: ["allow_private_games", "allow_restrict_analysis"]
+    });
+    const peon = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalExaminedGame("mi1", "w", "b", 0);
+    self.loggedonuser = p2;
+    Game.localAddObserver("mi2", game_id, p2._id);
+    self.loggedonuser = peon;
+    Game.localAddObserver("mi3", game_id, peon._id);
+    self.loggedonuser = p1;
+    Game.setPrivate("mi4", game_id, true);
+    self.loggedonuser = p2;
+    Game.allowAnalysis("mi5", game_id, peon._id, false);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_THE_OWNER");
   });
 
   it("will not send sensitive game record fields to client subscriptions (owner)", function(done) {
@@ -1241,18 +1323,93 @@ describe("Game owners", function() {
   });
 
   it("does not support setting a legacy game private", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({ roles: ["allow_private_games"] });
+    const game_id = Game.startLegacyGame(
+      "mi1",
+      1,
+      self.loggedonuser.profile.legacy.username,
+      "black",
+      0,
+      "Standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      false,
+      1600,
+      1600,
+      "123",
+      [],
+      [],
+      ""
+    );
+    Game.setPrivate("mi2", game_id, true);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PRIVATIZE");
   });
+
   it("does not support setting an owner in a legacy game", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({ roles: ["allow_change_owner"] });
+    const p2 = TestHelpers.createUser();
+    const game_id = Game.startLegacyGame(
+      "mi1",
+      1,
+      self.loggedonuser.profile.legacy.username,
+      "black",
+      0,
+      "Standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      false,
+      1600,
+      1600,
+      "123",
+      [],
+      [],
+      ""
+    );
+    Game.changeOwner("mi2", game_id, p2._id);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_CHANGE_OWNER");
   });
+
   it("does not support allowing/denying chat in a legacy game", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["allow_restrict_chat", "allow_private_games"]
+    });
+    const game_id = Game.startLegacyGame(
+      "mi1",
+      1,
+      self.loggedonuser.profile.legacy.username,
+      "black",
+      0,
+      "Standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      false,
+      1600,
+      1600,
+      "123",
+      [],
+      [],
+      ""
+    );
+    Game.allowChat("mi3", game_id, false);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_RESTRICT_CHAT");
   });
-  it("does not support allowing/denying analysis in a legacy game", function() {
-    chai.assert.fail("do me");
+
+  it.skip("does not support allowing/denying analysis in a legacy game", function() {
+    // don't know how to do this yet
   });
-  it("does not support allowing/denying requests in a legacy game", function() {
-    chai.assert.fail("do me");
+  it.skip("does not support allowing/denying requests in a legacy game", function() {
+    // don't know how to do this yet
   });
 });

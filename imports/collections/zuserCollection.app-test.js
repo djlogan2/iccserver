@@ -4,7 +4,6 @@ import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
 import { TestHelpers, compare } from "../server/TestHelpers";
-import { Users } from "./users";
 
 //
 // TODO: Check guest roles
@@ -44,9 +43,7 @@ const our_allowed_user_fields = {
   },
   status: {
     game: 1
-  },
-  groups: 1,
-  limit_to_group: 1
+  }
 };
 
 const all_fields = {
@@ -84,8 +81,10 @@ const all_fields = {
     //   userAgent: 1
     // }
   },
-  groups: 1,
-  limit_to_group: 1
+  fingerprint: {
+    fingerprint: 1
+  },
+  isolation_group: 1
   // services: {
   //   resume: {
   //     loginTokens: 1
@@ -109,7 +108,9 @@ describe("Users", function() {
     });
     Meteor.users.update(
       { username: "user1" },
-      { $addToSet: { groups: "group1" }, $set: { limit_to_group: true } }
+      {
+        $set: { isolation_group: "isolation_group_1", fingerprint: { fingerprint: "fingerprint" } }
+      }
     );
     const user1 = Meteor.users.findOne({ username: "user1" });
     chai.assert.isDefined(user1);
@@ -119,7 +120,7 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the entire user record in the userData subscription", function(done) {
-    const user1 = TestHelpers.createUser({ login: false });
+    const user1 = TestHelpers.createUser({ isolation_group: "group1" });
     TestHelpers.createUser({ login: false });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
@@ -133,8 +134,8 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
-    const user1 = TestHelpers.createUser({ login: true });
-    const user2 = TestHelpers.createUser({ login: true });
+    const user1 = TestHelpers.createUser({ isolation_group: "group1" });
+    const user2 = TestHelpers.createUser({ isolation_group: "group1" });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
@@ -147,9 +148,9 @@ describe("Users", function() {
   });
 
   it("should only get logged on users with the loggedOnUsers subscription", function(done) {
-    const user1 = TestHelpers.createUser({ login: false });
-    const user2 = TestHelpers.createUser({ login: true });
-    const user3 = TestHelpers.createUser({ login: true });
+    const user1 = TestHelpers.createUser({ isolation_group: "group1", login: false });
+    const user2 = TestHelpers.createUser({ isolation_group: "group1", login: true });
+    const user3 = TestHelpers.createUser({ isolation_group: "group1", login: true });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user3._id });

@@ -265,3 +265,27 @@ Accounts.validateLoginAttempt(function(params) {
 
   return true;
 });
+
+// User methods: update fingerprint
+Meteor.methods({
+  updateFingerprint(fingerprint) {
+    check(fingerprint, Object);
+    this.unblock();
+    // Retrieve current fingerprint
+    const userId = Meteor.userId();
+    const user = Meteor.users.findOne({ _id: userId }, { fields: { fingerprint: true } });
+
+    // If no fingerprint, store it
+    if (user && !user.fingerprint) {
+      Meteor.users.update({ _id: userId }, { $set: { fingerprint } });
+      return;
+    }
+
+    // If fingerprint is different, throw error and update the      fingerprint
+    // On the client side, it will logout other users
+    if (user && user.fingerprint !== fingerprint) {
+      Meteor.users.update({ _id: userId }, { $set: { fingerprint } });
+      throw new Meteor.Error("multiple-logins");
+    }
+  }
+});

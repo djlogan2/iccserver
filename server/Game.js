@@ -174,6 +174,14 @@ Game.startLocalGame = function(
     throw new ICCMeteorError("Unable to start game", "Black time/inc/delay fails validation");
   }
 
+  if (Game.hasOwnedGame(self._id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "COMMAND_INVALID_WITH_OWNED_GAME");
+    return;
+  }
+  if (Game.hasOwnedGame(other_user._id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
+    return;
+  }
   if (Game.isPlayingGame(self._id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
     return;
@@ -349,13 +357,13 @@ Game.startLocalExaminedGame = function(message_identifier, white_name, black_nam
     );
   }
 
-  if (
-    GameCollection.find({
-      status: "playing",
-      $or: [{ "white.id": self._id }, { "black.id": self._id }]
-    }).count() !== 0
-  ) {
+  if (Game.isPlayingGame(self._id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  if (Game.hasOwnedGame(self._id)) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "COMMAND_INVALID_WITH_OWNED_GAME");
     return;
   }
 
@@ -536,6 +544,7 @@ Game.startLegacyGame = function(
       }
     },
     status: played_game ? "playing" : "examining",
+    result: "*",
     pending: {
       white: {
         draw: "0",
@@ -1131,6 +1140,20 @@ Game.localAddObserver = function(message_identifier, game_id, id_to_add) {
 
   if (Game.isPlayingGame(id_to_add)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+    return;
+  }
+
+  const private_game = GameCollection.findOne({
+    $and: [
+      { status: "examining" },
+      { owner: self._id },
+      { private: true },
+      { _id: { $ne: game_id } }
+    ]
+  });
+
+  if (!!private_game && private_game.observers.length > 1) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "COMMAND_INVALID_WITH_OWNED_GAME");
     return;
   }
 
@@ -2165,6 +2188,18 @@ function determineWhite(p1, p2, color) {
   else return p2;
 }
 
+Game.hasOwnedGame = function(user_or_id) {
+  check(user_or_id, Match.OneOf(Object, String));
+  const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
+  const private_game = GameCollection.findOne({
+    status: "examining",
+    owner: id,
+    private: true
+  });
+  if (!private_game) return false;
+  return private_game.observers.length > 1;
+};
+
 Game.isPlayingGame = function(user_or_id) {
   check(user_or_id, Match.OneOf(Object, String));
   const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
@@ -2887,13 +2922,25 @@ Game.allowRequests = function(message_identifier, game_id, allow_requests) {
   check(self, Object);
 
   if (!Users.isAuthorized(self, "allow_private_games")) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_AREQUEST");
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AUTHORIZED");
     return;
   }
 
   const game = GameCollection.findOne({ _id: game_id });
-  if (!game || game.status !== "examining" || game.owner !== self._id || !game.private) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_AREQUEST");
+  if (game && game.status === "examining") {
+    if (game.owner !== self._id) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
+      return;
+    } else if (!game.private) {
+      ClientMessages.sendMessageToClient(
+        self,
+        message_identifier,
+        "COMMAND_INVALID_ON_PUBLIC_GAME"
+      );
+      return;
+    }
+  } else {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_COMMAND");
     return;
   }
 
@@ -2957,21 +3004,16 @@ Game.allowAnalysis = function(message_identifier, game_id, user_id, allow_analys
   check(otherguy, Object);
 
   const game = GameCollection.findOne({ _id: game_id });
-  if (
-    !game ||
-    game.status !== "examining" ||
-    self._id !== game.owner ||
-    !game.private ||
-    user_id === game.owner
-  ) {
+  if (!game || game.status !== "examining" || self._id !== game.owner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
+
+  if (!game.private || user_id === game.owner || !game.observers.some(ob => ob.id === user_id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
     return;
   }
 
-  if (!game.observers.some(ob => ob.id === user_id)) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
-    return;
-  }
   if (
     (!allow_analysis && !game.analysis) ||
     (!!game.analysis && allow_analysis === game.analysis.some(a => a.id === user_id))

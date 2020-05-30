@@ -23,7 +23,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
       username: options.username || faker.internet.userName(),
       email: options.email || faker.internet.email(),
       password: options.password || faker.internet.password()
-
     };
     if (
       options.legacy === undefined ||
@@ -51,8 +50,8 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
     const setobject = {};
     setobject["status.online"] = options.login === undefined || options.login;
-    setobject.groups = options.groups || ["testhelpers"];
-    setobject.limit_to_group = options.limit_to_group || false;
+    setobject.isolation_group = options.isolation_group;
+    if (setobject["status.online"]) setobject.fingerprint = { fingerprint: "fingerprint" };
     setobject.locale = options.locale || "en-us";
     setobject.board_css = options.board_css || "developmentcss";
 
@@ -102,11 +101,13 @@ if (Meteor.isTest || Meteor.isAppTest) {
         self.sandbox.fake((user, roles, scope) => {
           if (typeof roles === "string") {
             if (all_roles.indexOf(roles) === -1)
+              // eslint-disable-next-line no-console
               console.log("Unable to find known role of " + roles);
             return orig_isauthorized(user, roles, scope);
           } else {
             for (let x = 0; x < roles.length; x++) {
               if (all_roles.indexOf(roles[x]) === -1) {
+                // eslint-disable-next-line no-console
                 console.log("Unable to find known role of " + roles[x]);
                 return false;
               }

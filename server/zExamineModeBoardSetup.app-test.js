@@ -361,7 +361,8 @@ describe("Setting en passant", function() {
       "inc",
       15,
       15,
-      "inc"
+      "inc",
+      "white"
     );
     Game.saveLocalMove("mi2", game_id, "e4");
     Game.setEnPassant("mi3", game_id, "e4");
