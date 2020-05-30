@@ -2,11 +2,14 @@ import { Meteor } from "meteor/meteor";
 import { render } from "react-dom";
 import { renderRoutes } from "../imports/startup/client/routes.jsx";
 import i18n from "meteor/universe:i18n";
-
 import "../lib/client/timestamp";
+import { Logger } from "../lib/client/Logger";
+import { Accounts } from "meteor/accounts-base";
+
+// eslint-disable-next-line no-unused-vars
+const log = new Logger("client/main_js");
 
 Meteor.startup(() => {
-  Meteor.logoutOtherClients();
   // TODO: Hey guys, this should be in the database. It shouldn't be hard coded like this.
   //       You can make your own collection, I suppose, but it seems to me it would make sense
   //       to put it in ClientMessages, and maybe even just use a meteor method? I'm not sure
@@ -110,7 +113,7 @@ Meteor.startup(() => {
         abort: "Abort",
         draw: "Draw"
       },
-      MiddleBoard:{
+      MiddleBoard: {
         yourturn: "( Your Turn )",
         waitingforopponent: "( waiting for opponent )"
       },
@@ -218,4 +221,49 @@ Meteor.startup(() => {
     defaultLocale: "en-US"
   });
   render(renderRoutes(), document.getElementById("target"));
+});
+
+// On login hook
+// Logout all other clients on login to prevent users using same user
+Accounts.onLogin(() => {
+  import("fingerprintjs2").then(mod => {
+    let Fingerprint2 = null;
+    if (process.env.NODE_ENV === "test") {
+      Fingerprint2 = mod;
+    }
+    Fingerprint2 = mod.default;
+    const options = {
+      excludes: {
+        plugins: true,
+        adBlock: true,
+        screenResolution: true,
+        availableScreenResolution: true
+      }
+    };
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => {
+        Fingerprint2.get(options, components => {
+          const values = components.map(component => component.value);
+          const fingerprint = Fingerprint2.x64hash128(values.join(""), 31);
+          Meteor.call("updateFingerprint", { fingerprint }, error => {
+            if (error) {
+              Meteor.logoutOtherClients();
+            }
+          });
+        });
+      });
+    } else {
+      setTimeout(() => {
+        Fingerprint2.get(options, components => {
+          const values = components.map(component => component.value);
+          const fingerprint = Fingerprint2.x64hash128(values.join(""), 31);
+          Meteor.call("users.updateFingerprint", { fingerprint }, error => {
+            if (error) {
+              Meteor.logoutOtherClients();
+            }
+          });
+        });
+      }, 500);
+    }
+  });
 });

@@ -25,7 +25,7 @@ import "./css/Spare.css";
 import "./css/Editor.css";
 import "react-chessground/dist/assets/theme.css";
 
-const log = new Logger("client/LoginPage_js");
+const log = new Logger("client/Editor_js");
 
 class Editor extends React.Component {
   chess = new Chess.Chess();
@@ -60,17 +60,22 @@ class Editor extends React.Component {
   pendingMove = null;
 
   componentDidMount() {
-    Meteor.subscribe("css");
-    Meteor.subscribe("game_history");
+    this.initNewExamineGame();
+    window.addEventListener("resize", this.handleResize);
+    this.cssSubscribe = Meteor.subscribe("css");
+    this.gameHistorySubscribe = Meteor.subscribe("game_history");
+    this.observingGameSubscribe = Meteor.subscribe("observing_games");
   }
 
   componentWillUnmount() {
-    Meteor.unsubscribe("css");
-    Meteor.unsubscribe("game_history");
+    window.removeEventListener("resize", this.handleResize);
+    this.cssSubscribe && this.cssSubscribe.stop();
+    this.gameHistorySubscribe && this.gameHistorySubscribe.stop();
+    this.observingGameSubscribe && this.observingGameSubscribe.stop();
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.observed_games.length === 0 && this.props.observed_games.length > 0) {
+    if (this.state.game === null && this.props.observed_games.length > 0) {
       let game = this.props.observed_games[0];
       this.setInitial(game);
     }
@@ -83,6 +88,10 @@ class Editor extends React.Component {
       }
     }
   }
+
+  handleResize = e => {
+    this.chessground.cg.redrawAll();
+  };
 
   setInitial = game => {
     const fenParser = new FenParser(game.fen);
@@ -105,6 +114,28 @@ class Editor extends React.Component {
     return result;
   }
 
+  initNewExamineGame = () => {
+    let observedGames = Game.find({ "observers.id": Meteor.userId() }).fetch();
+    if (observedGames.length === 0) {
+      this.startLocalExaminedGame();
+    }
+  };
+
+  startLocalExaminedGame = () => {
+    Meteor.call(
+      "startLocalExaminedGame",
+      "startlocalExaminedGame",
+      "Mr white",
+      "Mr black",
+      0,
+      (err, response) => {
+        if (err) {
+          log.error(err.reason);
+        }
+      }
+    );
+  };
+
   generateFen = () => {
     let miniFen = this.chessground.cg.getFen();
     let serverFen = this.state.game.fen;
@@ -119,8 +150,9 @@ class Editor extends React.Component {
     let newFen = this.generateFen();
     this.setState({ fen: newFen });
     Meteor.call("loadFen", "loadFen", this.state.gameId, newFen, (err, response) => {
-      console.log(err);
-      debugger;
+      if (err) {
+        log.error(err.reason);
+      }
     });
   };
 
@@ -135,7 +167,18 @@ class Editor extends React.Component {
 
   handleCastling = (white, black) => {
     // 'k', 'q', 'kq'
-    Meteor.call("setCastling", "setCastling", this.state.gameId, white.toLowerCase(), black);
+    Meteor.call(
+      "setCastling",
+      "setCastling",
+      this.state.gameId,
+      white.toLowerCase(),
+      black,
+      (err, response) => {
+        if (err) {
+          log.error(err.reason);
+        }
+      }
+    );
   };
 
   handleStartPosition = () => {
@@ -145,7 +188,16 @@ class Editor extends React.Component {
     this.setState({
       fen: this.chess.fen()
     });
-    Meteor.call("setStartingPosition", "setStartingPosition", this.state.gameId);
+    Meteor.call(
+      "setStartingPosition",
+      "setStartingPosition",
+      this.state.gameId,
+      (err, response) => {
+        if (err) {
+          log.error(err.reason);
+        }
+      }
+    );
   };
 
   handleClear = () => {
@@ -156,7 +208,11 @@ class Editor extends React.Component {
     this.setState({
       fen: newFen
     });
-    Meteor.call("clearBoard", "clearBoard", this.state.gameId);
+    Meteor.call("clearBoard", "clearBoard", this.state.gameId, (err, response) => {
+      if (err) {
+        log.error(err.reason);
+      }
+    });
   };
 
   handleFlip = () => {
@@ -168,13 +224,17 @@ class Editor extends React.Component {
   handleColorChange = color => {
     this.setState({ color });
     Meteor.call("setToMove", "setToMove", this.state.gameId, color, (err, response) => {
-      console.log(err);
+      if (err) {
+        log.error(err.reason);
+      }
     });
   };
 
   handleNewFen = newFen => {
     Meteor.call("loadFen", "loadFen", this.state.gameId, newFen, (err, response) => {
-      console.log(err);
+      if (err) {
+        log.error(err.reason);
+      }
     });
   };
 
@@ -233,7 +293,7 @@ class Editor extends React.Component {
               />
             )}
           </Col>
-          <Col span={12}>
+          <Col span={12} className="editor__main">
             <div className="merida" style={{ margin: "58px" }}>
               {this.state.game !== null && (
                 <Chessground

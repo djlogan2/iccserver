@@ -3278,6 +3278,7 @@ describe("Takebacks", function() {
 
 describe.skip("Game.buildMovelistFromPgn", function() {
   it("needs to be written", function() {
+    // eslint-disable-next-line no-unused-vars
     const pgn =
       "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
     chai.assert.fail("do me");
@@ -4029,6 +4030,7 @@ describe("Game clocks", function() {
   });
 
   it("should not end the game when time=5s and us delay=10s and player takes 8s to move", function() {
+    this.timeout(30000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;

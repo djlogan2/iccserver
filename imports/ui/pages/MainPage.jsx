@@ -508,7 +508,7 @@ uploadPgn(){
       <ModalProvider value={this.state}>
         <div className={"main " + (this.state.modalShow ? "modal-show" : "modal-hide")}>
           <div className="modal-overlay" />
-          <div className="row">
+          <div className="main__wrap row">
             {leftmenu}
             <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
               {informativePopup}

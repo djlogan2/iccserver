@@ -26,3 +26,9 @@
     background-repeat: no-repeat;
     margin: 0 auto;
 }
+
+.spare piece.trash {
+    background: url('images/close_24px.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}

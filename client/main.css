@@ -10,3 +10,7 @@ body {
 	padding: 0 15px;
 	overflow: hidden;
 }
+
+.main__wrap {
+    height: 100%;
+}

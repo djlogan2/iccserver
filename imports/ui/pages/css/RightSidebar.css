@@ -102,20 +102,20 @@
 	text-align: center;
 }
 
-/* 
+/*
 .play-tab-content {
 	background: #efefef;
 	height: 100vh;
-	// float: left; 
+	// float: left;
 		width: 100%;
-	//position: relative; 
+	//position: relative;
 }
  */
 .tab-content nav > .nav.nav-tabs {
 	border: none;
 	color: #fff;
 	border-radius: 0;
-	
+
 }
 
 .tab-content nav ul {
@@ -244,7 +244,7 @@ background: #efefef;
 
 /* Move button control to bottom. */
 .moveAction button:hover {
-	background:#d4d4d4 !important; 
+	background:#d4d4d4 !important;
 	opacity: 0.8;
   }
 
@@ -269,7 +269,7 @@ background: #efefef;
 
 .gamestatus.active:before{
 	background: #4cd034;
-	
+
 }
 .gamestatus.active span {
 	color:#333;
@@ -294,8 +294,8 @@ background: #efefef;
     left: 0;
 }
 
-  
-  
+
+
 @media (min-width: 992px) and (max-width: 1199px) {
 
 
@@ -306,8 +306,8 @@ background: #efefef;
 	.right-content-desktop {
 		display: block;
 	}
-	
-	
+
+
 
 	.user-pic {
 		width: 50px;
@@ -386,7 +386,7 @@ background: #efefef;
 		margin-top: 13px;
 	}
 
-	
+
 
 	.ipad-right-section {
 		background: #000000;
@@ -400,6 +400,9 @@ background: #efefef;
 	}
 	.home {
 	height: 100vh;
+	}
+	.home__wrap {
+		height: 100%;
 	}
 	.white span.notation-322f9.numeric-fc462,
 	.blue .alpha-d2270 {
@@ -425,8 +428,8 @@ background: #efefef;
 }
 
 @media (min-width: 992px) {
-	
-		
+
+
 	.ribbon-move-list {
 		display: none;
 	}
