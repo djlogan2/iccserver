@@ -25,7 +25,7 @@ export const all_roles = [
   "allow_change_owner",
   "allow_private_games",
   "allow_restrict_chat",
-  "allow_restrict_analysis"
+  "allow_restrict_analysis",
   "upload_pgn",
   "kibitz",
   "child_chat",

@@ -33,6 +33,10 @@ export const ChatSchema = new SimpleSchema({
     type: Boolean,
     optional: true
   },
+  child_chat_exempt: {
+    type: Boolean,
+    optional: true
+  },
   groups: {type: Array, defaultValue: [] },
     "groups.$": String,
   restricted: {

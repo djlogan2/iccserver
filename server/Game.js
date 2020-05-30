@@ -21,6 +21,7 @@ import { Users } from "../imports/collections/users";
 import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
+import { forEach } from "async";
 
 export const Game = {};
 export const GameHistory = {};
@@ -1078,6 +1079,7 @@ Game.localRemoveObserver = function(
 
   if (delete_game) {
     GameCollection.remove({ _id: game_id });
+    ChatCollection.remove({game_id: game_id});
     delete active_games[game_id];
   } else {
     GameCollection.update(
@@ -2062,7 +2064,6 @@ function _resignLocalGame(message_identifier, game, userId, reason) {
     default:
       throw new Meteor.Error("Unable to resign game", "Unknown reason code " + reason);
   }
-
   GameCollection.update(
     { _id: game._id, status: "playing" },
     {
@@ -2380,19 +2381,35 @@ function finishExportToPGN(game) {
   pgn += " " + game.result;
   return { title, pgn };
 }
-// TODO: replace all kibitz calls with this new arg set
-Game.kibitz = function(message_identifier,game_id,child_chat_exempt,child_chat,kibitz,restricted,groups, txt) {
+//TODO: now we only use isolated and child chat settings
+Game.kibitz = function(message_identifier,game_id,kibitz,freeform, txt) {
   check(message_identifier, String);
   check(txt, String);
   check(game_id, String);
-  check(groups, Array);
-  check(child_chat_exempt, Boolean);
-  check(child_chat, Boolean);
+  check(freeform, Boolean);
   check(kibitz, Boolean);
-  check(restricted, Boolean);
 
   const self = Meteor.user();
   check(self, Object);
+
+  let child_chat = false;
+  let restricted = false;
+  let child_chat_exempt = false;
+  const groups = self.groups;
+  let kibitz_allowed = false;
+
+  if(Users.isAuthorized(self, "kibitz")){
+    kibitz_allowed  = true;
+  }
+  if(Users.isAuthorized(self, "child_chat")){
+    child_chat = true;
+  }
+  if(Users.isAuthorized(self, "child_chat_exempt")){
+    child_chat_exempt = true;
+  }
+  if(self.restricted){
+    restricted  =true;
+  }
 
 
 
@@ -2403,24 +2420,21 @@ Game.kibitz = function(message_identifier,game_id,child_chat_exempt,child_chat,k
     return;
   }
 
-  if(Users.isAuthorized(self, "child_chat") && kibitz || Users.isAuthorized(self, "child_chat") && child_chat_exempt){
+  if(child_chat && freeform){
     ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
-    return;
-  }
-  if(!Users.isAuthorized(self, "child_chat")&& child_chat){
-    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_NOT_ALLOWED");
-    return;
-  }
-  if(!Users.isAuthorized(self, "child_chat_exempt") && child_chat_exempt){
-    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_EXEMPT_KIBITZ_NOT_ALLOWED");
-    return;
-  }
-  if(!Users.isAuthorized(self, "kibitz") && !Users.isAuthorized(self, "child_chat_exempt") && kibitz){
-    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
-    return;
-  }
 
-  if (kibitz) {
+    return;
+  }
+  if(!child_chat && !freeform){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_NOT_ALLOWED");
+
+    return;
+  }
+  if(!kibitz_allowed && kibitz){
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
+
+    return;
+  }
 
     ChatCollection.insert({ game_id: game_id, type: "kibitz", issuer: self._id, what: txt , child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
     GameCollection.update({ _id: game_id, status: game.status }, {
@@ -2429,107 +2443,48 @@ Game.kibitz = function(message_identifier,game_id,child_chat_exempt,child_chat,k
             type: "kibitz",
             issuer: self._id,
             parameter: { what: txt }
-
           }
         }
       }
     );
     return;
-  }
-if(child_chat_exempt) {
-  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
-  GameCollection.update({_id: game_id, status: game.status},{ $push: {
-        actions: {
-          type: "kibitz",
-          issuer: self._id,
-          parameter:  {what: txt}
-
-        }
-      }
-    }
-  );
-  return;
-}
-if(child_chat) {
-  ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
-  GameCollection.update({_id: game_id, status: game.status},{ $push: {
-        actions: {
-          type: "kibitz",
-          issuer: self._id,
-          parameter:  {what: txt}
-        }
-      }
-    }
-  );
-  return;
-}
-  if(restricted) {
-    ChatCollection.insert(  {game_id: game_id, type: "kibitz", issuer: self._id, what: txt, child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups}); //TODO: might not work
-    GameCollection.update({_id: game_id, status: game.status},{ $push: {
-          actions: {
-            type: "kibitz",
-            issuer: self._id,
-            parameter:  {what: txt}
-          }
-        }
-      }
-    );
-    return;
-  }
-
 };
 
 
 
-Meteor.publish("kibitz", function() {
+Meteor.publishComposite("kibitz", {
+  find() {
 
-const games = GameCollection.find({$or: [{"white.id":Meteor.user()._id},{"black.id":Meteor.user()._id},{"observers.$._id":Meteor.user()._id}]});
-let ids = [];
-games.forEach(function(game){
-    ids.push(game._id);
-  });
+    //TODO: work with dj on more cases of publishing
 
+    let cc  = Users.isAuthorized(Meteor.user(), "child_chat");
+    let collect = GameCollection.find({$or: [{"white.id": Meteor.user()._id}, {"black.id": Meteor.user()._id}, {"observers.id": Meteor.user()._id},{"examiners.id": Meteor.user()._id}]} ,{fields: {_id: 1}}).fetch();
+    let games = [];
 
-  console.log(ids);
-//TODO: this doesn't work need to find way to pull game_id(s)
-  const query = { $and: [{ game_id: {$in: ids}, groups: { $in: Meteor.user().groups || [] } }] };
-  console.log(ChatCollection.find(query).fetch());
-  //
-  //
-  // Kibitz collection:
-  // _id: the <- id
-  // game_id: <- the game id
-  // issuer: <- The guy doing the talking
-  // kibitz: true/false <- false if it's a whisper
-  // child_chat: true/false <- turn this on if a child does a child chat thing, or an exempt person writes anything
-  // groups: [] <- you need the list of groups of the guy that wrote this
-  // restricted: <- Whether this guy is a restricted guy
-  //
-  // In the kibitz/whisper, it's going to be something like this:
-  //    kibitz.child_chat = user.child_chat or user.exempt;
-  //    kibitz.groups = user.groups || [];
-  //    kibitz.restricted = user.restricted;
-  //
-  // select * from chats
-  //  where game_id = :game_id
-  //  [and child_chat = true]
-  //   and restricted = false                        <- receiver is not in group(s)
-  //   and (restricted = false or groups/intersect)  <- receiver is in group(s) but not restricted
-  //   and (groups/intersect)                        <- receiver restricted
+    for(i in collect){
+      games.push(collect[i]._id);
+    }
 
-  if (Users.isAuthorized("child_chat")) {
-    query.$and.push({ child_chat: true });
+    if(!games){
+      return;
+    }
+
+    if(cc){
+      return ChatCollection.find({$or: [{child_chat: true, game_id: {$in: games}}, {child_chat_exempt: true, game_id: {$in: games}}]});
+    }
+    return ChatCollection.find({type: "kibitz", game_id: {$in: games}});
+
+     //
+    //
+    // Kibitz collection:
+    // _id: the <- id
+    // game_id: <- the game id
+    // issuer: <- The guy doing the talking
+    // kibitz: true/false <- false if it's a whisper
+    // child_chat: true/false <- turn this on if a child does a child chat thing, or an exempt person writes anything
+    // groups: [] <- you need the list of groups of the guy that wrote this
+    // restricted: <- Whether this guy is a restricted guy
   }
-  console.log(ChatCollection.find(query).fetch());
-  if (!Meteor.user().groups) {
-    query.$and.push({ restricted: false });
-  } else if (Meteor.user().restricted) {
-    query.$and.push({ groups: { $in: Meteor.user().groups } });
-  } else {
-    query.$and.push({ $or: [{ restricted: false }, { groups: { $in: Meteor.user().groups } }] });
-  }
-  console.log(ChatCollection.find(query).fetch());
-  return ChatCollection.find(query);
 });
 
 
