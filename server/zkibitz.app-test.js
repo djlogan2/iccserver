@@ -1,6 +1,7 @@
 
 import chai from "chai";
 import { Game } from "../server/Game";
+// DDD: Looks like various unused imports...Please keep an eye on these. I'm not so concerned about tests, but bad habit.
 import { Users } from "../imports/collections/users";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
@@ -43,6 +44,9 @@ describe.only("kibitzes", function() {
 
   });
 
+  // DDD: Yea, don't worry about legacy game so much. kibitzes for legacy games are TOTALLY different.
+  //      The logic is actually that we need "localKibitz" and "legacyKibitz". Technically you should change the name of your function(s)
+  //      to be prefixed with local, and this test is incorrect. sending local kibitzes to a legacy game should crash.
   it("should save an action in the game record for legacy games", function() {
 
     const testText = "Hello I am a test string!";
@@ -153,6 +157,9 @@ describe.only("kibitzes", function() {
 
 
   });
+  // DDD: Another minor thing, but please keep the texts within the spirit of mocha.
+  //      The function is called "it" for a reason, so this should read something like so:
+  //      it("should delete chat records when game records are deleted" ...
   it("chat records should be deleted when game records are deleted", function() {
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
@@ -217,6 +224,8 @@ describe.only("kibitzes", function() {
     const player3Collector = new PublicationCollector({ userId: player3._id});
     Game.kibitz("mi1", game_id_local, true, true, testText);
 
+    // DDD: I don't think this is going to work the way you think it works. You'll have to ask me why, it's not
+    //      easy to explain here. I can also help you write this in a way that does work.
     player1Collector.collect("kibitz", collections => {
 
       chai.assert.equal(collections.chat.length,1, "Publication collector for player1 failed to store any kibitz");
@@ -270,7 +279,7 @@ describe.only("kibitzes", function() {
     Game.kibitz("mi1", game_id_local, true, true, testText);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
-
+    // DDD: You might want to make sure the kibitzes weren't saved
 
   });
   it("should indicate if the kibitz is a child_chat kibitz", function() {
@@ -334,9 +343,11 @@ describe.only("kibitzes", function() {
     Game.kibitz("mi1", game_id_local, true, false, testId);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
-
+    // DDD: I think we should also make doubly sure here that nothing was saved in the collection
   });
   it("should indicate if the kibitz is in child_chat role", function() {
+    // DDD: I'm confused about this test. Isn't this the test that's supposed to allow a child to save a child chat kibitz?
+    //      From the title, that's what it looks like it's supposed to be, but I don't think the test is doing that...?
     const testText = "Hello I am a test string!";
 
     const player1 = TestHelpers.createUser();
@@ -370,6 +381,7 @@ describe.only("kibitzes", function() {
     chai.assert(self.clientMessagesSpy.args.length == 1, "Client message sent even though of correct role");
 
   });
+  // DDD: I'm not sure I'm really following all of the titles here.
   it("should indicate if the kibitz is not a child_chat kibitz", function() {
     const testText = "I am a test String!";
     self.loggedonuser = TestHelpers.createUser();
@@ -399,6 +411,7 @@ describe.only("kibitzes", function() {
 
 
   });
+  // DDD: Same
   it("should also indicate if the kibitz is a child_chat_exempt kibitz", function() {
     const testText = "I am a test String!";
     self.loggedonuser = TestHelpers.createUser();
@@ -457,10 +470,13 @@ describe.only("kibitzes", function() {
     const player2Collector = new PublicationCollector({ userId: player2._id });
     Game.kibitz("mi1", game_id_local, true, true,testText);
 
+    // DDD: You have to set self.loggedonuser before calling one of these (which is why your group of three above aren't going to work.)
+    //      You are getting player1's records. Is that what you want here? (If so, it's actually correct.)
     player1Collector.collect("kibitz", collections => {
 
       chai.assert.notEqual(collections.chat,undefined, "Publication collector for player1 failed to store any kibitz");
       chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
+      // DDD: OK, so maybe it is correct, because you are doing it correctly here, but I didn't see you doing this above.
       self.loggedonuser = player2;
       player2Collector.collect("kibitz", collections => {
         chai.assert.equal(collections.chat,undefined, "Publication collector for player2 failed ignore any kibitz");
@@ -542,7 +558,8 @@ describe.only("kibitzes", function() {
     const player1Collector = new PublicationCollector({ userId: player1._id });
 
     player1Collector.collect("kibitz", collections => {
-      self.loggedonuser = player1;
+      self.loggedonuser = player1; // DDD: Two things, First, this won't work inside the collect, it has to be before.
+                                   //      Second, I think this is overkill for ensuring children can't issue free form kibitzes. Just make sure their texts didn't make it into the collection.
       chai.assert.equal(collections.chat,undefined, "Free-Form Kibitz when in child_chat role not prevented");
       done();
     });

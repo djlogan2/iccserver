@@ -21,7 +21,7 @@ import { Users } from "../imports/collections/users";
 import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
-import { forEach } from "async";
+import { forEach } from "async"; // DDD: lint lint lint :)
 
 export const Game = {};
 export const GameHistory = {};
@@ -923,7 +923,7 @@ Game.legacyGameEnded = function(
   } else {
     if (game.white.id) Users.setGameStatus(message_identifier, game.white.id, "none");
     if (game.black.id) Users.setGameStatus(message_identifier, game.black.id, "none");
-    removeGameRecord({ _id: game._id });
+    removeGameRecord({ _id: game._id }); // DDD hmmm, interesting sending an object instead of just the game._id. On purpose?
   }
 };
 
@@ -2446,19 +2446,19 @@ Game.kibitz = function(message_identifier,game_id,kibitz,freeform, txt) {
   let child_chat = false;
   let restricted = false;
   let child_chat_exempt = false;
-  const groups = self.groups;
+  const groups = self.groups; // DDD: Remove
   let kibitz_allowed = false;
 
-  if(Users.isAuthorized(self, "kibitz")){
+  if(Users.isAuthorized(self, "kibitz")){ // DDD: See note below
     kibitz_allowed  = true;
   }
   if(Users.isAuthorized(self, "child_chat")){
     child_chat = true;
   }
   if(Users.isAuthorized(self, "child_chat_exempt")){
-    child_chat_exempt = true;
+    child_chat_exempt = true; // DDD: Don't you also have to set child_chat = true here?
   }
-  if(self.restricted){
+  if(self.restricted){ // DDD: Remove, yes?
     restricted  =true;
   }
 
@@ -2471,7 +2471,7 @@ Game.kibitz = function(message_identifier,game_id,kibitz,freeform, txt) {
     return;
   }
 
-  if(child_chat && freeform){
+  if(child_chat && freeform){ // DDD: Wait, so what exactly is freeform?
     ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
 
     return;
@@ -2481,17 +2481,23 @@ Game.kibitz = function(message_identifier,game_id,kibitz,freeform, txt) {
 
     return;
   }
+  // DDD: So this is curious. If I'm reading this right, we authorize people to kibitz or not kibitz, but everyone can always whisper without any restrictions?
+  //      I don't think this is accurate. I think if you're in the "kibitz" group, you can kibitz or whisper, and if you're not, you can do neither.
   if(!kibitz_allowed && kibitz){
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
 
     return;
   }
 
+  // DDD: Speaking of, I think I see now, that you have child_chat_exempt and child_chat both.
+  //      In earlier conversations we had, if a user is child_chat_exempt, just save child_chat=true in the
+  //      record with the freeform text. There is no reason to have child_chat_exempt in the record, right?
+  //      Review again the comments lower down in the code from here for a refresher on our discussion.
     ChatCollection.insert({ game_id: game_id, type: "kibitz", issuer: self._id, what: txt , child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
     GameCollection.update({ _id: game_id, status: game.status }, {
         $push: {
           actions: {
-            type: "kibitz",
+            type: "kibitz", // DDD: Bzzzzzt, the first actual bug :) This can't just be a kibitz, it has to be kibitz or whisper. We should also discuss whether or not we want the other information.
             issuer: self._id,
             parameter: { what: txt }
           }
@@ -2508,22 +2514,27 @@ Meteor.publishComposite("kibitz", {
 
     //TODO: work with dj on more cases of publishing
 
-    let cc  = Users.isAuthorized(Meteor.user(), "child_chat");
+    let cc  = Users.isAuthorized(Meteor.user(), "child_chat"); // DDD: FYI, I strongly recommend using "const" instead of "let" in ALL cases except where it requires you to change it to "let"
     let collect = GameCollection.find({$or: [{"white.id": Meteor.user()._id}, {"black.id": Meteor.user()._id}, {"observers.id": Meteor.user()._id},{"examiners.id": Meteor.user()._id}]} ,{fields: {_id: 1}}).fetch();
     let games = [];
 
+    // DDD: You don't have to do this. There are various other options. Here are two:
+    //      const games = GameCollection.find(yada..yada..).fetch().map(rec => rec._id);  <- instead of collect then games
+    //      const games = collect.map(rec => rec._id); <- Obviously just a two line variation of the previous
     for(i in collect){
       games.push(collect[i]._id);
     }
 
     if(!games){
-      return;
+      return; // DDD: You need to return some type of collection here I think. The unit tests get cranky when you don't. Return at least [], but I tend to return something like "GameCollection.find({_id: -1});
     }
 
     if(cc){
-      return ChatCollection.find({$or: [{child_chat: true, game_id: {$in: games}}, {child_chat_exempt: true, game_id: {$in: games}}]});
+      return ChatCollection.find({$or: [{child_chat: true, game_id: {$in: games}}, {child_chat_exempt: true, game_id: {$in: games}}]});// DDD: Re above comments, no need for the exempt part
     }
-    return ChatCollection.find({type: "kibitz", game_id: {$in: games}});
+    return ChatCollection.find({type: "kibitz", game_id: {$in: games}}); // DDD: I'm still thinking that type is either kibitz or whisper.
+    // DDD: The second actual bug that I see here is that players cannot get whisper, and you are not handling that. But I'm still not sure you're doing whispers? With the kibitz boolean above,
+    //      you have to be, but I'm not sure what the logic is.
 
      //
     //

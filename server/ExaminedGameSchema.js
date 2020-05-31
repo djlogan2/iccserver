@@ -76,7 +76,7 @@ const actionSchema = new SimpleSchema({
   "parameter.gamelag": { type: Number, required: false },
   "parameter.gameping": { type: Number, required: false },
   "parameter.what": {type: String, required: false},
-  "parameter.childChatId": {type: String, required: false},
+  "parameter.childChatId": {type: String, required: false}, // DDD: I prefer to have all lower case with optional underscores, so I prefer to have child_chat_id. Also, we need the text, but we don't need the id in the action array
   "parameter.childChatExemptText": {type: String, required: false}
 });
 
