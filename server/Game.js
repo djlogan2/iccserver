@@ -11,7 +11,6 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { PlayedGameSchema } from "./PlayedGameSchema";
 import { GameHistorySchema } from "./GameHistorySchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
-import { ChatSchema} from "./ChatSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
@@ -21,7 +20,7 @@ import { Users } from "../imports/collections/users";
 import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
-import { forEach } from "async"; // DDD: lint lint lint :)
+import SimpleSchema from "simpl-schema";
 
 export const Game = {};
 export const GameHistory = {};
@@ -32,6 +31,7 @@ const move_timers = {};
 
 const GameCollection = new Mongo.Collection("game");
 const ChatCollection = new Mongo.Collection("chat");
+const ChildChatCollection = new Mongo.Collection("child_chat");
 const GameHistoryCollection = new Mongo.Collection("game_history");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
@@ -40,10 +40,20 @@ let log = new Logger("server/Game_js");
 GameCollection.attachSchema(ExaminedGameSchema, {
   selector: { status: "examining" }
 });
+
 GameCollection.attachSchema(PlayedGameSchema, {
   selector: { status: "playing" }
 });
-ChatCollection.attachSchema(ChatSchema);
+
+ChatCollection.attachSchema(new SimpleSchema({
+  game_id: String,
+  issuer: String,
+  what: String,
+  kibitz: Boolean,
+  child_chat: Boolean
+}));
+
+ChildChatCollection.attachSchema({ text: String });
 
 function getAndCheck(message_identifier, game_id) {
   const self = Meteor.user();
@@ -274,11 +284,11 @@ Game.startLocalGame = function(
   active_games[game_id] = chess;
   log.debug(
     "Started local game, game_id=" +
-      game_id +
-      ", white=" +
-      white.username +
-      ", black=" +
-      black.username
+    game_id +
+    ", white=" +
+    white.username +
+    ", black=" +
+    black.username
   );
   startGamePing(game_id);
   startMoveTimer(
@@ -668,19 +678,19 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
 
   log.debug(
     "Trying to make move " +
-      move +
-      " for user " +
-      self._id +
-      ", username=" +
-      self.username +
-      ", white=" +
-      game.white.id +
-      "," +
-      game.white.name +
-      ", black=" +
-      game.black.id +
-      "," +
-      game.black.name
+    move +
+    " for user " +
+    self._id +
+    ", username=" +
+    self.username +
+    ", white=" +
+    game.white.id +
+    "," +
+    game.white.name +
+    ", black=" +
+    game.black.id +
+    "," +
+    game.black.name
   );
   const result = chessObject.move(move);
   if (!result) {
@@ -787,12 +797,12 @@ Game.saveLocalMove = function(message_identifier, game_id, move) {
   const move_parameter =
     game.status === "playing"
       ? {
-          move: move,
-          lag: Timestamp.averageLag(self._id),
-          ping: Timestamp.pingTime(self._id),
-          gamelag: gamelag,
-          gameping: gameping
-        }
+        move: move,
+        lag: Timestamp.averageLag(self._id),
+        ping: Timestamp.pingTime(self._id),
+        gamelag: gamelag,
+        gameping: gameping
+      }
       : move;
 
   setobject.variations = variation;
@@ -923,7 +933,7 @@ Game.legacyGameEnded = function(
   } else {
     if (game.white.id) Users.setGameStatus(message_identifier, game.white.id, "none");
     if (game.black.id) Users.setGameStatus(message_identifier, game.black.id, "none");
-    removeGameRecord({ _id: game._id }); // DDD hmmm, interesting sending an object instead of just the game._id. On purpose?
+    GameCollection.remove({ _id: game._id });
   }
 };
 
@@ -1054,30 +1064,23 @@ Game.localRemoveObserver = function(
       "game id does not exist"
     );
 
-  if (!game.observers || game.observers.map(o => o.id).indexOf(id_to_remove) === -1) {
-    if (!!self) ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
+  const requestor = game.requestors && game.requestors.some(r => r.id === id_to_remove);
+  const observer = (game.observers && game.observers.some(o => o.id === id_to_remove));
+
+  if (!requestor && !observer) {
+    if (!server_command) ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
     return;
   }
 
-  if (game.requestors && game.requestors.some(r => r.id === id_to_remove)) {
-    // We have a requestor to remove
-  } else if (
-    !server_command &&
-    (!game.observers || !game.observers.some(o => o.id === id_to_remove))
-  ) {
-    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
+  if(game.private && self._id !== game.owner && !server_command) {
+    ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
     return;
   }
 
   Users.setGameStatus(message_identifier, id_to_remove, "none");
 
-  let delete_game =
-    !!game.examiners &&
-    game.examiners.length === 1 &&
-    game.examiners[0].id === id_to_remove &&
-    (!game.private ||
-      !game.observers ||
-      game.observers.length < 2); /* i.e. only us, no other observer */
+  let delete_game = (!game.private && game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) // Last examiner in a private game;
+  delete_game = delete_game || (game.private && game.owner === id_to_remove && (game.observers.length === 1 && game.observers[0].id === id_to_remove)); // Owner of a private game,
 
   if (game.private && self._id !== id_to_remove)
     ClientMessages.sendMessageToClient(id_to_remove, message_identifier, "PRIVATE_ENTRY_REMOVED");
@@ -1092,7 +1095,7 @@ Game.localRemoveObserver = function(
 
   if (delete_game) {
     GameCollection.remove({ _id: game_id });
-    ChatCollection.remove({game_id: game_id});
+    ChatCollection.remove({ game_id: game_id });
     delete active_games[game_id];
   } else {
     GameCollection.update(
@@ -2360,7 +2363,7 @@ Game.localUnobserveAllGames = function(message_identifier, user_id, server_comma
   check(due_to_logout, Match.Maybe(Boolean));
   GameCollection.find(
     { $or: [{ "observers.id": user_id }, { "requestors.id": user_id }] },
-    { _id: 1 }
+    { fields: { _id: 1 } }
   )
     .fetch()
     .forEach(game =>
@@ -2395,35 +2398,35 @@ function finishExportToPGN(game) {
   let title = game.white.name + "-" + game.black.name + ".pgn";
 
   let pgn = "";
-  pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
-  pgn += '[White "' + game.white.name + '"]\n';
-  pgn += '[Black "' + game.black.name + '"]\n';
-  pgn += '[Result "' + game.result + '"]\n';
-  pgn += '[WhiteElo "' + game.white.rating + '"]\n';
-  pgn += '[BlackElo "' + game.black.rating + '"]\n';
+  pgn += "[Date \"" + date.format(game.startTime, "YYYY-MM-DD") + "\"]\n";
+  pgn += "[White \"" + game.white.name + "\"]\n";
+  pgn += "[Black \"" + game.black.name + "\"]\n";
+  pgn += "[Result \"" + game.result + "\"]\n";
+  pgn += "[WhiteElo \"" + game.white.rating + "\"]\n";
+  pgn += "[BlackElo \"" + game.black.rating + "\"]\n";
   //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
   //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
   //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-  pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
+  pgn += "[Time \"" + date.format(game.startTime, "HH:mm:ss") + "\"]\n";
   if (!game.clocks) {
-    pgn += '[TimeControl "?"]\n';
+    pgn += "[TimeControl \"?\"]\n";
   } else {
     switch (game.clocks.white.inc_or_delay_type) {
       case "none":
-        pgn += '"[TimeControl ' + game.clocks.white.initial / 1000 + '"]\n';
+        pgn += "\"[TimeControl " + game.clocks.white.initial / 1000 + "\"]\n";
         break;
       case "us":
       case "bronstein":
       case "inc":
         pgn +=
-          '[TimeControl "' +
+          "[TimeControl \"" +
           game.clocks.white.initial / 1000 +
           "+" +
           game.clocks.white.inc_or_delay +
-          '"]\n';
+          "\"]\n";
         break;
       default:
-        pgn += '[TimeControl "?"]\n';
+        pgn += "[TimeControl \"?\"]\n";
         break;
     }
   }
@@ -2432,128 +2435,89 @@ function finishExportToPGN(game) {
   pgn += " " + game.result;
   return { title, pgn };
 }
+
 //TODO: now we only use isolated and child chat settings
-Game.kibitz = function(message_identifier,game_id,kibitz,freeform, txt) {
+Game.kibitz = function(message_identifier, game_id, kibitz, txt) {
   check(message_identifier, String);
   check(txt, String);
   check(game_id, String);
-  check(freeform, Boolean);
   check(kibitz, Boolean);
 
   const self = Meteor.user();
   check(self, Object);
 
-  let child_chat = false;
-  let restricted = false;
-  let child_chat_exempt = false;
-  const groups = self.groups; // DDD: Remove
-  let kibitz_allowed = false;
-
-  if(Users.isAuthorized(self, "kibitz")){ // DDD: See note below
-    kibitz_allowed  = true;
+  if (!Users.isAuthorized(self, "kibitz")) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
+    return;
   }
-  if(Users.isAuthorized(self, "child_chat")){
-    child_chat = true;
-  }
-  if(Users.isAuthorized(self, "child_chat_exempt")){
-    child_chat_exempt = true; // DDD: Don't you also have to set child_chat = true here?
-  }
-  if(self.restricted){ // DDD: Remove, yes?
-    restricted  =true;
-  }
-
-
 
   const game = GameCollection.findOne({ _id: game_id });
+  let child_chat = false;
 
   if (!game) {
     ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
     return;
   }
 
-  if(child_chat && freeform){ // DDD: Wait, so what exactly is freeform?
+  // Anyone can send a child chat.
+  // Anything an exempt person sends is a child chat
+  const child_chat_record = ChildChatCollection.findOne({ _id: txt });
+  if (child_chat_record) {
+    child_chat = true;
+    txt = child_chat_record.text;
+  } else {
+    child_chat = Users.isAuthorized(self, "child_chat_exempt");
+  }
+
+  // Otherwise, someone in the child chat role must be sending a child chat.
+  if (!child_chat && Users.isAuthorized(self, ["child_chat"])) {
     ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
-
-    return;
-  }
-  if(!child_chat && !freeform){
-    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_NOT_ALLOWED");
-
-    return;
-  }
-  // DDD: So this is curious. If I'm reading this right, we authorize people to kibitz or not kibitz, but everyone can always whisper without any restrictions?
-  //      I don't think this is accurate. I think if you're in the "kibitz" group, you can kibitz or whisper, and if you're not, you can do neither.
-  if(!kibitz_allowed && kibitz){
-    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
-
     return;
   }
 
-  // DDD: Speaking of, I think I see now, that you have child_chat_exempt and child_chat both.
-  //      In earlier conversations we had, if a user is child_chat_exempt, just save child_chat=true in the
-  //      record with the freeform text. There is no reason to have child_chat_exempt in the record, right?
-  //      Review again the comments lower down in the code from here for a refresher on our discussion.
-    ChatCollection.insert({ game_id: game_id, type: "kibitz", issuer: self._id, what: txt , child_chat: child_chat, child_chat_exempt: child_chat_exempt, restricted:restricted, kibitz: kibitz, groups: groups});
-    GameCollection.update({ _id: game_id, status: game.status }, {
-        $push: {
-          actions: {
-            type: "kibitz", // DDD: Bzzzzzt, the first actual bug :) This can't just be a kibitz, it has to be kibitz or whisper. We should also discuss whether or not we want the other information.
-            issuer: self._id,
-            parameter: { what: txt }
-          }
+  ChatCollection.insert({ game_id: game_id, kibitz: kibitz, issuer: self._id, what: txt, child_chat: child_chat });
+  GameCollection.update({ _id: game_id, status: game.status }, {
+      $push: {
+        actions: {
+          type: kibitz ? "kibitz" : "whisper",
+          issuer: self._id,
+          parameter: { what: txt }
         }
       }
-    );
-    return;
-};
-
+    }
+  );
+}
+;
 
 
 Meteor.publishComposite("kibitz", {
+  // First, find the user
   find() {
+    return Meteor.users.find({ _id: this.userId });
+  },
+  children: [{
+    // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
+    find(user) {
+      return GameCollection.find({
+        $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
+      });
+    },
 
-    //TODO: work with dj on more cases of publishing
-
-    let cc  = Users.isAuthorized(Meteor.user(), "child_chat"); // DDD: FYI, I strongly recommend using "const" instead of "let" in ALL cases except where it requires you to change it to "let"
-    let collect = GameCollection.find({$or: [{"white.id": Meteor.user()._id}, {"black.id": Meteor.user()._id}, {"observers.id": Meteor.user()._id},{"examiners.id": Meteor.user()._id}]} ,{fields: {_id: 1}}).fetch();
-    let games = [];
-
-    // DDD: You don't have to do this. There are various other options. Here are two:
-    //      const games = GameCollection.find(yada..yada..).fetch().map(rec => rec._id);  <- instead of collect then games
-    //      const games = collect.map(rec => rec._id); <- Obviously just a two line variation of the previous
-    for(i in collect){
-      games.push(collect[i]._id);
-    }
-
-    if(!games){
-      return; // DDD: You need to return some type of collection here I think. The unit tests get cranky when you don't. Return at least [], but I tend to return something like "GameCollection.find({_id: -1});
-    }
-
-    if(cc){
-      return ChatCollection.find({$or: [{child_chat: true, game_id: {$in: games}}, {child_chat_exempt: true, game_id: {$in: games}}]});// DDD: Re above comments, no need for the exempt part
-    }
-    return ChatCollection.find({type: "kibitz", game_id: {$in: games}}); // DDD: I'm still thinking that type is either kibitz or whisper.
-    // DDD: The second actual bug that I see here is that players cannot get whisper, and you are not handling that. But I'm still not sure you're doing whispers? With the kibitz boolean above,
-    //      you have to be, but I'm not sure what the logic is.
-
-     //
-    //
-    // Kibitz collection:
-    // _id: the <- id
-    // game_id: <- the game id
-    // issuer: <- The guy doing the talking
-    // kibitz: true/false <- false if it's a whisper
-    // child_chat: true/false <- turn this on if a child does a child chat thing, or an exempt person writes anything
-    // groups: [] <- you need the list of groups of the guy that wrote this
-    // restricted: <- Whether this guy is a restricted guy
-  }
+    children: [{
+      // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
+      find(game, user) {
+        const queryobject = { game_id: game._id };
+        if (Users.isAuthorized(user, "child_chat"))
+          queryobject.child_chat = true;
+        if (game.status === "playing") {
+          if (game.white.id === user._id || game.black.id === user._id)
+            queryobject.kibitz = true;
+        }
+        return ChatCollection.find(queryobject);
+      }
+    }]
+  }]
 });
-
-
-
-
-Game.whisper = function(game_id, text) {
-};
 
 
 function findVariation(move, idx, movelist) {
@@ -3297,7 +3261,8 @@ function _startGamePing(game_id, color) {
         );
       }
     },
-    () => {}
+    () => {
+    }
   );
 }
 
@@ -3401,7 +3366,8 @@ function gameLogoutHook(userId) {
   Users.setGameStatus("server", userId, "none");
 }
 
-function updateUserRatings(game, result, reason) {}
+function updateUserRatings(game, result, reason) {
+}
 
 Meteor.startup(function() {
   // TODO: Need to adjourn these, not just delete them
@@ -3413,6 +3379,7 @@ Meteor.startup(function() {
 if (Meteor.isTest || Meteor.isAppTest) {
   Game.collection = GameCollection;
   Game.chatCollection = ChatCollection;
+  Game.childChatCollection = ChildChatCollection;
   Game.buildPgnFromMovelist = buildPgnFromMovelist;
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;

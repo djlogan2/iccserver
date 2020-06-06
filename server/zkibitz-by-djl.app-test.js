@@ -1,5 +1,5 @@
 import chai from "chai";
-import { compare, TestHelpers } from "../imports/server/TestHelpers";
+import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 import { Roles } from "meteor/alanning:roles";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
@@ -37,7 +37,7 @@ describe("kibitzes", function() {
   });
 
   it("should write kibitzes from a child exempt user into the collection as a child chat", function() {
-    self.loggedonuser = TestHelpers.createUser({ roles: ["child_chat", "kibitz"] });
+    self.loggedonuser = TestHelpers.createUser({ roles: ["child_chat_exempt", "kibitz"] });
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.kibitz("mi2", game_id, true,"the text");
     const chat = Game.chatCollection.findOne();
@@ -80,7 +80,7 @@ describe("kibitzes", function() {
     chai.assert.equal(Game.chatCollection.find().count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
   });
 
   it("should save the child chat text if all is well", function(){
@@ -89,10 +89,12 @@ describe("kibitzes", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.kibitz("mi2", game_id, true, ccid1);
     chai.assert.equal(Game.chatCollection.find().count(), 1);
+    const game = Game.collection.findOne();
     checkLastAction(game, 0, "kibitz", self._id, {what: "child chat 1"});
   });
 
   it("should not publish non-child kibitzes to a child", function(done) {
+    this.timeout(500000);
     const ccid1 = Game.childChatCollection.insert({text: "child chat 1"});
     self.loggedonuser = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({roles: ["child_chat_exempt", "kibitz"]});
@@ -116,15 +118,14 @@ describe("kibitzes", function() {
     });
   });
 
-  it("should publish kibitzes to players", function(){
+  it("should publish kibitzes to players", function(done){
     const ccid1 = Game.childChatCollection.insert({text: "child chat 1"});
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({roles: ["child_chat_exempt", "kibitz"]});
     const anotherchild = TestHelpers.createUser({roles: ["child_chat", "kibitz"]});
-    const child = TestHelpers.createUser({roles: ["child_chat"]});
     self.loggedonuser = p1;
-    Game.startLocalGame("mi1",p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
+    const game_id = Game.startLocalGame("mi1",p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
     Game.kibitz("mi2", game_id, true, "p1 kibitz");
     self.loggedonuser = p2;
     Game.kibitz("mi3", game_id, true, "p2 kibitz");
@@ -168,7 +169,7 @@ describe("whispers", function() {
   });
 
   it("should write whispers from a child exempt user into the collection as a child chat", function() {
-    self.loggedonuser = TestHelpers.createUser({ roles: ["child_chat", "kibitz"] });
+    self.loggedonuser = TestHelpers.createUser({ roles: ["child_chat_exempt", "kibitz"] });
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.kibitz("mi2", game_id, false,"the text");
     const chat = Game.chatCollection.findOne();
@@ -211,7 +212,7 @@ describe("whispers", function() {
     chai.assert.equal(Game.chatCollection.find().count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
   });
 
   it("should save the child chat text if all is well", function(){
@@ -220,6 +221,7 @@ describe("whispers", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.kibitz("mi2", game_id, false, ccid1);
     chai.assert.equal(Game.chatCollection.find().count(), 1);
+    const game = Game.collection.findOne();
     checkLastAction(game, 0, "whisper", self._id, {what: "child chat 1"});
   });
 
@@ -253,9 +255,8 @@ describe("whispers", function() {
     const p2 = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({roles: ["child_chat_exempt", "kibitz"]});
     const anotherchild = TestHelpers.createUser({roles: ["child_chat", "kibitz"]});
-    const child = TestHelpers.createUser({roles: ["child_chat"]});
     self.loggedonuser = p1;
-    Game.startLocalGame("mi1",p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
+    const game_id = Game.startLocalGame("mi1",p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
     Game.kibitz("mi2", game_id, false, "p1 kibitz");
     self.loggedonuser = p2;
     Game.kibitz("mi3", game_id, false, "p2 kibitz");
@@ -268,7 +269,7 @@ describe("whispers", function() {
     self.loggedonuser = p1;
     const collector = new PublicationCollector({ userId: p1._id });
     collector.collect("kibitz", collections => {
-      chai.assert.isTrue(!collections.chat.length || collections.chat.length === 0);
+      chai.assert.isTrue(!collections.chat || !collections.chat.length || collections.chat.length === 0);
       done();
     });
   });
