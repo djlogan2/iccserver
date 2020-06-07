@@ -20,7 +20,6 @@ import { Users } from "../imports/collections/users";
 import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
 
 import date from "date-and-time";
-import SimpleSchema from "simpl-schema";
 
 export const Game = {};
 export const GameHistory = {};
@@ -30,8 +29,6 @@ const game_pings = {};
 const move_timers = {};
 
 const GameCollection = new Mongo.Collection("game");
-const ChatCollection = new Mongo.Collection("chat");
-const ChildChatCollection = new Mongo.Collection("child_chat");
 const GameHistoryCollection = new Mongo.Collection("game_history");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
@@ -44,16 +41,6 @@ GameCollection.attachSchema(ExaminedGameSchema, {
 GameCollection.attachSchema(PlayedGameSchema, {
   selector: { status: "playing" }
 });
-
-ChatCollection.attachSchema(new SimpleSchema({
-  game_id: String,
-  issuer: String,
-  what: String,
-  kibitz: Boolean,
-  child_chat: Boolean
-}));
-
-ChildChatCollection.attachSchema({ text: String });
 
 function getAndCheck(message_identifier, game_id) {
   const self = Meteor.user();
@@ -74,6 +61,19 @@ function getAndCheck(message_identifier, game_id) {
     throw new ICCMeteorError("server", "Unable to find chessboard validator for game");
 
   return game;
+}
+
+Game.observeGameChanges = function(selector, callbacks) {
+  GameCollection.find(selector).observeChanges(callbacks);
+}
+Game.find = function(selector) {
+  return GameCollection.find(selector);
+}
+
+Game.addAction = function(id, action) {
+  const game = GameCollection.findOne({_id: id});
+  if(!!game)
+    GameCollection.update({_id: id, status: game.status}, {$push: {actions: action}});
 }
 
 Game.startLocalGame = function(
@@ -1095,7 +1095,6 @@ Game.localRemoveObserver = function(
 
   if (delete_game) {
     GameCollection.remove({ _id: game_id });
-    ChatCollection.remove({ game_id: game_id });
     delete active_games[game_id];
   } else {
     GameCollection.update(
@@ -2436,90 +2435,6 @@ function finishExportToPGN(game) {
   return { title, pgn };
 }
 
-//TODO: now we only use isolated and child chat settings
-Game.kibitz = function(message_identifier, game_id, kibitz, txt) {
-  check(message_identifier, String);
-  check(txt, String);
-  check(game_id, String);
-  check(kibitz, Boolean);
-
-  const self = Meteor.user();
-  check(self, Object);
-
-  if (!Users.isAuthorized(self, "kibitz")) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_KIBITZ");
-    return;
-  }
-
-  const game = GameCollection.findOne({ _id: game_id });
-  let child_chat = false;
-
-  if (!game) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_GAME");
-    return;
-  }
-
-  // Anyone can send a child chat.
-  // Anything an exempt person sends is a child chat
-  const child_chat_record = ChildChatCollection.findOne({ _id: txt });
-  if (child_chat_record) {
-    child_chat = true;
-    txt = child_chat_record.text;
-  } else {
-    child_chat = Users.isAuthorized(self, "child_chat_exempt");
-  }
-
-  // Otherwise, someone in the child chat role must be sending a child chat.
-  if (!child_chat && Users.isAuthorized(self, ["child_chat"])) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
-    return;
-  }
-
-  ChatCollection.insert({ game_id: game_id, kibitz: kibitz, issuer: self._id, what: txt, child_chat: child_chat });
-  GameCollection.update({ _id: game_id, status: game.status }, {
-      $push: {
-        actions: {
-          type: kibitz ? "kibitz" : "whisper",
-          issuer: self._id,
-          parameter: { what: txt }
-        }
-      }
-    }
-  );
-}
-;
-
-
-Meteor.publishComposite("kibitz", {
-  // First, find the user
-  find() {
-    return Meteor.users.find({ _id: this.userId });
-  },
-  children: [{
-    // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
-    find(user) {
-      return GameCollection.find({
-        $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
-      });
-    },
-
-    children: [{
-      // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
-      find(game, user) {
-        const queryobject = { game_id: game._id };
-        if (Users.isAuthorized(user, "child_chat"))
-          queryobject.child_chat = true;
-        if (game.status === "playing") {
-          if (game.white.id === user._id || game.black.id === user._id)
-            queryobject.kibitz = true;
-        }
-        return ChatCollection.find(queryobject);
-      }
-    }]
-  }]
-});
-
-
 function findVariation(move, idx, movelist) {
   if (
     !move ||
@@ -3378,8 +3293,6 @@ Meteor.startup(function() {
 
 if (Meteor.isTest || Meteor.isAppTest) {
   Game.collection = GameCollection;
-  Game.chatCollection = ChatCollection;
-  Game.childChatCollection = ChildChatCollection;
   Game.buildPgnFromMovelist = buildPgnFromMovelist;
   Game.calculateGameLag = calculateGameLag;
   Game.testingCleanupMoveTimers = testingCleanupMoveTimers;

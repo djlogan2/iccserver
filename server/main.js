@@ -2,6 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 import { GameRequests } from "./GameRequest";
 import { Game, GameHistory } from "./Game";
+import { Chat } from "./Chat";
 import "./PgnExport";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";

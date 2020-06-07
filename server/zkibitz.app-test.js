@@ -1,7 +1,16 @@
 import chai from "chai";
+import { Chat } from "./Chat";
 import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+
+function waitForChatDeletes(selector, done) {
+  const interval = Meteor.setInterval(function() {
+    if (Chat.collection.find(selector).count() === 0)
+      Meteor.clearInterval(interval);
+    done();
+  }, 100);
+}
 
 describe("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -24,9 +33,9 @@ describe("kibitzes", function() {
       "white");
 
 
-    chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
+    chai.assert.isFunction(Chat.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1", game_id_local, true, testText);
+    Chat.kibitz("mi1", game_id_local, true, testText);
 
     const localCollection = Game.collection.findOne({ _id: game_id_local });
 
@@ -66,9 +75,9 @@ describe("kibitzes", function() {
       "");
 
 
-    chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
+    chai.assert.isFunction(Chat.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1", game_id_legacy, true, testText);
+    Chat.kibitz("mi1", game_id_legacy, true, testText);
 
     const legacyCollection = Game.collection.findOne({ _id: game_id_legacy });
 
@@ -90,9 +99,9 @@ describe("kibitzes", function() {
       0);
 
 
-    chai.assert.isFunction(Game.kibitz, "kibitz failed to be a function when adding action to record");
+    chai.assert.isFunction(Chat.kibitz, "kibitz failed to be a function when adding action to record");
 
-    Game.kibitz("mi1", game_id_examined, true,testText);
+    Chat.kibitz("mi1", game_id_examined, true,testText);
 
     const examinedCollection = Game.collection.findOne({ _id: game_id_examined });
 
@@ -134,13 +143,13 @@ describe("kibitzes", function() {
 
     const player1Collector = new PublicationCollector({ userId: player1._id });
     const player2Collector = new PublicationCollector({ userId: player2._id });
-    Game.kibitz("mi1", game_id_local, true,testText);
+    Chat.kibitz("mi1", game_id_local, true,testText);
 
-    player1Collector.collect("kibitz", collections => {
+    player1Collector.collect("chat", collections => {
       self.loggedonuser = player1;
       chai.assert.equal(collections.chat.length,1, "Publication collector for player1 failed to store any kibitz");
       chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
-      player2Collector.collect("kibitz", collections => {
+      player2Collector.collect("chat", collections => {
         self.loggedonuser = player2;
         chai.assert.equal(collections.chat.length,1, "Publication collector for player2 failed to store any kibitz");
         chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
@@ -153,7 +162,7 @@ describe("kibitzes", function() {
   // DDD: Another minor thing, but please keep the texts within the spirit of mocha.
   //      The function is called "it" for a reason, so this should read something like so:
   //      it("should delete chat records when game records are deleted" ...
-  it("chat records should be deleted when game records are deleted", function() {
+  it("chat records should be deleted when game records are deleted", function(done) {
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
     self.loggedonuser = player1;
@@ -174,7 +183,7 @@ describe("kibitzes", function() {
 
     chai.assert.isDefined(player1);
     chai.assert.isDefined(player1._id);
-    Game.kibitz("mi1", game_id_local, true,testText);
+    Chat.kibitz("mi1", game_id_local, true,testText);
     Game.resignLocalGame("mi1", game_id_local);
     Game.localRemoveObserver("mi2", game_id_local, player1._id);
     self.loggedonuser = player2;
@@ -182,7 +191,10 @@ describe("kibitzes", function() {
     chai.assert.isDefined(player2._id);
     Game.localRemoveObserver("mi2", game_id_local, player2._id);
 
-    chai.assert.equal(Game.chatCollection.find({}).count(), 0, "failed to remove chat record with game record");
+    waitForChatDeletes({}, () => {
+      chai.assert.equal(Chat.collection.find({}).count(), 0, "failed to remove chat record with game record");
+      done();
+    });
 
   });
   it("should be viewable by all observers", function(done) {
@@ -215,20 +227,20 @@ describe("kibitzes", function() {
     const player1Collector = new PublicationCollector({ userId: player1._id });
     const player2Collector = new PublicationCollector({ userId: player2._id });
     const player3Collector = new PublicationCollector({ userId: player3._id});
-    Game.kibitz("mi1", game_id_local, true, testText);
+    Chat.kibitz("mi1", game_id_local, true, testText);
 
     // DDD: I don't think this is going to work the way you think it works. You'll have to ask me why, it's not
     //      easy to explain here. I can also help you write this in a way that does work.
-    player1Collector.collect("kibitz", collections => {
+    player1Collector.collect("chat", collections => {
 
       chai.assert.equal(collections.chat.length,1, "Publication collector for player1 failed to store any kibitz");
       chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
       self.loggedonuser = player2;
-      player2Collector.collect("kibitz", collections => {
+      player2Collector.collect("chat", collections => {
         chai.assert.equal(collections.chat.length,1, "Publication collector for player2 failed to store any kibitz");
         chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
         self.loggedonuser = player3;
-        player3Collector.collect("kibitz", collections => {
+        player3Collector.collect("chat", collections => {
           chai.assert.equal(collections.chat.length,1, "Publication collector for player3 failed to store any kibitz");
           chai.assert.equal(collections.chat[0].what, testText, "player 3 failed to view kibitz");
           done();
@@ -263,20 +275,20 @@ describe("kibitzes", function() {
     chai.assert.isDefined(player1._id);
 
 
-    Game.kibitz("mi1", game_id_local, true, testText);
+    Chat.kibitz("mi1", game_id_local, true, testText);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_KIBITZ", "Failed to prevent incorrect role kibitz");
     self.loggedonuser = player2;
-    Game.kibitz("mi1", game_id_local, true, testText);
+    Chat.kibitz("mi1", game_id_local, true, testText);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length === 1, "Client message sent even though of correct role");
     // DDD: You might want to make sure the kibitzes weren't saved
 
   });
   it("should indicate if the kibitz is a child_chat kibitz", function() {
-    const testId = Game.childChatCollection.insert({text: "child chat 1"});
+    const testId = Chat.childChatCollection.insert({text: "child chat 1"});
     self.loggedonuser = TestHelpers.createUser();
     const player1 = TestHelpers.createUser();
     const player2 = TestHelpers.createUser();
@@ -297,11 +309,11 @@ describe("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local, true, testId);
-    chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
-    chai.assert.equal(Game.chatCollection.findOne({}).child_chat, true, "child chat kibitz failed to set the child chat field");
+    Chat.kibitz("mi1", game_id_local, true, testId);
+    chai.assert.equal(Chat.collection.find({}).count(), 1, "failed to add chat record with game record");
+    chai.assert.equal(Chat.collection.findOne({}).child_chat, true, "child chat kibitz failed to set the child chat field");
 
-    chai.assert.equal(Game.chatCollection.findOne({}).what, "child chat 1", "child chat kibitz failed to set what field");
+    chai.assert.equal(Chat.collection.findOne({}).what, "child chat 1", "child chat kibitz failed to set what field");
 
   });
   it("should indicate if the kibitz is in child_chat role", function() {
@@ -329,13 +341,13 @@ describe("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local, true, testText);
+    Chat.kibitz("mi1", game_id_local, true, testText);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED", "Failed to prevent incorrect role child_chat");
     self.loggedonuser = player2;
-    Game.kibitz("mi1", game_id_local, true, testText);
+    Chat.kibitz("mi1", game_id_local, true, testText);
     chai.assert.isFalse(self.clientMessagesSpy.calledTwice, "Client message sent even though of correct role");
     chai.assert(self.clientMessagesSpy.args.length === 1, "Client message sent even though of correct role");
 
@@ -363,10 +375,10 @@ describe("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local, true, testText);
-    chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
-    chai.assert.equal(Game.chatCollection.findOne({}).child_chat,false, "Kibitz set the child chat field");
-    chai.assert.equal(Game.chatCollection.findOne({}).what.length, testText.length, "Kibitz failed to set what field");
+    Chat.kibitz("mi1", game_id_local, true, testText);
+    chai.assert.equal(Chat.collection.find({}).count(), 1, "failed to add chat record with game record");
+    chai.assert.equal(Chat.collection.findOne({}).child_chat,false, "Kibitz set the child chat field");
+    chai.assert.equal(Chat.collection.findOne({}).what.length, testText.length, "Kibitz failed to set what field");
 
 
   });
@@ -393,9 +405,9 @@ describe("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local, true,testText);
-    chai.assert.equal(Game.chatCollection.find({}).count(), 1, "failed to add chat record with game record");
-    const chat = Game.chatCollection.findOne();
+    Chat.kibitz("mi1", game_id_local, true,testText);
+    chai.assert.equal(Chat.collection.find({}).count(), 1, "failed to add chat record with game record");
+    const chat = Chat.collection.findOne();
     chai.assert.equal(chat.what,testText, "Exempt kibitz set the what field incorrectly");
     chai.assert.equal(chat.child_chat, true, "Exempt Kibitz failed to set exempt field");
 
@@ -428,17 +440,17 @@ describe("kibitzes", function() {
     chai.assert.isDefined(player2._id);
     const player1Collector = new PublicationCollector({ userId: player1._id });
     const player2Collector = new PublicationCollector({ userId: player2._id });
-    Game.kibitz("mi1", game_id_local, true,testText);
+    Chat.kibitz("mi1", game_id_local, true,testText);
 
     // DDD: You have to set self.loggedonuser before calling one of these (which is why your group of three above aren't going to work.)
     //      You are getting player1's records. Is that what you want here? (If so, it's actually correct.)
-    player1Collector.collect("kibitz", collections => {
+    player1Collector.collect("chat", collections => {
 
       chai.assert.notEqual(collections.chat,undefined, "Publication collector for player1 failed to store any kibitz");
       chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
       // DDD: OK, so maybe it is correct, because you are doing it correctly here, but I didn't see you doing this above.
       self.loggedonuser = player2;
-      player2Collector.collect("kibitz", collections => {
+      player2Collector.collect("chat", collections => {
         chai.assert.equal(collections.chat,undefined, "Publication collector for player2 failed ignore any kibitz");
         done();
       });
@@ -465,22 +477,22 @@ describe("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local, true,testText);
+    Chat.kibitz("mi1", game_id_local, true,testText);
     const player1Collector = new PublicationCollector({ userId: player1._id });
     const player2Collector = new PublicationCollector({ userId: player2._id});
     const player3Collector = new PublicationCollector({ userId: player3._id});
 
     self.loggedonuser = player1;
-    player1Collector.collect("kibitz", collections => {
+    player1Collector.collect("chat", collections => {
       chai.assert.equal(collections.chat[0].what, testText, "player in game failed to see own kibitz");
 
 
       self.loggedonuser = player2;
-      player2Collector.collect("kibitz", collections => {
+      player2Collector.collect("chat", collections => {
           chai.assert.equal(collections.chat[0].what, testText, "player also in game failed to see game's kibitz");
 
         self.loggedonuser = player3;
-        player3Collector.collect("kibitz", collections => {
+        player3Collector.collect("chat", collections => {
             chai.assert.equal(collections.chat, undefined, "player outside of game saw kibitz from game");
           done();
         });
@@ -510,14 +522,14 @@ describe("kibitzes", function() {
       "white");
 
 
-    Game.kibitz("mi1", game_id_local, true,testText);
+    Chat.kibitz("mi1", game_id_local, true,testText);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce, "player 1 didn't make message");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, player1._id, "wrong message id");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1", "wrong message_identifier");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED", "Failed to prevent incorrect role child_chat");
     const player1Collector = new PublicationCollector({ userId: player1._id });
 
-    player1Collector.collect("kibitz", collections => {
+    player1Collector.collect("chat", collections => {
       self.loggedonuser = player1; // DDD: Two things, First, this won't work inside the collect, it has to be before.
                                    //      Second, I think this is overkill for ensuring children can't issue free form kibitzes. Just make sure their texts didn't make it into the collection.
       chai.assert.equal(collections.chat,undefined, "Free-Form Kibitz when in child_chat role not prevented");
@@ -554,14 +566,14 @@ it("should be viewable by all examiners", function(done) {
   chai.assert.isDefined(player2._id);
   const player1Collector = new PublicationCollector({ userId: player1._id });
   const player2Collector = new PublicationCollector({ userId: player2._id });
-  Game.kibitz("mi1", game_id_local, true, testText);
+  Chat.kibitz("mi1", game_id_local, true, testText);
 
-  player1Collector.collect("kibitz", collections => {
+  player1Collector.collect("chat", collections => {
 
     chai.assert.equal(collections.chat.length,1, "Publication collector for player1 failed to store any examined kibitz");
     chai.assert.equal(collections.chat[0].what, testText, "player 1 failed to view kibitz");
     self.loggedonuser = player2;
-     player2Collector.collect("kibitz", collections => {
+     player2Collector.collect("chat", collections => {
         chai.assert.equal(collections.chat.length,1, "Publication collector for player2 failed to store any examined kibitz");
         chai.assert.equal(collections.chat[0].what, testText, "player 2 failed to view kibitz");
         done();

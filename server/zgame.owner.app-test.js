@@ -1022,7 +1022,7 @@ describe("Game owners", function() {
     const game2 = Game.collection.findOne();
     chai.assert.isTrue(game2.private);
     chai.assert.isTrue(game.deny_chat);
-    Game.kibitz("mi3", game_id, "kibitz");
+    Chat.kibitz("mi3", game_id, "kibitz");
     chai.assert.fail("do me -- write in the check to make sure the kibitz occurred");
   });
 
@@ -1042,7 +1042,7 @@ describe("Game owners", function() {
     chai.assert.isTrue(game2.private);
     chai.assert.isTrue(game.deny_chat);
     self.loggedonuser = peon;
-    Game.kibitz("mi3", game_id, "kibitz");
+    Chat.kibitz("mi3", game_id, "kibitz");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_CHAT_NOT_ALLOWED");
     chai.assert.fail("do me -- write in the check to make sure NO kibitz occurred");
