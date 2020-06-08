@@ -8,7 +8,6 @@ describe.skip("Game timestamp", function() {
 
 /*
   it("should write a unique ping to active for white once a second", function() {
-    this.timeout(500000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;

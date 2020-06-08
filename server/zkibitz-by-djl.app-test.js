@@ -57,7 +57,7 @@ describe("kibitzes", function() {
     checkLastAction(game, 0, "kibitz", self._id, {what: "the text"});
   });
 
-  it("should delete the kibitzes from the collection when the game is deleted", function(done) {
+  it.only("should delete the kibitzes from the collection when the game is deleted", function(done) {
     this.timeout(60000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
@@ -110,7 +110,6 @@ describe("kibitzes", function() {
   });
 
   it("should not publish non-child kibitzes to a child", function(done) {
-    this.timeout(500000);
     const ccid1 = Chat.childChatCollection.insert({text: "child chat 1"});
     self.loggedonuser = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({roles: ["child_chat_exempt", "kibitz"]});
@@ -194,7 +193,7 @@ describe("whispers", function() {
     checkLastAction(game, 0, "whisper", self._id, {what: "the text"});
   });
 
-  it("should delete the whispers from the collection when the game is deleted", function(done) {
+  it.only("should delete the whispers from the collection when the game is deleted", function(done) {
     this.timeout(60000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);

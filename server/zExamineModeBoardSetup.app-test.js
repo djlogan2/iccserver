@@ -408,7 +408,6 @@ describe("Setting en passant", function() {
 });
 
 describe("Setting PGN tags", function() {
-  this.timeout(500000);
   const self = TestHelpers.setupDescribe.call(this);
   it("should return a client message if done on a played game", function() {
     const p1 = TestHelpers.createUser();

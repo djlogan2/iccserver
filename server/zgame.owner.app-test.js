@@ -494,7 +494,6 @@ describe("Game owners", function() {
   });
 
   it("will not set users status to observing in a private game when they are on the requestors list", function() {
-    this.timeout(500000);
     const owner = TestHelpers.createUser({ roles: ["allow_private_games"] });
     const observer = TestHelpers.createUser();
     self.loggedonuser = owner;
@@ -790,7 +789,6 @@ describe("Game owners", function() {
   });
 
   it("will not allow a non-owner to deny a users observe request", function() {
-    this.timeout(500000);
     const owner = (self.loggedonuser = TestHelpers.createUser({ roles: ["allow_private_games"] }));
     const abuser = TestHelpers.createUser({ roles: ["allow_private_games"] });
     const requestor = TestHelpers.createUser();
@@ -868,7 +866,6 @@ describe("Game owners", function() {
   });
 
   it("can not remove users from others private games", function() {
-    this.timeout(500000);
     const owner = (self.loggedonuser = TestHelpers.createUser({ roles: ["allow_private_games"] }));
     const abuser = TestHelpers.createUser({ roles: ["allow_private_games"] });
     const requestor = TestHelpers.createUser();
