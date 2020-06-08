@@ -1,6 +1,5 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
-
 //
 // create_date: [date saved],
 // chat_room
@@ -106,6 +105,7 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi2", room_id, "The text");
     const chat = Chat.collection.findOne();
     chai.assert.sameDeepMembers([{
+      create_date: chat.create_date,
       id: room_id,
       type: "room",
       issuer: { id: self._id, username: self.username },
@@ -138,6 +138,7 @@ describe.only("Chats", function() {
     }], room.members);
     const chat = Chat.collection.find.fetch();
     chai.assert.equal(chat.length, 2);
+    chat.forEach(c => delete c.create_date);
     chai.assert.sameDeepMembers([{
       id: room_id,
       type: "room",
@@ -165,6 +166,7 @@ describe.only("Chats", function() {
     const chat = Chat.collection.find.fetch();
     chai.assert.equal(chat.length, 1);
     chai.assert.sameDeepMembers([{
+      create_date: chat.create_date,
       id: room_id,
       type: "room",
       issuer: { id: creator._id, username: self.username },
@@ -192,6 +194,7 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi2", room_id, "The text");
     const chat = Chat.collection.findOne();
     chai.assert.sameDeepMembers([{
+      create_date: chat.create_date,
       id: room_id,
       type: "room",
       issuer: { id: self._id, username: self.username },
@@ -207,6 +210,7 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi2", room_id, ccid);
     const chat = Chat.collection.findOne();
     chai.assert.sameDeepMembers([{
+      create_date: chat.create_date,
       id: room_id,
       type: "room",
       issuer: { id: self._id, username: self.username },
@@ -223,6 +227,7 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi2", room_id, "normal text");
     const chat = Chat.collection.findOne();
     chai.assert.sameDeepMembers([{
+      create_date: chat.create_date,
       id: room_id,
       type: "room",
       issuer: { id: self._id, username: self.username },
@@ -239,6 +244,7 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi2", room_id, ccid);
     const chat = Chat.collection.findOne();
     chai.assert.sameDeepMembers([{
+      create_date: chat.create_date,
       id: room_id,
       type: "room",
       issuer: { id: self._id, username: self.username },
@@ -263,6 +269,7 @@ describe.only("Chats", function() {
     self.loggedonuser = child;
     const collector = new PublicationCollector({ userId: child._id });
     collector.collect("chat", collections => {
+      collections.chat.forEach(c => delete c.create_date);
       chai.assert.equal(collections.chat.length, 2);
       chai.assert.sameDeepMembers([{
         type: "room",
@@ -300,6 +307,7 @@ describe.only("Chats", function() {
     const collector = new PublicationCollector({ userId: user2._id });
     collector.collect("chat", collections => {
       chai.assert.equal(collections.chat.length, 4);
+      collections.chat.forEach(c => delete c.create_date);
       chai.assert.sameDeepMembers([
         { type: "room", id: room_id2, issuer: { id: user1._id, username: user1.username }, what: "room 2 text" },
         { type: "room", id: room_id4, issuer: { id: user1._id, username: user1.username }, what: "room 4 text" },
@@ -338,8 +346,7 @@ describe.only("Chats", function() {
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
-    const joiner = TestHelpers.createUser({ roles: ["play_rated_games"] });
-    self.loggedonuser = joiner;
+    self.loggedonuser = TestHelpers.createUser({ roles: ["play_rated_games"] });
     Chat.joinRoom("mi2", room_id);
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }], room.members);
@@ -349,11 +356,9 @@ describe.only("Chats", function() {
   });
 
   it("should write message if room id is non-existant", function() {
-    const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
-    self.loggedonuser = creator;
+    self.loggedonuser = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     const room_id = Chat.createRoom("mi1", "The room");
-    const joiner = TestHelpers.createUser();
-    self.loggedonuser = joiner;
+    self.loggedonuser = TestHelpers.createUser();
     Chat.joinRoom("mi2", "mickeymouse");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -414,11 +419,9 @@ describe.only("Chats", function() {
   });
 
   it("should write a message if room id is non-existant", function() {
-    const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
-    self.loggedonuser = creator;
+    self.loggedonuser = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     const room_id = Chat.createRoom("mi1", "The room");
-    const joiner = TestHelpers.createUser();
-    self.loggedonuser = joiner;
+    self.loggedonuser = TestHelpers.createUser();
     Chat.joinRoom("mi2", "mickeymouse");
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -433,6 +436,7 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, "The text");
     const chat = Chat.collection.findOne();
     chai.assert.deepEqual({
+      create_date: chat.create_date,
       type: "private",
       id: user2._id,
       logons: 2,
@@ -482,6 +486,7 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, ccid);
     const chat = Chat.collection.findOne();
     chai.assert.deepEqual({
+      create_date: chat.create_date,
       type: "private",
       id: user2._id,
       logons: 2,
@@ -498,6 +503,7 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, "freeform text");
     const chat = Chat.collection.findOne();
     chai.assert.deepEqual({
+      create_date: chat.create_date,
       type: "private",
       id: user2._id,
       logons: 2,
@@ -515,6 +521,7 @@ describe.only("Chats", function() {
     const chat = Chat.collection.findOne();
     // Note that this isn't marked as a child friendly chat!
     chai.assert.deepEqual({
+      create_date: chat.create_date,
       type: "private",
       id: user2._id,
       logons: 2,
@@ -533,6 +540,7 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, ccid);
     const chat = Chat.collection.findOne();
     chai.assert.deepEqual({
+      create_date: chat.create_date,
       type: "private",
       id: user2._id,
       logons: 2,
@@ -565,15 +573,18 @@ describe.only("Chats", function() {
       const collector = new PublicationCollector({ userId: user1._id });
       collector.collect("chat", collections => {
         chai.assert.equal(collections.chat.length, 2);
+        collections.chat.forEach(c => delete c.create_date);
         chai.assert.sameDeepMembers([{
           type: "private",
           id: user1._id,
+          loggedon: 2,
           issuer: { id: user2._id, username: user2.username },
           what: "The text 2"
         },
           {
             type: "private",
             id: user2._id,
+            loggedon: 2,
             issuer: { id: user1._id, username: user1.username },
             what: "The text 1"
           }], collections.chat);
@@ -585,6 +596,7 @@ describe.only("Chats", function() {
             const collector = new PublicationCollector({ userId: user2._id });
             collector.collect("chat", collections => {
               chai.assert.equal(collections.chat.length, 2);
+              collections.chat.forEach(c => delete c.create_date);
               chai.assert.sameDeepMembers([{
                 type: "private",
                 id: user1._id,
@@ -612,15 +624,40 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, "The text 1");
     self.loggedonuser = user2;
     Chat.writeToUser("mi1", user1._id, "The text 2");
-    User.logoutHook;
-    chai.assert.fail("do me");
-  });
 
-  it("should not delete private chats when only one user logs off", function() {
+    Chat.logoutHook(user1._id);
+    const chats1 = Chat.collection.find().fetch();
+    chai.assert.equal(chats1.length, 2);
+    chai.assert.equal(1, chats1[0].loggedon);
+    chai.assert.equal(1, chats1[1].loggedon);
 
+    Chat.loginHook(user1);
+    const chats = Chat.collection.find().fetch();
+    chai.assert.equal(chats.length, 2);
+    chai.assert.equal(2, chats[0].loggedon);
+    chai.assert.equal(2, chats[1].loggedon);
+
+    Chat.logoutHook(user2._id);
+    const chats3 = Chat.collection.find().fetch();
+    chai.assert.equal(chats3.length, 2);
+    chai.assert.equal(3, chats1[0].loggedon);
+    chai.assert.equal(3, chats1[1].loggedon);
+
+    Chat.logoutHook(user1._id);
+    chai.assert.equal(Chat.collection.find().count(), 0);
   });
 
   it("will mark loggedon field as 1 if a users writes to himself", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    Chat.writeToUser("mi1", self.loggedonuser._id, "The text 1");
+    const chat = Chat.collection.findOne();
+    chai.assert.deepEqual({
+      create_date: chat.creat_date,
+      type: "private",
+      id: user1._id,
+      loggedon: 1,
+      issuer: { id: user1._id, username: user1.username },
+      what: "The text 1"
+    }, chat);
   });
 });
