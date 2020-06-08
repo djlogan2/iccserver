@@ -123,12 +123,17 @@ const DefinedClientMessagesMap = {
   LOGIN_FAILED_22: {},
   FOR_TESTING: {},
   FOR_TESTING_10: { parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] },
-  //TODO: check if valid messages
   NOT_ALLOWED_TO_KIBITZ: {},
   INVALID_GAME: {},
   CHILD_CHAT_FREEFORM_NOT_ALLOWED: {},
   CHILD_CHAT_NOT_ALLOWED: {},
-  CHILD_CHAT_EXEMPT_KIBITZ_NOT_ALLOWED: {}
+  CHILD_CHAT_EXEMPT_KIBITZ_NOT_ALLOWED: {},
+  //TODO: check if valid messsages
+  NOT_ALLOWED_TO_CREATE_ROOM: {},
+  NOT_ALLOWED_TO_DELETE_ROOM: {},
+  NOT_ALLOWED_TO_CHAT_IN_ROOM: {},
+  ROOM_ALREADY_EXISTS: {},
+  INVALID_ROOM: {},
 };
 
 class ClientMessages {

@@ -30,9 +30,9 @@ import chai from "chai";
 //    what: "the text"
 // }
 import { Chat } from "./Chat";
-
+// TODO: check if roomCollection and collection must be checked in all tests
 describe.only("Chats", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
+   const self = TestHelpers.setupDescribe.apply(this);
 //createRoom
 
   it("should allow creating a room if user has 'create_room' role", function() {
@@ -43,8 +43,10 @@ describe.only("Chats", function() {
 
   it("should disallow creating a room if user does not have 'create_room' role", function() {
     self.loggedonuser = TestHelpers.createUser();
+
+    const p1 = self.loggedonuser;
     const room_id = Chat.createRoom("mi1", "The room");
-    chai.assert.equal(Chat.collection.find().count(), 0);
+    chai.assert.equal(Chat.roomCollection.find().count(), 0);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
@@ -53,49 +55,55 @@ describe.only("Chats", function() {
 
   it("should disallow creating a room with a duplicate room name", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
+    const p1 = self.loggedonuser;
     const room_id1 = Chat.createRoom("mi1", "The room");
-    chai.assert.equal(Chat.collection.find().count(), 1);
+    chai.assert.equal(Chat.roomCollection.find().count(), 1);
     const room_id2 = Chat.createRoom("mi2", "The room");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ROOM_ALREADY_EXISTS");
   });
 
   it("should join the creator to the room upon room create", function() {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser({roles: ["create_room"]});
+    const p1 = self.loggedonuser;
+    const room_id = Chat.createRoom("mi1", "the room");
+    chai.assert.equal(Chat.roomCollection.find().count(),1,"Failed to create room");
+    chai.assert.equal(Chat.roomCollection.findOne({_id: room_id}).members[0].id, p1._id, "failed to join owner to own room on creation");
   });
 
 //deleteRoom
   it("should allow deleting a room if the user has 'create_room' role", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
     const room_id = Chat.createRoom("mi1", "The room");
-    chai.assert.equal(Chat.collection.find().count(), 1);
+    chai.assert.equal(Chat.roomCollection.find().count(), 1);
     Chat.deleteRoom("mi2", room_id);
-    chai.assert.equal(Chat.collection.find().count(), 0);
+    chai.assert.equal(Chat.roomCollection.find().count(), 0);
   });
 
   it("should not allow deleting a room if the user does not have 'create_room' role", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
     const abuser = TestHelpers.createUser();
     const room_id = Chat.createRoom("mi1", "The room");
-    chai.assert.equal(Chat.collection.find().count(), 1);
+    chai.assert.equal(Chat.roomCollection.find().count(), 1);
     self.loggedonuser = abuser;
     Chat.deleteRoom("mi2", room_id);
-    chai.assert.equal(Chat.collection.find().count(), 1);
+    chai.assert.equal(Chat.roomCollection.find().count(), 1);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, abuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_DELETE_ROOM");
   });
 
   it("should return a message if no room id exists to delete", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
+    const p1 = self.loggedonuser;
     const room_id = Chat.deleteRoom("mi1", "boogus");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_ROOM");
   });
 
 //writeToRoom
@@ -119,8 +127,8 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi2", room_id, "The text");
     chai.assert.equal(Chat.collection.find().count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
   });
 
   it("should automatically join the room if a text is written to, and user has 'join_room' role", function() {
