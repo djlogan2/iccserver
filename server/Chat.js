@@ -154,4 +154,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
   Chat.collection = ChatCollection;
   Chat.childChatCollection = ChildChatCollection;
   Chat.roomCollection = RoomCollection;
+  Chat.loginHook = chatLoginHook;
+  Chat.logoutHook = chatLogoutHook;
 }
