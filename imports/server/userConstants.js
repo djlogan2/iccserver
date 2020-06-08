@@ -30,7 +30,11 @@ export const all_roles = [
   "kibitz",
   "child_chat",
   "child_chat_exempt",
-  "group_restricted"
+  "group_restricted",
+  "create_room",
+  "room_chat",
+  "join_room",
+  "personal_chat"
 ];
 
 export const standard_member_roles = [
@@ -43,7 +47,10 @@ export const standard_member_roles = [
   "delete_mugshot",
   "validate_mugshots",
   "kibitz",
-  "upload_pgn"
+  "upload_pgn",
+  "room_chat",
+  "join_room",
+  "personal_chat"
 ];
 
 export const fields_viewable_by_account_owner = {

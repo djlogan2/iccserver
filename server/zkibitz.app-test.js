@@ -4,12 +4,14 @@ import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
-function waitForChatDeletes(selector, done) {
-  const interval = Meteor.setInterval(function() {
-    if (Chat.collection.find(selector).count() === 0)
-      Meteor.clearInterval(interval);
-    done();
-  }, 100);
+function waitForChatDeletes(selector, func, done) {
+  const watch = Chat.collection.find(selector).observeChanges({
+    removed(id) {
+      watch.stop();
+      done();
+    }
+  });
+  func();
 }
 
 describe("kibitzes", function() {
@@ -163,6 +165,7 @@ describe("kibitzes", function() {
   //      The function is called "it" for a reason, so this should read something like so:
   //      it("should delete chat records when game records are deleted" ...
   it("chat records should be deleted when game records are deleted", function(done) {
+    this.timeout(60000);
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
     self.loggedonuser = player1;
@@ -189,9 +192,11 @@ describe("kibitzes", function() {
     self.loggedonuser = player2;
     chai.assert.isDefined(player2);
     chai.assert.isDefined(player2._id);
-    Game.localRemoveObserver("mi2", game_id_local, player2._id);
 
     waitForChatDeletes({}, () => {
+        Game.localRemoveObserver("mi2", game_id_local, player2._id);
+      },
+      () => {
       chai.assert.equal(Chat.collection.find({}).count(), 0, "failed to remove chat record with game record");
       done();
     });
