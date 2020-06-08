@@ -32,14 +32,14 @@ import chai from "chai";
 // }
 import { Chat } from "./Chat";
 
-describe("Chats", function() {
+describe.only("Chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 //createRoom
 
   it("should allow creating a room if user has 'create_room' role", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
     const room_id = Chat.createRoom("mi1", "The room");
-    chai.assert.equal(Chat.collection.find().count(), 1);
+    chai.assert.equal(Chat.roomCollection.find().count(), 1);
   });
 
   it("should disallow creating a room if user does not have 'create_room' role", function() {
@@ -49,7 +49,7 @@ describe("Chats", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CREATE_ROOM");
   });
 
   it("should disallow creating a room with a duplicate room name", function() {

@@ -5,6 +5,7 @@ import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
+import { message } from "antd";
 
 const RoomCollection = new Mongo.Collection("rooms");
 const ChatCollection = new Mongo.Collection("chat");
@@ -137,6 +138,29 @@ function chatLogoutHook(userId) {
   ChatCollection.update({
     $and: [{type: "private"}, {logons: 2}, {$or: [{"issuer.id": userId},{id: userId}]}]
   }, {$set: {logons: 1}});
+}
+
+Chat.createRoom = function(message_identifier, roomName){
+  //TODO: check if [] is a good result for errors
+  // check if user is in role
+  const roomRole = Users.isAuthorized(Meteor.user(), "create_room");
+  const uniqueName = !RoomCollection.findOne({name: roomName});
+  // check if name is unique in db
+  if(!uniqueName) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ROOM_ALREADY_EXISTS");
+    return [];
+  }
+  // finally create room
+  if(roomRole) {
+    // TODO: don't know if members should be user object, or custom doc
+    const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
+    RoomCollection.insert({name: roomName, members: member});
+    return RoomCollection.findOne({name: roomName})._id;
+  }
+  else{
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
+    return [];
+  }
 }
 
 Meteor.startup(() => {
