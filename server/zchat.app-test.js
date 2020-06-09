@@ -134,7 +134,7 @@ describe.only("Chats", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
   });
 
-  it.only("should automatically join the room if a text is written to, and user has 'join_room' role", function() {
+  it("should automatically join the room if a text is written to, and user has 'join_room' role", function() {
     const newguy = TestHelpers.createUser({roles: ["join_room", "room_chat"]});
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
@@ -147,21 +147,25 @@ describe.only("Chats", function() {
       id: newguy._id,
       username: newguy.username
     }], room.members);
-    const chat = Chat.collection.find.fetch();
+    const chat = Chat.collection.find({}).fetch();
     chai.assert.equal(chat.length, 2);
     chat.forEach(c => delete c.create_date);
     chai.assert.sameDeepMembers([{
+      _id: chat[0]._id,
       id: room_id,
       type: "room",
-      issuer: { id: creator._id, username: self.username },
-      what: "The text"
-    }], chat[0]);
+      issuer: creator._id,
+      what: "The text",
+      child_chat: false
+    }], [chat[0]]);
     chai.assert.sameDeepMembers([{
+      _id: chat[1]._id,
       id: room_id,
       type: "room",
-      issuer: { id: newguy._id, username: newguy.username },
-      what: "The newguy text"
-    }], chat[1]);
+      issuer: newguy._id,
+      what: "The newguy text",
+      child_chat: false
+    }], [chat[1]]);
   });
 
   it("should write an error if unable to join the room due to not being in 'join_room' role", function() {

@@ -170,9 +170,8 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
   const roomExists = RoomCollection.findOne({_id: room_id});
   const child_chat = Users.isAuthorized(self, "child_chat") || Users.isAuthorized(self, "child_chat_exempt");
   const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-  const inRoom = !(RoomCollection.findOne({_id: room_id, members: member}) == undefined);
+  const inRoom = !(RoomCollection.findOne({_id: room_id, members: {$in: member}}) == undefined);
   // TODO: inRoom may need linting later on
-  console.log(inRoom);
   // does the user have the right role?
   if(!hasRole){
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
@@ -187,8 +186,6 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
 
   // does the user have the join role? if so and not in room, join room.
   if(joinRole && !inRoom){
-    console.log("joining room automatically...");
-    console.log(self.username);
     Chat.joinRoom(message_identifier, room_id);
   }
 
@@ -222,15 +219,14 @@ Chat.deleteRoom = function(message_identifier, room_id){
     RoomCollection.remove({_id: room_id});
     return;
   }
-  //TODO: do we want remove room to return boolean?
 }
 Chat.joinRoom = function(message_identifier, room_id){
   self = Meteor.user();
   const inRole = Users.isAuthorized(self, "join_room");
   const room = RoomCollection.findOne({_id: room_id});
-  const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-  const inRoom = !(RoomCollection.findOne({_id: room_id, members: member}) == undefined);
-
+  const member = {id: Meteor.user()._id, username: Meteor.user().username};
+  const inRoom = !(RoomCollection.findOne({$and: [ {_id: room_id}, {members: member}]}) == undefined);
+// TODO: inRoom still looks ugly...
   // Currently ignores if user joins an already joined room
 
   if(inRoom){
@@ -251,7 +247,7 @@ Chat.joinRoom = function(message_identifier, room_id){
 
   // actually join room
   else{
-    RoomCollection.insert({_id: room_id, name: room.name , members: member});
+    RoomCollection.update({name: room.name}, {$push: {members: member}});
     return;
   }
 }
