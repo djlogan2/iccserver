@@ -156,6 +156,7 @@ describe("Game history", function() {
   });
 
   it("copies to game_history when a game is ended by out of time", function() {
+    this.timeout(60 * 1000 * 2); // 2 minute timeout
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;

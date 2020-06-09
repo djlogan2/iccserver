@@ -4,16 +4,6 @@ import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
-function waitForChatDeletes(selector, func, done) {
-  const watch = Chat.collection.find(selector).observeChanges({
-    removed(id) {
-      watch.stop();
-      done();
-    }
-  });
-  func();
-}
-
 describe("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should save an action in the game record for local games", function() {
@@ -164,8 +154,7 @@ describe("kibitzes", function() {
   // DDD: Another minor thing, but please keep the texts within the spirit of mocha.
   //      The function is called "it" for a reason, so this should read something like so:
   //      it("should delete chat records when game records are deleted" ...
-  it.only("chat records should be deleted when game records are deleted", function(done) {
-    this.timeout(60000);
+  it("chat records should be deleted when game records are deleted", function(done) {
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
     self.loggedonuser = player1;
@@ -193,15 +182,17 @@ describe("kibitzes", function() {
     chai.assert.isDefined(player2);
     chai.assert.isDefined(player2._id);
 
-    waitForChatDeletes({}, () => {
-        Game.localRemoveObserver("mi2", game_id_local, player2._id);
-      },
-      () => {
-      chai.assert.equal(Chat.collection.find({}).count(), 0, "failed to remove chat record with game record");
-      done();
+    const cursor = Chat.collection.find().observeChanges({
+      added() {},
+      removed() {
+        chai.assert.equal(Chat.collection.find({}).count(), 0, "failed to remove chat record with game record");
+        cursor.stop();
+        done();
+      }
     });
-
+      Game.localRemoveObserver("mi2", game_id_local, player2._id);
   });
+
   it("should be viewable by all observers", function(done) {
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
@@ -505,7 +496,7 @@ describe("kibitzes", function() {
     });
   });
 
-  it("should not allow a user in the child_chat group to execute free-form kibitz", function(done){
+  it("should not allow a user in the child_chat role to execute free-form kibitz", function(done){
     const testText = "Hello I am a test string!";
     const player1 = TestHelpers.createUser();
     const player2 = TestHelpers.createUser();

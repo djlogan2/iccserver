@@ -4007,7 +4007,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
   });
 
-  it.only("should automatically end the game when time expires", function() {
+  it("should automatically end the game when time expires", function() {
     this.timeout(200000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -4029,7 +4029,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game3.status, "examining");
   });
 
-  it.only("should not end the game when time=5s and us delay=10s and player takes 8s to move", function() {
+  it("should not end the game when time=5s and us delay=10s and player takes 8s to move", function() {
     this.timeout(30000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();

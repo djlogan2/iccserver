@@ -215,6 +215,7 @@ Game.startLocalGame = function(
 
   const game = {
     starttime: new Date(),
+    isolation_group: self.isolation_group,
     fen: chess.fen(),
     tomove: "white",
     pending: {
@@ -310,6 +311,7 @@ Game.startLocalExaminedGameWithObject = function(message_identifier, game_object
   check(game_object, Object);
 
   game_object.owner = self._id;
+  game_object.isolation_group = self.isolation_group;
 
   if (!game_object.status) game_object.status = "examining";
   if (!game_object.white) game_object.white = { name: "?", rating: 1600 };
@@ -387,6 +389,7 @@ Game.startLocalExaminedGame = function(message_identifier, white_name, black_nam
 
   const game = {
     owner: self._id,
+    isolation_group: self.isolation_group,
     starttime: new Date(),
     result: "*",
     fen: chess.fen(),
@@ -526,6 +529,7 @@ Game.startLegacyGame = function(
 
   const game = {
     starttime: new Date(),
+    isolation_group: "public",
     fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
     tomove: "white",
     legacy_game_number: gamenumber,

@@ -5,16 +5,6 @@ import { Game } from "./Game";
 import { Roles } from "meteor/alanning:roles";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
-function waitForChatDeletes(selector, func, done) {
-  const watch = Chat.collection.find(selector).observeChanges({
-    removed(id) {
-      watch.stop();
-      done();
-    }
-  });
-  func();
-}
-
 function checkLastAction(gamerecord, reverse_index, type, issuer, parameter) {
   const action = gamerecord.actions[gamerecord.actions.length - 1 - reverse_index];
   if (type) chai.assert.equal(action.type, type);
@@ -52,26 +42,28 @@ describe("kibitzes", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, true,"the text");
     const chat = Chat.collection.findOne();
-    chai.assert.deepEqual({create_date: chat.create_date, _id: chat._id, id: game_id, type: "kibitz", issuer: self.loggedonuser._id, child_chat: true, what: "the text"}, chat);
+    chai.assert.deepEqual({create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "kibitz", issuer: self.loggedonuser._id, child_chat: true, what: "the text"}, chat);
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "kibitz", self._id, {what: "the text"});
   });
 
-  it.only("should delete the kibitzes from the collection when the game is deleted", function(done) {
-    this.timeout(60000);
+  it("should delete the kibitzes from the collection when the game is deleted", function(done) {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, true,"the text");
     chai.assert.equal(Chat.collection.find().count(), 1);
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "kibitz", self._id, {what: "the text"});
-    waitForChatDeletes({}, () => {
-      Game.localRemoveObserver("mi3", game_id, self.loggedonuser._id);
-    },() => {
-      chai.assert.equal(Chat.collection.find().count(), 0);
-      chai.assert.isUndefined(Game.collection.findOne());
-      done();
+    const cursor = Chat.collection.find().observeChanges({
+      added() {},
+      removed() {
+        chai.assert.equal(Chat.collection.find().count(), 0);
+        chai.assert.isUndefined(Game.collection.findOne());
+        cursor.stop();
+        done();
+      }
     });
+    Game.localRemoveObserver("mi3", game_id, self.loggedonuser._id);
   });
 
   it("should write an action (what was said, who said it) when a kibitz is written", function() {
@@ -188,27 +180,28 @@ describe("whispers", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, false,"the text");
     const chat = Chat.collection.findOne();
-    chai.assert.deepEqual({create_date: chat.create_date, _id: chat._id, id: game_id, type: "whisper", issuer: self.loggedonuser._id, child_chat: true, what: "the text"}, chat);
+    chai.assert.deepEqual({create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "whisper", issuer: self.loggedonuser._id, child_chat: true, what: "the text"}, chat);
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "whisper", self._id, {what: "the text"});
   });
 
-  it.only("should delete the whispers from the collection when the game is deleted", function(done) {
-    this.timeout(60000);
+  it("should delete the whispers from the collection when the game is deleted", function(done) {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, false,"the text");
     chai.assert.equal(Chat.collection.find().count(), 1);
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "whisper", self._id, {what: "the text"});
-    waitForChatDeletes({},
-      () => {
-        Game.localRemoveObserver("mi3", game_id, self.loggedonuser._id);
-    }, () => {
-      chai.assert.equal(Chat.collection.find().count(), 0);
-      chai.assert.isUndefined(Game.collection.findOne());
-      done();
+    const cursor = Chat.collection.find().observeChanges({
+      added() {},
+      removed() {
+        chai.assert.equal(Chat.collection.find().count(), 0);
+        chai.assert.isUndefined(Game.collection.findOne());
+        cursor.stop();
+        done();
+      }
     });
+    Game.localRemoveObserver("mi3", game_id, self.loggedonuser._id);
   });
 
   it("should write an action (what was said, who said it) when a whisper is written", function() {

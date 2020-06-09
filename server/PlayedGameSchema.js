@@ -66,6 +66,7 @@ const actionSchema = new SimpleSchema({
 });
 
 export const PlayedGameSchema = new SimpleSchema({
+  isolation_group: String,
   startTime: {
     type: Date,
     autoValue: function() {
