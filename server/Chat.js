@@ -163,12 +163,16 @@ Chat.createRoom = function(message_identifier, roomName){
   }
 }
 
-Chat.writeToRoom = function(message_identifier, room_id, text){
+Chat.writeToRoom = function(message_identifier, room_id, txt){
   self = Meteor.user();
   const hasRole = Users.isAuthorized(self, "room_chat");
   const joinRole = Users.isAuthorized(self, "join_room");
   const roomExists = RoomCollection.findOne({_id: room_id});
-  const inRoom = (RoomCollection.findOne({_id: room_id, "members.$.id": self._id}) == undefined);
+  const child_chat = Users.isAuthorized(self, "child_chat") || Users.isAuthorized(self, "child_chat_exempt");
+  const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
+  const inRoom = !(RoomCollection.findOne({_id: room_id, members: member}) == undefined);
+  // TODO: inRoom may need linting later on
+  console.log(inRoom);
   // does the user have the right role?
   if(!hasRole){
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
@@ -183,14 +187,21 @@ Chat.writeToRoom = function(message_identifier, room_id, text){
 
   // does the user have the join role? if so and not in room, join room.
   if(joinRole && !inRoom){
+    console.log("joining room automatically...");
+    console.log(self.username);
     Chat.joinRoom(message_identifier, room_id);
   }
 
   // Actually write message to chat collection of room
-
-
-  //TODO: write me
-  return [];
+  ChatCollection.insert({
+    type: "room",
+    id: room_id,
+    what: txt,
+    child_chat: child_chat,
+    create_date: Meteor.date,
+    issuer: self._id,
+  });
+  return;
 }
 Chat.deleteRoom = function(message_identifier, room_id){
   // check if user is in role
@@ -214,8 +225,35 @@ Chat.deleteRoom = function(message_identifier, room_id){
   //TODO: do we want remove room to return boolean?
 }
 Chat.joinRoom = function(message_identifier, room_id){
-  //TODO: write me
-  return [];
+  self = Meteor.user();
+  const inRole = Users.isAuthorized(self, "join_room");
+  const room = RoomCollection.findOne({_id: room_id});
+  const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
+  const inRoom = !(RoomCollection.findOne({_id: room_id, members: member}) == undefined);
+
+  // Currently ignores if user joins an already joined room
+
+  if(inRoom){
+    return;
+  }
+
+  // check if user is in role
+  if(!inRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
+    return;
+  }
+
+  // See if room exists
+  if(!room){
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+    return;
+  }
+
+  // actually join room
+  else{
+    RoomCollection.insert({_id: room_id, name: room.name , members: member});
+    return;
+  }
 }
 Chat.leaveRoom = function(message_identifier, room_id){
   //TODO: write me

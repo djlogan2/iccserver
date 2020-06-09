@@ -113,13 +113,16 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi2", room_id, "The text");
     const chat = Chat.collection.findOne();
     chai.assert.sameDeepMembers([{
+      _id: chat._id,
       create_date: chat.create_date,
       id: room_id,
       type: "room",
-      issuer: { id: self._id, username: self.username },
-      what: "The text"
-    }], chat);
+      issuer: self.loggedonuser._id,
+      what: "The text",
+      child_chat: false,
+    }], [chat]);
   });
+  // TODO: nail down the wanted format, discrepancy in test
 
   it("should not allow writing to rooms if user does not have 'room_chat' role", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room", "join_room"] });
@@ -131,8 +134,8 @@ describe.only("Chats", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
   });
 
-  it("should automatically join the room if a text is written to, and user has 'join_room' role", function() {
-    const newguy = TestHelpers.createUser();
+  it.only("should automatically join the room if a text is written to, and user has 'join_room' role", function() {
+    const newguy = TestHelpers.createUser({roles: ["join_room", "room_chat"]});
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
@@ -162,7 +165,7 @@ describe.only("Chats", function() {
   });
 
   it("should write an error if unable to join the room due to not being in 'join_room' role", function() {
-    const newguy = TestHelpers.createUser({ roles: ["create_room", "room_chat"] });
+    const newguy = TestHelpers.createUser({ roles: [] });
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
@@ -182,7 +185,7 @@ describe.only("Chats", function() {
     }], chat[0]);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
   });
 
   it("should not allow a child to write text not from child_chat collection", function() {
