@@ -169,6 +169,7 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
   const joinRole = Users.isAuthorized(self, "join_room");
   const roomExists = RoomCollection.findOne({_id: room_id});
   const child_chat = Users.isAuthorized(self, "child_chat") || Users.isAuthorized(self, "child_chat_exempt");
+  const child_chat_id = (ChildChatCollection.findOne({text: txt}));
   const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
   const inRoom = !(RoomCollection.findOne({_id: room_id, members: {$in: member}}) == undefined);
   // TODO: inRoom may need linting later on
@@ -187,6 +188,18 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
   // does the user have the join role? if so and not in room, join room.
   if(joinRole && !inRoom){
     Chat.joinRoom(message_identifier, room_id);
+  }
+
+  // If user not allowed to join room, can't write either
+  if(!joinRole && !inRoom){
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
+    return;
+  }
+
+  // fails if childchat and freeform
+  if(!child_chat_id && child_chat){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    return;
   }
 
   // Actually write message to chat collection of room

@@ -169,7 +169,7 @@ describe.only("Chats", function() {
   });
 
   it("should write an error if unable to join the room due to not being in 'join_room' role", function() {
-    const newguy = TestHelpers.createUser({ roles: [] });
+    const newguy = TestHelpers.createUser({ roles: ["room_chat"] });
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
@@ -178,15 +178,17 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi3", room_id, "The newguy text");
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }], room.members);
-    const chat = Chat.collection.find.fetch();
+    const chat = Chat.collection.find({}).fetch();
     chai.assert.equal(chat.length, 1);
     chai.assert.sameDeepMembers([{
-      create_date: chat.create_date,
+      _id: chat[0]._id,
+      child_chat: false,
+      create_date: chat[0].create_date,
       id: room_id,
       type: "room",
-      issuer: { id: creator._id, username: self.username },
+      issuer: creator._id,
       what: "The text"
-    }], chat[0]);
+    }], [chat[0]]);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
@@ -195,12 +197,12 @@ describe.only("Chats", function() {
   it("should not allow a child to write text not from child_chat collection", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room", "child_chat"] });
     const room_id = Chat.createRoom("mi1", "The room");
-    chai.assert.equal(Chat.collection.find().count(), 1);
+    chai.assert.equal(Chat.roomCollection.find({}).count(), 1);
     Chat.writeToRoom("mi2", room_id, "The text");
-    chai.assert.equal(Chat.collection.find().count(), 0);
+    chai.assert.equal(Chat.collection.find({}).count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
   });
 
   it("should allow child_chat_exempt to write child_chat freeform", function() {
