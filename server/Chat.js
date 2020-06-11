@@ -252,11 +252,11 @@ Chat.joinRoom = function(message_identifier, room_id){
   const inRole = Users.isAuthorized(self, "join_room");
   const room = RoomCollection.findOne({_id: room_id});
   const member = {id: Meteor.user()._id, username: Meteor.user().username};
-  const inRoom = !(RoomCollection.findOne({$and: [ {_id: room_id}, {members: member}]}) == undefined);
+  const notInRoom = !(RoomCollection.findOne({$and: [ {_id: room_id}, {members: member}]}));
 // TODO: inRoom still looks ugly...
-  // Currently ignores if user joins an already joined room
 
-  if(inRoom){
+  // Currently ignores if user joins an already joined room
+  if(!notInRoom){
     return;
   }
 
@@ -279,13 +279,94 @@ Chat.joinRoom = function(message_identifier, room_id){
   }
 }
 Chat.leaveRoom = function(message_identifier, room_id){
-  //TODO: write me
-  return [];
+
+  const member = {id: Meteor.user()._id, username: Meteor.user().username};
+  RoomCollection.update({_id: room_id}, {$pull: {members: member}});
+  return;
 }
 
-Chat.writeToUser = function(messsage_identifier, user_id, text){
-  //TODO: write me
-  return [];
+Chat.writeToUser = function(message_identifier, user_id, text){
+  self = Meteor.user();
+  const user = Meteor.users.findOne({_id: user_id});
+  const isoGroup = self.isolation_group;
+  const senderInRole = Users.isAuthorized(self, "personal_chat");
+  const recieverInRole = Users.isAuthorized(user, "personal_chat");
+  const ccsender = Users.isAuthorized(self, "child_chat");
+  const ccrec = Users.isAuthorized(user, "child_chat");
+  const ccerec = Users.isAuthorized(user, "child_chat_exempt");
+  const ccesender = Users.isAuthorized(self, "child_chat_exempt");
+  const ccid = Chat.childChatCollection.findOne({_id: text});
+  var child_chat = false;
+  var loggedon = 0;
+
+
+  //TODO: can't seem to pull options of login: false from user, only the status online...
+
+  // XOR of logged in state
+  if(!self.status.online && user.status.online || self.status.online && !user.status.online){
+    loggedon = 1;
+  }
+  if(self.status.online && user.status.online && true){
+    loggedon = 2;
+  }
+
+  // only allowed if sender has personal chat
+  if(!senderInRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "SENDER_NOT_ALLOWED_TO_PERSONAL_CHAT");
+    return;
+  }
+
+  //only allowed if reciever has personal chat
+  if(!recieverInRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_PERSONAL_CHAT");
+    return;
+  }
+
+  //allows any user to child_chat
+  if(ccid || ccrec){
+    child_chat = true;
+  }
+
+  //child_chat can child chat only unless to a child chat
+  if(ccsender && !ccid && !ccerec){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    return;
+  }
+
+  // Child chat still set even when freeform
+  if(ccsender && ccerec){
+    child_chat = true;
+  }
+
+  // Not allow freeform to child_chat except child_chat_exempt
+  if(!ccid && ccrec && !ccerec && !ccesender){
+    ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_FREEFORM_CHAT");
+  }
+
+  //Marks loggedon as one if write to self
+  if(user._id == self._id){
+    loggedon = 1;
+  }
+
+  // Won't send to loggedoff recipient, but will send to self
+  if(loggedon < 2 && user._id != self._id){
+    ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT");
+    return;
+  }
+
+  // actual private message, uses id field as the recipient
+  ChatCollection.insert({
+    isolation_group: isoGroup,
+    type: "private",
+    id: user_id,
+    what: text,
+    child_chat: child_chat,
+    create_date: Meteor.date,
+    logons: loggedon,
+    issuer: self._id,
+  });
+  return;
+
 }
 
 

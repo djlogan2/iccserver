@@ -386,7 +386,7 @@ describe.only("Chats", function() {
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }], room.members);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROLE");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
   });
 
   it("should write message if room id is non-existant", function() {
@@ -403,16 +403,20 @@ describe.only("Chats", function() {
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
-    const joiner = TestHelpers.createUser();
+    const joiner = TestHelpers.createUser( {roles: ["join_room"]});
     self.loggedonuser = joiner;
     Chat.joinRoom("mi2", room_id);
-    const room = Chat.roomCollection.findOne();
+    const room = Chat.roomCollection.findOne({});
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }, {
       id: joiner._id,
       username: joiner.username
     }], room.members);
     Chat.joinRoom("mi2", room_id);
-    chai.assert.true(self.clientMessagesSpy.notCalled);
+    chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }, {
+      id: joiner._id,
+      username: joiner.username
+    }], room.members);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 
 //leaveRoom
@@ -420,16 +424,16 @@ describe.only("Chats", function() {
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
-    const joiner = TestHelpers.createUser();
+    const joiner = TestHelpers.createUser({roles: ["join_room"]});
     self.loggedonuser = joiner;
     Chat.joinRoom("mi2", room_id);
-    const room = Chat.roomCollection.findOne();
+    const room = Chat.roomCollection.findOne({});
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }, {
       id: joiner._id,
       username: joiner.username
     }], room.members);
     Chat.leaveRoom("mi3", room_id);
-    const room2 = Chat.roomCollection.findOne();
+    const room2 = Chat.roomCollection.findOne({});
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }], room2.members);
   });
 
@@ -437,19 +441,19 @@ describe.only("Chats", function() {
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
-    const joiner = TestHelpers.createUser();
+    const joiner = TestHelpers.createUser({roles: ["join_room"]});
     self.loggedonuser = joiner;
     Chat.joinRoom("mi2", room_id);
-    const room = Chat.roomCollection.findOne();
+    const room = Chat.roomCollection.findOne({});
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }, {
       id: joiner._id,
       username: joiner.username
     }], room.members);
     Chat.leaveRoom("mi3", room_id);
-    const room2 = Chat.roomCollection.findOne();
+    const room2 = Chat.roomCollection.findOne({});
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }], room2.members);
     Chat.leaveRoom("mi4", room_id);
-    chai.assert.true(self.clientMessagesSpy.notCalled);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 
   it("should write a message if room id is non-existant", function() {
@@ -464,19 +468,21 @@ describe.only("Chats", function() {
 
   //writePrivateText
   it("should allow people with personal_chat to send to another user with personal_chat", function() {
-    const user1 = TestHelpers.createUser();
-    const user2 = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser( {roles: ["personal_chat"]});
+    const user2 = TestHelpers.createUser({roles: ["personal_chat"]});
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, "The text");
-    const chat = Chat.collection.findOne();
+    const chat = Chat.collection.findOne({});
     chai.assert.deepEqual({
+      _id: chat._id,
       create_date: chat.create_date,
       type: "private",
+      child_chat: false,
       isolation_group: "public",
       id: user2._id,
       logons: 2,
-      issuer: { id: user1._id, username: user1.username },
-      what: "the text"
+      issuer: user1._id,
+      what: "The text"
     }, chat);
   });
 
@@ -487,8 +493,8 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, "The text");
     chai.assert.equal(Chat.collection.find().count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT");
   });
 
   it("should not allow a write if sender does not have personal_chat", function() {
@@ -498,19 +504,19 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, "The text");
     chai.assert.equal(Chat.collection.find().count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "SENDER_NOT_ALLOWED_TO_PERSONAL_CHAT");
   });
 
   it("should not allow a write if receiver does not have personal_chat", function() {
-    const user1 = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser({roles: ["personal_chat"]});
     const user2 = TestHelpers.createUser({ roles: ["play_rated_games"] });
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, "The text");
-    chai.assert.equal(Chat.collection.find().count(), 0);
+    chai.assert.equal(Chat.collection.find({}).count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "RECIPIENT_NOT_ALLOWED_TO_PERSONAL_CHAT");
   });
 
   it("should allow a child_chat to write a child chat to another user", function() {
@@ -519,16 +525,17 @@ describe.only("Chats", function() {
     const user2 = TestHelpers.createUser();
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, ccid);
-    const chat = Chat.collection.findOne();
+    const chat = Chat.collection.findOne({});
     chai.assert.deepEqual({
+      _id: chat._id,
       create_date: chat.create_date,
       type: "private",
       id: user2._id,
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: { id: user1._id, username: user1.username },
-      what: "child chat text"
+      issuer: user1._id,
+      what: ccid,
     }, chat);
   });
 
@@ -537,15 +544,16 @@ describe.only("Chats", function() {
     const user2 = TestHelpers.createUser({ roles: ["personal_chat", "child_chat_exempt"] });
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, "freeform text");
-    const chat = Chat.collection.findOne();
+    const chat = Chat.collection.findOne({});
     chai.assert.deepEqual({
       create_date: chat.create_date,
+      _id: chat._id,
       type: "private",
       id: user2._id,
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: { id: user1._id, username: user1.username },
+      issuer: user1._id,
       what: "freeform text"
     }, chat);
   });
@@ -555,37 +563,38 @@ describe.only("Chats", function() {
     const user2 = TestHelpers.createUser({ roles: ["personal_chat", "child_chat"] });
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, "freeform text");
-    const chat = Chat.collection.findOne();
+    const chat = Chat.collection.findOne({});
     // Note that this isn't marked as a child friendly chat!
     chai.assert.deepEqual({
+      _id: chat._id,
       create_date: chat.create_date,
       type: "private",
       id: user2._id,
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: { id: user1._id, username: user1.username },
+      issuer: user1._id,
       what: "freeform text"
     }, chat);
-    chai.assert.fail("do me");
   });
 
   it("should allow any user to write a child chat to a child_chat user", function() {
     const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
-    const user1 = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser({roles: ["personal_chat", "child_chat"]});
     const user2 = TestHelpers.createUser({ roles: ["personal_chat", "child_chat"] });
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, ccid);
-    const chat = Chat.collection.findOne();
+    const chat = Chat.collection.findOne({});
     chai.assert.deepEqual({
+      _id: chat._id,
       create_date: chat.create_date,
       type: "private",
       id: user2._id,
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: { id: user1._id, username: user1.username },
-      what: "child chat text"
+      issuer: user1._id,
+      what: ccid,
     }, chat);
   });
 
@@ -596,8 +605,8 @@ describe.only("Chats", function() {
     Chat.writeToUser("mi1", user2._id, "freeform text");
     chai.assert.equal(Chat.collection.find().count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "RECIPIENT_NOT_ALLOWED_TO_FREEFORM_CHAT");
   });
 
   it("should publish private chats to both senders and receivers", function(done) {
@@ -691,16 +700,18 @@ describe.only("Chats", function() {
   });
 
   it("will mark loggedon field as 1 if a users writes to himself", function() {
-    self.loggedonuser = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser();
+    self.loggedonuser = user1;
     Chat.writeToUser("mi1", self.loggedonuser._id, "The text 1");
-    const chat = Chat.collection.findOne();
+    const chat = Chat.collection.findOne({});
     chai.assert.deepEqual({
-      create_date: chat.creat_date,
+      _id: chat._id,
+      create_date: chat.create_date,
       type: "private",
       isolation_group: "public",
       id: user1._id,
       loggedon: 1,
-      issuer: { id: user1._id, username: user1.username },
+      issuer: user1._id,
       what: "The text 1"
     }, chat);
   });
