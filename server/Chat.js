@@ -146,6 +146,7 @@ function chatLogoutHook(userId) {
 Chat.createRoom = function(message_identifier, roomName){
   //TODO: check if [] is a good result for errors
   const self = Meteor.user();
+  const isoGroup = Meteor.user().isolation_group;
   // check if user is in role
   const roomRole = Users.isAuthorized(Meteor.user(), "create_room");
   const uniqueName = !RoomCollection.findOne({name: roomName});
@@ -157,7 +158,7 @@ Chat.createRoom = function(message_identifier, roomName){
   // finally create room
   if(roomRole) {
     const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-    RoomCollection.insert({name: roomName, members: member});
+    RoomCollection.insert({name: roomName, members: member, isolation_group: isoGroup});
     return RoomCollection.findOne({name: roomName})._id;
   }
   else{
@@ -168,11 +169,14 @@ Chat.createRoom = function(message_identifier, roomName){
 
 Chat.writeToRoom = function(message_identifier, room_id, txt){
   self = Meteor.user();
+
+  const isoGroup = Meteor.user().isolation_group;
   const hasRole = Users.isAuthorized(self, "room_chat");
   const joinRole = Users.isAuthorized(self, "join_room");
   const roomExists = RoomCollection.findOne({_id: room_id});
-  const child_chat = Users.isAuthorized(self, "child_chat") || Users.isAuthorized(self, "child_chat_exempt");
-  const child_chat_id = (ChildChatCollection.findOne({text: txt}));
+  const child_chat_exempt =  Users.isAuthorized(self, "child_chat_exempt");
+  const child_chat_id = (ChildChatCollection.findOne({_id: txt}));
+  var child_chat = Users.isAuthorized(self, "child_chat");
   const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
   const inRoom = !(RoomCollection.findOne({_id: room_id, members: {$in: member}}) == undefined);
   // TODO: inRoom may need linting later on
@@ -200,17 +204,24 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
   }
 
   // fails if childchat and freeform
-  if(!child_chat_id && child_chat){
+  if(!child_chat_exempt && !child_chat_id && child_chat){
     ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
     return;
   }
+  //TODO: ugly logic
+  if(child_chat_id && !child_chat){
+    child_chat = true;
+  }
+
+
 
   // Actually write message to chat collection of room
   ChatCollection.insert({
+    isolation_group: isoGroup,
     type: "room",
     id: room_id,
     what: txt,
-    child_chat: child_chat,
+    child_chat: child_chat || child_chat_exempt,
     create_date: Meteor.date,
     issuer: self._id,
   });
