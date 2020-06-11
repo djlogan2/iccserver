@@ -18,6 +18,7 @@ ChatCollection.attachSchema(new SimpleSchema({
       return new Date();
     }
   },
+  isolation_group: String,
   id: String, // game_id (kibitz/whisper), room_id, or receiver_id
   issuer: String,
   type: {type: String, allowedValues: ["kibitz", "whisper", "room", "private"]},
@@ -32,6 +33,7 @@ ChildChatCollection.attachSchema({ text: String });
 
 RoomCollection.attachSchema({
   name: String,
+  isolation_group: String,
   members: Array,
   "members.$": Object,
   "members.$.id": String,
@@ -79,6 +81,7 @@ Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {
 
   ChatCollection.insert({
     type: kibitz ? "kibitz" : "whisper",
+    isolation_group: self.isolation_group,
     id: game_id,
     issuer: self._id,
     what: txt,

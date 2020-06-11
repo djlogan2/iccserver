@@ -20,6 +20,7 @@ const LocalSeekSchema = new SimpleSchema({
       return new Date();
     }
   },
+  isolation_group: String,
   type: String,
   owner: String,
   wild: Number,
@@ -29,9 +30,6 @@ const LocalSeekSchema = new SimpleSchema({
   delaytype: String,
   rated: Boolean,
   autoaccept: Boolean,
-  limit_to_group: { type: Boolean, defaultValue: false },
-  groups: { type: Array, required: false },
-  "groups.$": String,
   color: { type: String, optional: true, allowedValues: ["white", "black"] },
   minrating: { type: Number, optional: true },
   maxrating: { type: Number, optional: true },
@@ -88,6 +86,7 @@ const LocalMatchSchema = {
       return new Date();
     }
   },
+  isolation_group: String,
   type: String,
   challenger: String,
   challenger_rating: Number,
@@ -309,6 +308,7 @@ GameRequests.addLocalGameSeek = function(
   const game = {
     type: "seek",
     owner: self._id,
+    isolation_group: self.isolation_group,
     wild: wild,
     rating_type: rating_type,
     time: time,
@@ -326,12 +326,7 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
-  if (self.groups) {
-    game.groups = self.groups;
-    game.limit_to_group = self.limit_to_group;
-  }
-
-  const users = Meteor.users.find({ "status.online": true }).fetch();
+  const users = Meteor.users.find({ "status.online": true, isolation_group: self.isolation_group }).fetch();
   let matchingusers = [];
   if (!!users) {
     matchingusers = users
@@ -583,21 +578,6 @@ GameRequests.addLocalMatchRequest = function(
     return;
   }
 
-  const challenger_group_limit = challenger_user.limit_to_group || false;
-  const receiver_group_limit = receiver_user.limit_to_group || false;
-  const limit = challenger_group_limit || receiver_group_limit;
-  const group_authorized =
-    !limit || !!_.intersection(challenger_user.groups, receiver_user.groups).length;
-
-  if (!group_authorized) {
-    ClientMessages.sendMessageToClient(
-      challenger_user,
-      message_identifier,
-      "UNABLE_TO_PLAY_OPPONENT"
-    );
-    return;
-  }
-
   if (
     !!challenger_color_request &&
     challenger_color_request !== "white" &&
@@ -712,8 +692,12 @@ GameRequests.addLocalMatchRequest = function(
     receiver_user.ratings[rating_type]
   );
 
+  if(challenger_user.isolation_group !== receiver_user.isolation_group)
+    throw new ICCMeteorError(message_identifier, "Unable to match", "Mismatch in isolation group");
+
   const record = {
     type: "match",
+    isolation_group: challenger_user.isolation_group,
     challenger: challenger_user.username,
     challenger_rating: challenger_user.ratings[rating_type].rating,
     challenger_titles: [],
@@ -932,15 +916,14 @@ function seekMatchesUser(message_identifier, user, seek) {
   check(user, Object);
   check(seek, Object);
 
-  if (user._id === seek.owner) {
+  if (user._id === seek.owner)
     return false;
-  }
+
+  if(seek.isolation_group !== user.isolation_group)
+    return false;
+
   if (!Users.isAuthorized(user, "play_rated_games") && seek.rated) return false;
   if (!Users.isAuthorized(user, "play_unrated_games") && !seek.rated) return false;
-
-  const limit = seek.limit_to_group || user.limit_to_group;
-  const group_match = !limit || !!_.intersection(seek.groups, user.groups).length;
-  if (!group_match) return false;
 
   if (!seek.minrating && !seek.maxrating) return true;
 
@@ -999,7 +982,7 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
   const add = [];
   const remove = [];
 
-  GameRequestCollection.find({ type: "seek" })
+  GameRequestCollection.find({ type: "seek", isolation_group: user.isolation_group })
     .fetch()
     .forEach(seek => {
       const matches = seekMatchesUser(message_identifier, user, seek);
@@ -1028,7 +1011,7 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
     .find({ "status.online": true })
     .fetch()
     .forEach(onlineuser => {
-      GameRequestCollection.find({ type: "seek", owner: user._id })
+      GameRequestCollection.find({ type: "seek", owner: user._id, isolation_group: user.isolation_group })
         .fetch()
         .forEach(seek => {
           const matches = seekMatchesUser(message_identifier, onlineuser, seek);
@@ -1088,26 +1071,10 @@ function groupChangeHook(message_identifier, userId) {
   check(user, Object);
   GameRequestCollection.update(
     { type: "seek", owner: user._id },
-    { $set: { groups: user.groups, limit_to_group: user.limit_to_group } },
+    {},
     { multi: true }
   );
   GameRequests.updateAllUserSeeks(message_identifier, user);
-
-  const nuke_em = GameRequestCollection.find({
-    type: "match",
-    $or: [{ challenger_id: user._id }, { receiver_id: user._id }]
-  })
-    .fetch()
-    .filter(match => {
-      const challenger = Meteor.users.findOne({
-        _id: match.challenger_id === user._id ? match.receiver_id : match.challenger_id
-      });
-      if (!user.limit_to_group && !challenger.limit_to_group) return false;
-      const their_groups = challenger.groups || [];
-      return !_.intersection(user.groups, their_groups).length;
-    })
-    .map(match => match._id);
-  if (nuke_em.length) GameRequestCollection.remove({ _id: { $in: nuke_em } });
 }
 
 if (Meteor.isTest || Meteor.isAppTest) {

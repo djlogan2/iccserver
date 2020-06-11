@@ -27,24 +27,12 @@ Meteor.publishComposite("loggedOnUsers", {
   },
   children: [
     {
+      // We are going to leave this here to reinstate publishComposite with isolation groups
       find(user) {
         const find = {};
-        const group_array =
-          !!user.groups && Array.isArray(user.groups) ? user.groups : [user.groups];
         if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
-        else if (user.limit_to_group) {
-          find["status.online"] = true;
-          find.groups = { $in: group_array };
-          find._id = { $ne: user._id };
-        } else {
-          find.$and = [{ "status.online": true }, { _id: { $ne: user._id } }];
-          if (group_array && group_array.length)
-            find.$and.push({
-              $or: [{ limit_to_group: { $in: [null, false] } }, { groups: { $in: group_array } }]
-            });
-          else find.$and.push({ limit_to_group: { $in: [null, false] } });
-        }
-        return Meteor.users.find(find, { fields: viewable_logged_on_user_fields });
+        else
+          return Meteor.users.find({$and: [{ "status.online": true }, { _id: { $ne: user._id } }]}, { fields: viewable_logged_on_user_fields });
       }
     }
   ]
@@ -94,7 +82,6 @@ Accounts.onCreateUser(function(options, user) {
       };
   }
 
-  // TODO: Change this to load types from ICC configuraation, and to set ratings also per ICC configuration
   user.ratings = DynamicRatings.getUserRatingsObject();
   user.settings = default_settings;
   user.locale = "unknown";
@@ -106,6 +93,7 @@ Accounts.onCreateUser(function(options, user) {
 
   if (!user.status) user.status = {};
   user.status.game = "none";
+  user.isolation_group = "public";
 
   return user;
 });
@@ -130,58 +118,6 @@ const group_change_hooks = [];
 
 Users.addGroupChangeHook = function(func) {
   Meteor.startup(() => group_change_hooks.push(func));
-};
-
-Users.setLimitToGroup = function(message_identifier, user, limit_to_group) {
-  check(message_identifier, String);
-  check(user, Match.OneOf(Object, String));
-  check(limit_to_group, Boolean);
-
-  const self = Meteor.user();
-  check(self, Object);
-
-  if (!Users.isAuthorized(self, "change_limit_to_group"))
-    throw new ICCMeteorError(message_identifier, "Unable to change group limit", "Not authorized");
-
-  const user_id = typeof user === "object" ? user._id : user;
-  const updated = Meteor.users.update(
-    { _id: user_id },
-    { $set: { limit_to_group: limit_to_group } }
-  );
-  if (updated) group_change_hooks.forEach(f => f(message_identifier, user_id));
-};
-
-Users.addToGroup = function(message_identifier, user, group) {
-  check(message_identifier, String);
-  check(user, Match.OneOf(Object, String));
-  check(group, String);
-
-  const self = Meteor.user();
-  check(self, Object);
-
-  if (!Users.isAuthorized(self, "add_to_group"))
-    throw new ICCMeteorError(message_identifier, "Unable to add user to group", "Not authorized");
-
-  if (typeof user === "object") user = user._id;
-  const victim = Meteor.users.findOne({ _id: user });
-  if (!victim)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to add user to group",
-      "Unable to find user"
-    );
-
-  if (Meteor.users.find({ _id: user, groups: group }).count())
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to add user to group",
-      "User already in group"
-    );
-
-  const modifier = { $addToSet: { groups: group } };
-  if (victim.limit_to_group === undefined) modifier.$set = { limit_to_group: true };
-  Meteor.users.update({ _id: user }, modifier);
-  group_change_hooks.forEach(f => f(message_identifier, user));
 };
 
 Accounts.onLogin(function(user_parameter) {
@@ -225,6 +161,7 @@ function runLogoutHooks(context, user) {
 }
 
 Meteor.startup(function() {
+  Meteor.users.update({isolation_group: {$exists: false}}, {$set: {isolation_group: "public"}, $unset: {groups: 1, limit_to_group: 1}});
   if (Meteor.isTest || Meteor.isAppTest) {
     Users.runLoginHooks = runLoginHooks;
     Users.ruLogoutHooks = runLogoutHooks;
