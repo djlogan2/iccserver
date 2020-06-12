@@ -144,7 +144,6 @@ function chatLogoutHook(userId) {
 }
 
 Chat.createRoom = function(message_identifier, roomName){
-  //TODO: check if [] is a good result for errors
   const self = Meteor.user();
   const isoGroup = Meteor.user().isolation_group;
   // check if user is in role
@@ -178,8 +177,9 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
   const child_chat_id = (ChildChatCollection.findOne({_id: txt}));
   var child_chat = Users.isAuthorized(self, "child_chat");
   const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-  const inRoom = !(RoomCollection.findOne({_id: room_id, members: {$in: member}}) == undefined);
-  // TODO: inRoom may need linting later on
+  const inRoom = RoomCollection.findOne({_id: room_id, members: {$in: member}});
+  var resultText = txt;
+
   // does the user have the right role?
   if(!hasRole){
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
@@ -213,6 +213,10 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
     child_chat = true;
   }
 
+  if(child_chat_id != undefined){
+    resultText = ChildChatCollection.findOne({_id: child_chat_id._id}).text;
+  }
+
 
 
   // Actually write message to chat collection of room
@@ -220,7 +224,7 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
     isolation_group: isoGroup,
     type: "room",
     id: room_id,
-    what: txt,
+    what: resultText,
     child_chat: child_chat || child_chat_exempt,
     create_date: Meteor.date,
     issuer: self._id,
@@ -252,11 +256,10 @@ Chat.joinRoom = function(message_identifier, room_id){
   const inRole = Users.isAuthorized(self, "join_room");
   const room = RoomCollection.findOne({_id: room_id});
   const member = {id: Meteor.user()._id, username: Meteor.user().username};
-  const notInRoom = !(RoomCollection.findOne({$and: [ {_id: room_id}, {members: member}]}));
-// TODO: inRoom still looks ugly...
+  const inRoom = (RoomCollection.findOne({$and: [ {_id: room_id}, {members: member}]}));
 
   // Currently ignores if user joins an already joined room
-  if(!notInRoom){
+  if(inRoom){
     return;
   }
 
@@ -295,20 +298,21 @@ Chat.writeToUser = function(message_identifier, user_id, text){
   const ccrec = Users.isAuthorized(user, "child_chat");
   const ccerec = Users.isAuthorized(user, "child_chat_exempt");
   const ccesender = Users.isAuthorized(self, "child_chat_exempt");
-  const ccid = Chat.childChatCollection.findOne({_id: text});
+  const ccid = ChildChatCollection.findOne({_id: text});
+  var resultText = text;
   var child_chat = false;
   var loggedon = 0;
-
-
-  //TODO: can't seem to pull options of login: false from user, only the status online...
 
   // XOR of logged in state
   if(!self.status.online && user.status.online || self.status.online && !user.status.online){
     loggedon = 1;
   }
+
+
   if(self.status.online && user.status.online && true){
     loggedon = 2;
   }
+
 
   // only allowed if sender has personal chat
   if(!senderInRole){
@@ -316,16 +320,19 @@ Chat.writeToUser = function(message_identifier, user_id, text){
     return;
   }
 
+
   //only allowed if reciever has personal chat
   if(!recieverInRole){
     ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_PERSONAL_CHAT");
     return;
   }
 
+
   //allows any user to child_chat
   if(ccid || ccrec){
     child_chat = true;
   }
+
 
   //child_chat can child chat only unless to a child chat
   if(ccsender && !ccid && !ccerec){
@@ -333,25 +340,34 @@ Chat.writeToUser = function(message_identifier, user_id, text){
     return;
   }
 
+
   // Child chat still set even when freeform
   if(ccsender && ccerec){
     child_chat = true;
   }
 
+
   // Not allow freeform to child_chat except child_chat_exempt
-  if(!ccid && ccrec && !ccerec && !ccesender){
+  if(!ccid && ccrec && !ccerec &&!ccesender){
     ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_FREEFORM_CHAT");
+    return;
   }
 
+
   //Marks loggedon as one if write to self
-  if(user._id == self._id){
+  if(user_id == self._id){
     loggedon = 1;
   }
 
   // Won't send to loggedoff recipient, but will send to self
-  if(loggedon < 2 && user._id != self._id){
+  if(loggedon <= 1 && user_id != self._id){
     ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT");
     return;
+  }
+
+  // TODO: clean this up later
+  if(ccid){
+    resultText = ChildChatCollection.findOne({_id: ccid._id}).text;
   }
 
   // actual private message, uses id field as the recipient
@@ -359,7 +375,7 @@ Chat.writeToUser = function(message_identifier, user_id, text){
     isolation_group: isoGroup,
     type: "private",
     id: user_id,
-    what: text,
+    what: resultText,
     child_chat: child_chat,
     create_date: Meteor.date,
     logons: loggedon,

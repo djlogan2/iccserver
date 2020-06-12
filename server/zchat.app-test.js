@@ -1,5 +1,6 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
+import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 //
 // create_date: [date saved],
 // chat_room
@@ -242,7 +243,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       issuer: user._id,
       child_chat: true,
-      what: ccid
+      what: "child chat text"
     }], [chat]);
   });
 
@@ -281,7 +282,7 @@ describe.only("Chats", function() {
       type: "room",
       issuer: normalguy._id,
       child_chat: true,
-      what: ccid
+      what: "child chat text"
     }], [chat]);
   });
 
@@ -535,7 +536,7 @@ describe.only("Chats", function() {
       logons: 2,
       child_chat: true,
       issuer: user1._id,
-      what: ccid,
+      what: "child chat text",
     }, chat);
   });
 
@@ -594,16 +595,16 @@ describe.only("Chats", function() {
       logons: 2,
       child_chat: true,
       issuer: user1._id,
-      what: ccid,
+      what: "child chat text",
     }, chat);
   });
 
   it("should not allow a user (not admin, not child_chat_exempt) to send a freeform text to a child_chat", function() {
-    const user1 = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser({roles: ["personal_chat"]});
     const user2 = TestHelpers.createUser({ roles: ["personal_chat", "child_chat"] });
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, "freeform text");
-    chai.assert.equal(Chat.collection.find().count(), 0);
+    chai.assert.equal(Chat.collection.find({}).count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "RECIPIENT_NOT_ALLOWED_TO_FREEFORM_CHAT");
@@ -700,17 +701,18 @@ describe.only("Chats", function() {
   });
 
   it("will mark loggedon field as 1 if a users writes to himself", function() {
-    const user1 = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser( {roles: ["personal_chat"]});
     self.loggedonuser = user1;
-    Chat.writeToUser("mi1", self.loggedonuser._id, "The text 1");
+    Chat.writeToUser("mi1", user1._id, "The text 1");
     const chat = Chat.collection.findOne({});
     chai.assert.deepEqual({
       _id: chat._id,
+      child_chat: false,
       create_date: chat.create_date,
       type: "private",
       isolation_group: "public",
       id: user1._id,
-      loggedon: 1,
+      logons: 1,
       issuer: user1._id,
       what: "The text 1"
     }, chat);
