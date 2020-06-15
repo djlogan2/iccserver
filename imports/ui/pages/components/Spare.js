@@ -1,35 +1,16 @@
-import React, { Component } from "react";
+import React from "react";
 
 const Spare = props => {
   const mouseDown = e => {
-    let pieceEl = e.target.children[0]
-    let color = pieceEl.getAttribute('datacolor');
-    let role = pieceEl.getAttribute('datarole');
+    let pieceEl = e.target.children[0];
+    let color = pieceEl.getAttribute("datacolor");
+    let role = pieceEl.getAttribute("datarole");
     props.onDropStart({ role: role, color: color }, e);
-  };
-  const trashDown = e => {
-    rops.onDropStart('trash', color, e);
-  }
-  const dragStart = e => {
-    console.log("start");
-    // props.onDropStart(e);
-  };
-  const dragOver = e => {
-    e.stopPropagation();
-    // console.log('over');
-  };
-  const dragEnd = e => {
-    props.onDropEnd(e);
   };
   return (
     <div className="spare merida">
       <div className="cg-wrap">
         <div className="spare__wrap">
-          {/* <div className="no-square pointer">
-            <div onMouseDown={mouseDown}>
-              <piece className="pointer" />
-            </div>
-          </div> */}
           <div className="no-square selected-square">
             <div onMouseDown={mouseDown}>
               <piece className="black king" datacolor="black" datarole="king" />
@@ -62,10 +43,7 @@ const Spare = props => {
           </div>
           <div className="no-square trash">
             <div onMouseDown={mouseDown}>
-              {/* <div className="drag-card" onMouseDown={mouseDown} datacolor="black" datarole="pawn">
-                drag black pawn
-              </div> */}
-              <piece draggable="true" className="trash"/>
+              <piece draggable="true" className="trash" />
             </div>
           </div>
           <div className="no-square selected-square">

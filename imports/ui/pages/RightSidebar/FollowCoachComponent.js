@@ -68,13 +68,11 @@ const FollowCoachComponent = () => (
             }}
           >
             <div style={{ width: "50%", float: "left" }}>
-              <img src="images/mail.png" style={{ width: "25px",
-    marginRight: "10px"}}/>
+              <img src="images/mail.png" style={{ width: "25px", marginRight: "10px" }} />
               Send Message
             </div>
             <div style={{ width: "40%", float: "left", marginLeft: "20px" }}>
-              <img src="images/followers.png" style={{ width: "25px",
-    marginRight: "10px"}} />
+              <img src="images/followers.png" style={{ width: "25px", marginRight: "10px" }} />
               Follow
             </div>
           </div>

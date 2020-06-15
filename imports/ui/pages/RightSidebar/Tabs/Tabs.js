@@ -16,7 +16,7 @@ class Tabs extends Component {
     super(props);
     let df = 0;
     df = this.props.defultactive || 0;
-    
+
     this.state = {
       activeTab: this.props.children[df].props.label,
       onHover: "",

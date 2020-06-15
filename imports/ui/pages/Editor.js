@@ -4,30 +4,20 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss, GameHistoryCollection, Game } from "./../../api/collections.js";
 import Chess from "chess.js";
 import Chessground from "react-chessground";
-import ChessBoard from "./MiddleSection/ChessBoard.js";
 import FenParser from "@chess-fu/fen-parser";
-import { Icon, List, Col, Row, Modal, Button, Avatar } from "antd";
-import { Link } from "react-router-dom";
-
-import "antd/dist/antd.css";
+import { Col, Row } from "antd";
 
 import CssManager from "./components/Css/CssManager";
 import EditorRightSidebar from "./components/RightSidebar/EditorRightSidebar";
 import Spare from "./components/Spare";
-import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../lib/client/Logger";
 
-import LeftSidebar from "./LeftSidebar/LeftSidebar";
-import RightSidebar from "./RightSidebar/RightSidebar";
-
-import "./css/developmentboard.css";
-import "./css/Spare.css";
-import "./css/Editor.css";
-import "react-chessground/dist/assets/theme.css";
+// import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
+import AppWrapper from "./components/AppWrapper";
 
 const log = new Logger("client/Editor_js");
 
-class Editor extends React.Component {
+class Editor extends Component {
   chess = new Chess.Chess();
 
   state = {
@@ -239,27 +229,7 @@ class Editor extends React.Component {
   };
 
   render() {
-    const {
-      whiteCastling,
-      blackCastling,
-      orientation,
-      color,
-      selectVisible,
-      userTimeout,
-      comTimeout,
-      fen,
-      visibleUserwin,
-      visibleComwin,
-      visibleDraw,
-      lastMove,
-      scoreUser,
-      scoreCom,
-      mytime,
-      opptime,
-      userHistory,
-      pause,
-      isPaused
-    } = this.state;
+    const { whiteCastling, blackCastling, orientation, color, fen, pause } = this.state;
 
     let css;
     let { systemCss, boardCss } = this.props;
@@ -271,71 +241,50 @@ class Editor extends React.Component {
       this.chessground.cg.state.viewOnly = pause;
     }
 
-    const buttonStyles = {
-      fontSize: 20,
-      //   width: "11vw",
-      //   height: "4vw",
-      background: "#3c93b0",
-      border: 0,
-      color: "white"
-    };
     return (
-      <div style={{ background: "#2b313c", height: "100vh", minHeight: "600px" }}>
-        <Row className="editor__row">
-          <Col span={3}>
-            {css && (
-              <LeftSidebar
-                cssmanager={css}
-                // LefSideBoarData={this.Main.LeftSection}
-                // history={this.props.history}
-                // gameHistory={this.props.gameHistoryload}
-                // examineAction={this.examineActionHandler}
+      <AppWrapper className="editor" cssManager={css}>
+        <Col span={14} className="editor__main">
+          <div className="merida" style={{ margin: "58px" }}>
+            {this.state.game !== null && (
+              <Chessground
+                width="40vw"
+                height="40vw"
+                orientation={orientation}
+                draggable={{
+                  enabled: true, // allow moves & premoves to use drag'n drop
+                  distance: 1, // minimum distance to initiate a drag; in pixels
+                  autoDistance: true, // lets chessground set distance to zero when user drags pieces
+                  centerPiece: true, // center the piece on cursor at drag start
+                  showGhost: true, // show ghost of piece being dragged
+                  deleteOnDropOff: true // delete a piece when it is dropped off the board
+                  // current?: DragCurrent;
+                }}
+                onChange={this.handleChange}
+                resizable={true}
+                ref={el => {
+                  this.chessground = el;
+                }}
               />
             )}
-          </Col>
-          <Col span={12} className="editor__main">
-            <div className="merida" style={{ margin: "58px" }}>
-              {this.state.game !== null && (
-                <Chessground
-                  width="40vw"
-                  height="40vw"
-                  orientation={orientation}
-                  draggable={{
-                    enabled: true, // allow moves & premoves to use drag'n drop
-                    distance: 1, // minimum distance to initiate a drag; in pixels
-                    autoDistance: true, // lets chessground set distance to zero when user drags pieces
-                    centerPiece: true, // center the piece on cursor at drag start
-                    showGhost: true, // show ghost of piece being dragged
-                    deleteOnDropOff: true // delete a piece when it is dropped off the board
-                    // current?: DragCurrent;
-                  }}
-                  onChange={this.handleChange}
-                  resizable={true}
-                  ref={el => {
-                    this.chessground = el;
-                  }}
-                />
-              )}
-            </div>
-          </Col>
-          <Col span={9} className="editor-right-sidebar-wrapper">
-            <Spare onDropStart={this.handleDropStart} />
-            <EditorRightSidebar
-              onStartPosition={this.handleStartPosition}
-              onCastling={this.handleCastling}
-              onClear={this.handleClear}
-              onFlip={this.handleFlip}
-              onFen={this.handleNewFen}
-              onColorChange={this.handleColorChange}
-              fen={fen}
-              orientation={orientation}
-              color={color}
-              whiteCastling={whiteCastling}
-              blackCastling={blackCastling}
-            />
-          </Col>
-        </Row>
-      </div>
+          </div>
+        </Col>
+        <Col span={10} className="editor-right-sidebar-wrapper">
+          <Spare onDropStart={this.handleDropStart} />
+          <EditorRightSidebar
+            onStartPosition={this.handleStartPosition}
+            onCastling={this.handleCastling}
+            onClear={this.handleClear}
+            onFlip={this.handleFlip}
+            onFen={this.handleNewFen}
+            onColorChange={this.handleColorChange}
+            fen={fen}
+            orientation={orientation}
+            color={color}
+            whiteCastling={whiteCastling}
+            blackCastling={blackCastling}
+          />
+        </Col>
+      </AppWrapper>
     );
   }
 }
@@ -352,5 +301,3 @@ export default withTracker(props => {
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };
 })(Editor);
-
-// export default Editor;

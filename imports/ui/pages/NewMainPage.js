@@ -1,11 +1,16 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
-import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
-import RightSidebar from "./RightSidebar/RightSidebar";
+// import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
+import AppWrapper from "./components/AppWrapper";
+import ExamineRightSidebar from "./components/RightSidebar/ExamineRightSidebar";
+// import RightSidebar from "./RightSidebar/RightSidebar";
 import "./css/ChessBoard";
 import "./css/leftsidebar";
 import "./css/RightSidebar";
+
+import { Col } from "antd";
+
 import { links, tournament } from "./hardcode.json";
 import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
@@ -464,73 +469,64 @@ export default class MainPage extends Component {
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
 
-    let leftmenu = null;
-    let rightmenu = null;
-    if (w <= 1199) leftmenu = null;
-    else {
-      leftmenu = (
-        <LeftSidebar
-          cssmanager={this.props.cssmanager}
-          // LefSideBoarData={this.Main.LeftSection}
-          history={this.props.history}
-          gameHistory={this.props.gameHistoryload}
-          examineAction={this.examineActionHandler}
-        />
-      );
-    }
-
     return (
-      <ModalProvider value={this.state}>
-        <div className={"main " + (this.state.modalShow ? "modal-show" : "modal-hide")}>
-          <div className="modal-overlay" />
-          <div className="main__wrap row">
-            {leftmenu}
-            <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
-              {informativePopup}
-              {exPopup}
+      <AppWrapper cssManager={this.props.cssmanager}>
+        <Col span={14}>
+          <MiddleBoard
+            cssmanager={this.props.cssmanager}
+            MiddleBoardData={this.Main.MiddleSection}
+            currentGame={this.state.examineGame}
+            ref="middleBoard"
+            capture={this.props.capture}
+            board={this.props.board}
+            onDrop={this.props.onDrop}
+            onDrawCircle={this.props.onDrawCircle}
+            onRemoveCircle={this.props.onRemoveCircle}
+            top={position.top}
+            circles={this.props.circles}
+            //  fen={this.props.fen}
 
-              <MiddleBoard
-                cssmanager={this.props.cssmanager}
-                MiddleBoardData={this.Main.MiddleSection}
-                currentGame={this.state.examineGame}
-                ref="middleBoard"
-                capture={this.props.capture}
-                board={this.props.board}
-                onDrop={this.props.onDrop}
-                onDrawCircle={this.props.onDrawCircle}
-                onRemoveCircle={this.props.onRemoveCircle}
-                top={position.top}
-                circles={this.props.circles}
-                //  fen={this.props.fen}
-
-                width={this.state.width}
-                height={this.state.height}
-                gameStatus={status}
-                game={game}
-              />
-            </div>
-            <div className="col-sm-5 col-md-4 col-lg-5 right-section">
-              {actionPopup}
-              <RightSidebar
-                cssmanager={this.props.cssmanager}
-                RightSidebarData={this.Main.RightSection}
-                gameStatus={status}
-                currentGame={this.state.examineGame}
-                newOppenetRequest={this.state.newOppenetRequest}
-                flip={this._flipboard}
-                gameRequest={this.props.gameRequest}
-                clientMessage={this.props.clientMessage}
-                ref="right_sidebar"
-                examing={this.props.examing}
-                startGameExamine={this.startGameExamine}
-                examineAction={this.examineActionHandler}
-                activeTabnumber={this.state.activeTab}
-                uploadPgn={this.uploadPgn}
-              />
-            </div>
-          </div>
-        </div>
-      </ModalProvider>
+            width={this.state.width}
+            height={this.state.height}
+            gameStatus={status}
+            game={game}
+          />
+        </Col>
+        <Col span={10}>
+          <ExamineRightSidebar
+            cssmanager={this.props.cssmanager}
+            RightSidebarData={this.Main.RightSection}
+            gameStatus={status}
+            currentGame={this.state.examineGame}
+            newOppenetRequest={this.state.newOppenetRequest}
+            flip={this._flipboard}
+            gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
+            ref="right_sidebar"
+            examing={this.props.examing}
+            startGameExamine={this.startGameExamine}
+            examineAction={this.examineActionHandler}
+            activeTabnumber={this.state.activeTab}
+            uploadPgn={this.uploadPgn}
+          />
+          {/* <RightSidebar
+            cssmanager={this.props.cssmanager}
+            RightSidebarData={this.Main.RightSection}
+            gameStatus={status}
+            currentGame={this.state.examineGame}
+            newOppenetRequest={this.state.newOppenetRequest}
+            flip={this._flipboard}
+            gameRequest={this.props.gameRequest}
+            clientMessage={this.props.clientMessage}
+            ref="right_sidebar"
+            examing={this.props.examing}
+            startGameExamine={this.startGameExamine}
+            examineAction={this.examineActionHandler}
+            activeTabnumber={this.state.activeTab}
+            uploadPgn={this.uploadPgn}
+          /> */}
+        </Col>
+      </AppWrapper>
     );
   }
 }

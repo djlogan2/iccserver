@@ -1,6 +1,13 @@
-.editor__row {
-    height: 100%;
+.editor {
+    /* display: flex; */
+    /* height: 100vh; */
+    background: #2b313c;
+    /* min-height: 600px; */
 }
+/* .editor__row {
+    height: 100%;
+    flex-grow: 1;
+} */
 
 .editor__main {
     overflow: auto;

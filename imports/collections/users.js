@@ -32,7 +32,10 @@ Meteor.publishComposite("loggedOnUsers", {
         const find = {};
         if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
         else
-          return Meteor.users.find({$and: [{ "status.online": true }, { _id: { $ne: user._id } }]}, { fields: viewable_logged_on_user_fields });
+          return Meteor.users.find(
+            { $and: [{ "status.online": true }, { _id: { $ne: user._id } }] },
+            { fields: viewable_logged_on_user_fields }
+          );
       }
     }
   ]
@@ -161,7 +164,10 @@ function runLogoutHooks(context, user) {
 }
 
 Meteor.startup(function() {
-  Meteor.users.update({isolation_group: {$exists: false}}, {$set: {isolation_group: "public"}, $unset: {groups: 1, limit_to_group: 1}});
+  Meteor.users.update(
+    { isolation_group: { $exists: false } },
+    { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } }
+  );
   if (Meteor.isTest || Meteor.isAppTest) {
     Users.runLoginHooks = runLoginHooks;
     Users.ruLogoutHooks = runLogoutHooks;

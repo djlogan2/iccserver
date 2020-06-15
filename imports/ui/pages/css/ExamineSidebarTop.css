@@ -1,0 +1,26 @@
+.examine-sidebar-top {
+    height: 50vh;
+    margin-bottom: 0 !important;
+}
+
+.examine .ant-tabs.ant-tabs-small .ant-tabs-card-bar .ant-tabs-tab {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+}
+.examine .ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab-active {
+    border-top: 3px solid#1565C0;
+    color: #1565C0;
+}
+.examine .ant-tabs-nav {
+    display: flex;
+    width: 100%;
+}
+
+.examine .ant-tabs-nav > div {
+    display: flex;
+    width: 100%;
+}

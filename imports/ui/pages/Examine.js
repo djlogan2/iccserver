@@ -1,6 +1,7 @@
 import React from "react";
-import MainPage from "./../pages/MainPage";
+import MainPage from "./NewMainPage";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
@@ -61,7 +62,7 @@ Meteor.startup(() => {
   });
 });
 
-export default class AppContainer extends TrackerReact(React.Component) {
+class Examine extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.gameId = null;
@@ -89,49 +90,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.removeCircle = this.removeCircle.bind(this);
     this.gameHistoryload = this.gameHistoryload.bind(this);
     this.removeGameHistory = this.removeGameHistory.bind(this);
-  }
-
-  renderGameMessages() {
-    return Game.findOne({
-      $and: [
-        { status: "playing" },
-        {
-          $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-        }
-      ]
-    });
-  }
-
-  examineGame() {
-    let response = Game.find({ "observers.id": Meteor.userId() }).fetch();
-    return response
-  }
-  renderGameRequest() {
-    return GameRequestCollection.findOne(
-      {
-        $or: [
-          {
-            challenger_id: Meteor.userId()
-          },
-          {
-            receiver_id: Meteor.userId()
-          },
-          { type: "seek" }
-        ]
-      },
-      {
-        sort: { create_date: -1 }
-      }
-    );
-  }
-  _systemCSS() {
-    return mongoCss.findOne({ type: "system" });
-  }
-
-  _boardCSS() {
-    return mongoCss.findOne({
-      $and: [{ type: "board" }, { name: "default-user" }]
-    });
   }
 
   userRecord() {
@@ -164,7 +122,31 @@ export default class AppContainer extends TrackerReact(React.Component) {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
     }
+    this.startExamine();
   }
+
+  startExamine = () => {
+    let examine_game = Game.find({ "observers.id": Meteor.userId() }).fetch();
+    if (examine_game.length === 0) {
+      this.initExamine();
+    }
+  };
+
+  initExamine = () => {
+    Meteor.call(
+      "startLocalExaminedGame",
+      "startlocalExaminedGame",
+      "Mr white",
+      "Mr black",
+      0,
+      (error, response) => {
+        if (response) {
+          // this.props.history.push('/examine');
+          // this.props.examineAction(action);
+        }
+      }
+    );
+  };
 
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
@@ -306,26 +288,27 @@ export default class AppContainer extends TrackerReact(React.Component) {
     });
   }
   render() {
-    const gameRequest = this.renderGameRequest();
-    let game = this.renderGameMessages();
+    const gameRequest = this.props.game_request;
+    let game = this.props.game_messages;
     let circles = [];
     let actionlen;
-    let gameExamin = []; // this.examineGame();
-    const systemCSS = this._systemCSS();
-    const boardCSS = this._boardCSS();
+    let gameExamin = [];
+
+    const { systemCss, boardCss } = this.props;
+
     let clientMessage = null;
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
     if (
-      systemCSS === undefined ||
-      boardCSS === undefined ||
-      systemCSS.length === 0 ||
-      boardCSS.length === 0
+      systemCss === undefined ||
+      boardCss === undefined ||
+      systemCss.length === 0 ||
+      boardCss.length === 0
     )
       return <div>Loading...</div>;
-    const css = new CssManager(this._systemCSS(), this._boardCSS());
+    const css = new CssManager(systemCss, boardCss);
     if (!!gameRequest) {
       this.gameId = gameRequest._id;
       this.message_identifier = "server:game:" + this.gameId;
@@ -336,7 +319,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       actionlen = game.actions.length;
       capture = this._boardFromMongoMessages(game);
     } else {
-      gameExamin = this.examineGame();
+      gameExamin = this.props.examine_game;
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
         actionlen = game.actions.length;
@@ -356,8 +339,12 @@ export default class AppContainer extends TrackerReact(React.Component) {
       clientMessage = this.clientMessages(this.message_identifier);
     }
 
+    if (this.props.examine_game.length === 0) {
+      return <div>Loading...</div>
+    }
+
     return (
-      <div>
+      <div className="examine">
         <MainPage
           cssmanager={css}
           board={this._board}
@@ -381,3 +368,35 @@ export default class AppContainer extends TrackerReact(React.Component) {
     );
   }
 }
+
+export default withTracker(props => {
+  return {
+    examine_game: Game.find({ "observers.id": Meteor.userId() }).fetch(),
+    game_request: GameRequestCollection.findOne(
+      {
+        $or: [
+          {
+            challenger_id: Meteor.userId()
+          },
+          {
+            receiver_id: Meteor.userId()
+          },
+          { type: "seek" }
+        ]
+      },
+      {
+        sort: { create_date: -1 }
+      }
+    ),
+    game_messages: Game.findOne({
+      $and: [
+        { status: "playing" },
+        {
+          $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+        }
+      ]
+    }),
+    systemCss: mongoCss.findOne({ type: "system" }),
+    boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
+  };
+})(Examine);

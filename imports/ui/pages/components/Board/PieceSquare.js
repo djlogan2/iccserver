@@ -4,7 +4,6 @@ import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
 import { Logger } from "../../../../../lib/client/Logger";
 
-
 let log = new Logger("client/PieceSquare_js");
 /**
  * @param props React properties

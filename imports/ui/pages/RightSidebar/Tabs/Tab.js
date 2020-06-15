@@ -36,10 +36,10 @@ class Tab extends Component {
     if (activeTab === label) {
       activeTabName = label;
     }
-   
+
     return (
       <li
-         // style={{cursor: 'pointer', display: 'block'}}
+        // style={{cursor: 'pointer', display: 'block'}}
         style={this.props.cssmanager.tabListItem(activeTabName, label)}
         onClick={onClick}
         /*    onMouseEnter={onMouseEnter}

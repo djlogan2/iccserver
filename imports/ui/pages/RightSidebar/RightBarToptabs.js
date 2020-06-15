@@ -33,7 +33,7 @@ export default class RightBarToptabs extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
-  
+
     return (
       <Tabs cssmanager={this.props.cssmanager}>
         <div label={translator("quikpairing")}>

@@ -8,8 +8,6 @@ const MugshotCollection = new FS.Collection("mugshots", {
 
 export default class DisplayMugshot extends React.Component {
   render() {
-    <div>
-
-    </div>
+    <div />;
   }
 }

@@ -43,7 +43,8 @@ export default class RightBarTopActivetabs extends Component {
             currentGame={this.props.currentGame}
           />
         </div>
-        <div label={translator("play")} imgsrc="images/play-icon-gray.png">
+        <div label="test">test </div>
+        {/* <div label={translator("play")} imgsrc="images/play-icon-gray.png">
           <CreateGame cssmanager={this.props.cssmanager} ref="create_game" />
         </div>
         <div label={translator("tournaments")} imgsrc="images/tournament-icon-gray.png">
@@ -51,7 +52,7 @@ export default class RightBarTopActivetabs extends Component {
             cssmanager={this.props.cssmanager}
             TournamentsList={this.props.RightBarTopData.TournamentList.Tournaments}
           />
-        </div>
+        </div> */}
       </Tabs>
     );
   }

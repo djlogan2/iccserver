@@ -39,7 +39,7 @@ export default class ChessBoard extends PureComponent {
   draggable() {
     if (
       this.props.gameStatus === "playing" ||
-      (this.props.gameStatus === "examining" && this.props.currentGame === true)
+      this.props.gameStatus === "examining"
     ) {
       return {
         enabled: true

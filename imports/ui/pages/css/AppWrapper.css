@@ -1,0 +1,12 @@
+.app-wrapper {
+    display: flex;
+    height: 100vh;
+    /* background: #2b313c; */
+    min-height: 600px;
+    overflow: hidden;
+}
+
+.app-wrapper__row {
+    height: 100%;
+    flex-grow: 1;
+}

@@ -3,8 +3,9 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import i18n from "meteor/universe:i18n";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
-import CssManager from "../pages/components/Css/CssManager";
-import LeftSidebar from "../pages/LeftSidebar/LeftSidebar";
+import CssManager from "./components/Css/CssManager";
+// import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
+import AppWrapper from "./components/AppWrapper";
 import { mongoCss, GameRequestCollection } from "../../api/collections";
 
 export default class HomeContainer extends TrackerReact(React.Component) {
@@ -123,38 +124,40 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     if (!h) h = window.innerHeight;
     w /= 2;
     return (
-      <div className="home">
-        <div className="row1">
-          <LeftSidebar
-            cssmanager={css}
-            // LefSideBoarData={this.Main.LeftSection}
-            history={this.props.history}
-            examineAction={this.examineActionHandler}
-          />
-          <div className="col-sm-10 col-md-10" style={css.parentPopup(h, w)}>
-            {informativePopup}
-            <div className="home-middle-section">
-              <div className="home-slider">
-                <img src={css.buttonBackgroundImage("homeImage")} alt="Home" />
-              </div>
-              <div className="home-description">
-                {/* {translator("mainContent")} */}
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur
-                adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit
-                esse cillum dolore eu fugiat nulla pariatur.
-              </div>
+      <AppWrapper cssManager={css}>
+        <div className="col-sm-10 col-md-10" style={css.parentPopup(h, w)}>
+          {informativePopup}
+          <div className="home-middle-section">
+            <div className="home-slider">
+              <img src={css.buttonBackgroundImage("homeImage")} alt="Home" />
+            </div>
+            <div className="home-description">
+              {/* {translator("mainContent")} */}
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+              incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+              exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+              dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+              Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+              mollit anim id est laborum.Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+              sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+              veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+              consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
+              dolore eu fugiat nulla pariatur.
             </div>
           </div>
         </div>
-      </div>
+      </AppWrapper>
+      // <div className="home">
+      //   <div className="row1">
+      //     <LeftSidebar
+      //       cssmanager={css}
+      //       // LefSideBoarData={this.Main.LeftSection}
+      //       history={this.props.history}
+      //       examineAction={this.examineActionHandler}
+      //     />
+
+      //   </div>
+      // </div>
     );
   }
 }
-

@@ -70,21 +70,19 @@ if (Meteor.isTest || Meteor.isAppTest) {
       self.sandbox = sinon.createSandbox();
       if (!!options && options.timer) {
         self.sandbox.useFakeTimers();
-        self.clock =
-          {
-            tick(ticks) {
-              //console.log("tick(" + ticks + ")");
-              const second_count = Math.floor(ticks / 1000);
-              const remain = ticks - (second_count * 1000);
-              for (let x = 0; x < second_count; x++) {
-                //console.log("tick SECOND");
-                self.sandbox.clock.tick(1000);
-              }
-              //console.log("tick REMAIN " + remain);
-              if(remain)
-                self.sandbox.clock.tick(remain);
+        self.clock = {
+          tick(ticks) {
+            //console.log("tick(" + ticks + ")");
+            const second_count = Math.floor(ticks / 1000);
+            const remain = ticks - second_count * 1000;
+            for (let x = 0; x < second_count; x++) {
+              //console.log("tick SECOND");
+              self.sandbox.clock.tick(1000);
             }
-          };
+            //console.log("tick REMAIN " + remain);
+            if (remain) self.sandbox.clock.tick(remain);
+          }
+        };
       }
       self.meteorUsersFake = self.sandbox.fake(() =>
         Meteor.users.findOne({

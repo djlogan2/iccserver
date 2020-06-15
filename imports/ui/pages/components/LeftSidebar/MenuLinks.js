@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
 import { Meteor } from "meteor/meteor";
-import ModalContext from "./../ModalContext";
-import { links, sidebarBottom } from "./../hardcode.json";
+import ModalContext from "./../../ModalContext";
+import { links, sidebarBottom } from "./../../hardcode.json";
 
 class MenuLinks extends Component {
   static contextType = ModalContext;
@@ -24,43 +24,19 @@ class MenuLinks extends Component {
     });
   }
 
-  startLocalExaminedGame(action) {
-    Meteor.call(
-      "startLocalExaminedGame",
-      "startlocalExaminedGame",
-      "Mr white",
-      "Mr black",
-      0,
-      (error, response) => {
-        if (response) {
-          this.props.examineAction(action);
-        }
-      }
-    );
-  }
-
   handleClick = (e, label) => {
     e.preventDefault();
     if (label === "mygame") {
-      this.props.gameHistory(label);
-      const data = this.context;
-      data.toggleModal(true);
+      this.props.onMygame();
+    } else if (label === "uploadpgn") {
+      this.props.onUploadpgn();
+    } else if (label === "play") {
+      this.props.onPlay();
+    } else if (label === "examine") {
+      this.props.onExamine();
+    } else if (label === "logout") {
+      this.props.onLogout();
     }
-    if (label === "uploadpgn") {
-      this.props.gameHistory(label);
-      const data = this.context;
-      data.toggleModal(true);
-    }
-    if (label === "play") this.props.examineAction(label);
-    if (label === "examine") this.startLocalExaminedGame(label);
-    if (label === "logout")
-      Meteor.logout(err => {
-        if (err) {
-          // console.log(err.reason);
-        } else {
-          window.location.href = "/login";
-        }
-      });
   };
 
   static getLang() {
@@ -72,6 +48,7 @@ class MenuLinks extends Component {
       "en-US"
     );
   }
+  
   render() {
     let translator = i18n.createTranslator("Common.menuLinkLabel", MenuLinks.getLang());
 

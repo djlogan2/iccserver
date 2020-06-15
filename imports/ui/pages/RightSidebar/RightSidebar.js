@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import RightBarTabs from "./RightBarToptabs";
-import RightBarActiveTabs from "./RightBarTopActivetabs";
-import BottomExamineTabs from "./RightBarBottom";
-import BottomActiveTabs from "./RightBarBottomActiveTabs";
-import BottomPostGameTabs from "./RightBarBottomPostGameTabs";
+import RightBarTopActivetabs from "./RightBarTopActivetabs";
+import RightBarBottom from "./RightBarBottom";
+import RightBarBottomActiveTabs from "./RightBarBottomActiveTabs";
+import RightBarBottomPostGameTabs from "./RightBarBottomPostGameTabs";
 
 import { Logger } from "../../../../lib/client/Logger";
 
@@ -17,9 +17,7 @@ class RightSidebar extends Component {
       gameRequest: props.gameRequest
     };
   }
-  changeMode() {
-    this.setState({ status: !this.state.status });
-  }
+
   componentWillReceiveProps(nextProps) {
     if (!!this.props.gameRequest) {
       if (nextProps.gameRequest !== this.props.gameRequest) {
@@ -27,16 +25,16 @@ class RightSidebar extends Component {
       }
     }
   }
-  
-  render() {
+
+  renderTopRigthSidebar = () => {
     let topTabitem = null;
-    let bottomTabitem = null;
+    // let bottomTabitem = null;
     if (
       (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") &&
       this.props.newOppenetRequest === false
     ) {
       topTabitem = (
-        <RightBarActiveTabs
+        <RightBarTopActivetabs
           RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
@@ -57,10 +55,14 @@ class RightSidebar extends Component {
         />
       );
     }
+    return topTabitem;
+  };
 
+  renderBottomRightSidebar = () => {
+    let bottomTabitem = null;
     if (this.props.gameStatus === "examining" && this.props.currentGame === true) {
       bottomTabitem = (
-        <BottomExamineTabs
+        <RightBarBottom
           cssmanager={this.props.cssmanager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
@@ -72,7 +74,7 @@ class RightSidebar extends Component {
       );
     } else if (this.props.gameStatus === "examining" && this.props.currentGame === false) {
       bottomTabitem = (
-        <BottomPostGameTabs
+        <RightBarBottomPostGameTabs
           cssmanager={this.props.cssmanager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
@@ -81,7 +83,7 @@ class RightSidebar extends Component {
       );
     } else {
       bottomTabitem = (
-        <BottomActiveTabs
+        <RightBarBottomActiveTabs
           cssmanager={this.props.cssmanager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
@@ -89,11 +91,16 @@ class RightSidebar extends Component {
         />
       );
     }
+    return bottomTabitem;
+  };
 
+  render() {
     return (
       <div className="right-content-desktop">
-        <div style={this.props.cssmanager.rightTopContent()}>{topTabitem}</div>
-        <div style={this.props.cssmanager.rightBottomContent()}>{bottomTabitem}</div>
+        <div style={this.props.cssmanager.rightTopContent()}>{this.renderTopRigthSidebar()}</div>
+        <div style={this.props.cssmanager.rightBottomContent()}>
+          {this.renderBottomRightSidebar()}
+        </div>
       </div>
     );
   }

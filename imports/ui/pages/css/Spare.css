@@ -21,9 +21,10 @@
     display: block;
     position: static;
     width: 80%;
-    height: 60px;
+    height: 7vh;
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
     margin: 0 auto;
 }
 

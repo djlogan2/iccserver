@@ -44,7 +44,6 @@ export default class MiddleBoard extends Component {
     this._circle.color = event.target.value;
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
-  
 
   getLang() {
     return (
@@ -99,15 +98,14 @@ export default class MiddleBoard extends Component {
     const bc = this.state.top === "b" ? "b" : "w";
 
     let boardtop;
-   
 
-    if(this.props.gameStatus!=="idlemode"){
-    if (this.state.top === "w") {
-      boardtop = "black";
-    } else {
-      boardtop = "white";
+    if (this.props.gameStatus !== "idlemode") {
+      if (this.state.top === "w") {
+        boardtop = "black";
+      } else {
+        boardtop = "white";
+      }
     }
-  }
     let topPlayermsg;
     let botPlayermsg;
     let color;

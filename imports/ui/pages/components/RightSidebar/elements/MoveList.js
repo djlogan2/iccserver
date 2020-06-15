@@ -3,10 +3,10 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
-// import { Logger } from "../../../../../../lib/client/Logger";
+
 import { object } from "prop-types";
-// const log = new Logger("MoveLIst_js");
-export default class MoveListComponent extends Component {
+
+export default class MoveList extends Component {
   constructor(props) {
     super(props);
     this.cmi = 0;
@@ -216,7 +216,7 @@ export default class MoveListComponent extends Component {
   }
 
   render() {
-    let translator = i18n.createTranslator("Common.MoveListComponent", MoveListComponent.getLang());
+    let translator = i18n.createTranslator("Common.MoveListComponent", MoveList.getLang());
     let moves = [];
     let variation;
     let game = this.props.game;
@@ -297,7 +297,7 @@ export default class MoveListComponent extends Component {
     });
 
     return (
-      <div>
+      <div className="move-list">
         <div style={this.props.cssmanager.gameMoveList()}>{moveslist}</div>
 
         {displayButton ? (

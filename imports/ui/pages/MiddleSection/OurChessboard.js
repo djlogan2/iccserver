@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Chessboard from "chessboardjsx";
 
 export default class OurChessboard extends Component {
-
   //            boardsize={boardsize}
   //             position={this.state.fen}
   //             onDrop={this.onDrop}
@@ -32,7 +31,6 @@ export default class OurChessboard extends Component {
         onSquareRightClick={sq => console.log("onSquareRightClick(" + sq + ")")}
         roughSquare={sq => console.log("roughSquare(" + sq + ")")}
       />
-
     );
   }
 }
