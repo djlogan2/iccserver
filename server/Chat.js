@@ -5,6 +5,7 @@ import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
+import { message } from "antd";
 
 const RoomCollection = new Mongo.Collection("rooms");
 const ChatCollection = new Mongo.Collection("chat");
@@ -141,6 +142,217 @@ function chatLogoutHook(userId) {
     $and: [{type: "private"}, {logons: 2}, {$or: [{"issuer.id": userId},{id: userId}]}]
   }, {$set: {logons: 1}});
 }
+
+Chat.createRoom = function(message_identifier, roomName){
+  const self = Meteor.user();
+  const isoGroup = Meteor.user().isolation_group;
+  // check if user is in role
+  const roomRole = Users.isAuthorized(Meteor.user(), "create_room");
+  const uniqueName = !RoomCollection.findOne({name: roomName});
+
+  // check if name is unique in db
+  if(!uniqueName) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "ROOM_ALREADY_EXISTS");
+    return;
+  }
+  // finally create room
+  if(roomRole) {
+    const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
+    RoomCollection.insert({name: roomName, members: member, isolation_group: isoGroup});
+    return RoomCollection.findOne({name: roomName})._id;
+  }
+  else{
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
+    return;
+  }
+}
+
+Chat.writeToRoom = function(message_identifier, room_id, txt){
+  const self = Meteor.user();
+  const isoGroup = Meteor.user().isolation_group;
+  const hasRole = Users.isAuthorized(self, "room_chat");
+  const joinRole = Users.isAuthorized(self, "join_room");
+  const roomExists = RoomCollection.findOne({_id: room_id});
+  const child_chat_exempt =  Users.isAuthorized(self, "child_chat_exempt");
+  const child_chat_id = (ChildChatCollection.findOne({_id: txt}));
+  const child_chat = (Users.isAuthorized(self, "child_chat") || child_chat_id || child_chat_exempt) && true;
+  const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
+  const inRoom = RoomCollection.findOne({_id: room_id, members: {$in: member}});
+  const resultText = child_chat_id ? child_chat_id.text : txt;
+
+  // does the user have the right role?
+  if(!hasRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
+    return;
+  }
+
+  // does room even exist?
+  if(!roomExists){
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+    return;
+  }
+
+  // If user not allowed to join room, can't write either
+  if(!joinRole && !inRoom){
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
+    return;
+  }
+
+  // does the user have the join role? if so and not in room, join room.
+  if(joinRole && !inRoom){
+    Chat.joinRoom(message_identifier, room_id);
+  }
+
+
+
+  // fails if childchat and freeform
+  if(!child_chat_exempt && !child_chat_id && child_chat){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    return;
+  }
+
+
+  // Actually write message to chat collection of room
+  ChatCollection.insert({
+    isolation_group: isoGroup,
+    type: "room",
+    id: room_id,
+    what: resultText,
+    child_chat: child_chat,
+    create_date: Meteor.date,
+    issuer: self._id,
+  });
+  return;
+}
+Chat.deleteRoom = function(message_identifier, room_id){
+  // check if user is in role
+  const self = Meteor.user();
+  const inRole = Users.isAuthorized(self, "create_room");
+  const record = RoomCollection.findOne({_id: room_id});
+  if(!inRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_DELETE_ROOM");
+    return;
+  }
+  // check if room exists
+  if(!record){
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+    return;
+  }
+  // Delete room record
+  else{
+    RoomCollection.remove({_id: room_id});
+    return;
+  }
+}
+Chat.joinRoom = function(message_identifier, room_id){
+  const self = Meteor.user();
+  const inRole = Users.isAuthorized(self, "join_room");
+  const room = RoomCollection.findOne({_id: room_id});
+  const member = {id: Meteor.user()._id, username: Meteor.user().username};
+  const inRoom = (RoomCollection.findOne({$and: [ {_id: room_id}, {members: member}]}));
+
+  // Currently ignores if user joins an already joined room
+  if(inRoom){
+    return;
+  }
+
+  // check if user is in role
+  if(!inRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
+    return;
+  }
+
+  // See if room exists
+  if(!room){
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+    return;
+  }
+
+  // actually join room
+  else{
+    RoomCollection.update({name: room.name}, {$push: {members: member}});
+    return;
+  }
+}
+Chat.leaveRoom = function(message_identifier, room_id){
+
+  const member = {id: Meteor.user()._id, username: Meteor.user().username};
+  RoomCollection.update({_id: room_id}, {$pull: {members: member}});
+  return;
+}
+
+Chat.writeToUser = function(message_identifier, user_id, text){
+  const self = Meteor.user();
+  const user = Meteor.users.findOne({_id: user_id});
+  const isoGroup = self.isolation_group;
+  const senderInRole = Users.isAuthorized(self, "personal_chat");
+  const recieverInRole = Users.isAuthorized(user, "personal_chat");
+  const ccsender = Users.isAuthorized(self, "child_chat");
+  const ccrec = Users.isAuthorized(user, "child_chat");
+  const ccerec = Users.isAuthorized(user, "child_chat_exempt");
+  const ccesender = Users.isAuthorized(self, "child_chat_exempt");
+  const ccid = ChildChatCollection.findOne({_id: text});
+  const resultText = ccid ? ccid.text : text;
+  const child_chat = (ccid || ccrec || ccsender && ccerec) && true;
+  let loggedon = 0;
+
+  if(self.status.online){
+    loggedon++;
+  }
+  if(user.status.online && user_id != self._id){
+    loggedon++;
+  }
+
+  // only allowed if sender has personal chat
+  if(!senderInRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "SENDER_NOT_ALLOWED_TO_PERSONAL_CHAT");
+    return;
+  }
+
+
+  //only allowed if reciever has personal chat
+  if(!recieverInRole){
+    ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_PERSONAL_CHAT");
+    return;
+  }
+
+
+  //child_chat can child chat only unless to a child chat
+  if(ccsender && !ccid && !ccerec){
+    ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    return;
+  }
+
+
+  // Not allow freeform to child_chat except child_chat_exempt
+  if(!ccid && ccrec && !ccerec &&!ccesender){
+    ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_FREEFORM_CHAT");
+    return;
+  }
+
+  // Won't send to loggedoff recipient, but will send to self
+  if(loggedon <= 1 && user_id != self._id){
+    ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT");
+    return;
+  }
+
+  // actual private message, uses id field as the recipient
+  ChatCollection.insert({
+    isolation_group: isoGroup,
+    type: "private",
+    id: user_id,
+    what: resultText,
+    child_chat: child_chat,
+    create_date: Meteor.date,
+    logons: loggedon,
+    issuer: self._id,
+  });
+  return;
+
+}
+
+
+
 
 Meteor.startup(() => {
   ChatCollection.remove({});
