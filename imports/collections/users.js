@@ -161,6 +161,8 @@ function runLogoutHooks(context, user) {
 }
 
 Meteor.startup(function() {
+  const users = Meteor.users.find({isolation_group: {$exists: false}}, {fields: {_id: 1}}).fetch();
+  Roles.addUsersToRoles(users, ["kibitz", "room_chat", "personal_chat"]);
   Meteor.users.update({isolation_group: {$exists: false}}, {$set: {isolation_group: "public"}, $unset: {groups: 1, limit_to_group: 1}});
   if (Meteor.isTest || Meteor.isAppTest) {
     Users.runLoginHooks = runLoginHooks;
