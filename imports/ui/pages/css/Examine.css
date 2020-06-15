@@ -2,3 +2,26 @@
     height: 100%;
     background: #fff;
 }
+
+.examine-right-sidebar-bottom {
+    display: flex;
+    flex-direction: column;
+    height: 50vh;
+}
+.examine-right-sidebar-bottom .ant-tabs-top-content {
+    display: flex;
+    flex-grow: 1;
+}
+.examine-right-sidebar-bottom .ant-tabs-tabpane {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.board-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background: #292929;
+    padding-top: 5.8rem;
+    padding-left: 5.8rem;
+}

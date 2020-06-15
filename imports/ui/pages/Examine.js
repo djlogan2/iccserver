@@ -348,6 +348,7 @@ class Examine extends TrackerReact(React.Component) {
         <MainPage
           cssmanager={css}
           board={this._board}
+          gameId={this.props.examine_game[0]._id}
           // fen={this._board.fen()}
           capture={capture}
           len={actionlen}

@@ -356,7 +356,7 @@ export default class MoveList extends Component {
               <span>{translator(status)}</span>
             </div>
           ) : null}
-
+{/*
           {isPlaying ? (
             <ul>
               <li style={this.props.cssmanager.drawSectionList()}>
@@ -482,8 +482,8 @@ export default class MoveList extends Component {
                   </select>
                 </span>
               </li>
-            </ul>
-          )}
+            </ul> */}
+          {/* )} */}
         </div>
       </div>
     );

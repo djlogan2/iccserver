@@ -352,6 +352,9 @@ Chat.writeToUser = function(message_identifier, user_id, text){
 }
 
 
+Meteor.methods({
+  kibitz: Chat.kibitz
+});
 
 
 Meteor.startup(() => {

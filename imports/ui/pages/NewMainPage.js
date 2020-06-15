@@ -25,6 +25,8 @@ import {
 import i18n from "meteor/universe:i18n";
 const log = new Logger("client/MainPage");
 
+const BoardWrapper = ({ children }) => <div className="board-wrapper">{children}</div>;
+
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
@@ -472,28 +474,31 @@ export default class MainPage extends Component {
     return (
       <AppWrapper cssManager={this.props.cssmanager}>
         <Col span={14}>
-          <MiddleBoard
-            cssmanager={this.props.cssmanager}
-            MiddleBoardData={this.Main.MiddleSection}
-            currentGame={this.state.examineGame}
-            ref="middleBoard"
-            capture={this.props.capture}
-            board={this.props.board}
-            onDrop={this.props.onDrop}
-            onDrawCircle={this.props.onDrawCircle}
-            onRemoveCircle={this.props.onRemoveCircle}
-            top={position.top}
-            circles={this.props.circles}
-            //  fen={this.props.fen}
+          <BoardWrapper>
+            <MiddleBoard
+              cssmanager={this.props.cssmanager}
+              MiddleBoardData={this.Main.MiddleSection}
+              currentGame={this.state.examineGame}
+              ref="middleBoard"
+              capture={this.props.capture}
+              board={this.props.board}
+              onDrop={this.props.onDrop}
+              onDrawCircle={this.props.onDrawCircle}
+              onRemoveCircle={this.props.onRemoveCircle}
+              top={position.top}
+              circles={this.props.circles}
+              //  fen={this.props.fen}
 
-            width={this.state.width}
-            height={this.state.height}
-            gameStatus={status}
-            game={game}
-          />
+              width={this.state.width}
+              height={this.state.height}
+              gameStatus={status}
+              game={game}
+            />
+          </BoardWrapper>
         </Col>
         <Col span={10}>
           <ExamineRightSidebar
+            gameId={this.props.gameId}
             cssmanager={this.props.cssmanager}
             RightSidebarData={this.Main.RightSection}
             gameStatus={status}

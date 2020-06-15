@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 // import Tabs from "./Tabs/Tabs";
 import GameHistory from "./GameHistory";
 // import CreateGame from "./CreateGameComponent";
@@ -37,6 +38,7 @@ export default class ExamineSidebarTop extends Component {
         style={{ marginBottom: 32 }}
       >
         <TabPane tab={translator("game")} key="1">
+          <Link to="/editor">Editor</Link>
           <GameHistory
             cssmanager={this.props.cssmanager}
             game={this.props.RightBarTopData.MoveList}

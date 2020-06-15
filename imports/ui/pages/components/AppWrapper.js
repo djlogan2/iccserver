@@ -16,6 +16,7 @@ import "./../css/AppWrapper.css";
 import "./../css/GameHistory.css";
 import "./../css/Examine.css";
 import "./../css/ExamineSidebarTop.css";
+import "./../css/ChatApp.css";
 
 const AppWrapper = ({ className, children, cssManager }) => {
   return (

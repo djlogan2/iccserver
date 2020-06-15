@@ -1,0 +1,28 @@
+.chat-app {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+.chat-app__message-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    flex-grow: 1;
+    overflow: auto;
+    padding: .8rem 2.4rem;
+}
+.chat-app__input-bar {
+    display: flex;
+    flex-shrink: 0;
+    padding: .8rem 2.4rem;
+    border-top: 1px solid  #EFF0F3;
+}
+
+.message-item {
+    display: flex;
+}
+.message-item__name {
+    margin-right: .8rem;
+    color: #1565C0;
+}

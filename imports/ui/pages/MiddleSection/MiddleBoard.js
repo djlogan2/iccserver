@@ -54,6 +54,22 @@ export default class MiddleBoard extends Component {
       "en-US"
     );
   }
+
+  calcBoardSize = () => {
+    let w = this.props.width;
+    let h = this.props.height;
+
+    return Math.min(h / 1.3, w / 2.5);
+
+  };
+
+  calcSize = () => {
+    let w = this.props.width;
+    let h = this.props.height;
+
+    return Math.min(h / 1.3, w / 2.5);
+  }
+
   render() {
     if (!!this.props.game) {
       this.chess.load(this.props.game.fen);
@@ -63,16 +79,10 @@ export default class MiddleBoard extends Component {
     let w = this.props.width;
     let h = this.props.height;
 
-    let boardsize = null;
-    let size = null;
+    let boardsize = this.calcBoardSize();
+    let size = this.calcSize();
     let m = Math.min(w, h);
-    if (m > 600 && m < 1199) {
-      size = w / 2.5;
-      boardsize = w / 2.5;
-    } else {
-      boardsize = Math.min(h / 1.2, w / 1.2);
-      size = Math.min(h / 1.2, w / 1.2);
-    }
+
     const topPlayer =
       this.state.top === "w" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
     const bottomPlayer =

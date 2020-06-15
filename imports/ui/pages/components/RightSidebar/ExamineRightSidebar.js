@@ -1,40 +1,6 @@
 import React, { Component } from "react";
 import ExamineSidebarTop from "./elements/ExamineSidebarTop";
-import { Tabs } from "antd";
-const { TabPane } = Tabs;
-
-const ChatApp = () => {
-  return <div className="chat-app">chat app</div>;
-};
-class ExamineRightSidebarBottom extends Component {
-  constructor(props) {
-    super();
-  }
-
-  componentWillReceiveProps(nextProps) {}
-
-  render() {
-    return (
-      <Tabs
-        className="examine-right-sidebar-bottom"
-        defaultActiveKey="1"
-        size="small"
-        type="card"
-        style={{ marginBottom: 32 }}
-      >
-        <TabPane tab={"Chat"} key="chat">
-          <ChatApp />
-        </TabPane>
-        <TabPane tab="FEN/PGN" key="fen-png">
-          Content of tab 2
-        </TabPane>
-        <TabPane tab="GAMES" key="games">
-          Content of tab 2
-        </TabPane>
-      </Tabs>
-    );
-  }
-}
+import ExamineRightSidebarBottom from "./elements/ExamineRightSidebarBottom";
 
 class ExamineRightSidebar extends Component {
   constructor(props) {
@@ -66,7 +32,7 @@ class ExamineRightSidebar extends Component {
           currentGame={this.props.currentGame}
           ref="right_bar_top"
         />
-        <ExamineRightSidebarBottom />
+        <ExamineRightSidebarBottom gameId={this.props.gameId}/>
       </div>
     );
   }
