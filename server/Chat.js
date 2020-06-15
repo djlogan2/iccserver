@@ -108,7 +108,6 @@ Meteor.publishComposite("chat", {
         $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
       });
     },
-
     children: [{
       // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
       find(game, user) {
@@ -126,7 +125,27 @@ Meteor.publishComposite("chat", {
         return ChatCollection.find(queryobject);
       }
     }]
-  }]
+  },
+    {
+      //TODO: doesn't work, check with datagrip vs. test data
+      find(user) {
+        return Game.roomCollection.find({ "members.$.id": user._id
+        });
+      },
+      children: [{
+        find(room, user) {
+          const queryobject = { id: room._id , type: "room_chat"};
+          if (Users.isAuthorized(user, "child_chat")) {
+            queryobject.child_chat = true;
+          }
+          if (Users.isAuthorized(user, "personal_chat")) {
+            queryobject.type = "personal_chat";
+          }
+          return ChatCollection.find(queryobject);
+        }
+      }]
+
+    }]
 });
 
 function chatLoginHook(user) {

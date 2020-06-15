@@ -31,7 +31,6 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 //    what: "the text"
 // }
 import { Chat } from "./Chat";
-// TODO: check if roomCollection and collection must be checked in all tests
 describe.only("Chats", function() {
    const self = TestHelpers.setupDescribe.apply(this);
 //createRoom
