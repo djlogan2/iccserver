@@ -325,6 +325,7 @@ describe.only("Chats", function() {
   it("should publish chats from all rooms a user is in", function(done) {
     const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room"] });
     const user2 = TestHelpers.createUser({ roles: ["room_chat", "create_room"] });
+    self.loggedonuser = user1;
     const room_id1 = Chat.createRoom("mi1", "room 1");
     const room_id2 = Chat.createRoom("mi2", "room 2");
     const room_id3 = Chat.createRoom("mi3", "room 3");
@@ -343,11 +344,11 @@ describe.only("Chats", function() {
       chai.assert.equal(collections.chat.length, 4);
       collections.chat.forEach(c => delete c.create_date);
       chai.assert.sameDeepMembers([
-        { type: "room", id: room_id2, issuer: { id: user1._id, username: user1.username }, what: "room 2 text" },
-        { type: "room", id: room_id4, issuer: { id: user1._id, username: user1.username }, what: "room 4 text" },
-        { type: "room", id: room_id2, issuer: { id: user2._id, username: user1.username }, what: "2nd room 2 text" },
-        { type: "room", id: room_id4, issuer: { id: user2._id, username: user1.username }, what: "2ne room 4 text" }
-      ], collections.chat);
+        { type: "room", id: room_id2, isolation_group: "public", issuer: user1._id, what: "room 2 text" },
+        { type: "room", id: room_id4, isolation_group: "public", issuer: user1._id, what: "room 4 text" },
+        { type: "room", id: room_id2, isolation_group: "public", issuer: user2._id, what: "2nd room 2 text" },
+        { type: "room", id: room_id4, isolation_group: "public", issuer: user2._id, what: "2ne room 4 text" }
+      ], [collections.chat]);
       done();
     });
   });

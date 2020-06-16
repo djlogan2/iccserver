@@ -127,24 +127,49 @@ Meteor.publishComposite("chat", {
     }]
   },
     {
+      // TODO: Design:
+      // find: user -> room -> chat record -> allowed records
+      // cc -> only child_chat = true
+      // cce -> same as normal
+      // pv -> all senders and recievers that match with loggedon >0
+      // normal -> all non-private matches in room
+
+
       //TODO: doesn't work, check with datagrip vs. test data
-      find(user) {
-        return Game.roomCollection.find({ "members.$.id": user._id
-        });
+
+      find(){
+        return Meteor.users.find({_id: this.user._id});
       },
       children: [{
-        find(room, user) {
-          const queryobject = { id: room._id , type: "room_chat"};
-          if (Users.isAuthorized(user, "child_chat")) {
-            queryobject.child_chat = true;
+        find(user){
+          if(!Users.isAuthorized(user, "room_chat")){
+            return [];
           }
-          if (Users.isAuthorized(user, "personal_chat")) {
-            queryobject.type = "personal_chat";
+          else{
+            return Game.roomCollection.find({"members.$.id": user._id});
           }
-          return ChatCollection.find(queryobject);
-        }
-      }]
+        },
+        children: [{
+          find(user, room){
+            return Chat.collection.find({room_id: room._id});
+          },
+          children: [{
 
+            find(user, room, chat){
+
+              if(Users.isAuthorized(user, "child_chat")){
+                return chat.find({type: "room", child_chat: true});
+              }
+              if(Users.isAuthorized(user, "personal")){
+                return chat.find({type: "personal_chat", logons: {$gt: 0}});
+              }
+              else{
+                return chat.find({type: "room"});
+              }
+            }
+          }]
+        }]
+      }]
     }]
 });
 
