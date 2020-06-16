@@ -138,19 +138,28 @@ Meteor.publishComposite("chat", {
       //TODO: doesn't work, check with datagrip vs. test data
 
       find(){
-        return Meteor.users.find({_id: this.user._id});
+        console.log("entered A");
+        return Meteor.users.find({_id: this.userId});
       },
       children: [{
         find(user){
+
+          console.log("entered B");
           if(!Users.isAuthorized(user, "room_chat")){
+
+            console.log("entered B2");
             return [];
           }
           else{
+
+            console.log("entered B3");
             return Game.roomCollection.find({"members.$.id": user._id});
           }
         },
         children: [{
           find(user, room){
+
+            console.log("entered C");
             return Chat.collection.find({room_id: room._id});
           },
           children: [{
@@ -158,12 +167,18 @@ Meteor.publishComposite("chat", {
             find(user, room, chat){
 
               if(Users.isAuthorized(user, "child_chat")){
+
+                console.log("entered C1");
                 return chat.find({type: "room", child_chat: true});
               }
               if(Users.isAuthorized(user, "personal")){
+
+                console.log("entered C2");
                 return chat.find({type: "personal_chat", logons: {$gt: 0}});
               }
               else{
+
+                console.log("entered C3");
                 return chat.find({type: "room"});
               }
             }

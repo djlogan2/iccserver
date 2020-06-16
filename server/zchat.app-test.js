@@ -285,7 +285,7 @@ describe.only("Chats", function() {
     }], [chat]);
   });
 
-  it("should only publish child_chat texts to a user in child_chat role", function(done) {
+  it.only("should only publish child_chat texts to a user in child_chat role", function(done) {
     const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
     const user = TestHelpers.createUser({ roles: ["room_chat", "create_room"] });
     const child = TestHelpers.createUser({ roles: ["room_chat", "join_room", "child_chat"] });
@@ -299,9 +299,10 @@ describe.only("Chats", function() {
     Chat.writeToRoom("mi4", "exempt text");
 
     self.loggedonuser = child;
+
     const collector = new PublicationCollector({ userId: child._id });
     collector.collect("chat", collections => {
-      collections.chat.forEach(c => delete c.create_date);
+      //collections.chat.forEach(c => delete c.create_date);
       chai.assert.equal(collections.chat.length, 2);
       chai.assert.sameDeepMembers([{
         type: "room",
