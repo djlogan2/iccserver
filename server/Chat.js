@@ -96,6 +96,82 @@ Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {
   );
 };
 
+Meteor.publishComposite("testchat", {
+
+  // TODO: Design:
+  // find: user -> room -> chat record -> allowed records
+  // cc -> only child_chat = true
+  // cce -> same as normal
+  // pv -> all senders and recievers that match with loggedon >0
+  // normal -> all non-private matches in room
+
+
+  //TODO: find a way to merge this into publication "chat"
+
+  find(){
+  return Meteor.users.find({_id: this.userId});
+},
+  children: [{
+    find(user){
+
+      if(!Users.isAuthorized(user, "room_chat")){
+
+        return [];
+      }
+      else{
+
+
+        const member = { id: user._id, username: user.username };
+        return RoomCollection.find({"members": member});
+      }
+    },
+    children: [{
+      find(room, user) {
+        const queryobject = { id: room._id, type: "room" };
+        if (Users.isAuthorized(user, "child_chat"))
+          queryobject.child_chat = true;
+
+        if (Users.isAuthorized(user, "personal_chat")){
+          queryobject.type.push("private");
+          queryobject.logons = { $gt: 0 };
+        }
+
+        return Chat.collection.find(queryobject);
+      }
+    }]
+  }]
+});
+
+Meteor.publishComposite("testprivatechat", {
+
+  // TODO: Design:
+  // find: user -> room -> chat record -> allowed records
+  // cc -> only child_chat = true
+  // cce -> same as normal
+  // pv -> all senders and recievers that match with loggedon >0
+  // normal -> all non-private matches in room
+
+
+  //TODO: find a way to merge this into publication "chat"
+
+  find(){
+    return Meteor.users.find({_id: this.userId});
+  },
+  children: [{
+    find(user){
+
+      if(!Users.isAuthorized(user, "personal_chat")){
+
+        return [];
+      }
+      else{
+          return ChatCollection.find({ $or: [{id: user._id}, {issuer: user._id}], type: "private"});
+      }
+    }
+  }]
+});
+
+
 Meteor.publishComposite("chat", {
   // First, find the user
   find() {
@@ -118,88 +194,38 @@ Meteor.publishComposite("chat", {
           if (game.white.id === user._id || game.black.id === user._id)
             queryobject.type = "kibitz";
           else
-            queryobject.type = {$in: ["kibitz", "whisper"]};
+            queryobject.type = { $in: ["kibitz", "whisper"] };
         } else {
-          queryobject.type = {$in: ["kibitz", "whisper"]};
+          queryobject.type = { $in: ["kibitz", "whisper"] };
         }
         return ChatCollection.find(queryobject);
       }
     }]
-  },
-    {
-      // TODO: Design:
-      // find: user -> room -> chat record -> allowed records
-      // cc -> only child_chat = true
-      // cce -> same as normal
-      // pv -> all senders and recievers that match with loggedon >0
-      // normal -> all non-private matches in room
-
-
-      //TODO: doesn't work, check with datagrip vs. test data
-
-      find(){
-        console.log("entered A");
-        return Meteor.users.find({_id: this.userId});
-      },
-      children: [{
-        find(user){
-
-          console.log("entered B");
-          if(!Users.isAuthorized(user, "room_chat")){
-
-            console.log("entered B2");
-            return [];
-          }
-          else{
-
-            console.log("entered B3");
-            return Game.roomCollection.find({"members.$.id": user._id});
-          }
-        },
-        children: [{
-          find(user, room){
-
-            console.log("entered C");
-            return Chat.collection.find({room_id: room._id});
-          },
-          children: [{
-
-            find(user, room, chat){
-
-              if(Users.isAuthorized(user, "child_chat")){
-
-                console.log("entered C1");
-                return chat.find({type: "room", child_chat: true});
-              }
-              if(Users.isAuthorized(user, "personal")){
-
-                console.log("entered C2");
-                return chat.find({type: "personal_chat", logons: {$gt: 0}});
-              }
-              else{
-
-                console.log("entered C3");
-                return chat.find({type: "room"});
-              }
-            }
-          }]
-        }]
-      }]
-    }]
+  }]
 });
 
 function chatLoginHook(user) {
+  //TODO: same here
+
   ChatCollection.update({
-    $and: [{type: "private"}, {logons: 1}, {$or: [{"issuer.id": user._id},{id: user._id}]}]
+    $and: [{type: "private"}, {logons: 1}, {id: user._id}]
   }, {$set: {logons: 2}});
+  ChatCollection.update({
+    $and: [{type: "private"}, {logons: 1}, {issuer: user._id}]
+  }, {$set: {logons: 2}});
+
 }
 
 function chatLogoutHook(userId) {
   ChatCollection.remove({
-    $and: [{type: "private"}, {logons: 1}, {$or: [{"issuer.id": userId},{id: userId}]}]});
-  ChatCollection.update({
-    $and: [{type: "private"}, {logons: 2}, {$or: [{"issuer.id": userId},{id: userId}]}]
+    $and: [{type: "private"}, {logons: 1}, {$or: [{issuer: userId},{id: userId}]}]});
+  ChatCollection.update({ //TODO: need to clean this up, won't work put together...
+    $and: [{type: "private"}, {logons: 2}, {issuer: userId}]
   }, {$set: {logons: 1}});
+  ChatCollection.update({
+    $and: [{type: "private"}, {logons: 2}, {id: userId}]
+  }, {$set: {logons: 1}});
+
 }
 
 Chat.createRoom = function(message_identifier, roomName){
@@ -244,8 +270,6 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
     return;
   }
-
-  // does room even exist?
   if(!roomExists){
     ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     return;
@@ -329,7 +353,7 @@ Chat.joinRoom = function(message_identifier, room_id){
 
   // actually join room
   else{
-    RoomCollection.update({name: room.name}, {$push: {members: member}});
+    RoomCollection.update({name: RoomCollection.findOne({_id: room_id}).name}, {$push: {members: member}});
     return;
   }
 }

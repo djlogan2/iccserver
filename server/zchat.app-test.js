@@ -284,27 +284,29 @@ describe.only("Chats", function() {
       what: "child chat text"
     }], [chat]);
   });
-
-  it.only("should only publish child_chat texts to a user in child_chat role", function(done) {
+  it("should only publish child_chat texts to a user in child_chat role", function(done) {
     const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
-    const user = TestHelpers.createUser({ roles: ["room_chat", "create_room"] });
+    const user = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
     const child = TestHelpers.createUser({ roles: ["room_chat", "join_room", "child_chat"] });
     const exempt = TestHelpers.createUser({ roles: ["room_chat", "join_room", "child_chat_exempt"] });
     self.loggedonuser = user;
     const room_id = Chat.createRoom("mi1", "The room");
-    Chat.writeToRoom("mi2", "normal user text");
+    Chat.writeToRoom("mi2", room_id,"normal user text");
     self.loggedonuser = child;
-    Chat.writeToRoom("mi3", ccid);
+    Chat.writeToRoom("mi3", room_id,ccid);
     self.loggedonuser = exempt;
-    Chat.writeToRoom("mi4", "exempt text");
+    Chat.writeToRoom("mi4", room_id,"exempt text");
 
     self.loggedonuser = child;
 
     const collector = new PublicationCollector({ userId: child._id });
-    collector.collect("chat", collections => {
-      //collections.chat.forEach(c => delete c.create_date);
+    collector.collect("testchat", collections =>{
+    //collector.collect("chat", collections => {
+      collections.chat.forEach(c => delete c.create_date);
       chai.assert.equal(collections.chat.length, 2);
+
       chai.assert.sameDeepMembers([{
+        _id: collections.chat[0]._id,
         type: "room",
         isolation_group: "public",
         id: room_id,
@@ -312,20 +314,21 @@ describe.only("Chats", function() {
         child_chat: true,
         what: "child chat text"
       }, {
+        _id: collections.chat[1]._id,
         type: "room",
         isolation_group: "public",
         id: room_id,
         issuer: exempt._id,
         child_chat: true,
         what: "exempt text"
-      }], [collections.chat]);
+      }], collections.chat);
       done();
     });
   });
 
   it("should publish chats from all rooms a user is in", function(done) {
-    const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room"] });
-    const user2 = TestHelpers.createUser({ roles: ["room_chat", "create_room"] });
+    const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
+    const user2 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
     self.loggedonuser = user1;
     const room_id1 = Chat.createRoom("mi1", "room 1");
     const room_id2 = Chat.createRoom("mi2", "room 2");
@@ -341,15 +344,15 @@ describe.only("Chats", function() {
 
     self.loggedonuser = user2;
     const collector = new PublicationCollector({ userId: user2._id });
-    collector.collect("chat", collections => {
+    collector.collect("testchat", collections => {
       chai.assert.equal(collections.chat.length, 4);
-      collections.chat.forEach(c => delete c.create_date);
+      collections.chat.forEach(c => {delete c.create_date; delete c._id;});
       chai.assert.sameDeepMembers([
-        { type: "room", id: room_id2, isolation_group: "public", issuer: user1._id, what: "room 2 text" },
-        { type: "room", id: room_id4, isolation_group: "public", issuer: user1._id, what: "room 4 text" },
-        { type: "room", id: room_id2, isolation_group: "public", issuer: user2._id, what: "2nd room 2 text" },
-        { type: "room", id: room_id4, isolation_group: "public", issuer: user2._id, what: "2ne room 4 text" }
-      ], [collections.chat]);
+        {type: "room", id: room_id2, child_chat: false, isolation_group: "public", issuer: user1._id, what: "room 2 text"},
+        {type: "room", id: room_id4, child_chat: false, isolation_group: "public", issuer: user1._id, what: "room 4 text" },
+        {type: "room", id: room_id2, child_chat: false,  isolation_group: "public", issuer: user2._id, what: "2nd room 2 text" },
+        {type: "room", id: room_id4, child_chat: false, isolation_group: "public", issuer: user2._id, what: "2nd room 4 text" }
+      ], collections.chat);
       done();
     });
   });
@@ -612,8 +615,8 @@ describe.only("Chats", function() {
   });
 
   it("should publish private chats to both senders and receivers", function(done) {
-    const user1 = TestHelpers.createUser();
-    const user2 = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser( {roles: ["personal_chat"]});
+    const user2 = TestHelpers.createUser( {roles: ["personal_chat"]});
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, "The text 1");
     self.loggedonuser = user2;
@@ -621,23 +624,25 @@ describe.only("Chats", function() {
     new Promise((resolve) => {
       self.loggedonuser = user1;
       const collector = new PublicationCollector({ userId: user1._id });
-      collector.collect("chat", collections => {
+      collector.collect("testprivatechat", collections => {
         chai.assert.equal(collections.chat.length, 2);
-        collections.chat.forEach(c => delete c.create_date);
+        collections.chat.forEach(c => {delete c.create_date; delete c._id;});
         chai.assert.sameDeepMembers([{
           type: "private",
           id: user1._id,
           isolation_group: "public",
-          loggedon: 2,
-          issuer: { id: user2._id, username: user2.username },
+          child_chat: false,
+          logons: 2,
+          issuer: user2._id,
           what: "The text 2"
         },
           {
             type: "private",
             id: user2._id,
-            loggedon: 2,
+            logons: 2,
+            child_chat: false,
             isolation_group: "public",
-            issuer: { id: user1._id, username: user1.username },
+            issuer: user1._id,
             what: "The text 1"
           }], collections.chat);
         resolve();
@@ -646,21 +651,25 @@ describe.only("Chats", function() {
           return new Promise((resolve) => {
             self.loggedonuser = user2;
             const collector = new PublicationCollector({ userId: user2._id });
-            collector.collect("chat", collections => {
+            collector.collect("testprivatechat", collections => {
               chai.assert.equal(collections.chat.length, 2);
-              collections.chat.forEach(c => delete c.create_date);
+              collections.chat.forEach(c => {delete c.create_date; delete c._id;});
               chai.assert.sameDeepMembers([{
                 type: "private",
                 id: user1._id,
+                child_chat: false,
                 isolation_group: "public",
-                issuer: { id: user2._id, username: user2.username },
+                logons: 2,
+                issuer: user2._id,
                 what: "The text 2"
               },
                 {
                   type: "private",
                   id: user2._id,
                   isolation_group: "public",
-                  issuer: { id: user1._id, username: user1.username },
+                  logons: 2,
+                  issuer: user1._id,
+                  child_chat: false,
                   what: "The text 1"
                 }], collections.chat);
               resolve();
@@ -672,8 +681,8 @@ describe.only("Chats", function() {
   });
 
   it("should delete private chats when both users log off", function() {
-    const user1 = TestHelpers.createUser();
-    const user2 = TestHelpers.createUser();
+    const user1 = TestHelpers.createUser({roles: ["personal_chat"]});
+    const user2 = TestHelpers.createUser({roles: ["personal_chat"]});
     self.loggedonuser = user1;
     Chat.writeToUser("mi1", user2._id, "The text 1");
     self.loggedonuser = user2;
@@ -682,20 +691,22 @@ describe.only("Chats", function() {
     Chat.logoutHook(user1._id);
     const chats1 = Chat.collection.find().fetch();
     chai.assert.equal(chats1.length, 2);
-    chai.assert.equal(1, chats1[0].loggedon);
-    chai.assert.equal(1, chats1[1].loggedon);
+    chai.assert.equal(1, chats1[0].logons);
+    chai.assert.equal(1, chats1[1].logons);
 
     Chat.loginHook(user1);
     const chats = Chat.collection.find().fetch();
     chai.assert.equal(chats.length, 2);
-    chai.assert.equal(2, chats[0].loggedon);
-    chai.assert.equal(2, chats[1].loggedon);
+    chai.assert.equal(2, chats[0].logons);
+    chai.assert.equal(2, chats[1].logons);
 
+    //TODO: did we want 3 to occur in reciever being lost or is it a typo?
+    // TODO: also do we want issuer to be object? or id?
     Chat.logoutHook(user2._id);
     const chats3 = Chat.collection.find().fetch();
     chai.assert.equal(chats3.length, 2);
-    chai.assert.equal(3, chats1[0].loggedon);
-    chai.assert.equal(3, chats1[1].loggedon);
+    chai.assert.equal(1, chats1[0].logons);
+    chai.assert.equal(1, chats1[1].logons);
 
     Chat.logoutHook(user1._id);
     chai.assert.equal(Chat.collection.find().count(), 0);
