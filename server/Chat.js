@@ -105,13 +105,6 @@ Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {
 
 Meteor.publishComposite("testchat", {
 
-  // TODO: Design:
-  // find: user -> room -> chat record -> allowed records
-  // cc -> only child_chat = true
-  // cce -> same as normal
-  // pv -> all senders and recievers that match with loggedon >0
-  // normal -> all non-private matches in room
-
 
   //TODO: find a way to merge this into publication "chat"
 
@@ -122,7 +115,6 @@ Meteor.publishComposite("testchat", {
     find(user){
 
       if(!Users.isAuthorized(user, "room_chat")){
-
         return [];
       }
       else{
@@ -150,14 +142,6 @@ Meteor.publishComposite("testchat", {
 });
 
 Meteor.publishComposite("testprivatechat", {
-
-  // TODO: Design:
-  // find: user -> room -> chat record -> allowed records
-  // cc -> only child_chat = true
-  // cce -> same as normal
-  // pv -> all senders and recievers that match with loggedon >0
-  // normal -> all non-private matches in room
-
 
   //TODO: find a way to merge this into publication "chat"
 
@@ -234,7 +218,7 @@ function chatLogoutHook(userId) {
   }, {$set: {logons: 1}});
 
 }
-
+// TODO: have an option for private rooms?, for now defaults to public
 Chat.createRoom = function(message_identifier, roomName){
   const self = Meteor.user();
   const isoGroup = Meteor.user().isolation_group;
@@ -250,7 +234,7 @@ Chat.createRoom = function(message_identifier, roomName){
   // finally create room
   if(roomRole) {
     const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-    RoomCollection.insert({name: roomName, members: member, isolation_group: isoGroup});
+    RoomCollection.insert({name: roomName, members: member, isolation_group: isoGroup, public: true, owner: self._id});
     return RoomCollection.findOne({name: roomName})._id;
   }
   else{
@@ -281,6 +265,8 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
     ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     return;
   }
+  // sets owner, if room exisrs
+  const owner = roomExists.owner;
 
   // If user not allowed to join room, can't write either
   if(!joinRole && !inRoom){
@@ -304,6 +290,7 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
 
   // Actually write message to chat collection of room
   ChatCollection.insert({
+    owner: owner,
     isolation_group: isoGroup,
     type: "room",
     id: room_id,
