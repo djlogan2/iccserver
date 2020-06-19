@@ -33,11 +33,18 @@ ChildChatCollection.attachSchema({ text: String });
 
 RoomCollection.attachSchema({
   name: String,
+  owner: String, // For public rooms, just the user that created the room
+  public: Boolean,
   isolation_group: String,
   members: Array,
   "members.$": Object,
   "members.$.id": String,
-  "members.$.username": String
+  "members.$.username": String,
+  invited: {type: Array, defaultValue: []},
+  "invited.$": Object,
+  "invited.$.id": String,
+  "invited.$.username": String,
+  "invited.$.message_identifier": String
 });
 
 Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {

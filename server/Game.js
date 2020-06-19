@@ -1085,8 +1085,10 @@ Game.localRemoveObserver = function(
 
   let delete_game = (!game.private && game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) // Last examiner in a private game;
   delete_game = delete_game || (game.private && game.owner === id_to_remove && (game.observers.length === 1 && game.observers[0].id === id_to_remove)); // Owner of a private game,
+  // There was a game record in the DB not private, observer=[] and no examiners. I do not yet know how
+  delete_game = delete_game || !game.private && (!game.examiners || !game.examiners.length || !game.observers || !game.observers.length);
 
-  if (game.private && self._id !== id_to_remove)
+  if (game.private && self._id !== id_to_remove && !due_to_logout)
     ClientMessages.sendMessageToClient(id_to_remove, message_identifier, "PRIVATE_ENTRY_REMOVED");
 
   if (game.owner === id_to_remove && game.private && (!due_to_logout || delete_game)) {
@@ -3567,5 +3569,6 @@ Meteor.methods({
   allowRequests: Game.allowRequests,
   allowChat: Game.allowChat,
   allowAnalysis: Game.allowAnalysis,
-  localDenyObserver: Game.localDenyObserver
+  localDenyObserver: Game.localDenyObserver,
+  localAddObserver: Game.localAddObserver
 });

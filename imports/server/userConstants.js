@@ -29,6 +29,7 @@ export const all_roles = [
   "child_chat",
   "child_chat_exempt",
   "create_room",
+  "create_private_room",
   "room_chat",
   "join_room",
   "personal_chat"
@@ -47,7 +48,8 @@ export const standard_member_roles = [
   "upload_pgn",
   "room_chat",
   "join_room",
-  "personal_chat"
+  "personal_chat",
+  "create_private_room"
 ];
 
 export const fields_viewable_by_account_owner = {
