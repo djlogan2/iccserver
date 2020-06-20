@@ -265,7 +265,39 @@ describe("private group chats", function(){
   });
 
   //Chat.deleteRoom(mi, chatroom_id);
-  it.skip("should just fail right now -- when do we want to allow users to delete rooms?", function(){chai.assert.fail("do me");});
+  it("should allow the owner should be able to delete a private room", function(){
+    const owner = TestHelpers.createUser();
+    const dude = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const room_id = Chat.createRoom("mi1", "My room", true);
+    chai.assert.equal(1, Chat.roomCollection.find().count());
+    Chat.inviteToRoom("mi2", room_id, dude._id);
+
+    self.loggedonuser = dude;
+    Chat.joinRoom("mi3", room_id);
+
+    self.loggedonuser = owner;
+    Chat.deleteRoom("mi4", room_id);
+    chai.assert.equal(0, Chat.roomCollection.find().count());
+    chai.assert.equal(0, Chat.collection.find().count());
+  });
+
+  it("should return a message if a non-owner tries to delete a private room", function(){
+    const owner = TestHelpers.createUser();
+    const dude = TestHelpers.createUser();
+    self.loggedonuser = owner;
+    const room_id = Chat.createRoom("mi1", "My room", true);
+    chai.assert.equal(1, Chat.roomCollection.find().count());
+    Chat.inviteToRoom("mi2", room_id, dude._id);
+
+    self.loggedonuser = dude;
+    Chat.joinRoom("mi3", room_id);
+
+    Chat.deleteRoom("mi4", room_id);
+    chai.assert.equal(1, Chat.roomCollection.find().count());
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+  });
 
   //Chat.leaveRoom(mi, chatroom_id, user_to_evict);
   it("should delete an outstanding join request if one is active for a user and the owner is doing the deleting", function(){
@@ -521,7 +553,43 @@ describe("private group chats", function(){
     chai.assert.equal(Chat.roomCollection.findOne({_id: prvroom}).invited, 0);
   });
 
-  it("should delete all of the chats for a public room when it is deleted", function(){chai.assert.fail("do me");});
-  it("should delete all of the chats for a private room when it is deleted", function(){chai.assert.fail("do me");});
+  it("should delete all of the chats for a public room when it is deleted", function(){
+    const firstguy = TestHelpers.createUser({roles: ["create_room", "room_chat"]});
+    const otherguy = TestHelpers.createUser();
+
+    self.loggedonuser = firstguy;
+    const public_room = Chat.createRoom("mi1", "Public room");
+
+    self.loggedonuser = otherguy;
+    Chat.joinRoom("mi3", public_room);
+    Chat.writeToRoom("mi4", public_room, "The text");
+
+    Chat.deleteRoom("mi5", public_room);
+    chai.assert.equal(0, Chat.roomCollection.find().count());
+    chai.assert.equal(0, Chat.collection.find().count());
+  });
+
+  it("should delete all of the chats for a private room when it is deleted", function(){
+    const firstguy = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser();
+
+    self.loggedonuser = firstguy;
+    const private_room = Chat.createRoom("mi1", "My room", true);
+    Chat.inviteToRoom("mi2", private_room, otherguy._id);
+    const room = Chat.roomCollection.findOne();
+    chai.assert.sameDeepMembers([{id: otherguy._id, username: otherguy.username, message_identifier: "mi2"}], room.invited);
+
+    self.loggedonuser = otherguy;
+    Chat.joinRoom("mi3", private_room);
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    const room2 = Chat.roomCollection.findOne();
+    chai.assert.equal(0, room2.invited.length);
+    chai.assert.sameDeepMembers([{id: firstguy._id, username: firstguy.username},{id: otherguy._id, username: otherguy.username}], room2.members);
+    Chat.writeToRoom("mi4", private_room, "The text");
+    Chat.logoutHook(firstguy._id);
+    Chat.logoutHook(otherguy._id);
+    chai.assert.equal(0, Chat.roomCollection.find().count());
+    chai.assert.equal(0, Chat.collection.find().count());
+  });
 });
 
