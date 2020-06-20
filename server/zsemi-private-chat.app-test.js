@@ -473,7 +473,7 @@ describe("private group chats", function(){
     });
   });
 
-  it("should publish private rooms a user is an invitee of", function(){
+  it("should publish private rooms a user is an invitee of", function(done){
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
@@ -490,8 +490,37 @@ describe("private group chats", function(){
     });
   });
 
-  it("should not publish even public rooms to users in the child_chat role", function(){chai.assert.fail("do me");});
-  it("should not allow a user in the child_chat role to join a public room", function(){chai.assert.fail("do me");});
+  it("should not publish even public rooms to users in the child_chat role", function(done){
+    self.loggedonuser = TestHelpers.createUser();
+    Roles.addUsersToRoles(self.loggedonuser, "create_room");
+    Chat.createRoom("mi1", "Public room");
+    Chat.createRoom("mi2", "Private room", true);
+    self.loggedonuser = TestHelpers.createUser();
+    Roles.addUsersToRoles(self.loggedonuser, "child_chat");
+    const collector = new PublicationCollector({ userId: dude._id });
+    collector.collect("rooms", collections => {
+      chai.assert.equal(collections.rooms.length, 0);
+      done();
+    });
+  });
+
+  it("should not allow a user in the child_chat role to join a public room", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    Roles.addUsersToRoles(self.loggedonuser, "create_room");
+    const pubroom = Chat.createRoom("mi1", "Public room");
+    const prvroom = Chat.createRoom("mi2", "Private room", true);
+    self.loggedonuser = TestHelpers.createUser();
+    Roles.addUsersToRoles(self.loggedonuser, "child_chat");
+    Chat.joinRoom("mi3", pubroom);
+    Chat.joinRoom("mi4', prvroom);
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "?");
+    chai.assert.equal(Chat.roomCollection.findOne({_id: pubroom}).members, 1); // Just creator
+    chai.assert.equal(Chat.roomCollection.findOne({_id: prvroom}).members, 1); // Just creator
+    chai.assert.equal(Chat.roomCollection.findOne({_id: prvroom}).invited, 0);
+  });
+
   it("should delete all of the chats for a public room when it is deleted", function(){chai.assert.fail("do me");});
   it("should delete all of the chats for a private room when it is deleted", function(){chai.assert.fail("do me");});
 });
