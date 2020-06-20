@@ -512,7 +512,7 @@ describe("private group chats", function(){
     self.loggedonuser = TestHelpers.createUser();
     Roles.addUsersToRoles(self.loggedonuser, "child_chat");
     Chat.joinRoom("mi3", pubroom);
-    Chat.joinRoom("mi4', prvroom);
+    Chat.joinRoom("mi4", prvroom);
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
     chai.assert.equal(self.clientMessagesSpy.args[1][2], "?");
