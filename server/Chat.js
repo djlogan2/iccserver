@@ -20,7 +20,9 @@ ChatCollection.attachSchema(new SimpleSchema({
   },
   isolation_group: String,
   id: String, // game_id (kibitz/whisper), room_id, or receiver_id
-  issuer: String,
+  issuer: Object,
+  "issuer.id": String,
+  "issuer.username": String,
   type: {type: String, allowedValues: ["kibitz", "whisper", "room", "private"]},
   logons: {type: Number, required: false},
   what: String,
