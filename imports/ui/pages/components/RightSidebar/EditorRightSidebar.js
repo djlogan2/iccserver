@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Checkbox, Radio, Input, Button } from "antd";
+import { Link } from "react-router-dom";
 
 import "./../../css/EditorRightSidebar.css";
 
@@ -67,9 +68,12 @@ class EditorRightSidebar extends Component {
     return (
       <div className="editor-right-sidebar">
         <div className="editor-right-sidebar__head">
-          <Button href="/play" className="editor-right-sidebar__back-btn">
-            Back to Play
-          </Button>
+          <Link to="/examine">
+            <Button className="editor-right-sidebar__back-btn">
+              Back to Play
+            </Button>
+          </Link>
+
           <h2 className="editor-right-sidebar__title">Board set up</h2>
         </div>
         <div className="editor-right-sidebar__content">

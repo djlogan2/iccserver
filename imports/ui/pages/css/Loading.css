@@ -1,0 +1,14 @@
+.loading {
+
+}
+.loading__main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #292929;
+}
+.loading__sidebar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -10,6 +10,8 @@ import { Col, Row } from "antd";
 import CssManager from "./components/Css/CssManager";
 import EditorRightSidebar from "./components/RightSidebar/EditorRightSidebar";
 import Spare from "./components/Spare";
+import Loading from "./components/Loading";
+import BoardWrapper from "./components/BoardWrapper";
 import { Logger } from "../../../lib/client/Logger";
 
 // import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
@@ -228,6 +230,13 @@ class Editor extends Component {
     });
   };
 
+  calcBoardSize = () => {
+    let w = window.innerWidth;
+    let h = window.innerHeight;
+
+    return Math.min(h / 1.3, w / 2.5);
+  };
+
   render() {
     const { whiteCastling, blackCastling, orientation, color, fen, pause } = this.state;
 
@@ -241,31 +250,38 @@ class Editor extends Component {
       this.chessground.cg.state.viewOnly = pause;
     }
 
+    if (this.props.observed_games.length === 0) {
+      return <Loading />;
+    }
+    const baordSize = this.calcBoardSize();
+
     return (
       <AppWrapper className="editor" cssManager={css}>
         <Col span={14} className="editor__main">
-          <div className="merida" style={{ margin: "58px" }}>
-            {this.state.game !== null && (
-              <Chessground
-                width="40vw"
-                height="40vw"
-                orientation={orientation}
-                draggable={{
-                  enabled: true, // allow moves & premoves to use drag'n drop
-                  distance: 1, // minimum distance to initiate a drag; in pixels
-                  autoDistance: true, // lets chessground set distance to zero when user drags pieces
-                  centerPiece: true, // center the piece on cursor at drag start
-                  showGhost: true, // show ghost of piece being dragged
-                  deleteOnDropOff: true // delete a piece when it is dropped off the board
-                  // current?: DragCurrent;
-                }}
-                onChange={this.handleChange}
-                resizable={true}
-                ref={el => {
-                  this.chessground = el;
-                }}
-              />
-            )}
+          <div className="merida">
+            <BoardWrapper>
+              {this.state.game !== null && (
+                <Chessground
+                  width={baordSize}
+                  height={baordSize}
+                  orientation={orientation}
+                  draggable={{
+                    enabled: true, // allow moves & premoves to use drag'n drop
+                    distance: 1, // minimum distance to initiate a drag; in pixels
+                    autoDistance: true, // lets chessground set distance to zero when user drags pieces
+                    centerPiece: true, // center the piece on cursor at drag start
+                    showGhost: true, // show ghost of piece being dragged
+                    deleteOnDropOff: true // delete a piece when it is dropped off the board
+                    // current?: DragCurrent;
+                  }}
+                  onChange={this.handleChange}
+                  resizable={true}
+                  ref={el => {
+                    this.chessground = el;
+                  }}
+                />
+              )}
+            </BoardWrapper>
           </div>
         </Col>
         <Col span={10} className="editor-right-sidebar-wrapper">

@@ -18,7 +18,48 @@
 	padding-left: 7px;
 	padding-top: 10px;
 }
+.sidebar {
+	overflow: hidden;
+}
+.sidebar__logo {
+	display: flex;
+    flex-shrink: 0;
+	width: 9rem;
+	height: 5rem;
+	margin-top: 1rem;
+	margin-left: 1rem;
+	background: url('images/logo-white-lg.png');
+	background-position: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+.fliph .sidebar__logo {
+	height: 3rem;
+    width: 3rem;
+    background-size: cover;
+    background-position: left;
+}
+.sidebar__burger-btn {
+	background: url('images/menu-button-of-three-lines.svg') no-repeat;
+	background-position: center;
+    background-size: contain;
+    border: none;
+    outline: none;
+    flex: 1 1 0%;
+    text-align: center;
+    position: absolute;
+	right: 1rem;
+    top: 1.6rem;
+	width: 2.6rem;
+	height: 3rem;
+    overflow: hidden;
+	z-index: 99;
+}
 
+.fliph .sidebar__burger-btn {
+	top: 5rem;
+	right: 1.3rem;
+}
 
 .image > img {
 	max-width: 110px;
@@ -169,7 +210,14 @@
 .sidebar.left.device-menu ul li span {
     padding-left: 0px;
     display: inline-block;
-    line-height: 22px;
+    line-height: 2.2rem;
+  }
+
+  .fliph.sidebar.left.device-menu ul li span {
+	line-height: 1.2rem;
+	font-size: 1.2rem;
+	margin-top: 0.6rem;
+    text-align: center;
   }
 
   .sidebar.left.device-menu.fliph li a span {
@@ -186,14 +234,26 @@
 	margin-top: 78px;
   }
 
-  .sidebar li a,
-  .sidebar li a.collapsed.active {
+  .sidebar li a {
     display: block;
     padding: 8px 12px;
     color: #fff;
     border-left: 0px solid #dedede;
     text-align: left !important;
     text-decoration: none;
+  }
+  .fliph.sidebar li a {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+    padding: 8px 0;
+    color: #fff;
+    border-left: 0px solid #dedede;
+    text-align: left !important;
+    text-decoration: none;
+  }
+  .fliph.sidebar ul li img {
+	  margin: 0;
   }
 
   .sidebar ul li img {

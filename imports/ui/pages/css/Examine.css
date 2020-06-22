@@ -17,6 +17,14 @@
     flex-direction: column;
 }
 
+.examine-right-sidebar-bottom .ant-tabs-tabpane.ant-tabs-tabpane-inactive {
+    display: none !important;
+}
+
+/* .examine-right-sidebar-bottom .ant-tabs.ant-tabs-card .ant-tabs-card-content > .ant-tabs-tabpane-inactive {
+    display: none !important;
+} */
+
 
 .board-wrapper {
     display: flex;

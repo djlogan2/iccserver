@@ -6,6 +6,7 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "./components/Css/CssManager";
 // import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
 import AppWrapper from "./components/AppWrapper";
+import Loading from "./components/Loading";
 import { mongoCss, GameRequestCollection } from "../../api/collections";
 
 export default class HomeContainer extends TrackerReact(React.Component) {
@@ -107,7 +108,9 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     const systemCSS = this._systemCSS();
     const gameRequest = this.renderGameRequest();
     let translator = i18n.createTranslator("Common.HomeContainer", this.getLang());
-    if (systemCSS === undefined || systemCSS.length === 0) return <div>Loading...</div>;
+    if (systemCSS === undefined || systemCSS.length === 0) {
+      return <Loading isPure={true} />
+    }
     const css = new CssManager(this._systemCSS());
     let informativePopup = null;
     if (gameRequest !== undefined) {
@@ -147,17 +150,6 @@ export default class HomeContainer extends TrackerReact(React.Component) {
           </div>
         </div>
       </AppWrapper>
-      // <div className="home">
-      //   <div className="row1">
-      //     <LeftSidebar
-      //       cssmanager={css}
-      //       // LefSideBoarData={this.Main.LeftSection}
-      //       history={this.props.history}
-      //       examineAction={this.examineActionHandler}
-      //     />
-
-      //   </div>
-      // </div>
     );
   }
 }

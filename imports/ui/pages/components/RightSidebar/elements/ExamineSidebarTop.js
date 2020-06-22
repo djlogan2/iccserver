@@ -1,13 +1,17 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
+import { Button } from "antd";
 // import Tabs from "./Tabs/Tabs";
 import GameHistory from "./GameHistory";
+import ExamineObserveTab from "./ExamineObserveTab";
 // import CreateGame from "./CreateGameComponent";
 // import TournamentsList from "./TournamentsListComponent";
 import i18n from "meteor/universe:i18n";
 
 import { Tabs } from "antd";
 const { TabPane } = Tabs;
+
+
 
 export default class ExamineSidebarTop extends Component {
   constructor(props) {
@@ -38,7 +42,9 @@ export default class ExamineSidebarTop extends Component {
         style={{ marginBottom: 32 }}
       >
         <TabPane tab={translator("game")} key="1">
-          <Link to="/editor">Editor</Link>
+          <Link to="/editor">
+            <Button>Editor</Button>
+          </Link>
           <GameHistory
             cssmanager={this.props.cssmanager}
             game={this.props.RightBarTopData.MoveList}
@@ -51,7 +57,7 @@ export default class ExamineSidebarTop extends Component {
           />
         </TabPane>
         <TabPane tab="Observe" key="2">
-          Content of tab 2
+          <ExamineObserveTab allGames={this.props.allGames} />
         </TabPane>
       </Tabs>
       // <Tabs cssmanager={this.props.cssmanager}>
