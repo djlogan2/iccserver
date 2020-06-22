@@ -31,7 +31,7 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 //    what: "the text"
 // }
 import { Chat } from "./Chat";
-describe.only("Chats", function() {
+describe("Chats", function() {
    const self = TestHelpers.setupDescribe.apply(this);
 //createRoom
 
@@ -118,12 +118,11 @@ describe.only("Chats", function() {
       create_date: chat.create_date,
       id: room_id,
       type: "room",
-      issuer: self.loggedonuser._id,
+      issuer: {id: self.loggedonuser._id, username: self.loggedonuser.username},
       what: "The text",
       child_chat: false,
     }], [chat]);
   });
-  // TODO: nail down the wanted format, discrepancy in test
 
   it("should not allow writing to rooms if user does not have 'room_chat' role", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room", "join_room"] });
@@ -156,7 +155,7 @@ describe.only("Chats", function() {
       id: room_id,
       isolation_group: "public",
       type: "room",
-      issuer: creator._id,
+      issuer: {id: creator._id, username: creator.username},
       what: "The text",
       child_chat: false
     }], [chat[0]]);
@@ -165,7 +164,7 @@ describe.only("Chats", function() {
       id: room_id,
       isolation_group: "public",
       type: "room",
-      issuer: newguy._id,
+      issuer: {id: newguy._id, username: newguy.username},
       what: "The newguy text",
       child_chat: false
     }], [chat[1]]);
@@ -190,7 +189,7 @@ describe.only("Chats", function() {
       create_date: chat[0].create_date,
       id: room_id,
       type: "room",
-      issuer: creator._id,
+      issuer: {id: creator._id, username: creator.username},
       what: "The text"
     }], [chat[0]]);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
@@ -221,7 +220,7 @@ describe.only("Chats", function() {
       id: room_id,
       type: "room",
       isolation_group: "public",
-      issuer: user._id,
+      issuer: {id: user._id, username: user.username},
       child_chat: true,
       what: "The text"
     }], [chat]);
@@ -240,7 +239,7 @@ describe.only("Chats", function() {
       id: room_id,
       type: "room",
       isolation_group: "public",
-      issuer: user._id,
+      issuer: {id: user._id, username: user.username},
       child_chat: true,
       what: "child chat text"
     }], [chat]);
@@ -260,7 +259,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       id: room_id,
       type: "room",
-      issuer: normalguy._id,
+      issuer: {id: normalguy._id, username: normalguy.username},
       what: "normal text"
     }], [chat]);
   });
@@ -279,7 +278,7 @@ describe.only("Chats", function() {
       id: room_id,
       isolation_group: "public",
       type: "room",
-      issuer: normalguy._id,
+      issuer: {id: normalguy._id, username: normalguy.username},
       child_chat: true,
       what: "child chat text"
     }], [chat]);
@@ -300,7 +299,7 @@ describe.only("Chats", function() {
     self.loggedonuser = child;
 
     const collector = new PublicationCollector({ userId: child._id });
-    collector.collect("testchat", collections =>{
+    collector.collect("chat", collections =>{
     //collector.collect("chat", collections => {
       collections.chat.forEach(c => delete c.create_date);
       chai.assert.equal(collections.chat.length, 2);
@@ -310,7 +309,7 @@ describe.only("Chats", function() {
         type: "room",
         isolation_group: "public",
         id: room_id,
-        issuer: child._id,
+        issuer: {id: child._id, username: child.username},
         child_chat: true,
         what: "child chat text"
       }, {
@@ -318,7 +317,7 @@ describe.only("Chats", function() {
         type: "room",
         isolation_group: "public",
         id: room_id,
-        issuer: exempt._id,
+        issuer: {id: exempt._id, username: exempt.username},
         child_chat: true,
         what: "exempt text"
       }], collections.chat);
@@ -344,14 +343,14 @@ describe.only("Chats", function() {
 
     self.loggedonuser = user2;
     const collector = new PublicationCollector({ userId: user2._id });
-    collector.collect("testchat", collections => {
+    collector.collect("chat", collections => {
       chai.assert.equal(collections.chat.length, 4);
       collections.chat.forEach(c => {delete c.create_date; delete c._id;});
       chai.assert.sameDeepMembers([
-        {type: "room", id: room_id2, child_chat: false, isolation_group: "public", issuer: user1._id, what: "room 2 text"},
-        {type: "room", id: room_id4, child_chat: false, isolation_group: "public", issuer: user1._id, what: "room 4 text" },
-        {type: "room", id: room_id2, child_chat: false,  isolation_group: "public", issuer: user2._id, what: "2nd room 2 text" },
-        {type: "room", id: room_id4, child_chat: false, isolation_group: "public", issuer: user2._id, what: "2nd room 4 text" }
+        {type: "room", id: room_id2, child_chat: false, isolation_group: "public", issuer: {id: user1._id, username: user1.username}, what: "room 2 text"},
+        {type: "room", id: room_id4, child_chat: false, isolation_group: "public", issuer: {id: user1._id, username: user1.username}, what: "room 4 text" },
+        {type: "room", id: room_id2, child_chat: false,  isolation_group: "public", issuer: {id: user2._id, username: user2.username}, what: "2nd room 2 text" },
+        {type: "room", id: room_id4, child_chat: false, isolation_group: "public", issuer: {id: user2._id, username: user2.username}, what: "2nd room 4 text" }
       ], collections.chat);
       done();
     });
@@ -486,7 +485,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       id: user2._id,
       logons: 2,
-      issuer: user1._id,
+      issuer: {id: user1._id, username: user1.username},
       what: "The text"
     }, chat);
   });
@@ -539,7 +538,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: user1._id,
+      issuer: {id: user1._id, username: user1.username},
       what: "child chat text",
     }, chat);
   });
@@ -558,7 +557,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: user1._id,
+      issuer: {id: user1._id, username: user1.username},
       what: "freeform text"
     }, chat);
   });
@@ -578,7 +577,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: user1._id,
+      issuer: {id: user1._id, username: user1.username},
       what: "freeform text"
     }, chat);
   });
@@ -598,7 +597,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       logons: 2,
       child_chat: true,
-      issuer: user1._id,
+      issuer: {id: user1._id, username: user1.username},
       what: "child chat text",
     }, chat);
   });
@@ -624,7 +623,7 @@ describe.only("Chats", function() {
     new Promise((resolve) => {
       self.loggedonuser = user1;
       const collector = new PublicationCollector({ userId: user1._id });
-      collector.collect("testprivatechat", collections => {
+      collector.collect("chat", collections => {
         chai.assert.equal(collections.chat.length, 2);
         collections.chat.forEach(c => {delete c.create_date; delete c._id;});
         chai.assert.sameDeepMembers([{
@@ -633,7 +632,7 @@ describe.only("Chats", function() {
           isolation_group: "public",
           child_chat: false,
           logons: 2,
-          issuer: user2._id,
+          issuer: {id: user2._id, username: user2.username},
           what: "The text 2"
         },
           {
@@ -642,7 +641,7 @@ describe.only("Chats", function() {
             logons: 2,
             child_chat: false,
             isolation_group: "public",
-            issuer: user1._id,
+            issuer: {id: user1._id, username: user1.username},
             what: "The text 1"
           }], collections.chat);
         resolve();
@@ -651,7 +650,7 @@ describe.only("Chats", function() {
           return new Promise((resolve) => {
             self.loggedonuser = user2;
             const collector = new PublicationCollector({ userId: user2._id });
-            collector.collect("testprivatechat", collections => {
+            collector.collect("chat", collections => {
               chai.assert.equal(collections.chat.length, 2);
               collections.chat.forEach(c => {delete c.create_date; delete c._id;});
               chai.assert.sameDeepMembers([{
@@ -660,7 +659,7 @@ describe.only("Chats", function() {
                 child_chat: false,
                 isolation_group: "public",
                 logons: 2,
-                issuer: user2._id,
+                issuer: {id: user2._id, username: user2.username},
                 what: "The text 2"
               },
                 {
@@ -668,7 +667,7 @@ describe.only("Chats", function() {
                   id: user2._id,
                   isolation_group: "public",
                   logons: 2,
-                  issuer: user1._id,
+                  issuer: { id: user1._id, username: user1.username},
                   child_chat: false,
                   what: "The text 1"
                 }], collections.chat);
@@ -725,7 +724,7 @@ describe.only("Chats", function() {
       isolation_group: "public",
       id: user1._id,
       logons: 1,
-      issuer: user1._id,
+      issuer: {id: user1._id, username: user1.username},
       what: "The text 1"
     }, chat);
   });

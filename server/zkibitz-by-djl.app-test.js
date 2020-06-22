@@ -42,7 +42,7 @@ describe("kibitzes", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, true,"the text");
     const chat = Chat.collection.findOne();
-    chai.assert.deepEqual({create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "kibitz", issuer: self.loggedonuser._id, child_chat: true, what: "the text"}, chat);
+    chai.assert.deepEqual({create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "kibitz", issuer: {id: self.loggedonuser._id, username: self.loggedonuser.username}, child_chat: true, what: "the text"}, chat);
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "kibitz", self._id, {what: "the text"});
   });
@@ -180,7 +180,7 @@ describe("whispers", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, false,"the text");
     const chat = Chat.collection.findOne();
-    chai.assert.deepEqual({create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "whisper", issuer: self.loggedonuser._id, child_chat: true, what: "the text"}, chat);
+    chai.assert.deepEqual({create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "whisper", issuer: {id: self.loggedonuser._id, username: self.loggedonuser.username}, child_chat: true, what: "the text"}, chat);
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "whisper", self._id, {what: "the text"});
   });
