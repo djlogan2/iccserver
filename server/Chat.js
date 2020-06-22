@@ -20,7 +20,9 @@ ChatCollection.attachSchema(new SimpleSchema({
   },
   isolation_group: String,
   id: String, // game_id (kibitz/whisper), room_id, or receiver_id
-  issuer: String,
+  issuer: Object,
+  "issuer.id": String,
+  "issuer.username": String,
   type: {type: String, allowedValues: ["kibitz", "whisper", "room", "private"]},
   logons: {type: Number, required: false},
   what: String,
@@ -33,11 +35,18 @@ ChildChatCollection.attachSchema({ text: String });
 
 RoomCollection.attachSchema({
   name: String,
+  owner: String, // For public rooms, just the user that created the room
+  public: Boolean,
   isolation_group: String,
   members: Array,
   "members.$": Object,
   "members.$.id": String,
-  "members.$.username": String
+  "members.$.username": String,
+  invited: {type: Array, defaultValue: []},
+  "invited.$": Object,
+  "invited.$.id": String,
+  "invited.$.username": String,
+  "invited.$.message_identifier": String
 });
 
 Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {
