@@ -17,11 +17,15 @@ import "./../css/GameHistory.css";
 import "./../css/Examine.css";
 import "./../css/ExamineSidebarTop.css";
 import "./../css/ChatApp.css";
+import "./../css/FenPgn.css";
+import "./../css/Loading.css";
+
+import "./../css/ExamineRightSidebar.css";
 
 const AppWrapper = ({ className, children, cssManager }) => {
   return (
     <div className={`app-wrapper`}>
-      {cssManager && <LeftSidebar cssmanager={cssManager} />}
+      <LeftSidebar cssmanager={cssManager} />
       <Row className={`app-wrapper__row ${className}`}>{children}</Row>
     </div>
   );

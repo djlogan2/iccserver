@@ -1,0 +1,20 @@
+.fen-png {
+    padding: 0 2.4rem;
+}
+.fen-png__content {
+
+}
+.fen-png__content label {
+    margin: 0;
+    margin-top: 1.7rem;
+}
+.fen-pgn__button {
+    background: #1565C0;
+    border: none;
+}
+.fen-pgn__button:first-child {
+    margin-right: 1.8rem;
+}
+.fen-pgn__bottom {
+    margin-top: 1.9rem;
+}

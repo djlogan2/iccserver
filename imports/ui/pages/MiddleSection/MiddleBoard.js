@@ -154,7 +154,7 @@ export default class MiddleBoard extends Component {
     return (
       <div>
         <div style={{ width: size }}>
-          <Player
+          {/* <Player
             PlayerData={topPlayer}
             cssmanager={this.props.cssmanager}
             side={size}
@@ -170,7 +170,7 @@ export default class MiddleBoard extends Component {
             ClockData={this.props.game}
             color={topPlayertime}
             side={size}
-          />
+          /> */}
           <ChessBoard
             fen={fen}
             height={boardsize}
@@ -181,7 +181,7 @@ export default class MiddleBoard extends Component {
             gameStatus={this.props.gameStatus}
             currentGame={this.props.currentGame}
           />
-          <Player
+          {/* <Player
             PlayerData={bottomPlayer}
             cssmanager={this.props.cssmanager}
             side={size}
@@ -196,7 +196,7 @@ export default class MiddleBoard extends Component {
             ClockData={this.props.game}
             color={bottomPlayertime}
             side={size}
-          />
+          /> */}
         </div>
       </div>
     );

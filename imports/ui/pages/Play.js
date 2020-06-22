@@ -1,5 +1,5 @@
 import React from "react";
-import ExaminePage from "./components/ExaminePage";
+import PlayPage from "./components/PlayPage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../lib/client/Logger";
@@ -64,7 +64,7 @@ Meteor.startup(() => {
   });
 });
 
-class Examine extends TrackerReact(React.Component) {
+class Play extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
     this.gameId = null;
@@ -349,10 +349,9 @@ class Examine extends TrackerReact(React.Component) {
 
     return (
       <div className="examine">
-        <ExaminePage
+        <PlayPage
           userId={Meteor.userId()}
           cssmanager={css}
-          allGames={this.props.all_games}
           board={this._board}
           gameId={this.props.examine_game[0]._id}
           // fen={this._board.fen()}
@@ -395,7 +394,6 @@ export default withTracker(props => {
         sort: { create_date: -1 }
       }
     ),
-    all_games: Game.find().fetch(),
     game_messages: Game.findOne({
       $and: [
         { status: "playing" },
@@ -407,4 +405,4 @@ export default withTracker(props => {
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };
-})(Examine);
+})(Play);

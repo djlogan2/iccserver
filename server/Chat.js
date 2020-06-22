@@ -20,11 +20,11 @@ ChatCollection.attachSchema(new SimpleSchema({
   },
   isolation_group: String,
   id: String, // game_id (kibitz/whisper), room_id, or receiver_id
-  issuer: {type: Object},
-  "issuer.id": {type: String},
-  "issuer.username": {type: String},
-  type: { type: String, allowedValues: ["kibitz", "whisper", "room", "private"] },
-  logons: { type: Number, required: false },
+  issuer: Object,
+  "issuer.id": String,
+  "issuer.username": String,
+  type: {type: String, allowedValues: ["kibitz", "whisper", "room", "private"]},
+  logons: {type: Number, required: false},
   what: String,
   child_chat: Boolean
 }));
@@ -42,7 +42,7 @@ RoomCollection.attachSchema({
   "members.$": Object,
   "members.$.id": String,
   "members.$.username": String,
-  invited: { type: Array, defaultValue: [] },
+  invited: {type: Array, defaultValue: []},
   "invited.$": Object,
   "invited.$.id": String,
   "invited.$.username": String,
@@ -64,7 +64,7 @@ Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {
   }
 
   const game_ = Game.find({ _id: game_id }).fetch();
-  const game = !!game_ && game_.length ? game_[0] : null;
+  const game = !! game_ && game_.length ? game_[0] : null;
   let child_chat = false;
 
   if (!game) {
@@ -98,10 +98,10 @@ Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {
   });
 
   Game.addAction(game_id, {
-      type: kibitz ? "kibitz" : "whisper",
-      issuer: self._id,
-      parameter: { what: txt }
-    }
+          type: kibitz ? "kibitz" : "whisper",
+          issuer: self._id,
+          parameter: { what: txt }
+        }
   );
 };
 
@@ -228,8 +228,6 @@ Meteor.publishComposite("chat", {
 // });
 
 function chatLoginHook(user) {
-
-  // type = private and (id = user._id or issuer.id = user._id)
   ChatCollection.update({
     $and: [{type: "private"},{logons: 1},{$or: [{id: user._id},{"issuer.id": user._id}]}]}, { $set: { logons: 2 } }, {multi: true});
 }
@@ -295,7 +293,7 @@ Chat.writeToRoom = function(message_identifier, room_id, txt) {
     ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     return;
   }
-  // sets owner, if room exisrs
+  // sets owner, if room exists
   const owner = roomExists.owner;
 
   // If user not allowed to join room, can't write either
@@ -308,6 +306,7 @@ Chat.writeToRoom = function(message_identifier, room_id, txt) {
   if (joinRole && !inRoom) {
     Chat.joinRoom(message_identifier, room_id);
   }
+
 
 
   // fails if childchat and freeform
