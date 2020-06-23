@@ -15,33 +15,16 @@ describe("Client Messages", function() {
   });
 
   it("should throw an error if we call it with an unknown message identifier", function() {
+    this.timeout(30000);
     const user = TestHelpers.createUser();
-    chai.assert.throws(
-      () => ClientMessages.sendMessageToClient(user._id, "mi1", "UNKNOWN_I18N_MESSAGE"),
-      Match.Error
-    );
+    chai.assert.throws(() => ClientMessages.sendMessageToClient(user._id, "mi1", "UNKNOWN_I18N_MESSAGE"), Match.Error);
   });
 
   it("should throw an error if we call it with an known message identifier but with an incorrect number of parameters", function() {
     const user = TestHelpers.createUser();
     chai.assert.throws(
       () =>
-        ClientMessages.sendMessageToClient(
-          user._id,
-          "mi1",
-          "FOR_TESTING_10",
-          1,
-          "2",
-          3,
-          "4",
-          5,
-          "6",
-          7,
-          "8",
-          9
-        ),
-      Match.Error
-    );
+        ClientMessages.sendMessageToClient(user._id, "mi1", "FOR_TESTING_10", 1, "2", 3, "4", 5, "6", 7, "8", 9), Match.Error);
   });
 
   // it("should should format messages with many parameters successfully", function() {
@@ -148,25 +131,12 @@ describe("Client Messages publication", function() {
   });
 
   it("should only publish messages belonging to the user", function(done) {
+    this.timeout(30000);
     sinon.replace(i18n, "localizeMessage", sinon.fake.returns("the message"));
     const user1 = TestHelpers.createUser();
     const user2 = TestHelpers.createUser();
     ClientMessages.sendMessageToClient(user1._id, "mi1", "FOR_TESTING");
-    ClientMessages.sendMessageToClient(
-      user2._id,
-      "mi2",
-      "FOR_TESTING_10",
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10
-    );
+    ClientMessages.sendMessageToClient(user2._id,"mi2","FOR_TESTING_10",1,2,3,4,5,6,7,8,9,10);
     chai.assert.equal(ClientMessages.collection.find().count(), 2);
     const collector = new PublicationCollector({ userId: user1._id });
     collector.collect("client_messages", collections => {

@@ -10,6 +10,7 @@ describe("Server side i18n", function() {
   });
 
   it("returns en-us when locale isn't found", function() {
+    this.timeout(30000);
     i18nCollection.insert({
       messageid: "i8nvalue",
       locale: "en_us",

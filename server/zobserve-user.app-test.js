@@ -2,7 +2,7 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
 import {Game} from "./Game";
 
-describe.only("Observing a user", function(){
+describe("Observing a user", function(){
   const self = TestHelpers.setupDescribe.apply(this);
   it("should add the caller to the observers list of a game being played by the specified user", function(){
     this.timeout(500000);
