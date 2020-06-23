@@ -3063,7 +3063,27 @@ Game.localDenyObserver = function(message_identifier, game_id, requestor_id) {
 };
 
 Game.observeUser = function(message_identifier, user_id) {
-  //...
+  check(message_identifier, String);
+  check(user_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const user = Meteor.users.findOne({_id: user_id, isolation_group: self.isolation_group});
+  if(!user) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_USER");
+    return;
+  }
+
+  const game = GameCollection.findOne({
+    $or: [{"white.id": user_id},{"black.id": user_id}, {"examiners.id": user_id}]
+  });
+
+  if(!game) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_OR_EXAMINING");
+    return;
+  }
+
+  Game.localAddObserver(message_identifier, game._id, user_id);
 }
 
 function thisMove(node, move_number, write_move_number, white_to_move) {
