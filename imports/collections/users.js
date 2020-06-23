@@ -29,11 +29,10 @@ Meteor.publishComposite("loggedOnUsers", {
     {
       // We are going to leave this here to reinstate publishComposite with isolation groups
       find(user) {
-        const find = {};
         if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
         else
           return Meteor.users.find(
-            { $and: [{ "status.online": true }, { _id: { $ne: user._id } }] },
+            { $and: [{ "status.online": true }, { _id: { $ne: user._id } }, {isolation_group: user.isolation_group}] },
             { fields: viewable_logged_on_user_fields }
           );
       }
@@ -56,7 +55,7 @@ Meteor.methods({
     check(this.userId, String);
     if (prefix.length === 0) return [];
     return Meteor.users
-      .find({ username: { $regex: "^" + prefix } }, { username: 1 })
+      .find({ username: { $regex: "^" + prefix } }, { fields: {username: 1} })
       .fetch()
       .map(rec => rec.username);
   }

@@ -3062,6 +3062,10 @@ Game.localDenyObserver = function(message_identifier, game_id, requestor_id) {
   );
 };
 
+Game.observeUser = function(message_identifier, user_id) {
+  //...
+}
+
 function thisMove(node, move_number, write_move_number, white_to_move) {
   let string = "";
 

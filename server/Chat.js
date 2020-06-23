@@ -5,7 +5,6 @@ import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
-import { message } from "antd";
 
 const RoomCollection = new Mongo.Collection("rooms");
 const ChatCollection = new Mongo.Collection("chat");
@@ -92,7 +91,7 @@ Chat.kibitz = function(message_identifier, game_id, kibitz, txt) {
     type: kibitz ? "kibitz" : "whisper",
     isolation_group: self.isolation_group,
     id: game_id,
-    issuer: self._id,
+    issuer: {id: self._id, username: self.username},
     what: txt,
     child_chat: child_chat
   });
@@ -121,7 +120,7 @@ Meteor.publishComposite("chat", {
     children: [{
       // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
       find(game, user) {
-        const queryobject = { id: game._id };
+        const queryobject = { id: game._id, isolation_group: user.isolation_group };
         if (Users.isAuthorized(user, "child_chat"))
           queryobject.child_chat = true;
         if (game.status === "playing") {
@@ -167,13 +166,11 @@ Chat.createRoom = function(message_identifier, roomName){
   // finally create room
   if(roomRole) {
     const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-    RoomCollection.insert({name: roomName, members: member, isolation_group: isoGroup});
+    RoomCollection.insert({name: roomName, owner: self._id, members: member, isolation_group: isoGroup});
     return RoomCollection.findOne({name: roomName})._id;
   }
-  else{
+  else
     ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
-    return;
-  }
 }
 
 Chat.writeToRoom = function(message_identifier, room_id, txt){
@@ -229,9 +226,8 @@ Chat.writeToRoom = function(message_identifier, room_id, txt){
     what: resultText,
     child_chat: child_chat,
     create_date: Meteor.date,
-    issuer: self._id,
+    issuer: {id: self._id, username: self.username}
   });
-  return;
 }
 Chat.deleteRoom = function(message_identifier, room_id){
   // check if user is in role
@@ -243,15 +239,11 @@ Chat.deleteRoom = function(message_identifier, room_id){
     return;
   }
   // check if room exists
-  if(!record){
+  if(!record)
     ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
-    return;
-  }
   // Delete room record
-  else{
+  else
     RoomCollection.remove({_id: room_id});
-    return;
-  }
 }
 Chat.joinRoom = function(message_identifier, room_id){
   const self = Meteor.user();
@@ -272,22 +264,16 @@ Chat.joinRoom = function(message_identifier, room_id){
   }
 
   // See if room exists
-  if(!room){
+  if(!room)
     ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
-    return;
-  }
-
   // actually join room
-  else{
+  else
     RoomCollection.update({name: room.name}, {$push: {members: member}});
-    return;
-  }
 }
 Chat.leaveRoom = function(message_identifier, room_id){
 
   const member = {id: Meteor.user()._id, username: Meteor.user().username};
   RoomCollection.update({_id: room_id}, {$pull: {members: member}});
-  return;
 }
 
 Chat.writeToUser = function(message_identifier, user_id, text){
@@ -308,7 +294,7 @@ Chat.writeToUser = function(message_identifier, user_id, text){
   if(self.status.online){
     loggedon++;
   }
-  if(user.status.online && user_id != self._id){
+  if(user.status.online && user_id !== self._id){
     loggedon++;
   }
 
@@ -340,7 +326,7 @@ Chat.writeToUser = function(message_identifier, user_id, text){
   }
 
   // Won't send to loggedoff recipient, but will send to self
-  if(loggedon <= 1 && user_id != self._id){
+  if(loggedon <= 1 && user_id !== self._id){
     ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT");
     return;
   }
@@ -354,10 +340,8 @@ Chat.writeToUser = function(message_identifier, user_id, text){
     child_chat: child_chat,
     create_date: Meteor.date,
     logons: loggedon,
-    issuer: self._id,
+    issuer: {id: self._id, username: self.username}
   });
-  return;
-
 }
 
 
