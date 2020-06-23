@@ -20,23 +20,23 @@ class LeftSidebar extends Component {
     // this.props.gameHistory("mygame");
     // const data = this.context;
     // data.toggleModal(true);
-    this.props.history.push('/my-games');
+    this.props.history.push("/my-games");
   };
 
   handleUploadpgn = () => {
     // this.props.gameHistory("uploadpgn");
     // const data = this.context;
     // data.toggleModal(true);
-    this.props.history.push('/upload-pgn');
+    this.props.history.push("/upload-pgn");
   };
 
   handlePlay = () => {
     // this.props.examineAction("play");
-    this.props.history.push('/play');
+    this.props.history.push("/play");
   };
 
   handleExamine = () => {
-    this.props.history.push('/examine');
+    this.props.history.push("/examine");
     // Meteor.call(
     //   "startLocalExaminedGame",
     //   "startlocalExaminedGame",
@@ -62,28 +62,14 @@ class LeftSidebar extends Component {
   };
 
   render() {
-    let buttonStyle;
-    if (this.state.visible === true) {
-      buttonStyle = "toggleClose";
-    } else {
-      buttonStyle = "toggleOpen";
-    }
     return (
       <div
         className={
           this.state.visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"
         }
       >
-        <div className="image">
-          <img src={this.props.cssmanager.buttonBackgroundImage("logoWhite")} alt="logo" />
-        </div>
-        <button style={this.props.cssmanager.buttonStyle(buttonStyle)} onClick={this.toggleMenu}>
-          <img
-            src={this.props.cssmanager.buttonBackgroundImage("toggleMenu")}
-            style={this.props.cssmanager.toggleMenuHeight()}
-            alt="toggle menu"
-          />
-        </button>
+        <div className="sidebar__logo" />
+        <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
 
         <MenuLinks
           onMygame={this.handleMygame}
@@ -91,8 +77,6 @@ class LeftSidebar extends Component {
           onPlay={this.handlePlay}
           onExamine={this.handleExamine}
           onLogout={this.handleLogout}
-
-          cssmanager={this.props.cssmanager}
           history={this.props.history}
           gameHistory={this.props.gameHistory}
           examineAction={this.props.examineAction}

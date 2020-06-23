@@ -23,12 +23,11 @@ class ExamineRightSidebar extends Component {
     return (
       <div className="examine-right-sidebar">
         <ExamineSidebarTop
+          allGames={this.props.allGames}
           RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
           gameRequest={this.state.gameRequest}
-          startGameExamine={this.props.startGameExamine}
-          examineAction={this.props.examineAction}
           currentGame={this.props.currentGame}
           ref="right_bar_top"
         />

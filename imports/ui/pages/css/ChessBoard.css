@@ -147,26 +147,6 @@ bottom: 1px;
     left: 15px;
   }
 
-  .sidebar {
-    width: 170px;
-    z-index: 999;
-    height: 100vh;
-    background-color: #1565c0;
-    transition: all 0.5s ease-in-out;
-    position: fixed !important;
-    left: -170px;
-    top: 45px;
-  }
-
-  .sidebar.left.device-menu.fliph {
-    width: 170px;
-    transition: all 0.5s ease-in-out;
-    overflow: hidden;
-    z-index: 999;
-    height: 100vh;
-    left: 0px;
-    top: 45px;
-  }
 
   .navbar-light .navbar-brand {
     margin-left: 40px;
@@ -369,15 +349,7 @@ bottom: 1px;
     top: 30px;
   }
 
-  .sidebar.left.device-menu.fliph {
-    width: 170px;
-    transition: all 0.5s ease-in-out;
-    overflow: hidden;
-    z-index: 999;
-    height: 100vh;
-    left: 0px;
-    top: 30px;
-  }
+
 
   .navbar-light .navbar-brand {
     margin-left: 40px;
@@ -505,15 +477,6 @@ bottom: 1px;
     top: 45px;
   }
 
-  .sidebar.left.device-menu.fliph {
-    width: 170px;
-    transition: all 0.5s ease-in-out;
-    overflow: hidden;
-    z-index: 999;
-    height: 100vh;
-    left: 0px;
-    top: 45px;
-  }
 
   .navbar-light .navbar-brand {
     margin-left: 40px;

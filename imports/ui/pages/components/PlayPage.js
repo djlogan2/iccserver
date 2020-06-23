@@ -2,32 +2,31 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
 // import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
-import AppWrapper from "./components/AppWrapper";
-import ExamineRightSidebar from "./components/RightSidebar/ExamineRightSidebar";
+import AppWrapper from "./AppWrapper";
+import PlayRightSidebar from "./RightSidebar/PlayRightSidebar";
 // import RightSidebar from "./RightSidebar/RightSidebar";
-import "./css/ChessBoard";
-import "./css/leftsidebar";
-import "./css/RightSidebar";
+import "./../css/ChessBoard";
+import "./../css/leftsidebar";
+import "./../css/RightSidebar";
 
 import { Col } from "antd";
 
-import { links, tournament } from "./hardcode.json";
-import MiddleBoard from "./MiddleSection/MiddleBoard";
-import { Logger } from "../../../lib/client/Logger";
-import { ModalProvider } from "./ModalContext";
+import { links, tournament } from "../hardcode.json";
+import MiddleBoard from "../MiddleSection/MiddleBoard";
+import BoardWrapper from "./BoardWrapper";
+import { Logger } from "../../../../lib/client/Logger";
+import { ModalProvider } from "../ModalContext";
 import {
   GameRequestPopup,
   GamenotificationPopup,
   GameResignedPopup,
   ExaminActionPopup,
   ActionPopup
-} from "./components/Popup/Popup";
+} from "./Popup/Popup";
 import i18n from "meteor/universe:i18n";
 const log = new Logger("client/MainPage");
 
-const BoardWrapper = ({ children }) => <div className="board-wrapper">{children}</div>;
-
-export default class MainPage extends Component {
+export default class ExaminePage extends Component {
   constructor(props) {
     super(props);
     this.toggleModal = data => {
@@ -39,7 +38,7 @@ export default class MainPage extends Component {
       }
     };
     this.gameId = null;
-    this.userId = Meteor.userId();
+    this.userId = props.userId;
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -199,131 +198,7 @@ export default class MainPage extends Component {
   uploadPgn() {
     this.setState({ notification: true });
   }
-  loadGameHistroyPopup(games) {
-    let result;
-    let gamelist = [];
 
-    if (!!games && games.length > 0) {
-      for (let i = 0; i < games.length; i++) {
-        if (
-          (games[i].white.id === Meteor.userId() && games[i].result === "1-0") ||
-          (games[i].black.id === Meteor.userId() && games[i].result === "0-1")
-        ) {
-          // username - opponentusername.pgn;
-
-          result = "Won";
-        } else {
-          result = "Loss";
-        }
-        let time = "Fix me"; // TODO: This line is crashing (!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
-
-        // console.log();
-        gamelist.push({
-          id: games[i]._id,
-          name: "3 minut arina",
-          white: games[i].white.name.replace(/"/g, ""),
-          black: games[i].black.name.replace(/"/g, ""),
-          result: result,
-          time: time,
-          is_imported: games.is_imported
-        });
-      }
-    }
-
-    let style = {
-      width: "490px",
-      borderRadius: "15px",
-      background: "#ffffff",
-      position: "fixed",
-      zIndex: "99999",
-      left: "0px",
-      right: "0",
-      margin: "0px auto",
-      top: "50%",
-      transform: "translateY(-50%)",
-      padding: "20px",
-      textAlign: "center",
-      border: "1px solid #ccc",
-      boxShadow: "#0000004d"
-    };
-    let btnstyle = this.props.cssmanager.innerPopupMain();
-    Object.assign(btnstyle, { marginTop: "15px" });
-
-    return (
-      <ModalProvider value={this.state}>
-        <div style={style}>
-          {gamelist.length > 0 ? (
-            <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
-              <table
-                className="gamehistory"
-                style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
-              >
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      Players
-                    </th>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      Result
-                    </th>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      Date
-                    </th>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      PGN
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {gamelist.map((game, index) => (
-                    <tr key={index} style={{ cursor: "pointer" }}>
-                      <td
-                        style={{ padding: "5px 5px" }}
-                        onClick={this.setGameExaminMode.bind(this, game.id, game.is_imported)}
-                      >
-                        {game.white}-vs-{game.black}
-                      </td>
-                      <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                      <td style={{ padding: "5px 5px" }}>{game.time}</td>
-                      <td style={{ padding: "5px 5px" }}>
-                        <a href={"export/pgn/history/" + game.id} className="pgnbtn">
-                          <img
-                            src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
-                            style={{ width: "25px", height: "25px" }}
-                            alt="PgnDownload"
-                          />
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
-              No Data Found
-            </div>
-          )}
-          <button onClick={() => this.toggleModal(false)} style={btnstyle}>
-            Close
-          </button>
-        </div>
-      </ModalProvider>
-    );
-  }
-  setGameExaminMode(id, is_imported) {
-    Meteor.call("examineGame", "ExaminedGame", id, is_imported, (error, response) => {
-      if (error) {
-        log.debug(error);
-        console.log(error);
-        this.setState({ modalShow: false });
-      } else {
-        this.setState({ examineGame: true, activeTab: 3, modalShow: false });
-      }
-    });
-
-    this.props.removeGameHistory();
-  }
   startGameExamine() {
     this.setState({ examineGame: true, newOppenetRequest: false });
   }
@@ -367,7 +242,7 @@ export default class MainPage extends Component {
     let status = "others";
     let position = { top: "w" };
     if (!!game) {
-      if (game.black.id === Meteor.userId()) {
+      if (game.black.id === this.props.userId) {
         this.top = "w";
         Object.assign(position, { top: "w" });
       } else {
@@ -380,7 +255,7 @@ export default class MainPage extends Component {
     if (
       !!GameRequest &&
       GameRequest.type === "match" &&
-      GameRequest.receiver_id === Meteor.userId()
+      GameRequest.receiver_id === this.props.userId
     ) {
       let msg = translator("gamerequest");
       informativePopup = this.gameRequest(GameRequest["challenger"] + msg, GameRequest["_id"]);
@@ -497,23 +372,20 @@ export default class MainPage extends Component {
           </BoardWrapper>
         </Col>
         <Col span={10}>
-          <ExamineRightSidebar
+          {/* <ExamineRightSidebar
             gameId={this.props.gameId}
             cssmanager={this.props.cssmanager}
             RightSidebarData={this.Main.RightSection}
-            gameStatus={status}
             currentGame={this.state.examineGame}
-            newOppenetRequest={this.state.newOppenetRequest}
             flip={this._flipboard}
             gameRequest={this.props.gameRequest}
-            clientMessage={this.props.clientMessage}
             ref="right_sidebar"
-            examing={this.props.examing}
             startGameExamine={this.startGameExamine}
             examineAction={this.examineActionHandler}
             activeTabnumber={this.state.activeTab}
             uploadPgn={this.uploadPgn}
-          />
+          /> */}
+          <PlayRightSidebar/>
           {/* <RightSidebar
             cssmanager={this.props.cssmanager}
             RightSidebarData={this.Main.RightSection}
@@ -536,6 +408,6 @@ export default class MainPage extends Component {
   }
 }
 
-MainPage.propTypes = {
+ExaminePage.propTypes = {
   username: PropTypes.string
 };
