@@ -1321,7 +1321,7 @@ describe("Game.localRemoveObserver", function() {
     const pg1 = Game.collection.findOne({ status: "playing" });
     const ex1 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.equal(pg1.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal((pg1.observers ||[]).map(ob => ob.id).indexOf(observer._id), -1);
     chai.assert.notEqual(ex1.observers.map(ob => ob.id).indexOf(observer._id), -1);
 
     Game.localRemoveObserver("mi5", examined_game, observer._id);
