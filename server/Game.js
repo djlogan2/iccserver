@@ -65,16 +65,16 @@ function getAndCheck(message_identifier, game_id) {
 
 Game.observeGameChanges = function(selector, callbacks) {
   GameCollection.find(selector).observeChanges(callbacks);
-}
+};
 Game.find = function(selector) {
   return GameCollection.find(selector);
-}
+};
 
 Game.addAction = function(id, action) {
-  const game = GameCollection.findOne({_id: id});
-  if(!!game)
-    GameCollection.update({_id: id, status: game.status}, {$push: {actions: action}});
-}
+  const game = GameCollection.findOne({ _id: id });
+  if (!!game)
+    GameCollection.update({ _id: id, status: game.status }, { $push: { actions: action } });
+};
 
 Game.startLocalGame = function(
   message_identifier,
@@ -1076,14 +1076,14 @@ Game.localRemoveObserver = function(
     return;
   }
 
-  if(game.private && self._id !== game.owner && !server_command) {
+  if (game.private && self._id !== game.owner && !server_command) {
     ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
     return;
   }
 
   Users.setGameStatus(message_identifier, id_to_remove, "none");
 
-  let delete_game = (!game.private && game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove) // Last examiner in a private game;
+  let delete_game = (!game.private && game.examiners && game.examiners.length === 1 && game.examiners[0].id === id_to_remove); // Last examiner in a private game;
   delete_game = delete_game || (game.private && game.owner === id_to_remove && (game.observers.length === 1 && game.observers[0].id === id_to_remove)); // Owner of a private game,
   // There was a game record in the DB not private, observer=[] and no examiners. I do not yet know how
   delete_game = delete_game || !game.private && (!game.examiners || !game.examiners.length || !game.observers || !game.observers.length);
@@ -3319,6 +3319,35 @@ Meteor.publish("playing_games", function() {
   );
 });
 
+Meteor.publishComposite("all_games", {
+  find() {
+    return Meteor.users.find({ _id: this.userId, "status.online": true });
+  },
+  children: [
+    {
+      find(user) {
+        return GameCollection.find({ isolation_group: user.isolation_group }, {
+          fields: {
+            startTime: 1,
+            result: 1,
+            status2: 1,
+            private: 1,
+            deny_requests: 1,
+            deny_chat: 1,
+            tomove: 1,
+            wild: 1,
+            rating_type: 1,
+            rated: 1,
+            status: 1,
+            clocks: 1,
+            white: 1,
+            black: 1
+          }
+        });
+      }
+    }]
+});
+
 Meteor.publishComposite("observing_games", {
   find() {
     return Meteor.users.find({ _id: this.userId, "status.online": true });
@@ -3376,11 +3405,6 @@ Meteor.publishComposite("observing_games", {
     }
   ]
 });
-// Meteor.publish("observing_games", function() {
-//   return GameCollection.find({
-//     "observers.id": this.userId
-//   });
-// });
 
 function msToTime(duration) {
   var milliseconds = parseInt((duration % 1000) / 100),
