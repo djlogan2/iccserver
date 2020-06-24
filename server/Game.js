@@ -3166,7 +3166,12 @@ class Game {
       return;
     }
 
-    this.localAddObserver(message_identifier, game._id, user_id);
+    if(game.private) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "PRIVATE_GAME");
+      return;
+    }
+
+    this.localAddObserver(message_identifier, game._id, self._id);
   }
 
   thisMove(node, move_number, write_move_number, white_to_move) {
@@ -3596,5 +3601,6 @@ Meteor.methods({
   allowChat: global._gameObject.allowChat,
   allowAnalysis: global._gameObject.allowAnalysis,
   localDenyObserver: global._gameObject.localDenyObserver,
-  localAddObserver: global._gameObject.localAddObserver
+  localAddObserver: global._gameObject.localAddObserver,
+  observeUser: global._gameObject.observeUser
 });
