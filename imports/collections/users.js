@@ -22,20 +22,22 @@ Meteor.publishComposite("loggedOnUsers", {
   find() {
     return Meteor.users.find(
       { _id: this.userId, "status.online": true },
-      { fields: fields_viewable_by_account_owner }
+      { fields: {isolation_group: 1, _id: 1, username: 1}}
     );
   },
   children: [
     {
       // We are going to leave this here to reinstate publishComposite with isolation groups
       find(user) {
-        const find = {};
         if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
-        else
-          return Meteor.users.find(
-            { $and: [{ "status.online": true }, { _id: { $ne: user._id } }] },
+        else {
+          const cursor = Meteor.users.find(
+            { $and: [{ "status.online": true }, { _id: { $ne: user._id } }, { isolation_group: user.isolation_group }] },
             { fields: viewable_logged_on_user_fields }
           );
+          console.log(cursor.fetch());
+          return cursor;
+        }
       }
     }
   ]
@@ -56,7 +58,7 @@ Meteor.methods({
     check(this.userId, String);
     if (prefix.length === 0) return [];
     return Meteor.users
-      .find({ username: { $regex: "^" + prefix } }, { username: 1 })
+      .find({ username: { $regex: "^" + prefix } }, { fields: {username: 1} })
       .fetch()
       .map(rec => rec.username);
   }

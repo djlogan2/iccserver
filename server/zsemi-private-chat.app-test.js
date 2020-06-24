@@ -3,7 +3,7 @@ import { compare, TestHelpers } from "../imports/server/TestHelpers";
 import { Chat } from "./Chat";
 import {SystemConfiguration} from "../imports/collections/SystemConfiguration";
 
-describe("private group chats", function(){
+describe.skip("private group chats", function(){
   const self = TestHelpers.setupDescribe.apply(this);
 
   //Chat.createRoom(mi, room_name, private)

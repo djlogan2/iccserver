@@ -52,6 +52,7 @@ const LegacyMatchSchema = {
       return new Date();
     }
   },
+  isolation_group: String,
   type: String,
   challenger: String,
   challenger_rating: Number,
@@ -128,6 +129,7 @@ const LegacySeekSchema = {
       return new Date();
     }
   },
+  isolation_group: String,
   type: String,
   owner: String,
   legacy_index: Number,
@@ -206,6 +208,7 @@ GameRequests.addLegacyGameSeek = function(
     { type: "legacyseek", legacy_index: index, owner: self._id },
     {
       $set: {
+        isolation_group: "public",
         name: name,
         titles: titles,
         provisional_status: provisional_status,
@@ -502,6 +505,7 @@ GameRequests.addLegacyMatchRequest = function(
   }
   const record = {
     type: "legacymatch",
+    isolation_group: "public",
     challenger: challenger_name,
     challenger_rating: challenger_rating,
     challenger_established: challenger_established,
@@ -934,10 +938,9 @@ function seekMatchesUser(message_identifier, user, seek) {
 
 Meteor.publishComposite("game_requests", {
   find: function() {
-    log.debug("publishComposite user, userid=" + this.userId);
     return Meteor.users.find(
       { _id: this.userId, "status.online": true },
-      { fields: { "status.game": 1 } }
+      { fields: { "status.game": 1, isolation_group: 1 } }
     );
   },
   children: [
@@ -946,6 +949,7 @@ Meteor.publishComposite("game_requests", {
         log.debug("publishComposite game_requests, userid=" + user._id);
         if (user.status.game === "playing") return GameRequestCollection.find({ _id: "0" });
         return GameRequestCollection.find(
+          {$and: [
           {
             $or: [
               { challenger_id: user._id },
@@ -953,7 +957,7 @@ Meteor.publishComposite("game_requests", {
               { owner: user._id },
               { matchingusers: user._id }
             ]
-          },
+          }, {isolation_group: user.isolation_group }]},
           { fields: { matchingusers: 0 } }
         );
       }

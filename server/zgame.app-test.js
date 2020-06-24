@@ -107,7 +107,7 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, otherguy));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, otherguy));
     self.loggedonuser = us;
     Game.saveLegacyMove("mi2", 999, "c3");
     self.loggedonuser = otherguy;
@@ -121,7 +121,7 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, otherguy, false));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, otherguy, false));
     self.loggedonuser = us;
     Game.saveLegacyMove("mi2", 999, "c3");
     self.loggedonuser = otherguy;
@@ -369,7 +369,7 @@ describe("Game.startLegacyGame", function() {
 
     self.loggedonuser = legacy1;
     chai.assert.throws(
-      () => Game.startLegacyGame.apply(null, startLegacyGameParameters(legacy1, legacy2, true)),
+      () => Game.startLegacyGame.apply(Game, startLegacyGameParameters(legacy1, legacy2, true)),
       ICCMeteorError
     );
   });
@@ -379,7 +379,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
       () =>
-        Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, otherguy)),
+        Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, otherguy)),
       ICCMeteorError
     );
   });
@@ -389,7 +389,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const thirdguy = TestHelpers.createUser();
     chai.assert.throws(
-      () => Game.startLegacyGame.apply(null, startLegacyGameParameters(thirdguy, otherguy)),
+      () => Game.startLegacyGame.apply(Game, startLegacyGameParameters(thirdguy, otherguy)),
       ICCMeteorError
     );
   });
@@ -399,7 +399,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const thirdguy = TestHelpers.createUser();
     chai.assert.throws(
-      () => Game.startLegacyGame.apply(null, startLegacyGameParameters(thirdguy, otherguy)),
+      () => Game.startLegacyGame.apply(Game, startLegacyGameParameters(thirdguy, otherguy)),
       ICCMeteorError
     );
   });
@@ -410,18 +410,18 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[1] = "nine-nine-nine";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   it("should error out game number already exists", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     chai.assert.doesNotThrow(() =>
-      Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, otherguy))
+      Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, otherguy))
     );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.throws(
       () =>
-        Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, otherguy)),
+        Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, otherguy)),
       ICCMeteorError
     );
     chai.assert.equal(Game.collection.find().count(), 1);
@@ -436,7 +436,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[6] = "yep";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   white_initial,
   it("should error out if white initial isn't a number", function() {
@@ -444,7 +444,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[7] = "fifteen";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   white_increment,
   it("should error out if white increment isn't a number", function() {
@@ -452,7 +452,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[8] = "fifteen";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_initial,
   it("should error out if black initial isn't a number", function() {
@@ -460,7 +460,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[9] = "fifteen";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_increment,
   it("should error out if black increment isn't a number", function() {
@@ -468,7 +468,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[10] = "fifteen";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   played_game,
   it("should error out if played_game isn't a boolean", function() {
@@ -476,7 +476,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[11] = "yep";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   white_rating,
   it("should error out if white_rating isn't a number", function() {
@@ -484,7 +484,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[12] = "fifteen";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_rating,
   it("should error out if black_rating isn't a number", function() {
@@ -492,7 +492,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[13] = "fifteen";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   game_id,
   //   white_titles,
@@ -501,7 +501,7 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[15] = "GM C TD";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_titles,
   it("should error out if black_titles isn't an array", function() {
@@ -509,13 +509,13 @@ describe("Game.startLegacyGame", function() {
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[16] = "GM C TD";
-    chai.assert.throws(() => Game.startLegacyGame.apply(null, args), Match.Error);
+    chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   it("should add a record if all is ok", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     chai.assert.doesNotThrow(() =>
-      Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, otherguy))
+      Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, otherguy))
     );
     chai.assert.equal(Game.collection.find().count(), 1);
   });
@@ -523,7 +523,7 @@ describe("Game.startLegacyGame", function() {
   it("should add white.id if we can find a legacy record that matches", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLegacyGame.apply(
-      null,
+      Game,
       startLegacyGameParameters(self.loggedonuser, "otherguy")
     );
     const game_record = Game.collection.findOne({ _id: game_id });
@@ -535,7 +535,7 @@ describe("Game.startLegacyGame", function() {
   it("should add black.id if we can find a legacy record that matches", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLegacyGame.apply(
-      null,
+      Game,
       startLegacyGameParameters("otherguy", self.loggedonuser)
     );
 
@@ -549,7 +549,7 @@ describe("Game.startLegacyGame", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const game_id = Game.startLegacyGame.apply(
-      null,
+      Game,
       startLegacyGameParameters(otherguy, self.loggedonuser)
     );
 
@@ -562,7 +562,7 @@ describe("Game.startLegacyGame", function() {
   it("should fail to save to the database if neither white.id nor black.id are specified", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(
-      () => Game.startLegacyGame.apply(null, startLegacyGameParameters("guy1", "guy2")),
+      () => Game.startLegacyGame.apply(Game, startLegacyGameParameters("guy1", "guy2")),
       ICCMeteorError
     );
   });
@@ -579,7 +579,7 @@ describe("Game.saveLegacyMove", function() {
 
   it("should error out if self is null", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     self.loggedonuser = undefined;
     chai.assert.throws(() => Game.saveLegacyMove("mi1", 999, "e4"), Match.Error);
   });
@@ -591,7 +591,7 @@ describe("Game.saveLegacyMove", function() {
 
   it("pushes an action when it succeeds", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     // Sure, leave it this way, legacy move saves aren't suppose to check legality
     const moves = ["e4", "e5", "Nf2", "Nf6", "Nc3"];
     moves.forEach(move => Game.saveLegacyMove("mi1", 999, move));
@@ -875,7 +875,7 @@ describe("Game.legacyGameEnded", function() {
 
   it("should fail if user is neither player", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(
       () => Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00"),
@@ -885,7 +885,7 @@ describe("Game.legacyGameEnded", function() {
 
   it("should fail if game is not being played", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     chai.assert.doesNotThrow(() =>
       Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00")
     );
@@ -897,7 +897,7 @@ describe("Game.legacyGameEnded", function() {
 
   it("should convert to examined if become_examined is true", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00");
     const games = Game.collection.find().fetch();
     chai.assert.isDefined(games);
@@ -907,7 +907,7 @@ describe("Game.legacyGameEnded", function() {
 
   it("should be deleted if become_examined is false", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(self.loggedonuser, "otherguy"));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     Game.legacyGameEnded("mi", 999, false, "Mat", "0-1", "Checkmated", "B00");
     const games = Game.collection.find().fetch();
     chai.assert.isDefined(games);
@@ -1321,7 +1321,7 @@ describe("Game.localRemoveObserver", function() {
     const pg1 = Game.collection.findOne({ status: "playing" });
     const ex1 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.equal(pg1.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal((pg1.observers ||[]).map(ob => ob.id).indexOf(observer._id), -1);
     chai.assert.notEqual(ex1.observers.map(ob => ob.id).indexOf(observer._id), -1);
 
     Game.localRemoveObserver("mi5", examined_game, observer._id);
@@ -1369,7 +1369,7 @@ describe("Game.removeLegacyGame", function() {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLegacyGame.apply(null, startLegacyGameParameters(us, opp));
+    Game.startLegacyGame.apply(Game, startLegacyGameParameters(us, opp));
     chai.assert.doesNotThrow(() => Game.removeLegacyGame("mi2", 999));
   });
 });
@@ -1449,7 +1449,7 @@ describe("Takeback behavior", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   it("restores both clocks to the same time as the move taken back to", function() {
-    this.timeout(30000);
+    this.timeout(60000);
     // So if say:
     // move 20, white clock: 25:00, black clock: 15:00,
     // at move 22, white clock: 5:00, black clock: 2:00,
@@ -1459,20 +1459,7 @@ describe("Takeback behavior", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     let other = p2;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     const current = [];
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
       const game = Game.collection.findOne();
