@@ -116,7 +116,7 @@ describe("Observing a user", function(){
     const p2 = TestHelpers.createUser();
 
     self.loggedonuser = victim;
-    \Game.startLocalExaminedGame("mi2", "white", "black", 0);
+    Game.startLocalExaminedGame("mi2", "white", "black", 0);
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
 
     self.loggedonuser = stalker;
