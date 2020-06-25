@@ -27,62 +27,41 @@ let active_games = {};
 const game_pings = {};
 const move_timers = {};
 
-const GameCollection = new Mongo.Collection("game");
 const GameHistoryCollection = new Mongo.Collection("game_history");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
 let log = new Logger("server/Game_js");
 
-GameCollection.attachSchema(ExaminedGameSchema, {
-  selector: { status: "examining" }
-});
-
-GameCollection.attachSchema(PlayedGameSchema, {
-  selector: { status: "playing" }
-});
-
-function getAndCheck(message_identifier, game_id) {
-  const self = Meteor.user();
-  check(self, Object);
-  check(game_id, String);
-
-  const game = GameCollection.findOne({ _id: game_id });
-
-  if (!game) {
-    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
-    return;
-  }
-
-  if (game.legacy_game_number)
-    throw new ICCMeteorError(message_identifier, "Found a legacy game record");
-
-  if (!active_games[game_id])
-    throw new ICCMeteorError("server", "Unable to find chessboard validator for game");
-
-  return game;
-}
-
 class Game {
 
   constructor() {
     const self = this;
+
+    this.GameCollection = new Mongo.Collection("game");
+    this.GameCollection.attachSchema(ExaminedGameSchema, {
+      selector: { status: "examining" }
+    });
+
+    this.GameCollection.attachSchema(PlayedGameSchema, {
+      selector: { status: "playing" }
+    });
+
     Meteor.startup(
       function() {
         // TODO: Need to adjourn these, not just delete them
-        GameCollection.remove({});
+        self.GameCollection.remove({});
         Users.addLogoutHook(self.gameLogoutHook);
         Users.addLoginHook(self.gameLoginHook);
       }
-    )
-    ;
+    );
 
     if (Meteor.isTest || Meteor.isAppTest) {
-      this.collection = GameCollection;
+      this.collection = self.GameCollection;
     }
 
     Meteor.publish("playing_games", function() {
       log.debug("Playing games method called for " + this.userId);
-      return GameCollection.find(
+      return self.GameCollection.find(
         {
           $and: [
             { status: "playing" },
@@ -100,7 +79,7 @@ class Game {
       children: [
         {
           find(user) {
-            return GameCollection.find({ isolation_group: user.isolation_group }, {
+            return self.GameCollection.find({ isolation_group: user.isolation_group }, {
               fields: {
                 startTime: 1,
                 result: 1,
@@ -130,13 +109,13 @@ class Game {
         {
           // Firstly, owners see everything
           find(user) {
-            return GameCollection.find({ owner: user._id, status: "examining" });
+            return self.GameCollection.find({ owner: user._id, status: "examining" });
           }
         },
         {
           // Thenly, people with allowed analysis can see that (or anyone if game is public).
           find(user) {
-            return GameCollection.find(
+            return self.GameCollection.find(
               {
                 $or: [
                   { private: false },
@@ -156,7 +135,7 @@ class Game {
         {
           find(user) {
             // Lastly, people without analysis cannot see computer analysis
-            return GameCollection.find(
+            return self.GameCollection.find(
               {
                 $and: [
                   { private: true },
@@ -181,18 +160,39 @@ class Game {
     });
   }
 
+  getAndCheck(message_identifier, game_id) {
+    const self = Meteor.user();
+    check(self, Object);
+    check(game_id, String);
+
+    const game = this.GameCollection.findOne({ _id: game_id });
+
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
+      return;
+    }
+
+    if (game.legacy_game_number)
+      throw new ICCMeteorError(message_identifier, "Found a legacy game record");
+
+    if (!active_games[game_id])
+      throw new ICCMeteorError("server", "Unable to find chessboard validator for game");
+
+    return game;
+  }
+
   observeGameChanges(selector, callbacks) {
-    GameCollection.find(selector).observeChanges(callbacks);
+    this.GameCollection.find(selector).observeChanges(callbacks);
   };
 
   find(selector) {
-    return GameCollection.find(selector);
+    return this.GameCollection.find(selector);
   };
 
   addAction(id, action) {
-    const game = GameCollection.findOne({ _id: id });
+    const game = this.GameCollection.findOne({ _id: id });
     if (!!game)
-      GameCollection.update({ _id: id, status: game.status }, { $push: { actions: action } });
+      this.GameCollection.update({ _id: id, status: game.status }, { $push: { actions: action } });
   };
 
   startLocalGame(
@@ -399,7 +399,7 @@ class Game {
     Users.setGameStatus(message_identifier, white, "playing");
     Users.setGameStatus(message_identifier, black, "playing");
 
-    const game_id = GameCollection.insert(game);
+    const game_id = this.GameCollection.insert(game);
 
     active_games[game_id] = chess;
     log.debug(
@@ -470,7 +470,7 @@ class Game {
     }
 
     delete game_object._id; // For safety
-    const game_id = GameCollection.insert(game_object);
+    const game_id = this.GameCollection.insert(game_object);
     active_games[game_id] = chess;
     return game_id;
   };
@@ -530,7 +530,7 @@ class Game {
     };
 
     Users.setGameStatus(message_identifier, self, "examining");
-    const game_id = GameCollection.insert(game);
+    const game_id = this.GameCollection.insert(game);
     active_games[game_id] = chess;
     return game_id;
   };
@@ -598,14 +598,14 @@ class Game {
     if (!self.status.online)
       throw new ICCMeteorError(message_identifier, "Unable to start legacy game", "User is not logged on");
 
-    const exists = GameCollection.find({ legacy_game_number: gamenumber }).count();
+    const exists = this.GameCollection.find({ legacy_game_number: gamenumber }).count();
     if (exists)
       throw new ICCMeteorError(message_identifier, "Unable to start game", "There is already a game in the database with the same game number");
 
     if (!!whiteuser && !!blackuser && LegacyUser.isLoggedOn(whiteuser) && LegacyUser.isLoggedOn(blackuser))
       throw new ICCMeteorError(message_identifier, "Unable to start game", "Both players are logged on locally. Begin a local game");
 
-    if (GameCollection.find({ status: "playing", $or: [{ "white.id": self._id }, { "black.id": self._id }] }).count() !== 0) {
+    if (this.GameCollection.find({ status: "playing", $or: [{ "white.id": self._id }, { "black.id": self._id }] }).count() !== 0) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
       return;
     }
@@ -689,7 +689,7 @@ class Game {
     if (!!whiteuser) Users.setGameStatus(message_identifier, whiteuser, "playing");
     if (!!blackuser) Users.setGameStatus(message_identifier, blackuser, "playing");
 
-    return GameCollection.insert(game);
+    return this.GameCollection.insert(game);
   };
 
   saveLegacyMove(message_identifier, game_id, move) {
@@ -700,7 +700,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = GameCollection.findOne({ legacy_game_number: game_id });
+    const game = this.GameCollection.findOne({ legacy_game_number: game_id });
 
     if (!game)
       throw new ICCMeteorError(
@@ -716,7 +716,7 @@ class Game {
         "User does not seem to be either player"
       );
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game._id, status: "playing" },
       { $push: { actions: { type: "move", issuer: "legacy", parameter: move } } }
     );
@@ -746,7 +746,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
 
     if (!game) return;
     const chessObject = active_games[game_id];
@@ -905,7 +905,7 @@ class Game {
       Users.setGameStatus(message_identifier, game.black.id, "examining");
     }
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: game.status },
       {
         $unset: unsetobject,
@@ -934,12 +934,12 @@ class Game {
           log.debug("Score for game " + game_id + " is " + score);
           const setobject = {};
           setobject["variations.movelist." + (variation.movelist.length - 1) + ".score"] = score;
-          const result = GameCollection.update(
+          const result = this.GameCollection.update(
             { _id: game_id, status: game.status },
             { $set: setobject }
           );
           if (!result && game.status === "playing") {
-            const result2 = GameCollection.update(
+            const result2 = this.GameCollection.update(
               { _id: game_id, status: "examining" },
               { $set: setobject }
             );
@@ -984,7 +984,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = GameCollection.findOne({ legacy_game_number: gamenumber });
+    const game = this.GameCollection.findOne({ legacy_game_number: gamenumber });
     if (!game)
       throw new ICCMeteorError(
         message_identifier,
@@ -1009,7 +1009,7 @@ class Game {
         examiners.push({ id: game.black.id, username: game.black.name });
         Users.setGameStatus(message_identifier, game.black.id, "examining");
       }
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game._id, status: "playing" },
         {
           $set: {
@@ -1024,7 +1024,7 @@ class Game {
     } else {
       if (game.white.id) Users.setGameStatus(message_identifier, game.white.id, "none");
       if (game.black.id) Users.setGameStatus(message_identifier, game.black.id, "none");
-      GameCollection.remove({ _id: game._id });
+      this.GameCollection.remove({ _id: game._id });
     }
   };
 
@@ -1042,7 +1042,7 @@ class Game {
         "Cannot remove yourself"
       );
 
-    const game = GameCollection.findOne({
+    const game = this.GameCollection.findOne({
       _id: game_id
     });
     if (!game)
@@ -1071,7 +1071,7 @@ class Game {
 
     Users.setGameStatus(message_identifier, id_to_remove, "observing");
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       { $pull: { examiners: { id: id_to_remove } } }
     );
@@ -1084,7 +1084,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
 
     if (!game)
       throw new ICCMeteorError(
@@ -1116,7 +1116,7 @@ class Game {
 
     Users.setGameStatus(message_identifier, id_to_add, "examining");
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       { $addToSet: { examiners: observer } }
     );
@@ -1144,7 +1144,7 @@ class Game {
     }
     check(self, Object);
 
-    const game = GameCollection.findOne({
+    const game = this.GameCollection.findOne({
       _id: game_id
     });
 
@@ -1180,17 +1180,17 @@ class Game {
 
     if (game.owner === id_to_remove && game.private && (!due_to_logout || delete_game)) {
       this.setPrivate(message_identifier, game_id, false);
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         { $unset: { owner: 1, deny_chat: 1 } }
       );
     }
 
     if (delete_game) {
-      GameCollection.remove({ _id: game_id });
+      this.GameCollection.remove({ _id: game_id });
       delete active_games[game_id];
     } else {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: game.status },
         {
           $pull: {
@@ -1212,7 +1212,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game)
       throw new ICCMeteorError(
         message_identifier,
@@ -1234,7 +1234,7 @@ class Game {
       return;
     }
 
-    const private_game = GameCollection.findOne({
+    const private_game = this.GameCollection.findOne({
       $and: [
         { status: "examining" },
         { owner: self._id },
@@ -1256,7 +1256,7 @@ class Game {
           ClientMessages.sendMessageToClient(self, message_identifier, "NOT_A_REQUESTOR");
           return;
         }
-        GameCollection.update(
+        this.GameCollection.update(
           { _id: game_id, status: "examining" },
           { $pull: { requestors: { id: id_to_add } } }
         );
@@ -1275,7 +1275,7 @@ class Game {
         }
         if (!game.requestors) game.requestors = [];
         game.requestors.push({ id: self._id, username: self.username, mid: message_identifier });
-        GameCollection.update(
+        this.GameCollection.update(
           { _id: game_id, status: "examining" },
           { $set: { requestors: game.requestors } }
         );
@@ -1298,7 +1298,7 @@ class Game {
 
     this.localUnobserveAllGames(message_identifier, id_to_add, id_to_add !== self._id);
     Users.setGameStatus(message_identifier, id_to_add, "observing");
-    GameCollection.update({ _id: game_id, status: game.status }, updateobject);
+    this.GameCollection.update({ _id: game_id, status: game.status }, updateobject);
   };
 
   removeLegacyGame(message_identifier, game_id) {
@@ -1307,7 +1307,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const count = GameCollection.remove({ legacy_game_number: game_id });
+    const count = this.GameCollection.remove({ legacy_game_number: game_id });
     if (!count)
       throw new ICCMeteorError(
         message_identifier,
@@ -1328,7 +1328,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
 
     if (game.status !== "playing") {
@@ -1363,7 +1363,7 @@ class Game {
     setobject["pending." + color + ".takeback.mid"] = message_identifier;
     setobject["variations.hmtb"] = number;
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $set: setobject,
@@ -1385,7 +1385,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "NOT_PLAYING_A_GAME");
@@ -1429,7 +1429,7 @@ class Game {
       "clocks.black.current": clock_reset.black
     };
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: action },
@@ -1451,7 +1451,7 @@ class Game {
 
     const self = Meteor.user();
     check(self, Object);
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -1466,7 +1466,7 @@ class Game {
     const setobject = {};
     setobject["pending." + othercolor + ".takeback"] = { number: 0, mid: "0" };
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $set: setobject,
@@ -1491,7 +1491,7 @@ class Game {
     check(self, Object);
 
     log.debug("requestLocalDraw ", game_id);
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
 
     if (game.legacy_game_number)
@@ -1514,7 +1514,7 @@ class Game {
       Users.setGameStatus(message_identifier, game.white.id, "examining");
       Users.setGameStatus(message_identifier, game.black.id, "examining");
       const status2 = active_games[game_id].in_threefold_repetition() ? 15 : 16;
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "playing" },
         {
           $addToSet: {
@@ -1556,7 +1556,7 @@ class Game {
     const setobject = {};
     setobject["pending." + color + ".draw"] = message_identifier;
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "draw_requested", issuer: self._id } },
@@ -1573,7 +1573,7 @@ class Game {
 
     log.debug("requestLocalAbort ", game_id);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
 
     if (game.legacy_game_number)
@@ -1603,7 +1603,7 @@ class Game {
       this.endGamePing(game_id);
       this.endMoveTimer(game_id);
 
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "playing" },
         {
           $set: {
@@ -1650,7 +1650,7 @@ class Game {
     const setobject = {};
     setobject["pending." + color + ".abort"] = message_identifier;
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "abort_requested", issuer: self._id } },
@@ -1667,7 +1667,7 @@ class Game {
 
     log.debug("requestLocalAdjourn ", game_id);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
 
     if (game.legacy_game_number)
@@ -1693,7 +1693,7 @@ class Game {
     const setobject = {};
     setobject["pending." + color + ".adjourn"] = message_identifier;
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "adjourn_requested", issuer: self._id } },
@@ -1709,7 +1709,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -1719,7 +1719,7 @@ class Game {
     this.endGamePing(game_id);
     this.endMoveTimer(game_id);
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id },
       {
         $set: {
@@ -1771,7 +1771,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -1781,7 +1781,7 @@ class Game {
     this.endGamePing(game_id);
     this.endMoveTimer(game_id);
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $set: {
@@ -1826,7 +1826,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -1839,7 +1839,7 @@ class Game {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $set: {
@@ -1883,7 +1883,7 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_SQUARE", square);
       return;
     }
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game) {
       throw new ICCMeteorError(message_identifier, "Unable to draw circle", "Game doesn't exist");
     }
@@ -1903,7 +1903,7 @@ class Game {
     } else {
       game.circles.push({ square: square, color: color, size: size });
     }
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: { circles: game.circles },
@@ -1928,7 +1928,7 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_SQUARE", square);
       return;
     }
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game) {
       throw new ICCMeteorError(message_identifier, "Unable to remove circle", "Game doesn't exist");
     }
@@ -1942,7 +1942,7 @@ class Game {
       return;
     }
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $push: {
@@ -1966,7 +1966,7 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
       return;
     }
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game) {
       throw new ICCMeteorError(message_identifier, "Unable to draw arrow", "Game doesn't exist");
     }
@@ -1986,7 +1986,7 @@ class Game {
     } else {
       game.arrows.push({ from: from, to: to, color: color, size: size });
     }
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: { arrows: game.arrows },
@@ -2013,7 +2013,7 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ARROW", from, to);
       return;
     }
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game) {
       throw new ICCMeteorError(message_identifier, "Unable to remove arrow", "Game doesn't exist");
     }
@@ -2031,7 +2031,7 @@ class Game {
     if (!resultFind) {
       return;
     }
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $push: {
@@ -2069,7 +2069,7 @@ class Game {
     check(game_id, String);
     check(game_id, String);
     const self = Meteor.user();
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
 
     log.debug("declineLocalDraw ", game_id);
 
@@ -2085,7 +2085,7 @@ class Game {
     const otheruser = othercolor === "white" ? game.white.id : game.black.id;
 
     setobject["pending." + othercolor + ".draw"] = "0";
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "draw_declined", issuer: self._id } },
@@ -2101,7 +2101,7 @@ class Game {
     check(game_id, String);
     check(game_id, String);
     const self = Meteor.user();
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
 
     log.debug("declineLocalAbort ", game_id);
 
@@ -2117,7 +2117,7 @@ class Game {
     const otheruser = othercolor === "white" ? game.white.id : game.black.id;
 
     setobject["pending." + othercolor + ".abort"] = "0";
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "abort_declined", issuer: self._id } },
@@ -2133,7 +2133,7 @@ class Game {
     check(game_id, String);
     check(game_id, String);
     const self = Meteor.user();
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
 
     log.debug("declineLocalAdjourn ", game_id);
 
@@ -2149,7 +2149,7 @@ class Game {
     const otheruser = othercolor === "white" ? game.white.id : game.black.id;
 
     setobject["pending." + othercolor + ".adjourn"] = "0";
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "adjourn_declined", issuer: self._id } },
@@ -2170,7 +2170,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -2199,7 +2199,7 @@ class Game {
         throw new Meteor.Error("Unable to resign game", "Unknown reason code " + reason);
     }
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game._id, status: "playing" },
       {
         $addToSet: {
@@ -2258,7 +2258,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = GameCollection.findOne({ legacy_game_number: game_number });
+    const game = this.GameCollection.findOne({ legacy_game_number: game_number });
     if (!game)
       throw new ICCMeteorError(
         message_identifier,
@@ -2285,7 +2285,7 @@ class Game {
   hasOwnedGame(user_or_id) {
     check(user_or_id, Match.OneOf(Object, String));
     const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
-    const private_game = GameCollection.findOne({
+    const private_game = this.GameCollection.findOne({
       status: "examining",
       owner: id,
       private: true
@@ -2298,7 +2298,7 @@ class Game {
     check(user_or_id, Match.OneOf(Object, String));
     const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
     return (
-      GameCollection.find({
+      this.GameCollection.find({
         $and: [{ status: "playing" }, { $or: [{ "white.id": id }, { "black.id": id }] }]
       }).count() !== 0
     );
@@ -2314,7 +2314,7 @@ class Game {
     check(self, Object);
 
     let vi = variation_index;
-    const game = GameCollection.findOne({
+    const game = this.GameCollection.findOne({
       _id: game_id,
       status: "examining",
       "examiners.id": self._id
@@ -2368,7 +2368,7 @@ class Game {
     //       just record the actual, throwing away the requested move count.
     //       OR, figure out how to undo what was done to the chess object
     //       and the variations.cmi
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: { "variations.cmi": variation.cmi, fen: chessObject.fen() },
@@ -2395,7 +2395,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = GameCollection.findOne({
+    const game = this.GameCollection.findOne({
       _id: game_id,
       status: "examining",
       "examiners.id": self._id
@@ -2432,7 +2432,7 @@ class Game {
       variation.cmi = variation.movelist[variation.cmi].prev;
     }
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: {
@@ -2459,7 +2459,7 @@ class Game {
     check(user_id, String);
     check(server_command, Match.Maybe(Boolean));
     check(due_to_logout, Match.Maybe(Boolean));
-    GameCollection.find(
+    this.GameCollection.find(
       { $or: [{ "observers.id": user_id }, { "requestors.id": user_id }] },
       { fields: { _id: 1 } }
     ).fetch().forEach(game => this.localRemoveObserver(
@@ -2467,7 +2467,7 @@ class Game {
   }
 
   localResignAllGames(message_identifier, user_id, reason) {
-    const playing = GameCollection.find({
+    const playing = this.GameCollection.find({
       $and: [{ status: "playing" }, { $or: [{ "white.id": user_id }, { "black.id": user_id }] }]
     }).fetch();
     playing.forEach(game => this._resignLocalGame("server", game, user_id, reason));
@@ -2476,7 +2476,7 @@ class Game {
   exportToPGN(id) {
     check(id, String);
 
-    const game = GameCollection.findOne({ _id: id });
+    const game = this.GameCollection.findOne({ _id: id });
 
     if (!game) return;
     return this.finishExportToPGN(game);
@@ -2569,7 +2569,7 @@ class Game {
     check(game_id, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2577,7 +2577,7 @@ class Game {
     active_games[game_id].clear();
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2596,7 +2596,7 @@ class Game {
     check(game_id, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2604,7 +2604,7 @@ class Game {
     active_games[game_id].reset();
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2624,7 +2624,7 @@ class Game {
     check(fen_string, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2635,7 +2635,7 @@ class Game {
     }
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2661,7 +2661,7 @@ class Game {
     if (!this.isSquareValid(where)) throw new Match.Error("where is invalid: " + where);
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2672,7 +2672,7 @@ class Game {
     }
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2699,7 +2699,7 @@ class Game {
     if (!this.isSquareValid(where)) throw new Match.Error("where is invalid: " + where);
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2710,7 +2710,7 @@ class Game {
     }
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2729,7 +2729,7 @@ class Game {
     check(game_id, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2747,7 +2747,7 @@ class Game {
     }
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2773,7 +2773,7 @@ class Game {
       throw new Match.Error("castling must be empty (''), or 'k', 'q', 'kq'");
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2791,7 +2791,7 @@ class Game {
     }
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2813,7 +2813,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2837,7 +2837,7 @@ class Game {
     }
     const fen = active_games[game_id].fen();
     if (game.fen !== fen) {
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
@@ -2858,7 +2858,7 @@ class Game {
     check(value, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
     if (!game || game.status !== "examining") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2903,7 +2903,7 @@ class Game {
       if (!!game.tags && tag in game.tags && game.tags[tag] === value) return;
       setobject["tags." + tag] = value;
     }
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: setobject,
@@ -2936,7 +2936,7 @@ class Game {
       }
     }
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
 
     if (!game || game.status !== "examining" || game.owner !== self._id) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
@@ -2951,12 +2951,12 @@ class Game {
 
     if (!new_id) {
       this.setPrivate(message_identifier, game_id, false);
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id, status: "examining" },
         { $unset: { owner: 1, deny_chat: 1 } }
       );
     } else {
-      GameCollection.update({ _id: game_id, status: "examining" }, { $set: { owner: new_id } });
+      this.GameCollection.update({ _id: game_id, status: "examining" }, { $set: { owner: new_id } });
     }
   }
 
@@ -2973,7 +2973,7 @@ class Game {
       return;
     }
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game || game.status !== "examining" || game.owner !== self._id) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PRIVATIZE");
       return;
@@ -2992,7 +2992,7 @@ class Game {
       updateobject.$set.analysis = game.observers;
     }
 
-    GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+    this.GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
   }
 
   allowRequests(message_identifier, game_id, allow_requests) {
@@ -3008,7 +3008,7 @@ class Game {
       return;
     }
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (game && game.status === "examining") {
       if (game.owner !== self._id) {
         ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
@@ -3038,7 +3038,7 @@ class Game {
       );
     }
 
-    GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+    this.GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
   }
 
   allowChat(message_identifier, game_id, allow_chat) {
@@ -3054,7 +3054,7 @@ class Game {
       return;
     }
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game || game.status !== "examining" || game.owner !== self._id || !game.private) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_CHAT");
       return;
@@ -3062,7 +3062,7 @@ class Game {
 
     if (game.deny_chat === !allow_chat) return;
 
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       { $set: { deny_chat: !allow_chat } }
     );
@@ -3085,7 +3085,7 @@ class Game {
     const otherguy = Meteor.users.findOne({ _id: user_id });
     check(otherguy, Object);
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game || game.status !== "examining" || self._id !== game.owner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
       return;
@@ -3111,7 +3111,7 @@ class Game {
       updateobject.$set = { analysis: [{ id: user_id, username: otherguy.username }] };
     }
 
-    GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
+    this.GameCollection.update({ _id: game_id, status: "examining" }, updateobject);
   }
 
   localDenyObserver(message_identifier, game_id, requestor_id) {
@@ -3125,7 +3125,7 @@ class Game {
     if (self._id === requestor_id)
       throw new ICCMeteorError(message_identifier, "Unable to deny observer", "Cannot deny yourself");
 
-    const game = GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({ _id: game_id });
     if (!game || game.status !== "examining" || self._id !== game.owner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
       return;
@@ -3139,7 +3139,7 @@ class Game {
     }
 
     ClientMessages.sendMessageToClient(requestor_id, requestor.mid, "PRIVATE_ENTRY_DENIED");
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game_id, status: "examining" },
       { $pull: { requestors: { id: requestor_id } } }
     );
@@ -3157,7 +3157,7 @@ class Game {
       return;
     }
 
-    const game = GameCollection.findOne({
+    const game = this.GameCollection.findOne({
       $or: [{ "white.id": user_id }, { "black.id": user_id }, { "examiners.id": user_id }]
     });
 
@@ -3260,10 +3260,10 @@ class Game {
         if (key === "ping") {
           const pushobject = {};
           pushobject["lag." + color + ".active"] = msg;
-          GameCollection.update({ _id: game_id, status: "playing" }, { $push: pushobject });
+          this.GameCollection.update({ _id: game_id, status: "playing" }, { $push: pushobject });
         } else {
           //pingresult
-          const game = GameCollection.findOne({
+          const game = this.GameCollection.findOne({
             _id: game_id,
             status: "playing"
           });
@@ -3284,7 +3284,7 @@ class Game {
           pullobject["lag." + color + ".active"] = item[0];
           pushobject["lag." + color + ".pings"] = msg.delay;
 
-          GameCollection.update(
+          this.GameCollection.update(
             { _id: game._id, status: game.status },
             { $pull: pullobject, $push: pushobject }
           );
@@ -3331,7 +3331,7 @@ class Game {
       log.debug("startMoveTimer has expired! gameid=" + game_id + ", color=" + color);
       Meteor.clearInterval(move_timers[game_id]);
       delete move_timers[game_id];
-      const game = GameCollection.findOne({ _id: game_id, status: "playing" });
+      const game = this.GameCollection.findOne({ _id: game_id, status: "playing" });
       if (!game) throw new ICCMeteorError("server", "Unable to find a game to expire time on");
       const setobject = {};
       const addtosetobject = {};
@@ -3349,7 +3349,7 @@ class Game {
           { id: game.black.id, username: game.black.name }
         ]
       };
-      GameCollection.update(
+      this.GameCollection.update(
         { _id: game_id },
         { $set: setobject, $addToSet: addtosetobject, $unset: { pending: 1 } }
       );
@@ -3377,11 +3377,11 @@ class Game {
   }
 
   gameLoginHook(user) {
-    const game = GameCollection.findOne({ owner: user._id, status: "examining" });
+    const game = this.GameCollection.findOne({ owner: user._id, status: "examining" });
     if (!game) return;
     Users.setGameStatus("server", user, "examining");
     const guy = { id: user._id, username: user.username };
-    GameCollection.update(
+    this.GameCollection.update(
       { _id: game._id, status: "examining" },
       {
         $addToSet: { observers: guy, examiners: guy, analysis: guy }
@@ -3422,24 +3422,10 @@ if (!global._gameObject) {
 
 module.exports.Game = global._gameObject;
 
-// TODO: Change this to the date-time format stuff
-function msToTime(duration) {
-  let milliseconds = parseInt((duration % 1000) / 100),
-    seconds = Math.floor((duration / 1000) % 60),
-    minutes = Math.floor((duration / (1000 * 60)) % 60),
-    hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
-
-  hours = hours < 10 ? "0" + hours : hours;
-  minutes = minutes < 10 ? "0" + minutes : minutes;
-  seconds = seconds < 10 ? "0" + seconds : seconds;
-
-  return hours + ":" + minutes + ":" + seconds + "." + milliseconds;
-}
-
 Picker.route("/debug/times/:_id", function(params, req, res) {
   //  res.setHeader("content-type", "text/plain");
 
-  const game = GameCollection.findOne({ _id: params._id });
+  const game = global._gameObject.GameCollection.findOne({ _id: params._id });
   if (!game) {
     res.write("no game");
     res.end();
@@ -3456,8 +3442,8 @@ Picker.route("/debug/times/:_id", function(params, req, res) {
     time1 = game.clocks[color].current;
   else time1 = game.clocks[color].current - timediff;
   time2 = game.clocks[other].current;
-  const t1str = msToTime(time1);
-  const t2str = msToTime(time2);
+  const t1str = date.format(time1, "HH:mm:ss.SSS")
+  const t2str = date.format(time2, "HH:mm:ss.SSS");
   if (color === "white") res.write("[" + time1 + " / " + t1str + "," + time2 + " / " + t2str + "]");
   else res.write("[" + time2 + " / " + t2str + "," + time1 + " / " + t1str + "]");
   res.end();
@@ -3466,7 +3452,7 @@ Picker.route("/debug/times/:_id", function(params, req, res) {
 GameHistory.savePlayedGame = function(message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
-  const game = GameCollection.findOne(game_id);
+  const game = global._gameObject.GameCollection.findOne(game_id);
   if (!game)
     throw new ICCMeteorError(
       message_identifier,
@@ -3552,7 +3538,7 @@ Meteor.methods({
         "Unable to update game ping",
         "Unable to locate game to ping (2)"
       );
-    const game = GameCollection.findOne(
+    const game = global._gameObject.GameCollection.findOne(
       { _id: game_id, status: "playing" },
       { fields: { "white.id": 1 } }
     );
