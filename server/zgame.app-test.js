@@ -13,31 +13,7 @@ import { TimestampClient } from "../lib/Timestamp";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
-  return [
-    "mi1",
-    999,
-    typeof self === "string" ? self : self.profile.legacy.username,
-    typeof other === "string" ? other : other.profile.legacy.username,
-    0,
-    "Standard",
-    rated,
-    15,
-    0,
-    15,
-    0,
-    true,
-    2000,
-    1900,
-    "gameid",
-    ["GM"],
-    ["GM"],
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
-  ];
+  return ["mi1", 999, typeof self === "string" ? self : self.profile.legacy.username, typeof other === "string" ? other : other.profile.legacy.username, 0, "Standard", rated, 15, 0, 15, 0, true, 2000, 1900, "gameid", ["GM"], ["GM"], "", "", "", "", "", ""];
 }
 
 describe("Match requests and game starts", function() {
@@ -47,20 +23,7 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi",
-      otherguy,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = us;
     Game.saveLocalMove("mi2", game_id, "c3");
     self.loggedonuser = otherguy;
@@ -77,20 +40,7 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi",
-      otherguy,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = us;
     Game.saveLocalMove("mi2", game_id, "c3");
     self.loggedonuser = otherguy;
@@ -135,20 +85,7 @@ describe("Match requests and game starts", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi",
-      otherguy,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = us;
     Game.saveLocalMove("mi2", game_id, "c3");
     self.loggedonuser = otherguy;
@@ -189,20 +126,7 @@ describe("Game.startLocalGame", function() {
     const us = TestHelpers.createUser({ roles: roles });
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
-    Game.startLocalGame(
-      "mi",
-      otherguy,
-      0,
-      "standard",
-      false,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    Game.startLocalGame("mi", otherguy, 0, "standard", false, 15, 0, "none", 15, 0, "none", "white");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
@@ -225,20 +149,7 @@ describe("Game.startLocalGame", function() {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({ roles: roles });
     self.loggedonuser = us;
-    Game.startLocalGame(
-      "mi",
-      otherguy,
-      0,
-      "standard",
-      false,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    Game.startLocalGame("mi", otherguy, 0, "standard", false, 15, 0, "none", 15, 0, "none", "white");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
@@ -260,19 +171,7 @@ describe("Game.startLocalGame", function() {
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = TestHelpers.createUser();
       const otherguy = TestHelpers.createUser();
-      const game_id = Game.startLocalGame(
-        "mi1",
-        otherguy,
-        0,
-        "standard",
-        true,
-        15,
-        0,
-        "none",
-        15,
-        0,
-        "none"
-      );
+      const game_id = Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none");
       const game = Game.collection.findOne({ _id: game_id });
       if (game.white.id === self.loggedonuser._id) whites++;
       else blacks++;
@@ -288,20 +187,7 @@ describe("Game.startLocalGame", function() {
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = TestHelpers.createUser();
       const otherguy = TestHelpers.createUser();
-      const game_id = Game.startLocalGame(
-        "mi1",
-        otherguy,
-        0,
-        "standard",
-        true,
-        15,
-        0,
-        "none",
-        15,
-        0,
-        "none",
-        "white"
-      );
+      const game_id = Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
       const g = Game.collection.findOne({ _id: game_id });
       chai.assert.equal(g.white.id, self.loggedonuser._id);
     }
@@ -314,20 +200,7 @@ describe("Game.startLocalGame", function() {
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = TestHelpers.createUser();
       const otherguy = TestHelpers.createUser();
-      const game_id = Game.startLocalGame(
-        "mi1",
-        otherguy,
-        0,
-        "standard",
-        true,
-        15,
-        0,
-        "none",
-        15,
-        0,
-        "none",
-        "black"
-      );
+      const game_id = Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none", "black");
       const g = Game.collection.findOne({ _id: game_id });
       chai.assert.equal(g.black.id, self.loggedonuser._id);
     }
@@ -340,20 +213,7 @@ describe("Game.startLocalGame", function() {
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
       () =>
-        Game.startLocalGame(
-          "mi1",
-          otherguy,
-          0,
-          "standard",
-          true,
-          15,
-          0,
-          "none",
-          15,
-          0,
-          "none",
-          "green!"
-        ),
+        Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none", "green!"),
       Match.Error
     );
   });
@@ -627,20 +487,7 @@ describe("Game.saveLocalMove", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      them,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     Game.saveLocalMove("mi2", game_id, "O-O");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, us._id);
@@ -652,20 +499,7 @@ describe("Game.saveLocalMove", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      them,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     // eslint-disable-next-line prettier/prettier
         const moves = ["e3", "a5", "Qh5", "Ra6", "Qxa5", "h5", "h4", "Rah6", "Qxc7", "f6", "Qxd7", "Kf7", "Qxb7", "Qd3", "Qxb8", "Qh7", "Qxc8", "Kg6", "Qe6"];
     const tomove = [us, them];
@@ -685,20 +519,7 @@ describe("Game.saveLocalMove", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      them,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     const moves = ["f4", "e6", "g4", "Qh4"];
     const tomove = [us, them];
     let tm = 0;
@@ -718,20 +539,7 @@ describe("Game.saveLocalMove", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      them,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     // Yea, I had to do this one manually, so it's a zillion moves. Feel free to shorten!
     // eslint-disable-next-line prettier/prettier
         const moves = ["e4", "e5", "f4", "exf4", "g3", "fxg3", "Nf3", "gxh2", "Rxh2", "f5", "exf5", "d5", "d4", "c5", "dxc5", "b6", "cxb6", "Nc6", "bxa7", "Rxa7", "Qxd5", "Bxf5", "Rxh7", "Rxa2", "Rxh8", "Rxa1", "Rxg8", "Rxb1", "Rxf8", "Kxf8", "Qxc6", "Rxb2", "Qc8", "Rxc2", "Qxd8", "Kf7", "Nd4", "Rxc1", "Kd2", "Rxf1", "Nxf5", "Rxf5", "Qd7", "Kf6", "Qxg7", "Ke6", "Qg6", "Rf6", "Qxf6", "Kxf6"];
@@ -753,20 +561,7 @@ describe("Game.saveLocalMove", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      them,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     // eslint-disable-next-line prettier/prettier
         const moves = ["e4", "e5", "Be2", "Be7", "Bf1", "Bf8", "Be2", "Be7", "Bf1", "Bf8", "Be2"];
@@ -793,26 +588,7 @@ describe("Game.saveLocalMove", function() {
   it("should fail if the game is a legacy game", function() {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLegacyGame(
-      "mi",
-      999,
-      us.profile.legacy.username,
-      "otherguy",
-      0,
-      "Standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1600,
-      1700,
-      "id",
-      [],
-      [],
-      ""
-    );
+    const game_id = Game.startLegacyGame("mi", 999, us.profile.legacy.username, "otherguy", 0, "Standard", true, 15, 0, 15, 0, true, 1600, 1700, "id", [], [], "");
     chai.assert.throws(() => Game.saveLocalMove("mi2", game_id, "e4"), ICCMeteorError);
   });
 
@@ -820,20 +596,7 @@ describe("Game.saveLocalMove", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      them,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     Game.saveLocalMove("move1", game_id, "e4");
     Game.saveLocalMove("move2", game_id, "e5");
@@ -943,19 +706,7 @@ describe("Game.localAddExaminer", function() {
     self.loggedonuser = TestHelpers.createUser();
     const opponent = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
-    const game_id = Game.startLocalGame(
-      "mi1",
-      opponent,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const game_id = Game.startLocalGame("mi1", opponent, 0, "standard", true, 15, 0, "none", 15, 0, "none");
     Game.localAddExaminer("mi2", game_id, newguy._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
@@ -1173,19 +924,7 @@ describe("Game.localAddObserver", function() {
     const opponent = TestHelpers.createUser();
     const observer = TestHelpers.createUser();
     const victim = TestHelpers.createUser();
-    const game_id = Game.startLocalGame(
-      "mi1",
-      opponent,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const game_id = Game.startLocalGame("mi1", opponent, 0, "standard", true, 15, 0, "none", 15, 0, "none");
     self.loggedonuser = observer;
     chai.assert.throws(() => Game.localAddObserver("mi2", game_id, victim._id), ICCMeteorError);
   });
@@ -1198,19 +937,7 @@ describe("Game.localAddObserver", function() {
     const randomguy = TestHelpers.createUser();
 
     self.loggedonuser = us;
-    const game_id1 = Game.startLocalGame(
-      "mi1",
-      opponent,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const game_id1 = Game.startLocalGame("mi1", opponent, 0, "standard", true, 15, 0, "none", 15, 0, "none");
 
     self.loggedonuser = randomguy;
     const game_id2 = Game.startLocalExaminedGame("mi2", "whiteguy", "blackguy", 0);
@@ -1290,19 +1017,7 @@ describe("Game.localRemoveObserver", function() {
     const observer = TestHelpers.createUser();
 
     self.loggedonuser = us;
-    const playing_game = Game.startLocalGame(
-      "mi1",
-      opponent,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const playing_game = Game.startLocalGame("mi1", opponent, 0, "standard", true, 15, 0, "none", 15, 0, "none");
 
     self.loggedonuser = examiner;
     const examined_game = Game.startLocalExaminedGame("mi2", "whiteguy", "blackguy", 0);
@@ -1493,20 +1208,7 @@ describe("Takeback behavior", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     let other = p2;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
@@ -1533,13 +1235,7 @@ describe("Takeback behavior", function() {
     chai.assert.equal(takeback.type, "takeback_requested");
     chai.assert.equal(takeback.parameter, 4);
     chai.assert.equal(lastmove.type, "move");
-    chai.assert.deepEqual(lastmove.parameter, {
-      move: "c6",
-      ping: 456,
-      lag: 0,
-      gamelag: 0,
-      gameping: 0
-    });
+    chai.assert.deepEqual(lastmove.parameter, {move: "c6",ping: 456,lag: 0,gamelag: 0,gameping: 0});
   });
 
   //                -> giver_request(different)   -> message, already pending
@@ -1548,19 +1244,7 @@ describe("Takeback behavior", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     let other = p2;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white"
     );
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
       Game.saveLocalMove("mi2", game_id, move);
@@ -1588,13 +1272,7 @@ describe("Takeback behavior", function() {
     chai.assert.equal(takeback.type, "takeback_requested");
     chai.assert.equal(takeback.parameter, 4);
     chai.assert.equal(lastmove.type, "move");
-    chai.assert.deepEqual(lastmove.parameter, {
-      move: "c6",
-      ping: 456,
-      lag: 0,
-      gamelag: 0,
-      gameping: 0
-    });
+    chai.assert.deepEqual(lastmove.parameter, {move: "c6",ping: 456,lag: 0,gamelag: 0,gameping: 0});
   });
   //                -> taker_request(same)        -> same as an accept
   it("will behave like a takeback accept when takeback receiver asks for takeback with the same ply count", function() {
@@ -1602,20 +1280,7 @@ describe("Takeback behavior", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     let other = p2;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
@@ -1654,20 +1319,7 @@ describe("Takeback behavior", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     let other = p2;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
@@ -1700,20 +1352,7 @@ describe("Takeback behavior", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     let other = p2;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
@@ -1738,20 +1377,7 @@ describe("Takeback behavior", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
     let other = p2;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
@@ -3279,19 +2905,7 @@ describe("Game.moveForward", function() {
     const p2 = TestHelpers.createUser();
     const examiner = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
     Game.collection.update(
       { _id: game_id, status: "examining" },
       { $push: { examiners: { id: examiner._id, username: examiner.username } } }
@@ -3305,19 +2919,7 @@ describe("Game.moveForward", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
     Game.moveForward("mi2", game_id, 1);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
@@ -3455,20 +3057,7 @@ describe("Game publication", function() {
     const o1 = TestHelpers.createUser();
     const o2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = o1;
     Game.localAddObserver("mi2", game_id, o1._id);
     self.loggedonuser = o2;
@@ -3524,20 +3113,7 @@ describe("When making a move in a game being played", function() {
     const player1 = TestHelpers.createUser();
     const player2 = TestHelpers.createUser();
     self.loggedonuser = player1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      player2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", player2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     const game0 = Game.collection.findOne({});
     chai.assert.equal(game0.clocks.white.current, 900000);
@@ -3568,20 +3144,7 @@ describe("When making a move in a game being played", function() {
     const player1 = TestHelpers.createUser();
     const player2 = TestHelpers.createUser();
     self.loggedonuser = player1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      player2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", player2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     const game0 = Game.collection.findOne({});
     chai.assert.equal(game0.clocks.white.current, 900000);
@@ -3617,20 +3180,7 @@ describe("when playing a game", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
 
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     const game0 = Game.collection.findOne({});
     chai.assert.equal(game0.lag.white.active.length, 0);
@@ -3670,20 +3220,7 @@ describe("when playing a game", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     Game.collection.update(
       { _id: game_id, status: "playing" },
       {
@@ -3710,20 +3247,7 @@ describe("when playing a game", function() {
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = p1;
 
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     self.clock.tick(1000);
 
@@ -3758,20 +3282,7 @@ describe("when playing a game", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
 
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     self.clock.tick(1000);
 
@@ -3799,20 +3310,7 @@ describe("when playing a game", function() {
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
 
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     self.clock.tick(1000);
 
@@ -3838,20 +3336,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
     chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
@@ -3869,20 +3354,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
     chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
@@ -3899,20 +3371,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      45,
-      "inc",
-      15,
-      45,
-      "inc",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 45, "inc", 15, 45, "inc", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
     chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
@@ -3929,20 +3388,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      45,
-      "us",
-      15,
-      45,
-      "us",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 45, "us", 15, 45, "us", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
     chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
@@ -3968,20 +3414,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      45,
-      "us",
-      15,
-      45,
-      "us",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 45, "us", 15, 45, "us", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
     chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
@@ -4021,20 +3454,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      10,
-      "us",
-      1,
-      10,
-      "us",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 10, "us", 1, 10, "us", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 60 * 1000);
     chai.assert.equal(game1.clocks.black.current, 60 * 1000);
@@ -4067,20 +3487,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      10,
-      "bronstein",
-      1,
-      10,
-      "bronstein",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 10, "bronstein", 1, 10, "bronstein", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 60 * 1000);
     chai.assert.equal(game1.clocks.black.current, 60 * 1000);
@@ -4106,20 +3513,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      5,
-      "us",
-      1,
-      5,
-      "us",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 5, "us", 1, 5, "us", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 60 * 1000);
     chai.assert.equal(game1.clocks.black.current, 60 * 1000);
@@ -4146,20 +3540,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      5,
-      "bronstein",
-      1,
-      5,
-      "bronstein",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 5, "bronstein", 1, 5, "bronstein", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 60 * 1000);
     chai.assert.equal(game1.clocks.black.current, 60 * 1000);
@@ -4187,20 +3568,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      5,
-      "us",
-      1,
-      5,
-      "us",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 5, "us", 1, 5, "us", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 60 * 1000);
     chai.assert.equal(game1.clocks.black.current, 60 * 1000);
@@ -4228,20 +3596,7 @@ describe("Game clocks", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      5,
-      "bronstein",
-      1,
-      5,
-      "bronstein",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 5, "bronstein", 1, 5, "bronstein", "white");
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.clocks.white.current, 60 * 1000);
     chai.assert.equal(game1.clocks.black.current, 60 * 1000);
@@ -4272,20 +3627,7 @@ describe("tomove in the game record", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      5,
-      "bronstein",
-      1,
-      5,
-      "bronstein",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 5, "bronstein", 1, 5, "bronstein", "white");
 
     const game1 = Game.collection.findOne({});
     chai.assert.equal(game1.tomove, "white");

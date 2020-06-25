@@ -362,7 +362,7 @@ if (!global._chatObject) {
 module.exports.Chat = global._chatObject;
 
 Meteor.methods({
-  kibitz: global._chatObject.kibitz
+  kibitz: (message_identifier, game_id, kibitz, txt) => global._chatObject.kibitz(message_identifier, game_id, kibitz, txt)
 });
 
 
