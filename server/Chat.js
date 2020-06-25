@@ -6,11 +6,7 @@ import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
 
-const RoomCollection = new Mongo.Collection("rooms");
-const ChatCollection = new Mongo.Collection("chat");
-const ChildChatCollection = new Mongo.Collection("child_chat");
-
-ChatCollection.attachSchema(new SimpleSchema({
+const ChatCollectionSchema = new SimpleSchema({
   create_date: {
     type: Date,
     autoValue: function() {
@@ -22,15 +18,13 @@ ChatCollection.attachSchema(new SimpleSchema({
   issuer: Object,
   "issuer.id": String,
   "issuer.username": String,
-  type: {type: String, allowedValues: ["kibitz", "whisper", "room", "private"]},
-  logons: {type: Number, required: false},
+  type: { type: String, allowedValues: ["kibitz", "whisper", "room", "private"] },
+  logons: { type: Number, required: false },
   what: String,
   child_chat: Boolean
-}));
+});
 
-ChildChatCollection.attachSchema({ text: String });
-
-RoomCollection.attachSchema({
+const RoomCollectionSchema = {
   name: String,
   owner: String, // For public rooms, just the user that created the room
   public: Boolean,
@@ -39,23 +33,67 @@ RoomCollection.attachSchema({
   "members.$": Object,
   "members.$.id": String,
   "members.$.username": String,
-  invited: {type: Array, defaultValue: []},
+  invited: { type: Array, defaultValue: [] },
   "invited.$": Object,
   "invited.$.id": String,
   "invited.$.username": String,
   "invited.$.message_identifier": String
-});
+};
 
 class Chat {
 
   constructor() {
-    if (Meteor.isTest || Meteor.isAppTest) {
-      this.collection = ChatCollection;
-      this.childChatCollection = ChildChatCollection;
-      this.roomCollection = RoomCollection;
-      this.loginHook = chatLoginHook;
-      this.logoutHook = chatLogoutHook;
-    }
+    this.collection = new Mongo.Collection("chat");
+    this.collection.attachSchema(ChatCollectionSchema);
+    this.childChatCollection = new Mongo.Collection("child_chat");
+    this.childChatCollection.attachSchema({ text: String });
+    this.roomCollection = new Mongo.Collection("rooms");
+    this.roomCollection.attachSchema(RoomCollectionSchema);
+    const self = this;
+
+    Meteor.publishComposite("chat", {
+      // First, find the user
+      find() {
+        return Meteor.users.find({ _id: this.userId });
+      },
+      children: [{
+        // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
+        find(user) {
+          return Game.find({
+            $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
+          });
+        },
+
+        children: [{
+          // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
+          find(game, user) {
+            const queryobject = { id: game._id, isolation_group: user.isolation_group };
+            if (Users.isAuthorized(user, "child_chat"))
+              queryobject.child_chat = true;
+            if (game.status === "playing") {
+              if (game.white.id === user._id || game.black.id === user._id)
+                queryobject.type = "kibitz";
+              else
+                queryobject.type = { $in: ["kibitz", "whisper"] };
+            } else {
+              queryobject.type = { $in: ["kibitz", "whisper"] };
+            }
+            return self.collection.find(queryobject);
+          }
+        }]
+      }]
+    });
+
+    Meteor.startup(() => {
+      self.collection.remove({});
+      Users.addLogoutHook(this.chatLogoutHook);
+      Users.addLoginHook(this.chatLoginHook);
+      Game.observeGameChanges({}, {
+        removed(id) {
+          self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
+        }
+      });
+    });
   }
 
   kibitz(message_identifier, game_id, kibitz, txt) {
@@ -83,7 +121,7 @@ class Chat {
 
     // Anyone can send a child chat.
     // Anything an exempt person sends is a child chat
-    const child_chat_record = ChildChatCollection.findOne({ _id: txt });
+    const child_chat_record = this.childChatCollection.findOne({ _id: txt });
     if (child_chat_record) {
       child_chat = true;
       txt = child_chat_record.text;
@@ -97,7 +135,7 @@ class Chat {
       return;
     }
 
-    ChatCollection.insert({
+    this.collection.insert({
       type: kibitz ? "kibitz" : "whisper",
       isolation_group: self.isolation_group,
       id: game_id,
@@ -114,134 +152,135 @@ class Chat {
     );
   };
 
-  createRoom(message_identifier, roomName){
+  createRoom(message_identifier, roomName) {
     const self = Meteor.user();
     const isoGroup = Meteor.user().isolation_group;
     // check if user is in role
     const roomRole = Users.isAuthorized(Meteor.user(), "create_room");
-    const uniqueName = !RoomCollection.findOne({name: roomName});
+    const uniqueName = !this.roomCollection.findOne({ name: roomName });
 
     // check if name is unique in db
-    if(!uniqueName) {
+    if (!uniqueName) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ROOM_ALREADY_EXISTS");
       return;
     }
     // finally create room
-    if(roomRole) {
-      const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-      RoomCollection.insert({name: roomName, owner: self._id, members: member, isolation_group: isoGroup});
-      return RoomCollection.findOne({name: roomName})._id;
-    }
-    else
+    if (roomRole) {
+      const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
+      RoomCollection.insert({ name: roomName, owner: self._id, members: member, isolation_group: isoGroup });
+      return this.roomCollection.findOne({ name: roomName })._id;
+    } else
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
   }
 
-  writeToRoom(message_identifier, room_id, txt){
+  writeToRoom(message_identifier, room_id, txt) {
     const self = Meteor.user();
     const isoGroup = Meteor.user().isolation_group;
     const hasRole = Users.isAuthorized(self, "room_chat");
     const joinRole = Users.isAuthorized(self, "join_room");
-    const roomExists = RoomCollection.findOne({_id: room_id});
-    const child_chat_exempt =  Users.isAuthorized(self, "child_chat_exempt");
-    const child_chat_id = (ChildChatCollection.findOne({_id: txt}));
+    const roomExists = this.roomCollection.findOne({ _id: room_id });
+    const child_chat_exempt = Users.isAuthorized(self, "child_chat_exempt");
+    const child_chat_id = (this.childChatCollection.findOne({ _id: txt }));
     const child_chat = (Users.isAuthorized(self, "child_chat") || child_chat_id || child_chat_exempt) && true;
-    const member = [{id: Meteor.user()._id, username: Meteor.user().username}];
-    const inRoom = RoomCollection.findOne({_id: room_id, members: {$in: member}});
+    const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
+    const inRoom = this.roomCollection.findOne({ _id: room_id, members: { $in: member } });
     const resultText = child_chat_id ? child_chat_id.text : txt;
 
     // does the user have the right role?
-    if(!hasRole){
+    if (!hasRole) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
       return;
     }
 
     // does room even exist?
-    if(!roomExists){
+    if (!roomExists) {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
       return;
     }
 
     // If user not allowed to join room, can't write either
-    if(!joinRole && !inRoom){
+    if (!joinRole && !inRoom) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
       return;
     }
 
     // does the user have the join role? if so and not in room, join room.
-    if(joinRole && !inRoom){
+    if (joinRole && !inRoom) {
       Chat.joinRoom(message_identifier, room_id);
     }
 
 
-
     // fails if childchat and freeform
-    if(!child_chat_exempt && !child_chat_id && child_chat){
+    if (!child_chat_exempt && !child_chat_id && child_chat) {
       ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
       return;
     }
 
 
     // Actually write message to chat collection of room
-    ChatCollection.insert({
+    this.collection.insert({
       isolation_group: isoGroup,
       type: "room",
       id: room_id,
       what: resultText,
       child_chat: child_chat,
       create_date: Meteor.date,
-      issuer: {id: self._id, username: self.username}
+      issuer: { id: self._id, username: self.username }
     });
   }
-  deleteRoom(message_identifier, room_id){
+
+  deleteRoom(message_identifier, room_id) {
     // check if user is in role
     const self = Meteor.user();
     const inRole = Users.isAuthorized(self, "create_room");
-    const record = RoomCollection.findOne({_id: room_id});
-    if(!inRole){
+    const record = this.roomCollection.findOne({ _id: room_id });
+    if (!inRole) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_DELETE_ROOM");
       return;
     }
     // check if room exists
-    if(!record)
+    if (!record)
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     // Delete room record
     else
-      RoomCollection.remove({_id: room_id});
+      RoomCollection.remove({ _id: room_id });
   }
-  joinRoom(message_identifier, room_id){
+
+  joinRoom(message_identifier, room_id) {
     const self = Meteor.user();
     const inRole = Users.isAuthorized(self, "join_room");
-    const room = RoomCollection.findOne({_id: room_id});
-    const member = {id: Meteor.user()._id, username: Meteor.user().username};
-    const inRoom = (RoomCollection.findOne({$and: [ {_id: room_id}, {members: member}]}));
+    const room = this.roomCollection.findOne({ _id: room_id });
+    const member = { id: Meteor.user()._id, username: Meteor.user().username };
+    const inRoom = (this.roomCollection.findOne({ $and: [{ _id: room_id }, { members: member }] }));
 
     // Currently ignores if user joins an already joined room
-    if(inRoom){
+    if (inRoom) {
       return;
     }
 
     // check if user is in role
-    if(!inRole){
+    if (!inRole) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
       return;
     }
 
     // See if room exists
-    if(!room)
+    if (!room)
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     // actually join room
     else
-      RoomCollection.update({name: room.name}, {$push: {members: member}});
-  }
-  leaveRoom(message_identifier, room_id){
-
-    const member = {id: Meteor.user()._id, username: Meteor.user().username};
-    RoomCollection.update({_id: room_id}, {$pull: {members: member}});
+      RoomCollection.update({ name: room.name }, { $push: { members: member } });
   }
 
-  writeToUser(message_identifier, user_id, text){
+  leaveRoom(message_identifier, room_id) {
+
+    const member = { id: Meteor.user()._id, username: Meteor.user().username };
+    RoomCollection.update({ _id: room_id }, { $pull: { members: member } });
+  }
+
+  writeToUser(message_identifier, user_id, text) {
     const self = Meteor.user();
-    const user = Meteor.users.findOne({_id: user_id});
+    const user = Meteor.users.findOne({ _id: user_id });
     const isoGroup = self.isolation_group;
     const senderInRole = Users.isAuthorized(self, "personal_chat");
     const recieverInRole = Users.isAuthorized(user, "personal_chat");
@@ -249,53 +288,53 @@ class Chat {
     const ccrec = Users.isAuthorized(user, "child_chat");
     const ccerec = Users.isAuthorized(user, "child_chat_exempt");
     const ccesender = Users.isAuthorized(self, "child_chat_exempt");
-    const ccid = ChildChatCollection.findOne({_id: text});
+    const ccid = this.childChatCollection.findOne({ _id: text });
     const resultText = ccid ? ccid.text : text;
     const child_chat = (ccid || ccrec || ccsender && ccerec) && true;
     let loggedon = 0;
 
-    if(self.status.online){
+    if (self.status.online) {
       loggedon++;
     }
-    if(user.status.online && user_id !== self._id){
+    if (user.status.online && user_id !== self._id) {
       loggedon++;
     }
 
     // only allowed if sender has personal chat
-    if(!senderInRole){
+    if (!senderInRole) {
       ClientMessages.sendMessageToClient(self, message_identifier, "SENDER_NOT_ALLOWED_TO_PERSONAL_CHAT");
       return;
     }
 
 
     //only allowed if reciever has personal chat
-    if(!recieverInRole){
+    if (!recieverInRole) {
       ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_PERSONAL_CHAT");
       return;
     }
 
 
     //child_chat can child chat only unless to a child chat
-    if(ccsender && !ccid && !ccerec){
+    if (ccsender && !ccid && !ccerec) {
       ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
       return;
     }
 
 
     // Not allow freeform to child_chat except child_chat_exempt
-    if(!ccid && ccrec && !ccerec &&!ccesender){
+    if (!ccid && ccrec && !ccerec && !ccesender) {
       ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_FREEFORM_CHAT");
       return;
     }
 
     // Won't send to loggedoff recipient, but will send to self
-    if(loggedon <= 1 && user_id !== self._id){
+    if (loggedon <= 1 && user_id !== self._id) {
       ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT");
       return;
     }
 
     // actual private message, uses id field as the recipient
-    ChatCollection.insert({
+    this.collection.insert({
       isolation_group: isoGroup,
       type: "private",
       id: user_id,
@@ -303,56 +342,24 @@ class Chat {
       child_chat: child_chat,
       create_date: Meteor.date,
       logons: loggedon,
-      issuer: {id: self._id, username: self.username}
+      issuer: { id: self._id, username: self.username }
     });
   }
-}
 
-Meteor.publishComposite("chat", {
-  // First, find the user
-  find() {
-    return Meteor.users.find({ _id: this.userId });
-  },
-  children: [{
-    // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
-    find(user) {
-      return Game.find({
-        $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
-      });
-    },
+  chatLoginHook(user) {
+    this.collection.update({
+      $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": user._id }, { id: user._id }] }]
+    }, { $set: { logons: 2 } });
+  }
 
-    children: [{
-      // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
-      find(game, user) {
-        const queryobject = { id: game._id, isolation_group: user.isolation_group };
-        if (Users.isAuthorized(user, "child_chat"))
-          queryobject.child_chat = true;
-        if (game.status === "playing") {
-          if (game.white.id === user._id || game.black.id === user._id)
-            queryobject.type = "kibitz";
-          else
-            queryobject.type = {$in: ["kibitz", "whisper"]};
-        } else {
-          queryobject.type = {$in: ["kibitz", "whisper"]};
-        }
-        return ChatCollection.find(queryobject);
-      }
-    }]
-  }]
-});
-
-function chatLoginHook(user) {
-  ChatCollection.update({
-    $and: [{type: "private"}, {logons: 1}, {$or: [{"issuer.id": user._id},{id: user._id}]}]
-  }, {$set: {logons: 2}});
-}
-
-function chatLogoutHook(userId) {
-  ChatCollection.remove({
-    $and: [{type: "private"}, {logons: 1}, {$or: [{"issuer.id": userId},{id: userId}]}]});
-  ChatCollection.update({
-    $and: [{type: "private"}, {logons: 2}, {$or: [{"issuer.id": userId},{id: userId}]}]
-  }, {$set: {logons: 1}});
+  chatLogoutHook(userId) {
+    this.collection.remove({
+      $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
+    });
+    this.collection.update({
+      $and: [{ type: "private" }, { logons: 2 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
+    }, { $set: { logons: 1 } });
+  }
 }
 
 if (!global._chatObject) {
@@ -363,16 +370,4 @@ module.exports.Chat = global._chatObject;
 
 Meteor.methods({
   kibitz: (message_identifier, game_id, kibitz, txt) => global._chatObject.kibitz(message_identifier, game_id, kibitz, txt)
-});
-
-
-Meteor.startup(() => {
-  ChatCollection.remove({});
-  Users.addLogoutHook(chatLogoutHook);
-  Users.addLoginHook(chatLoginHook);
-  Game.observeGameChanges({},{
-    removed(id) {
-      ChatCollection.remove({type: {$in: ["kibitz", "whisper"]}, id: id});
-    }
-  });
 });
