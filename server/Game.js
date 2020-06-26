@@ -46,14 +46,11 @@ class Game {
       selector: { status: "playing" }
     });
 
-    Meteor.startup(
-      function() {
-        // TODO: Need to adjourn these, not just delete them
-        self.GameCollection.remove({});
-        Users.addLogoutHook((user) => self.gameLogoutHook.bind(self, user));
-        Users.addLoginHook((user) => self.gameLoginHook.bind(self, user));
-      }
-    );
+    // TODO: Need to adjourn these, not just delete them
+    Meteor.startup(() => self.GameCollection.remove({}));
+
+    Users.addLogoutHook((user) => this.gameLogoutHook(user));
+    Users.addLoginHook((user) => this.gameLoginHook(user));
 
     if (Meteor.isTest || Meteor.isAppTest) {
       this.collection = self.GameCollection;
