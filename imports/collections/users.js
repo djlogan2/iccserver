@@ -31,12 +31,10 @@ Meteor.publishComposite("loggedOnUsers", {
       find(user) {
         if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
         else {
-          const cursor = Meteor.users.find(
+          return Meteor.users.find(
             { $and: [{ "status.online": true }, { _id: { $ne: user._id } }, { isolation_group: user.isolation_group }] },
             { fields: viewable_logged_on_user_fields }
           );
-          console.log(cursor.fetch());
-          return cursor;
         }
       }
     }

@@ -48,6 +48,7 @@ describe("kibitzes", function() {
   });
 
   it("should delete the kibitzes from the collection when the game is deleted", function(done) {
+    this.timeout(5000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, true,"the text");
@@ -64,6 +65,7 @@ describe("kibitzes", function() {
       }
     });
     Game.localRemoveObserver("mi3", game_id, self.loggedonuser._id);
+    chai.assert.equal(Game.collection.find().count(), 0);
   });
 
   it("should write an action (what was said, who said it) when a kibitz is written", function() {
@@ -186,6 +188,7 @@ describe("whispers", function() {
   });
 
   it("should delete the whispers from the collection when the game is deleted", function(done) {
+    this.timeout(5000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, false,"the text");
@@ -202,6 +205,7 @@ describe("whispers", function() {
       }
     });
     Game.localRemoveObserver("mi3", game_id, self.loggedonuser._id);
+    chai.assert.equal(Game.collection.find().count(), 0);
   });
 
   it("should write an action (what was said, who said it) when a whisper is written", function() {
