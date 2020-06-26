@@ -12,6 +12,7 @@ import { Tracker } from "meteor/tracker";
 import {
   ClientMessagesCollection,
   Game,
+  Chat,
   ImportedGameCollection,
   GameHistoryCollection,
   GameRequestCollection,
@@ -60,6 +61,8 @@ Meteor.startup(() => {
     // the subscription is stopped on the server, cleaning up.
     //
     Meteor.subscribe("userData");
+    Meteor.subscribe("userData");
+    Meteor.subscribe("loggedOnUsers");
     Meteor.subscribe("observing_games");
   });
 });
@@ -78,6 +81,8 @@ class Examine extends TrackerReact(React.Component) {
       GameHistory: null,
       subscription: {
         css: Meteor.subscribe("css"),
+        users: Meteor.subscribe("loggedOnUsers"),
+        chats: Meteor.subscribe("chat"),
         game: Meteor.subscribe("playing_games"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
@@ -104,7 +109,9 @@ class Examine extends TrackerReact(React.Component) {
 
   componentWillUnmount() {
     if (this.state.subscription) {
+      this.state.subscription.chats && this.state.subscription.chats.stop();
       this.state.subscription.css && this.state.subscription.css.stop();
+      this.state.subscription.users && this.state.subscription.users.stop();
       this.state.subscription.game && this.state.subscription.game.stop();
       this.state.subscription.gameRequests && this.state.subscription.gameRequests.stop();
       this.state.subscription.clientMessages && this.state.subscription.clientMessages.stop();
@@ -199,6 +206,15 @@ class Examine extends TrackerReact(React.Component) {
 
   _pieceSquareDragStop = raf => {
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
+  };
+
+  handleObserveUser = userId => {
+    Meteor.call("observeUser", "observeUser", userId, (err, result) => {
+      if (err) {
+        debugger;
+      }
+      debugger;
+    });
   };
 
   gameHistoryload(data) {
@@ -326,7 +342,7 @@ class Examine extends TrackerReact(React.Component) {
       gameExamin = this.props.examine_game;
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
-        actionlen = game.actions.length;
+        actionlen = game.actions ? game.actions.length : 0;
         this.gameId = game._id;
         this._examinBoard(game);
         if (!!game.circles) {
@@ -346,15 +362,19 @@ class Examine extends TrackerReact(React.Component) {
     if (this.props.examine_game.length === 0) {
       return <Loading />;
     }
-
+    // const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
+    // const list = Meteor.users.find({ "game.status": { $in: ["playing", "examining"] } }).fetch();
+    // const allLisst =  Meteor.users.find().fetch();
+    // console.log(localUsers, list, allLisst);
     return (
       <div className="examine">
         <ExaminePage
           userId={Meteor.userId()}
           cssmanager={css}
-          allGames={this.props.all_games}
+          allUsers={this.props.all_users}
           board={this._board}
           gameId={this.props.examine_game[0]._id}
+          observeUser={this.handleObserveUser}
           // fen={this._board.fen()}
           capture={capture}
           len={actionlen}
@@ -379,6 +399,9 @@ class Examine extends TrackerReact(React.Component) {
 export default withTracker(props => {
   return {
     examine_game: Game.find({ "observers.id": Meteor.userId() }).fetch(),
+    // chats: Chat.find({"id": examine_game._id}),
+    chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
+    chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
@@ -395,7 +418,12 @@ export default withTracker(props => {
         sort: { create_date: -1 }
       }
     ),
-    all_games: Game.find().fetch(),
+    all_games2: Game.find().fetch(),
+    all_games: Game.find({
+      $or: [{ status: "playing" }, { status: "examining" }]
+    }).fetch(),
+    // all_users: Meteor.users.find({ "game.status": { $in: ["playing", "examining"] } }).fetch(),
+    all_users: Meteor.users.find().fetch(),
     game_messages: Game.findOne({
       $and: [
         { status: "playing" },

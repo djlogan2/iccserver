@@ -16,6 +16,18 @@ export default class ChessBoard extends PureComponent {
     };
   }
 
+  componentDidMount() {
+    window.addEventListener("resize", this.handleResize);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.handleResize);
+  }
+
+  handleResize = e => {
+    this.chessground.cg.redrawAll();
+  }
+
   onMove = (from, to) => {
     let move = this.chess.move({
       from: from,
@@ -69,6 +81,7 @@ export default class ChessBoard extends PureComponent {
   turnColor() {
     return this.chess.turn() === "w" ? "white" : "black";
   }
+
   render() {
     this.chess.load(this.props.fen);
     return (
@@ -84,6 +97,9 @@ export default class ChessBoard extends PureComponent {
           fen={this.props.fen}
           orientation={this.props.orientation}
           onMove={this.onMove}
+          ref={el => {
+            this.chessground = el;
+          }}
         />
       </div>
     );

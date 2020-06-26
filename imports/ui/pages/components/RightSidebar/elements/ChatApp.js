@@ -1,11 +1,14 @@
 import React, { Component } from "react";
 import { Input, Button } from "antd";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+
+import { Chat } from "../../../../../api/collections";
 
 const MessageItem = ({ name, text }) => {
   return (
     <div className="message-item">
-      <div className="message-item__name">You</div>
+      <div className="message-item__name">{name}</div>
       <p className="message-item__text">{text}</p>
     </div>
   );
@@ -45,8 +48,12 @@ class ChatApp extends Component {
     return (
       <div className="chat-app">
         <div className="chat-app__message-list">
-          {this.state.messageList.map((item, i) => (
-            <MessageItem key={`message-${i}`} name={item.name} text={item.text} />
+          {this.props.chats.map((chatItem, i) => (
+            <MessageItem
+              key={`message-${i}`}
+              name={chatItem.issuer.username}
+              text={chatItem.what}
+            />
           ))}
         </div>
         <div className="chat-app__input-bar">
@@ -62,4 +69,15 @@ class ChatApp extends Component {
   }
 }
 
-export default ChatApp;
+// export default withTracker(props => {
+//   return {
+//     chats: Chat.find({"id": props.gameId})
+//     // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch()
+//   })(ChatApp)
+// export default ChatApp;
+
+export default withTracker(props => {
+  return {
+    chats: Chat.find({ id: props.gameId }).fetch()
+  };
+})(ChatApp);

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import i18n from "meteor/universe:i18n";
 import { Meteor } from "meteor/meteor";
+import { withRouter } from "react-router";
 import ModalContext from "./../../ModalContext";
 import { links, sidebarBottom } from "./../../hardcode.json";
 
@@ -48,24 +49,32 @@ class MenuLinks extends Component {
       "en-US"
     );
   }
-  
+
   render() {
     let translator = i18n.createTranslator("Common.menuLinkLabel", MenuLinks.getLang());
 
     let linksMarkup = links.map((link, index) => {
-      let linkMarkup = link.active ? (
-        <a href="#" className="active" onClick={e => this.handleClick(e, link.label)}>
-          <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
-        </a>
-      ) : (
-        <a href="#" onClick={e => this.handleClick(e, link.label)}>
-          <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
-        </a>
-      );
+      let isActive = this.props.history.location.pathname === `/${link.link}`;
+
+      // let linkMarkup = link.active ? (
+      //   <a href="#" className="active" onClick={e => this.handleClick(e, link.label)}>
+      //     <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
+      //   </a>
+      // ) : (
+      //   <a href="#" className="active" onClick={e => this.handleClick(e, link.label)}>
+      //     <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
+      //   </a>
+      // );
 
       return (
         <li className="menu-link__item" key={index}>
-          {linkMarkup}
+          <a
+            href="#"
+            className={isActive && "active"}
+            onClick={e => this.handleClick(e, link.label)}
+          >
+            <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
+          </a>
         </li>
       );
     });
@@ -88,4 +97,5 @@ class MenuLinks extends Component {
     );
   }
 }
-export default MenuLinks;
+
+export default withRouter(MenuLinks);

@@ -11,8 +11,6 @@ import i18n from "meteor/universe:i18n";
 import { Tabs } from "antd";
 const { TabPane } = Tabs;
 
-
-
 export default class ExamineSidebarTop extends Component {
   constructor(props) {
     super(props);
@@ -57,7 +55,11 @@ export default class ExamineSidebarTop extends Component {
           />
         </TabPane>
         <TabPane tab="Observe" key="2">
-          <ExamineObserveTab allGames={this.props.allGames} />
+          <ExamineObserveTab
+            game={this.props.game}
+            allUsers={this.props.allUsers}
+            observeUser={this.props.observeUser}
+          />
         </TabPane>
       </Tabs>
       // <Tabs cssmanager={this.props.cssmanager}>

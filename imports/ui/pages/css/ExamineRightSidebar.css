@@ -6,15 +6,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-around;
+    min-height: 88vh;
 }
 
 .play-block__top {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     width: 33rem;
+    max-width: 90%;
     column-gap: 2.4rem;
     row-gap: 2.4rem;
-    margin-top: 8rem;
+    /* margin-top: 8rem; */
 }
 .play-block__top button {
     background: #1565C0;
@@ -24,7 +27,8 @@
     display: flex;
     flex-direction: column;
     width: 33rem;
-    margin-top: 8rem;
+    max-width: 90%;
+    /* margin-top: 8rem; */
 }
 
 .play-block__btn-big {
