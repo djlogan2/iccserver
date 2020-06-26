@@ -23,7 +23,9 @@ class ExamineRightSidebar extends Component {
     return (
       <div className="examine-right-sidebar">
         <ExamineSidebarTop
-          allGames={this.props.allGames}
+          game={this.props.game}
+          allUsers={this.props.allUsers}
+          observeUser={this.props.observeUser}
           RightBarTopData={this.props.RightSidebarData}
           cssmanager={this.props.cssmanager}
           flip={this.props.flip}
@@ -31,7 +33,11 @@ class ExamineRightSidebar extends Component {
           currentGame={this.props.currentGame}
           ref="right_bar_top"
         />
-        <ExamineRightSidebarBottom gameId={this.props.gameId}/>
+        <ExamineRightSidebarBottom
+          gameId={this.props.gameId}
+          fen={this.props.game.fen}
+          moveList={this.props.game.variations.movelist}
+        />
       </div>
     );
   }

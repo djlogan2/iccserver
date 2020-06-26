@@ -59,7 +59,7 @@ class Chat {
       children: [{
         // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
         find(user) {
-          return Game.find({
+          return Game.GameCollection.find({
             $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
           });
         },
@@ -86,13 +86,13 @@ class Chat {
 
     Meteor.startup(() => {
       self.collection.remove({});
-      Users.addLogoutHook(this.chatLogoutHook);
-      Users.addLoginHook(this.chatLoginHook);
-      Game.observeGameChanges({}, {
-        removed(id) {
-          self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
-        }
-      });
+      Users.addLogoutHook((user) => self.chatLogoutHook.bind(self, user));
+      Users.addLoginHook((user) => self.chatLoginHook.bind(self, user));
+      // Game.GameCollection.observeChanges({}, {
+      //   removed(id) {
+      //     self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
+      //   }
+      // });
     });
   }
 
@@ -110,7 +110,7 @@ class Chat {
       return;
     }
 
-    const game_ = Game.find({ _id: game_id }).fetch();
+    const game_ = Game.GameCollection.find({ _id: game_id }).fetch();
     const game = !!game_ && game_.length ? game_[0] : null;
     let child_chat = false;
 

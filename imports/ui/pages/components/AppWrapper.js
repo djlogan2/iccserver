@@ -21,6 +21,8 @@ import "./../css/FenPgn.css";
 import "./../css/Loading.css";
 
 import "./../css/ExamineRightSidebar.css";
+import "./../css/ExamineObserveTab.css";
+
 
 const AppWrapper = ({ className, children, cssManager }) => {
   return (

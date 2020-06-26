@@ -1,14 +1,16 @@
 .chat-app {
     display: flex;
     flex-grow: 1;
+    height: 100%;
     flex-direction: column;
 }
 
 .chat-app__message-list {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    flex-grow: 1;
+    flex-grow: 1; */
+    height: 100%;
     overflow: auto;
     padding: .8rem 2.4rem;
 }

@@ -177,6 +177,11 @@ Meteor.startup(function() {
   } else {
     // Do not do this in test.
     Meteor.users.find({ "status.online": true }).observeChanges({
+      changed(id, fields) {
+        if(!!fields.status && fields.status.online !== undefined && !fields.status.online) {
+          runLogoutHooks(this, id);
+        }
+      },
       removed(id) {
         runLogoutHooks(this, id);
       }

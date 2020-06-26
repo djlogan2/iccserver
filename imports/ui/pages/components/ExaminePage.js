@@ -376,7 +376,9 @@ export default class ExaminePage extends Component {
         <Col span={10}>
           <ExamineRightSidebar
             gameId={this.props.gameId}
-            allGames={this.props.allGames}
+            game={game}
+            allUsers={this.props.allUsers}
+            observeUser={this.props.observeUser}
             cssmanager={this.props.cssmanager}
             RightSidebarData={this.Main.RightSection}
             currentGame={this.state.examineGame}

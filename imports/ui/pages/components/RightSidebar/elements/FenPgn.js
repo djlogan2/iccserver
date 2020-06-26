@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Input, Upload, message, Button } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import { Meteor } from "meteor/meteor";
+
+import buildPgn from "./../../../helpers/build-pgn";
 // import { FS } from "meteor/cfs:base-package";
 // import "../../../../lib/client/pgnimportfilesystem.client";
 // const PgnImports = new FS.Collection("uploaded_pgns", {
@@ -47,20 +49,22 @@ class FenPgn extends Component {
       },
     };
 
+    let pgn = buildPgn(this.props.moveList);
+
 
     return (
       <div className="fen-png">
         <div className="fen-png__content">
           <label>Fen</label>
           <Input
-            value={this.state.fen}
+            value={this.props.fen}
             onChange={this.handleFenChange}
             placeholder="Your message"
           />
           <label>Pgn</label>
           <TextArea
             row={4}
-            value={this.state.pgn}
+            value={pgn}
             onChange={this.handlePgnChange}
             placeholder="1. f3 d6 2. e4 Nf6 3. Nh3 Nxe4"
           />

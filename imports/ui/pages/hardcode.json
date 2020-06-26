@@ -12,12 +12,12 @@
     },
     {
       "label": "examine",
-      "link": "#examine",
+      "link": "examine",
       "src": "../../../images/examine-icon-white.png"
     },
     {
       "label": "topPlayers",
-      "link": "#top-players",
+      "link": "top-players",
       "src": "../../../images/top-player-icon-white.png"
     }
   ],
