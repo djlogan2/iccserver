@@ -50,8 +50,8 @@ class Game {
       function() {
         // TODO: Need to adjourn these, not just delete them
         self.GameCollection.remove({});
-        Users.addLogoutHook(self.gameLogoutHook);
-        Users.addLoginHook(self.gameLoginHook);
+        Users.addLogoutHook((user) => self.gameLogoutHook.bind(self, user));
+        Users.addLoginHook((user) => self.gameLoginHook.bind(self, user));
       }
     );
 
@@ -80,22 +80,7 @@ class Game {
         {
           find(user) {
             return self.GameCollection.find({ isolation_group: user.isolation_group }, {
-              fields: {
-                startTime: 1,
-                result: 1,
-                status2: 1,
-                private: 1,
-                deny_requests: 1,
-                deny_chat: 1,
-                tomove: 1,
-                wild: 1,
-                rating_type: 1,
-                rated: 1,
-                status: 1,
-                clocks: 1,
-                white: 1,
-                black: 1
-              }
+              fields: { startTime: 1, result: 1, status2: 1, private: 1, deny_requests: 1, deny_chat: 1, tomove: 1, wild: 1, rating_type: 1, rated: 1, status: 1, clocks: 1, white: 1, black: 1 }
             });
           }
         }]
@@ -180,14 +165,6 @@ class Game {
 
     return game;
   }
-
-  observeGameChanges(selector, callbacks) {
-    this.GameCollection.find(selector).observeChanges(callbacks);
-  };
-
-  find(selector) {
-    return this.GameCollection.find(selector);
-  };
 
   addAction(id, action) {
     const game = this.GameCollection.findOne({ _id: id });
@@ -3377,6 +3354,7 @@ class Game {
   }
 
   gameLoginHook(user) {
+    this.localUnobserveAllGames("server", self._id, true, true);
     const game = this.GameCollection.findOne({ owner: user._id, status: "examining" });
     if (!game) return;
     Users.setGameStatus("server", user, "examining");
@@ -3588,5 +3566,6 @@ Meteor.methods({
   allowAnalysis: (message_identifier, game_iduser_id, allow_analysis) => global._gameObject.allowAnalysis(message_identifier, game_id, user_id, allow_analysis),
   localDenyObserver: (message_identifier, game_id, requestor_id) => global._gameObject.localDenyObserver(message_identifier, game_id, requestor_id),
   localAddObserver: (message_identifier, game_id, id_to_add) => global._gameObject.localAddObserver(message_identifier, game_id, id_to_add),
+  localUnobserveAllGames: (message_identifier, user_id) => global._gameObject.localUnobserveAllGames(message_identifier, user_id, false, false),
   observeUser: (message_identifier, user_id) => global._gameObject.observeUser(message_identifier, user_id)
 });
