@@ -17,19 +17,7 @@ describe("When two players are examining a game", function() {
         pp2 = p1;
       }
       self.loggedonuser = pp1;
-      const game_id = Game.startLocalGame(
-        "mi1",
-        pp2,
-        0,
-        "standard",
-        true,
-        15,
-        15,
-        "inc",
-        15,
-        15,
-        "inc"
-      );
+      const game_id = Game.startLocalGame("mi1", pp2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
       chai.assert.equal(Game.collection.find().count(), 1);
       Game.resignLocalGame("mi2", game_id);
       chai.assert.equal(Game.collection.find().count(), 1);

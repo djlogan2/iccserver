@@ -10,33 +10,7 @@ const actionSchema = new SimpleSchema({
   issuer: String,
   type: {
     type: String,
-    allowedValues: [
-      "move",
-      "kibitz",
-      "whisper",
-      "disconnect",
-      "connect",
-      "adjourned",
-      "resume_requested",
-      "resume_declined",
-      "resumed",
-      "adjourn_requested",
-      "adjourn_declined",
-      "adjourn_accepted",
-      "takeback_requested",
-      "takeback_accepted",
-      "takeback_declined",
-      "draw",
-      "draw_requested",
-      "draw_accepted",
-      "draw_declined",
-      "resign",
-      "abort_requested",
-      "abort_accepted",
-      "abort_declined",
-      "move_backward",
-      "move_forward"
-    ]
+    allowedValues: ["move", "kibitz", "whisper", "disconnect", "connect", "adjourned", "resume_requested", "resume_declined", "resumed", "adjourn_requested", "adjourn_declined", "adjourn_accepted", "takeback_requested", "takeback_accepted", "takeback_declined", "draw", "draw_requested", "draw_accepted", "draw_declined", "resign", "abort_requested", "abort_accepted", "abort_declined", "move_backward", "move_forward"]
   },
   parameter: {
     type: SimpleSchema.oneOf(String, Number, Object),
@@ -45,7 +19,7 @@ const actionSchema = new SimpleSchema({
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
   "parameter.move": { type: String, required: false },
-  "parameter.what": {type: String, required: false}
+  "parameter.what": { type: String, required: false }
 });
 
 export const GameHistorySchema = new SimpleSchema({

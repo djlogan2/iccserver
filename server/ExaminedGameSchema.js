@@ -10,49 +10,7 @@ const actionSchema = new SimpleSchema({
   issuer: String,
   type: {
     type: String,
-    allowedValues: [
-      "move",
-      "kibitz",
-      "child_chat_kibitz",
-      "whisper",
-      "disconnect",
-      "connect",
-      "adjourned",
-      "resume_requested",
-      "resume_declined",
-      "resumed",
-      "adjourn_requested",
-      "adjourn_declined",
-      "adjourn_accepted",
-      "takeback_requested",
-      "takeback_accepted",
-      "takeback_declined",
-      "draw",
-      "draw_requested",
-      "draw_accepted",
-      "draw_declined",
-      "resign",
-      "abort_requested",
-      "abort_accepted",
-      "abort_declined",
-      "move_backward",
-      "move_forward",
-      "draw_circle",
-      "remove_circle",
-      "draw_arrow",
-      "remove_arrow",
-      "draw_circle",
-      "remove_circle",
-      "clearboard",
-      "initialposition",
-      "addpiece",
-      "removepiece",
-      "settomove",
-      "setcastling",
-      "setenpassant",
-      "settag",
-      "loadfen"
-    ]
+    allowedValues: ["move", "kibitz", "child_chat_kibitz", "whisper", "disconnect", "connect", "adjourned", "resume_requested", "resume_declined", "resumed", "adjourn_requested", "adjourn_declined", "adjourn_accepted", "takeback_requested", "takeback_accepted", "takeback_declined", "draw", "draw_requested", "draw_accepted", "draw_declined", "resign", "abort_requested", "abort_accepted", "abort_declined", "move_backward", "move_forward", "draw_circle", "remove_circle", "draw_arrow", "remove_arrow", "draw_circle", "remove_circle", "clearboard", "initialposition", "addpiece", "removepiece", "settomove", "setcastling", "setenpassant", "settag", "loadfen"]
   },
   parameter: {
     type: SimpleSchema.oneOf(String, Number, Object),
@@ -75,9 +33,9 @@ const actionSchema = new SimpleSchema({
   "parameter.ping": { type: Number, required: false },
   "parameter.gamelag": { type: Number, required: false },
   "parameter.gameping": { type: Number, required: false },
-  "parameter.what": {type: String, required: false},
-  "parameter.childChatId": {type: String, required: false}, // DDD: I prefer to have all lower case with optional underscores, so I prefer to have child_chat_id. Also, we need the text, but we don't need the id in the action array
-  "parameter.childChatExemptText": {type: String, required: false}
+  "parameter.what": { type: String, required: false },
+  "parameter.childChatId": { type: String, required: false }, // DDD: I prefer to have all lower case with optional underscores, so I prefer to have child_chat_id. Also, we need the text, but we don't need the id in the action array
+  "parameter.childChatExemptText": { type: String, required: false }
 });
 
 export const ExaminedGameSchema = new SimpleSchema({

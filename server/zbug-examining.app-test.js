@@ -11,19 +11,7 @@ describe("When starting a game", function() {
     const p4 = TestHelpers.createUser();
 
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
     self.loggedonuser = p3;
     Game.localAddObserver("mi2", game_id, p3._id);
     chai.assert.isDefined(Game.collection.findOne({ "observers.id": p3._id }));
@@ -37,43 +25,12 @@ describe("When starting a game", function() {
     const p3 = TestHelpers.createUser();
 
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
     self.loggedonuser = p3;
     Game.localAddObserver("mi2", game_id, p3._id);
     chai.assert.isDefined(Game.collection.findOne({ "observers.id": p3._id }));
 
-    Game.startLegacyGame(
-      "mi3",
-      123,
-      p3.profile.legacy.username,
-      "somebody",
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1600,
-      1500,
-      "gameid",
-      [],
-      [],
-      ""
-    );
+    Game.startLegacyGame("mi3", 123, p3.profile.legacy.username, "somebody", 0, "standard", true, 15, 0, 15, 0, true, 1600, 1500, "gameid", [], [], "");
     chai.assert.isDefined(Game.collection.findOne({ status: "playing", "white.id": p3._id }));
     chai.assert.isUndefined(Game.collection.findOne({ "observers.id": p3._id }));
   });
@@ -89,20 +46,7 @@ describe("When starting a game", function() {
     Game.localAddObserver("mi2", game_id, p3._id);
     chai.assert.isDefined(Game.collection.findOne({ "observers.id": p3._id }));
 
-    const game2_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game2_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
 
     chai.assert.isDefined(Game.collection.findOne({ status: "playing", "white.id": p3._id }));
     chai.assert.isUndefined(Game.collection.findOne({ "observers.id": p3._id }));
@@ -147,26 +91,7 @@ describe("When starting a game", function() {
 
     self.loggedonuser = p2;
 
-    Game.startLegacyGame(
-      "mi3",
-      123,
-      p2.profile.legacy.username,
-      "somebody",
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1600,
-      1500,
-      "gameid",
-      [],
-      [],
-      ""
-    );
+    Game.startLegacyGame("mi3", 123, p2.profile.legacy.username, "somebody", 0, "standard", true, 15, 0, 15, 0, true, 1600, 1500, "gameid", [], [], "");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p2._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");

@@ -1,12 +1,12 @@
 import chai from "chai";
 
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Game } from "./Game";
 
 describe.skip("Game timestamp", function() {
+  // eslint-disable-next-line no-unused-vars
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-/*
+  /*
   it("should write a unique ping to active for white once a second", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();

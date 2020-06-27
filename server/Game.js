@@ -2922,7 +2922,7 @@ class Game {
   }
 
   gameLoginHook(user) {
-    this.localUnobserveAllGames("server", this._id, true, true);
+    this.localUnobserveAllGames("server", user._id, true, true);
     const game = this.GameCollection.findOne({ owner: user._id, status: "examining" });
     if (!game) return;
     Users.setGameStatus("server", user, "examining");

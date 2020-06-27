@@ -156,10 +156,7 @@ describe("Users", function() {
     const collector = new PublicationCollector({ userId: user3._id });
     collector.collect("loggedOnUsers", collections => {
       chai.assert.equal(collections.users.length, 2);
-      chai.assert.sameMembers(
-        [user2.username, user3.username],
-        collections.users.map(u => u.username)
-      );
+      chai.assert.sameMembers([user2.username, user3.username], collections.users.map(u => u.username));
       done();
     });
   });

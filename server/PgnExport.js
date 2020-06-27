@@ -1,9 +1,9 @@
 import { Game, GameHistory } from "./Game";
 import { Picker } from "meteor/meteorhacks:picker";
 
-Picker.route("/export/pgn/:collection/:_id", function(params, req, res, next) {
+Picker.route("/export/pgn/:collection/:_id", function(params, req, res) {
   let game;
-  
+
   switch (params.collection) {
     case "game":
       //   fileName = Game.getFileName(params._id);

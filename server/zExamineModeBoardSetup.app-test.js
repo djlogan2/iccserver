@@ -19,19 +19,7 @@ describe("clearboard", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     Game.clearBoard("mi2", game_id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -73,19 +61,7 @@ describe("Setting the initial position", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     Game.setStartingPosition("mi2", game_id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -129,19 +105,7 @@ describe("Adding a piece", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     Game.addPiece("mi2", game_id, "w", "p", "e4");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -187,19 +151,7 @@ describe("Removing a piece", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     Game.removePiece("mi2", game_id, "e2");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -241,19 +193,7 @@ describe("Changing side to move", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     Game.setToMove("mi2", game_id, "b");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -296,19 +236,7 @@ describe("Setting castling", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     Game.setCastling("mi2", game_id, "kq", "kq");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -350,20 +278,7 @@ describe("Setting en passant", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
     Game.saveLocalMove("mi2", game_id, "e4");
     Game.setEnPassant("mi3", game_id, "e4");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -413,20 +328,7 @@ describe("Setting PGN tags", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc",
-      "white"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
     Game.saveLocalMove("mi2", game_id, "e4");
     Game.setTag("mi3", game_id, "White", "Guy, Some");
     Game.collection.findOne({ _id: game_id });
@@ -580,19 +482,7 @@ describe("Setting a fen string", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      15,
-      "inc",
-      15,
-      15,
-      "inc"
-    );
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     Game.loadFen("mi2", game_id, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -608,10 +498,7 @@ describe("Setting a fen string", function() {
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
     chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
-    chai.assert.equal(
-      game.tags.FEN,
-      "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4"
-    );
+    chai.assert.equal(game.tags.FEN, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
     checkLastAction(game, 0, "loadfen", self.loggedonuser._id, {
       fen: "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4"
     });

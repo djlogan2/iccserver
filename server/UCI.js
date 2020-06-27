@@ -104,10 +104,7 @@ async function obtainEngine() {
         return;
       }
 
-      if (
-        ready_engines.length + busy_engines.length <
-        SystemConfiguration.maximumRunningEngines()
-      ) {
+      if (ready_engines.length + busy_engines.length < SystemConfiguration.maximumRunningEngines()) {
         const new_id = Random.id();
         const new_engine = (engines[new_id] = new Engine(SystemConfiguration.enginePath()));
         log.debug("obtainEngine starting a new engine, new engine id=" + new_id);
@@ -175,9 +172,7 @@ Meteor.setInterval(async () => {
   for (let x = 0; x < busy_engines; x++) {
     if (busy_engines[x].start < recovery_time) {
       const new_id = Random.id();
-      log.error(
-        "We are recovering a lost engine! id=" + busy_engines[x].engine + ", new id=" + new_id
-      );
+      log.error("We are recovering a lost engine! id=" + busy_engines[x].engine + ", new id=" + new_id);
       engines[new_id] = engines[busy_engines[x].engine];
       delete engines[busy_engines[x].engine];
       busy_engines.split(x, 1);
