@@ -13,7 +13,6 @@ import Examine from "../../ui/pages/Examine";
 import SignUpPage from "../../ui/pages/SignupPage";
 import LoginPage from "../../ui/pages/LoginPage.jsx";
 
-
 //      <Route path="/right-bar" component={RightSideBar} />
 export const renderRoutes = () => (
   <Router>

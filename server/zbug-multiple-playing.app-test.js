@@ -33,26 +33,7 @@ describe("Starting multiple games", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    Game.startLegacyGame(
-      "mi1",
-      123,
-      "white",
-      p1.profile.legacy.username,
-      0,
-      "Standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1600,
-      1600,
-      "x",
-      [],
-      [],
-      ""
-    );
+    Game.startLegacyGame("mi1", 123, "white", p1.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1600, 1600, "x", [], [], "");
     Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_PLAYING");
@@ -62,26 +43,7 @@ describe("Starting multiple games", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p2;
-    Game.startLegacyGame(
-      "mi1",
-      123,
-      "white",
-      p2.profile.legacy.username,
-      0,
-      "Standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1600,
-      1600,
-      "x",
-      [],
-      [],
-      ""
-    );
+    Game.startLegacyGame("mi1", 123, "white", p2.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1600, 1600, "x", [], [], "");
     self.loggedonuser = p1;
     Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -91,46 +53,8 @@ describe("Starting multiple games", function() {
   it("should not be allowed - startLegacyGame should fail if self is already playing", function() {
     const p1 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    Game.startLegacyGame(
-      "mi1",
-      123,
-      "white",
-      p1.profile.legacy.username,
-      0,
-      "Standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1600,
-      1600,
-      "x",
-      [],
-      [],
-      ""
-    );
-    Game.startLegacyGame(
-      "mi1",
-      124,
-      "white2",
-      p1.profile.legacy.username,
-      0,
-      "Standard",
-      true,
-      15,
-      0,
-      15,
-      0,
-      true,
-      1600,
-      1600,
-      "x",
-      [],
-      [],
-      ""
-    );
+    Game.startLegacyGame("mi1", 123, "white", p1.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1600, 1600, "x", [], [], "");
+    Game.startLegacyGame("mi1", 124, "white2", p1.profile.legacy.username, 0, "Standard", true, 15, 0, 15, 0, true, 1600, 1600, "x", [], [], "");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_PLAYING");
   });

@@ -1,7 +1,6 @@
 import { Logger } from "../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-import { _ } from "underscore";
 import { Match, check } from "meteor/check";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ClientMessages } from "../imports/collections/ClientMessages";
@@ -164,24 +163,7 @@ GameRequestCollection.attachSchema(LegacySeekSchema, {
 let log = new Logger("server/GameRequest_js");
 
 export const GameRequests = {};
-GameRequests.addLegacyGameSeek = function(
-  message_identifier,
-  index,
-  name,
-  titles,
-  rating,
-  provisional_status,
-  wild,
-  rating_type,
-  time,
-  inc,
-  rated,
-  color,
-  minrating,
-  maxrating,
-  autoaccept,
-  formula
-) {
+GameRequests.addLegacyGameSeek = function(message_identifier, index, name, titles, rating, provisional_status, wild, rating_type, time, inc, rated, color, minrating, maxrating, autoaccept, formula) {
   check(message_identifier, String);
   check(index, Number);
   check(name, String);
@@ -201,8 +183,7 @@ GameRequests.addLegacyGameSeek = function(
 
   const self = Meteor.user();
   check(self, Object);
-  if (!!color && color !== "white" && color !== "black")
-    throw new Match.Error("Color must be null, 'white' or 'black'");
+  if (!!color && color !== "white" && color !== "black") throw new Match.Error("Color must be null, 'white' or 'black'");
 
   const upsertReturn = GameRequestCollection.upsert(
     { type: "legacyseek", legacy_index: index, owner: self._id },
@@ -228,20 +209,7 @@ GameRequests.addLegacyGameSeek = function(
   if (upsertReturn.numberAffected === 1) return upsertReturn.insertedId;
 };
 
-GameRequests.addLocalGameSeek = function(
-  message_identifier,
-  wild,
-  rating_type,
-  time,
-  inc_or_delay,
-  inc_or_delay_type,
-  rated,
-  color,
-  minrating,
-  maxrating,
-  autoaccept,
-  formula
-) {
+GameRequests.addLocalGameSeek = function(message_identifier, wild, rating_type, time, inc_or_delay, inc_or_delay_type, rated, color, minrating, maxrating, autoaccept, formula) {
   check(message_identifier, String);
   check(wild, Number);
   check(rating_type, String);
@@ -258,53 +226,15 @@ GameRequests.addLocalGameSeek = function(
   check(self, Object);
 
   if (wild !== 0) throw new Match.Error(wild + " is an invalid wild type");
-  if (color !== null && color !== undefined && color !== "white" && color !== "black")
-    throw new Match.Error("Invalid color specification");
-  if (!self.ratings[rating_type])
-    throw new ICCMeteorError(message_identifier, "Invalid rating type");
-  if (
-    !DynamicRatings.meetsRatingTypeRules(
-      message_identifier,
-      "white",
-      rating_type,
-      time,
-      inc_or_delay,
-      inc_or_delay_type,
-      rated,
-      "seek",
-      !!color
-    )
-  )
-    throw new ICCMeteorError(
-      message_identifier,
-      "seek fails to meet whites rating type rules for time and inc"
-    );
-  if (
-    !DynamicRatings.meetsRatingTypeRules(
-      message_identifier,
-      "black",
-      rating_type,
-      time,
-      inc_or_delay,
-      inc_or_delay_type,
-      rated,
-      "seek",
-      !!color
-    )
-  )
-    throw new ICCMeteorError(
-      message_identifier,
-      "seek fails to meet blacks rating type rules for time and inc"
-    );
+  if (color !== null && color !== undefined && color !== "white" && color !== "black") throw new Match.Error("Invalid color specification");
+  if (!self.ratings[rating_type]) throw new ICCMeteorError(message_identifier, "Invalid rating type");
+  if (!DynamicRatings.meetsRatingTypeRules(message_identifier, "white", rating_type, time, inc_or_delay, inc_or_delay_type, rated, "seek", !!color)) throw new ICCMeteorError(message_identifier, "seek fails to meet whites rating type rules for time and inc");
+  if (!DynamicRatings.meetsRatingTypeRules(message_identifier, "black", rating_type, time, inc_or_delay, inc_or_delay_type, rated, "seek", !!color)) throw new ICCMeteorError(message_identifier, "seek fails to meet blacks rating type rules for time and inc");
 
   if (!!formula) throw new ICCMeteorError(message_identifier, "Formula is not yet supported");
 
   if (!Users.isAuthorized(self, rated ? "play_rated_games" : "play_unrated_games")) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "UNABLE_TO_PLAY_" + (rated ? "" : "UN") + "RATED_GAMES"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_" + (rated ? "" : "UN") + "RATED_GAMES");
     return;
   }
 
@@ -332,9 +262,7 @@ GameRequests.addLocalGameSeek = function(
   const users = Meteor.users.find({ "status.online": true, isolation_group: self.isolation_group }).fetch();
   let matchingusers = [];
   if (!!users) {
-    matchingusers = users
-      .filter(user => seekMatchesUser(message_identifier, user, game))
-      .map(user => user._id);
+    matchingusers = users.filter(user => seekMatchesUser(message_identifier, user, game)).map(user => user._id);
   }
   game.matchingusers = matchingusers || [];
 
@@ -351,8 +279,7 @@ GameRequests.removeLegacySeek = function(message_identifier, seek_index, reason_
   const request = GameRequestCollection.findOne({ legacy_index: seek_index });
   if (!request) return; // The doc says we could get removes for seeks we do not have.
 
-  if (self._id !== request.owner)
-    throw new ICCMeteorError(message_identifier, "Cannot remove another users game seek");
+  if (self._id !== request.owner) throw new ICCMeteorError(message_identifier, "Cannot remove another users game seek");
 
   GameRequestCollection.remove({ _id: request._id });
 };
@@ -364,17 +291,11 @@ GameRequests.removeGameSeek = function(message_identifier, seek_id) {
   check(self, Object);
 
   const request = GameRequestCollection.findOne({ _id: seek_id });
-  if (!request)
-    throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
+  if (!request) throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
 
-  if (self._id !== request.owner)
-    throw new ICCMeteorError(message_identifier, "Cannot remove another users game seek");
+  if (self._id !== request.owner) throw new ICCMeteorError(message_identifier, "Cannot remove another users game seek");
 
-  if (request.type !== "seek")
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot remove this seek. It is of type '" + request.type + "' and must be of type 'seek'"
-    );
+  if (request.type !== "seek") throw new ICCMeteorError(message_identifier, "Cannot remove this seek. It is of type '" + request.type + "' and must be of type 'seek'");
 
   GameRequestCollection.remove({ _id: seek_id });
 };
@@ -386,18 +307,11 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
   check(message_identifier, String);
 
   const request = GameRequestCollection.findOne({ _id: seek_id });
-  if (!request)
-    throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
-  if (self._id === request.owner)
-    throw new ICCMeteorError(message_identifier, "Cannot accept a seek from yourself");
-  if (request.type !== "seek")
-    throw new ICCMeteorError(message_identifier, "Cannot accept a non-local seek");
+  if (!request) throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
+  if (self._id === request.owner) throw new ICCMeteorError(message_identifier, "Cannot accept a seek from yourself");
+  if (request.type !== "seek") throw new ICCMeteorError(message_identifier, "Cannot accept a non-local seek");
   if (!Users.isAuthorized(self, request.rated ? "play_rated_games" : "play_unrated_games")) {
-    ClientMessages.sendMessageToClient(
-      self,
-      message_identifier,
-      "UNABLE_TO_PLAY_" + (request.rated ? "" : "UN") + "RATED_GAMES"
-    );
+    ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_" + (request.rated ? "" : "UN") + "RATED_GAMES");
     return;
   }
 
@@ -414,20 +328,7 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
     return;
   }
 
-  const game_id = Game.startLocalGame(
-    message_identifier,
-    challenger,
-    request.wild,
-    request.rating_type,
-    request.rated,
-    request.time,
-    request.inc_or_delay,
-    request.delaytype,
-    request.time,
-    request.inc_or_delay,
-    request.delaytype,
-    request.challenger_color_request
-  );
+  const game_id = Game.startLocalGame(message_identifier, challenger, request.wild, request.rating_type, request.rated, request.time, request.inc_or_delay, request.delaytype, request.time, request.inc_or_delay, request.delaytype, request.challenger_color_request);
   GameRequestCollection.remove({ _id: seek_id });
   return game_id;
 };
@@ -435,27 +336,7 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
 //
 //-----------------------------------------------------------------------------
 //
-GameRequests.addLegacyMatchRequest = function(
-  message_identifier,
-  challenger_name,
-  challenger_rating,
-  challenger_established,
-  challenger_titles,
-  receiver_name,
-  receiver_rating,
-  receiver_established,
-  receiver_titles,
-  wild_number,
-  rating_type,
-  is_it_rated,
-  is_it_adjourned,
-  challenger_time,
-  challenger_inc,
-  receiver_time,
-  receiver_inc,
-  challenger_color_request,
-  assess_loss
-) {
+GameRequests.addLegacyMatchRequest = function(message_identifier, challenger_name, challenger_rating, challenger_established, challenger_titles, receiver_name, receiver_rating, receiver_established, receiver_titles, wild_number, rating_type, is_it_rated, is_it_adjourned, challenger_time, challenger_inc, receiver_time, receiver_inc, challenger_color_request, assess_loss) {
   check(message_identifier, String);
   check(challenger_name, String);
   check(challenger_rating, Number);
@@ -493,11 +374,7 @@ GameRequests.addLegacyMatchRequest = function(
   if (challenger_user && challenger_user._id === self._id) challenger_or_receiver = true;
   if (receiver_user && receiver_user._id === self._id) challenger_or_receiver = true;
 
-  if (!challenger_or_receiver)
-    throw new ICCMeteorError(
-      message_identifier,
-      "addLegacyMatch where neither challenger nor receiver is the logged on user"
-    );
+  if (!challenger_or_receiver) throw new ICCMeteorError(message_identifier, "addLegacyMatch where neither challenger nor receiver is the logged on user");
   if (challenger_color_request === 1 || challenger_color_request === "white") {
     challenger_color_request = "white";
   } else {
@@ -537,22 +414,7 @@ function established(rating_object) {
   return rating_object.won + rating_object.draw + rating_object.lost >= 20;
 }
 
-GameRequests.addLocalMatchRequest = function(
-  message_identifier,
-  receiver_user,
-  wild_number,
-  rating_type,
-  is_it_rated,
-  is_it_adjourned,
-  challenger_time,
-  challenger_inc_or_delay,
-  challenger_inc_or_delay_type,
-  receiver_time,
-  receiver_inc_or_delay,
-  receiver_inc_or_delay_type,
-  challenger_color_request,
-  fancy_time_control
-) {
+GameRequests.addLocalMatchRequest = function(message_identifier, receiver_user, wild_number, rating_type, is_it_rated, is_it_adjourned, challenger_time, challenger_inc_or_delay, challenger_inc_or_delay_type, receiver_time, receiver_inc_or_delay, receiver_inc_or_delay_type, challenger_color_request, fancy_time_control) {
   const challenger_user = Meteor.user();
   check(challenger_user, Object);
   check(message_identifier, String);
@@ -570,134 +432,39 @@ GameRequests.addLocalMatchRequest = function(
   check(challenger_color_request, Match.Maybe(String));
   check(fancy_time_control, Match.Maybe(String));
 
-  if (typeof receiver_user === "string")
-    receiver_user = Meteor.users.findOne({ _id: receiver_user });
+  if (typeof receiver_user === "string") receiver_user = Meteor.users.findOne({ _id: receiver_user });
 
   if (!receiver_user || !receiver_user.status.online) {
-    ClientMessages.sendMessageToClient(
-      challenger_user,
-      message_identifier,
-      "CANNOT_MATCH_LOGGED_OFF_USER"
-    );
+    ClientMessages.sendMessageToClient(challenger_user, message_identifier, "CANNOT_MATCH_LOGGED_OFF_USER");
     return;
   }
 
-  if (
-    !!challenger_color_request &&
-    challenger_color_request !== "white" &&
-    challenger_color_request !== "black"
-  ) {
-    throw new ICCMeteorError(
-      message_identifier,
-      "challenger_color_request must be null, 'black' or 'white'"
-    );
+  if (!!challenger_color_request && challenger_color_request !== "white" && challenger_color_request !== "black") {
+    throw new ICCMeteorError(message_identifier, "challenger_color_request must be null, 'black' or 'white'");
   }
 
   if (!challenger_color_request) {
-    if (
-      challenger_time !== receiver_time ||
-      challenger_inc_or_delay !== receiver_inc_or_delay ||
-      challenger_inc_or_delay_type !== receiver_inc_or_delay_type
-    )
-      throw new ICCMeteorError(
-        message_identifier,
-        "Cannot add match request",
-        "Color not specified and time controls differ"
-      );
+    if (challenger_time !== receiver_time || challenger_inc_or_delay !== receiver_inc_or_delay || challenger_inc_or_delay_type !== receiver_inc_or_delay_type) throw new ICCMeteorError(message_identifier, "Cannot add match request", "Color not specified and time controls differ");
   }
 
   if (challenger_color_request === "white") {
-    if (
-      !DynamicRatings.meetsRatingTypeRules(
-        message_identifier,
-        "white",
-        rating_type,
-        challenger_time,
-        challenger_inc_or_delay,
-        challenger_inc_or_delay_type,
-        is_it_rated,
-        "match",
-        !!challenger_color_request
-      )
-    )
-      throw new ICCMeteorError(
-        message_identifier,
-        "Cannot add match request",
-        "Failed time and inc rules for challenger"
-      );
-    if (
-      !DynamicRatings.meetsRatingTypeRules(
-        message_identifier,
-        "black",
-        rating_type,
-        receiver_time,
-        receiver_inc_or_delay,
-        receiver_inc_or_delay_type,
-        is_it_rated,
-        "match",
-        !!challenger_color_request
-      )
-    )
-      throw new ICCMeteorError(
-        message_identifier,
-        "Cannot add match request",
-        "Failed time and inc rules for challenger"
-      );
+    if (!DynamicRatings.meetsRatingTypeRules(message_identifier, "white", rating_type, challenger_time, challenger_inc_or_delay, challenger_inc_or_delay_type, is_it_rated, "match", !!challenger_color_request)) throw new ICCMeteorError(message_identifier, "Cannot add match request", "Failed time and inc rules for challenger");
+    if (!DynamicRatings.meetsRatingTypeRules(message_identifier, "black", rating_type, receiver_time, receiver_inc_or_delay, receiver_inc_or_delay_type, is_it_rated, "match", !!challenger_color_request)) throw new ICCMeteorError(message_identifier, "Cannot add match request", "Failed time and inc rules for challenger");
   } else {
-    if (
-      !DynamicRatings.meetsRatingTypeRules(
-        message_identifier,
-        "black",
-        rating_type,
-        challenger_time,
-        challenger_inc_or_delay,
-        challenger_inc_or_delay_type,
-        is_it_rated,
-        "match",
-        !!challenger_color_request
-      )
-    )
-      throw new ICCMeteorError(
-        message_identifier,
-        "Cannot add match request",
-        "Failed time and inc rules for challenger"
-      );
-    if (
-      !DynamicRatings.meetsRatingTypeRules(
-        message_identifier,
-        "black",
-        rating_type,
-        receiver_time,
-        receiver_inc_or_delay,
-        receiver_inc_or_delay_type,
-        is_it_rated,
-        "match",
-        !!challenger_color_request
-      )
-    )
-      throw new ICCMeteorError(
-        message_identifier,
-        "Cannot add match request",
-        "Failed time and inc rules for challenger"
-      );
+    if (!DynamicRatings.meetsRatingTypeRules(message_identifier, "black", rating_type, challenger_time, challenger_inc_or_delay, challenger_inc_or_delay_type, is_it_rated, "match", !!challenger_color_request)) throw new ICCMeteorError(message_identifier, "Cannot add match request", "Failed time and inc rules for challenger");
+    if (!DynamicRatings.meetsRatingTypeRules(message_identifier, "black", rating_type, receiver_time, receiver_inc_or_delay, receiver_inc_or_delay_type, is_it_rated, "match", !!challenger_color_request)) throw new ICCMeteorError(message_identifier, "Cannot add match request", "Failed time and inc rules for challenger");
   }
 
   const role = is_it_rated ? "play_rated_games" : "play_unrated_games";
 
-  if (!Users.isAuthorized(challenger_user, role))
-    throw new ICCMeteorError(message_identifier, "not_in_role", role);
-  if (!Users.isAuthorized(receiver_user, role))
-    throw new ICCMeteorError(message_identifier, "not_in_role", role);
+  if (!Users.isAuthorized(challenger_user, role)) throw new ICCMeteorError(message_identifier, "not_in_role", role);
+  if (!Users.isAuthorized(receiver_user, role)) throw new ICCMeteorError(message_identifier, "not_in_role", role);
 
   if (wild_number !== 0) throw new ICCMeteorError(message_identifier, "Wild must be zero");
 
-  const assess = SystemConfiguration.winDrawLossAssessValues(
-    challenger_user.ratings[rating_type],
-    receiver_user.ratings[rating_type]
-  );
+  const assess = SystemConfiguration.winDrawLossAssessValues(challenger_user.ratings[rating_type], receiver_user.ratings[rating_type]);
 
-  if(challenger_user.isolation_group !== receiver_user.isolation_group)
-    throw new ICCMeteorError(message_identifier, "Unable to match", "Mismatch in isolation group");
+  if (challenger_user.isolation_group !== receiver_user.isolation_group) throw new ICCMeteorError(message_identifier, "Unable to match", "Mismatch in isolation group");
 
   const record = {
     type: "match",
@@ -746,19 +513,10 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
     return;
   }
 
-  if (match.type !== "match")
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot accept match",
-      "Match request is a legacy request"
-    );
+  if (match.type !== "match") throw new ICCMeteorError(message_identifier, "Cannot accept match", "Match request is a legacy request");
 
   if (receiver._id === match.challenger_id) {
-    throw new ICCMeteorError(
-      message_identifier,
-      "Cannot accept match",
-      "Cannot accept your own match"
-    );
+    throw new ICCMeteorError(message_identifier, "Cannot accept match", "Cannot accept your own match");
   }
 
   if (receiver._id !== match.receiver_id) {
@@ -789,16 +547,7 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
   let color = null;
 
   if (!match.challenger_color_request) {
-    if (
-      match.challenger_time !== match.receiver_time ||
-      match.challenger_inc_or_delay !== match.receiver_inc_or_delay ||
-      match.challenger_delaytype !== match.receiver_delaytype
-    )
-      throw new ICCMeteorError(
-        message_identifier,
-        "Cannot accept match",
-        "No color specified and time/inc mismatch"
-      );
+    if (match.challenger_time !== match.receiver_time || match.challenger_inc_or_delay !== match.receiver_inc_or_delay || match.challenger_delaytype !== match.receiver_delaytype) throw new ICCMeteorError(message_identifier, "Cannot accept match", "No color specified and time/inc mismatch");
     white_initial = black_initial = match.challenger_time;
     white_inc_or_delay = black_inc_or_delay = match.challenger_inc_or_delay;
     white_delaytype = black_delaytype = match.challenger_delaytype;
@@ -820,20 +569,7 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
     color = "white";
   }
 
-  const started_id = Game.startLocalGame(
-    message_identifier,
-    challenger,
-    match.wild_number,
-    match.rating_type,
-    match.rated,
-    white_initial,
-    white_inc_or_delay,
-    white_delaytype,
-    black_initial,
-    black_inc_or_delay,
-    black_delaytype,
-    color
-  );
+  const started_id = Game.startLocalGame(message_identifier, challenger, match.wild_number, match.rating_type, match.rated, white_initial, white_inc_or_delay, white_delaytype, black_initial, black_inc_or_delay, black_delaytype, color);
   GameRequestCollection.remove({ _id: game_id });
   return started_id;
 };
@@ -845,31 +581,15 @@ GameRequests.declineMatchRequest = function(message_identifier, game_id) {
   check(self, Object);
 
   const request = GameRequestCollection.findOne({ _id: game_id });
-  if (!request)
-    throw new ICCMeteorError(message_identifier, "Unable to decline match", "game id not found");
-  if (request.challenger_id === self._id)
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to decline match",
-      "challenger cannot decline a match"
-    );
-  if (request.receiver_id !== self._id)
-    throw new ICCMeteorError(message_identifier, "Unable to decline match", "not the receiver");
+  if (!request) throw new ICCMeteorError(message_identifier, "Unable to decline match", "game id not found");
+  if (request.challenger_id === self._id) throw new ICCMeteorError(message_identifier, "Unable to decline match", "challenger cannot decline a match");
+  if (request.receiver_id !== self._id) throw new ICCMeteorError(message_identifier, "Unable to decline match", "not the receiver");
 
   GameRequestCollection.remove({ _id: game_id });
-  ClientMessages.sendMessageToClient(
-    request.challenger_id,
-    request.message_identifier,
-    "MATCH_DECLINED"
-  );
+  ClientMessages.sendMessageToClient(request.challenger_id, request.message_identifier, "MATCH_DECLINED");
 };
 
-GameRequests.removeLegacyMatchRequest = function(
-  message_identifier,
-  challenger_name,
-  receiver_name,
-  explanation_string
-) {
+GameRequests.removeLegacyMatchRequest = function(message_identifier, challenger_name, receiver_name, explanation_string) {
   check(message_identifier, String);
   check(challenger_name, String);
   check(receiver_name, String);
@@ -877,34 +597,15 @@ GameRequests.removeLegacyMatchRequest = function(
   const self = Meteor.user();
   check(self, Object);
 
-  if (
-    !self.profile ||
-    !self.profile.legacy ||
-    !self.profile.legacy.username ||
-    !self.profile.legacy.validated
-  )
-    throw new ICCMeteorError(
-      message_identifier,
-      "User is neither challenger nor receiver of removed match"
-    );
-  if (
-    self.profile.legacy.username !== challenger_name &&
-    self.profile.legacy.username !== receiver_name
-  )
-    throw new ICCMeteorError(
-      message_identifier,
-      "User is neither challenger nor receiver of removed match (2)"
-    );
+  if (!self.profile || !self.profile.legacy || !self.profile.legacy.username || !self.profile.legacy.validated) throw new ICCMeteorError(message_identifier, "User is neither challenger nor receiver of removed match");
+  if (self.profile.legacy.username !== challenger_name && self.profile.legacy.username !== receiver_name) throw new ICCMeteorError(message_identifier, "User is neither challenger nor receiver of removed match (2)");
   const result = GameRequestCollection.remove({
     $and: [{ challenger: challenger_name }, { receiver: receiver_name }]
   });
 
-  if (!result)
-    throw new ICCMeteorError(message_identifier, "No legacy match record found to remove");
+  if (!result) throw new ICCMeteorError(message_identifier, "No legacy match record found to remove");
 
-  ClientMessages.sendMessageToClient(self, message_identifier, "LEGACY_MATCH_REMOVED", [
-    explanation_string
-  ]);
+  ClientMessages.sendMessageToClient(self, message_identifier, "LEGACY_MATCH_REMOVED", [explanation_string]);
 };
 
 Meteor.methods({
@@ -920,11 +621,9 @@ function seekMatchesUser(message_identifier, user, seek) {
   check(user, Object);
   check(seek, Object);
 
-  if (user._id === seek.owner)
-    return false;
+  if (user._id === seek.owner) return false;
 
-  if(seek.isolation_group !== user.isolation_group)
-    return false;
+  if (seek.isolation_group !== user.isolation_group) return false;
 
   if (!Users.isAuthorized(user, "play_rated_games") && seek.rated) return false;
   if (!Users.isAuthorized(user, "play_unrated_games") && !seek.rated) return false;
@@ -938,10 +637,7 @@ function seekMatchesUser(message_identifier, user, seek) {
 
 Meteor.publishComposite("game_requests", {
   find: function() {
-    return Meteor.users.find(
-      { _id: this.userId, "status.online": true },
-      { fields: { "status.game": 1, isolation_group: 1 } }
-    );
+    return Meteor.users.find({ _id: this.userId, "status.online": true }, { fields: { "status.game": 1, isolation_group: 1 } });
   },
   children: [
     {
@@ -949,15 +645,14 @@ Meteor.publishComposite("game_requests", {
         log.debug("publishComposite game_requests, userid=" + user._id);
         if (user.status.game === "playing") return GameRequestCollection.find({ _id: "0" });
         return GameRequestCollection.find(
-          {$and: [
           {
-            $or: [
-              { challenger_id: user._id },
-              { receiver_id: user._id },
-              { owner: user._id },
-              { matchingusers: user._id }
+            $and: [
+              {
+                $or: [{ challenger_id: user._id }, { receiver_id: user._id }, { owner: user._id }, { matchingusers: user._id }]
+              },
+              { isolation_group: user.isolation_group }
             ]
-          }, {isolation_group: user.isolation_group }]},
+          },
           { fields: { matchingusers: 0 } }
         );
       }
@@ -967,11 +662,7 @@ Meteor.publishComposite("game_requests", {
 
 GameRequests.removeUserFromAllSeeks = function(userId) {
   check(userId, String);
-  GameRequestCollection.update(
-    { type: "seek", matchingusers: userId },
-    { $pull: { matchingusers: userId } },
-    { multi: true }
-  );
+  GameRequestCollection.update({ type: "seek", matchingusers: userId }, { $pull: { matchingusers: userId } }, { multi: true });
   GameRequestCollection.remove({ type: "seek", owner: userId });
 };
 
@@ -997,19 +688,9 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
       }
     });
 
-  if (add.length)
-    GameRequestCollection.update(
-      { _id: { $in: add }, type: "seek" },
-      { $addToSet: { matchingusers: user._id } },
-      { multi: true }
-    );
+  if (add.length) GameRequestCollection.update({ _id: { $in: add }, type: "seek" }, { $addToSet: { matchingusers: user._id } }, { multi: true });
 
-  if (remove.length)
-    GameRequestCollection.update(
-      { _id: { $in: remove }, type: "seek" },
-      { $pull: { matchingusers: user._id } },
-      { multi: true }
-    );
+  if (remove.length) GameRequestCollection.update({ _id: { $in: remove }, type: "seek" }, { $pull: { matchingusers: user._id } }, { multi: true });
 
   Meteor.users
     .find({ "status.online": true })
@@ -1022,15 +703,9 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
           const alreadymatched = seek.matchingusers.indexOf(onlineuser._id) !== -1;
           if (matches !== alreadymatched) {
             if (matches) {
-              GameRequestCollection.update(
-                { _id: seek._id, type: seek.type },
-                { $addToSet: { matchingusers: onlineuser._id } }
-              );
+              GameRequestCollection.update({ _id: seek._id, type: seek.type }, { $addToSet: { matchingusers: onlineuser._id } });
             } else {
-              GameRequestCollection.update(
-                { _id: seek._id, type: seek.type },
-                { $pull: { matchingusers: onlineuser._id } }
-              );
+              GameRequestCollection.update({ _id: seek._id, type: seek.type }, { $pull: { matchingusers: onlineuser._id } });
             }
           }
         });
@@ -1047,11 +722,7 @@ GameRequests.removeAllUserMatches = function(userId) {
   )
     .fetch()
     .forEach(match => {
-      ClientMessages.sendMessageToClient(
-        match.challenger_id,
-        "matchRequest",
-        "CANNOT_MATCH_LOGGED_OFF_USER"
-      );
+      ClientMessages.sendMessageToClient(match.challenger_id, "matchRequest", "CANNOT_MATCH_LOGGED_OFF_USER");
     });
 
   GameRequestCollection.remove({
@@ -1073,11 +744,7 @@ function groupChangeHook(message_identifier, userId) {
   check(userId, String);
   const user = Meteor.users.findOne({ _id: userId });
   check(user, Object);
-  GameRequestCollection.update(
-    { type: "seek", owner: user._id },
-    {},
-    { multi: true }
-  );
+  GameRequestCollection.update({ type: "seek", owner: user._id }, {}, { multi: true });
   GameRequests.updateAllUserSeeks(message_identifier, user);
 }
 

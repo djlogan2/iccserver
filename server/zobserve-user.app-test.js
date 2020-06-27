@@ -1,10 +1,11 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
 import { Game } from "./Game";
+import { Roles } from "meteor/alanning:roles";
 
-describe("Observing a user", function(){
+describe("Observing a user", function() {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should add the caller to the observers list of a game being played by the specified user", function(){
+  it("should add the caller to the observers list of a game being played by the specified user", function() {
     const victim = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
@@ -18,10 +19,10 @@ describe("Observing a user", function(){
 
     const game = Game.collection.findOne();
     chai.assert.equal(game_id, game._id);
-    chai.assert.sameDeepMembers([{id: stalker._id, username: stalker.username}], game.observers);
+    chai.assert.sameDeepMembers([{ id: stalker._id, username: stalker.username }], game.observers);
   });
 
-  it("should add the caller to the observers list of a game being examined by the specified user", function(){
+  it("should add the caller to the observers list of a game being examined by the specified user", function() {
     const victim = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
 
@@ -34,10 +35,10 @@ describe("Observing a user", function(){
 
     const game = Game.collection.findOne();
     chai.assert.equal(game_id, game._id);
-    chai.assert.sameDeepMembers([{id: stalker._id, username: stalker.username},{id: victim._id, username: victim.username}], game.observers);
+    chai.assert.sameDeepMembers([{ id: stalker._id, username: stalker.username }, { id: victim._id, username: victim.username }], game.observers);
   });
 
-  it("should write a client message if the user is not examining or playing a game", function(){
+  it("should write a client message if the user is not examining or playing a game", function() {
     const someguy = TestHelpers.createUser();
     const victim = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
@@ -49,21 +50,21 @@ describe("Observing a user", function(){
     self.loggedonuser = victim;
     Game.localAddObserver("mi2", game_id, victim._id);
     const game = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{id: someguy._id, username: someguy.username},{id: victim._id, username: victim.username}], game.observers);
+    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game.observers);
 
     self.loggedonuser = stalker;
     Game.observeUser("mi2", victim._id);
 
     const game2 = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{id: someguy._id, username: someguy.username},{id: victim._id, username: victim.username}], game2.observers);
+    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game2.observers);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_OR_EXAMINING");
   });
 
-  it("should write a client message if the user is not in their isolation group (i.e. 'does not exist')", function(){
-    const victim = TestHelpers.createUser({isolation_group: "group1"});
-    const p2 = TestHelpers.createUser({isolation_group: "group1"});
+  it("should write a client message if the user is not in their isolation group (i.e. 'does not exist')", function() {
+    const victim = TestHelpers.createUser({ isolation_group: "group1" });
+    const p2 = TestHelpers.createUser({ isolation_group: "group1" });
     const stalker = TestHelpers.createUser();
 
     self.loggedonuser = victim;
@@ -81,7 +82,7 @@ describe("Observing a user", function(){
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_USER");
   });
 
-  it("should write a client message if the user is examining a private game", function(){
+  it("should write a client message if the user is examining a private game", function() {
     const someguy = TestHelpers.createUser();
     const victim = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
@@ -94,7 +95,7 @@ describe("Observing a user", function(){
     self.loggedonuser = victim;
     Game.localAddObserver("mi2", game_id, victim._id);
     const game = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{id: someguy._id, username: someguy.username},{id: victim._id, username: victim.username}], game.observers);
+    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game.observers);
 
     self.loggedonuser = someguy;
     Game.setPrivate("mi3", game_id, true);
@@ -104,13 +105,13 @@ describe("Observing a user", function(){
     Game.observeUser("mi4", victim._id);
 
     const game2 = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{id: someguy._id, username: someguy.username},{id: victim._id, username: victim.username}], game2.observers);
+    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game2.observers);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "PRIVATE_GAME");
   });
 
-  it("should return a message if stalker is playing a game", function(){
+  it("should return a message if stalker is playing a game", function() {
     const victim = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -128,7 +129,7 @@ describe("Observing a user", function(){
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_PLAYING");
   });
 
-  it("should remove stalker as an observer to observe another users game", function(){
+  it("should remove stalker as an observer to observe another users game", function() {
     this.timeout(500000);
     const victim = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
@@ -147,17 +148,17 @@ describe("Observing a user", function(){
     self.loggedonuser = stalker;
     Game.localAddExaminer("mi5", stalker_game, anotherguy._id);
 
-    const g1 = Game.collection.findOne({_id: stalker_game});
-    chai.assert.sameDeepMembers([{id: stalker._id, username: stalker.username},{id: anotherguy._id, username: anotherguy.username}], g1.examiners);
-    chai.assert.sameDeepMembers([{id: stalker._id, username: stalker.username},{id: anotherguy._id, username: anotherguy.username}], g1.observers);
+    const g1 = Game.collection.findOne({ _id: stalker_game });
+    chai.assert.sameDeepMembers([{ id: stalker._id, username: stalker.username }, { id: anotherguy._id, username: anotherguy.username }], g1.examiners);
+    chai.assert.sameDeepMembers([{ id: stalker._id, username: stalker.username }, { id: anotherguy._id, username: anotherguy.username }], g1.observers);
 
     Game.observeUser("mi2", victim._id);
 
-    const g2a = Game.collection.findOne({_id: stalker_game});
-    chai.assert.sameDeepMembers([{id: anotherguy._id, username: anotherguy.username}], g2a.examiners);
-    chai.assert.sameDeepMembers([{id: anotherguy._id, username: anotherguy.username}], g2a.observers);
+    const g2a = Game.collection.findOne({ _id: stalker_game });
+    chai.assert.sameDeepMembers([{ id: anotherguy._id, username: anotherguy.username }], g2a.examiners);
+    chai.assert.sameDeepMembers([{ id: anotherguy._id, username: anotherguy.username }], g2a.observers);
 
-    const g2b = Game.collection.findOne({_id: game_id});
-    chai.assert.sameDeepMembers([{id: victim._id, username: victim.username},{id: stalker._id, username: stalker.username}], g2b.observers);
+    const g2b = Game.collection.findOne({ _id: game_id });
+    chai.assert.sameDeepMembers([{ id: victim._id, username: victim.username }, { id: stalker._id, username: stalker.username }], g2b.observers);
   });
 });

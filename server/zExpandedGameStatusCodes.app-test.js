@@ -11,20 +11,7 @@ describe("Expanded game status codes", function() {
       p2: TestHelpers.createUser()
     };
     self.loggedonuser = ret.p1;
-    ret.game_id = Game.startLocalGame(
-      "mi1",
-      ret.p2,
-      0,
-      "standard",
-      true,
-      1,
-      0,
-      "none",
-      1,
-      0,
-      "none",
-      "white"
-    );
+    ret.game_id = Game.startLocalGame("mi1", ret.p2, 0, "standard", true, 1, 0, "none", 1, 0, "none", "white");
     moves.forEach(move => {
       Game.saveLocalMove("mi2-" + move, ret.game_id, move);
       if (self.loggedonuser._id === ret.p1._id) self.loggedonuser = ret.p2;

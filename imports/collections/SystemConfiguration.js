@@ -1,8 +1,9 @@
-import { Match, check } from "meteor/check";
+import { check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 
 export const SystemConfiguration = {};
 
+// eslint-disable-next-line no-unused-vars
 const SystemConfigurationCollection = new Mongo.Collection("system_configuration");
 
 SystemConfiguration.minimumMoveTime = function() {
@@ -19,7 +20,7 @@ SystemConfiguration.gameHistoryCount = function() {
 
 SystemConfiguration.maximumPrivateRoomCount = function() {
   return 5;
-}
+};
 
 SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   //{ rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }

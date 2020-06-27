@@ -17,8 +17,7 @@ Meteor.publish("imported_games", function() {
 function findTempRecord(fileKey, first) {
   return new Promise((resolve, reject) => {
     TempUploadCollection.rawCollection().findOne({ fileKey: fileKey }, (error, record) => {
-      if (first)
-        record.offset = 0;
+      if (first) record.offset = 0;
       if (error) reject(error);
       else if (!record) reject(new Error("Unable to find temp record"));
       else resolve(record);
@@ -29,11 +28,10 @@ function findTempRecord(fileKey, first) {
 function parseUpToLastNewLine(temp, chunk) {
   return new Promise((resolve, reject) => {
     try {
-
       let start = 0;
 
       if (temp.offset < temp.size) {
-        if ((temp.offset + chunk.length) <= temp.size) {
+        if (temp.offset + chunk.length <= temp.size) {
           temp.offset += chunk.length;
           resolve(temp);
           return;
@@ -48,8 +46,7 @@ function parseUpToLastNewLine(temp, chunk) {
 
       const parser = parsers[temp._id] === undefined ? new Parser() : parsers[temp._id];
 
-      if (parsers[temp._id] === undefined)
-        parsers[temp._id] = parser;
+      if (parsers[temp._id] === undefined) parsers[temp._id] = parser;
 
       let end = chunk.lastIndexOf("\n");
 
@@ -87,10 +84,8 @@ function finishIfFinished(temp) {
         try {
           parser.feed(temp.string);
           if (parser.gamelist && parser.gamelist.length) {
-            if (temp.gamelist)
-              temp.gamelist = temp.gamelist.concat(parser.gamelist);
-            else
-              temp.gamelist = parser.gamelist;
+            if (temp.gamelist) temp.gamelist = temp.gamelist.concat(parser.gamelist);
+            else temp.gamelist = parser.gamelist;
           }
         } catch (e) {
           reject(e);
@@ -104,11 +99,10 @@ function finishIfFinished(temp) {
 }
 
 function saveParsedGames(temp) {
-  if (!temp.gamelist || !temp.gamelist.length)
-    return Promise.resolve(temp);
+  if (!temp.gamelist || !temp.gamelist.length) return Promise.resolve(temp);
 
   return new Promise((resolve, reject) => {
-    ImportedGameCollection.rawCollection().insertMany(temp.gamelist, (err, res) => {
+    ImportedGameCollection.rawCollection().insertMany(temp.gamelist, err => {
       delete temp.gamelist;
       if (err) reject(err);
       else resolve(temp);
@@ -118,7 +112,7 @@ function saveParsedGames(temp) {
 
 function updateTempRecord(temp) {
   return new Promise((resolve, reject) => {
-    TempUploadCollection.rawCollection().update({ _id: temp._id }, temp, (err, res) => {
+    TempUploadCollection.rawCollection().update({ _id: temp._id }, temp, err => {
       if (err) reject(err);
       else resolve(temp);
       testme = 0;
@@ -135,9 +129,12 @@ PGNImportStorageAdapter.prototype = Object.create(FS.StorageAdapter.prototype);
 PGNImportStorageAdapter.prototype.typeName = "storage.pgnimportfilesystem";
 
 PGNImportStorageAdapter.prototype.fileKey = function(fileObj) {
-  const temp = TempUploadCollection.findOne({
-    fileKey: fileObj._id
-  }, { _id: 1 });
+  const temp = TempUploadCollection.findOne(
+    {
+      fileKey: fileObj._id
+    },
+    { _id: 1 }
+  );
   if (!temp)
     TempUploadCollection.insert({
       fileKey: fileObj._id,
@@ -153,7 +150,9 @@ PGNImportStorageAdapter.prototype.fileKey = function(fileObj) {
   return fileObj._id;
 };
 
+// noinspection JSUnusedLocalSymbols
 PGNImportStorageAdapter.prototype.createReadStream = function(fileKey, options) {
+  // eslint-disable-next-line no-console
   console.log("--- CREATEREADSTREAM ---");
   return null;
 };
@@ -169,10 +168,10 @@ const q = async.queue(function(work, callback) {
     const self = this;
 
     findTempRecord(work.fileKey, first)
-      .then((temp) => parseUpToLastNewLine(temp, chunk))
-      .then((temp) => finishIfFinished(temp))
-      .then((temp) => saveParsedGames(temp))
-      .then((temp) => updateTempRecord(temp))
+      .then(temp => parseUpToLastNewLine(temp, chunk))
+      .then(temp => finishIfFinished(temp))
+      .then(temp => saveParsedGames(temp))
+      .then(temp => updateTempRecord(temp))
       .finally(() => {
         data = false;
         first = false;
@@ -193,12 +192,13 @@ const q = async.queue(function(work, callback) {
 
 PGNImportStorageAdapter.prototype.createWriteStream = function(fileKey) {
   const pass = new stream.PassThrough();
-  q.push({ fileKey: fileKey, stream: pass }, (err) => {
-  });
+  q.push({ fileKey: fileKey, stream: pass }, () => {});
   return pass;
 };
 
+// noinspection JSUnusedLocalSymbols
 PGNImportStorageAdapter.prototype.remove = function(fileKey, callback) {
+  // eslint-disable-next-line no-console
   console.log("--- REMOVE ---");
   /*
     // this is the Storage adapter scope
@@ -218,7 +218,9 @@ PGNImportStorageAdapter.prototype.remove = function(fileKey, callback) {
 */
 };
 
+// noinspection JSUnusedLocalSymbols
 PGNImportStorageAdapter.prototype.stats = function(fileKey, callback) {
+  // eslint-disable-next-line no-console
   console.log("--- STATS ---");
   /*
     // this is the Storage adapter scope
@@ -232,6 +234,8 @@ PGNImportStorageAdapter.prototype.stats = function(fileKey, callback) {
 */
 };
 
+// noinspection JSUnusedLocalSymbols
 PGNImportStorageAdapter.prototype.parse = function(chunk) {
+  // eslint-disable-next-line no-console
   console.log("--- PARSE ---");
 };

@@ -3,10 +3,7 @@ import { compare } from "../imports/server/TestHelpers";
 
 describe("Miscellaneous tests", function() {
   it("compare should fail if there are fields in the test object not in the actual object", function() {
-    chai.assert.equal(
-      compare({ f1: 1, f2: 1, f3: 1 }, { f1: "v1", f3: "v3" }),
-      "f2 not found in database object"
-    );
+    chai.assert.equal(compare({ f1: 1, f2: 1, f3: 1 }, { f1: "v1", f3: "v3" }), "f2 not found in database object");
   });
   it("compare should fail if there are subfields in the test object not in the actual object", function() {
     chai.assert.equal(
@@ -26,10 +23,7 @@ describe("Miscellaneous tests", function() {
     );
   });
   it("compare should fail if there are fields in the actual object not in the test object", function() {
-    chai.assert.equal(
-      compare({ f1: 1, f3: 1 }, { f1: "v1", f2: "v2", f3: "v3" }),
-      "f2 is not supposed to be viewable, but is in the subscription"
-    );
+    chai.assert.equal(compare({ f1: 1, f3: 1 }, { f1: "v1", f2: "v2", f3: "v3" }), "f2 is not supposed to be viewable, but is in the subscription");
   });
   it("compare should fail if there are subfields in the actual object not in the test object", function() {
     chai.assert.equal(

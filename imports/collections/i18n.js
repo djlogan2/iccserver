@@ -1,10 +1,10 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
-import simpleSchema from "simpl-schema";
+import SimpleSchema from "simpl-schema";
 
 export const i18n = {};
 export const i18nCollection = new Mongo.Collection("i18n");
-const i18nSchema = new simpleSchema({
+const i18nSchema = new SimpleSchema({
   messageid: String,
   locale: String,
   text: String
@@ -61,13 +61,11 @@ i18n.localizeMessage = function(locale, i18nvalue, parameters) {
   });
 
   if (!i8nrecord) {
-    throw new Meteor.Error(
-      "Unable to find an internationalization record of type server with identifier " + i18nvalue
-    );
+    throw new Meteor.Error("Unable to find an internationalization record of type server with identifier " + i18nvalue);
   }
   const locale_array = i18n.standardizeLocale(locale);
   let a;
-  locale_array.forEach(ll => {
+  locale_array.forEach(() => {
     if (i8nrecord.text) {
       a = i8nrecord.text;
       for (let k in parameters) {
@@ -79,10 +77,7 @@ i18n.localizeMessage = function(locale, i18nvalue, parameters) {
   if (a !== undefined) {
     return a;
   }
-  throw new Meteor.Error(
-    "Unable to find an internationalization record of type server with a suitable locale for identifier " +
-      i18nvalue
-  );
+  throw new Meteor.Error("Unable to find an internationalization record of type server with a suitable locale for identifier " + i18nvalue);
 };
 export default i18nCollection;
 Meteor.startup(function() {

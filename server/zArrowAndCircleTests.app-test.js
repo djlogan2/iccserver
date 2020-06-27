@@ -1,5 +1,5 @@
 import chai from "chai";
-import { Game } from "../server/Game";
+import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
@@ -17,20 +17,7 @@ describe("Game.drawCircle", function() {
   it("should return client message if game is not examined", function() {
     self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
-    const game = Game.startLocalGame(
-      "test_identifier",
-      other,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game = Game.startLocalGame("test_identifier", other, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = other;
     Game.drawCircle("test_identifier2", game, "c1", "red", 3);
     const message = self.clientMessagesSpy.args[0][2];
@@ -46,8 +33,7 @@ describe("Game.drawCircle", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    const newguy = TestHelpers.createUser();
-    self.loggedonuser = newguy;
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.drawCircle("mi1", game_id, "za", "red", 3); // illegal row and column
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -85,11 +71,7 @@ describe("Game.drawCircle", function() {
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     const record = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("draw_circle", record.actions[0].type, "Failed to record a draw in actions");
-    chai.assert.deepEqual(
-      { square: "c1", color: "red", size: 3 },
-      record.actions[0].parameter,
-      "Failed to record a draw in actions"
-    );
+    chai.assert.deepEqual({ square: "c1", color: "red", size: 3 }, record.actions[0].parameter, "Failed to record a draw in actions");
   });
   it("Should change color of circle if already existing, valid and drawn again with changed color", function() {
     self.loggedonuser = TestHelpers.createUser();
@@ -122,20 +104,7 @@ describe("Game.removeCircle", function() {
   it("should return client message if game is not examined", function() {
     self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
-    const game = Game.startLocalGame(
-      "test_identifier",
-      other,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game = Game.startLocalGame("test_identifier", other, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = other;
     Game.removeCircle("test_identifier2", game, "c1");
     const message = self.clientMessagesSpy.args[0][2];
@@ -151,8 +120,7 @@ describe("Game.removeCircle", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    const newguy = TestHelpers.createUser();
-    self.loggedonuser = newguy;
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.removeCircle("mi1", game_id, "za"); // illegal row and column
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -192,16 +160,8 @@ describe("Game.removeCircle", function() {
     Game.drawCircle("mi1", game_id, "c1", "red", 3);
     Game.removeCircle("mi1", game_id, "c1");
     const record = Game.collection.findOne({ _id: game_id });
-    chai.assert.equal(
-      "remove_circle",
-      record.actions[1].type,
-      "Failed to record a draw in actions"
-    );
-    chai.assert.equal(
-      "c1",
-      record.actions[1].parameter.square,
-      "Failed to record a draw in actions"
-    );
+    chai.assert.equal("remove_circle", record.actions[1].type, "Failed to record a draw in actions");
+    chai.assert.equal("c1", record.actions[1].parameter.square, "Failed to record a draw in actions");
   });
 });
 describe("Game.drawArrow", function() {
@@ -217,20 +177,7 @@ describe("Game.drawArrow", function() {
   it("should return client message if game is not examined", function() {
     self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
-    const game = Game.startLocalGame(
-      "test_identifier",
-      other,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game = Game.startLocalGame("test_identifier", other, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = other;
     Game.drawArrow("test_identifier2", game, "c1", "d2", "red", 3);
     const message = self.clientMessagesSpy.args[0][2];
@@ -309,20 +256,7 @@ describe("Game.removeArrow", function() {
   it("should return client message if game is not examined", function() {
     self.loggedonuser = TestHelpers.createUser();
     const other = TestHelpers.createUser();
-    const game = Game.startLocalGame(
-      "test_identifier",
-      other,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
+    const game = Game.startLocalGame("test_identifier", other, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     self.loggedonuser = other;
     Game.removeArrow("test_identifier2", game, "c1", "d2");
     const message = self.clientMessagesSpy.args[0][2];
@@ -338,8 +272,7 @@ describe("Game.removeArrow", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
   it("should return client message if square is invalid", function() {
-    const newguy = TestHelpers.createUser();
-    self.loggedonuser = newguy;
+    self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.removeArrow("mi1", game_id, "za", "d2"); // illegal row and column
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);

@@ -7,17 +7,7 @@ describe("Game status field in user record", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   const statii = ["none", "playing_local", "playing_legacy", "observing", "examining"];
-  const gameends = [
-    "draw",
-    "adjourn",
-    "abort",
-    "resign",
-    "checkmate",
-    "stalemate",
-    "material",
-    "repetition",
-    "time"
-  ];
+  const gameends = ["draw", "adjourn", "abort", "resign", "checkmate", "stalemate", "material", "repetition", "time"];
 
   function setupCondition(user, condition, fromcondition) {
     switch (condition) {
@@ -26,58 +16,15 @@ describe("Game status field in user record", function() {
         break;
       case "playing_local":
         self.loggedonuser = user;
-        Game.startLocalGame(
-          "mi1",
-          TestHelpers.createUser(),
-          0,
-          "standard",
-          true,
-          1,
-          0,
-          "none",
-          1,
-          0,
-          "none"
-        );
+        Game.startLocalGame("mi1", TestHelpers.createUser(), 0, "standard", true, 1, 0, "none", 1, 0, "none");
         break;
       case "playing_legacy":
         self.loggedonuser = user;
-        Game.startLegacyGame(
-          "mi1",
-          123,
-          user.profile.legacy.username,
-          "dood",
-          0,
-          "Standard",
-          true,
-          15,
-          0,
-          15,
-          0,
-          true,
-          1600,
-          1600,
-          "x",
-          [],
-          [],
-          ""
-        );
+        Game.startLegacyGame("mi1", 123, user.profile.legacy.username, "dood", 0, "Standard", true, 15, 0, 15, 0, true, 1600, 1600, "x", [], [], "");
         break;
       case "observing":
         self.loggedonuser = TestHelpers.createUser();
-        const game_id = Game.startLocalGame(
-          "mi1",
-          TestHelpers.createUser(),
-          0,
-          "standard",
-          true,
-          1,
-          0,
-          "none",
-          1,
-          0,
-          "none"
-        );
+        const game_id = Game.startLocalGame("mi1", TestHelpers.createUser(), 0, "standard", true, 1, 0, "none", 1, 0, "none");
         self.loggedonuser = user;
         Game.localAddObserver("mi2", game_id, user._id);
         break;
@@ -86,8 +33,7 @@ describe("Game status field in user record", function() {
           $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
         });
         if (!!game && (game.white.id === user._id || game.black.id === user._id)) {
-          if (!!game.legacy_game_number)
-            Game.legacyGameEnded("mi4", game.legacy_game_number, true, "grc", "0-1");
+          if (!!game.legacy_game_number) Game.legacyGameEnded("mi4", game.legacy_game_number, true, "grc", "0-1");
           else Game.resignLocalGame("mi5", game._id);
           return;
         }
@@ -180,98 +126,15 @@ describe("Game status field in user record", function() {
         playMoves(game, ["f4", "e6", "g4", "Qh4"]);
         break;
       case "stalemate":
-        playMoves(game, [
-          "e3",
-          "a5",
-          "Qh5",
-          "Ra6",
-          "Qxa5",
-          "h5",
-          "h4",
-          "Rah6",
-          "Qxc7",
-          "f6",
-          "Qxd7",
-          "Kf7",
-          "Qxb7",
-          "Qd3",
-          "Qxb8",
-          "Qh7",
-          "Qxc8",
-          "Kg6",
-          "Qe6"
-        ]);
+        playMoves(game, ["e3", "a5", "Qh5", "Ra6", "Qxa5", "h5", "h4", "Rah6", "Qxc7", "f6", "Qxd7", "Kf7", "Qxb7", "Qd3", "Qxb8", "Qh7", "Qxc8", "Kg6", "Qe6"]);
         break;
       case "repetition":
-        playMoves(game, [
-          "e4",
-          "e5",
-          "Be2",
-          "Be7",
-          "Bf1",
-          "Bf8",
-          "Be2",
-          "Be7",
-          "Bf1",
-          "Bf8",
-          "Be2"
-        ]);
+        playMoves(game, ["e4", "e5", "Be2", "Be7", "Bf1", "Bf8", "Be2", "Be7", "Bf1", "Bf8", "Be2"]);
         self.loggedonuser = user;
         Game.requestLocalDraw("mi3", game._id); // Should be automatic since we have a draw by repetition
         break;
       case "material":
-        playMoves(game, [
-          "e4",
-          "e5",
-          "f4",
-          "exf4",
-          "g3",
-          "fxg3",
-          "Nf3",
-          "gxh2",
-          "Rxh2",
-          "f5",
-          "exf5",
-          "d5",
-          "d4",
-          "c5",
-          "dxc5",
-          "b6",
-          "cxb6",
-          "Nc6",
-          "bxa7",
-          "Rxa7",
-          "Qxd5",
-          "Bxf5",
-          "Rxh7",
-          "Rxa2",
-          "Rxh8",
-          "Rxa1",
-          "Rxg8",
-          "Rxb1",
-          "Rxf8",
-          "Kxf8",
-          "Qxc6",
-          "Rxb2",
-          "Qc8",
-          "Rxc2",
-          "Qxd8",
-          "Kf7",
-          "Nd4",
-          "Rxc1",
-          "Kd2",
-          "Rxf1",
-          "Nxf5",
-          "Rxf5",
-          "Qd7",
-          "Kf6",
-          "Qxg7",
-          "Ke6",
-          "Qg6",
-          "Rf6",
-          "Qxf6",
-          "Kxf6"
-        ]);
+        playMoves(game, ["e4", "e5", "f4", "exf4", "g3", "fxg3", "Nf3", "gxh2", "Rxh2", "f5", "exf5", "d5", "d4", "c5", "dxc5", "b6", "cxb6", "Nc6", "bxa7", "Rxa7", "Qxd5", "Bxf5", "Rxh7", "Rxa2", "Rxh8", "Rxa1", "Rxg8", "Rxb1", "Rxf8", "Kxf8", "Qxc6", "Rxb2", "Qc8", "Rxc2", "Qxd8", "Kf7", "Nd4", "Rxc1", "Kd2", "Rxf1", "Nxf5", "Rxf5", "Qd7", "Kf6", "Qxg7", "Ke6", "Qg6", "Rf6", "Qxf6", "Kxf6"]);
         break;
       case "time":
         self.clock.tick(1 * 60 * 1000); // Let the 15 minutes expire. The game should end
@@ -283,24 +146,15 @@ describe("Game status field in user record", function() {
   }
 
   function doit(from, to) {
-    it(
-      "should correctly set user status when transitioning from " + from + " to " + to,
-      function() {
-        this.timeout(62000);
-        const user = TestHelpers.createUser();
-        chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, "none");
-        setupCondition(user, from);
-        chai.assert.equal(
-          Meteor.users.findOne({ _id: user._id }).status.game,
-          from.indexOf("playing") ? from : "playing"
-        );
-        transitionToCondition(user, to);
-        chai.assert.equal(
-          Meteor.users.findOne({ _id: user._id }).status.game,
-          to.indexOf("playing") ? to : "playing"
-        );
-      }
-    );
+    it("should correctly set user status when transitioning from " + from + " to " + to, function() {
+      this.timeout(62000);
+      const user = TestHelpers.createUser();
+      chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, "none");
+      setupCondition(user, from);
+      chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, from.indexOf("playing") ? from : "playing");
+      transitionToCondition(user, to);
+      chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, to.indexOf("playing") ? to : "playing");
+    });
   }
 
   for (let x = 0; x < statii.length; x++) {
