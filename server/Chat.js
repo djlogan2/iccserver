@@ -41,7 +41,6 @@ const RoomCollectionSchema = {
 };
 
 class Chat {
-
   constructor() {
     this.collection = new Mongo.Collection("chat");
     this.collection.attachSchema(ChatCollectionSchema);
@@ -56,38 +55,39 @@ class Chat {
       find() {
         return Meteor.users.find({ _id: this.userId });
       },
-      children: [{
-        // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
-        find(user) {
-          return Game.GameCollection.find({
-            $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
-          });
-        },
+      children: [
+        {
+          // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
+          find(user) {
+            return Game.GameCollection.find({
+              $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
+            });
+          },
 
-        children: [{
-          // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
-          find(game, user) {
-            const queryobject = { id: game._id, isolation_group: user.isolation_group };
-            if (Users.isAuthorized(user, "child_chat"))
-              queryobject.child_chat = true;
-            if (game.status === "playing") {
-              if (game.white.id === user._id || game.black.id === user._id)
-                queryobject.type = "kibitz";
-              else
-                queryobject.type = { $in: ["kibitz", "whisper"] };
-            } else {
-              queryobject.type = { $in: ["kibitz", "whisper"] };
+          children: [
+            {
+              // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
+              find(game, user) {
+                const queryobject = { id: game._id, isolation_group: user.isolation_group };
+                if (Users.isAuthorized(user, "child_chat")) queryobject.child_chat = true;
+                if (game.status === "playing") {
+                  if (game.white.id === user._id || game.black.id === user._id) queryobject.type = "kibitz";
+                  else queryobject.type = { $in: ["kibitz", "whisper"] };
+                } else {
+                  queryobject.type = { $in: ["kibitz", "whisper"] };
+                }
+                return self.collection.find(queryobject);
+              }
             }
-            return self.collection.find(queryobject);
-          }
-        }]
-      }]
+          ]
+        }
+      ]
     });
 
     Meteor.startup(() => {
       self.collection.remove({});
-      Users.addLogoutHook((user) => self.chatLogoutHook.bind(self, user));
-      Users.addLoginHook((user) => self.chatLoginHook.bind(self, user));
+      Users.addLogoutHook(user => self.chatLogoutHook.bind(self, user));
+      Users.addLoginHook(user => self.chatLoginHook.bind(self, user));
       // Game.GameCollection.observeChanges({}, {
       //   removed(id) {
       //     self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
@@ -145,12 +145,11 @@ class Chat {
     });
 
     Game.addAction(game_id, {
-        type: kibitz ? "kibitz" : "whisper",
-        issuer: self._id,
-        parameter: { what: txt }
-      }
-    );
-  };
+      type: kibitz ? "kibitz" : "whisper",
+      issuer: self._id,
+      parameter: { what: txt }
+    });
+  }
 
   createRoom(message_identifier, roomName) {
     const self = Meteor.user();
@@ -167,10 +166,9 @@ class Chat {
     // finally create room
     if (roomRole) {
       const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
-      RoomCollection.insert({ name: roomName, owner: self._id, members: member, isolation_group: isoGroup });
+      this.roomCollection.insert({ name: roomName, owner: self._id, members: member, isolation_group: isoGroup });
       return this.roomCollection.findOne({ name: roomName })._id;
-    } else
-      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
+    } else ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
   }
 
   writeToRoom(message_identifier, room_id, txt) {
@@ -180,7 +178,7 @@ class Chat {
     const joinRole = Users.isAuthorized(self, "join_room");
     const roomExists = this.roomCollection.findOne({ _id: room_id });
     const child_chat_exempt = Users.isAuthorized(self, "child_chat_exempt");
-    const child_chat_id = (this.childChatCollection.findOne({ _id: txt }));
+    const child_chat_id = this.childChatCollection.findOne({ _id: txt });
     const child_chat = (Users.isAuthorized(self, "child_chat") || child_chat_id || child_chat_exempt) && true;
     const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
     const inRoom = this.roomCollection.findOne({ _id: room_id, members: { $in: member } });
@@ -209,13 +207,11 @@ class Chat {
       Chat.joinRoom(message_identifier, room_id);
     }
 
-
     // fails if childchat and freeform
     if (!child_chat_exempt && !child_chat_id && child_chat) {
       ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
       return;
     }
-
 
     // Actually write message to chat collection of room
     this.collection.insert({
@@ -239,11 +235,9 @@ class Chat {
       return;
     }
     // check if room exists
-    if (!record)
-      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+    if (!record) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     // Delete room record
-    else
-      RoomCollection.remove({ _id: room_id });
+    else this.roomCollection.remove({ _id: room_id });
   }
 
   joinRoom(message_identifier, room_id) {
@@ -251,7 +245,7 @@ class Chat {
     const inRole = Users.isAuthorized(self, "join_room");
     const room = this.roomCollection.findOne({ _id: room_id });
     const member = { id: Meteor.user()._id, username: Meteor.user().username };
-    const inRoom = (this.roomCollection.findOne({ $and: [{ _id: room_id }, { members: member }] }));
+    const inRoom = this.roomCollection.findOne({ $and: [{ _id: room_id }, { members: member }] });
 
     // Currently ignores if user joins an already joined room
     if (inRoom) {
@@ -265,17 +259,14 @@ class Chat {
     }
 
     // See if room exists
-    if (!room)
-      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+    if (!room) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     // actually join room
-    else
-      RoomCollection.update({ name: room.name }, { $push: { members: member } });
+    else this.roomCollection.update({ name: room.name }, { $push: { members: member } });
   }
 
   leaveRoom(message_identifier, room_id) {
-
     const member = { id: Meteor.user()._id, username: Meteor.user().username };
-    RoomCollection.update({ _id: room_id }, { $pull: { members: member } });
+    this.roomCollection.update({ _id: room_id }, { $pull: { members: member } });
   }
 
   writeToUser(message_identifier, user_id, text) {
@@ -290,7 +281,7 @@ class Chat {
     const ccesender = Users.isAuthorized(self, "child_chat_exempt");
     const ccid = this.childChatCollection.findOne({ _id: text });
     const resultText = ccid ? ccid.text : text;
-    const child_chat = (ccid || ccrec || ccsender && ccerec) && true;
+    const child_chat = (ccid || ccrec || (ccsender && ccerec)) && true;
     let loggedon = 0;
 
     if (self.status.online) {
@@ -306,20 +297,17 @@ class Chat {
       return;
     }
 
-
     //only allowed if reciever has personal chat
     if (!recieverInRole) {
       ClientMessages.sendMessageToClient(self, message_identifier, "RECIPIENT_NOT_ALLOWED_TO_PERSONAL_CHAT");
       return;
     }
 
-
     //child_chat can child chat only unless to a child chat
     if (ccsender && !ccid && !ccerec) {
       ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
       return;
     }
-
 
     // Not allow freeform to child_chat except child_chat_exempt
     if (!ccid && ccrec && !ccerec && !ccesender) {
@@ -347,18 +335,24 @@ class Chat {
   }
 
   chatLoginHook(user) {
-    this.collection.update({
-      $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": user._id }, { id: user._id }] }]
-    }, { $set: { logons: 2 } });
+    this.collection.update(
+      {
+        $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": user._id }, { id: user._id }] }]
+      },
+      { $set: { logons: 2 } }
+    );
   }
 
   chatLogoutHook(userId) {
     this.collection.remove({
       $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
     });
-    this.collection.update({
-      $and: [{ type: "private" }, { logons: 2 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
-    }, { $set: { logons: 1 } });
+    this.collection.update(
+      {
+        $and: [{ type: "private" }, { logons: 2 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
+      },
+      { $set: { logons: 1 } }
+    );
   }
 }
 
@@ -369,5 +363,6 @@ if (!global._chatObject) {
 module.exports.Chat = global._chatObject;
 
 Meteor.methods({
+  // eslint-disable-next-line meteor/audit-argument-checks
   kibitz: (message_identifier, game_id, kibitz, txt) => global._chatObject.kibitz(message_identifier, game_id, kibitz, txt)
 });
