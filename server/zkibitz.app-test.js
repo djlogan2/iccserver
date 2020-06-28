@@ -3,7 +3,6 @@ import { Chat } from "./Chat";
 import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
-import { Roles } from "meteor/alanning:roles";
 
 describe("kibitzes", function() {
   const self = TestHelpers.setupDescribe.apply(this);
