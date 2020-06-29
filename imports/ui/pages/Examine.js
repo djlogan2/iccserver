@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import ExaminePage from "./components/ExaminePage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
@@ -26,48 +26,48 @@ const log = new Logger("client/AppContainer");
 let played_game_id;
 let game_timestamp_client;
 
-Game.find().observe({
-  changed(newDocument) {
-    if (newDocument.status === "examining") {
-      return;
-    }
+// Game.find().observe({
+//   changed(newDocument) {
+//     if (newDocument.status === "examining") {
+//       return;
+//     }
 
-    const color =
-      newDocument.white.id === Meteor.userId()
-        ? "white"
-        : newDocument.black.id === Meteor.userId()
-        ? "black"
-        : "?";
-    if (color === "?") return;
+//     const color =
+//       newDocument.white.id === Meteor.userId()
+//         ? "white"
+//         : newDocument.black.id === Meteor.userId()
+//         ? "black"
+//         : "?";
+//     if (color === "?") return;
 
-    if (played_game_id !== newDocument._id) {
-      game_timestamp_client = new TimestampClient("client game", (_, msg) =>
-        Meteor.call("gamepong", newDocument._id, msg)
-      );
-      newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
-    }
-  }
-});
+//     if (played_game_id !== newDocument._id) {
+//       game_timestamp_client = new TimestampClient("client game", (_, msg) =>
+//         Meteor.call("gamepong", newDocument._id, msg)
+//       );
+//       newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
+//     }
+//   }
+// });
 
-window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-  // log.error(errorMsg + "::" + url + "::" + lineNumber);
-  return false;
-};
+// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+//   // log.error(errorMsg + "::" + url + "::" + lineNumber);
+//   return false;
+// };
 
-Meteor.startup(() => {
-  Tracker.autorun(() => {
-    //
-    // This is in here so when the user navigates away from the page,
-    // the subscription is stopped on the server, cleaning up.
-    //
-    Meteor.subscribe("userData");
-    Meteor.subscribe("userData");
-    Meteor.subscribe("loggedOnUsers");
-    Meteor.subscribe("observing_games");
-  });
-});
+// Meteor.startup(() => {
+//   Tracker.autorun(() => {
+//     //
+//     // This is in here so when the user navigates away from the page,
+//     // the subscription is stopped on the server, cleaning up.
+//     //
+//     Meteor.subscribe("userData");
+//     Meteor.subscribe("userData");
+//     Meteor.subscribe("loggedOnUsers");
+//     Meteor.subscribe("observing_games");
+//   });
+// });
 
-class Examine extends TrackerReact(React.Component) {
+class Examine extends Component {
   constructor(props) {
     super(props);
     this.gameId = null;
@@ -211,11 +211,19 @@ class Examine extends TrackerReact(React.Component) {
   handleObserveUser = userId => {
     Meteor.call("observeUser", "observeUser", userId, (err, result) => {
       if (err) {
-        debugger;
+        // debugger;
       }
-      debugger;
     });
   };
+  handleUnobserveUser = userId => {
+    let that = this;
+    Meteor.call("localUnobserveAllGames", "localUnobserveAllGames", userId, (err, result) => {
+      if (err) {
+      }
+      that.initExamine();
+    });
+
+  }
 
   gameHistoryload(data) {
     if (data === "mygame") {
@@ -370,11 +378,13 @@ class Examine extends TrackerReact(React.Component) {
       <div className="examine">
         <ExaminePage
           userId={Meteor.userId()}
+          user={this.props.user}
           cssmanager={css}
           allUsers={this.props.all_users}
           board={this._board}
           gameId={this.props.examine_game[0]._id}
           observeUser={this.handleObserveUser}
+          unObserveUser={this.handleUnobserveUser}
           // fen={this._board.fen()}
           capture={capture}
           len={actionlen}
@@ -400,8 +410,8 @@ export default withTracker(props => {
   return {
     examine_game: Game.find({ "observers.id": Meteor.userId() }).fetch(),
     // chats: Chat.find({"id": examine_game._id}),
-    chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
-    chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),
+    // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
+    // chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
@@ -418,12 +428,13 @@ export default withTracker(props => {
         sort: { create_date: -1 }
       }
     ),
-    all_games2: Game.find().fetch(),
+    // all_games2: Game.find().fetch(),
     all_games: Game.find({
       $or: [{ status: "playing" }, { status: "examining" }]
     }).fetch(),
     // all_users: Meteor.users.find({ "game.status": { $in: ["playing", "examining"] } }).fetch(),
     all_users: Meteor.users.find().fetch(),
+    user: Meteor.users.findOne({ _id: Meteor.userId() }),
     game_messages: Game.findOne({
       $and: [
         { status: "playing" },

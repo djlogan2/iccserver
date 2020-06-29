@@ -50,6 +50,7 @@ Meteor.startup(() => {
         singUp: "Sign up",
         help: "Help",
         logout: "Logout",
+        community: "Community",
         mygame: "My Games",
         uploadpgn: "Imported PGNs"
       },

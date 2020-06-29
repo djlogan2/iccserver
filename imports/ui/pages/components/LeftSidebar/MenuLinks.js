@@ -27,8 +27,8 @@ class MenuLinks extends Component {
 
   handleClick = (e, label) => {
     e.preventDefault();
-    if (label === "mygame") {
-      this.props.onMygame();
+    if (label === "community") {
+      this.props.onCommunity();
     } else if (label === "uploadpgn") {
       this.props.onUploadpgn();
     } else if (label === "play") {
