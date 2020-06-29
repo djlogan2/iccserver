@@ -364,11 +364,9 @@ export default class ExaminePage extends Component {
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
               circles={this.props.circles}
-              //  fen={this.props.fen}
-
               width={this.state.width}
               height={this.state.height}
-              gameStatus={status}
+              gameStatus={this.props.user.status.game}
               game={game}
             />
           </BoardWrapper>
@@ -377,8 +375,10 @@ export default class ExaminePage extends Component {
           <ExamineRightSidebar
             gameId={this.props.gameId}
             game={game}
+            user={this.props.user}
             allUsers={this.props.allUsers}
             observeUser={this.props.observeUser}
+            unObserveUser={this.props.unObserveUser}
             cssmanager={this.props.cssmanager}
             RightSidebarData={this.Main.RightSection}
             currentGame={this.state.examineGame}

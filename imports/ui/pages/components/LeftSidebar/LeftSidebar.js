@@ -16,11 +16,11 @@ class LeftSidebar extends Component {
     this.setState({ visible: !this.state.visible });
   }
 
-  handleMygame = () => {
+  handleCommunity = () => {
     // this.props.gameHistory("mygame");
     // const data = this.context;
     // data.toggleModal(true);
-    this.props.history.push("/my-games");
+    this.props.history.push("/community");
   };
 
   handleUploadpgn = () => {
@@ -72,7 +72,7 @@ class LeftSidebar extends Component {
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
 
         <MenuLinks
-          onMygame={this.handleMygame}
+          onCommunity={this.handleCommunity}
           onUploadpgn={this.handleUploadpgn}
           onPlay={this.handlePlay}
           onExamine={this.handleExamine}

@@ -20,46 +20,21 @@ export default class ExamineSidebarTop extends Component {
   }
 
   getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
+    return (navigator.languages && navigator.languages[0]) || navigator.language || navigator.browserLanguage || navigator.userLanguage || "en-US";
   }
 
   render() {
     let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
     return (
-      <Tabs
-        className="examine-sidebar-top"
-        defaultActiveKey="1"
-        size="small"
-        type="card"
-        style={{ marginBottom: 32 }}
-      >
+      <Tabs className="examine-sidebar-top" defaultActiveKey="1" size="small" type="card" style={{ marginBottom: 32 }}>
         <TabPane tab={translator("game")} key="1">
-          <Link to="/editor">
+          <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to="/editor">
             <Button>Editor</Button>
           </Link>
-          <GameHistory
-            cssmanager={this.props.cssmanager}
-            game={this.props.RightBarTopData.MoveList}
-            flip={this.props.flip}
-            actionData={this.props.actionData}
-            startGameExamine={this.props.startGameExamine}
-            gameRequest={this.props.gameRequest}
-            examineAction={this.props.examineAction}
-            currentGame={this.props.currentGame}
-          />
+          <GameHistory cssmanager={this.props.cssmanager} game={this.props.RightBarTopData.MoveList} flip={this.props.flip} actionData={this.props.actionData} startGameExamine={this.props.startGameExamine} gameRequest={this.props.gameRequest} examineAction={this.props.examineAction} currentGame={this.props.currentGame} />
         </TabPane>
         <TabPane tab="Observe" key="2">
-          <ExamineObserveTab
-            game={this.props.game}
-            allUsers={this.props.allUsers}
-            observeUser={this.props.observeUser}
-          />
+          <ExamineObserveTab game={this.props.game} userId={this.props.user._id} userGameStatus={this.props.user.status.game} allUsers={this.props.allUsers} observeUser={this.props.observeUser} unObserveUser={this.props.unObserveUser} />
         </TabPane>
       </Tabs>
       // <Tabs cssmanager={this.props.cssmanager}>

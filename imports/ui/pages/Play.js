@@ -3,12 +3,10 @@ import PlayPage from "./components/PlayPage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../lib/client/Logger";
-import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Loading from "../pages/components/Loading";
 import Chess from "chess.js";
 import { Link } from "react-router-dom";
-import { Tracker } from "meteor/tracker";
 import {
   ClientMessagesCollection,
   Game,
@@ -25,46 +23,46 @@ const log = new Logger("client/AppContainer");
 let played_game_id;
 let game_timestamp_client;
 
-Game.find().observe({
-  changed(newDocument) {
-    if (newDocument.status === "examining") {
-      return;
-    }
+// Game.find().observe({
+//   changed(newDocument) {
+//     if (newDocument.status === "examining") {
+//       return;
+//     }
 
-    const color =
-      newDocument.white.id === Meteor.userId()
-        ? "white"
-        : newDocument.black.id === Meteor.userId()
-        ? "black"
-        : "?";
-    if (color === "?") return;
+//     const color =
+//       newDocument.white.id === Meteor.userId()
+//         ? "white"
+//         : newDocument.black.id === Meteor.userId()
+//         ? "black"
+//         : "?";
+//     if (color === "?") return;
 
-    if (played_game_id !== newDocument._id) {
-      game_timestamp_client = new TimestampClient("client game", (_, msg) =>
-        Meteor.call("gamepong", newDocument._id, msg)
-      );
-      newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
-    }
-  }
-});
+//     if (played_game_id !== newDocument._id) {
+//       game_timestamp_client = new TimestampClient("client game", (_, msg) =>
+//         Meteor.call("gamepong", newDocument._id, msg)
+//       );
+//       newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
+//     }
+//   }
+// });
 
-window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-  // log.error(errorMsg + "::" + url + "::" + lineNumber);
-  return false;
-};
+// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+//   // log.error(errorMsg + "::" + url + "::" + lineNumber);
+//   return false;
+// };
 
-Meteor.startup(() => {
-  Tracker.autorun(() => {
-    //
-    // This is in here so when the user navigates away from the page,
-    // the subscription is stopped on the server, cleaning up.
-    //
-    Meteor.subscribe("userData");
-    Meteor.subscribe("observing_games");
-  });
-});
+// Meteor.startup(() => {
+//   Tracker.autorun(() => {
+//     //
+//     // This is in here so when the user navigates away from the page,
+//     // the subscription is stopped on the server, cleaning up.
+//     //
+//     Meteor.subscribe("userData");
+//     Meteor.subscribe("observing_games");
+//   });
+// });
 
-class Play extends TrackerReact(React.Component) {
+class Play extends React.Component {
   constructor(props) {
     super(props);
     this.gameId = null;
@@ -124,31 +122,31 @@ class Play extends TrackerReact(React.Component) {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
     }
-    this.startExamine();
+    // this.startExamine();
   }
 
-  startExamine = () => {
-    let examine_game = Game.find({ "observers.id": Meteor.userId() }).fetch();
-    if (examine_game.length === 0) {
-      this.initExamine();
-    }
-  };
+//   startExamine = () => {
+//     let examine_game = Game.find({ "observers.id": Meteor.userId() }).fetch();
+//     if (examine_game.length === 0) {
+//       this.initExamine();
+//     }
+//   };
 
-  initExamine = () => {
-    Meteor.call(
-      "startLocalExaminedGame",
-      "startlocalExaminedGame",
-      "Mr white",
-      "Mr black",
-      0,
-      (error, response) => {
-        if (response) {
-          // this.props.history.push('/examine');
-          // this.props.examineAction(action);
-        }
-      }
-    );
-  };
+//   initExamine = () => {
+//     Meteor.call(
+//       "startLocalExaminedGame",
+//       "startlocalExaminedGame",
+//       "Mr white",
+//       "Mr black",
+//       0,
+//       (error, response) => {
+//         if (response) {
+//           // this.props.history.push('/examine');
+//           // this.props.examineAction(action);
+//         }
+//       }
+//     );
+//   };
 
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
