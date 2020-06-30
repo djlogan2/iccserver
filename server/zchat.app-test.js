@@ -32,13 +32,13 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 // }
 import { Chat } from "./Chat";
 
-describe.only("Chats", function() {
+describe("Chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   //createRoom
 
   it("should allow creating a room if user has 'create_room' role", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
-    const room_id = Chat.createRoom("mi1", "The room");
+    Chat.createRoom("mi1", "The room");
     chai.assert.equal(Chat.roomCollection.find().count(), 1);
   });
 
@@ -46,7 +46,7 @@ describe.only("Chats", function() {
     self.loggedonuser = TestHelpers.createUser();
 
     const p1 = self.loggedonuser;
-    const room_id = Chat.createRoom("mi1", "The room");
+    Chat.createRoom("mi1", "The room");
     chai.assert.equal(Chat.roomCollection.find().count(), 0);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -57,9 +57,9 @@ describe.only("Chats", function() {
   it("should disallow creating a room with a duplicate room name", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
     const p1 = self.loggedonuser;
-    const room_id1 = Chat.createRoom("mi1", "The room");
+    Chat.createRoom("mi1", "The room");
     chai.assert.equal(Chat.roomCollection.find().count(), 1);
-    const room_id2 = Chat.createRoom("mi2", "The room");
+    Chat.createRoom("mi2", "The room");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -100,7 +100,7 @@ describe.only("Chats", function() {
   it("should return a message if no room id exists to delete", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     const p1 = self.loggedonuser;
-    const room_id = Chat.deleteRoom("mi1", "boogus");
+    Chat.deleteRoom("mi1", "boogus");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
