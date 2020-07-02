@@ -164,6 +164,7 @@ class Chat {
       return;
     }
     // finally create room
+    //x
     if (roomRole) {
       const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
       this.roomCollection.insert({ name: roomName, owner: self._id, members: member, isolation_group: isoGroup });
