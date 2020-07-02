@@ -1,9 +1,9 @@
 import { Mongo } from "meteor/mongo";
 import { check } from "meteor/check";
+import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";
-import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
 
 const ChatCollectionSchema = new SimpleSchema({
@@ -51,24 +51,55 @@ class Chat {
     const self = this;
 
     Meteor.publishComposite("chat", {
-      // First, find the user
       find() {
         return Meteor.users.find({ _id: this.userId });
       },
       children: [
         {
-          // Next, find the game(s) the user is playing or observing -- as of now, there can only be one
           find(user) {
-            return Game.GameCollection.find({
+            if (Users.isAuthorized(user, "room_chat")) {
+              const member = { id: user._id, username: user.username };
+              return self.roomCollection.find({ members: member });
+            } else {
+              return;
+            }
+          }, // room chat
+          children: [
+            {
+              find(room, user) {
+                const queryobject = { id: room._id, type: "room" };
+                if (Users.isAuthorized(user, "child_chat")) queryobject.child_chat = true;
+
+                if (Users.isAuthorized(user, "personal_chat")) {
+                  queryobject.type.push("private");
+                  queryobject.logons = { $gt: 0 };
+                }
+                return self.collection.find(queryobject);
+              }
+            }
+          ]
+        },
+        {
+          find(user) {
+            if (Users.isAuthorized(user, "personal_chat")) {
+              return self.collection.find({
+                $and: [{ type: "private" }, { $or: [{ "issuer.id": user._id }, { id: user._id }] }]
+              });
+            } else {
+            }
+          } // private chat
+        },
+        {
+          find(user) {
+            return Game.collection.find({
               $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
             });
           },
-
           children: [
             {
               // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
               find(game, user) {
-                const queryobject = { id: game._id, isolation_group: user.isolation_group };
+                const queryobject = { id: game._id };
                 if (Users.isAuthorized(user, "child_chat")) queryobject.child_chat = true;
                 if (game.status === "playing") {
                   if (game.white.id === user._id || game.black.id === user._id) queryobject.type = "kibitz";
@@ -81,7 +112,7 @@ class Chat {
             }
           ]
         }
-      ]
+      ] // game chat
     });
 
     Meteor.startup(() => {
@@ -168,7 +199,13 @@ class Chat {
     // here is a comment
     if (roomRole) {
       const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
-      this.roomCollection.insert({ name: roomName, owner: self._id, members: member, isolation_group: isoGroup });
+      this.roomCollection.insert({
+        name: roomName,
+        owner: self._id,
+        public: true,
+        members: member,
+        isolation_group: isoGroup
+      });
       return this.roomCollection.findOne({ name: roomName })._id;
     } else ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
   }
@@ -206,7 +243,7 @@ class Chat {
 
     // does the user have the join role? if so and not in room, join room.
     if (joinRole && !inRoom) {
-      Chat.joinRoom(message_identifier, room_id);
+      this.joinRoom(message_identifier, room_id);
     }
 
     // fails if childchat and freeform
@@ -339,9 +376,10 @@ class Chat {
   chatLoginHook(user) {
     this.collection.update(
       {
-        $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": user._id }, { id: user._id }] }]
+        $and: [{ type: "private" }, { logons: 1 }, { $or: [{ id: user._id }, { "issuer.id": user._id }] }]
       },
-      { $set: { logons: 2 } }
+      { $set: { logons: 2 } },
+      { multi: true }
     );
   }
 
@@ -351,9 +389,10 @@ class Chat {
     });
     this.collection.update(
       {
-        $and: [{ type: "private" }, { logons: 2 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
+        $and: [{ type: "private" }, { logons: 2 }, { $or: [{ id: userId }, { "issuer.id": userId }] }]
       },
-      { $set: { logons: 1 } }
+      { $set: { logons: 1 } },
+      { multi: true }
     );
   }
 }
