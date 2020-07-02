@@ -404,6 +404,11 @@ if (!global._chatObject) {
 module.exports.Chat = global._chatObject;
 
 Meteor.methods({
-  // eslint-disable-next-line meteor/audit-argument-checks
-  kibitz: (message_identifier, game_id, kibitz, txt) => global._chatObject.kibitz(message_identifier, game_id, kibitz, txt)
+  kibitz: (message_identifier, game_id, kibitz, txt) => global._chatObject.kibitz(message_identifier, game_id, kibitz, txt),
+  writeToUser: (message_identifier, user_id, text) => global._chatObject.writeToUser(message_identifier, user_id, text),
+  leaveroom: (message_identifier, room_id) => global._chatObject.leaveRoom(message_identifier, room_id),
+  joinRoom: (message_identifier, room_id) => joinRoom(message_identifier, room_id),
+  deleteRoom: (message_identifier, room_id) => global._chatObject.deleteRoom(message_identifier, room_id);
+  writeToRoom: (message_identifier, room_id, txt) => global._chatObject.writeToRoom(message_identifier, room_id, txt),
+  createRoom: (message_identifier, roomName) => global._chatObject.createRoom(message_identifier, roomName)
 });
