@@ -49,26 +49,7 @@ class Chat {
     this.roomCollection = new Mongo.Collection("rooms");
     this.roomCollection.attachSchema(RoomCollectionSchema);
     const self = this;
-    /*
-    Meteor.publishComposite("rooms", {
-      find() {
-        return Meteor.users.find({ _id: this.userId });
-      },
-      children: [
-        {
-          find(user) {
-            if (Roles.userIsInRole(user, "child_chat")) return self.roomCollection.find({ _id: "none" });
-            return self.roomCollection.find(
-              {
-                $and: [{ isolation_group: self.isolation_group }, { $or: [{ public: true }, { "invited.id": self._id }, { "members.id": self._id }] }]
-              },
-              { fields: { owner: 0, isolation_group: 0 } }
-            );
-          }
-        }
-      ]
-    });
-*/
+
     Meteor.publishComposite("chat", {
       find() {
         return Meteor.users.find({ _id: this.userId });
@@ -333,7 +314,7 @@ class Chat {
     // See if room exists
     if (!room) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     // actually join room
-    else this.roomCollection.update({ _id: room._id }, { $push: { members: member } });
+    else this.roomCollection.update({ _id: room._id }, { $addToSet: { members: member } });
   }
 
   leaveRoom(message_identifier, room_id) {
