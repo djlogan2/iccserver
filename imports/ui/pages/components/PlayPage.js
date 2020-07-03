@@ -385,7 +385,15 @@ export default class ExaminePage extends Component {
             activeTabnumber={this.state.activeTab}
             uploadPgn={this.uploadPgn}
           /> */}
-          <PlayRightSidebar/>
+          <PlayRightSidebar
+            gameId={this.props.gameId}
+            user={this.props.user}
+            usersToPlayWith={this.props.usersToPlayWith}
+            onChooseFriend={this.props.onChooseFriend}
+            cssManager={this.props.cssManager}
+            flip={this._flipboard}
+            RightSidebarData={this.Main.RightSection}
+          />
           {/* <RightSidebar
             cssmanager={this.props.cssmanager}
             RightSidebarData={this.Main.RightSection}

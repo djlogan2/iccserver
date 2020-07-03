@@ -32,29 +32,39 @@ class ChatApp extends Component {
 
   handleMessage = () => {
     let newMessage = { text: this.state.inputValue, name: "you" };
+    let isKibitz = this.props.isKibitz === true ? true : false;
     this.setState({
       inputValue: "",
       messageList: [...this.state.messageList, newMessage]
     });
     // function(message_identifier, game_id, kibitz, txt)
-    Meteor.call("kibitz", "kibitz", this.props.gameId, true, newMessage.text, (err, response) => {
-      if (err) {
-        debugger;
+    Meteor.call(
+      "kibitz",
+      "kibitz",
+      this.props.gameId,
+      isKibitz,
+      newMessage.text,
+      (err, response) => {
+        if (err) {
+          debugger;
+        }
       }
-    });
+    );
   };
 
   render() {
     return (
       <div className="chat-app">
-        <div className="chat-app__message-list">
-          {this.props.chats.map((chatItem, i) => (
-            <MessageItem
-              key={`message-${i}`}
-              name={chatItem.issuer.username}
-              text={chatItem.what}
-            />
-          ))}
+        <div className="chat-app__list-wrap">
+          <div className="chat-app__message-list">
+            {this.props.chats.map((chatItem, i) => (
+              <MessageItem
+                key={`message-${i}`}
+                name={chatItem.issuer.username}
+                text={chatItem.what}
+              />
+            ))}
+          </div>
         </div>
         <div className="chat-app__input-bar">
           <Input

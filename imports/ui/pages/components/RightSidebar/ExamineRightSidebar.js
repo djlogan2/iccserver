@@ -22,24 +22,8 @@ class ExamineRightSidebar extends Component {
   render() {
     return (
       <div className="examine-right-sidebar">
-        <ExamineSidebarTop
-          game={this.props.game}
-          allUsers={this.props.allUsers}
-          user={this.props.user}
-          observeUser={this.props.observeUser}
-          unObserveUser={this.props.unObserveUser}
-          RightBarTopData={this.props.RightSidebarData}
-          cssmanager={this.props.cssmanager}
-          flip={this.props.flip}
-          gameRequest={this.state.gameRequest}
-          currentGame={this.props.currentGame}
-          ref="right_bar_top"
-        />
-        <ExamineRightSidebarBottom
-          gameId={this.props.gameId}
-          fen={this.props.game.fen}
-          moveList={this.props.game.variations.movelist}
-        />
+        <ExamineSidebarTop game={this.props.game} allUsers={this.props.allUsers} user={this.props.user} observeUser={this.props.observeUser} unObserveUser={this.props.unObserveUser} RightBarTopData={this.props.RightSidebarData} cssmanager={this.props.cssmanager} flip={this.props.flip} gameRequest={this.state.gameRequest} currentGame={this.props.currentGame} ref="right_bar_top" />
+        <ExamineRightSidebarBottom gameId={this.props.gameId} fen={this.props.game.fen} moveList={this.props.game.variations.movelist} />
       </div>
     );
   }

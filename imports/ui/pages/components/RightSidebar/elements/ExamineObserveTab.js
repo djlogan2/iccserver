@@ -101,7 +101,7 @@ export default class ExamineObserveTab extends Component {
   getList = () => {
     let { searchValue } = this.state;
     let that = this;
-    let userList = this.props.allUsers.map(item => item.username);
+    let userList = this.props.allUsers.filter(item => item._id !== this.props.userId).map(item => item.username);
     const list = userList.filter(item => item.toLowerCase().indexOf(searchValue) >= 0);
     return list.map((name, i) => {
       return {
