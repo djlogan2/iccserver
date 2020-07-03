@@ -26,6 +26,9 @@ import "./../css/ExamineObserveTab.css";
 import "./../css/PlayFriend.css";
 import "./../css/PlayRightSidebar.css";
 
+import "./../css/Community.css";
+import "./../css/Messenger.css";
+
 const AppWrapper = ({ className, children, cssManager, game_request }) => {
   Meteor.subscribe("game_requests");
 

@@ -1,18 +1,27 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { Input, Button } from "antd";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import ChatInput from "../../Chat/ChatInput";
+import MessageItem from "../../Chat/MessageItem";
 
 import { Chat } from "../../../../../api/collections";
 
-const MessageItem = ({ name, text }) => {
-  return (
-    <div className="message-item">
-      <div className="message-item__name">{name}</div>
-      <p className="message-item__text">{text}</p>
-    </div>
-  );
-};
+// const MessageItem = ({ name, text }) => {
+//   return (
+//     <div className="message-item">
+//       <div className="message-item__name">{name}</div>
+//       <p className="message-item__text">{text}</p>
+//     </div>
+//   );
+// };
+
+// const ChatInput = ({ value, onChange, onMessage }) => (
+//   <Fragment>
+//     <Input value={value} onChange={onChange} placeholder="Your message" />
+//     <Button onClick={onMessage}>Send</Button>
+//   </Fragment>
+// );
 
 class ChatApp extends Component {
   constructor() {
@@ -67,12 +76,11 @@ class ChatApp extends Component {
           </div>
         </div>
         <div className="chat-app__input-bar">
-          <Input
+          <ChatInput
             value={this.state.inputValue}
             onChange={this.handleChange}
-            placeholder="Your message"
+            onMessage={this.handleMessage}
           />
-          <Button onClick={this.handleMessage}>Send</Button>
         </div>
       </div>
     );
