@@ -26,11 +26,10 @@ export const renderRoutes = () => (
       <Route exact={true} path="/test/:what" component={TestContainer} /> */}
 
       {/* REFORMED */}
-      {/* <Route exact={true} path="/" component={Home} />
+      <Route exact={true} path="/" component={Home} />
       <Route exact={true} path="/home" component={Home} />
       <Route exact={true} path="/play" component={Play} />
       <Route exact={true} path="/editor" component={Editor} />
-      <Route exact={true} path="/examine" component={Examine} /> */}
       <Route exact={true} path="/examine" component={Examine} />
       <Route exact={true} path="/community" component={Community} />
     </div>
