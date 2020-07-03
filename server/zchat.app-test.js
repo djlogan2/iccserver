@@ -344,6 +344,8 @@ describe("Chats", function() {
       [chat]
     );
   });
+  /*
+  children cannot be in rooms
   it("should only publish child_chat texts to a user in child_chat role", function(done) {
     const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
     const user = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
@@ -392,8 +394,9 @@ describe("Chats", function() {
       done();
     });
   });
-
+*/
   it("should publish chats from all rooms a user is in", function(done) {
+    this.timeout(5000000);
     const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
     const user2 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
     self.loggedonuser = user1;

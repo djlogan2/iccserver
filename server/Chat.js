@@ -29,7 +29,7 @@ const RoomCollectionSchema = {
   owner: String, // For public rooms, just the user that created the room
   public: Boolean,
   isolation_group: String,
-  members: Array,
+  members: { type: Array, defaultValue: [] },
   "members.$": Object,
   "members.$.id": String,
   "members.$.username": String,
@@ -49,70 +49,103 @@ class Chat {
     this.roomCollection = new Mongo.Collection("rooms");
     this.roomCollection.attachSchema(RoomCollectionSchema);
     const self = this;
-
-    Meteor.publishComposite("chat", {
+    /*
+    Meteor.publishComposite("rooms", {
       find() {
         return Meteor.users.find({ _id: this.userId });
       },
       children: [
         {
           find(user) {
-            if (Users.isAuthorized(user, "room_chat")) {
-              const member = { id: user._id, username: user.username };
-              return self.roomCollection.find({ members: member });
-            } else {
-              return;
-            }
-          }, // room chat
-          children: [
-            {
-              find(room, user) {
-                const queryobject = { id: room._id, type: "room" };
-                if (Users.isAuthorized(user, "child_chat")) queryobject.child_chat = true;
-
-                if (Users.isAuthorized(user, "personal_chat")) {
-                  queryobject.type.push("private");
-                  queryobject.logons = { $gt: 0 };
-                }
-                return self.collection.find(queryobject);
-              }
-            }
-          ]
-        },
+            if (Roles.userIsInRole(user, "child_chat")) return self.roomCollection.find({ _id: "none" });
+            return self.roomCollection.find(
+              {
+                $and: [{ isolation_group: self.isolation_group }, { $or: [{ public: true }, { "invited.id": self._id }, { "members.id": self._id }] }]
+              },
+              { fields: { owner: 0, isolation_group: 0 } }
+            );
+          }
+        }
+      ]
+    });
+*/
+    Meteor.publishComposite("chat", {
+      find() {
+        return Meteor.users.find({ _id: this.userId });
+      },
+      children: [
+        // personal chat
         {
           find(user) {
-            if (Users.isAuthorized(user, "personal_chat")) {
-              return self.collection.find({
-                $and: [{ type: "private" }, { $or: [{ "issuer.id": user._id }, { id: user._id }] }]
-              });
-            } else {
-            }
-          } // private chat
+            const query_object = { $and: [{ isolation_group: user.isolation_group }, { type: "private" }, { $or: [{ id: user._id }, { "issuer.id": user._id }] }] };
+            if (Users.isAuthorized(user, "child_chat")) query_object.$and.push({ child_chat: true });
+            return self.collection.find(query_object);
+          }
         },
+        // room chat
         {
           find(user) {
-            return Game.collection.find({
-              $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }]
+            if (Users.isAuthorized(user, "child_chat")) return self.roomCollection.find({ _id: "none" });
+            return self.roomCollection.find({
+              isolation_group: user.isolation_group,
+              $or: [{ public: true }, { "members.id": user._id, "invited.id": user._id }]
             });
           },
           children: [
             {
-              // Lastly, find the chat records in the game, based on whether it's a player, observer, or child
+              find(room, user) {
+                // Children cannot be in rooms
+                if (Users.isAuthorized(user, "child_chat")) return self.collection.find({ _id: "none" });
+                // No chats if they aren't members. If they are just invited, no chats!
+                if (!room.members.some(member => member.id === user._id)) return self.collection.find({ _id: "none" });
+                return self.collection.find({
+                  isolation_group: user.isolation_group,
+                  type: "room",
+                  id: room._id
+                });
+              }
+            }
+          ]
+        },
+        // game chat - players
+        {
+          find(user) {
+            return Game.collection.find({ $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }] });
+          },
+          children: [
+            {
               find(game, user) {
-                const queryobject = { id: game._id };
-                if (Users.isAuthorized(user, "child_chat")) queryobject.child_chat = true;
-                if (game.status === "playing") {
-                  if (game.white.id === user._id || game.black.id === user._id) queryobject.type = "kibitz";
-                  else queryobject.type = { $in: ["kibitz", "whisper"] };
-                } else {
-                  queryobject.type = { $in: ["kibitz", "whisper"] };
-                }
-                return self.collection.find(queryobject);
+                const query_object = {
+                  type: "kibitz",
+                  id: game._id,
+                  isolation_group: user.isolation_group
+                };
+                if (Users.isAuthorized(user, "child_chat")) query_object.child_chat = true;
+                return self.collection.find(query_object);
+              }
+            }
+          ]
+        },
+        // game chat - observers
+        {
+          find(user) {
+            return Game.collection.find({ "observers.id": user._id });
+          },
+          children: [
+            {
+              find(game, user) {
+                const query_object = {
+                  type: { $in: ["kibitz", "whisper"] },
+                  id: game._id,
+                  isolation_group: user.isolation_group
+                };
+                if (Users.isAuthorized(user, "child_chat")) query_object.child_chat = true;
+                return self.collection.find(query_object);
               }
             }
           ]
         }
-      ] // game chat
+      ]
     });
 
     Meteor.startup(() => {
@@ -300,7 +333,7 @@ class Chat {
     // See if room exists
     if (!room) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
     // actually join room
-    else this.roomCollection.update({ name: room.name }, { $push: { members: member } });
+    else this.roomCollection.update({ _id: room._id }, { $push: { members: member } });
   }
 
   leaveRoom(message_identifier, room_id) {
