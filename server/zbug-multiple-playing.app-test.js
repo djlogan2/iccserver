@@ -90,8 +90,7 @@ describe("Starting multiple games", function() {
   it("should not be allowed - acceptMatchRequest should fail if self is already playing", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    const p3 = TestHelpers.createUser();
-    self.loggedonuser = p3;
+    self.loggedonuser = TestHelpers.createUser();
     const match_id = GameRequests.addLocalMatchRequest("mi1", p1, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc");
     self.loggedonuser = p1;
     Game.startLocalGame("mi2", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");

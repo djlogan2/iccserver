@@ -5,7 +5,7 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { Roles } from "meteor/alanning:roles";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
-describe.skip("private group chats", function() {
+describe("private group chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   //Chat.createRoom(mi, room_name, private)
