@@ -7,52 +7,18 @@ import CssManager from "../pages/components/Css/CssManager";
 import Loading from "../pages/components/Loading";
 import Chess from "chess.js";
 import { Link } from "react-router-dom";
-import { ClientMessagesCollection, Game, ImportedGameCollection, GameHistoryCollection, GameRequestCollection, mongoCss, mongoUser } from "../../api/collections";
+import {
+  ClientMessagesCollection,
+  Game,
+  ImportedGameCollection,
+  GameHistoryCollection,
+  GameRequestCollection,
+  mongoCss,
+  mongoUser
+} from "../../api/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
 const log = new Logger("client/AppContainer");
-
-let played_game_id;
-let game_timestamp_client;
-
-// Game.find().observe({
-//   changed(newDocument) {
-//     if (newDocument.status === "examining") {
-//       return;
-//     }
-
-//     const color =
-//       newDocument.white.id === Meteor.userId()
-//         ? "white"
-//         : newDocument.black.id === Meteor.userId()
-//         ? "black"
-//         : "?";
-//     if (color === "?") return;
-
-//     if (played_game_id !== newDocument._id) {
-//       game_timestamp_client = new TimestampClient("client game", (_, msg) =>
-//         Meteor.call("gamepong", newDocument._id, msg)
-//       );
-//       newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
-//     }
-//   }
-// });
-
-// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-//   // log.error(errorMsg + "::" + url + "::" + lineNumber);
-//   return false;
-// };
-
-// Meteor.startup(() => {
-//   Tracker.autorun(() => {
-//     //
-//     // This is in here so when the user navigates away from the page,
-//     // the subscription is stopped on the server, cleaning up.
-//     //
-//     Meteor.subscribe("userData");
-//     Meteor.subscribe("observing_games");
-//   });
-// });
 
 class Play extends React.Component {
   constructor(props) {
@@ -120,29 +86,6 @@ class Play extends React.Component {
     }
     // this.startExamine();
   }
-
-  //   startExamine = () => {
-  //     let examine_game = Game.find({ "observers.id": Meteor.userId() }).fetch();
-  //     if (examine_game.length === 0) {
-  //       this.initExamine();
-  //     }
-  //   };
-
-  //   initExamine = () => {
-  //     Meteor.call(
-  //       "startLocalExaminedGame",
-  //       "startlocalExaminedGame",
-  //       "Mr white",
-  //       "Mr black",
-  //       0,
-  //       (error, response) => {
-  //         if (response) {
-  //           // this.props.history.push('/examine');
-  //           // this.props.examineAction(action);
-  //         }
-  //       }
-  //     );
-  //   };
 
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
@@ -277,7 +220,10 @@ class Play extends React.Component {
 
   clientMessages(id) {
     return ClientMessagesCollection.findOne({
-      $or: [{ client_identifier: "matchRequest" }, { $and: [{ to: Meteor.userId() }, { client_identifier: id }] }]
+      $or: [
+        { client_identifier: "matchRequest" },
+        { $and: [{ to: Meteor.userId() }, { client_identifier: id }] }
+      ]
     });
   }
 
@@ -295,7 +241,22 @@ class Play extends React.Component {
       color: null
     };
 
-    Meteor.call("addLocalMatchRequest", "matchRequest", userId, defaultData.wild_number, defaultData.rating_type, defaultData.rated, defaultData.is_adjourned, defaultData.time, defaultData.inc, defaultData.incOrdelayType, defaultData.time, defaultData.inc, defaultData.incOrdelayType, defaultData.color);
+    Meteor.call(
+      "addLocalMatchRequest",
+      "matchRequest",
+      userId,
+      defaultData.wild_number,
+      defaultData.rating_type,
+      defaultData.rated,
+      defaultData.is_adjourned,
+      defaultData.time,
+      defaultData.inc,
+      defaultData.incOrdelayType,
+      defaultData.time,
+      defaultData.inc,
+      defaultData.incOrdelayType,
+      defaultData.color
+    );
   };
 
   render() {
@@ -312,7 +273,12 @@ class Play extends React.Component {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
-    if (systemCss === undefined || boardCss === undefined || systemCss.length === 0 || boardCss.length === 0) {
+    if (
+      systemCss === undefined ||
+      boardCss === undefined ||
+      systemCss.length === 0 ||
+      boardCss.length === 0
+    ) {
       return <Loading />;
     }
 
@@ -371,7 +337,9 @@ class Play extends React.Component {
 export default withTracker(props => {
   return {
     user: Meteor.users.findOne({ _id: Meteor.userId() }),
-    usersToPlayWith: Meteor.users.find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] }).fetch(),
+    usersToPlayWith: Meteor.users
+      .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
+      .fetch(),
     examine_game: Game.find({ "observers.id": Meteor.userId() }).fetch(),
     game_request: GameRequestCollection.findOne(
       {

@@ -47,6 +47,11 @@ class PlayBlock extends Component {
       nextProps.userGameStatus === "playing"
     ) {
       this.setState({ status: "playing" });
+    } else if (
+      nextProps.userGameStatus !== this.props.userGameStatus &&
+      this.props.userGameStatus !== "playing"
+    ) {
+      this.setState({ status: "none" });
     }
   }
 
@@ -124,7 +129,7 @@ export default class PlayRightSidebar extends Component {
       return (
         <Tabs className="play-right-sidebar__bottom" defaultActiveKey="1" size="small" type="card">
           <TabPane tab={"Chat"} key="chat">
-            <ChatApp isKibitz={true} gameId={this.props.gameId} />
+            <ChatApp isKibitz={false} gameId={this.props.gameId} />
           </TabPane>
           <TabPane tab={"Kibitz"} key="kibitz">
             <ChatApp isKibitz={true} gameId={this.props.gameId} />

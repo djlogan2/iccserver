@@ -15,18 +15,18 @@ import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import { Logger } from "../../../../lib/client/Logger";
-import { ModalProvider } from "../ModalContext";
-import {
-  GameRequestPopup,
-  GamenotificationPopup,
-  GameResignedPopup,
-  ExaminActionPopup,
-  ActionPopup
-} from "./Popup/Popup";
+// import { ModalProvider } from "../ModalContext";
+// import {
+//   GameRequestPopup,
+//   GamenotificationPopup,
+//   GameResignedPopup,
+//   ExaminActionPopup,
+//   ActionPopup
+// } from "./Popup/Popup";
 import i18n from "meteor/universe:i18n";
 const log = new Logger("client/MainPage");
 
-export default class ExaminePage extends Component {
+export default class PlayPage extends Component {
   constructor(props) {
     super(props);
     this.toggleModal = data => {
@@ -91,7 +91,7 @@ export default class ExaminePage extends Component {
     this.startGameExamine = this.startGameExamine.bind(this);
     this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
     this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
-    this.uploadPgn = this.uploadPgn.bind(this);
+    // this.uploadPgn = this.uploadPgn.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -125,12 +125,12 @@ export default class ExaminePage extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions.bind(this));
   }
-  updateDimensions() {
+  updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
     });
-  }
+  };
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
       tomove: "white",
@@ -157,47 +157,35 @@ export default class ExaminePage extends Component {
     });
   };
 
-  gameRequest = (title, requestId) => {
-    return (
-      <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
-    );
-  };
-  actionPopup = (title, action) => {
-    return (
-      <ActionPopup
-        gameID={this.gameId}
-        title={title}
-        action={action}
-        cssmanager={this.props.cssmanager}
-      />
-    );
-  };
+  // gameRequest = (title, requestId) => {
+  //   return (
+  //     <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
+  //   );
+  // };
+  // actionPopup = (title, action) => {
+  //   return (
+  //     <ActionPopup
+  //       gameID={this.gameId}
+  //       title={title}
+  //       action={action}
+  //       cssmanager={this.props.cssmanager}
+  //     />
+  //   );
+  // };
 
-  GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
-  };
-  GameResignedPopup = (title, mid) => {
-    return (
-      <GameResignedPopup
-        mid={mid}
-        title={title}
-        cssmanager={this.props.cssmanager}
-        resignNotificationCloseHandler={this.resignNotificationCloseHandler}
-      />
-    );
-  };
-  examinActionPopup = action => {
-    return (
-      <ExaminActionPopup
-        action={action}
-        cssmanager={this.props.cssmanager}
-        examinActionCloseHandler={this.examinActionCloseHandler}
-      />
-    );
-  };
-  uploadPgn() {
-    this.setState({ notification: true });
-  }
+  // GamenotificationPopup = (title, mid) => {
+  //   return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
+  // };
+  // GameResignedPopup = (title, mid) => {
+  //   return (
+  //     <GameResignedPopup
+  //       mid={mid}
+  //       title={title}
+  //       cssmanager={this.props.cssmanager}
+  //       resignNotificationCloseHandler={this.resignNotificationCloseHandler}
+  //     />
+  //   );
+  // };
 
   startGameExamine() {
     this.setState({ examineGame: true, newOppenetRequest: false });
@@ -252,14 +240,7 @@ export default class ExaminePage extends Component {
     } else {
       Object.assign(position, { top: this.top });
     }
-    if (
-      !!GameRequest &&
-      GameRequest.type === "match" &&
-      GameRequest.receiver_id === this.props.userId
-    ) {
-      let msg = translator("gamerequest");
-      informativePopup = this.gameRequest(GameRequest["challenger"] + msg, GameRequest["_id"]);
-    }
+
 
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
@@ -267,12 +248,6 @@ export default class ExaminePage extends Component {
 
       Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
       if (status === "examining") {
-        if (
-          this.state.exnotification === false &&
-          (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
-        ) {
-          informativePopup = this.examinActionPopup(this.state.examinAction);
-        }
       } else {
         Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
         if (gameTurn === "w") {
@@ -328,18 +303,7 @@ export default class ExaminePage extends Component {
       status = "idlemode";
       // this.intializeBoard();
     }
-    if (!!this.props.GameHistory) {
-      informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
-    }
-    if (!!this.props.clientMessage) {
-      informativePopup = this.GamenotificationPopup(
-        this.props.clientMessage.message,
-        this.props.clientMessage._id
-      );
-    }
-    if (!!this.state.notification) {
-      informativePopup = this.GameResignedPopup("File upload succeshfully", "mid");
-    }
+
     let w = this.state.width;
     let h = this.state.height;
 
@@ -416,6 +380,6 @@ export default class ExaminePage extends Component {
   }
 }
 
-ExaminePage.propTypes = {
+PlayPage.propTypes = {
   username: PropTypes.string
 };

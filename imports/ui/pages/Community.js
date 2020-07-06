@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import ExaminePage from "./components/ExaminePage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
@@ -12,7 +12,7 @@ import Messenger from "./components/Chat/Messenger";
 import Chess from "chess.js";
 import { Link } from "react-router-dom";
 import { Tracker } from "meteor/tracker";
-import { Button } from "antd";
+import { Button, Input, Modal, Popconfirm, message } from "antd";
 import {
   ClientMessagesCollection,
   Game,
@@ -28,11 +28,29 @@ import { TimestampClient } from "../../../lib/Timestamp";
 const log = new Logger("client/Community");
 
 const RoomBlock = ({ activeRoom, list, onChange, onAdd }) => {
+  const [roomName, setRoomName] = useState("");
+  const [isModal, setModal] = useState(0);
+
+  const onOpen = () => {
+    setModal(true);
+  };
+  const onCancel = () => {
+    setRoomName("");
+    setModal(false);
+  };
+  const onOk = () => {
+    setRoomName("");
+    setModal(false);
+    onAdd(roomName);
+  };
   return (
     <div className="room-block">
       <div className="room-block__head">
         <h2 className="room-block__title">Rooms</h2>
-        <Button onClick={onAdd} className="room-block__add">
+        <Modal title="Create Room" visible={isModal} onOk={onOk} onCancel={onCancel}>
+          <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
+        </Modal>
+        <Button onClick={onOpen} className="room-block__add">
           Add
         </Button>
       </div>
@@ -66,11 +84,25 @@ class Community extends Component {
     this.state = {
       activeRoom: "politics",
       inputValue: "",
-      messageList: []
+      messageList: [],
+
+      chats: Meteor.subscribe("chat"),
+      room: Meteor.subscribe("room")
     };
   }
 
-  handleAdd = () => {};
+  componentWillUnmount() {
+    this.state.chats && this.state.chats.stop();
+    this.state.room && this.state.room.stop();
+  }
+
+  handleAdd = roomName => {
+    Meteor.call("createRoom", "createRoom", roomName, error => {
+      if (error) {
+        // add
+      }
+    });
+  };
 
   handleChangeRoom = roomId => {
     this.setState({ activeRoom: roomId });
