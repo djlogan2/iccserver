@@ -1,5 +1,5 @@
 import { Mongo } from "meteor/mongo";
-import { check } from "meteor/check";
+import { Match, check } from "meteor/check";
 import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
@@ -91,7 +91,7 @@ class Chat {
         // game chat - players
         {
           find(user) {
-            return Game.collection.find({ $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }] });
+            return Game.GameCollection.find({ $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }] });
           },
           children: [
             {
@@ -110,7 +110,7 @@ class Chat {
         // game chat - observers
         {
           find(user) {
-            return Game.collection.find({ "observers.id": user._id });
+            return Game.GameCollection.find({ "observers.id": user._id });
           },
           children: [
             {
@@ -121,7 +121,9 @@ class Chat {
                   isolation_group: user.isolation_group
                 };
                 if (Users.isAuthorized(user, "child_chat")) query_object.child_chat = true;
-                return self.collection.find(query_object);
+                const testme = self.collection.find(query_object);
+                const testme2 = testme.fetch();
+                return testme;
               }
             }
           ]
@@ -196,130 +198,181 @@ class Chat {
     });
   }
 
-  createRoom(message_identifier, roomName) {
+  createRoom(message_identifier, roomName, priv) {
+    check(message_identifier, String);
+    check(roomName, String);
+    check(priv, Match.Maybe(Boolean));
     const self = Meteor.user();
-    const isoGroup = Meteor.user().isolation_group;
     // check if user is in role
-    const roomRole = Users.isAuthorized(Meteor.user(), "create_room");
-    const uniqueName = !this.roomCollection.findOne({ name: roomName });
+    if (!Users.isAuthorized(self, priv ? "create_private_room" : "create_room") || Users.isAuthorized(self, "child_chat")) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AUTHORIZED");
+      return;
+    }
 
-    // check if name is unique in db
-    if (!uniqueName) {
+    const count = this.roomCollection.find({ $and: [{ name: roomName }, { isolation_group: self.isolation_group }, { $or: [{ public: true }, { $and: [{ public: false }, { owner: self._id }] }] }] }).count();
+
+    if (!!count) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ROOM_ALREADY_EXISTS");
       return;
     }
     // finally create room
-    //x
-    // here is a comment
-    if (roomRole) {
-      const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
-      this.roomCollection.insert({
-        name: roomName,
-        owner: self._id,
-        public: true,
-        members: member,
-        isolation_group: isoGroup
-      });
-      return this.roomCollection.findOne({ name: roomName })._id;
-    } else ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CREATE_ROOM");
+    return this.roomCollection.insert({
+      name: roomName,
+      owner: self._id,
+      public: !priv,
+      members: [{ id: self._id, username: self.username }],
+      isolation_group: self.isolation_group
+    });
   }
 
   writeToRoom(message_identifier, room_id, txt) {
+    check(message_identifier, String);
+    check(room_id, String);
+    check(txt, String);
+
     const self = Meteor.user();
-    const isoGroup = Meteor.user().isolation_group;
-    const hasRole = Users.isAuthorized(self, "room_chat");
-    const joinRole = Users.isAuthorized(self, "join_room");
-    const roomExists = this.roomCollection.findOne({ _id: room_id });
-    const child_chat_exempt = Users.isAuthorized(self, "child_chat_exempt");
-    const child_chat_id = this.childChatCollection.findOne({ _id: txt });
-    const child_chat = (Users.isAuthorized(self, "child_chat") || child_chat_id || child_chat_exempt) && true;
-    const member = [{ id: Meteor.user()._id, username: Meteor.user().username }];
-    const inRoom = this.roomCollection.findOne({ _id: room_id, members: { $in: member } });
-    const resultText = child_chat_id ? child_chat_id.text : txt;
+    check(self, Object);
+
+    const room = this.roomCollection.findOne({ _id: room_id, isolation_group: self.isolation_group, "members.id": self._id });
 
     // does the user have the right role?
-    if (!hasRole) {
+    if (!Users.isAuthorized(self, "room_chat") || !Users.isAuthorized(self, "join_room") || Users.isAuthorized(self, "child_chat")) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
       return;
     }
 
     // does room even exist?
-    if (!roomExists) {
+    if (!room) {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
       return;
     }
 
-    // If user not allowed to join room, can't write either
-    if (!joinRole && !inRoom) {
-      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
-      return;
-    }
-
-    // does the user have the join role? if so and not in room, join room.
-    if (joinRole && !inRoom) {
+    if (!room.members.some(member => member.id === self._id)) {
       this.joinRoom(message_identifier, room_id);
-    }
-
-    // fails if childchat and freeform
-    if (!child_chat_exempt && !child_chat_id && child_chat) {
-      ClientMessages.sendMessageToClient(self, message_identifier, "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
-      return;
     }
 
     // Actually write message to chat collection of room
     this.collection.insert({
-      isolation_group: isoGroup,
+      isolation_group: self.isolation_group,
       type: "room",
       id: room_id,
-      what: resultText,
-      child_chat: child_chat,
-      create_date: Meteor.date,
+      what: txt,
+      child_chat: false,
       issuer: { id: self._id, username: self.username }
     });
   }
 
   deleteRoom(message_identifier, room_id) {
+    check(message_identifier, String);
+    check(room_id, String);
+
     // check if user is in role
     const self = Meteor.user();
-    const inRole = Users.isAuthorized(self, "create_room");
-    const record = this.roomCollection.findOne({ _id: room_id });
-    if (!inRole) {
+    check(self, Object);
+
+    if (!Users.isAuthorized(self, "create_room")) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_DELETE_ROOM");
       return;
     }
-    // check if room exists
+
+    const record = this.roomCollection.findOne({ _id: room_id, isolation_group: self.isolation_group, owner: self._id });
+
     if (!record) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
-    // Delete room record
     else this.roomCollection.remove({ _id: room_id });
   }
 
   joinRoom(message_identifier, room_id) {
-    const self = Meteor.user();
-    const inRole = Users.isAuthorized(self, "join_room");
-    const room = this.roomCollection.findOne({ _id: room_id });
-    const member = { id: Meteor.user()._id, username: Meteor.user().username };
-    const inRoom = this.roomCollection.findOne({ $and: [{ _id: room_id }, { members: member }] });
+    check(message_identifier, String);
+    check(room_id, String);
 
-    // Currently ignores if user joins an already joined room
-    if (inRoom) {
+    const self = Meteor.user();
+    check(self, Object);
+
+    const room = this.roomCollection.findOne({ _id: room_id });
+
+    if (!room) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
       return;
     }
 
-    // check if user is in role
-    if (!inRole) {
+    if (room.members && room.members.some(member => member.id === self._id)) {
+      return;
+    }
+
+    if (!Users.isAuthorized(self, "join_room") || Users.isAuthorized(self, "child_chat")) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
       return;
     }
 
-    // See if room exists
     if (!room) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
-    // actually join room
-    else this.roomCollection.update({ _id: room._id }, { $addToSet: { members: member } });
+    else {
+      if (room.private) {
+        if (!room.invited.some(invitee => invitee.id === self._id)) {
+          ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
+          return;
+        }
+        this.roomCollection.update({ _id: room_id }, { $addToSet: { members: { id: self._id, username: self.username } }, $pull: { invited: { id: self._id } } });
+      } else this.roomCollection.update({ _id: room._id }, { $addToSet: { members: { id: self._id, username: self.username } } });
+    }
   }
 
   leaveRoom(message_identifier, room_id) {
-    const member = { id: Meteor.user()._id, username: Meteor.user().username };
-    this.roomCollection.update({ _id: room_id }, { $pull: { members: member } });
+    check(message_identifier, String);
+    check(room_id, String);
+
+    const self = Meteor.user();
+    check(self, Object);
+
+    if (this.roomCollection.find({ _id: room_id, isolation_group: self.isolation_group, "members.id": self._id }).count() === 0) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+      return;
+    }
+
+    this.roomCollection.update({ _id: room_id }, { $pull: { members: { id: self._id } } });
+  }
+
+  inviteToRoom(message_identifier, room_id, user_id) {
+    check(message_identifier, String);
+    check(room_id, String);
+    check(user_id, String);
+
+    const self = Meteor.user();
+    check(self, Object);
+
+    if (!Users.isAuthorized(self, "create_private_room") || !Users.isAuthorized(self, "room_chat") || Users.isAuthorized(self, "child_chat")) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
+      return;
+    }
+
+    const room = this.roomCollection.findOne({ _id: room_id, isolation_group: self.isolation_group, private: true, owner: self._id });
+
+    if (!room) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "ROOM_DOES_NOT_EXIST");
+      return;
+    }
+
+    const otherguy = Meteor.users.findOne({ _id: user_id, isolation_group: self._id });
+
+    if (!otherguy) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_USER");
+      return;
+    }
+
+    if (!Users.isAuthorized(otherguy, "room_chat") || Users.isAuthorized(otherguy, "child_chat")) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_USER");
+      return;
+    }
+
+    if (room.members.some(member => member.id === otherguy._id)) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_A_MEMBER");
+      return;
+    }
+    if (room.invited && room.invited.some(invitee => invitee.id === otherguy._id)) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_INVITED");
+      return;
+    }
+    if (!room.invited) this.roomCollection.update({ _id: room_id }, { $set: { invited: { id: otherguy._id, username: otherguy.username } } });
+    else this.roomCollection.update({ _id: room_id }, { $addToSet: { invited: { id: otherguy._id, username: otherguy.username } } });
   }
 
   writeToUser(message_identifier, user_id, text) {
@@ -425,11 +478,13 @@ Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   leaveroom: (message_identifier, room_id) => global._chatObject.leaveRoom(message_identifier, room_id),
   // eslint-disable-next-line meteor/audit-argument-checks
-  joinRoom: (message_identifier, room_id) => joinRoom(message_identifier, room_id),
+  joinRoom: (message_identifier, room_id) => global._chatObject.joinRoom(message_identifier, room_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   deleteRoom: (message_identifier, room_id) => global._chatObject.deleteRoom(message_identifier, room_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   writeToRoom: (message_identifier, room_id, txt) => global._chatObject.writeToRoom(message_identifier, room_id, txt),
   // eslint-disable-next-line meteor/audit-argument-checks
-  createRoom: (message_identifier, roomName) => global._chatObject.createRoom(message_identifier, roomName)
+  createRoom: (message_identifier, roomName, priv) => global._chatObject.createRoom(message_identifier, roomName, priv),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  inviteToRoom: (message_identifier, room_id, user_id) => global._chatObject.inviteToRoom(message_identifier, room_id, user_id)
 });

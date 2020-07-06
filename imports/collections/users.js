@@ -118,8 +118,9 @@ Users.isAuthorized = function(user, roles, scope) {
   check(user, Object);
   check(roles, Match.OneOf(Array, String));
   if (!Array.isArray(roles)) roles = [roles];
-  roles.push("developer");
-  return Roles.userIsInRole(user, roles, scope);
+
+  if (Roles.userIsInRole(user, ["developer"], scope)) return !roles.some(role => role === "child_chat");
+  else return Roles.userIsInRole(user, roles, scope);
 };
 
 Users.addLoginHook = function(f) {

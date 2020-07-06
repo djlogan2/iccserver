@@ -51,7 +51,7 @@ describe("Chats", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CREATE_ROOM");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
   });
 
   it("should disallow creating a room with a duplicate room name", function() {
@@ -225,7 +225,7 @@ describe("Chats", function() {
     );
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
   });
 
   it("should not allow a child to write text not from child_chat collection", function() {
@@ -238,7 +238,7 @@ describe("Chats", function() {
     chai.assert.equal(Chat.collection.find({}).count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "CHILD_CHAT_FREEFORM_NOT_ALLOWED");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
   });
 
   it("should allow child_chat_exempt to write child_chat freeform", function() {
@@ -301,20 +301,18 @@ describe("Chats", function() {
     self.loggedonuser = normalguy;
     Chat.writeToRoom("mi2", room_id, "normal text");
     const chat = Chat.collection.findOne({ id: room_id });
-    chai.assert.sameDeepMembers(
-      [
-        {
-          _id: chat._id,
-          create_date: chat.create_date,
-          child_chat: false,
-          isolation_group: "public",
-          id: room_id,
-          type: "room",
-          issuer: { id: normalguy._id, username: normalguy.username },
-          what: "normal text"
-        }
-      ],
-      [chat]
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        child_chat: false,
+        isolation_group: "public",
+        id: room_id,
+        type: "room",
+        issuer: { id: normalguy._id, username: normalguy.username },
+        what: "normal text"
+      },
+      chat
     );
   });
 
@@ -328,20 +326,18 @@ describe("Chats", function() {
     self.loggedonuser = normalguy;
     Chat.writeToRoom("mi2", room_id, ccid);
     const chat = Chat.collection.findOne({ id: room_id });
-    chai.assert.sameDeepMembers(
-      [
-        {
-          _id: chat._id,
-          create_date: chat.create_date,
-          id: room_id,
-          isolation_group: "public",
-          type: "room",
-          issuer: { id: normalguy._id, username: normalguy.username },
-          child_chat: true,
-          what: "child chat text"
-        }
-      ],
-      [chat]
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        id: room_id,
+        isolation_group: "public",
+        type: "room",
+        issuer: { id: normalguy._id, username: normalguy.username },
+        child_chat: true,
+        what: "child chat text"
+      },
+      chat
     );
   });
   /*

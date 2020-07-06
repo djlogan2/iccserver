@@ -5,7 +5,7 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { Roles } from "meteor/alanning:roles";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
-describe("private group chats", function() {
+describe.only("private group chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   //Chat.createRoom(mi, room_name, private)
@@ -19,19 +19,19 @@ describe("private group chats", function() {
     Chat.createRoom("mi2", "Public room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "DUPLICATE_ROOM_NAME");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ROOM_ALREADY_EXISTS");
     // Let's go ahead and make sure a duplicate public room can't be created either
     self.loggedonuser = admin;
     Chat.createRoom("mi3", "Public room");
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "DUPLICATE_ROOM_NAME");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "ROOM_ALREADY_EXISTS");
   });
 
   it("should return client message if a new room is requested and user is not in create_private_room role", function() {
     self.loggedonuser = TestHelpers.createUser();
     Roles.removeUsersFromRoles(self.loggedonuser, "create_private_room");
-    Chat.createRoom("mi1", "My room", true);
+    Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(0, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
@@ -40,7 +40,7 @@ describe("private group chats", function() {
   it("should return a client message if the user is in the child chat role (children cannot create rooms", function() {
     self.loggedonuser = TestHelpers.createUser();
     Roles.addUsersToRoles(self.loggedonuser, "child_chat");
-    Chat.createRoom("mi1", "My room", true);
+    Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(0, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
@@ -48,12 +48,13 @@ describe("private group chats", function() {
 
   it("should create a new room if user is in create_private_room role", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Chat.createRoom("mi1", "My room", true);
+    Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const room = Chat.roomCollection.findOne();
     chai.assert.deepEqual(
       {
+        _id: room._id,
         name: "My Room",
         owner: self.loggedonuser._id,
         public: false,
@@ -70,12 +71,13 @@ describe("private group chats", function() {
     const victim = TestHelpers.createUser();
     const loggedoffguy = TestHelpers.createUser({ login: false });
     self.loggedonuser = TestHelpers.createUser();
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const room = Chat.roomCollection.findOne();
     chai.assert.deepEqual(
       {
+        _id: room_id,
         name: "My Room",
         owner: self.loggedonuser._id,
         public: false,
@@ -98,12 +100,13 @@ describe("private group chats", function() {
   it("should return a client message and remove them from the request list if logged on user logs off", function() {
     const invited = TestHelpers.createUser({ login: false });
     self.loggedonuser = TestHelpers.createUser();
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const room = Chat.roomCollection.findOne();
     chai.assert.deepEqual(
       {
+        _id: room_id,
         name: "My Room",
         owner: self.loggedonuser._id,
         public: false,
@@ -129,12 +132,13 @@ describe("private group chats", function() {
     const invited = TestHelpers.createUser();
     Roles.addUsersToRoles(invited, "child_chat");
     self.loggedonuser = TestHelpers.createUser();
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const room = Chat.roomCollection.findOne();
     chai.assert.deepEqual(
       {
+        _id: room._id,
         name: "My Room",
         owner: self.loggedonuser._id,
         public: false,
@@ -160,12 +164,13 @@ describe("private group chats", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
     const public_room_id = Chat.createRoom("mi1", "Ze public room", true);
     self.loggedonuser = TestHelpers.createUser();
-    Chat.createRoom("mi1", "My room", true);
+    Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const room = Chat.roomCollection.findOne();
     chai.assert.deepEqual(
       {
+        _id: room._id,
         name: "My Room",
         owner: self.loggedonuser._id,
         public: false,
@@ -187,12 +192,12 @@ describe("private group chats", function() {
     self.loggedonuser = TestHelpers.createUser();
     const abuser = TestHelpers.createUser();
 
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
 
     self.loggedonuser = abuser;
     Chat.writeToRoom("mi2", private_room, "I am abuser!");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_ROOM");
     const room2 = Chat.roomCollection.findOne();
     chai.assert.equal(0, room2.invited.length);
     chai.assert.equal(0, Chat.collection.find().count());
@@ -203,14 +208,14 @@ describe("private group chats", function() {
     self.loggedonuser = TestHelpers.createUser();
     Chat.joinRoom("mi1", "mickeymouse");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_ROOM");
   });
 
   it("should return an error if it's a private room and user was not invited", function() {
     self.loggedonuser = TestHelpers.createUser();
     const abuser = TestHelpers.createUser();
 
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
 
     self.loggedonuser = abuser;
     Chat.joinRoom("mi2", private_room);
@@ -225,7 +230,7 @@ describe("private group chats", function() {
     const child = TestHelpers.createUser();
     Roles.addUsersToRoles(child, "child_chat");
 
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, child._id);
 
     // Fake this out, since a user being added to child_chat should be removed from all things illegal at time of setting
@@ -244,7 +249,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username, message_identifier: "mi2" }], room.invited);
@@ -261,7 +266,7 @@ describe("private group chats", function() {
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
 
@@ -288,7 +293,7 @@ describe("private group chats", function() {
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
 
@@ -305,7 +310,7 @@ describe("private group chats", function() {
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
 
@@ -324,7 +329,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username, message_identifier: "mi2" }], room.invited);
@@ -341,7 +346,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username, message_identifier: "mi2" }], room.invited);
@@ -365,7 +370,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username, message_identifier: "mi2" }], room.invited);
@@ -390,7 +395,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
 
     Chat.leaveRoom("mi3", private_room, otherguy._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -402,7 +407,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     const private_room2 = Chat.createRoom("mi1", "My room 2", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     const room = Chat.roomCollection.findOne();
@@ -426,7 +431,7 @@ describe("private group chats", function() {
     const victim = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     Chat.inviteToRoom("mi3", private_room, victim._id);
 
@@ -460,7 +465,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username, message_identifier: "mi2" }], room.invited);
@@ -489,7 +494,7 @@ describe("private group chats", function() {
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
 
@@ -500,7 +505,7 @@ describe("private group chats", function() {
     Chat.leaveRoom("mi4", room_id);
 
     const collector = new PublicationCollector({ userId: owner._id });
-    collector.collect("rooms", collections => {
+    collector.collect("chat", collections => {
       chai.assert.equal(collections.rooms.length, 1);
       done();
     });
@@ -510,7 +515,7 @@ describe("private group chats", function() {
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     Chat.createRoom("mi3", "My room 2", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
@@ -529,7 +534,7 @@ describe("private group chats", function() {
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
-    const room_id = Chat.createRoom("mi1", "My room", true);
+    const room_id = Chat.createRoom("mi1", "My Room", true);
     Chat.createRoom("mi3", "My room 2", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
@@ -550,7 +555,7 @@ describe("private group chats", function() {
     self.loggedonuser = TestHelpers.createUser();
     Roles.addUsersToRoles(self.loggedonuser, "child_chat");
     const collector = new PublicationCollector({ userId: self.loggedonuser._id });
-    collector.collect("rooms", collections => {
+    collector.collect("chat", collections => {
       chai.assert.equal(collections.rooms.length, 0);
       done();
     });
@@ -566,8 +571,8 @@ describe("private group chats", function() {
     Chat.joinRoom("mi3", pubroom);
     Chat.joinRoom("mi4", prvroom);
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
-    chai.assert.equal(self.clientMessagesSpy.args[1][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "NOT_ALLOWED_TO_JOIN_ROOM");
     chai.assert.equal(Chat.roomCollection.findOne({ _id: pubroom }).members, 1); // Just creator
     chai.assert.equal(Chat.roomCollection.findOne({ _id: prvroom }).members, 1); // Just creator
     chai.assert.equal(Chat.roomCollection.findOne({ _id: prvroom }).invited, 0);
@@ -594,7 +599,7 @@ describe("private group chats", function() {
     const otherguy = TestHelpers.createUser();
 
     self.loggedonuser = firstguy;
-    const private_room = Chat.createRoom("mi1", "My room", true);
+    const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, otherguy._id);
     const room = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username, message_identifier: "mi2" }], room.invited);
