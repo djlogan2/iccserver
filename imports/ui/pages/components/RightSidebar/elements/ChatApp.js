@@ -7,28 +7,11 @@ import MessageItem from "../../Chat/MessageItem";
 
 import { Chat } from "../../../../../api/collections";
 
-// const MessageItem = ({ name, text }) => {
-//   return (
-//     <div className="message-item">
-//       <div className="message-item__name">{name}</div>
-//       <p className="message-item__text">{text}</p>
-//     </div>
-//   );
-// };
-
-// const ChatInput = ({ value, onChange, onMessage }) => (
-//   <Fragment>
-//     <Input value={value} onChange={onChange} placeholder="Your message" />
-//     <Button onClick={onMessage}>Send</Button>
-//   </Fragment>
-// );
-
 class ChatApp extends Component {
   constructor() {
     super();
     this.state = {
       inputValue: "",
-      //   messageList: [{ name: "you", text: "Some text" }, { name: "you", text: "Some text" }]
       messageList: []
     };
   }
@@ -86,13 +69,6 @@ class ChatApp extends Component {
     );
   }
 }
-
-// export default withTracker(props => {
-//   return {
-//     chats: Chat.find({"id": props.gameId})
-//     // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch()
-//   })(ChatApp)
-// export default ChatApp;
 
 export default withTracker(props => {
   return {

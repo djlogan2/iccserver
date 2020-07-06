@@ -1,4 +1,5 @@
 import React, { PureComponent } from "react";
+import _ from "lodash";
 
 import Chess from "chess.js";
 import Chessground from "react-chessground";
@@ -14,19 +15,20 @@ export default class ChessBoard extends PureComponent {
       fen: this.chess.fen(),
       boardTop: "black"
     };
+    this.deleyedHandleResize = _.debounce(this.handleResize, 300);
   }
 
   componentDidMount() {
-    window.addEventListener("resize", this.handleResize);
+    window.addEventListener("resize", this.deleyedHandleResize);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.handleResize);
+    window.removeEventListener("resize", this.deleyedHandleResize);
   }
 
-  handleResize = e => {
+  handleResize = () => {
     this.chessground.cg.redrawAll();
-  }
+  };
 
   onMove = (from, to) => {
     let move = this.chess.move({
@@ -49,10 +51,7 @@ export default class ChessBoard extends PureComponent {
     }
   };
   draggable() {
-    if (
-      this.props.gameStatus === "playing" ||
-      this.props.gameStatus === "examining"
-    ) {
+    if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
       return {
         enabled: true
       };
