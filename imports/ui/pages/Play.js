@@ -7,15 +7,7 @@ import CssManager from "../pages/components/Css/CssManager";
 import Loading from "../pages/components/Loading";
 import Chess from "chess.js";
 import { Link } from "react-router-dom";
-import {
-  ClientMessagesCollection,
-  Game,
-  ImportedGameCollection,
-  GameHistoryCollection,
-  GameRequestCollection,
-  mongoCss,
-  mongoUser
-} from "../../api/collections";
+import { ClientMessagesCollection, Game, ImportedGameCollection, GameHistoryCollection, GameRequestCollection, mongoCss, mongoUser } from "../../api/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
 const log = new Logger("client/AppContainer");
@@ -77,6 +69,8 @@ class Play extends React.Component {
       subscription: {
         css: Meteor.subscribe("css"),
         game: Meteor.subscribe("playing_games"),
+        chats: Meteor.subscribe("chat"),
+        users: Meteor.subscribe("loggedOnUsers"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
         observingGames: Meteor.subscribe("observing_games"),
@@ -103,7 +97,9 @@ class Play extends React.Component {
   componentWillUnmount() {
     if (this.state.subscription) {
       this.state.subscription.css && this.state.subscription.css.stop();
+      this.state.subscription.chats && this.state.subscription.chats.stop();
       this.state.subscription.game && this.state.subscription.game.stop();
+      this.state.subscription.users && this.state.subscription.users.stop();
       this.state.subscription.gameRequests && this.state.subscription.gameRequests.stop();
       this.state.subscription.clientMessages && this.state.subscription.clientMessages.stop();
       this.state.subscription.observingGames && this.state.subscription.observingGames.stop();
@@ -125,28 +121,28 @@ class Play extends React.Component {
     // this.startExamine();
   }
 
-//   startExamine = () => {
-//     let examine_game = Game.find({ "observers.id": Meteor.userId() }).fetch();
-//     if (examine_game.length === 0) {
-//       this.initExamine();
-//     }
-//   };
+  //   startExamine = () => {
+  //     let examine_game = Game.find({ "observers.id": Meteor.userId() }).fetch();
+  //     if (examine_game.length === 0) {
+  //       this.initExamine();
+  //     }
+  //   };
 
-//   initExamine = () => {
-//     Meteor.call(
-//       "startLocalExaminedGame",
-//       "startlocalExaminedGame",
-//       "Mr white",
-//       "Mr black",
-//       0,
-//       (error, response) => {
-//         if (response) {
-//           // this.props.history.push('/examine');
-//           // this.props.examineAction(action);
-//         }
-//       }
-//     );
-//   };
+  //   initExamine = () => {
+  //     Meteor.call(
+  //       "startLocalExaminedGame",
+  //       "startlocalExaminedGame",
+  //       "Mr white",
+  //       "Mr black",
+  //       0,
+  //       (error, response) => {
+  //         if (response) {
+  //           // this.props.history.push('/examine');
+  //           // this.props.examineAction(action);
+  //         }
+  //       }
+  //     );
+  //   };
 
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
@@ -281,15 +277,30 @@ class Play extends React.Component {
 
   clientMessages(id) {
     return ClientMessagesCollection.findOne({
-      $or: [
-        { client_identifier: "matchRequest" },
-        { $and: [{ to: Meteor.userId() }, { client_identifier: id }] }
-      ]
+      $or: [{ client_identifier: "matchRequest" }, { $and: [{ to: Meteor.userId() }, { client_identifier: id }] }]
     });
   }
+
+  handleChooseFriend = userId => {
+    const defaultData = {
+      user: null,
+      userId: null,
+      wild_number: 0,
+      rating_type: "standard",
+      rated: true,
+      is_adjourned: false,
+      time: 14,
+      inc: 1,
+      incOrdelayType: "inc",
+      color: null
+    };
+
+    Meteor.call("addLocalMatchRequest", "matchRequest", userId, defaultData.wild_number, defaultData.rating_type, defaultData.rated, defaultData.is_adjourned, defaultData.time, defaultData.inc, defaultData.incOrdelayType, defaultData.time, defaultData.inc, defaultData.incOrdelayType, defaultData.color);
+  };
+
   render() {
     const gameRequest = this.props.game_request;
-    let game = this.props.game_messages;
+    let game = this.props.game_playing;
     let circles = [];
     let actionlen;
     let gameExamin = [];
@@ -301,12 +312,7 @@ class Play extends React.Component {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
-    if (
-      systemCss === undefined ||
-      boardCss === undefined ||
-      systemCss.length === 0 ||
-      boardCss.length === 0
-    ) {
+    if (systemCss === undefined || boardCss === undefined || systemCss.length === 0 || boardCss.length === 0) {
       return <Loading />;
     }
 
@@ -315,33 +321,19 @@ class Play extends React.Component {
       this.gameId = gameRequest._id;
       this.message_identifier = "server:game:" + this.gameId;
     }
-    if (!!game) {
+
+    if (game) {
       this.gameId = game._id;
       this.message_identifier = "server:game:" + this.gameId;
       actionlen = game.actions.length;
       capture = this._boardFromMongoMessages(game);
-    } else {
-      gameExamin = this.props.examine_game;
-      if (!!gameExamin && gameExamin.length > 0) {
-        game = gameExamin[gameExamin.length - 1];
-        actionlen = game.actions.length;
-        this.gameId = game._id;
-        this._examinBoard(game);
-        if (!!game.circles) {
-          let circleslist = game.circles;
-          circleslist.forEach(circle => {
-            let c1 = this.getCoordinatesToRank(circle);
-            circles.push(c1);
-          });
-        }
-      }
     }
 
     if (!!this.gameId) {
       clientMessage = this.clientMessages(this.message_identifier);
     }
 
-    if (this.props.examine_game.length === 0) {
+    if (false) {
       return <Loading />;
     }
 
@@ -349,13 +341,16 @@ class Play extends React.Component {
       <div className="examine">
         <PlayPage
           userId={Meteor.userId()}
-          cssmanager={css}
+          cssManager={css}
           board={this._board}
-          gameId={this.props.examine_game[0]._id}
+          gameId={this.gameId}
+          usersToPlayWith={this.props.usersToPlayWith}
+          onChooseFriend={this.handleChooseFriend}
           // fen={this._board.fen()}
           capture={capture}
           len={actionlen}
           game={game}
+          user={this.props.user}
           gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}
@@ -375,6 +370,8 @@ class Play extends React.Component {
 
 export default withTracker(props => {
   return {
+    user: Meteor.users.findOne({ _id: Meteor.userId() }),
+    usersToPlayWith: Meteor.users.find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] }).fetch(),
     examine_game: Game.find({ "observers.id": Meteor.userId() }).fetch(),
     game_request: GameRequestCollection.findOne(
       {
@@ -392,7 +389,7 @@ export default withTracker(props => {
         sort: { create_date: -1 }
       }
     ),
-    game_messages: Game.findOne({
+    game_playing: Game.findOne({
       $and: [
         { status: "playing" },
         {

@@ -41,13 +41,7 @@ class MenuLinks extends Component {
   };
 
   static getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
+    return (navigator.languages && navigator.languages[0]) || navigator.language || navigator.browserLanguage || navigator.userLanguage || "en-US";
   }
 
   render() {
@@ -68,11 +62,7 @@ class MenuLinks extends Component {
 
       return (
         <li className="menu-link__item" key={index}>
-          <a
-            href="#"
-            className={isActive && "active"}
-            onClick={e => this.handleClick(e, link.label)}
-          >
+          <a href="#" className={isActive ? "active" : ""} onClick={e => this.handleClick(e, link.label)}>
             <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
           </a>
         </li>

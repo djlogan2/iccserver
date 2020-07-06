@@ -16,16 +16,9 @@ import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import { Logger } from "../../../../lib/client/Logger";
 import { ModalProvider } from "../ModalContext";
-import {
-  GameRequestPopup,
-  GamenotificationPopup,
-  GameResignedPopup,
-  ExaminActionPopup,
-  ActionPopup
-} from "./Popup/Popup";
+import { GameRequestPopup, GamenotificationPopup, GameResignedPopup, ExaminActionPopup, ActionPopup } from "./Popup/Popup";
 import i18n from "meteor/universe:i18n";
 const log = new Logger("client/MainPage");
-
 
 export default class ExaminePage extends Component {
   constructor(props) {
@@ -98,16 +91,10 @@ export default class ExaminePage extends Component {
   componentWillReceiveProps(nextProps) {
     if (!!this.props.len && !!nextProps.len) {
       if (nextProps.len !== this.props.len)
-        if (
-          this.props.game.status === "examining" &&
-          (this.state.exnotification === true || this.state.newOppenetRequest === true)
-        ) {
+        if (this.props.game.status === "examining" && (this.state.exnotification === true || this.state.newOppenetRequest === true)) {
           this.setState({ exnotification: false, newOppenetRequest: false });
         }
-      if (
-        this.props.game.status === "playing" &&
-        (this.state.newOppenetRequest === true || this.state.examineGame === true)
-      ) {
+      if (this.props.game.status === "playing" && (this.state.newOppenetRequest === true || this.state.examineGame === true)) {
         this.setState({ newOppenetRequest: false, examineGame: false });
       }
     }
@@ -159,47 +146,24 @@ export default class ExaminePage extends Component {
   };
 
   gameRequest = (title, requestId) => {
-    return (
-      <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
-    );
+    return <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />;
   };
   actionPopup = (title, action) => {
-    return (
-      <ActionPopup
-        gameID={this.gameId}
-        title={title}
-        action={action}
-        cssmanager={this.props.cssmanager}
-      />
-    );
+    return <ActionPopup gameID={this.gameId} title={title} action={action} cssmanager={this.props.cssmanager} />;
   };
 
   GamenotificationPopup = (title, mid) => {
     return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
   };
   GameResignedPopup = (title, mid) => {
-    return (
-      <GameResignedPopup
-        mid={mid}
-        title={title}
-        cssmanager={this.props.cssmanager}
-        resignNotificationCloseHandler={this.resignNotificationCloseHandler}
-      />
-    );
+    return <GameResignedPopup mid={mid} title={title} cssmanager={this.props.cssmanager} resignNotificationCloseHandler={this.resignNotificationCloseHandler} />;
   };
   examinActionPopup = action => {
-    return (
-      <ExaminActionPopup
-        action={action}
-        cssmanager={this.props.cssmanager}
-        examinActionCloseHandler={this.examinActionCloseHandler}
-      />
-    );
+    return <ExaminActionPopup action={action} cssmanager={this.props.cssmanager} examinActionCloseHandler={this.examinActionCloseHandler} />;
   };
   uploadPgn() {
     this.setState({ notification: true });
   }
-
 
   startGameExamine() {
     this.setState({ examineGame: true, newOppenetRequest: false });
@@ -225,13 +189,7 @@ export default class ExaminePage extends Component {
     this.refs.middleBoard._flipboard();
   };
   getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
+    return (navigator.languages && navigator.languages[0]) || navigator.language || navigator.browserLanguage || navigator.userLanguage || "en-US";
   }
   render() {
     let translator = i18n.createTranslator("Common.MainPage", this.getLang());
@@ -254,11 +212,7 @@ export default class ExaminePage extends Component {
     } else {
       Object.assign(position, { top: this.top });
     }
-    if (
-      !!GameRequest &&
-      GameRequest.type === "match" &&
-      GameRequest.receiver_id === this.props.userId
-    ) {
+    if (!!GameRequest && GameRequest.type === "match" && GameRequest.receiver_id === this.props.userId) {
       let msg = translator("gamerequest");
       informativePopup = this.gameRequest(GameRequest["challenger"] + msg, GameRequest["_id"]);
     }
@@ -269,10 +223,7 @@ export default class ExaminePage extends Component {
 
       Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
       if (status === "examining") {
-        if (
-          this.state.exnotification === false &&
-          (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
-        ) {
+        if (this.state.exnotification === false && (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")) {
           informativePopup = this.examinActionPopup(this.state.examinAction);
         }
       } else {
@@ -296,28 +247,18 @@ export default class ExaminePage extends Component {
           const issuer = action["issuer"];
           switch (action["type"]) {
             case "takeback_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].takeback.number > 0)
-              ) {
-                let moveCount =
-                  game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
+              if (issuer !== this.userId && (!!game.pending && game.pending[othercolor].takeback.number > 0)) {
+                let moveCount = game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
                 actionPopup = this.actionPopup(translator(moveCount), "takeBack");
               }
               break;
             case "draw_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].draw !== "0")
-              ) {
+              if (issuer !== this.userId && (!!game.pending && game.pending[othercolor].draw !== "0")) {
                 actionPopup = this.actionPopup(translator("draw"), "draw");
               }
               break;
             case "abort_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].abort !== "0")
-              ) {
+              if (issuer !== this.userId && (!!game.pending && game.pending[othercolor].abort !== "0")) {
                 actionPopup = this.actionPopup(translator("abort"), "abort");
               }
               break;
@@ -334,10 +275,7 @@ export default class ExaminePage extends Component {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
     }
     if (!!this.props.clientMessage) {
-      informativePopup = this.GamenotificationPopup(
-        this.props.clientMessage.message,
-        this.props.clientMessage._id
-      );
+      informativePopup = this.GamenotificationPopup(this.props.clientMessage.message, this.props.clientMessage._id);
     }
     if (!!this.state.notification) {
       informativePopup = this.GameResignedPopup("File upload succeshfully", "mid");

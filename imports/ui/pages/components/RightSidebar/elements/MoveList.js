@@ -92,7 +92,6 @@ export default class MoveList extends Component {
     let moves = [];
     let variation;
     let game = this.props.game;
-    let status = this.props.game.status;
     if (!!game) {
       this.message_identifier = "server:game:" + this.gameId;
       this.gameId = game._id;
@@ -114,14 +113,7 @@ export default class MoveList extends Component {
     let statuslabel = 0;
     let isPlaying;
 
-    let mbtnstyle = this.props.cssmanager.gameButtonMove();
-    if (this.props.currentGame === true && status === "examining") {
-      displayButton = 1;
-      statuslabel = 1;
-      Object.assign(mbtnstyle, { bottom: "85px", padding: "0px" });
-    } else if (status === "playing") {
-      statuslabel = 1;
-    }
+
 
     if (status === "playing") {
       isPlaying = true;
@@ -171,7 +163,7 @@ export default class MoveList extends Component {
     return (
       <div className="move-list">
         <div style={this.props.cssmanager.gameMoveList()}>{moveslist}</div>
-
+{/*
         {displayButton ? (
           <div style={mbtnstyle} className="moveAction">
             <button style={btnstyle} onClick={this.moveBackwordBeginning.bind(this)}>
@@ -221,8 +213,8 @@ export default class MoveList extends Component {
             >
               <span>{translator(status)}</span>
             </div>
-          ) : null}
-        </div>
+          ) : null} */}
+        {/* </div> */}
       </div>
     );
   }

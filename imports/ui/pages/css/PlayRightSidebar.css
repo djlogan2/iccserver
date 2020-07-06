@@ -1,0 +1,35 @@
+.play-right-sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.play-right-sidebar__top {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+.play-right-sidebar__top--small {
+    max-height: 50vh;
+}
+
+.play-right-sidebar__bottom {
+    display: flex;
+    flex-direction: column;
+    height: 50vh;
+    flex-shrink: 0;
+}
+
+.ant-tabs .ant-tabs-top-content {
+    height: 100%;
+    overflow: auto;
+}
+.ant-tabs .ant-tabs-top-content>.ant-tabs-tabpane {
+    height: 100%;
+}
+
+.ant-tabs.ant-tabs-card .ant-tabs-card-content>.ant-tabs-tabpane-inactive {
+    display: none;
+}

@@ -1,18 +1,27 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { Input, Button } from "antd";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import ChatInput from "../../Chat/ChatInput";
+import MessageItem from "../../Chat/MessageItem";
 
 import { Chat } from "../../../../../api/collections";
 
-const MessageItem = ({ name, text }) => {
-  return (
-    <div className="message-item">
-      <div className="message-item__name">{name}</div>
-      <p className="message-item__text">{text}</p>
-    </div>
-  );
-};
+// const MessageItem = ({ name, text }) => {
+//   return (
+//     <div className="message-item">
+//       <div className="message-item__name">{name}</div>
+//       <p className="message-item__text">{text}</p>
+//     </div>
+//   );
+// };
+
+// const ChatInput = ({ value, onChange, onMessage }) => (
+//   <Fragment>
+//     <Input value={value} onChange={onChange} placeholder="Your message" />
+//     <Button onClick={onMessage}>Send</Button>
+//   </Fragment>
+// );
 
 class ChatApp extends Component {
   constructor() {
@@ -32,37 +41,46 @@ class ChatApp extends Component {
 
   handleMessage = () => {
     let newMessage = { text: this.state.inputValue, name: "you" };
+    let isKibitz = this.props.isKibitz === true ? true : false;
     this.setState({
       inputValue: "",
       messageList: [...this.state.messageList, newMessage]
     });
     // function(message_identifier, game_id, kibitz, txt)
-    Meteor.call("kibitz", "kibitz", this.props.gameId, true, newMessage.text, (err, response) => {
-      if (err) {
-        debugger;
+    Meteor.call(
+      "kibitz",
+      "kibitz",
+      this.props.gameId,
+      isKibitz,
+      newMessage.text,
+      (err, response) => {
+        if (err) {
+          debugger;
+        }
       }
-    });
+    );
   };
 
   render() {
     return (
       <div className="chat-app">
-        <div className="chat-app__message-list">
-          {this.props.chats.map((chatItem, i) => (
-            <MessageItem
-              key={`message-${i}`}
-              name={chatItem.issuer.username}
-              text={chatItem.what}
-            />
-          ))}
+        <div className="chat-app__list-wrap">
+          <div className="chat-app__message-list">
+            {this.props.chats.map((chatItem, i) => (
+              <MessageItem
+                key={`message-${i}`}
+                name={chatItem.issuer.username}
+                text={chatItem.what}
+              />
+            ))}
+          </div>
         </div>
         <div className="chat-app__input-bar">
-          <Input
+          <ChatInput
             value={this.state.inputValue}
             onChange={this.handleChange}
-            placeholder="Your message"
+            onMessage={this.handleMessage}
           />
-          <Button onClick={this.handleMessage}>Send</Button>
         </div>
       </div>
     );

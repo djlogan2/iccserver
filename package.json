@@ -11,7 +11,8 @@
     }
   },
   "scripts": {
-    "start": "meteor run",
+    "start": "meteor run --production",
+    "dev": "meteor run",
     "test": "meteor test --once --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 nyc meteor test --full-app --driver-package meteortesting:mocha",
     "visualize": "meteor --production --extra-packages bundle-visualizer",
@@ -62,7 +63,7 @@
     }
   },
   "prettier": {
-    "printWidth": 1000
+    "printWidth": 100
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.8.3",
@@ -81,7 +82,7 @@
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-meteor": "^5.2.0",
     "eslint-plugin-prettier": "^3.1.2",
-    "eslint-plugin-react": "^7.18.3",
+    "eslint-plugin-react": "^7.20.3",
     "eslint-plugin-react-hooks": "^1.7.0",
     "prettier": "1.17.1",
     "puppeteer": "^1.20.0",
