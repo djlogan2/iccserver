@@ -75,13 +75,10 @@ class Chat {
           find(user) {
             if (Users.isAuthorized(user, "child_chat"))
               return self.roomCollection.find({ _id: "none" });
-            const cursor = self.roomCollection.find({
+            return self.roomCollection.find({
               isolation_group: user.isolation_group,
               $or: [{ public: true }, { "members.id": user._id, "invited.id": user._id }]
             });
-            const testme = cursor.fetch();
-            testme.forEach(room => console.log(room.name));
-            return cursor;
           },
           children: [
             {
@@ -92,16 +89,11 @@ class Chat {
                 // No chats if they aren't members. If they are just invited, no chats!
                 if (!room.members.some(member => member.id === user._id))
                   return self.collection.find({ _id: "none" });
-                const cursor = self.collection.find({
+                return self.collection.find({
                   isolation_group: user.isolation_group,
                   type: "room",
                   id: room._id
                 });
-                const testme = cursor.fetch();
-                testme.forEach(chat => {
-                  console.log("room=" + chat.id + " text=" + chat.what);
-                });
-                return cursor;
               }
             }
           ]
@@ -410,10 +402,15 @@ class Chat {
       return;
     }
 
+    if (user_id === self._id) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "CANNOT_INVITE_YOURSELF");
+      return;
+    }
+
     const room = this.roomCollection.findOne({
       _id: room_id,
       isolation_group: self.isolation_group,
-      private: true,
+      public: false,
       owner: self._id
     });
 
@@ -422,9 +419,9 @@ class Chat {
       return;
     }
 
-    const otherguy = Meteor.users.findOne({ _id: user_id, isolation_group: self._id });
+    const otherguy = Meteor.users.findOne({ _id: user_id, isolation_group: self.isolation_group });
 
-    if (!otherguy) {
+    if (!otherguy || !otherguy.status.online) {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_USER");
       return;
     }
@@ -450,7 +447,15 @@ class Chat {
     else
       this.roomCollection.update(
         { _id: room_id },
-        { $addToSet: { invited: { id: otherguy._id, username: otherguy.username } } }
+        {
+          $addToSet: {
+            invited: {
+              id: otherguy._id,
+              username: otherguy.username,
+              message_identifier: message_identifier
+            }
+          }
+        }
       );
   }
 
@@ -518,11 +523,7 @@ class Chat {
 
     // Won't send to loggedoff recipient, but will send to self
     if (loggedon <= 1 && user_id !== self._id) {
-      ClientMessages.sendMessageToClient(
-        self,
-        message_identifier,
-        "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT"
-      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "USER_LOGGED_OFF");
       return;
     }
 
@@ -610,6 +611,7 @@ Meteor.startup(() => {
   if (!!room) return;
 
   const user = Meteor.users.findOne({ username: "djl1" });
+  if (!user) return;
 
   const room_id = global._chatObject.roomCollection.insert({
     name: "CTY public room",

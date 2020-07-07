@@ -71,7 +71,11 @@ describe("Chats", function() {
     const p1 = self.loggedonuser;
     const room_id = Chat.createRoom("mi1", "the room");
     chai.assert.equal(Chat.roomCollection.find().count(), 1, "Failed to create room");
-    chai.assert.equal(Chat.roomCollection.findOne({ _id: room_id }).members[0].id, p1._id, "failed to join owner to own room on creation");
+    chai.assert.equal(
+      Chat.roomCollection.findOne({ _id: room_id }).members[0].id,
+      p1._id,
+      "failed to join owner to own room on creation"
+    );
   });
 
   //deleteRoom
@@ -638,7 +642,7 @@ describe("Chats", function() {
     chai.assert.equal(Chat.collection.find().count(), 0);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "USER_LOGGED_OFF");
   });
 
   it("should not allow a write if sender does not have personal_chat", function() {

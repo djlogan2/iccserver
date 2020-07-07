@@ -137,8 +137,9 @@ const DefinedClientMessagesMap = {
   RECIPIENT_NOT_ALLOWED_TO_PERSONAL_CHAT: {},
   SENDER_NOT_ALLOWED_TO_PERSONAL_CHAT: {},
   RECIPIENT_NOT_ALLOWED_TO_FREEFORM_CHAT: {},
-  RECIPIENT_LOGGED_OFF_UNABLE_TO_PERSONAL_CHAT: {},
+  USER_LOGGED_OFF: {},
   INVALID_USER: {},
+  CANNOT_INVITE_YOURSELF: {},
   NOT_AUTHORIZED: {},
   NOT_PLAYING_OR_EXAMINING: {}
 };
@@ -148,7 +149,8 @@ class ClientMessages {
     check(
       i18n_message,
       Match.Where(() => {
-        if (DefinedClientMessagesMap[i18n_message] === undefined) throw new Match.Error(i18n_message + " is not known to ClientMessages");
+        if (DefinedClientMessagesMap[i18n_message] === undefined)
+          throw new Match.Error(i18n_message + " is not known to ClientMessages");
         else return true;
       })
     ); // It has to be a known and supported message to the client
@@ -156,13 +158,21 @@ class ClientMessages {
   };
 
   sendMessageToClient = function(user, client_identifier, i18n_message) {
-    log.debug("sendMessageToClient user=" + user + ", client_identifier=" + client_identifier + ", i18n_message=" + i18n_message);
+    log.debug(
+      "sendMessageToClient user=" +
+        user +
+        ", client_identifier=" +
+        client_identifier +
+        ", i18n_message=" +
+        i18n_message
+    );
     check(user, Match.OneOf(Object, String));
     check(client_identifier, String);
     check(
       i18n_message,
       Match.Where(() => {
-        if (DefinedClientMessagesMap[i18n_message] === undefined) throw new Match.Error(i18n_message + " is not known to ClientMessages");
+        if (DefinedClientMessagesMap[i18n_message] === undefined)
+          throw new Match.Error(i18n_message + " is not known to ClientMessages");
         else return true;
       })
     ); // It has to be a known and supported message to the client
@@ -170,9 +180,19 @@ class ClientMessages {
     for (let x = 3; x < arguments.length; x++)
       if (Array.isArray(arguments[x])) arguments[x].forEach(arg => parms.push(arg));
       else parms.push(arguments[x]);
-    const required_parms = !DefinedClientMessagesMap[i18n_message].parameters ? 0 : DefinedClientMessagesMap[i18n_message].parameters.length;
+    const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
+      ? 0
+      : DefinedClientMessagesMap[i18n_message].parameters.length;
 
-    if (required_parms !== parms.length) throw new Match.Error(i18n_message + " is required to have " + required_parms + " parameters, but only had " + parms.length + " parameters");
+    if (required_parms !== parms.length)
+      throw new Match.Error(
+        i18n_message +
+          " is required to have " +
+          required_parms +
+          " parameters, but only had " +
+          parms.length +
+          " parameters"
+      );
     const id = typeof user === "object" ? user._id : user;
     const touser = Meteor.users.findOne({ _id: id, "status.online": true });
     if (!touser) return;
@@ -220,8 +240,13 @@ Meteor.methods({
   "acknowledge.client.message": function(id) {
     check(id, String);
     const rec = ClientMessagesCollection.findOne({ _id: id });
-    if (!rec) throw new ICCMeteorError("server", "We should not be deleting a nonexistant client message");
-    if (rec.to !== this.userId) throw new ICCMeteorError("server", "We should not be deleting a client message that does not belong to us");
+    if (!rec)
+      throw new ICCMeteorError("server", "We should not be deleting a nonexistant client message");
+    if (rec.to !== this.userId)
+      throw new ICCMeteorError(
+        "server",
+        "We should not be deleting a client message that does not belong to us"
+      );
     ClientMessagesCollection.remove({ _id: id });
   }
 });
