@@ -5,7 +5,7 @@ import Chess from "chess.js";
 import Chessground from "react-chessground";
 //import "react-chessground/dist/assets/chessground.css";
 import "./../css/developmentboard.css";
-import "react-chessground/dist/assets/theme.css"; // Or your own chess theme
+import "react-chessground/dist/styles/chessground.css"; // Or your own chess theme
 
 export default class ChessBoard extends PureComponent {
   constructor(props) {
