@@ -98,7 +98,7 @@ describe("Chats", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, abuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_DELETE_ROOM");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_ROOM");
   });
 
   it("should return a message if no room id exists to delete", function() {
@@ -232,6 +232,8 @@ describe("Chats", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
   });
 
+  /*
+  kids cannot be in rooms
   it("should not allow a child to write text not from child_chat collection", function() {
     self.loggedonuser = TestHelpers.createUser({
       roles: ["create_room", "room_chat", "join_room", "child_chat"]
@@ -295,6 +297,7 @@ describe("Chats", function() {
       [chat]
     );
   });
+  */
 
   it("should allow normal user to write freeform, but it won't be child_chat friendly", function() {
     const normalguy = TestHelpers.createUser();
@@ -320,6 +323,8 @@ describe("Chats", function() {
     );
   });
 
+  /*
+  kids cannot be in rooms
   it("should allow normal user to write a child_chat text", function() {
     const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
     const normalguy = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
@@ -344,8 +349,7 @@ describe("Chats", function() {
       chat
     );
   });
-  /*
-  children cannot be in rooms
+
   it("should only publish child_chat texts to a user in child_chat role", function(done) {
     const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
     const user = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
@@ -396,7 +400,6 @@ describe("Chats", function() {
   });
 */
   it("should publish chats from all rooms a user is in", function(done) {
-    this.timeout(5000000);
     const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
     const user2 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
     self.loggedonuser = user1;
@@ -574,7 +577,7 @@ describe("Chats", function() {
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }], room2.members);
   });
 
-  it("should ignore the user if not in the room", function() {
+  it("should return message if the user if not in the room", function() {
     const creator = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
     self.loggedonuser = creator;
     const room_id = Chat.createRoom("mi1", "The room");
@@ -596,7 +599,9 @@ describe("Chats", function() {
     const room2 = Chat.roomCollection.findOne({});
     chai.assert.sameDeepMembers([{ id: creator._id, username: creator.username }], room2.members);
     Chat.leaveRoom("mi4", room_id);
-    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_IN_ROOM");
   });
 
   it("should write a message if room id is non-existant", function() {

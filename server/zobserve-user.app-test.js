@@ -11,7 +11,20 @@ describe("Observing a user", function() {
     const stalker = TestHelpers.createUser();
 
     self.loggedonuser = victim;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "black");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc",
+      "black"
+    );
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
 
     self.loggedonuser = stalker;
@@ -35,7 +48,13 @@ describe("Observing a user", function() {
 
     const game = Game.collection.findOne();
     chai.assert.equal(game_id, game._id);
-    chai.assert.sameDeepMembers([{ id: stalker._id, username: stalker.username }, { id: victim._id, username: victim.username }], game.observers);
+    chai.assert.sameDeepMembers(
+      [
+        { id: stalker._id, username: stalker.username },
+        { id: victim._id, username: victim.username }
+      ],
+      game.observers
+    );
   });
 
   it("should write a client message if the user is not examining or playing a game", function() {
@@ -50,13 +69,25 @@ describe("Observing a user", function() {
     self.loggedonuser = victim;
     Game.localAddObserver("mi2", game_id, victim._id);
     const game = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game.observers);
+    chai.assert.sameDeepMembers(
+      [
+        { id: someguy._id, username: someguy.username },
+        { id: victim._id, username: victim.username }
+      ],
+      game.observers
+    );
 
     self.loggedonuser = stalker;
     Game.observeUser("mi2", victim._id);
 
     const game2 = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game2.observers);
+    chai.assert.sameDeepMembers(
+      [
+        { id: someguy._id, username: someguy.username },
+        { id: victim._id, username: victim.username }
+      ],
+      game2.observers
+    );
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_OR_EXAMINING");
@@ -68,7 +99,20 @@ describe("Observing a user", function() {
     const stalker = TestHelpers.createUser();
 
     self.loggedonuser = victim;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "black");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc",
+      "black"
+    );
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
 
     self.loggedonuser = stalker;
@@ -95,7 +139,13 @@ describe("Observing a user", function() {
     self.loggedonuser = victim;
     Game.localAddObserver("mi2", game_id, victim._id);
     const game = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game.observers);
+    chai.assert.sameDeepMembers(
+      [
+        { id: someguy._id, username: someguy.username },
+        { id: victim._id, username: victim.username }
+      ],
+      game.observers
+    );
 
     self.loggedonuser = someguy;
     Game.setPrivate("mi3", game_id, true);
@@ -105,7 +155,13 @@ describe("Observing a user", function() {
     Game.observeUser("mi4", victim._id);
 
     const game2 = Game.collection.findOne();
-    chai.assert.sameDeepMembers([{ id: someguy._id, username: someguy.username }, { id: victim._id, username: victim.username }], game2.observers);
+    chai.assert.sameDeepMembers(
+      [
+        { id: someguy._id, username: someguy.username },
+        { id: victim._id, username: victim.username }
+      ],
+      game2.observers
+    );
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "PRIVATE_GAME");
@@ -121,7 +177,19 @@ describe("Observing a user", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
 
     self.loggedonuser = stalker;
-    const stalker_game = Game.startLocalGame("mi3", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const stalker_game = Game.startLocalGame(
+      "mi3",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.isDefined(stalker_game);
     Game.observeUser("mi2", victim._id);
 
@@ -130,7 +198,6 @@ describe("Observing a user", function() {
   });
 
   it("should remove stalker as an observer to observe another users game", function() {
-    this.timeout(500000);
     const victim = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
     const anotherguy = TestHelpers.createUser();
@@ -149,16 +216,40 @@ describe("Observing a user", function() {
     Game.localAddExaminer("mi5", stalker_game, anotherguy._id);
 
     const g1 = Game.collection.findOne({ _id: stalker_game });
-    chai.assert.sameDeepMembers([{ id: stalker._id, username: stalker.username }, { id: anotherguy._id, username: anotherguy.username }], g1.examiners);
-    chai.assert.sameDeepMembers([{ id: stalker._id, username: stalker.username }, { id: anotherguy._id, username: anotherguy.username }], g1.observers);
+    chai.assert.sameDeepMembers(
+      [
+        { id: stalker._id, username: stalker.username },
+        { id: anotherguy._id, username: anotherguy.username }
+      ],
+      g1.examiners
+    );
+    chai.assert.sameDeepMembers(
+      [
+        { id: stalker._id, username: stalker.username },
+        { id: anotherguy._id, username: anotherguy.username }
+      ],
+      g1.observers
+    );
 
     Game.observeUser("mi2", victim._id);
 
     const g2a = Game.collection.findOne({ _id: stalker_game });
-    chai.assert.sameDeepMembers([{ id: anotherguy._id, username: anotherguy.username }], g2a.examiners);
-    chai.assert.sameDeepMembers([{ id: anotherguy._id, username: anotherguy.username }], g2a.observers);
+    chai.assert.sameDeepMembers(
+      [{ id: anotherguy._id, username: anotherguy.username }],
+      g2a.examiners
+    );
+    chai.assert.sameDeepMembers(
+      [{ id: anotherguy._id, username: anotherguy.username }],
+      g2a.observers
+    );
 
     const g2b = Game.collection.findOne({ _id: game_id });
-    chai.assert.sameDeepMembers([{ id: victim._id, username: victim.username }, { id: stalker._id, username: stalker.username }], g2b.observers);
+    chai.assert.sameDeepMembers(
+      [
+        { id: victim._id, username: victim.username },
+        { id: stalker._id, username: stalker.username }
+      ],
+      g2b.observers
+    );
   });
 });

@@ -5,12 +5,11 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { Roles } from "meteor/alanning:roles";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
-describe.only("private group chats", function() {
+describe("private group chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   //Chat.createRoom(mi, room_name, private)
   it("should return client message if a new room is requested with same name as a public room", function() {
-    this.timeout(500000);
     const admin = TestHelpers.createUser({ roles: ["create_room"] });
     const user = TestHelpers.createUser();
     self.loggedonuser = admin;
@@ -69,7 +68,6 @@ describe.only("private group chats", function() {
 
   //Chat.inviteToRoom(mi, chatroom_id, user_id_to_invite)
   it("should return a client message if user is not logged on", function() {
-    this.timeout(500000);
     const loggedoffguy = TestHelpers.createUser({ login: false });
     self.loggedonuser = TestHelpers.createUser();
     const room_id = Chat.createRoom("mi1", "My Room", true);
@@ -96,7 +94,6 @@ describe.only("private group chats", function() {
   });
 
   it("should return a client message and remove them from the request list if logged on user logs off", function() {
-    this.timeout(500000);
     const invited = TestHelpers.createUser();
     self.loggedonuser = TestHelpers.createUser();
     const room_id = Chat.createRoom("mi1", "My Room", true);
@@ -125,7 +122,7 @@ describe.only("private group chats", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "USER_LOGGED_OFF");
     const room3 = Chat.roomCollection.findOne();
     chai.assert.equal(room3.invited.length, 0);
   });
@@ -162,13 +159,12 @@ describe.only("private group chats", function() {
   });
 
   it("should return an error if the room is a public room", function() {
-    this.timeout(500000);
     const victim = TestHelpers.createUser();
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
     const public_room_id = Chat.createRoom("mi1", "Ze public room");
     Chat.inviteToRoom("mi2", public_room_id, victim._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
     const room2 = Chat.roomCollection.findOne();
     chai.assert.equal(0, room2.invited.length);
   });
@@ -183,7 +179,7 @@ describe.only("private group chats", function() {
     self.loggedonuser = abuser;
     Chat.writeToRoom("mi2", private_room, "I am abuser!");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_ROOM");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
     const room2 = Chat.roomCollection.findOne();
     chai.assert.equal(0, room2.invited.length);
     chai.assert.equal(0, Chat.collection.find().count());
@@ -206,7 +202,7 @@ describe.only("private group chats", function() {
     self.loggedonuser = abuser;
     Chat.joinRoom("mi2", private_room);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
     const room2 = Chat.roomCollection.findOne();
     chai.assert.equal(0, room2.invited.length);
   });
@@ -214,10 +210,11 @@ describe.only("private group chats", function() {
   it("should return an error if the user is in the child_chat role (children cannot join private rooms)", function() {
     self.loggedonuser = TestHelpers.createUser();
     const child = TestHelpers.createUser();
-    Roles.addUsersToRoles(child, "child_chat");
 
     const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, child._id);
+
+    Roles.addUsersToRoles(child, "child_chat");
 
     // Fake this out, since a user being added to child_chat should be removed from all things illegal at time of setting
     Chat.roomCollection.update(
@@ -230,7 +227,7 @@ describe.only("private group chats", function() {
     self.loggedonuser = child;
     Chat.joinRoom("mi2", private_room);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
     const room2 = Chat.roomCollection.findOne();
     chai.assert.equal(0, room2.invited.length);
   });
@@ -323,7 +320,7 @@ describe.only("private group chats", function() {
     Chat.deleteRoom("mi4", room_id);
     chai.assert.equal(1, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_ROOM");
   });
 
   //Chat.leaveRoom(mi, chatroom_id, user_to_evict);
@@ -423,7 +420,7 @@ describe.only("private group chats", function() {
 
     Chat.leaveRoom("mi3", private_room, otherguy._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_IN_ROOM");
   });
 
   it("should issue a client message if user tries to leave a room he is not in", function() {
@@ -455,7 +452,7 @@ describe.only("private group chats", function() {
 
     Chat.leaveRoom("mi3", private_room2);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_IN_ROOM");
   });
 
   it("should issue a client message if user is not the owner", function() {
@@ -476,6 +473,7 @@ describe.only("private group chats", function() {
     chai.assert.equal(0, room2.invited.length);
     chai.assert.equal(3, room2.members.length);
 
+    self.loggedonuser = otherguy;
     Chat.leaveRoom("mi3", private_room, victim._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_THE_OWNER");
@@ -489,7 +487,7 @@ describe.only("private group chats", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     Chat.createRoom("mie", "My room - crash", true);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "TOO_MANY_PRIVATE_ROOMS");
   });
 
   //room stays if owner logs off if anyone else is in room
@@ -520,18 +518,12 @@ describe.only("private group chats", function() {
       room2.members
     );
 
-    Chat.logoutHook(firstguy._id);
+    Chat.chatLogoutHook(firstguy._id);
 
     const room3 = Chat.roomCollection.findOne();
-    chai.assert.sameDeepMembers(
-      [
-        { id: firstguy._id, username: firstguy.username },
-        { id: otherguy._id, username: otherguy.username }
-      ],
-      room3.members
-    );
+    chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username }], room3.members);
 
-    Chat.logoutHook(otherguy._id);
+    Chat.chatLogoutHook(otherguy._id);
     chai.assert.equal(0, Chat.roomCollection.find().count());
   });
 
@@ -539,7 +531,7 @@ describe.only("private group chats", function() {
     /* done in previous test*/
   });
 
-  it("should publish private rooms a user is an owner of even when he has left the room", function(done) {
+  it("should publish private rooms to a user is an owner of even when he has left the room", function(done) {
     const owner = TestHelpers.createUser();
     const dude = TestHelpers.createUser();
     self.loggedonuser = owner;
@@ -566,14 +558,14 @@ describe.only("private group chats", function() {
     self.loggedonuser = owner;
     const room_id = Chat.createRoom("mi1", "My Room", true);
     Chat.createRoom("mi3", "My room 2", true);
-    chai.assert.equal(1, Chat.roomCollection.find().count());
+    chai.assert.equal(2, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
 
     self.loggedonuser = dude;
     Chat.joinRoom("mi3", room_id);
 
     const collector = new PublicationCollector({ userId: dude._id });
-    collector.collect("rooms", collections => {
+    collector.collect("chat", collections => {
       chai.assert.equal(collections.rooms.length, 1);
       done();
     });
@@ -585,12 +577,12 @@ describe.only("private group chats", function() {
     self.loggedonuser = owner;
     const room_id = Chat.createRoom("mi1", "My Room", true);
     Chat.createRoom("mi3", "My room 2", true);
-    chai.assert.equal(1, Chat.roomCollection.find().count());
+    chai.assert.equal(2, Chat.roomCollection.find().count());
     Chat.inviteToRoom("mi2", room_id, dude._id);
 
     self.loggedonuser = dude;
     const collector = new PublicationCollector({ userId: dude._id });
-    collector.collect("rooms", collections => {
+    collector.collect("chat", collections => {
       chai.assert.equal(collections.rooms.length, 1);
       done();
     });
@@ -605,7 +597,7 @@ describe.only("private group chats", function() {
     Roles.addUsersToRoles(self.loggedonuser, "child_chat");
     const collector = new PublicationCollector({ userId: self.loggedonuser._id });
     collector.collect("chat", collections => {
-      chai.assert.equal(collections.rooms.length, 0);
+      chai.assert.isTrue(!collections.rooms || !collections.rooms.length);
       done();
     });
   });
@@ -622,9 +614,11 @@ describe.only("private group chats", function() {
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
     chai.assert.equal(self.clientMessagesSpy.args[1][2], "NOT_ALLOWED_TO_JOIN_ROOM");
-    chai.assert.equal(Chat.roomCollection.findOne({ _id: pubroom }).members, 1); // Just creator
-    chai.assert.equal(Chat.roomCollection.findOne({ _id: prvroom }).members, 1); // Just creator
-    chai.assert.equal(Chat.roomCollection.findOne({ _id: prvroom }).invited, 0);
+    const room = Chat.roomCollection.findOne({ _id: pubroom });
+    if (!room.members) room.members = [];
+    if (!room.invited) room.invited = [];
+    chai.assert.equal(room.members.length, 1); // Just creator
+    chai.assert.equal(room.invited.length, 0);
   });
 
   it("should delete all of the chats for a public room when it is deleted", function() {
@@ -638,7 +632,9 @@ describe.only("private group chats", function() {
     Chat.joinRoom("mi3", public_room);
     Chat.writeToRoom("mi4", public_room, "The text");
 
+    self.loggedonuser = firstguy;
     Chat.deleteRoom("mi5", public_room);
+
     chai.assert.equal(0, Chat.roomCollection.find().count());
     chai.assert.equal(0, Chat.collection.find().count());
   });
@@ -669,8 +665,8 @@ describe.only("private group chats", function() {
       room2.members
     );
     Chat.writeToRoom("mi4", private_room, "The text");
-    Chat.logoutHook(firstguy._id);
-    Chat.logoutHook(otherguy._id);
+    Chat.chatLogoutHook(firstguy._id);
+    Chat.chatLogoutHook(otherguy._id);
     chai.assert.equal(0, Chat.roomCollection.find().count());
     chai.assert.equal(0, Chat.collection.find().count());
   });
