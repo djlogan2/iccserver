@@ -63,10 +63,18 @@ export const GameHistorySchema = new SimpleSchema({
   variations: { type: Object, required: false },
   "variations.movelist": Array,
   "variations.movelist.$": Object,
+  "variations.ecocodes": Array,
+  "variations.ecocodes.$": Object,
+  "variations.ecocodes.$.code": String,
+  "variations.ecocodes.$.name": String,
   "variations.movelist.$.prev": { type: Number, required: false },
   "variations.movelist.$.move": { type: String, required: false },
   "variations.movelist.$.current": { type: Number, required: false },
   "variations.movelist.$.score": { type: Number, required: false },
+  "variations.movelist.$.ecoindex": { type: Number, required: false },
+  "variations.movelist.$.analysis": { type: Boolean, required: false },
+  "variations.movelist.$.book": { type: Boolean, required: false },
+  "variations.movelist.$.tablebase": { type: Boolean, required: false },
   "variations.movelist.$.variations": { type: Array, required: false },
   "variations.movelist.$.variations.$": Number
 });

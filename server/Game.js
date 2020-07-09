@@ -36,6 +36,7 @@ class Game {
   constructor() {
     const self = this;
 
+    this.ecoCollection = new Mongo.Collection("ecocodes");
     this.GameCollection = new Mongo.Collection("game");
     this.GameCollection.attachSchema(ExaminedGameSchema, {
       selector: { status: "examining" }
@@ -815,6 +816,7 @@ class Game {
         "," +
         game.black.name
     );
+
     const result = chessObject.move(move);
     if (!result) {
       ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
@@ -2616,8 +2618,27 @@ class Game {
         variation_object.movelist[variation_object.cmi].variations.push(newi);
       }
       variation_object.cmi = newi;
+
+      this.update_eco(variation_object);
     }
     return !exists;
+  }
+
+  update_eco(variation_object) {
+    if (!this.tree) {
+      this.tree = this.ecoCollection.findOne();
+    }
+    console.log("here we are");
+  }
+
+  waitForECOCodes(callback) {
+    if (!this.ec) this.ec = [callback];
+    else this.ec.push(callback);
+  }
+
+  ecoCodesLoaded() {
+    //
+    if (this.ec) this.ec.forEach(c => c());
   }
 
   clearBoard(message_identifier, game_id) {
@@ -3610,6 +3631,88 @@ Meteor.publish("game_history", function() {
 if (Meteor.isTest || Meteor.isAppTest) {
   GameHistory.collection = GameHistoryCollection;
 }
+
+Meteor.startup(() => {
+  function initialLoad() {
+    let line_number = 0;
+    const content = Assets.getText("eco.txt");
+    const variations = { cmi: 0, movelist: [] };
+
+    content.split("\n").forEach(line => {
+      line_number++;
+      if (line.trim().length) {
+        const pieces = line.split(": ");
+        if (pieces.length !== 3)
+          throw new Meteor.Error(
+            "Unable to load ECO codes",
+            "Line " + line_number + " has a syntax error"
+          );
+        const eco = pieces[0];
+        const name = pieces[1];
+        try {
+          const moves = parseMoves(pieces[2]);
+          variations.cmi = 0;
+          moves.forEach(move => {
+            global._gameObject.addMoveToMoveList(variations, move);
+          });
+          variations.movelist[variations.cmi].eco = eco;
+          variations.movelist[variations.cmi].name = name;
+        } catch (e) {
+          throw new Meteor.Error(
+            "Unable to load ECO codes",
+            "Line " + line_number + " has an error: " + e.toString()
+          );
+        }
+      }
+    });
+
+    variations.movelist.forEach(m => delete m.current);
+    delete variations.cmi;
+
+    global._gameObject.ecoCollection.insert(variations);
+  }
+
+  function trim_whitespace(object) {
+    if (!object.move_string || !object.move_string.length) return false;
+    object.move_string = object.move_string.trim();
+    return true;
+  }
+
+  function trim_move_number(object) {
+    if (!object.move_string || !object.move_string.length) return false;
+    object.move_sring = object.move_string.replace("\\d+.s*(.*)", "$1");
+    return true;
+  }
+
+  function get_move(object) {
+    if (!object.move_string || !object.move_string.length) return false;
+    const found = object.move_string.match(
+      "((([RQKBN]?[a-h]?[1-8]?x?[a-h][1-8](=[RQBN])?)|O-O(?:-O)?)[+#]?)(.*)"
+    );
+    object.moves.push(found[1]);
+    object.move_string = found[5];
+    return true;
+  }
+
+  function parseMoves(move_string) {
+    const object = {
+      moves: [],
+      move_string: move_string
+    };
+    while (true) {
+      if (!trim_whitespace(object)) return object.moves;
+      if (!trim_move_number(object)) return object.moves;
+      if (!get_move(object)) return object.moves;
+      if (!trim_whitespace(object)) return object.moves;
+      if (!get_move(object)) return object.moves;
+    }
+  }
+
+  if (global._gameObject.ecoCollection.find().count() === 0) {
+    initialLoad();
+    global._gameObject.ecoCodesLoaded();
+  }
+});
 
 Meteor.methods({
   gamepong(game_id, pong) {
