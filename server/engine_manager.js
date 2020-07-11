@@ -51,10 +51,41 @@ async function stop_engine(game_id) {
   engines.waiting.push(engine);
 }
 
-const makeGameMove = Meteor.bindEnvironment((game_id, fen, move) => {
-  const chess = new Chess.Chess(fen);
-  const cmove = chess.move(move, { sloppy: true });
-  Game.saveLocalMove("__computer__", game_id, cmove.san);
+const playGameove = Meteor.bindEnvironment(game_id => {
+  const game = Game.GameCollection.findOne({ _id: game_id });
+  let engine;
+  let result;
+  if (!game) return;
+  start_engine(game_id, game.skill_level)
+    .then((_engine => {
+      if (!_engine)
+        throw new Meteor.Error(
+          "Unable to start analysis",
+          "We should have an engine for game id " + id + ", but we do not"
+        );
+      engine = _engine;
+      return engine.position(game.fen());
+    }))
+    .then(() => {
+      return engine.isready();
+    })
+    .then(() => {
+      return engine.go({
+        wtime: game.clocks.white.current,
+        btime: game.clocks.black.current,
+        winc: game.clocks.white.inc_or_delay,
+        binc: game.clocks.black.inc_or_delay
+      });
+    })
+    .then(_result => {
+      result = _result;
+      return stop_engine(game_id);
+    })
+    .then(() => {
+      const chess = new Chess.Chess(game.fen());
+      const cmove = chess.move(result, { sloppy: true });
+      Game.saveLocalMove("__computer__", game_id, cmove.san);
+    });
 });
 
 const parseStockfishAnalysisResults = Meteor.bindEnvironment((game_id, data) => {
@@ -102,31 +133,12 @@ async function end_analysis(game_id) {
   await engine.stop();
 }
 
-async function play_move(id, game) {
-  const engine = await start_engine(id, 0);
-  if (!engine)
-    throw new Meteor.Error(
-      "Unable to start analysis",
-      "We should have an engine for game id " + id + ", but we do not"
-    );
-  await engine.position(game.fen());
-  await engine.isready();
-  const result = await engine.go({
-    wtime: game.clocks.white.current,
-    btime: game.clocks.black.current,
-    winc: game.clocks.white.inc_or_delay,
-    binc: game.clocks.black.inc_or_delay
-  });
-  await stop_engine(id);
-  makeGameMove(id, game.fen, result);
-}
-
 function watchForComputerGames() {
   Game.GameCollection.find({
     $or: [{ "white.id": "computer" }, { "black.id": "computer" }]
   }).observeChanges({
     added(id, fields) {
-      if (fields.white.id === "computer") play_move(id, fields);
+      if (fields.white.id === "computer") playGameove(id);
     },
     changed(id, fields) {
       if (fields.tomove === "white") {
@@ -134,7 +146,7 @@ function watchForComputerGames() {
       } else if (fields.tomove === "black") {
         if (fields.black.id !== "computer") return;
       } else return;
-      play_move(id, fields);
+      playGameove(id);
     }
   });
 }

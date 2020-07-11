@@ -136,7 +136,8 @@ export const PlayedGameSchema = new SimpleSchema({
         return [{ name: "white.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
+    skill_level: {type: SimpleSchema.Integer, required: false}
   }),
   black: new SimpleSchema({
     name: String,
@@ -152,7 +153,8 @@ export const PlayedGameSchema = new SimpleSchema({
         return [{ name: "black.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
+    skill_level: {type: SimpleSchema.Integer, required: false}
   }),
   lag: Object,
   "lag.white": Object,

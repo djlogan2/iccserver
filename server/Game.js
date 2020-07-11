@@ -197,14 +197,14 @@ class Game {
     message_identifier,
     wild_number,
     rating_type,
-    rated,
     white_initial,
     white_increment_or_delay,
     white_increment_or_delay_type,
     black_initial,
     black_increment_or_delay,
     black_increment_or_delay_type,
-    color
+    color,
+    skill_level
   ) {
     const other_user = {
       status: { online: true }
@@ -214,14 +214,15 @@ class Game {
       other_user,
       wild_number,
       rating_type,
-      rated,
+      false,
       white_initial,
       white_increment_or_delay,
       white_increment_or_delay_type,
       black_initial,
       black_increment_or_delay,
       black_increment_or_delay_type,
-      color
+      color,
+      skill_level
     );
   }
 
@@ -237,7 +238,9 @@ class Game {
     black_initial,
     black_increment_or_delay,
     black_increment_or_delay_type,
-    color /*,
+    color,
+    skill_level
+    /*,
   irregular_legality,
   irregular_semantics,
   uses_plunkers,
@@ -259,6 +262,7 @@ class Game {
     check(black_increment_or_delay, Number);
     check(black_increment_or_delay_type, String);
     check(color, Match.Maybe(String));
+    check(skill_level, Match.Maybe(Number));
 
     check(white_increment_or_delay, Number);
     check(black_increment_or_delay, Number);
@@ -266,7 +270,18 @@ class Game {
     check(black_increment_or_delay_type, String);
 
     if (typeof other_user === "string" && other_user !== "computer")
-      throw new Meteor.Error("Unable to start local game", "_other_user must be 'computer' only");
+      throw new Meteor.Error("Unable to start local game", "other_user must be 'computer' only");
+    if (other_user === "computer" && skill_level === undefined)
+      throw new Meteor.Error(
+        "Unable to start local game",
+        "Skill level must be defined for bot play"
+      );
+    if (other_user !== "computer" && skill_level !== undefined)
+      throw new Meteor.Error(
+        "Unable to start local game",
+        "Skill level can only be defined for bot play"
+      );
+
     check(self.ratings[rating_type], Object); // Rating type needs to be valid!
     if (!self.status.online) {
       throw new ICCMeteorError(
@@ -414,6 +429,7 @@ class Game {
       wild: wild_number,
       rating_type: rating_type,
       rated: rated,
+      skill_level: skill_level,
       clocks: {
         white: {
           initial: white_initial,
@@ -500,7 +516,7 @@ class Game {
     if (!game_object.startTime) game_object.startTime = new Date();
     if (!game_object.tomove) game_object.tomove = "w";
     if (!game_object.actions) game_object.actions = [];
-    if (!game_object.variations) game_object.variations = { movelist: [{}] };
+    if (!game_object.variations) game_object.variations = { movelist: [{}], ecocodes: [] };
     if (!game_object.variations.cmi) game_object.variations.cmi = 0;
 
     game_object.examiners = [{ id: self._id, username: self.username }];
@@ -581,7 +597,7 @@ class Game {
       actions: [],
       observers: [{ id: self._id, username: self.username }],
       examiners: [{ id: self._id, username: self.username }],
-      variations: { hmtb: 0, cmi: 0, movelist: [{}] },
+      variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
       computer_variations: []
     };
 
@@ -751,7 +767,7 @@ class Game {
         }
       },
       actions: [],
-      variations: { hmtb: 0, cmi: 0, movelist: [{}] },
+      variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
       lag: {
         white: {
           active: [],
@@ -2654,20 +2670,8 @@ class Game {
   }
 
   update_eco(variation_object) {
-    if (!this.tree) {
-      this.tree = this.ecoCollection.findOne();
-    }
+    if (!this.tree) return;
     console.log("here we are");
-  }
-
-  waitForECOCodes(callback) {
-    if (!this.ec) this.ec = [callback];
-    else this.ec.push(callback);
-  }
-
-  ecoCodesLoaded() {
-    //
-    if (this.ec) this.ec.forEach(c => c());
   }
 
   clearBoard(message_identifier, game_id) {
@@ -2688,7 +2692,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: { actions: { type: "clearboard", issuer: self._id } }
@@ -2715,7 +2719,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: { actions: { type: "initialposition", issuer: self._id } }
@@ -2746,7 +2750,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } }
@@ -2783,7 +2787,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: {
@@ -2821,7 +2825,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: {
@@ -2861,7 +2865,7 @@ class Game {
           $set: {
             fen: fen,
             tomove: color === "w" ? "white" : "black",
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: { actions: { type: "settomove", issuer: self._id, parameter: { color: color } } }
@@ -2904,7 +2908,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: {
@@ -2950,7 +2954,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
             "tags.FEN": fen
           },
           $push: {
@@ -2982,7 +2986,7 @@ class Game {
         if (game.fen === active_games[game_id].fen()) return;
         setobject.fen = active_games[game_id].fen();
         setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
-        setobject.variations = { cmi: 0, movelist: [{}] };
+        setobject.variations = { cmi: 0, movelist: [{}], ecocodes: [] };
         break;
       case "White":
         if (game.white.name === value) return;
@@ -3699,6 +3703,7 @@ Meteor.startup(() => {
     delete variations.cmi;
 
     global._gameObject.ecoCollection.insert(variations);
+    return variations;
   }
 
   function trim_whitespace(object) {
@@ -3737,10 +3742,8 @@ Meteor.startup(() => {
     }
   }
 
-  if (global._gameObject.ecoCollection.find().count() === 0) {
-    initialLoad();
-    global._gameObject.ecoCodesLoaded();
-  }
+  this.tree = global._gameObject.ecoCollection.findOne();
+  if (!this.tree) this.tree = initialLoad();
 });
 
 Meteor.methods({

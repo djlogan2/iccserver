@@ -96,7 +96,6 @@ export const GameHistorySchema = new SimpleSchema({
   "variations.movelist.$.prev": { type: Number, required: false },
   "variations.movelist.$.move": { type: String, required: false },
   "variations.movelist.$.current": { type: Number, required: false },
-  "variations.movelist.$.score": { type: Number, required: false },
   "variations.movelist.$.ecoindex": { type: Number, required: false },
   "variations.movelist.$.analysis": { type: Boolean, required: false },
   "variations.movelist.$.book": { type: Boolean, required: false },
