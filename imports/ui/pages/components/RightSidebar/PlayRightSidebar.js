@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Tabs, Button } from "antd";
 import ChatApp from "./elements/ChatApp";
 import GameHistory from "./elements/GameHistory";
+import { Meteor } from "meteor/meteor";
 const { TabPane } = Tabs;
 
 const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
@@ -59,6 +60,11 @@ class PlayBlock extends Component {
     this.setState({ status: "play-with-friend" });
   };
 
+  handlePlayComputer = () => {
+    Meteor.call("startBotGame", "play_computer", 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    this.setState({ status: "playing" });
+  };
+
   handleChoose = userId => {
     debugger;
   };
@@ -82,7 +88,7 @@ class PlayBlock extends Component {
             <Button onClick={this.handlePlayWithFriend} className="play-block__btn-big" block>
               Play with a friend
             </Button>
-            <Button className="play-block__btn-big" block>
+            <Button onClick={this.handlePlayComputer} className="play-block__btn-big" block>
               Play with the computer
             </Button>
           </div>

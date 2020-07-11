@@ -178,7 +178,20 @@ export const PlayedGameSchema = new SimpleSchema({
   "variations.movelist.$.prev": { type: Number, required: false },
   "variations.movelist.$.move": { type: String, required: false },
   "variations.movelist.$.current": { type: Number, required: false },
-  "variations.movelist.$.score": { type: Number, required: false },
   "variations.movelist.$.variations": { type: Array, required: false },
-  "variations.movelist.$.variations.$": Number
+  "variations.movelist.$.variations.$": Number,
+  computer_variations: Array,
+  "computer_variations.$": Array,
+  "computer_variations.$.$": Object,
+  "computer_variations.$.$.depth": Number,
+  "computer_variations.$.$.seldepth": Number,
+  "computer_variations.$.$.time": Number,
+  "computer_variations.$.$.nodes": Number,
+  "computer_variations.$.$.nps": Number,
+  "computer_variations.$.$.tbhits": Number,
+  "computer_variations.$.$.score": Object,
+  "computer_variations.$.$.score.unit": String,
+  "computer_variations.$.$.score.value": Number,
+  "computer_variations.$.$.pv": String,
+  "computer_variations.$.$.multipv": Number
 });

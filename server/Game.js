@@ -1,5 +1,4 @@
 import Chess from "chess.js";
-import { _ } from "underscore";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import { Logger } from "../lib/server/Logger";
@@ -12,7 +11,6 @@ import { PlayedGameSchema } from "./PlayedGameSchema";
 import { GameHistorySchema } from "./GameHistorySchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
-import { UCI } from "./UCI";
 import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
@@ -64,7 +62,14 @@ class Game {
             { $or: [{ "white.id": this.userId }, { "black.id": this.userId }] }
           ]
         },
-        { fields: { "variations.movelist.score": 0, "lag.white.pings": 0, "lag.black.pings": 0 } }
+        {
+          fields: {
+            computer_variations: 0,
+            "variations.movelist": 0,
+            "lag.white.pings": 0,
+            "lag.black.pings": 0
+          }
+        }
       );
     });
 
@@ -150,7 +155,7 @@ class Game {
                   deny_requests: 0,
                   analysis: 0,
                   action: 0,
-                  "variations.movelist.score": 0
+                  computer_variations: 0
                 }
               }
             );
@@ -187,6 +192,38 @@ class Game {
       this.GameCollection.update({ _id: id, status: game.status }, { $push: { actions: action } });
   }
 
+  startBotGame(
+    message_identifier,
+    wild_number,
+    rating_type,
+    rated,
+    white_initial,
+    white_increment_or_delay,
+    white_increment_or_delay_type,
+    black_initial,
+    black_increment_or_delay,
+    black_increment_or_delay_type,
+    color
+  ) {
+    const other_user = {
+      status: { online: true }
+    };
+    return this.startLocalGame(
+      message_identifier,
+      other_user,
+      wild_number,
+      rating_type,
+      rated,
+      white_initial,
+      white_increment_or_delay,
+      white_increment_or_delay_type,
+      black_initial,
+      black_increment_or_delay,
+      black_increment_or_delay_type,
+      color
+    );
+  }
+
   startLocalGame(
     message_identifier,
     other_user,
@@ -210,7 +247,7 @@ class Game {
 
     check(self, Object);
     check(message_identifier, String);
-    check(other_user, Object);
+    check(other_user, Match.OneOf(Object, String));
     check(wild_number, Number);
     check(rating_type, String);
     check(rated, Boolean);
@@ -227,6 +264,8 @@ class Game {
     check(white_increment_or_delay_type, String);
     check(black_increment_or_delay_type, String);
 
+    if (typeof other_user === "string" && other_user !== "computer")
+      throw new Meteor.Error("Unable to start local game", "_other_user must be 'computer' only");
     check(self.ratings[rating_type], Object); // Rating type needs to be valid!
     if (!self.status.online) {
       throw new ICCMeteorError(
@@ -237,9 +276,12 @@ class Game {
     }
 
     if (!!color && color !== "white" && color !== "black")
-      throw new Match.Error("color must be undefined, 'white' or 'black");
+      throw new Match.Error(
+        "Unable to start local game",
+        "color must be undefined, 'white' or 'black"
+      );
 
-    if (!other_user.status.online) {
+    if (other_user !== "computer" && !other_user.status.online) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
       return;
     }
@@ -253,18 +295,12 @@ class Game {
       return;
     }
 
-    if (!Users.isAuthorized(other_user, "play_" + (rated ? "" : "un") + "rated_games")) {
+    if (
+      other_user !== "computer" &&
+      !Users.isAuthorized(other_user, "play_" + (rated ? "" : "un") + "rated_games")
+    ) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
       return;
-    }
-
-    if (self.limit_to_group || other_user.limit_to_group) {
-      const g1 = self.groups || [];
-      const g2 = other_user.groups || [];
-      if (!_.intersection(g1, g2).length) {
-        ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
-        return;
-      }
     }
 
     if (
@@ -307,7 +343,7 @@ class Game {
       );
       return;
     }
-    if (this.hasOwnedGame(other_user._id)) {
+    if (other_user !== "computer" && this.hasOwnedGame(other_user._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PLAY_OPPONENT");
       return;
     }
@@ -315,15 +351,32 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
       return;
     }
-    if (this.isPlayingGame(other_user._id)) {
+    if (other_user !== "computer" && this.isPlayingGame(other_user._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
       return;
     }
 
     this.localUnobserveAllGames(message_identifier, self._id, true);
-    this.localUnobserveAllGames(message_identifier, other_user._id, true);
+    if (other_user !== "computer")
+      this.localUnobserveAllGames(message_identifier, other_user._id, true);
 
     const chess = new Chess.Chess();
+
+    if (other_user === "computer") {
+      other_user = {
+        _id: "computer",
+        username: "Computer"
+      };
+      other_user["ratings"] = {};
+      other_user.ratings[rating_type] = {
+        rating: 1600,
+        need: 0,
+        won: 0,
+        draw: 0,
+        lost: 0,
+        best: 0
+      };
+    }
 
     const white = this.determineWhite(self, other_user, color);
     const black = white._id === self._id ? other_user : self;
@@ -380,6 +433,7 @@ class Game {
       actions: [],
       observers: [],
       variations: { hmtb: 0, cmi: 0, movelist: [{}] },
+      computer_variations: [],
       lag: {
         white: {
           active: [],
@@ -392,8 +446,8 @@ class Game {
       }
     };
 
-    Users.setGameStatus(message_identifier, white, "playing");
-    Users.setGameStatus(message_identifier, black, "playing");
+    if (white._id !== "computer") Users.setGameStatus(message_identifier, white, "playing");
+    if (black._id !== "computer") Users.setGameStatus(message_identifier, black, "playing");
 
     const game_id = this.GameCollection.insert(game);
 
@@ -526,7 +580,8 @@ class Game {
       actions: [],
       observers: [{ id: self._id, username: self.username }],
       examiners: [{ id: self._id, username: self.username }],
-      variations: { hmtb: 0, cmi: 0, movelist: [{}] }
+      variations: { hmtb: 0, cmi: 0, movelist: [{}] },
+      computer_variations: []
     };
 
     Users.setGameStatus(message_identifier, self, "examining");
@@ -830,7 +885,7 @@ class Game {
     let gameping = 0;
     const bw = self._id === game.white.id ? "white" : "black";
     const otherbw = bw === "white" ? "black" : "white";
-    const analyze = this.addMoveToMoveList(
+    this.addMoveToMoveList(
       variation,
       move,
       game.status === "playing" ? game.clocks[bw].current : null
@@ -957,32 +1012,6 @@ class Game {
         setobject.result,
         setobject.status2
       );
-    }
-
-    if (analyze) {
-      log.debug(
-        "Starting getting score for game " + game_id + " fen " + active_games[game_id].fen()
-      );
-      UCI.getScoreForFen(active_games[game_id].fen())
-        .then(score => {
-          log.debug("Score for game " + game_id + " is " + score);
-          const setobject = {};
-          setobject["variations.movelist." + (variation.movelist.length - 1) + ".score"] = score;
-          const result = this.GameCollection.update(
-            { _id: game_id, status: game.status },
-            { $set: setobject }
-          );
-          if (!result && game.status === "playing") {
-            const result2 = this.GameCollection.update(
-              { _id: game_id, status: "examining" },
-              { $set: setobject }
-            );
-            if (!result2) log.error("Unable to update computer score");
-          }
-        })
-        .catch(error => {
-          log.error("Error setting score for game move", error);
-        });
     }
 
     if (game.status === "playing")
@@ -3684,6 +3713,45 @@ Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   removeCircle: (message_identifier, game_id, square) =>
     global._gameObject.removeCircle(message_identifier, game_id, square),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  startBotGame: (
+    // eslint-disable-next-line meteor/audit-argument-checks
+    message_identifier,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    wild_number,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    rating_type,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    rated,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    white_initial,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    white_increment_or_delay,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    white_increment_or_delay_type,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    black_initial,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    black_increment_or_delay,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    black_increment_or_delay_type,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    color
+  ) =>
+    global._gameObject.startLocalGame(
+      message_identifier,
+      "computer",
+      wild_number,
+      rating_type,
+      rated,
+      white_initial,
+      white_increment_or_delay,
+      white_increment_or_delay_type,
+      black_initial,
+      black_increment_or_delay,
+      black_increment_or_delay_type,
+      color
+    ),
   // eslint-disable-next-line meteor/audit-argument-checks
   startLocalExaminedGame: (message_identifier, white_name, black_name, wild_number) =>
     global._gameObject.startLocalExaminedGame(
