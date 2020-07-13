@@ -113,8 +113,6 @@ export default class MoveList extends Component {
     let statuslabel = 0;
     let isPlaying;
 
-
-
     if (status === "playing") {
       isPlaying = true;
     } else {
@@ -163,58 +161,6 @@ export default class MoveList extends Component {
     return (
       <div className="move-list">
         <div style={this.props.cssManager.gameMoveList()}>{moveslist}</div>
-{/*
-        {displayButton ? (
-          <div style={mbtnstyle} className="moveAction">
-            <button style={btnstyle} onClick={this.moveBackwordBeginning.bind(this)}>
-              <img
-                src={this.props.cssManager.buttonBackgroundImage("fastForward")}
-                alt="fast-forward"
-              />
-            </button>
-            <button style={btnstyle} onClick={this.moveBackword.bind(this)}>
-              <img
-                src={this.props.cssManager.buttonBackgroundImage("prevIconGray")}
-                alt="previous"
-              />
-            </button>
-            <button style={btnstyle} onClick={this.moveForward.bind(this)}>
-              <img src={this.props.cssManager.buttonBackgroundImage("nextIconGray")} alt="next" />
-            </button>
-            <button style={btnstyle} onClick={this.moveForwardEnd.bind(this, 1)}>
-              <img
-                src={this.props.cssManager.buttonBackgroundImage("fastForwardNext")}
-                alt="fast-forward-next"
-              />
-            </button>
-            <button style={btnstyle} onClick={this.moveAutoForward.bind(this)}>
-              {this.state.toggle ? (
-                <img
-                  src={this.props.cssManager.buttonBackgroundImage("nextStop")}
-                  alt="next-single"
-                />
-              ) : (
-                <img
-                  src={this.props.cssManager.buttonBackgroundImage("nextStart")}
-                  alt="next-single"
-                />
-              )}
-            </button>
-            <button style={btnstyle} onClick={this.props.flip}>
-              <img src={this.props.cssManager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
-            </button>
-          </div>
-        ) : null}
-        <div className="draw-section">
-          {statuslabel ? (
-            <div
-              className={"gamestatus " + (status === "playing" ? "active" : "default")}
-              style={this.props.cssManager.drawActionSection()}
-            >
-              <span>{translator(status)}</span>
-            </div>
-          ) : null} */}
-        {/* </div> */}
       </div>
     );
   }

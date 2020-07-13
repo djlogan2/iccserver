@@ -157,36 +157,6 @@ export default class PlayPage extends Component {
     });
   };
 
-  // gameRequest = (title, requestId) => {
-  //   return (
-  //     <GameRequestPopup requestId={requestId} title={title}  cssManager={this.props. cssManager} />
-  //   );
-  // };
-  // actionPopup = (title, action) => {
-  //   return (
-  //     <ActionPopup
-  //       gameID={this.gameId}
-  //       title={title}
-  //       action={action}
-  //        cssManager={this.props. cssManager}
-  //     />
-  //   );
-  // };
-
-  // GamenotificationPopup = (title, mid) => {
-  //   return <GamenotificationPopup mid={mid} title={title}  cssManager={this.props. cssManager} />;
-  // };
-  // GameResignedPopup = (title, mid) => {
-  //   return (
-  //     <GameResignedPopup
-  //       mid={mid}
-  //       title={title}
-  //        cssManager={this.props. cssManager}
-  //       resignNotificationCloseHandler={this.resignNotificationCloseHandler}
-  //     />
-  //   );
-  // };
-
   startGameExamine() {
     this.setState({ examineGame: true, newOppenetRequest: false });
   }

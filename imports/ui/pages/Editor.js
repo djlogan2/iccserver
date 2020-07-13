@@ -71,7 +71,7 @@ class Editor extends Component {
       let game = this.props.observed_games[0];
       this.setInitial(game);
     }
-    if (prevProps.observed_games.length > 0) {
+    if (prevProps.observed_games.length > 0 && this.props.observed_games.length > 0) {
       if (prevProps.observed_games[0].fen !== this.props.observed_games[0].fen) {
         let game = this.props.observed_games[0];
         let newFen = game.fen;

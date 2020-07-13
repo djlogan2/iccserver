@@ -141,10 +141,6 @@ class PlayBlock extends Component {
     this.setState({ status: "playing" });
   };
 
-  handleChoose = userId => {
-    debugger;
-  };
-
   render() {
     if (this.state.status === "none") {
       return (
@@ -195,7 +191,7 @@ class PlayBlock extends Component {
             examineAction={this.props.examineAction}
             currentGame={this.props.currentGame}
           />
-          {/* <GameControlsBlock gameId={this.props.game._id} game={this.props.game} /> */}
+          <GameControlsBlock gameId={this.props.game._id} game={this.props.game} />
         </div>
       );
     }
@@ -208,7 +204,7 @@ export default class PlayRightSidebar extends Component {
   }
 
   renderBottom = () => {
-    if (this.props.user.status && this.props.game && this.props.user.status.game === "playing") {
+    if (this.props.user.status && this.props.user.status.game === "playing") {
       const whiteId = this.props.game.white.id;
       const blackId = this.props.game.black.id;
       let isPlayersWhite = Meteor.userId() === whiteId;
@@ -252,8 +248,7 @@ export default class PlayRightSidebar extends Component {
             observe
           </TabPane>
         </Tabs>
-
-        {this.renderBottom()}
+        {this.props.user && this.props.game && this.renderBottom()}
       </div>
     );
   }
