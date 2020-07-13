@@ -4,11 +4,7 @@ import { Tabs, Button } from "antd";
 import KibitzChatApp from "./../Chat/KibitzChatApp";
 import PersonalChatApp from "./../Chat/PersonalChatApp";
 import GameHistory from "./elements/GameHistory";
-<<<<<<< HEAD
 
-=======
-import { Meteor } from "meteor/meteor";
->>>>>>> faac15a4216dc25a8f2a365f2d85eab806d6635b
 const { TabPane } = Tabs;
 
 class LocationCotrols extends Component {
@@ -48,10 +44,6 @@ class LocationCotrols extends Component {
       console.log(slicemoves[i].idc);
       Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, slicemoves[i].idc);
     }
-
-    // console.log(v.idc);
-
-    //  Meteor.call("moveForward", "MoveForward", this.gameId,movecount);
   };
 
   render() {
@@ -144,9 +136,6 @@ class PlayBlock extends Component {
     this.setState({ status: "play-with-friend" });
   };
 
-<<<<<<< HEAD
-  handleChoose = userId => {};
-=======
   handlePlayComputer = () => {
     Meteor.call("startBotGame", "play_computer", 0, "standard", true, 15, 0, "none", 15, 0, "none");
     this.setState({ status: "playing" });
@@ -155,7 +144,6 @@ class PlayBlock extends Component {
   handleChoose = userId => {
     debugger;
   };
->>>>>>> faac15a4216dc25a8f2a365f2d85eab806d6635b
 
   render() {
     if (this.state.status === "none") {
