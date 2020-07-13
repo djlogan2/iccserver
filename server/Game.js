@@ -66,7 +66,6 @@ class Game {
         {
           fields: {
             computer_variations: 0,
-            "variations.movelist": 0,
             "lag.white.pings": 0,
             "lag.black.pings": 0
           }
