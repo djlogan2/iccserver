@@ -1,10 +1,12 @@
-import React from "react";
+import React, { Component } from "react";
 import PlayPage from "./components/PlayPage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import { Modal, Button } from "antd";
 import { Logger } from "../../../lib/client/Logger";
 import CssManager from "../pages/components/Css/CssManager";
 import Loading from "../pages/components/Loading";
+import PlayModaler from "../pages/components/Modaler/PlayModaler";
 import Chess from "chess.js";
 import { Link } from "react-router-dom";
 import {
@@ -19,6 +21,7 @@ import {
 import { TimestampClient } from "../../../lib/Timestamp";
 
 const log = new Logger("client/AppContainer");
+
 
 class Play extends React.Component {
   constructor(props) {
@@ -266,6 +269,8 @@ class Play extends React.Component {
     let actionlen;
     let gameExamin = [];
 
+    let { isWhiteCheckmated, isBlackCheckmated, isWhiteStalemated, isBlackStalemated } = this.props;
+
     const { systemCss, boardCss } = this.props;
 
     let clientMessage = null;
@@ -299,12 +304,31 @@ class Play extends React.Component {
       clientMessage = this.clientMessages(this.message_identifier);
     }
 
-    if (false) {
-      return <Loading />;
+    // if (!game) {
+    //   return <Loading />;
+    // }
+    let opponentName;
+    let userColor;
+    if (this.props.game_playing) {
+      userColor =
+        this.props.game_playing.white.name === this.props.user.username ? "white" : "black";
+      opponentName =
+        userColor === "white"
+          ? this.props.game_playing.black.name
+          : this.props.game_playing.white.name;
     }
 
     return (
       <div className="examine">
+        <PlayModaler
+          userColor={userColor}
+          userName={this.props.user && this.props.user.username}
+          opponentName={opponentName}
+          isWhiteCheckmated={isWhiteCheckmated}
+          isBlackCheckmated={isBlackCheckmated}
+          isWhiteStalemated={isWhiteStalemated}
+          isBlackStalemated={isBlackStalemated}
+        />
         <PlayPage
           userId={Meteor.userId()}
           cssManager={css}
@@ -365,6 +389,15 @@ export default withTracker(props => {
         }
       ]
     }),
+    client_messages: ClientMessagesCollection.find({ to: Meteor.userId() }).fetch(),
+    isWhiteCheckmated:
+      ClientMessagesCollection.find({ message: "White checkmated" }).fetch().length > 0,
+    isBlackCheckmated:
+      ClientMessagesCollection.find({ message: "Black checkmated" }).fetch().length > 0,
+    isWhiteStalemated:
+      ClientMessagesCollection.find({ message: "White stalemated" }).fetch().length > 0,
+    isBlackStalemated:
+      ClientMessagesCollection.find({ message: "Black stalemated" }).fetch().length > 0,
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };

@@ -34,3 +34,9 @@
     margin-right: .8rem;
     color: #1565C0;
 }
+
+.chat-input {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}

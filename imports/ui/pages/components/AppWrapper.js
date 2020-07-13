@@ -40,12 +40,12 @@ const AppWrapper = ({ className, children, cssManager, game_request }) => {
           visible={game_request ? true : false}
           onOk={() => {
             Meteor.call("gameRequestAccept", "gameAccept", game_request._id, (err, data) => {
-              debugger;
+
             });
           }}
           onCancel={() => {
             Meteor.call("gameRequestDecline", "gameDecline", game_request._id, (err, data) => {
-              debugger;
+
             });
           }}
         >

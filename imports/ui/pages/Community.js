@@ -130,7 +130,7 @@ class Community extends Component {
     //   newMessage.text,
     //   (err, response) => {
     //     if (err) {
-    //       debugger;
+    //
     //     }
     //   }
     // );

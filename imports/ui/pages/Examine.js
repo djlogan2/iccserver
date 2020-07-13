@@ -211,7 +211,7 @@ class Examine extends Component {
   handleObserveUser = userId => {
     Meteor.call("observeUser", "observeUser", userId, (err, result) => {
       if (err) {
-        // debugger;
+        //
       }
     });
   };

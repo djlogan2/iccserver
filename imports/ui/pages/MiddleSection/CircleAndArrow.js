@@ -72,7 +72,7 @@ export default class CircleAndArrow extends Component {
         }
         handledRightClick = true;
         var target = ev.target;
-        // debugger;
+        //
         if (!$(ev.target).attr(currentObject.props.squareId)) {
           target = $(ev.target).closest("[" + currentObject.props.squareId + "]");
         }

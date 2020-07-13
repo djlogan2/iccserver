@@ -38,7 +38,7 @@ class ChatApp extends Component {
       newMessage.text,
       (err, response) => {
         if (err) {
-          debugger;
+
         }
       }
     );

@@ -81,10 +81,10 @@ export default class ExamineObserveTab extends Component {
     };
   }
   handleSelect = e => {
-    debugger;
+
   };
   handleSearch = e => {
-    debugger;
+
     this.setState({ searchValue: e });
   };
   handleObserve = e => {

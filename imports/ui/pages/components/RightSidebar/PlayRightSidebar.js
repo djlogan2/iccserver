@@ -49,7 +49,7 @@ class PlayBlock extends Component {
       this.setState({ status: "playing" });
     } else if (
       nextProps.userGameStatus !== this.props.userGameStatus &&
-      this.props.userGameStatus !== "playing"
+      nextProps.userGameStatus !== "playing"
     ) {
       this.setState({ status: "none" });
     }
@@ -59,9 +59,7 @@ class PlayBlock extends Component {
     this.setState({ status: "play-with-friend" });
   };
 
-  handleChoose = userId => {
-    debugger;
-  };
+  handleChoose = userId => {};
 
   render() {
     if (this.state.status === "none") {
@@ -140,7 +138,8 @@ export default class PlayRightSidebar extends Component {
   };
 
   render() {
-    let isPlaying = this.props.user ? this.props.user.status.game === "playing" : false;
+    let isPlaying =
+      this.props.user && this.props.user.status ? this.props.user.status.game === "playing" : false;
     let topClasses = isPlaying
       ? "play-right-sidebar__top play-right-sidebar__top--small"
       : "play-right-sidebar__top";
