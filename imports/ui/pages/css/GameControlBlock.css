@@ -1,0 +1,57 @@
+
+.game-control-block {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #EFF0F3;
+    padding: 0 1rem;
+}
+
+.location-controls {
+    display: flex;
+}
+.location-controls__item {
+    display: flex;
+    border: none;
+    background-color: #fff;
+    height: 4rem;
+    width: 4rem;
+}
+
+.location-controls__item--backward {
+    background: url('images/navigation-start.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.location-controls__item--back {
+    background: url('images/navigation-back.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.location-controls__item--next {
+    background: url('images/navigation-next.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.location-controls__item--end {
+    background: url('images/navigation-end.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.location-controls__item--flip {
+    background: url('images/navigation-flip.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+
+.play-modal {
+
+}
+.play-modal__main {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
