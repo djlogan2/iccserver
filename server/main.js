@@ -1,9 +1,16 @@
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
+// noinspection ES6UnusedImports
+// eslint-disable-next-line no-unused-vars
 import { GameRequests } from "./GameRequest";
+// noinspection ES6UnusedImports
+// eslint-disable-next-line no-unused-vars
 import { Game, GameHistory } from "./Game";
+// noinspection ES6UnusedImports
+// eslint-disable-next-line no-unused-vars
 import { Chat } from "./Chat";
 import "./PgnExport";
+import "./engine_manager";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
@@ -25,9 +32,10 @@ const bound = Meteor.bindEnvironment(callback => {
 
 process.on("uncaughtException", (err, origin) => {
   bound(() => {
-    fs.writeSync(process.stderr.fd, `Caught exception: ${err}\n` + `Exception origin: ${origin}`);
-    console.log(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
-    log.error(`Caught exception: ${err}\n` + `Exception origin: ${origin}`);
+    fs.writeSync(process.stderr.fd, `Caught exception: ${err}\nException origin: ${origin}`);
+    // eslint-disable-next-line no-console
+    console.log(`Caught exception: ${err}\nException origin: ${origin}`);
+    log.error(`Caught exception: ${err}\nException origin: ${origin}`);
     process.exit(7);
   });
 });

@@ -5,6 +5,7 @@ import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
+import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 
 const ChatCollectionSchema = new SimpleSchema({
   create_date: {
@@ -77,7 +78,12 @@ class Chat {
               return self.roomCollection.find({ _id: "none" });
             return self.roomCollection.find({
               isolation_group: user.isolation_group,
-              $or: [{ public: true }, { "members.id": user._id, "invited.id": user._id }]
+              $or: [
+                { public: true },
+                { "members.id": user._id },
+                { "invited.id": user._id },
+                { owner: user._id }
+              ]
             });
           },
           children: [
@@ -146,13 +152,14 @@ class Chat {
 
     Meteor.startup(() => {
       self.collection.remove({});
+      self.roomCollection.remove({ public: false });
       Users.addLogoutHook(user => self.chatLogoutHook.bind(self, user));
       Users.addLoginHook(user => self.chatLoginHook.bind(self, user));
-      // Game.GameCollection.observeChanges({}, {
-      //   removed(id) {
-      //     self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
-      //   }
-      // });
+      Game.GameCollection.find({}).observeChanges({
+        removed(id) {
+          self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
+        }
+      });
     });
   }
 
@@ -243,6 +250,15 @@ class Chat {
       ClientMessages.sendMessageToClient(self, message_identifier, "ROOM_ALREADY_EXISTS");
       return;
     }
+
+    if (priv) {
+      const private_count = this.roomCollection.find({ owner: self._id, public: false }).count();
+      if (private_count >= SystemConfiguration.maximumPrivateRoomCount()) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "TOO_MANY_PRIVATE_ROOMS");
+        return;
+      }
+    }
+
     // finally create room
     return this.roomCollection.insert({
       name: roomName,
@@ -261,12 +277,6 @@ class Chat {
     const self = Meteor.user();
     check(self, Object);
 
-    const room = this.roomCollection.findOne({
-      _id: room_id,
-      isolation_group: self.isolation_group,
-      "members.id": self._id
-    });
-
     // does the user have the right role?
     if (
       !Users.isAuthorized(self, "room_chat") ||
@@ -277,6 +287,11 @@ class Chat {
       return;
     }
 
+    const room = this.roomCollection.findOne({
+      _id: room_id,
+      isolation_group: self.isolation_group
+    });
+
     // does room even exist?
     if (!room) {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
@@ -284,7 +299,12 @@ class Chat {
     }
 
     if (!room.members.some(member => member.id === self._id)) {
-      this.joinRoom(message_identifier, room_id);
+      if (room.public || room.invited.some(invitee => invitee.id === self._id))
+        this.joinRoom(message_identifier, room_id);
+      else {
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
+        return;
+      }
     }
 
     // Actually write message to chat collection of room
@@ -306,19 +326,27 @@ class Chat {
     const self = Meteor.user();
     check(self, Object);
 
-    if (!Users.isAuthorized(self, "create_room")) {
-      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_DELETE_ROOM");
-      return;
-    }
-
-    const record = this.roomCollection.findOne({
+    const room = this.roomCollection.findOne({
       _id: room_id,
       isolation_group: self.isolation_group,
       owner: self._id
     });
 
-    if (!record) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
-    else this.roomCollection.remove({ _id: room_id });
+    if (!room) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
+      return;
+    }
+
+    if (
+      !Users.isAuthorized(self, room.public ? "create_room" : "create_private_room") ||
+      room.owner !== self._id
+    ) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_DELETE_ROOM");
+      return;
+    }
+
+    this.collection.remove({ type: "room", id: room_id });
+    this.roomCollection.remove({ _id: room_id });
   }
 
   joinRoom(message_identifier, room_id) {
@@ -340,49 +368,88 @@ class Chat {
     }
 
     if (!Users.isAuthorized(self, "join_room") || Users.isAuthorized(self, "child_chat")) {
+      const invitee = room.invited.find(invitee => invitee.id === self._id);
+      if (!!invitee) {
+        ClientMessages.sendMessageToClient(
+          room.owner,
+          invitee.message_identifier,
+          "NOT_ALLOWED_TO_JOIN_ROOM"
+        );
+
+        this.roomCollection.update({ _id: room._id }, { $pull: { invited: { id: self._id } } });
+        return;
+      }
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
       return;
     }
 
-    if (!room) ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
-    else {
-      if (room.private) {
-        if (!room.invited.some(invitee => invitee.id === self._id)) {
-          ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
-          return;
+    if (!room.public) {
+      if (!room.invited.some(invitee => invitee.id === self._id) && room.owner !== self._id) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
+        return;
+      }
+      this.roomCollection.update(
+        { _id: room_id },
+        {
+          $addToSet: { members: { id: self._id, username: self.username } },
+          $pull: { invited: { id: self._id } }
         }
-        this.roomCollection.update(
-          { _id: room_id },
-          {
-            $addToSet: { members: { id: self._id, username: self.username } },
-            $pull: { invited: { id: self._id } }
-          }
-        );
-      } else
-        this.roomCollection.update(
-          { _id: room._id },
-          { $addToSet: { members: { id: self._id, username: self.username } } }
-        );
-    }
+      );
+    } else
+      this.roomCollection.update(
+        { _id: room._id },
+        { $addToSet: { members: { id: self._id, username: self.username } } }
+      );
   }
 
-  leaveRoom(message_identifier, room_id) {
+  leaveRoom(message_identifier, room_id, user_id) {
     check(message_identifier, String);
     check(room_id, String);
 
     const self = Meteor.user();
     check(self, Object);
 
-    if (
-      this.roomCollection
-        .find({ _id: room_id, isolation_group: self.isolation_group, "members.id": self._id })
-        .count() === 0
-    ) {
-      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_ROOM");
-      return;
-    }
+    const room = this.roomCollection.findOne({
+      _id: room_id,
+      isolation_group: self.isolation_group
+    });
 
-    this.roomCollection.update({ _id: room_id }, { $pull: { members: { id: self._id } } });
+    if (!user_id) user_id = self._id;
+
+    if (room.public) {
+      if (user_id !== self._id) {
+        ClientMessages.sendMessageToClient(
+          self,
+          message_identifier,
+          "CANNOT_KICK_USERS_OUT_OF_PUBLIC_ROOM"
+        );
+        return;
+      }
+      if (!room.members.some(member => member.id === self._id)) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_IN_ROOM");
+        return;
+      }
+      this.roomCollection.update({ _id: room._id }, { $pull: { members: { id: self._id } } });
+    } else {
+      if (user_id !== self._id && room.owner !== self._id) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
+        return;
+      }
+
+      const member = !!room.members ? room.members.find(member => member.id === user_id) : null;
+      const invitee = !!room.invited ? room.invited.find(invitee => invitee.id === user_id) : null;
+
+      if (!!member) {
+        this.roomCollection.update({ _id: room._id }, { $pull: { members: { id: user_id } } });
+      } else if (!!invitee) {
+        this.roomCollection.update({ _id: room._id }, { $pull: { invited: { id: user_id } } });
+        if (self._id !== room.owner) {
+          ClientMessages.sendMessageToClient(self, message_identifier, "USER_DECLINED_INVITE");
+        }
+      } else {
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_IN_ROOM");
+      }
+    }
   }
 
   inviteToRoom(message_identifier, room_id, user_id) {
@@ -555,9 +622,64 @@ class Chat {
   }
 
   chatLogoutHook(userId) {
+    //
+    // Remove the user as an invitee from all rooms he's been invited to,
+    // and inform their owners
+    //
+    this.roomCollection
+      .find({ "invited.id": userId })
+      .fetch()
+      .forEach(room => {
+        const invitee = room.invited.find(invitee => invitee.id === userId);
+        if (!invitee)
+          throw new Meteor.Error(
+            "Unable to remove invitee from room",
+            "Unable to find invitee in room list"
+          );
+        ClientMessages.sendMessageToClient(
+          room.owner,
+          invitee.message_identifier,
+          "USER_LOGGED_OFF"
+        );
+      });
+
+    this.roomCollection.update(
+      { "invited.id": userId },
+      { $pull: { invited: { id: userId } } },
+      { multi: true }
+    );
+
+    //
+    // Delete all private rooms for which this member was the last member to logoff
+    //
+    const private_rooms_to_delete = this.roomCollection
+      .find({ public: false, "members.id": userId })
+      .fetch()
+      .filter(room => room.members.length === 1)
+      .map(room => room._id);
+
+    if (!!private_rooms_to_delete.length) {
+      this.collection.remove({ type: "room", id: { $in: private_rooms_to_delete } });
+      this.roomCollection.remove({ _id: { $in: private_rooms_to_delete } });
+    }
+
+    //
+    // Remove them as members from all rooms they are in
+    //
+    this.roomCollection.update({ "members.id": userId }, { $pull: { members: { id: userId } } });
+
+    //
+    // Delete all private chats for which this member is the 2nd of the two
+    // members to logoff
+    //
     this.collection.remove({
       $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
     });
+
+    //
+    // Mark all private messages as only one user of the private chats
+    // still logged on
+    //
     this.collection.update(
       {
         $and: [

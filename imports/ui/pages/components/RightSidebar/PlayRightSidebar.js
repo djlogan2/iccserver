@@ -4,7 +4,11 @@ import { Tabs, Button } from "antd";
 import KibitzChatApp from "./../Chat/KibitzChatApp";
 import PersonalChatApp from "./../Chat/PersonalChatApp";
 import GameHistory from "./elements/GameHistory";
+<<<<<<< HEAD
 
+=======
+import { Meteor } from "meteor/meteor";
+>>>>>>> faac15a4216dc25a8f2a365f2d85eab806d6635b
 const { TabPane } = Tabs;
 
 class LocationCotrols extends Component {
@@ -140,7 +144,18 @@ class PlayBlock extends Component {
     this.setState({ status: "play-with-friend" });
   };
 
+<<<<<<< HEAD
   handleChoose = userId => {};
+=======
+  handlePlayComputer = () => {
+    Meteor.call("startBotGame", "play_computer", 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    this.setState({ status: "playing" });
+  };
+
+  handleChoose = userId => {
+    debugger;
+  };
+>>>>>>> faac15a4216dc25a8f2a365f2d85eab806d6635b
 
   render() {
     if (this.state.status === "none") {
@@ -161,7 +176,7 @@ class PlayBlock extends Component {
             <Button onClick={this.handlePlayWithFriend} className="play-block__btn-big" block>
               Play with a friend
             </Button>
-            <Button className="play-block__btn-big" block>
+            <Button onClick={this.handlePlayComputer} className="play-block__btn-big" block>
               Play with the computer
             </Button>
           </div>

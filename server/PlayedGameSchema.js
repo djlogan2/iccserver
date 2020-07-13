@@ -136,7 +136,8 @@ export const PlayedGameSchema = new SimpleSchema({
         return [{ name: "white.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
+    skill_level: {type: SimpleSchema.Integer, required: false}
   }),
   black: new SimpleSchema({
     name: String,
@@ -152,7 +153,8 @@ export const PlayedGameSchema = new SimpleSchema({
         return [{ name: "black.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
       }
     },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
+    skill_level: {type: SimpleSchema.Integer, required: false}
   }),
   lag: Object,
   "lag.white": Object,
@@ -173,12 +175,33 @@ export const PlayedGameSchema = new SimpleSchema({
   variations: Object,
   "variations.hmtb": Number,
   "variations.cmi": Number,
+  "variations.ecocodes": { type: Array, defaultValue: [] },
+  "variations.ecocodes.$": Object,
+  "variations.ecocodes.$.code": String,
+  "variations.ecocodes.$.name": String,
   "variations.movelist": Array,
   "variations.movelist.$": Object,
   "variations.movelist.$.prev": { type: Number, required: false },
   "variations.movelist.$.move": { type: String, required: false },
   "variations.movelist.$.current": { type: Number, required: false },
-  "variations.movelist.$.score": { type: Number, required: false },
+  "variations.movelist.$.ecoindex": { type: Number, required: false },
+  "variations.movelist.$.analysis": { type: Boolean, required: false },
+  "variations.movelist.$.book": { type: Boolean, required: false },
+  "variations.movelist.$.tablebase": { type: Boolean, required: false },
   "variations.movelist.$.variations": { type: Array, required: false },
-  "variations.movelist.$.variations.$": Number
+  "variations.movelist.$.variations.$": Number,
+  computer_variations: Array,
+  "computer_variations.$": Array,
+  "computer_variations.$.$": Object,
+  "computer_variations.$.$.depth": Number,
+  "computer_variations.$.$.seldepth": Number,
+  "computer_variations.$.$.time": Number,
+  "computer_variations.$.$.nodes": Number,
+  "computer_variations.$.$.nps": Number,
+  "computer_variations.$.$.tbhits": Number,
+  "computer_variations.$.$.score": Object,
+  "computer_variations.$.$.score.unit": String,
+  "computer_variations.$.$.score.value": Number,
+  "computer_variations.$.$.pv": String,
+  "computer_variations.$.$.multipv": Number
 });
