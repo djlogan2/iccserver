@@ -60,7 +60,6 @@ export default class MiddleBoard extends Component {
     let h = this.props.height;
 
     return Math.min(h / 1.3, w / 2.5);
-
   };
 
   calcSize = () => {
@@ -68,6 +67,20 @@ export default class MiddleBoard extends Component {
     let h = this.props.height;
 
     return Math.min(h / 1.3, w / 2.5);
+  };
+
+  getTopPlayerData = () => {
+    if (this.props.game === undefined) {
+      return null
+    }
+    return this.state.top === "w" ? this.props.game.white : this.props.game.black;
+  }
+
+  getBottomPlayerData = () => {
+    if (this.props.game === undefined) {
+      return null
+    }
+    return this.state.top === "b" ? this.props.game.white : this.props.game.black;
   }
 
   render() {
@@ -83,10 +96,8 @@ export default class MiddleBoard extends Component {
     let size = this.calcSize();
     let m = Math.min(w, h);
 
-    const topPlayer =
-      this.state.top === "w" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
-    const bottomPlayer =
-      this.state.top === "b" ? this.props.MiddleBoardData.white : this.props.MiddleBoardData.black;
+    const topPlayer = this.getTopPlayerData();
+    const bottomPlayer = this.getBottomPlayerData();
 
     const topPlayertime = this.state.top === "w" ? "white" : "black";
     const bottomPlayertime = this.state.top === "b" ? "white" : "black";
@@ -154,23 +165,28 @@ export default class MiddleBoard extends Component {
     return (
       <div>
         <div style={{ width: size }}>
-          {/* <Player
-            PlayerData={topPlayer}
-            cssmanager={this.props.cssmanager}
-            side={size}
-            color={tc}
-            turnColor={color}
-            FallenSoldiers={topPlayerFallenSoldier}
-            rank_and_file={this.state.draw_rank_and_file}
-            Playermsg={topPlayermsg}
-          />
+          {this.props.gameStatus === "playing" && (
+            <Player
+              playerData={topPlayer}
+              cssManager={this.props.cssManager}
+              side={size}
+              color={tc}
+              turnColor={color}
+              FallenSoldiers={topPlayerFallenSoldier}
+              rank_and_file={this.state.draw_rank_and_file}
+              Playermsg={topPlayermsg}
+            />
+          )}
 
-          <BlackPlayerClock
-            cssmanager={this.props.cssmanager}
-            ClockData={this.props.game}
-            color={topPlayertime}
-            side={size}
-          /> */}
+          {this.props.gameStatus === "playing" && (
+            <BlackPlayerClock
+              cssManager={this.props.cssManager}
+              ClockData={this.props.game}
+              color={topPlayertime}
+              side={size}
+            />
+          )}
+
           <ChessBoard
             fen={fen}
             height={boardsize}
@@ -181,22 +197,27 @@ export default class MiddleBoard extends Component {
             gameStatus={this.props.gameStatus}
             currentGame={this.props.currentGame}
           />
-          {/* <Player
-            PlayerData={bottomPlayer}
-            cssmanager={this.props.cssmanager}
-            side={size}
-            color={bc}
-            turnColor={color}
-            FallenSoldiers={bottomPlayerFallenSoldier}
-            rank_and_file={this.state.draw_rank_and_file}
-            Playermsg={botPlayermsg}
-          />
-          <BlackPlayerClock
-            cssmanager={this.props.cssmanager}
-            ClockData={this.props.game}
-            color={bottomPlayertime}
-            side={size}
-          /> */}
+
+          {this.props.gameStatus === "playing" && (
+            <Player
+              playerData={bottomPlayer}
+              cssManager={this.props.cssManager}
+              side={size}
+              color={bc}
+              turnColor={color}
+              FallenSoldiers={bottomPlayerFallenSoldier}
+              rank_and_file={this.state.draw_rank_and_file}
+              Playermsg={botPlayermsg}
+            />
+          )}
+          {this.props.gameStatus === "playing" && (
+            <BlackPlayerClock
+              cssManager={this.props.cssManager}
+              ClockData={this.props.game}
+              color={bottomPlayertime}
+              side={size}
+            />
+          )}
         </div>
       </div>
     );

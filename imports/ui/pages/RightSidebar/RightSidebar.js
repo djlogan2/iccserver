@@ -36,7 +36,7 @@ class RightSidebar extends Component {
       topTabitem = (
         <RightBarTopActivetabs
           RightBarTopData={this.props.RightSidebarData}
-          cssmanager={this.props.cssmanager}
+           cssManager={this.props. cssManager}
           flip={this.props.flip}
           gameRequest={this.state.gameRequest}
           startGameExamine={this.props.startGameExamine}
@@ -48,7 +48,7 @@ class RightSidebar extends Component {
     } else {
       topTabitem = (
         <RightBarTabs
-          cssmanager={this.props.cssmanager}
+           cssManager={this.props. cssManager}
           gameRequest={this.props.gameRequest}
           flip={this.props.flip}
           ref="right_bar_top"
@@ -63,7 +63,7 @@ class RightSidebar extends Component {
     if (this.props.gameStatus === "examining" && this.props.currentGame === true) {
       bottomTabitem = (
         <RightBarBottom
-          cssmanager={this.props.cssmanager}
+           cssManager={this.props. cssManager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
           examing={this.props.examing}
@@ -75,7 +75,7 @@ class RightSidebar extends Component {
     } else if (this.props.gameStatus === "examining" && this.props.currentGame === false) {
       bottomTabitem = (
         <RightBarBottomPostGameTabs
-          cssmanager={this.props.cssmanager}
+           cssManager={this.props. cssManager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
           examing={this.props.examing}
@@ -84,7 +84,7 @@ class RightSidebar extends Component {
     } else {
       bottomTabitem = (
         <RightBarBottomActiveTabs
-          cssmanager={this.props.cssmanager}
+           cssManager={this.props. cssManager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
           examing={this.props.examing}
@@ -97,8 +97,8 @@ class RightSidebar extends Component {
   render() {
     return (
       <div className="right-content-desktop">
-        <div style={this.props.cssmanager.rightTopContent()}>{this.renderTopRigthSidebar()}</div>
-        <div style={this.props.cssmanager.rightBottomContent()}>
+        <div style={this.props. cssManager.rightTopContent()}>{this.renderTopRigthSidebar()}</div>
+        <div style={this.props. cssManager.rightBottomContent()}>
           {this.renderBottomRightSidebar()}
         </div>
       </div>

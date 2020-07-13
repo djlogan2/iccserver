@@ -42,10 +42,18 @@ export default class MoveListComponent extends Component {
     }
   }
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex);
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex, (err) => {
+      if (err) {
+        debugger;
+      }
+    });
   };
   moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, 1, (err) => {
+      if (err) {
+        debugger;
+      }
+    });
   };
   moveForward = () => {
     let ind = this.currentindex + 1;
@@ -53,14 +61,22 @@ export default class MoveListComponent extends Component {
     if (ind <= this.cmi) {
       idc = this.moves[ind].idc;
     }
-    Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc);
+    Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc, (err) => {
+      if (err) {
+        debugger;
+      }
+    });
   };
   moveForwardEnd = cmi => {
     let movedata = this.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
       console.log(slicemoves[i].idc);
-      Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc);
+      Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc, (err) => {
+        if (err) {
+          debugger;
+        }
+      });
     }
 
     // console.log(v.idc);
@@ -242,7 +258,7 @@ export default class MoveListComponent extends Component {
     let statuslabel = 0;
     let isPlaying;
 
-    let mbtnstyle = this.props.cssmanager.gameButtonMove();
+    let mbtnstyle = this.props. cssManager.gameButtonMove();
     if (this.props.currentGame === true && status === "examining") {
       displayButton = 1;
       statuslabel = 1;
@@ -288,7 +304,7 @@ export default class MoveListComponent extends Component {
       );
     });
     let btnstyle = {};
-    btnstyle = this.props.cssmanager.buttonStyle();
+    btnstyle = this.props. cssManager.buttonStyle();
     Object.assign(btnstyle, {
       background: "#f1f1f1",
       borderRadius: "5px",
@@ -298,50 +314,50 @@ export default class MoveListComponent extends Component {
 
     return (
       <div>
-        <div style={this.props.cssmanager.gameMoveList()}>{moveslist}</div>
+        <div style={this.props. cssManager.gameMoveList()}>{moveslist}</div>
 
         {displayButton ? (
           <div style={mbtnstyle} className="moveAction">
             <button style={btnstyle} onClick={this.moveBackwordBeginning.bind(this)}>
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
+                src={this.props. cssManager.buttonBackgroundImage("fastForward")}
                 alt="fast-forward"
               />
             </button>
             <button style={btnstyle} onClick={this.moveBackword.bind(this)}>
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")}
+                src={this.props. cssManager.buttonBackgroundImage("prevIconGray")}
                 alt="previous"
               />
             </button>
             <button style={btnstyle} onClick={this.moveForward.bind(this)}>
-              <img src={this.props.cssmanager.buttonBackgroundImage("nextIconGray")} alt="next" />
+              <img src={this.props. cssManager.buttonBackgroundImage("nextIconGray")} alt="next" />
             </button>
             <button style={btnstyle} onClick={this.moveForwardEnd.bind(this, 1)}>
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("fastForwardNext")}
+                src={this.props. cssManager.buttonBackgroundImage("fastForwardNext")}
                 alt="fast-forward-next"
               />
             </button>
             <button style={btnstyle} onClick={this.moveAutoForward.bind(this)}>
               {this.state.toggle ? (
                 <img
-                  src={this.props.cssmanager.buttonBackgroundImage("nextStop")}
+                  src={this.props. cssManager.buttonBackgroundImage("nextStop")}
                   alt="next-single"
                 />
               ) : (
                 <img
-                  src={this.props.cssmanager.buttonBackgroundImage("nextStart")}
+                  src={this.props. cssManager.buttonBackgroundImage("nextStart")}
                   alt="next-single"
                 />
               )}
             </button>
             <button style={btnstyle} onClick={this.props.flip}>
-              <img src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
+              <img src={this.props. cssManager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
             </button>
             {/*  <button style={btnstyle}>
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("settingIcon")}
+                src={this.props. cssManager.buttonBackgroundImage("settingIcon")}
                 alt="setting-icon"
               />
             </button> */}
@@ -351,7 +367,7 @@ export default class MoveListComponent extends Component {
           {statuslabel ? (
             <div
               className={"gamestatus " + (status === "playing" ? "active" : "default")}
-              style={this.props.cssmanager.drawActionSection()}
+              style={this.props. cssManager.drawActionSection()}
             >
               <span>{translator(status)}</span>
             </div>
@@ -359,35 +375,35 @@ export default class MoveListComponent extends Component {
 
           {isPlaying ? (
             <ul>
-              <li style={this.props.cssmanager.drawSectionList()}>
+              <li style={this.props. cssManager.drawSectionList()}>
                 <button
-                  style={this.props.cssmanager.buttonStyle()}
+                  style={this.props. cssManager.buttonStyle()}
                   onClick={this._drawRequest.bind(this)}
                 >
                   <img
-                    src={this.props.cssmanager.buttonBackgroundImage("draw")}
+                    src={this.props. cssManager.buttonBackgroundImage("draw")}
                     alt="Draw"
-                    style={this.props.cssmanager.drawSectionButton()}
+                    style={this.props. cssManager.drawSectionButton()}
                   />
                   {translator("draw")}
                 </button>
               </li>
 
-              <li style={this.props.cssmanager.drawSectionList()}>
+              <li style={this.props. cssManager.drawSectionList()}>
                 <button
-                  style={this.props.cssmanager.buttonStyle()}
+                  style={this.props. cssManager.buttonStyle()}
                   onClick={this._resignGame.bind(this)}
                 >
                   <img
-                    src={this.props.cssmanager.buttonBackgroundImage("resign")}
+                    src={this.props. cssManager.buttonBackgroundImage("resign")}
                     alt="Resign"
-                    style={this.props.cssmanager.drawSectionButton()}
+                    style={this.props. cssManager.drawSectionButton()}
                   />
                   {translator("resign")}
                 </button>
               </li>
-              <li style={this.props.cssmanager.drawSectionList()}>
-                <span style={this.props.cssmanager.spanStyle("form")}>
+              <li style={this.props. cssManager.drawSectionList()}>
+                <span style={this.props. cssManager.spanStyle("form")}>
                   <select
                     onChange={this.handleChangeSecond}
                     style={{
@@ -412,28 +428,28 @@ export default class MoveListComponent extends Component {
             </ul>
           ) : (
             <ul>
-              <li style={this.props.cssmanager.drawSectionList()}>
+              <li style={this.props. cssManager.drawSectionList()}>
                 <button
                   onClick={() => this.requestFornewOppenent()}
-                  style={this.props.cssmanager.buttonStyle()}
+                  style={this.props. cssManager.buttonStyle()}
                 >
                   <img
-                    src={this.props.cssmanager.buttonBackgroundImage("draw")}
+                    src={this.props. cssManager.buttonBackgroundImage("draw")}
                     alt="Draw"
-                    style={this.props.cssmanager.drawSectionButton()}
+                    style={this.props. cssManager.drawSectionButton()}
                   />
                   New Oppenent
                 </button>
               </li>
-              <li style={this.props.cssmanager.drawSectionList()}>
+              <li style={this.props. cssManager.drawSectionList()}>
                 <button
                   onClick={this._reMatchGame.bind(this)}
-                  style={this.props.cssmanager.buttonStyle()}
+                  style={this.props. cssManager.buttonStyle()}
                 >
                   <img
-                    src={this.props.cssmanager.buttonBackgroundImage("resign")}
+                    src={this.props. cssManager.buttonBackgroundImage("resign")}
                     alt="Resign"
-                    style={this.props.cssmanager.drawSectionButton()}
+                    style={this.props. cssManager.drawSectionButton()}
                   />
                   Rematch
                 </button>
@@ -441,28 +457,28 @@ export default class MoveListComponent extends Component {
               <li>
                 <Link to="/editor">
                   <img
-                    src={this.props.cssmanager.buttonBackgroundImage("resign")}
+                    src={this.props. cssManager.buttonBackgroundImage("resign")}
                     alt="Resign"
-                    style={this.props.cssmanager.drawSectionButton()}
+                    style={this.props. cssManager.drawSectionButton()}
                   />
                   Editor
                 </Link>
               </li>
-              <li style={this.props.cssmanager.drawSectionList()}>
+              <li style={this.props. cssManager.drawSectionList()}>
                 <button
-                  style={this.props.cssmanager.buttonStyle()}
+                  style={this.props. cssManager.buttonStyle()}
                   onClick={() => this._setGameToExamine()}
                 >
                   <img
-                    src={this.props.cssmanager.buttonBackgroundImage("examine")}
+                    src={this.props. cssManager.buttonBackgroundImage("examine")}
                     alt="examine"
-                    style={this.props.cssmanager.drawSectionButton()}
+                    style={this.props. cssManager.drawSectionButton()}
                   />
                   Examine
                 </button>
               </li>
-              <li style={this.props.cssmanager.drawSectionList()}>
-                <span style={this.props.cssmanager.spanStyle("form")}>
+              <li style={this.props. cssManager.drawSectionList()}>
+                <span style={this.props. cssManager.spanStyle("form")}>
                   <select
                     style={{
                       outline: "none",

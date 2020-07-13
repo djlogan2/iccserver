@@ -153,7 +153,7 @@ export default class MainPage extends Component {
 
   gameRequest = (title, requestId) => {
     return (
-      <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
+      <GameRequestPopup requestId={requestId} title={title}  cssManager={this.props. cssManager} />
     );
   };
   actionPopup = (title, action) => {
@@ -162,20 +162,20 @@ export default class MainPage extends Component {
         gameID={this.gameId}
         title={title}
         action={action}
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
       />
     );
   };
 
   GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
+    return <GamenotificationPopup mid={mid} title={title}  cssManager={this.props. cssManager} />;
   };
   GameResignedPopup = (title, mid) => {
     return (
       <GameResignedPopup
         mid={mid}
         title={title}
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         resignNotificationCloseHandler={this.resignNotificationCloseHandler}
       />
     );
@@ -184,7 +184,7 @@ export default class MainPage extends Component {
     return (
       <ExaminActionPopup
         action={action}
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
       />
     );
@@ -239,7 +239,7 @@ export default class MainPage extends Component {
       border: "1px solid #ccc",
       boxShadow: "#0000004d"
     };
-    let btnstyle = this.props.cssmanager.innerPopupMain();
+    let btnstyle = this.props. cssManager.innerPopupMain();
     Object.assign(btnstyle, { marginTop: "15px" });
 
     return (
@@ -281,7 +281,7 @@ export default class MainPage extends Component {
                       <td style={{ padding: "5px 5px" }}>
                         <a href={"export/pgn/history/" + game.id} className="pgnbtn">
                           <img
-                            src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
+                            src={this.props. cssManager.buttonBackgroundImage("pgnIcon")}
                             style={{ width: "25px", height: "25px" }}
                             alt="PgnDownload"
                           />
@@ -470,7 +470,7 @@ export default class MainPage extends Component {
     else {
       leftmenu = (
         <LeftSidebar
-          cssmanager={this.props.cssmanager}
+           cssManager={this.props. cssManager}
           // LefSideBoarData={this.Main.LeftSection}
           history={this.props.history}
           gameHistory={this.props.gameHistoryload}
@@ -490,7 +490,7 @@ export default class MainPage extends Component {
               {exPopup}
 
               <MiddleBoard
-                cssmanager={this.props.cssmanager}
+                 cssManager={this.props. cssManager}
                 MiddleBoardData={this.Main.MiddleSection}
                 currentGame={this.state.examineGame}
                 ref="middleBoard"
@@ -512,7 +512,7 @@ export default class MainPage extends Component {
             <div className="col-sm-5 col-md-4 col-lg-5 right-section">
               {actionPopup}
               <RightSidebar
-                cssmanager={this.props.cssmanager}
+                 cssManager={this.props. cssManager}
                 RightSidebarData={this.Main.RightSection}
                 gameStatus={status}
                 currentGame={this.state.examineGame}

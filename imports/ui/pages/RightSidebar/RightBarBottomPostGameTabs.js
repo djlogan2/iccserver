@@ -22,21 +22,21 @@ class RightBarBottomPostGameTabs extends Component {
     let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
 
     return (
-      <Tabs cssmanager={this.props.cssmanager} tabName="bottom">
+      <Tabs  cssManager={this.props. cssManager} tabName="bottom">
         <div
           label={translator("chat")}
           imgsrc="images/chat-icon-white.png"
           hoverSrc="images/chat-icon-blue.png"
         >
           <Chat
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             gameRequest={this.props.gameRequest}
             clientMessage={this.props.clientMessage}
           />
         </div>
         <div label="Observers" imgsrc="images/observers.png" hoverSrc="images/observers-active.png">
           <Observers
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             examing={this.props.examing}
             clientMessage={this.props.clientMessage}
           />

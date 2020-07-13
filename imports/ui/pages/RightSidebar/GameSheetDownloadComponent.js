@@ -7,10 +7,10 @@ export default class GameSheetDownloadComponent extends Component {
     if (!!game) id = game._id;
 
     return (
-      <button style={this.props.cssmanager.buttonStyle()}>
+      <button style={this.props. cssManager.buttonStyle()}>
         <a href={"export/pgn/game/" + id}>
           <img
-            src={this.props.cssmanager.buttonBackgroundImage("gameDownload")}
+            src={this.props. cssManager.buttonBackgroundImage("gameDownload")}
             alt="Game Download"
           />
         </a>

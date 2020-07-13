@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ChatApp from "./ChatApp";
+import KibitzChatApp from "./../../Chat/KibitzChatApp";
 import FenPgn from "./FenPgn";
 import { Tabs } from "antd";
 const { TabPane } = Tabs;
@@ -15,7 +15,7 @@ export default class ExamineRightSidebarBottom extends Component {
     return (
       <Tabs className="examine-right-sidebar-bottom" defaultActiveKey="1" size="small" type="card">
         <TabPane tab={"Chat"} key="chat">
-          <ChatApp isKibitz={true} gameId={this.props.gameId} />
+          <KibitzChatApp isKibitz={true} gameId={this.props.gameId} />
         </TabPane>
         <TabPane tab="FEN/PGN" key="fen-png">
           <FenPgn fen={this.props.fen} moveList={this.props.moveList} />

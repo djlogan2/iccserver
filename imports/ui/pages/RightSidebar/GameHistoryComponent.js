@@ -90,7 +90,7 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
                   <td style={{ padding: "5px 5px" }}>
                     <a href={"export/pgn/history/" + game.id} className="pgnbtn">
                       <img
-                        src={this.props.cssmanager.buttonBackgroundImage("pgnIcon")}
+                        src={this.props. cssManager.buttonBackgroundImage("pgnIcon")}
                         style={{ width: "25px", height: "25px" }}
                         alt="PgnDownload"
                       />

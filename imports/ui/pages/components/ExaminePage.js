@@ -162,7 +162,7 @@ export default class ExaminePage extends Component {
 
   gameRequest = (title, requestId) => {
     return (
-      <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
+      <GameRequestPopup requestId={requestId} title={title}  cssManager={this.props. cssManager} />
     );
   };
   actionPopup = (title, action) => {
@@ -171,20 +171,20 @@ export default class ExaminePage extends Component {
         gameID={this.gameId}
         title={title}
         action={action}
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
       />
     );
   };
 
   GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
+    return <GamenotificationPopup mid={mid} title={title}  cssManager={this.props. cssManager} />;
   };
   GameResignedPopup = (title, mid) => {
     return (
       <GameResignedPopup
         mid={mid}
         title={title}
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         resignNotificationCloseHandler={this.resignNotificationCloseHandler}
       />
     );
@@ -193,7 +193,7 @@ export default class ExaminePage extends Component {
     return (
       <ExaminActionPopup
         action={action}
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
       />
     );
@@ -350,11 +350,11 @@ export default class ExaminePage extends Component {
     if (!h) h = window.innerHeight;
 
     return (
-      <AppWrapper cssManager={this.props.cssmanager}>
+      <AppWrapper cssManager={this.props. cssManager}>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
-              cssmanager={this.props.cssmanager}
+               cssManager={this.props. cssManager}
               MiddleBoardData={this.Main.MiddleSection}
               currentGame={this.state.examineGame}
               ref="middleBoard"
@@ -380,7 +380,7 @@ export default class ExaminePage extends Component {
             allUsers={this.props.allUsers}
             observeUser={this.props.observeUser}
             unObserveUser={this.props.unObserveUser}
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             RightSidebarData={this.Main.RightSection}
             currentGame={this.state.examineGame}
             flip={this._flipboard}
@@ -392,7 +392,7 @@ export default class ExaminePage extends Component {
             uploadPgn={this.uploadPgn}
           />
           {/* <RightSidebar
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             RightSidebarData={this.Main.RightSection}
             gameStatus={status}
             currentGame={this.state.examineGame}

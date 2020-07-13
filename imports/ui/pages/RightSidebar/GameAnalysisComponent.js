@@ -3,9 +3,9 @@ import React, { Component } from "react";
 export default class GameAnalysisComponent extends Component {
   render() {
     return (
-      <button style={this.props.cssmanager.buttonStyle()}>
+      <button style={this.props. cssManager.buttonStyle()}>
         <img
-          src={this.props.cssmanager.buttonBackgroundImage("gameAnalysis")}
+          src={this.props. cssManager.buttonBackgroundImage("gameAnalysis")}
           alt="Game Analysis"
         />
       </button>

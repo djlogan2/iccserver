@@ -8,7 +8,7 @@ const log = new Logger("client/Tabs_js");
 class Tabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-    cssmanager: PropTypes.object.isRequired,
+     cssManager: PropTypes.object.isRequired,
     defultactive: PropTypes.number
   };
 
@@ -44,8 +44,8 @@ class Tabs extends Component {
     let tabName = this.props.tabName;
 
     return (
-      <div style={this.props.cssmanager.tab()}>
-        <ol style={this.props.cssmanager.tabList(tabName)}>
+      <div style={this.props. cssManager.tab()}>
+        <ol style={this.props. cssManager.tabList(tabName)}>
           {children.map(child => {
             let { label, imgsrc, hoverSrc } = child.props;
             if (
@@ -56,7 +56,7 @@ class Tabs extends Component {
             }
             return (
               <Tab
-                cssmanager={this.props.cssmanager}
+                 cssManager={this.props. cssManager}
                 tabListName={tabName}
                 activeTab={activeTab}
                 onHover={onHover}
@@ -71,7 +71,7 @@ class Tabs extends Component {
             );
           })}
         </ol>
-        <div style={this.props.cssmanager.tabContent()}>
+        <div style={this.props. cssManager.tabContent()}>
           {children.map(child => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;

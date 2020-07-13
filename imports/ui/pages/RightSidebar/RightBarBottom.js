@@ -28,10 +28,10 @@ class RightBarBottom extends Component {
     let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
     let tabNumber = this.props.activeTabnumber ? this.props.activeTabnumber : 0;
     return (
-      <Tabs cssmanager={this.props.cssmanager} tabName="bottom" defultactive={tabNumber}>
+      <Tabs  cssManager={this.props. cssManager} tabName="bottom" defultactive={tabNumber}>
         <div label="Examiner" imgsrc="images/examiner.png" hoverSrc="images/examiner-active.png">
           <Examiner
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             gameRequest={this.props.gameRequest}
             clientMessage={this.props.clientMessage}
           />
@@ -42,7 +42,7 @@ class RightBarBottom extends Component {
           hoverSrc="images/follow-coach-active.png"
         >
           <FollowCoach
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             examing={this.props.examing}
             clientMessage={this.props.clientMessage}
           />
@@ -53,7 +53,7 @@ class RightBarBottom extends Component {
           hoverSrc="images/game-library-active.png"
         >
           <GameLibrary
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             clientMessage={this.props.clientMessage}
           />
         </div>
@@ -63,7 +63,7 @@ class RightBarBottom extends Component {
           imgsrc="images/history-icon-white.png"
           hoverSrc="images/history-icon-blue.png"
         >
-          <GameHistory cssmanager={this.props.cssmanager} />
+          <GameHistory  cssManager={this.props. cssManager} />
         </div>
         <div
           label="Adjourned Game"
@@ -79,7 +79,7 @@ class RightBarBottom extends Component {
           hoverSrc="images/fen-pgn-blue-icon.png"
         >
           <PGN
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             Gamedata={this.props.Gamedata}
             uploadPgn={this.props.uploadPgn}
           />

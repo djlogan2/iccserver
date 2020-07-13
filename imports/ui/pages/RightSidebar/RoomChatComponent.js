@@ -42,7 +42,7 @@ export default class RoomChatComponent extends Component {
     let content = [];
     this.chatRooms.forEach((room, index) => {
       content.push(
-        <button key={index} style={this.props.cssmanager.matchUserButton()}>
+        <button key={index} style={this.props. cssManager.matchUserButton()}>
           <label
             style={{
               fontWeight: "300",
@@ -68,7 +68,7 @@ export default class RoomChatComponent extends Component {
     });
     return (
       <div>
-        <div style={this.props.cssmanager.subTabHeader()}>{content}</div>
+        <div style={this.props. cssManager.subTabHeader()}>{content}</div>
       </div>
     );
   }

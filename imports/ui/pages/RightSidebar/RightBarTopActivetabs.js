@@ -30,10 +30,10 @@ export default class RightBarTopActivetabs extends Component {
   render() {
     let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
     return (
-      <Tabs cssmanager={this.props.cssmanager}>
+      <Tabs  cssManager={this.props. cssManager}>
         <div label={translator("game")} imgsrc="images/game-icon-gray.png">
           <GameHistory
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             game={this.props.RightBarTopData.MoveList}
             flip={this.props.flip}
             actionData={this.props.actionData}
@@ -45,11 +45,11 @@ export default class RightBarTopActivetabs extends Component {
         </div>
         <div label="test">test </div>
         {/* <div label={translator("play")} imgsrc="images/play-icon-gray.png">
-          <CreateGame cssmanager={this.props.cssmanager} ref="create_game" />
+          <CreateGame  cssManager={this.props. cssManager} ref="create_game" />
         </div>
         <div label={translator("tournaments")} imgsrc="images/tournament-icon-gray.png">
           <TournamentsList
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             TournamentsList={this.props.RightBarTopData.TournamentList.Tournaments}
           />
         </div> */}

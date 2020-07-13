@@ -2,24 +2,35 @@ import React, { Component } from "react";
 import FallenSoldier from "./FallenSoldier";
 export default class Player extends Component {
   render() {
-    /* 
+    /*
     const ph = this.props.side / 9;
     const pw = this.props.side / 9; */
-    let userpic;
-    if (!!this.props.PlayerData.userPicture && this.props.PlayerData.userPicture !== undefined)
-      userpic = this.props.PlayerData.userPicture;
-    else userpic = "player-img-top.png";
+
+    let playerData = {
+      name: "Player-1",
+      rating: 1600,
+      userPicture: "player-img-top.png"
+    };
+    // black: {
+    //   name: "Player-2",
+    //   rating: 1600,
+    //   userPicture: "player-img-bottom.png"
+    // }
+    // let userpic;
+    // if (!!playerData.userPicture && playerData.userPicture !== undefined)
+    //   userpic = playerData.userPicture;
+    let userpic = "player-img-top.png";
 
     const ph = this.props.side / 10;
     const pw = this.props.side / 10;
 
     let _user_side = pw / 1.3;
 
-    let userPicture = this.props.cssmanager.userPicture(this.props.side * 0.08);
+    let userPicture = this.props.cssManager.userPicture(this.props.side * 0.08);
     Object.assign(userPicture, { display: "inline-block", float: "left" });
-    let tagline = this.props.cssmanager.tagLine();
+    let tagline = this.props.cssManager.tagLine();
     Object.assign(tagline, { marginTop: "5px", float: "left" });
-    let userflag = this.props.cssmanager.userFlag(this.props.side * 0.07);
+    let userflag = this.props.cssManager.userFlag(this.props.side * 0.07);
     Object.assign(userflag, {
       float: "left",
       position: "absolute",
@@ -69,7 +80,7 @@ export default class Player extends Component {
                   width: "100%"
                 }}
               >
-                {this.props.PlayerData.name}({this.props.PlayerData.rating})
+                {this.props.playerData.name}({this.props.playerData.rating})
               </a>
             </div>
 
@@ -84,7 +95,7 @@ export default class Player extends Component {
               </span>
             </div>
           </div>
-          <img style={userflag} src={this.props.cssmanager.flags("us")} alt="us" />
+          {/* <img style={userflag} src={this.props.cssManager.flags("us")} alt="us" /> */}
         </div>
 
         <div
@@ -96,7 +107,7 @@ export default class Player extends Component {
           }}
         >
           <FallenSoldier
-            cssmanager={this.props.cssmanager}
+            cssManager={this.props.cssManager}
             side={this.props.side * 0.35}
             color={this.props.color}
             FallenSoldiers={this.props.FallenSoldiers}

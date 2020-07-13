@@ -31,16 +31,16 @@ export default class ExamineSidebarTop extends Component {
           <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to="/editor">
             <Button>Editor</Button>
           </Link>
-          <GameHistory cssmanager={this.props.cssmanager} game={this.props.RightBarTopData.MoveList} flip={this.props.flip} actionData={this.props.actionData} startGameExamine={this.props.startGameExamine} gameRequest={this.props.gameRequest} examineAction={this.props.examineAction} currentGame={this.props.currentGame} />
+          <GameHistory  cssManager={this.props. cssManager} game={this.props.RightBarTopData.MoveList} flip={this.props.flip} actionData={this.props.actionData} startGameExamine={this.props.startGameExamine} gameRequest={this.props.gameRequest} examineAction={this.props.examineAction} currentGame={this.props.currentGame} />
         </TabPane>
         <TabPane tab="Observe" key="2">
           <ExamineObserveTab game={this.props.game} userId={this.props.user._id} userGameStatus={this.props.user.status.game} allUsers={this.props.allUsers} observeUser={this.props.observeUser} unObserveUser={this.props.unObserveUser} />
         </TabPane>
       </Tabs>
-      // <Tabs cssmanager={this.props.cssmanager}>
+      // <Tabs  cssManager={this.props. cssManager}>
       //   <div label={translator("game")} imgsrc="images/game-icon-gray.png">
       //     <GameHistory
-      //       cssmanager={this.props.cssmanager}
+      //        cssManager={this.props. cssManager}
       //       game={this.props.RightBarTopData.MoveList}
       //       flip={this.props.flip}
       //       actionData={this.props.actionData}

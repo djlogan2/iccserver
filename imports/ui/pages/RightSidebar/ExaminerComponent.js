@@ -90,16 +90,16 @@ export default class ExamineComponent extends React.Component {
     const userdata = ["Joi", "Mac", "Smith", "Mannu"];
     return (
       <div>
-        <div style={this.props.cssmanager.tabSeparator()} />
-        <div style={this.props.cssmanager.matchUserScroll()}>
-          <SubTabs cssmanager={this.props.cssmanager}>
+        <div style={this.props. cssManager.tabSeparator()} />
+        <div style={this.props. cssManager.matchUserScroll()}>
+          <SubTabs  cssManager={this.props. cssManager}>
             <div label="Observer">
-              <div style={this.props.cssmanager.subTabHeader()}>
+              <div style={this.props. cssManager.subTabHeader()}>
                 {userdata2.map((user, index) => (
                   <div key={index} className="userlist">
                     <button
                       onClick={this.handelUserClick.bind(this, user)}
-                      style={this.props.cssmanager.matchUserButton()}
+                      style={this.props. cssManager.matchUserButton()}
                     >
                       {user}
                     </button>
@@ -109,12 +109,12 @@ export default class ExamineComponent extends React.Component {
             </div>
 
             <div label="Examiner">
-              <div style={this.props.cssmanager.subTabHeader()}>
+              <div style={this.props. cssManager.subTabHeader()}>
                 {userdata.map((user, index) => (
                   <div key={index} className="userlist">
                     <button
                       onClick={this.handelUserClick.bind(this, user)}
-                      style={this.props.cssmanager.matchUserButton()}
+                      style={this.props. cssManager.matchUserButton()}
                     >
                       {user}
                     </button>
@@ -132,7 +132,7 @@ export default class ExamineComponent extends React.Component {
 class SubTabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-    cssmanager: PropTypes.object.isRequired
+     cssManager: PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -166,7 +166,7 @@ class SubTabs extends Component {
                 key={label}
                 label={label}
                 onClick={onClickTabItem}
-                cssmanager={this.props.cssmanager}
+                 cssManager={this.props. cssManager}
               />
             );
           })}

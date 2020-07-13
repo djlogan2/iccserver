@@ -35,17 +35,17 @@ export default class RightBarToptabs extends Component {
     let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
 
     return (
-      <Tabs cssmanager={this.props.cssmanager}>
+      <Tabs  cssManager={this.props. cssManager}>
         <div label={translator("quikpairing")}>
-          <QuickPairing cssmanager={this.props.cssmanager} />
+          <QuickPairing  cssManager={this.props. cssManager} />
         </div>
 
         <div label={translator("seekgame")}>
-          <SeekGame cssmanager={this.props.cssmanager} />
+          <SeekGame  cssManager={this.props. cssManager} />
         </div>
 
         <div label={translator("matchuser")}>
-          <MatchUser cssmanager={this.props.cssmanager} gameRequest={this.props.gameRequest} />
+          <MatchUser  cssManager={this.props. cssManager} gameRequest={this.props.gameRequest} />
         </div>
       </Tabs>
     );

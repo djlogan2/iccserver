@@ -6,7 +6,7 @@ export default class GameHistory extends Component {
     return (
       <div className="game-history">
         <MoveList
-          cssmanager={this.props.cssmanager}
+           cssManager={this.props. cssManager}
           game={this.props.game}
           flip={this.props.flip}
           currentGame={this.props.currentGame}

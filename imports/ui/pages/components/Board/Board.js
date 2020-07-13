@@ -303,7 +303,7 @@ export default class Board extends React.Component {
   _renderFileSquare(file) {
     return (
       <FileSquare
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         file={file}
         side={this._square_side}
         key={"filesquare-" + file}
@@ -346,7 +346,7 @@ export default class Board extends React.Component {
 
     return (
       <RankSquare
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         rank={rank}
         side={this._square_side}
         key={"ranksquare-" + rank}
@@ -384,7 +384,7 @@ export default class Board extends React.Component {
 
     return (
       <PieceSquare
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         rank={rank}
         file={file}
         key={"piece-" + file + rank}
@@ -411,7 +411,7 @@ export default class Board extends React.Component {
 
     return (
       <BoardArrow
-        cssmanager={this.props.cssmanager}
+         cssManager={this.props. cssManager}
         size={this.props.side}
         from={{ x: from.x, y: from.y }}
         to={{ x: to.x, y: to.y }}

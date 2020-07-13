@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Modal, Button } from "antd";
 
-
 export default class PlayModaler extends Component {
   constructor(props) {
     super(props);
@@ -106,7 +105,12 @@ export default class PlayModaler extends Component {
     let statusText = this.getStatusText();
 
     return (
-      <Modal title={titleText} visible={isModal} onOk={() => {}} onCancel={this.handleCancel}>
+      <Modal
+        title={titleText}
+        visible={isModal}
+        onOk={this.handleCancel}
+        onCancel={this.handleCancel}
+      >
         <div className="play-modal">
           <div className="play-modal__main">
             <div className="play-modal__user-one">
@@ -120,7 +124,14 @@ export default class PlayModaler extends Component {
             </div>
           </div>
           <div className="play-modal__btn-block">
-            <Button className="play-modal__btn">Rematch</Button>
+            <Button
+              onClick={() => {
+                this.props.onRematch(userName);
+              }}
+              className="play-modal__btn"
+            >
+              Rematch
+            </Button>
           </div>
         </div>
       </Modal>

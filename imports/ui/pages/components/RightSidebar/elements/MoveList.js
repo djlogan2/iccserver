@@ -152,7 +152,7 @@ export default class MoveList extends Component {
       );
     });
     let btnstyle = {};
-    btnstyle = this.props.cssmanager.buttonStyle();
+    btnstyle = this.props.cssManager.buttonStyle();
     Object.assign(btnstyle, {
       background: "#f1f1f1",
       borderRadius: "5px",
@@ -162,46 +162,46 @@ export default class MoveList extends Component {
 
     return (
       <div className="move-list">
-        <div style={this.props.cssmanager.gameMoveList()}>{moveslist}</div>
+        <div style={this.props.cssManager.gameMoveList()}>{moveslist}</div>
 {/*
         {displayButton ? (
           <div style={mbtnstyle} className="moveAction">
             <button style={btnstyle} onClick={this.moveBackwordBeginning.bind(this)}>
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("fastForward")}
+                src={this.props.cssManager.buttonBackgroundImage("fastForward")}
                 alt="fast-forward"
               />
             </button>
             <button style={btnstyle} onClick={this.moveBackword.bind(this)}>
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("prevIconGray")}
+                src={this.props.cssManager.buttonBackgroundImage("prevIconGray")}
                 alt="previous"
               />
             </button>
             <button style={btnstyle} onClick={this.moveForward.bind(this)}>
-              <img src={this.props.cssmanager.buttonBackgroundImage("nextIconGray")} alt="next" />
+              <img src={this.props.cssManager.buttonBackgroundImage("nextIconGray")} alt="next" />
             </button>
             <button style={btnstyle} onClick={this.moveForwardEnd.bind(this, 1)}>
               <img
-                src={this.props.cssmanager.buttonBackgroundImage("fastForwardNext")}
+                src={this.props.cssManager.buttonBackgroundImage("fastForwardNext")}
                 alt="fast-forward-next"
               />
             </button>
             <button style={btnstyle} onClick={this.moveAutoForward.bind(this)}>
               {this.state.toggle ? (
                 <img
-                  src={this.props.cssmanager.buttonBackgroundImage("nextStop")}
+                  src={this.props.cssManager.buttonBackgroundImage("nextStop")}
                   alt="next-single"
                 />
               ) : (
                 <img
-                  src={this.props.cssmanager.buttonBackgroundImage("nextStart")}
+                  src={this.props.cssManager.buttonBackgroundImage("nextStart")}
                   alt="next-single"
                 />
               )}
             </button>
             <button style={btnstyle} onClick={this.props.flip}>
-              <img src={this.props.cssmanager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
+              <img src={this.props.cssManager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
             </button>
           </div>
         ) : null}
@@ -209,7 +209,7 @@ export default class MoveList extends Component {
           {statuslabel ? (
             <div
               className={"gamestatus " + (status === "playing" ? "active" : "default")}
-              style={this.props.cssmanager.drawActionSection()}
+              style={this.props.cssManager.drawActionSection()}
             >
               <span>{translator(status)}</span>
             </div>

@@ -86,10 +86,10 @@ export default class SeekGameComponent extends React.Component {
   render() {
     return (
       <div>
-        <div style={this.props.cssmanager.tabSeparator()} />
-        <div style={this.props.cssmanager.matchUserScroll()}>
+        <div style={this.props. cssManager.tabSeparator()} />
+        <div style={this.props. cssManager.matchUserScroll()}>
           <GameForm
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             handleChangeMinute={this.handleChangeMinute}
             handleChangeSecond={this.handleChangeSecond}
             handleChangeGameType={this.handleChangeGameType}

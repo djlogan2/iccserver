@@ -379,7 +379,7 @@ class Examine extends Component {
         <ExaminePage
           userId={Meteor.userId()}
           user={this.props.user}
-          cssmanager={css}
+           cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
           gameId={this.props.examine_game[0]._id}

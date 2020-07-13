@@ -43,8 +43,8 @@ class GameForm extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.GameForm", this.getLang());
-    let radioStyle = this.props.cssmanager.formLabelStyle("radio");
-    let formlabel = this.props.cssmanager.formLabelStyle();
+    let radioStyle = this.props. cssManager.formLabelStyle("radio");
+    let formlabel = this.props. cssManager.formLabelStyle();
     let minuteStyle = {};
     Object.assign(formlabel, { display: "block" });
     let selectorStyle = {
@@ -54,7 +54,7 @@ class GameForm extends Component {
       padding: "2px 6px"
     };
     let inputredio = {};
-    let formMainStyle = this.props.cssmanager.formMain();
+    let formMainStyle = this.props. cssManager.formMain();
 
     Object.assign(formMainStyle, {
       marginBottom: "10px",
@@ -68,9 +68,9 @@ class GameForm extends Component {
     return (
       <div style={{ display: "inline-block" }}>
         <div style={formMainStyle}>
-          <div style={this.props.cssmanager.formMainHalf()}>
+          <div style={this.props. cssManager.formMainHalf()}>
             <label style={formlabel}>{translator("timeControl")}</label>
-            <span style={this.props.cssmanager.spanStyle("form")}>
+            <span style={this.props. cssManager.spanStyle("form")}>
               <select
                 onChange={this.handleChangeMinute}
                 value={this.props.minute}
@@ -85,8 +85,8 @@ class GameForm extends Component {
             </span>
             <span style={minuteStyle}>{translator("minutes")}</span>
           </div>
-          <div style={this.props.cssmanager.formMainHalf()}>
-            {/*  <span style={this.props.cssmanager.spanStyle("form")}>
+          <div style={this.props. cssManager.formMainHalf()}>
+            {/*  <span style={this.props. cssManager.spanStyle("form")}>
               <select onChange={this.handleChangeSecond} value={this.props.inc}>
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -94,7 +94,7 @@ class GameForm extends Component {
                 <option value="3">3</option>
                 <option value="4">4</option>
                 <option value="5">5</option>
-              </select> 
+              </select>
             </span>*/}
             <label style={formlabel}>{translator("secondPerMove")}</label>
             <input
@@ -107,9 +107,9 @@ class GameForm extends Component {
           <div style={{ display: "block", content: "inherit", clear: "both" }} />
         </div>
         {/*
-        <div style={this.props.cssmanager.formMain()}>
+        <div style={this.props. cssManager.formMain()}>
         <div style={{ width: "100%", float: "left" }}>
-            <label style={this.props.cssmanager.formLabelStyle("first")}>
+            <label style={this.props. cssManager.formLabelStyle("first")}>
               {translator("incrementOrDelayType")}
             </label>
             <input
@@ -133,12 +133,12 @@ class GameForm extends Component {
               onChange={this.handleIncOrDelayTypeChange}
             />
             <label style={radioStyle}>{translator("bronstein")}</label>
-          </div> 
+          </div>
         </div>*/}
         <div style={formMainStyle}>
-          <div style={this.props.cssmanager.formMainHalf()}>
+          <div style={this.props. cssManager.formMainHalf()}>
             <label style={formlabel}>{translator("typeOfGame")}</label>
-            <span style={this.props.cssmanager.spanStyle("form")}>
+            <span style={this.props. cssManager.spanStyle("form")}>
               <select
                 onChange={this.handleChangeGameType}
                 value={this.props.type}
@@ -150,8 +150,8 @@ class GameForm extends Component {
             </span>
           </div>
 
-          <div style={this.props.cssmanager.formMainHalf()}>
-            <span style={this.props.cssmanager.spanStyle("form")}>
+          <div style={this.props. cssManager.formMainHalf()}>
+            <span style={this.props. cssManager.spanStyle("form")}>
               <input type="checkbox" checked={this.props.rated} onChange={this.handleRatedChange} />
               <label style={radioStyle}>{translator("rated")}</label>
             </span>
@@ -185,11 +185,11 @@ class GameForm extends Component {
           />
           <label style={radioStyle}>{translator("random")}</label>
         </div>
-        <div style={this.props.cssmanager.formMain()}>
+        <div style={this.props. cssManager.formMain()}>
           <div style={{ textAlign: "center" }}>
             <button
               onClick={this.handleMatchSubmit.bind(this)}
-              style={this.props.cssmanager.buttonStyle("formButton")}
+              style={this.props. cssManager.buttonStyle("formButton")}
             >
               {translator("submit")}
             </button>

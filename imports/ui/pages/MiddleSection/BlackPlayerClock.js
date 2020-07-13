@@ -71,7 +71,7 @@ export default class BlackPlayerClock extends Component {
         }}
       >
         <div style={clockstyle}>
-          {/* <div style={this.props.cssmanager.clock(time)}> */}
+          {/* <div style={this.props. cssManager.clock(time)}> */}
           {minute}:{second}
         </div>
       </div>

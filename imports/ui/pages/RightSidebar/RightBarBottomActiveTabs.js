@@ -22,7 +22,7 @@ class RightBarBottomActiveTabs extends Component {
     let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
 
     return (
-      <Tabs cssmanager={this.props.cssmanager} tabName="bottom">
+      <Tabs  cssManager={this.props. cssManager} tabName="bottom">
         <div
           label={translator("chat")}
           imgsrc="images/chat-icon-white.png"
@@ -30,7 +30,7 @@ class RightBarBottomActiveTabs extends Component {
           default="false"
         >
           <Chat
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             gameRequest={this.props.gameRequest}
             clientMessage={this.props.clientMessage}
           />
@@ -42,7 +42,7 @@ class RightBarBottomActiveTabs extends Component {
           default="false"
         >
           <Observers
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             examing={this.props.examing}
             clientMessage={this.props.clientMessage}
           />
@@ -53,7 +53,7 @@ class RightBarBottomActiveTabs extends Component {
           hoverSrc="images/room-chat-active.png"
           default="roomchat"
         >
-          <RoomChat cssmanager={this.props.cssmanager} clientMessage={this.props.clientMessage} />
+          <RoomChat  cssManager={this.props. cssManager} clientMessage={this.props.clientMessage} />
         </div>
       </Tabs>
     );

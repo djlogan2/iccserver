@@ -25,6 +25,7 @@ import "./../css/ExamineObserveTab.css";
 
 import "./../css/PlayFriend.css";
 import "./../css/PlayRightSidebar.css";
+import "./../css/GameControlBlock.css";
 
 import "./../css/Community.css";
 import "./../css/Messenger.css";
@@ -53,7 +54,7 @@ const AppWrapper = ({ className, children, cssManager, game_request }) => {
         </Modal>
       )}
 
-      <LeftSidebar cssmanager={cssManager} />
+      <LeftSidebar  cssManager={cssManager} />
       <Row className={`app-wrapper__row ${className}`}>{children}</Row>
     </div>
   );

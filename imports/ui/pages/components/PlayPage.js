@@ -159,7 +159,7 @@ export default class PlayPage extends Component {
 
   // gameRequest = (title, requestId) => {
   //   return (
-  //     <GameRequestPopup requestId={requestId} title={title} cssmanager={this.props.cssmanager} />
+  //     <GameRequestPopup requestId={requestId} title={title}  cssManager={this.props. cssManager} />
   //   );
   // };
   // actionPopup = (title, action) => {
@@ -168,20 +168,20 @@ export default class PlayPage extends Component {
   //       gameID={this.gameId}
   //       title={title}
   //       action={action}
-  //       cssmanager={this.props.cssmanager}
+  //        cssManager={this.props. cssManager}
   //     />
   //   );
   // };
 
   // GamenotificationPopup = (title, mid) => {
-  //   return <GamenotificationPopup mid={mid} title={title} cssmanager={this.props.cssmanager} />;
+  //   return <GamenotificationPopup mid={mid} title={title}  cssManager={this.props. cssManager} />;
   // };
   // GameResignedPopup = (title, mid) => {
   //   return (
   //     <GameResignedPopup
   //       mid={mid}
   //       title={title}
-  //       cssmanager={this.props.cssmanager}
+  //        cssManager={this.props. cssManager}
   //       resignNotificationCloseHandler={this.resignNotificationCloseHandler}
   //     />
   //   );
@@ -311,11 +311,11 @@ export default class PlayPage extends Component {
     if (!h) h = window.innerHeight;
 
     return (
-      <AppWrapper cssManager={this.props.cssmanager}>
+      <AppWrapper cssManager={this.props. cssManager}>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
-              cssmanager={this.props.cssmanager}
+              cssManager={this.props.cssManager}
               MiddleBoardData={this.Main.MiddleSection}
               currentGame={this.state.examineGame}
               ref="middleBoard"
@@ -338,7 +338,7 @@ export default class PlayPage extends Component {
         <Col span={10}>
           {/* <ExamineRightSidebar
             gameId={this.props.gameId}
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             RightSidebarData={this.Main.RightSection}
             currentGame={this.state.examineGame}
             flip={this._flipboard}
@@ -352,6 +352,7 @@ export default class PlayPage extends Component {
           <PlayRightSidebar
             gameId={this.props.gameId}
             user={this.props.user}
+            game={this.props.game}
             usersToPlayWith={this.props.usersToPlayWith}
             onChooseFriend={this.props.onChooseFriend}
             cssManager={this.props.cssManager}
@@ -359,7 +360,7 @@ export default class PlayPage extends Component {
             RightSidebarData={this.Main.RightSection}
           />
           {/* <RightSidebar
-            cssmanager={this.props.cssmanager}
+             cssManager={this.props. cssManager}
             RightSidebarData={this.Main.RightSection}
             gameStatus={status}
             currentGame={this.state.examineGame}

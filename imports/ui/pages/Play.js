@@ -324,6 +324,7 @@ class Play extends React.Component {
           userColor={userColor}
           userName={this.props.user && this.props.user.username}
           opponentName={opponentName}
+          onRematch={this.handleChooseFriend}
           isWhiteCheckmated={isWhiteCheckmated}
           isBlackCheckmated={isBlackCheckmated}
           isWhiteStalemated={isWhiteStalemated}
