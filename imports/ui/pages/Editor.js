@@ -56,7 +56,8 @@ class Editor extends Component {
     window.addEventListener("resize", this.handleResize);
     this.cssSubscribe = Meteor.subscribe("css");
     this.gameHistorySubscribe = Meteor.subscribe("game_history");
-    this.observingGameSubscribe = Meteor.subscribe("observing_games");
+    //this.observingGameSubscribe = Meteor.subscribe("observing_games");
+    this.gameSubscribe = Meteor.subscribe("games");
   }
 
   componentWillUnmount() {

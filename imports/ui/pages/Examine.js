@@ -83,10 +83,11 @@ class Examine extends Component {
         css: Meteor.subscribe("css"),
         users: Meteor.subscribe("loggedOnUsers"),
         chats: Meteor.subscribe("chat"),
-        game: Meteor.subscribe("playing_games"),
+        //game: Meteor.subscribe("playing_games"),
+        game: Meteor.subscribe("games"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
-        observingGames: Meteor.subscribe("observing_games"),
+        //observingGames: Meteor.subscribe("observing_games"),
         gameHistory: Meteor.subscribe("game_history"),
         importedGame: Meteor.subscribe("imported_games")
       },

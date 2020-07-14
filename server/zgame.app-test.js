@@ -3507,12 +3507,12 @@ describe("Game publication", function() {
           userId: user._id
         });
 
-        collector.collect(playing ? "playing_games" : "observing_games", collection => {
+        collector.collect("games", collection => {
           if (playing === player) {
             chai.assert.equal(collection.game.length, 1);
             if (playing) chai.assert.isUndefined(collection.game[0].computer_variations);
             else chai.assert.isDefined(collection.game[0].computer_variations);
-          } else chai.assert.isTrue(!collection.game || !collection.game.length);
+          } // observers get this now  else chai.assert.isTrue(!collection.game || !collection.game.length);
           resolve();
         });
       });
