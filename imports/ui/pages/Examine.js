@@ -318,7 +318,7 @@ class Examine extends Component {
     const gameRequest = this.props.game_request;
     let game = this.props.game_messages;
     let circles = [];
-    let actionlen;
+    //let actionlen;
     let gameExamin = [];
 
     const { systemCss, boardCss } = this.props;
@@ -345,13 +345,13 @@ class Examine extends Component {
     if (!!game) {
       this.gameId = game._id;
       this.message_identifier = "server:game:" + this.gameId;
-      actionlen = game.actions.length;
+      //actionlen = game.actions.length;
       capture = this._boardFromMongoMessages(game);
     } else {
       gameExamin = this.props.examine_game;
       if (!!gameExamin && gameExamin.length > 0) {
         game = gameExamin[gameExamin.length - 1];
-        actionlen = game.actions ? game.actions.length : 0;
+        //actionlen = game.actions ? game.actions.length : 0;
         this.gameId = game._id;
         this._examinBoard(game);
         if (!!game.circles) {
@@ -388,7 +388,7 @@ class Examine extends Component {
           unObserveUser={this.handleUnobserveUser}
           // fen={this._board.fen()}
           capture={capture}
-          len={actionlen}
+          //len={actionlen}
           game={game}
           gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}

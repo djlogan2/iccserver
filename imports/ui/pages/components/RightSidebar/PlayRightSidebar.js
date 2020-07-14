@@ -137,7 +137,7 @@ class PlayBlock extends Component {
   };
 
   handlePlayComputer = () => {
-    Meteor.call("startBotGame", "play_computer", 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    Meteor.call("startBotGame", "play_computer", 0, "standard", 15, 0, "none", 15, 0, "none", 3);
     this.setState({ status: "playing" });
   };
 

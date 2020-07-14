@@ -267,7 +267,7 @@ class Play extends React.Component {
     const gameRequest = this.props.game_request;
     let game = this.props.game_playing;
     let circles = [];
-    let actionlen;
+    //let actionlen;
     let gameExamin = [];
 
     let { isWhiteCheckmated, isBlackCheckmated, isWhiteStalemated, isBlackStalemated } = this.props;
@@ -297,6 +297,7 @@ class Play extends React.Component {
     if (game) {
       this.gameId = game._id;
       this.message_identifier = "server:game:" + this.gameId;
+      //actionlen = game.actions.length;
       capture = this._boardFromMongoMessages(game);
     }
 
@@ -339,7 +340,7 @@ class Play extends React.Component {
           onChooseFriend={this.handleChooseFriend}
           // fen={this._board.fen()}
           capture={capture}
-          len={actionlen}
+          //len={actionlen}
           game={game}
           user={this.props.user}
           gameHistoryload={this.gameHistoryload}
