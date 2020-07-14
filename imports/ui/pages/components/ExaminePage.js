@@ -162,7 +162,7 @@ export default class ExaminePage extends Component {
 
   gameRequest = (title, requestId) => {
     return (
-      <GameRequestPopup requestId={requestId} title={title}  cssManager={this.props. cssManager} />
+      <GameRequestPopup requestId={requestId} title={title} cssManager={this.props.cssManager} />
     );
   };
   actionPopup = (title, action) => {
@@ -171,20 +171,20 @@ export default class ExaminePage extends Component {
         gameID={this.gameId}
         title={title}
         action={action}
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
       />
     );
   };
 
   GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title}  cssManager={this.props. cssManager} />;
+    return <GamenotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
   };
   GameResignedPopup = (title, mid) => {
     return (
       <GameResignedPopup
         mid={mid}
         title={title}
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         resignNotificationCloseHandler={this.resignNotificationCloseHandler}
       />
     );
@@ -193,7 +193,7 @@ export default class ExaminePage extends Component {
     return (
       <ExaminActionPopup
         action={action}
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
       />
     );
@@ -289,7 +289,7 @@ export default class ExaminePage extends Component {
       this.Main.RightSection.MoveList = game;
 
       const othercolor = this.userId === game.white.id ? "black" : "white";
-
+      /*
       const actions = game.actions;
 
       if (!!actions && actions.length !== 0) {
@@ -327,6 +327,7 @@ export default class ExaminePage extends Component {
           }
         }
       }
+      */
     } else {
       status = "idlemode";
       // this.intializeBoard();
@@ -350,11 +351,11 @@ export default class ExaminePage extends Component {
     if (!h) h = window.innerHeight;
 
     return (
-      <AppWrapper cssManager={this.props. cssManager}>
+      <AppWrapper cssManager={this.props.cssManager}>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
-               cssManager={this.props. cssManager}
+              cssManager={this.props.cssManager}
               MiddleBoardData={this.Main.MiddleSection}
               currentGame={this.state.examineGame}
               ref="middleBoard"
@@ -380,7 +381,7 @@ export default class ExaminePage extends Component {
             allUsers={this.props.allUsers}
             observeUser={this.props.observeUser}
             unObserveUser={this.props.unObserveUser}
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             RightSidebarData={this.Main.RightSection}
             currentGame={this.state.examineGame}
             flip={this._flipboard}

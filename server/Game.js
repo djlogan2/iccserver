@@ -72,15 +72,19 @@ class Game {
               },
               {
                 fields: {
-                  startTime: 1,
-                  tomove: 1,
-                  wild: 1,
-                  rating_type: 1,
-                  rated: 1,
-                  status: 1,
+                  black: 1,
                   clocks: 1,
+                  fen: 1,
+                  observers: 1,
+                  pending: 1,
+                  rated: 1,
+                  rating_type: 1,
+                  startTime: 1,
+                  status: 1,
+                  tomove: 1,
+                  variations: 1,
                   white: 1,
-                  black: 1
+                  wild: 1
                 }
               }
             );

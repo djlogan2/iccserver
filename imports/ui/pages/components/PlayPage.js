@@ -262,8 +262,9 @@ export default class PlayPage extends Component {
 
       const othercolor = this.userId === game.white.id ? "black" : "white";
 
-      const actions = game.actions;
+      //const actions = game.actions;
 
+      /*
       if (!!actions && actions.length !== 0) {
         for (const action of actions) {
           const issuer = action["issuer"];
@@ -299,6 +300,7 @@ export default class PlayPage extends Component {
           }
         }
       }
+      */
     } else {
       status = "idlemode";
       // this.intializeBoard();
