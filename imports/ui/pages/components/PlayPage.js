@@ -95,21 +95,21 @@ export default class PlayPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!!this.props.len && !!nextProps.len) {
-      if (nextProps.len !== this.props.len)
-        if (
-          this.props.game.status === "examining" &&
-          (this.state.exnotification === true || this.state.newOppenetRequest === true)
-        ) {
-          this.setState({ exnotification: false, newOppenetRequest: false });
-        }
-      if (
-        this.props.game.status === "playing" &&
-        (this.state.newOppenetRequest === true || this.state.examineGame === true)
-      ) {
-        this.setState({ newOppenetRequest: false, examineGame: false });
-      }
-    }
+    // if (!!this.props.len && !!nextProps.len) {
+    //   if (nextProps.len !== this.props.len)
+    //     if (
+    //       this.props.game.status === "examining" &&
+    //       (this.state.exnotification === true || this.state.newOppenetRequest === true)
+    //     ) {
+    //       this.setState({ exnotification: false, newOppenetRequest: false });
+    //     }
+    //   if (
+    //     this.props.game.status === "playing" &&
+    //     (this.state.newOppenetRequest === true || this.state.examineGame === true)
+    //   ) {
+    //     this.setState({ newOppenetRequest: false, examineGame: false });
+    //   }
+    // }
   }
   /**
    * Add event listener

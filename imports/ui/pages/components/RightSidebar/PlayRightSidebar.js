@@ -74,10 +74,10 @@ class LocationCotrols extends Component {
   }
 }
 
-const GameControlsBlock = ({ gameId, game }) => {
+const GameControlsBlock = ({ gameId, game, flip }) => {
   return (
     <div className="game-control-block">
-      <LocationCotrols gameId={gameId} game={game} />
+      <LocationCotrols gameId={gameId} game={game} flip={flip} />
     </div>
   );
 };
@@ -184,17 +184,21 @@ class PlayBlock extends Component {
           <GameHistory
             cssManager={this.props.cssManager}
             game={this.props.RightSidebarData.MoveList}
-            flip={this.props.flip}
             actionData={this.props.actionData}
             startGameExamine={this.props.startGameExamine}
             gameRequest={this.props.gameRequest}
             examineAction={this.props.examineAction}
             currentGame={this.props.currentGame}
           />
-          <GameControlsBlock gameId={this.props.game._id} game={this.props.game} />
+          <GameControlsBlock
+            gameId={this.props.game._id}
+            game={this.props.game}
+            flip={this.props.flip}
+          />
         </div>
       );
     }
+    return null;
   }
 }
 

@@ -297,7 +297,6 @@ class Play extends React.Component {
     if (game) {
       this.gameId = game._id;
       this.message_identifier = "server:game:" + this.gameId;
-      actionlen = game.actions.length;
       capture = this._boardFromMongoMessages(game);
     }
 
