@@ -22,10 +22,18 @@ class LocationCotrols extends Component {
   }
 
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, this.currentindex);
+    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, this.currentindex, err => {
+      if (err) {
+        debugger;
+      }
+    });
   };
   moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1);
+    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, err => {
+      if (err) {
+        debugger;
+      }
+    });
   };
 
   moveForward = () => {
@@ -34,7 +42,11 @@ class LocationCotrols extends Component {
     if (ind <= this.cmi) {
       idc = this.moves[ind].idc;
     }
-    Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, idc);
+    Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, idc, err => {
+      if (err) {
+        debugger;
+      }
+    });
   };
 
   moveForwardEnd = cmi => {
@@ -42,7 +54,11 @@ class LocationCotrols extends Component {
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
       console.log(slicemoves[i].idc);
-      Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, slicemoves[i].idc);
+      Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, slicemoves[i].idc, err => {
+        if (err) {
+          debugger;
+        }
+      });
     }
   };
 
