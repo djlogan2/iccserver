@@ -17,7 +17,6 @@ export default class WhitePlayerClock extends Component {
       this.intervalId = setInterval(() => {
         //log.debug("white inside setinterval: ", this.state.time);
         const { time } = this.state;
-        //  console.log("state current time for white: " + time);
         if (time > 0) {
           this.setState({
             time: time - 1
@@ -25,15 +24,10 @@ export default class WhitePlayerClock extends Component {
         }
       }, 1000);
     } else {
-      //    console.log("NOT ACTIVE WHITE");
       clearInterval(this.intervalId);
     }
   }
-  // componentWillReceiveProps() {
-  //   this.setState({
-  //     time: this.props.ClockData.current
-  //   });
-  // }
+
   render() {
     const { time } = this.state.time;
     let minutes = "" + Math.floor((time % (TOTAL_MINUTES * TOTAL_MINUTES)) / TOTAL_MINUTES);

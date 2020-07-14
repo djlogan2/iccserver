@@ -86,7 +86,6 @@ MugshotCollection.allow({
     return !!user && Users.isAuthorized(user, "upload_mugshot");
   },
   update: function(userId, doc) {
-    //console.log("update userId=" + userId + ", doc=" + JSON.stringify(doc));
     if (!userId) {
       return false;
     }
@@ -95,7 +94,6 @@ MugshotCollection.allow({
     return !!user && Users.isAuthorized(user, "upload_mugshot");
   },
   download: function(userId, doc) {
-    //console.log("download userId=" + userId + ", doc=" + JSON.stringify(doc));
     return false; //doc.creatorId == userId;
   }
 });

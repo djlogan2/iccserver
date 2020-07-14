@@ -15,6 +15,7 @@
     "client/TestContainerCssManager_js": "TRACE",
     "ICCMeteorError": "TRACE",
     "server/ClientMessages_js": "ERROR",
+    "server/engine_manager_js": "DEBUG",
     "server/firstRunUsers_js": "ERROR",
     "server/Game_js": "DEBUG",
     "server/GameRequest_js": "ERROR",

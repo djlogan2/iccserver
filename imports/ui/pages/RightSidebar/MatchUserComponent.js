@@ -135,7 +135,6 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     let tabHading = this.props. cssManager.formMain();
     Object.assign(tabHading, { backgroundColor: "#eee", padding: "8px 5px", marginTop: "10px" });
 
-    //  console.log(userdata);
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (

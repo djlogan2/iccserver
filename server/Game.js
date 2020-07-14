@@ -186,15 +186,15 @@ class Game {
     });
   }
 
-  getAndCheck(message_identifier, game_id) {
-    const self = Meteor.user();
+  getAndCheck(self, message_identifier, game_id) {
     check(self, Object);
     check(game_id, String);
 
     const game = this.GameCollection.findOne({ _id: game_id });
 
     if (!game) {
-      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
+      if (self._id !== "computer")
+        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
 
@@ -265,7 +265,6 @@ class Game {
   promote_to_king*/
   ) {
     const self = Meteor.user();
-
 
     check(self, Object);
     check(message_identifier, String);
@@ -869,8 +868,11 @@ class Game {
     check(move, String);
     const self = Meteor.user();
     check(self, Object);
+    this.internalSaveLocalMove(self, message_identifier, game_id, move);
+  }
 
-    const game = this.getAndCheck(message_identifier, game_id);
+  internalSaveLocalMove(self, message_identifier, game_id, move) {
+    const game = this.getAndCheck(self, message_identifier, game_id);
 
     if (!game) return;
     const chessObject = active_games[game_id];
@@ -879,6 +881,11 @@ class Game {
     if (game.status === "playing") {
       const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
       if (self._id !== turn_id) {
+        if (self._id === "computer")
+          throw new Meteor.Error(
+            "Unable to make local move",
+            "Computer is trying to make an illegal move"
+          );
         ClientMessages.sendMessageToClient(
           Meteor.user(),
           message_identifier,
@@ -949,7 +956,10 @@ class Game {
 
       if (!!setobject.result) {
         setobject.status = "examining";
-        setobject.examining = [game.white.id, game.black.id];
+        setobject.examining = [];
+        if (game.white.id !== "computer") setobject.examining.push(game.white.id);
+        if (game.black.id !== "computer") setobject.examining.push(game.black.id);
+        //setobject.examining = [game.white.id, game.black.id];
         unsetobject.pending = "";
       } else {
         setobject["pending." + otherbw + ".draw"] = "0";
@@ -1026,8 +1036,10 @@ class Game {
     setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
 
     if (setobject.result) {
-      Users.setGameStatus(message_identifier, game.white.id, "examining");
-      Users.setGameStatus(message_identifier, game.black.id, "examining");
+      if (game.white.id !== "computer")
+        Users.setGameStatus(message_identifier, game.white.id, "examining");
+      if (game.black.id !== "computer")
+        Users.setGameStatus(message_identifier, game.black.id, "examining");
     }
 
     this.GameCollection.update(
@@ -1447,7 +1459,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
 
     if (game.status !== "playing") {
@@ -1505,7 +1517,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "NOT_PLAYING_A_GAME");
@@ -1571,7 +1583,7 @@ class Game {
 
     const self = Meteor.user();
     check(self, Object);
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -1611,7 +1623,7 @@ class Game {
     check(self, Object);
 
     log.debug("requestLocalDraw ", game_id);
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
 
     if (game.legacy_game_number)
@@ -1693,7 +1705,7 @@ class Game {
 
     log.debug("requestLocalAbort ", game_id);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
 
     if (game.legacy_game_number)
@@ -1787,7 +1799,7 @@ class Game {
 
     log.debug("requestLocalAdjourn ", game_id);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
 
     if (game.legacy_game_number)
@@ -1829,7 +1841,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -1891,7 +1903,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -1946,7 +1958,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -2189,7 +2201,7 @@ class Game {
     check(game_id, String);
     check(game_id, String);
     const self = Meteor.user();
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
 
     log.debug("declineLocalDraw ", game_id);
 
@@ -2221,7 +2233,7 @@ class Game {
     check(game_id, String);
     check(game_id, String);
     const self = Meteor.user();
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
 
     log.debug("declineLocalAbort ", game_id);
 
@@ -2253,7 +2265,7 @@ class Game {
     check(game_id, String);
     check(game_id, String);
     const self = Meteor.user();
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
 
     log.debug("declineLocalAdjourn ", game_id);
 
@@ -2290,7 +2302,7 @@ class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.getAndCheck(message_identifier, game_id);
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game) return;
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
@@ -3400,14 +3412,14 @@ class Game {
   }
 
   _startGamePing(game_id, color) {
-    log.debug("_startGamePing game_id=" + game_id + ", color=" + color);
+    //log.debug("_startGamePing game_id=" + game_id + ", color=" + color);
     if (!game_pings[game_id]) game_pings[game_id] = {};
     game_pings[game_id][color] = new TimestampServer(
       "server game",
       (key, msg) => {
-        log.debug(
-          "_startGamePing game_id=" + game_id + ", key=" + key + ", ping=" + JSON.stringify(msg)
-        );
+        // log.debug(
+        //   "_startGamePing game_id=" + game_id + ", key=" + key + ", ping=" + JSON.stringify(msg)
+        // );
         if (key === "ping") {
           const pushobject = {};
           pushobject["lag." + color + ".active"] = msg;
@@ -3562,16 +3574,18 @@ class Game {
       default:
         break;
     }
-    ClientMessages.sendMessageToClient(
-      white_id,
-      message_identifier,
-      "GAME_STATUS_" + color + status
-    );
-    ClientMessages.sendMessageToClient(
-      black_id,
-      message_identifier,
-      "GAME_STATUS_" + color + status
-    );
+    if (white_id !== "computer")
+      ClientMessages.sendMessageToClient(
+        white_id,
+        message_identifier,
+        "GAME_STATUS_" + color + status
+      );
+    if (black_id !== "computer")
+      ClientMessages.sendMessageToClient(
+        black_id,
+        message_identifier,
+        "GAME_STATUS_" + color + status
+      );
   }
 }
 

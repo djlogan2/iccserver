@@ -371,10 +371,7 @@ class Examine extends Component {
     if (this.props.examine_game.length === 0) {
       return <Loading />;
     }
-    // const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
-    // const list = Meteor.users.find({ "game.status": { $in: ["playing", "examining"] } }).fetch();
-    // const allLisst =  Meteor.users.find().fetch();
-    // console.log(localUsers, list, allLisst);
+
     return (
       <div className="examine">
         <ExaminePage

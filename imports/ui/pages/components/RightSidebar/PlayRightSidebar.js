@@ -53,7 +53,6 @@ class LocationCotrols extends Component {
     let movedata = this.props.game.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
-      console.log(slicemoves[i].idc);
       Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, slicemoves[i].idc, err => {
         if (err) {
           debugger;
@@ -153,7 +152,7 @@ class PlayBlock extends Component {
   };
 
   handlePlayComputer = () => {
-    Meteor.call("startBotGame", "play_computer", 0, "standard", 15, 0, "none", 15, 0, "none", 3);
+    Meteor.call("startBotGame", "play_computer", 0, "blitz", 5, 0, "none", 5, 0, "none", 3);
     this.setState({ status: "playing" });
   };
 

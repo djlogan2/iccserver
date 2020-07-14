@@ -60,13 +60,8 @@ export default class MoveList extends Component {
     let movedata = this.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
-      console.log(slicemoves[i].idc);
       Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc);
     }
-
-    // console.log(v.idc);
-
-    //  Meteor.call("moveForward", "MoveForward", this.gameId,movecount);
   };
 
   moveAutoForward = () => {
@@ -107,7 +102,6 @@ export default class MoveList extends Component {
       this.moves.push({ idc: parseInt(ch[0]), idx: parseInt(ch[1]), move: ch[2] });
     }
 
-    console.log(this.moves);
     /* TODO: movlist button display operation*/
     let displayButton = 0;
     let statuslabel = 0;

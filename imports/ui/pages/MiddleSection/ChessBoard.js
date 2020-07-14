@@ -38,7 +38,6 @@ export default class ChessBoard extends PureComponent {
     });
     if (move === null) {
       this.setState({ fen: this.chess.fen() });
-      // console.log("move has been "+ this.chess.fen());
       return;
     } else {
       let history = this.chess.history();

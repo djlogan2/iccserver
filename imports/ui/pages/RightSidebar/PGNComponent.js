@@ -20,9 +20,7 @@ class PGN extends Component {
     let upload = false;
     if (!!file) {
       var msFile = new FS.File(file);
-      ///console.log(msFile);
       msFile.creatorId = Meteor.userId();
-      //msFile.owner=Meteor.userId();
 
       let confirm = PgnImports.insert(msFile, function(err, fileObj) {
         if (err) {
