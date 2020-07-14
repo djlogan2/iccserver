@@ -1646,15 +1646,15 @@ class Game {
       Users.setGameStatus(message_identifier, game.white.id, "examining");
       Users.setGameStatus(message_identifier, game.black.id, "examining");
       const status2 = active_games[game_id].in_threefold_repetition() ? 15 : 16;
+      const examiners = [];
+      if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
+      if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
       this.GameCollection.update(
         { _id: game_id, status: "playing" },
         {
           $addToSet: {
             observers: {
-              $each: [
-                { id: game.white.id, username: game.white.name },
-                { id: game.black.id, username: game.black.name }
-              ]
+              $each: examiners
             }
           },
           $push: {
@@ -1665,10 +1665,7 @@ class Game {
             status: "examining",
             result: "1/2-1/2",
             status2: status2,
-            examiners: [
-              { id: game.white.id, username: game.white.name },
-              { id: game.black.id, username: game.black.name }
-            ]
+            examiners: examiners
           }
         }
       );
@@ -1735,6 +1732,9 @@ class Game {
       this.endGamePing(game_id);
       this.endMoveTimer(game_id);
 
+      const examiners = [];
+      if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
+      if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
       this.GameCollection.update(
         { _id: game_id, status: "playing" },
         {
@@ -1742,18 +1742,12 @@ class Game {
             status: "examining",
             result: "*",
             status2: 37,
-            examiners: [
-              { id: game.white.id, username: game.white.name },
-              { id: game.black.id, username: game.black.name }
-            ]
+            examiners: examiners
           },
           $unset: { pending: "" },
           $addToSet: {
             observers: {
-              $each: [
-                { id: game.white.id, username: game.white.name },
-                { id: game.black.id, username: game.black.name }
-              ]
+              $each: examiners
             }
           },
           $push: {
@@ -1851,6 +1845,10 @@ class Game {
     this.endGamePing(game_id);
     this.endMoveTimer(game_id);
 
+    const examiners = [];
+    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
+    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+
     this.GameCollection.update(
       { _id: game_id },
       {
@@ -1858,18 +1856,12 @@ class Game {
           status: "examining",
           result: "1/2-1/2",
           status2: 13,
-          examiners: [
-            { id: game.white.id, username: game.white.name },
-            { id: game.black.id, username: game.black.name }
-          ]
+          examiners: examiners
         },
         $unset: { pending: "" },
         $addToSet: {
           observers: {
-            $each: [
-              { id: game.white.id, username: game.white.name },
-              { id: game.black.id, username: game.black.name }
-            ]
+            $each: examiners
           }
         },
         $push: {
@@ -1913,6 +1905,10 @@ class Game {
     this.endGamePing(game_id);
     this.endMoveTimer(game_id);
 
+    const examiners = [];
+    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
+    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+
     this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
@@ -1920,18 +1916,12 @@ class Game {
           status: "examining",
           result: "*",
           status2: 30,
-          examiners: [
-            { id: game.white.id, username: game.white.name },
-            { id: game.black.id, username: game.black.name }
-          ]
+          examiners: examiners
         },
         $unset: { pending: "" },
         $addToSet: {
           observers: {
-            $each: [
-              { id: game.white.id, username: game.white.name },
-              { id: game.black.id, username: game.black.name }
-            ]
+            $each: examiners
           }
         },
         $push: {
@@ -1971,6 +1961,10 @@ class Game {
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
 
+    const examiners = [];
+    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
+    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+
     this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
@@ -1978,18 +1972,12 @@ class Game {
           status: "examining",
           result: "*",
           status2: 24,
-          examiners: [
-            { id: game.white.id, username: game.white.name },
-            { id: game.black.id, username: game.black.name }
-          ]
+          examiners: examiners
         },
         $unset: { pending: "" },
         $addToSet: {
           observers: {
-            $each: [
-              { id: game.white.id, username: game.white.name },
-              { id: game.black.id, username: game.black.name }
-            ]
+            $each: examiners
           }
         },
         $push: {
@@ -2331,15 +2319,16 @@ class Game {
         throw new Meteor.Error("Unable to resign game", "Unknown reason code " + reason);
     }
 
+    const examiners = [];
+    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
+    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+
     this.GameCollection.update(
       { _id: game._id, status: "playing" },
       {
         $addToSet: {
           observers: {
-            $each: [
-              { id: game.white.id, username: game.white.name },
-              { id: game.black.id, username: game.black.name }
-            ]
+            $each: examiners
           }
         },
         $push: {
@@ -2348,10 +2337,7 @@ class Game {
         $unset: { pending: "" },
         $set: {
           status: "examining",
-          examiners: [
-            { id: game.white.id, username: game.white.name },
-            { id: game.black.id, username: game.black.name }
-          ],
+          examiners: examiners,
           result: result,
           status2: reason
         }
@@ -3502,22 +3488,18 @@ class Game {
       setobject.result = color === "white" ? "0-1" : "1-0";
       setobject.status2 = 2;
       setobject.status = "examining";
-      setobject.examiners = [
-        { id: game.white.id, username: game.white.name },
-        { id: game.black.id, username: game.black.name }
-      ];
-      addtosetobject.observers = {
-        $each: [
-          { id: game.white.id, username: game.white.name },
-          { id: game.black.id, username: game.black.name }
-        ]
-      };
+      setobject.examiners = [];
+      if (game.white.id !== "computer")
+        setobject.examiners.push({ id: game.white.id, username: game.white.name });
+      if (game.black.id !== "computer")
+        setobject.examiners.push({ id: game.black.id, username: game.black.name });
+      addtosetobject.observers = { $each: setobject.examiners };
       this.GameCollection.update(
         { _id: game_id },
         { $set: setobject, $addToSet: addtosetobject, $unset: { pending: 1 } }
       );
-      Users.setGameStatus("server", game.white.id, "examining");
-      Users.setGameStatus("server", game.black.id, "examining");
+      if (game.white.id !== "computer") Users.setGameStatus("server", game.white.id, "examining");
+      if (game.black.id !== "computer") Users.setGameStatus("server", game.black.id, "examining");
       if (game.rated) this.updateUserRatings(game, setobject.result, 2);
       GameHistory.savePlayedGame("server", game_id);
       this.sendGameStatus(game_id, game.white.id, game.black.id, color, setobject.result, 2);
