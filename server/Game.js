@@ -75,6 +75,7 @@ class Game {
                   black: 1,
                   clocks: 1,
                   fen: 1,
+                  lag: 1,
                   observers: 1,
                   pending: 1,
                   rated: 1,
