@@ -18,7 +18,10 @@ const PersonalChatApp = ({ opponentId, chats, ...rest }) => {
 
 export default withTracker(props => {
   return {
-    // chats: Chat.find({ $or: [{ id: props.opponentId }, { "issuer.id": props.opponentId }] }).fetch()
-    chats: Chat.find({ type: "private" }).fetch()
+    chats: Chat.find({
+      type: "private",
+      $or: [{ id: props.opponentId }, { "issuer.id": props.opponentId }]
+    }).fetch()
+    // chats: Chat.find({ type: "private" }).fetch()
   };
 })(PersonalChatApp);

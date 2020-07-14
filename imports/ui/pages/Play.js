@@ -9,6 +9,8 @@ import Loading from "../pages/components/Loading";
 import PlayModaler from "../pages/components/Modaler/PlayModaler";
 import Chess from "chess.js";
 import { Link } from "react-router-dom";
+import i18n from "meteor/universe:i18n";
+import { ActionPopup } from "./components/Popup/Popup";
 import {
   ClientMessagesCollection,
   Game,
@@ -22,8 +24,74 @@ import { TimestampClient } from "../../../lib/Timestamp";
 
 const log = new Logger("client/AppContainer");
 
+class PlayNotifier extends Component {
+  constructor() {
+    super();
+  }
 
-class Play extends React.Component {
+  renderActionPopup = (title, action) => {
+    return (
+      <ActionPopup
+        gameID={this.props.game._id}
+        title={title}
+        action={action}
+        cssManager={this.props.cssManager}
+      />
+    );
+  };
+
+  render() {
+    const translator = i18n.createTranslator("Common.MainPage", "en-US");
+    if (!this.props.game) {
+      return null;
+    }
+    if (this.props.game.actions === undefined || this.props.game.actions.length === 0) {
+      return null;
+    }
+
+    const { game, userId } = this.props;
+    const { actions } = game;
+
+    let actionPopup = null;
+    const othercolor = this.props.userId === this.props.game.white.id ? "black" : "white";
+
+    for (const action of actions) {
+      const issuer = action["issuer"];
+      switch (action["type"]) {
+        case "takeback_requested":
+          if (
+            issuer !== this.userId &&
+            (!!game.pending && game.pending[othercolor].takeback.number > 0)
+          ) {
+            let moveCount =
+              game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
+            actionPopup = this.renderActionPopup(translator(moveCount), "takeBack");
+          }
+          break;
+        case "draw_requested":
+          if (issuer !== userId && (!!game.pending && game.pending[othercolor].draw !== "0")) {
+            actionPopup = this.renderActionPopup(translator("draw"), "draw");
+          }
+          break;
+        case "adjourn_requested":
+          if (issuer !== userId && (!!game.pending && game.pending[othercolor].adjourn !== "0")) {
+            actionPopup = this.renderActionPopup("Adjourn", "adjourn");
+          }
+          break;
+        case "abort_requested":
+          if (issuer !== userId && (!!game.pending && game.pending[othercolor].abort !== "0")) {
+            actionPopup = this.renderActionPopup(translator("abort"), "abort");
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    return actionPopup;
+  }
+}
+
+class Play extends Component {
   constructor(props) {
     super(props);
     this.gameId = null;
@@ -131,15 +199,27 @@ class Play extends React.Component {
   }
 
   drawCircle(square, color, size) {
-    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size);
+    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size, err => {
+      if (err) {
+        debugger;
+      }
+    });
   }
 
   removeCircle(square) {
-    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square);
+    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square, err => {
+      if (err) {
+        debugger;
+      }
+    });
   }
 
   _pieceSquareDragStop = raf => {
-    Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
+    Meteor.call("addGameMove", "gameMove", this.gameId, raf.move, err => {
+      if (err) {
+        debugger;
+      }
+    });
   };
 
   gameHistoryload(data) {
@@ -331,6 +411,7 @@ class Play extends React.Component {
           isWhiteStalemated={isWhiteStalemated}
           isBlackStalemated={isBlackStalemated}
         />
+        <PlayNotifier game={this.props.game_playing} userId={Meteor.userId()} cssManager={css} />
         <PlayPage
           userId={Meteor.userId()}
           cssManager={css}
