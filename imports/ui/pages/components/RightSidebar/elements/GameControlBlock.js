@@ -19,7 +19,7 @@ class LocationControls extends Component {
   }
 
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, this.currentindex, err => {
+    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, this.state.cmi, err => {
       if (err) {
         debugger;
       }
@@ -34,12 +34,13 @@ class LocationControls extends Component {
   };
 
   moveForward = () => {
-    let ind = this.currentindex + 1;
-    let idc = 0;
-    if (ind <= this.cmi) {
-      idc = this.moves[ind].idc;
+    let ind = this.state.cmi + 1;
+    let variationIndex = 0;
+    if (this.props.game.variations.movelist[ind]) {
+      variationIndex = this.props.game.variations.movelist[ind].idc;
     }
-    Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, idc, err => {
+
+    Meteor.call("moveForward", "moveForward", this.props.gameId, 1, variationIndex, err => {
       if (err) {
         debugger;
       }
@@ -47,11 +48,11 @@ class LocationControls extends Component {
   };
 
   moveForwardEnd = cmi => {
-    let movedata = this.props.game.moves;
-    let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
+    let { movelist } = this.props.game.variations;
+
+    let slicemoves = movelist.slice(this.state.cmi + 1, movelist.length);
     for (let i = 0; i <= slicemoves.length; i++) {
-      console.log(slicemoves[i].idc);
-      Meteor.call("moveForward", "MoveForward", this.props.gameId, 1, slicemoves[i].idc, err => {
+      Meteor.call("moveForward", "moveForward", this.props.gameId, 1, 0, err => {
         if (err) {
           debugger;
         }
@@ -93,6 +94,14 @@ class ActionControls extends Component {
     this.state = {};
   }
 
+  handleTakeback = () => {
+    Meteor.call("requestTakeback", "requestTakeback", this.props.gameId, 1, err => {
+      if (err) {
+        debugger;
+      }
+    });
+  };
+
   handleResign = () => {
     // resignGame
     Meteor.call("resignGame", "resignGame", this.props.gameId, err => {
@@ -127,6 +136,11 @@ class ActionControls extends Component {
     return (
       <div className="action-controls">
         <button
+          title="takeback"
+          onClick={this.handleTakeback}
+          className="action-controls__item action-controls__item--takeback"
+        />
+        <button
           title="resign"
           onClick={this.handleResign}
           className="action-controls__item action-controls__item--resign"
@@ -160,4 +174,12 @@ const GameControlBlock = ({ gameId, game, flip }) => {
   );
 };
 
-export default GameControlBlock;
+const ExamineGameControlBlock = ({ gameId, game, flip }) => {
+  return (
+    <div className="game-control-block">
+      <LocationControls gameId={gameId} game={game} flip={flip} />
+    </div>
+  );
+};
+
+export { GameControlBlock, ExamineGameControlBlock };

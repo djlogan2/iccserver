@@ -71,7 +71,11 @@
     width: 4rem;
     cursor: pointer;
 }
-
+.action-controls__item--takeback {
+    background: url('images/navigation-takeback.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
 .action-controls__item--resign {
     background: url('images/navigation-resign.svg');
     background-repeat: no-repeat;

@@ -4,7 +4,7 @@ import { Tabs, Button } from "antd";
 import KibitzChatApp from "./../Chat/KibitzChatApp";
 import PersonalChatApp from "./../Chat/PersonalChatApp";
 import GameHistory from "./elements/GameHistory";
-import GameControlBlock from "./elements/GameControlBlock";
+import { GameControlBlock } from "./elements/GameControlBlock";
 
 const { TabPane } = Tabs;
 
@@ -171,7 +171,7 @@ export default class PlayRightSidebar extends Component {
               onChooseFriend={this.props.onChooseFriend}
               cssManager={this.props.cssManager}
               RightSidebarData={this.props.RightSidebarData}
-              flip={this._flipboard}
+              flip={this.props.flip}
             />
           </TabPane>
 

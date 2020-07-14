@@ -178,7 +178,7 @@ export default class PlayPage extends Component {
     this.setState({ exnotification: true });
   }
   _flipboard = () => {
-    this.refs.middleBoard._flipboard();
+    this.refs.middleBoard.switchSides();
   };
   getLang() {
     return (
@@ -232,45 +232,6 @@ export default class PlayPage extends Component {
 
       const othercolor = this.userId === game.white.id ? "black" : "white";
 
-      //const actions = game.actions;
-
-      /*
-      if (!!actions && actions.length !== 0) {
-        for (const action of actions) {
-          const issuer = action["issuer"];
-          switch (action["type"]) {
-            case "takeback_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].takeback.number > 0)
-              ) {
-                let moveCount =
-                  game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
-                actionPopup = this.actionPopup(translator(moveCount), "takeBack");
-              }
-              break;
-            case "draw_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].draw !== "0")
-              ) {
-                actionPopup = this.actionPopup(translator("draw"), "draw");
-              }
-              break;
-            case "abort_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].abort !== "0")
-              ) {
-                actionPopup = this.actionPopup(translator("abort"), "abort");
-              }
-              break;
-            default:
-              break;
-          }
-        }
-      }
-      */
     } else {
       status = "idlemode";
       // this.intializeBoard();
@@ -299,7 +260,6 @@ export default class PlayPage extends Component {
               top={position.top}
               circles={this.props.circles}
               //  fen={this.props.fen}
-
               width={this.state.width}
               height={this.state.height}
               gameStatus={status}

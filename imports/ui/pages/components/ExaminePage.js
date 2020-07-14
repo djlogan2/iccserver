@@ -223,7 +223,7 @@ export default class ExaminePage extends Component {
     this.setState({ exnotification: true });
   }
   _flipboard = () => {
-    this.refs.middleBoard._flipboard();
+    this.refs.middleBoard.switchSides();
   };
   getLang() {
     return (

@@ -4,6 +4,7 @@ import { Button } from "antd";
 // import Tabs from "./Tabs/Tabs";
 import GameHistory from "./GameHistory";
 import ExamineObserveTab from "./ExamineObserveTab";
+import { ExamineGameControlBlock } from "./GameControlBlock";
 // import CreateGame from "./CreateGameComponent";
 // import TournamentsList from "./TournamentsListComponent";
 import i18n from "meteor/universe:i18n";
@@ -20,21 +21,54 @@ export default class ExamineSidebarTop extends Component {
   }
 
   getLang() {
-    return (navigator.languages && navigator.languages[0]) || navigator.language || navigator.browserLanguage || navigator.userLanguage || "en-US";
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
   }
 
   render() {
     let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
     return (
-      <Tabs className="examine-sidebar-top" defaultActiveKey="1" size="small" type="card" style={{ marginBottom: 32 }}>
+      <Tabs
+        className="examine-sidebar-top"
+        defaultActiveKey="1"
+        size="small"
+        type="card"
+        style={{ marginBottom: 32 }}
+      >
         <TabPane tab={translator("game")} key="1">
           <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to="/editor">
             <Button>Editor</Button>
           </Link>
-          <GameHistory  cssManager={this.props. cssManager} game={this.props.RightBarTopData.MoveList} flip={this.props.flip} actionData={this.props.actionData} startGameExamine={this.props.startGameExamine} gameRequest={this.props.gameRequest} examineAction={this.props.examineAction} currentGame={this.props.currentGame} />
+          <GameHistory
+            cssManager={this.props.cssManager}
+            game={this.props.RightBarTopData.MoveList}
+            flip={this.props.flip}
+            actionData={this.props.actionData}
+            startGameExamine={this.props.startGameExamine}
+            gameRequest={this.props.gameRequest}
+            examineAction={this.props.examineAction}
+            currentGame={this.props.currentGame}
+          />
+          <ExamineGameControlBlock
+            gameId={this.props.game._id}
+            game={this.props.game}
+            flip={this.props.flip}
+          />
         </TabPane>
         <TabPane tab="Observe" key="2">
-          <ExamineObserveTab game={this.props.game} userId={this.props.user._id} userGameStatus={this.props.user.status.game} allUsers={this.props.allUsers} observeUser={this.props.observeUser} unObserveUser={this.props.unObserveUser} />
+          <ExamineObserveTab
+            game={this.props.game}
+            userId={this.props.user._id}
+            userGameStatus={this.props.user.status.game}
+            allUsers={this.props.allUsers}
+            observeUser={this.props.observeUser}
+            unObserveUser={this.props.unObserveUser}
+          />
         </TabPane>
       </Tabs>
       // <Tabs  cssManager={this.props. cssManager}>
