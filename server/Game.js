@@ -225,12 +225,9 @@ class Game {
     color,
     skill_level
   ) {
-    const other_user = {
-      status: { online: true }
-    };
     return this.startLocalGame(
       message_identifier,
-      other_user,
+      "computer",
       wild_number,
       rating_type,
       false,
@@ -267,6 +264,7 @@ class Game {
   promote_to_king*/
   ) {
     const self = Meteor.user();
+
 
     check(self, Object);
     check(message_identifier, String);
@@ -3849,8 +3847,6 @@ Meteor.methods({
     // eslint-disable-next-line meteor/audit-argument-checks
     rating_type,
     // eslint-disable-next-line meteor/audit-argument-checks
-    rated,
-    // eslint-disable-next-line meteor/audit-argument-checks
     white_initial,
     // eslint-disable-next-line meteor/audit-argument-checks
     white_increment_or_delay,
@@ -3863,21 +3859,22 @@ Meteor.methods({
     // eslint-disable-next-line meteor/audit-argument-checks
     black_increment_or_delay_type,
     // eslint-disable-next-line meteor/audit-argument-checks
+    skill_level,
+    // eslint-disable-next-line meteor/audit-argument-checks
     color
   ) =>
-    global._gameObject.startLocalGame(
+    global._gameObject.startBotGame(
       message_identifier,
-      "computer",
       wild_number,
       rating_type,
-      rated,
       white_initial,
       white_increment_or_delay,
       white_increment_or_delay_type,
       black_initial,
       black_increment_or_delay,
       black_increment_or_delay_type,
-      color
+      color,
+      skill_level
     ),
   // eslint-disable-next-line meteor/audit-argument-checks
   startLocalExaminedGame: (message_identifier, white_name, black_name, wild_number) =>
