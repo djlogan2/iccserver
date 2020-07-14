@@ -1009,6 +1009,7 @@ describe("Game owners", function() {
   });
 
   it("will send computer analysis to a player when they are in the analysis array", function(done) {
+    this.timeout(500000);
     const owner = (self.loggedonuser = TestHelpers.createUser({
       roles: ["allow_restrict_analysis", "allow_private_games"]
     }));
@@ -1023,15 +1024,16 @@ describe("Game owners", function() {
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }, { id: minion._id, username: minion.username }], game3.analysis);
     self.loggedonuser = minion;
     const collector = new PublicationCollector({ userId: minion._id });
-    collector.collect("observing_games", collections => {
+    collector.collect("games", collections => {
       chai.assert.equal(collections.game.length, 1);
-      chai.assert.equal(collections.game[0].variations.movelist[1].score, 234);
+      chai.assert.isDefined(collections.game[0].computer_variations);
       chai.assert.isUndefined(collections.game[0].analysis);
       done();
     });
   });
 
   it("will not send computer analysis to a player when they are not in the analysis array", function(done) {
+    this.timeout(500000);
     const owner = (self.loggedonuser = TestHelpers.createUser({
       roles: ["allow_restrict_analysis", "allow_private_games"]
     }));
@@ -1047,9 +1049,9 @@ describe("Game owners", function() {
     chai.assert.sameDeepMembers([{ id: owner._id, username: owner.username }], game3.analysis);
     self.loggedonuser = minion;
     const collector = new PublicationCollector({ userId: minion._id });
-    collector.collect("observing_games", collections => {
+    collector.collect("games", collections => {
       chai.assert.equal(collections.game.length, 1);
-      chai.assert.isUndefined(collections.game[0].variations.movelist[1].score);
+      chai.assert.isUndefined(collections.game[0].computer_variations);
       chai.assert.isUndefined(collections.game[0].analysis);
       done();
     });
@@ -1104,7 +1106,7 @@ describe("Game owners", function() {
     //   deny_requests - only owner can see
     //   analysis - only owner can see
     const collector = new PublicationCollector({ userId: self.loggedonuser._id });
-    collector.collect("observing_games", collections => {
+    collector.collect("games", collections => {
       chai.assert.equal(collections.game.length, 1);
       chai.assert.sameDeepMembers([{ id: outsideguy._id, username: outsideguy.username, mid: "mi4" }], collections.game[0].requestors);
       chai.assert.isTrue(collections.game[0].deny_requests);
@@ -1141,7 +1143,7 @@ describe("Game owners", function() {
     //   analysis - only owner can see
     self.loggedonuser = insideguy_analysis;
     const collector = new PublicationCollector({ userId: self.loggedonuser._id });
-    collector.collect("observing_games", collections => {
+    collector.collect("games", collections => {
       chai.assert.equal(collections.game.length, 1);
       chai.assert.isUndefined(collections.game[0].requestors);
       chai.assert.isUndefined(collections.game[0].deny_requests);

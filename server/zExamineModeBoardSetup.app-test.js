@@ -35,7 +35,7 @@ describe("clearboard", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "8/8/8/8/8/8/8/8 w - - 0 1");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.isDefined(game.tags);
     chai.assert.equal(game.tags.FEN, "8/8/8/8/8/8/8/8 w - - 0 1");
     checkLastAction(game, 0, "clearboard", self.loggedonuser._id);
@@ -78,7 +78,7 @@ describe("Setting the initial position", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.isDefined(game.tags);
     chai.assert.equal(game.tags.FEN, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     checkLastAction(game, 0, "initialposition", self.loggedonuser._id);
@@ -121,7 +121,7 @@ describe("Adding a piece", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/5B2/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.isDefined(game.tags);
     chai.assert.equal(game.tags.FEN, "rnbqkbnr/pppppppp/8/8/5B2/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     checkLastAction(game, 0, "addpiece", self.loggedonuser._id, {
@@ -167,7 +167,7 @@ describe("Removing a piece", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.isDefined(game.tags);
     chai.assert.equal(game.tags.FEN, "rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1");
     checkLastAction(game, 0, "removepiece", self.loggedonuser._id, { square: "e2" });
@@ -210,7 +210,7 @@ describe("Changing side to move", function() {
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
     chai.assert.equal(game.tomove, "black");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.isDefined(game.tags);
     chai.assert.equal(game.tags.FEN, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1");
     checkLastAction(game, 0, "settomove", self.loggedonuser._id, { color: "b" });
@@ -252,7 +252,7 @@ describe("Setting castling", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Qq - 0 1");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.isDefined(game.tags);
     chai.assert.equal(game.tags.FEN, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w Qq - 0 1");
     checkLastAction(game, 0, "setcastling", self.loggedonuser._id, { castling: "Qq" });
@@ -299,7 +299,7 @@ describe("Setting en passant", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.isDefined(game.tags);
     chai.assert.equal(game.tags.FEN, "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1");
     checkLastAction(game, 0, "setenpassant", self.loggedonuser._id, { piece: "e4" });
@@ -468,7 +468,7 @@ describe("Setting PGN tags", function() {
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b Qq - 0 1");
     chai.assert.equal(game.tomove, "black");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     checkLastAction(game, 0, "settag", self.loggedonuser._id, {
       tag: "FEN",
       value: "rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b Qq - 0 1"
@@ -497,7 +497,7 @@ describe("Setting a fen string", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}], ecocodes: [] });
     chai.assert.equal(game.tags.FEN, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
     checkLastAction(game, 0, "loadfen", self.loggedonuser._id, {
       fen: "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4"

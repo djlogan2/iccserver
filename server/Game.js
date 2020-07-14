@@ -54,43 +54,25 @@ class Game {
       this.collection = self.GameCollection;
     }
 
-    Meteor.publish("playing_games", function() {
-      log.debug("Playing games method called for " + this.userId);
-      return self.GameCollection.find(
-        {
-          $and: [
-            { status: "playing" },
-            { $or: [{ "white.id": this.userId }, { "black.id": this.userId }] }
-          ]
-        },
-        {
-          fields: {
-            computer_variations: 0,
-            "variations.movelist": 0,
-            "lag.white.pings": 0,
-            "lag.black.pings": 0
-          }
-        }
-      );
-    });
-
-    Meteor.publishComposite("all_games", {
+    Meteor.publishComposite("games", {
       find() {
         return Meteor.users.find({ _id: this.userId, "status.online": true });
       },
       children: [
+        // Games we are playing
         {
           find(user) {
             return self.GameCollection.find(
-              { isolation_group: user.isolation_group },
+              {
+                $and: [
+                  { isolation_group: user.isolation_group },
+                  { status: "playing" },
+                  { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
+                ]
+              },
               {
                 fields: {
                   startTime: 1,
-                  result: 1,
-                  status2: 1,
-                  private: 1,
-                  deny_requests: 1,
-                  deny_chat: 1,
                   tomove: 1,
                   wild: 1,
                   rating_type: 1,
@@ -103,60 +85,93 @@ class Game {
               }
             );
           }
-        }
-      ]
-    });
-
-    Meteor.publishComposite("observing_games", {
-      find() {
-        return Meteor.users.find({ _id: this.userId, "status.online": true });
-      },
-      children: [
+        },
+        // Games for which the user is the owner (doesn't matter if it's private
+        // or public, the result is the same.)
         {
-          // Firstly, owners see everything
           find(user) {
-            return self.GameCollection.find({ owner: user._id, status: "examining" });
+            return self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
           }
         },
-        {
-          // Thenly, people with allowed analysis can see that (or anyone if game is public).
-          find(user) {
-            return self.GameCollection.find(
-              {
-                $or: [
-                  { private: false },
-                  {
-                    $and: [
-                      { "observers.id": user._id },
-                      { owner: { $ne: user._id } },
-                      { $or: [{ status: "playing" }, { "analysis.id": user._id }] }
-                    ]
-                  }
-                ]
-              },
-              { fields: { requestors: 0, deny_requests: 0, analysis: 0, actions: 0 } }
-            );
-          }
-        },
+        // Games we are observing and can observe computer analysis
         {
           find(user) {
-            // Lastly, people without analysis cannot see computer analysis
             return self.GameCollection.find(
               {
                 $and: [
-                  { private: true },
+                  { isolation_group: user.isolation_group },
                   { "observers.id": user._id },
-                  { "analysis.id": { $ne: user._id } },
-                  { owner: { $ne: user._id } }
+                  { owner: { $ne: user._id } },
+                  { $or: [{ status: "playing" }, { private: false }, { "analysis.id": user._id }] }
                 ]
               },
               {
                 fields: {
-                  requestors: 0,
+                  deny_chat: 0,
                   deny_requests: 0,
+                  requestors: 0,
                   analysis: 0,
-                  action: 0,
-                  computer_variations: 0
+                  actions: 0
+                }
+              }
+            );
+          }
+        },
+        // Games we are observing but cannot view computer analysis
+        {
+          find(user) {
+            return self.GameCollection.find(
+              {
+                $and: [
+                  { isolation_group: user.isolation_group },
+                  { "observers.id": user._id },
+                  { owner: { $ne: user._id } },
+                  { private: true },
+                  { "analysis.id": { $ne: user._id } }
+                ]
+              },
+              {
+                fields: {
+                  deny_chat: 0,
+                  deny_requests: 0,
+                  requestors: 0,
+                  computer_variations: 0,
+                  analysis: 0,
+                  actions: 0
+                }
+              }
+            );
+          }
+        },
+        // Game we are not playing nor are observing
+        {
+          find(user) {
+            if (user.status.game === "playing") return self.GameCollection.find({ _id: "none" });
+            return self.GameCollection.find(
+              {
+                $and: [
+                  { isolation_group: user.isolation_group },
+                  { "white.id": { $ne: user._id } },
+                  { "black.id": { $ne: user.id } },
+                  { "observers.id": { $ne: user._id } },
+                  { owner: { $ne: user._id } },
+                  { private: { $ne: true } }
+                ]
+              },
+              {
+                fields: {
+                  startTime: 1,
+                  result: 1,
+                  status2: 1,
+                  private: 1,
+                  tomove: 1,
+                  wild: 1,
+                  rating_type: 1,
+                  rated: 1,
+                  status: 1,
+                  clocks: 1,
+                  white: 1,
+                  black: 1
                 }
               }
             );
@@ -518,6 +533,7 @@ class Game {
     if (!game_object.actions) game_object.actions = [];
     if (!game_object.variations) game_object.variations = { movelist: [{}], ecocodes: [] };
     if (!game_object.variations.cmi) game_object.variations.cmi = 0;
+    if (!game_object.variations.ecocodes) game_object.variations.ecocodes = [];
 
     game_object.examiners = [{ id: self._id, username: self.username }];
     game_object.observers = [{ id: self._id, username: self.username }];
@@ -768,6 +784,7 @@ class Game {
       },
       actions: [],
       variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
+      computer_variations: [],
       lag: {
         white: {
           active: [],

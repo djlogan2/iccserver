@@ -37,12 +37,13 @@ class Play extends React.Component {
       GameHistory: null,
       subscription: {
         css: Meteor.subscribe("css"),
-        game: Meteor.subscribe("playing_games"),
+        //game: Meteor.subscribe("playing_games"),
+        game: Meteor.subscribe("games"),
         chats: Meteor.subscribe("chat"),
         users: Meteor.subscribe("loggedOnUsers"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
-        observingGames: Meteor.subscribe("observing_games"),
+        //observingGames: Meteor.subscribe("observing_games"),
         gameHistory: Meteor.subscribe("game_history"),
         importedGame: Meteor.subscribe("imported_games")
       },
