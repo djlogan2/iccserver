@@ -16,6 +16,7 @@ import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
+import {Parser} from "./pgn/pgnsigh";
 
 import date from "date-and-time";
 
@@ -3569,6 +3570,11 @@ class Game {
         message_identifier,
         "GAME_STATUS_" + color + status
       );
+  }
+
+  importPGNString(pgnstring) {
+    const parser = new Parser();
+    parser.feed(pgnstring);
   }
 }
 

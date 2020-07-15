@@ -11,9 +11,7 @@ export default class UploadPGN extends FileUpload {
     var msFile = new FS.File(file);
     msFile.creatorId = Meteor.userId();
     PgnImports.insert(msFile, function(err, fileObj) {
-      if (!err) {
-        Meteor.call("process_uploaded_pgn", "mi1", fileObj._id);
-      } else {
+      if (err) {
         alert("Upload PGN error: " + err);
       }
     });
