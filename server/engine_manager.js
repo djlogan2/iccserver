@@ -3,71 +3,69 @@ import Engine from "node-uci";
 import { Logger } from "../lib/server/Logger";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import Chess from "chess.js";
+import { Random } from "meteor/random";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
 const ANALYSIS_THREADS = 1;
 
 // keys are game_ids, or "waiting" for running, but waiting, engines
-const engines = {
+const _engines = {
+  analysis: [],
+  position: [],
   waiting: []
 };
 
-async function start_engine(game_id, suffix, skill_level) {
-  const id = game_id + suffix;
-  log.debug("start_engine " + id + "," + skill_level);
+async function start_engine(game_id, type, skill_level) {
+  log.debug("start_engine " + game_id + ", " + type + "," + skill_level);
 
-  if (!!engines[id]) return engines[id];
+  skill_level = skill_level | 20;
 
-  if (engines.waiting && engines.waiting.length) {
-    log.debug("start_engine Found a waiting engine, returning it");
-    const engine = engines.waiting.shift();
-    if (skill_level !== undefined) {
-      log.debug("start_engine Setting up for play at skill level " + skill_level);
-      await engine.setoption("Threads", 1);
-      await engine.isready();
-      await engine.setoption("MultiPV", 1);
-      await engine.isready();
-      await engine.setoption("Skill Level", skill_level);
-      await engine.isready();
-    }
-    log.debug("start_engine " + id + " ucinewgame");
-    await engine.ucinewgame();
-    await engine.isready();
-    engines[id] = engine;
-    return engine;
-  }
-  log.debug("start_engine " + id + " Starting a new engine");
-  const engine = new Engine.Engine(SystemConfiguration.enginePath());
-  engines.result = await engine.init();
-  // result.id.name = our engines name
-  // Just keep everything in case we want it later
-  await engine.isready();
-  await engine.setoption("Threads", skill_level === undefined ? ANALYSIS_THREADS : 1);
-  await engine.isready();
+  if (type === "analysis") skill_level = 20; // Force this to be sure
 
-  if (skill_level === undefined) {
-    log.debug("start_engine " + id + " setting brand new engine for analysis");
-    await engine.setoption("MultiPV", 3);
+  if (!!_engines[type][game_id]) return _engines[type][game_id];
+
+  let engine;
+  if (_engines.waiting && _engines.waiting.length) engine = _engines.waiting.shift();
+  else {
+    log.debug("start_engine " + game_id + " Starting a new engine");
+    engine = new Engine.Engine(SystemConfiguration.enginePath());
+    engine.ourid = Random.id();
+    log.debug("start_engine " + game_id + " Started engine with ourid=" + engine.ourid);
+    // result.id.name = our engines name
+    // Just keep everything in case we want it later
+    _engines.result = await engine.init();
     await engine.isready();
   }
-  engines[id] = engine;
+
+  log.debug("start_engine " + game_id + ", " + engine.ourid + ", " + type + "," + skill_level);
+  await engine.setoption("Threads", type === "position" ? 1 : ANALYSIS_THREADS);
+  await engine.isready();
+  await engine.setoption("MultiPV", type === "position" ? 1 : 3);
+  await engine.isready();
+  await engine.setoption("Skill Level", skill_level);
+  await engine.isready();
+
+  await engine.ucinewgame();
+  await engine.isready();
+  _engines[type][game_id] = engine;
   return engine;
 }
 
-async function stop_engine(game_id, suffix) {
-  const id = game_id + suffix;
-  log.debug("stop_engine " + id);
-  const engine = engines[id];
+async function stop_engine(game_id, type) {
+  log.debug("stop_engine for game " + game_id + ", " + type);
+  const engine = _engines[type][game_id];
   if (!engine) return;
   try {
-    await engine.stop();
+    log.debug("stop_engine for engine " + engine.ourid + ", game " + game_id + ", " + type);
+    if(type !== "position")
+      await engine.stop();
   } catch (e) {
-    log.debug("stop_engine failed stopping for game_id " + id + ", error=" + e.toString());
+    log.debug("stop_engine failed stopping for game_id " + game_id + ", error=" + e.toString());
     // skip any errors on trying to stop an engine
   }
-  engines.waiting.push(engine);
-  delete engines[id];
+  _engines.waiting.push(engine);
+  delete _engines[type][game_id];
 }
 
 const playGameMove = Meteor.bindEnvironment(game_id => {
@@ -90,7 +88,7 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
   if (game.black.id === "computer" && game.tomove !== "black") return;
   if (game.status !== "playing") return;
   log.debug("playGameMove " + game_id + " starting engine");
-  start_engine(game_id, "playing", game.skill_level)
+  start_engine(game_id, "position", game.skill_level)
     .then(_engine => {
       if (!_engine)
         throw new Meteor.Error(
@@ -98,14 +96,18 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
           "We should have an engine for game id " + game_id + ", but we do not"
         );
       engine = _engine;
-      log.debug("playGameMove " + game_id + " setting position");
+      log.debug(
+        "playGameMove has engine " + engine.ourid + " for game " + game_id + ", setting position"
+      );
       return engine.position(game.fen);
     })
     .then(() => {
       return engine.isready();
     })
     .then(() => {
-      log.debug("playGameMove " + game_id + " starting analysis with move times");
+      log.debug(
+        "playGameMove " + game_id + ", " + engine.ourid + " starting analysis with move times"
+      );
       return engine.go({
         wtime: game.clocks.white.current,
         btime: game.clocks.black.current,
@@ -116,14 +118,26 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
     .then(_result => {
       result = _result;
       log.debug(
-        "playGameMove " + game_id + " engine made move, stopping. move=" + _result.bestmove
+        "playGameMove " +
+          game_id +
+          ", " +
+          engine.ourid +
+          " engine made move, stopping. move=" +
+          _result.bestmove
       );
-      return stop_engine(game_id, "playing");
+      return stop_engine(game_id, "position");
     })
     .then(() => {
       const chess = new Chess.Chess(game.fen);
       const cmove = chess.move(result.bestmove, { sloppy: true });
-      log.debug("playGameMove " + game_id + " calling internalSaveLocalMove with " + cmove.san);
+      log.debug(
+        "playGameMove " +
+          game_id +
+          ", " +
+          engine.ourid +
+          " calling internalSaveLocalMove with " +
+          cmove.san
+      );
       Game.internalSaveLocalMove(
         { _id: "computer", username: "Computer" },
         "__computer__",
@@ -162,6 +176,7 @@ async function start_analysis(game_id, game) {
       "We should have an engine for game id " + game_id + ", but we do not"
     );
 
+  log.debug("start_analysis for " + game_id + ", " + engine.ourid);
   await engine.position(game.fen);
   await engine.isready();
   engine.goInfinite().on("data", data => parseStockfishAnalysisResults(game_id, data));
@@ -169,12 +184,13 @@ async function start_analysis(game_id, game) {
 
 async function end_analysis(game_id) {
   log.debug("end_analysis for " + game_id);
-  const engine = await start_engine(game_id, "analysis");
+  const engine = _engines.analysis[game_id];
   if (!engine)
     throw new Meteor.Error(
       "Unable to stop analysis",
       "We should have an engine for game id " + game_id + ", but we do not"
     );
+  log.debug("end_analysis for " + game_id + ", " + engine.ourid);
   await engine.stop();
 }
 
