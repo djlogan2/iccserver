@@ -50,7 +50,17 @@ export class Parser {
   }
 
   error(msg, token) {
-    const m = msg + " on line " + this.line + " offset " + token.offset + ", token=" + token.type + ", value='" + token.value + "'";
+    const m =
+      msg +
+      " on line " +
+      this.line +
+      " offset " +
+      token.offset +
+      ", token=" +
+      token.type +
+      ", value='" +
+      token.value +
+      "'";
     const e = new Error(m);
     e.token = token;
     throw e;
@@ -123,8 +133,11 @@ export class Parser {
   san(token) {
     if (token.type === "PERIOD" || token.type === "DOTDOTDOT") return; // Skip "1." "1..." "1. ..." "..." etc.
     if (token.type !== "SAN") this.error("Expecting periods or a SAN move", token);
-    if (!this.gameobject.variations.movelist[this.cmi].variations) this.gameobject.variations.movelist[this.cmi].variations = [];
-    this.gameobject.variations.movelist[this.cmi].variations.push(this.gameobject.variations.movelist.length);
+    if (!this.gameobject.variations.movelist[this.cmi].variations)
+      this.gameobject.variations.movelist[this.cmi].variations = [];
+    this.gameobject.variations.movelist[this.cmi].variations.push(
+      this.gameobject.variations.movelist.length
+    );
     this.gameobject.variations.movelist.push({ move: token.value, prev: this.cmi });
     this.cmi = this.gameobject.variations.movelist.length - 1;
     this.state = this.nag;
@@ -149,7 +162,10 @@ export class Parser {
         this.gameobject.variations.movelist[this.cmi].comment += token.value;
         return;
       case "C1":
-        this.gameobject.variations.movelist[this.cmi].comment += token.value.substring(0, token.value.length - 1);
+        this.gameobject.variations.movelist[this.cmi].comment += token.value.substring(
+          0,
+          token.value.length - 1
+        );
         this.state = this.nag;
         return;
       case "C2":
