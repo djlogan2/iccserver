@@ -5,7 +5,7 @@ const NAMES = ["ihnat", "Ruy", "Dawid", "Lena"];
 const { Search } = Input;
 
 const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
-  let ownerData = game.examiners.find(item => item.id === game.owner);
+  let ownerData = !!game.observers ? game.observers.find(item => item.id === game.owner) : null;
   return (
     <div className="examine-observer-tab-block">
       <div className="examine-observer-tab-block__head">
@@ -47,7 +47,6 @@ const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
 };
 
 const ExamineOwnerTabBlock = ({ game }) => {
-  let ownerData = game.examiners.find(item => item.id === game.owner);
   return (
     <div className="examine-owner-tab-block">
       <div className="examine-owner-tab-block__head">
