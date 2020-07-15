@@ -1328,6 +1328,7 @@ class Game {
   }
 
   localAddObserver(message_identifier, game_id, id_to_add) {
+    log.debug("localAddObserver " + message_identifier + ", " + game_id + ", " + id_to_add);
     check(message_identifier, String);
     check(game_id, String);
     check(id_to_add, String);

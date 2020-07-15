@@ -13,13 +13,17 @@ const engines = {
   waiting: []
 };
 
-async function start_engine(game_id, skill_level) {
-  log.debug("start_engine " + game_id + "," + skill_level);
+async function start_engine(game_id, suffix, skill_level) {
+  const id = game_id + suffix;
+  log.debug("start_engine " + id + "," + skill_level);
+
+  if (!!engines[id]) return engines[id];
+
   if (engines.waiting && engines.waiting.length) {
     log.debug("start_engine Found a waiting engine, returning it");
     const engine = engines.waiting.shift();
     if (skill_level !== undefined) {
-      log.debug("start_engine Setting up for play");
+      log.debug("start_engine Setting up for play at skill level " + skill_level);
       await engine.setoption("Threads", 1);
       await engine.isready();
       await engine.setoption("MultiPV", 1);
@@ -27,13 +31,13 @@ async function start_engine(game_id, skill_level) {
       await engine.setoption("Skill Level", skill_level);
       await engine.isready();
     }
-    log.debug("start_engine ucinewgame");
+    log.debug("start_engine " + id + " ucinewgame");
     await engine.ucinewgame();
     await engine.isready();
-    engines[game_id] = engine;
+    engines[id] = engine;
     return engine;
   }
-  log.debug("start_engine Starting a new engine");
+  log.debug("start_engine " + id + " Starting a new engine");
   const engine = new Engine.Engine(SystemConfiguration.enginePath());
   engines.result = await engine.init();
   // result.id.name = our engines name
@@ -43,29 +47,30 @@ async function start_engine(game_id, skill_level) {
   await engine.isready();
 
   if (skill_level === undefined) {
-    log.debug("start_engine setting brand new engine for analysis");
+    log.debug("start_engine " + id + " setting brand new engine for analysis");
     await engine.setoption("MultiPV", 3);
     await engine.isready();
   }
-  engines[game_id] = engine;
+  engines[id] = engine;
   return engine;
 }
 
-async function stop_engine(game_id) {
-  log.debug("stop_engine " + game_id);
-  const engine = engines[game_id];
+async function stop_engine(game_id, suffix) {
+  const id = game_id + suffix;
+  log.debug("stop_engine " + id);
+  const engine = engines[id];
   if (!engine) return;
   try {
     await engine.stop();
   } catch (e) {
-    log.trace("stop_engine failed stopping for game_id " + game_id + ", error=" + e.toString());
+    log.debug("stop_engine failed stopping for game_id " + id + ", error=" + e.toString());
     // skip any errors on trying to stop an engine
   }
   engines.waiting.push(engine);
-  delete engines[game_id];
+  delete engines[id];
 }
 
-const playGameove = Meteor.bindEnvironment(game_id => {
+const playGameMove = Meteor.bindEnvironment(game_id => {
   log.debug("playGameMove " + game_id);
   const game = Game.GameCollection.findOne({ _id: game_id });
   let engine;
@@ -85,7 +90,7 @@ const playGameove = Meteor.bindEnvironment(game_id => {
   if (game.black.id === "computer" && game.tomove !== "black") return;
   if (game.status !== "playing") return;
   log.debug("playGameMove " + game_id + " starting engine");
-  start_engine(game_id + "_playing", game.skill_level)
+  start_engine(game_id, "playing", game.skill_level)
     .then(_engine => {
       if (!_engine)
         throw new Meteor.Error(
@@ -113,7 +118,7 @@ const playGameove = Meteor.bindEnvironment(game_id => {
       log.debug(
         "playGameMove " + game_id + " engine made move, stopping. move=" + _result.bestmove
       );
-      return stop_engine(game_id + "_playing");
+      return stop_engine(game_id, "playing");
     })
     .then(() => {
       const chess = new Chess.Chess(game.fen);
@@ -150,15 +155,13 @@ const parseStockfishAnalysisResults = Meteor.bindEnvironment((game_id, data) => 
 
 async function start_analysis(game_id, game) {
   log.debug("start_analysis for " + game_id);
-  let engine = engines[game_id];
-  if (!engine) {
-    engine = await start_engine(game_id);
-    if (!engine)
-      throw new Meteor.Error(
-        "Unable to start analysis",
-        "We should have an engine for game id " + game._id + ", but we do not"
-      );
-  }
+  const engine = await start_engine(game_id, "analysis");
+  if (!engine)
+    throw new Meteor.Error(
+      "Unable to start analysis",
+      "We should have an engine for game id " + game_id + ", but we do not"
+    );
+
   await engine.position(game.fen);
   await engine.isready();
   engine.goInfinite().on("data", data => parseStockfishAnalysisResults(game_id, data));
@@ -166,15 +169,13 @@ async function start_analysis(game_id, game) {
 
 async function end_analysis(game_id) {
   log.debug("end_analysis for " + game_id);
-  const engine = engines[game_id];
+  const engine = await start_engine(game_id, "analysis");
   if (!engine)
     throw new Meteor.Error(
       "Unable to stop analysis",
       "We should have an engine for game id " + game_id + ", but we do not"
     );
   await engine.stop();
-  // engines.waiting.push(engine);
-  // delete engines[game_id];
 }
 
 function watchForComputerGames() {
@@ -182,11 +183,17 @@ function watchForComputerGames() {
     $or: [{ "white.id": "computer" }, { "black.id": "computer" }]
   }).observeChanges({
     added(id, fields) {
-      if (fields.white.id === "computer") playGameove(id);
+      log.debug(
+        "watchForComputerGames added id " + id + ", fields=" + Object.keys(fields).join(", ")
+      );
+      playGameMove(id);
     },
     changed(id, fields) {
       if (!fields.fen) return; // A move had to have been made
-      playGameove(id);
+      log.debug(
+        "watchForComputerGames changed id " + id + ", fields=" + Object.keys(fields).join(", ")
+      );
+      playGameMove(id);
     }
   });
 }
@@ -194,15 +201,22 @@ function watchForComputerGames() {
 function watchAllGamesForAnalysis() {
   Game.GameCollection.find({}).observeChanges({
     added(id, fields) {
+      log.debug(
+        "watchAllGamesForAnalysis added id " + id + ", fields=" + Object.keys(fields).join(", ")
+      );
       start_analysis(id, fields);
     },
     changed(id, fields) {
       if (fields.fen) {
+        log.debug(
+          "watchAllGamesForAnalysis changed id " + id + ", fields=" + Object.keys(fields).join(", ")
+        );
         end_analysis(id).then(() => start_analysis(id, fields));
       }
     },
     removed(id) {
-      stop_engine(id);
+      log.debug("watchAllGamesForAnalysis removed id " + id);
+      stop_engine(id, "analysis");
     }
   });
 }
