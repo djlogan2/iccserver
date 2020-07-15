@@ -1,6 +1,15 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { Tabs, Button } from "antd";
+import { Logger } from "../../../../../../lib/client/Logger";
+
+const logger = new Logger("client/GameControlBlock");
+
+let handleError = error => {
+  if (error) {
+    logger(error);
+  }
+};
 
 const { TabPane } = Tabs;
 
@@ -19,18 +28,10 @@ class LocationControls extends Component {
   }
 
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, this.state.cmi, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, this.state.cmi, handleError);
   };
   moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, handleError);
   };
 
   moveForward = () => {
@@ -40,11 +41,7 @@ class LocationControls extends Component {
       variationIndex = this.props.game.variations.movelist[ind].idc;
     }
 
-    Meteor.call("moveForward", "moveForward", this.props.gameId, 1, variationIndex, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("moveForward", "moveForward", this.props.gameId, 1, variationIndex, handleError);
   };
 
   moveForwardEnd = cmi => {
@@ -52,11 +49,7 @@ class LocationControls extends Component {
 
     let slicemoves = movelist.slice(this.state.cmi + 1, movelist.length);
     for (let i = 0; i <= slicemoves.length; i++) {
-      Meteor.call("moveForward", "moveForward", this.props.gameId, 1, 0, err => {
-        if (err) {
-          debugger;
-        }
-      });
+      Meteor.call("moveForward", "moveForward", this.props.gameId, 1, 0, handleError);
     }
   };
 
@@ -95,41 +88,21 @@ class ActionControls extends Component {
   }
 
   handleTakeback = () => {
-    Meteor.call("requestTakeback", "requestTakeback", this.props.gameId, 1, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("requestTakeback", "requestTakeback", this.props.gameId, 1, handleError);
   };
 
   handleResign = () => {
     // resignGame
-    Meteor.call("resignGame", "resignGame", this.props.gameId, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("resignGame", "resignGame", this.props.gameId, handleError);
   };
   handleDraw = () => {
-    Meteor.call("requestToDraw", "requestToDraw", this.props.gameId, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("requestToDraw", "requestToDraw", this.props.gameId, handleError);
   };
   handleAdjorn = () => {
-    Meteor.call("requestToAdjourn", "requestToAdjourn", this.props.gameId, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("requestToAdjourn", "requestToAdjourn", this.props.gameId, handleError);
   };
   handleAbort = () => {
-    Meteor.call("requestToAbort", "requestToAbort", this.props.gameId, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("requestToAbort", "requestToAbort", this.props.gameId, handleError);
   };
 
   render() {

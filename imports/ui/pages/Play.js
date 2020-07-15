@@ -22,8 +22,13 @@ import {
 } from "../../api/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
-const log = new Logger("client/AppContainer");
+const logger = new Logger("client/AppContainer");
 
+let handleError = error => {
+  if (error) {
+    logger(error);
+  }
+};
 class PlayNotifier extends Component {
   constructor() {
     super();
@@ -199,27 +204,15 @@ class Play extends Component {
   }
 
   drawCircle(square, color, size) {
-    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size, handleError);
   }
 
   removeCircle(square) {
-    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square, handleError);
   }
 
   _pieceSquareDragStop = raf => {
-    Meteor.call("addGameMove", "gameMove", this.gameId, raf.move, err => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("addGameMove", "gameMove", this.gameId, raf.move, handleError);
   };
 
   gameHistoryload(data) {
@@ -339,7 +332,8 @@ class Play extends Component {
       defaultData.time,
       defaultData.inc,
       defaultData.incOrdelayType,
-      defaultData.color
+      defaultData.color,
+      handleError
     );
   };
 

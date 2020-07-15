@@ -3,9 +3,16 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
-// import { Logger } from "../../../../../../lib/client/Logger";
+import { Logger } from "../../../../../../lib/client/Logger";
 import { object } from "prop-types";
-// const log = new Logger("MoveLIst_js");
+const logger = new Logger("client/MoveListComponent");
+
+let handleError = error => {
+  if (error) {
+    logger(error);
+  }
+};
+
 export default class MoveListComponent extends Component {
   constructor(props) {
     super(props);
@@ -42,18 +49,10 @@ export default class MoveListComponent extends Component {
     }
   }
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex, (err) => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex, handleError);
   };
   moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, 1, (err) => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, 1, handleError);
   };
   moveForward = () => {
     let ind = this.currentindex + 1;
@@ -61,11 +60,7 @@ export default class MoveListComponent extends Component {
     if (ind <= this.cmi) {
       idc = this.moves[ind].idc;
     }
-    Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc, (err) => {
-      if (err) {
-        debugger;
-      }
-    });
+    Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc, handleError);
   };
   moveForwardEnd = cmi => {
     let movedata = this.moves;
