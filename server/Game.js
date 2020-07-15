@@ -3575,7 +3575,6 @@ class Game {
   importPGNString(pgnstring) {
     const parser = new Parser();
     parser.feed(pgnstring);
-    parser.
   }
 }
 
