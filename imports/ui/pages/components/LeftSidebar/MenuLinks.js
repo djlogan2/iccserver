@@ -40,8 +40,16 @@ class MenuLinks extends Component {
     }
   };
 
+  handleMyGames = () => {};
+
   static getLang() {
-    return (navigator.languages && navigator.languages[0]) || navigator.language || navigator.browserLanguage || navigator.userLanguage || "en-US";
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
   }
 
   render() {
@@ -62,7 +70,11 @@ class MenuLinks extends Component {
 
       return (
         <li className="menu-link__item" key={index}>
-          <a href="#" className={isActive ? "active" : ""} onClick={e => this.handleClick(e, link.label)}>
+          <a
+            href="#"
+            className={isActive ? "active" : ""}
+            onClick={e => this.handleClick(e, link.label)}
+          >
             <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
           </a>
         </li>
@@ -75,13 +87,18 @@ class MenuLinks extends Component {
         <div className="menu-links__bottom">
           {sidebarBottom.map((link, index) => {
             return (
-              <li key={index} className="menu-link__item" key={index}>
+              <li key={index} className="menu-link__item">
                 <a href="#" onClick={e => this.handleClick(e, link.label)}>
                   <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
                 </a>
               </li>
             );
           })}
+          <li className="menu-link__item">
+            <a href="#" onClick={this.handleMyGames}>
+              <img src={"../../../images/learning-icon-white.png"} alt="" /> <span>My games</span>
+            </a>
+          </li>
         </div>
       </div>
     );
