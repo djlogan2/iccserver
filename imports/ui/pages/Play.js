@@ -485,3 +485,42 @@ export default withTracker(props => {
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };
 })(Play);
+
+const game_timestamps = {};
+Game.find({ status: "playing" }).observeChanges({
+  added(id, game) {
+    let color;
+    if (game.white.id === Meteor.userId()) color = "white";
+    else if (game.black.id === Meteor.userId()) color = "black";
+    if (!color) throw new Meteor.Error("Unable to discern which color we are");
+    game_timestamps[id] = {
+      color: color,
+      timestamp: new TimestampClient("client game", (_, msg) => Meteor.call("gamepong", id, msg))
+    };
+  },
+  changed(id, fields) {
+    if (fields.status && fields.status !== "playing") {
+      if (!!game_timestamps[id]) {
+        game_timestamps[id].timestamp.end();
+        delete game_timestamps[id];
+      }
+    } else if (fields.lag) {
+      if (!game_timestamps[id]) throw new Meteor.Error("Unable to find timestamp for played game");
+      fields.lag[game_timestamps[id].color].active.forEach(ping =>
+        game_timestamps[id].timestamp.pingArrived(ping)
+      );
+    }
+  },
+  removed(id) {
+    if (!!game_timestamps[id]) {
+      game_timestamps[id].end();
+      delete game_timestamps[id];
+    }
+  }
+});
+//    if (played_game_id !== newDocument._id) {
+//       game_timestamp_client = new TimestampClient("client game", (_, msg) =>
+//         Meteor.call("gamepong", newDocument._id, msg)
+//       );
+//       newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
+//     }
