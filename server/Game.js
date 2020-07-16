@@ -3537,6 +3537,9 @@ class Game {
       setobject.result = color === "white" ? "0-1" : "1-0";
       setobject.status2 = 2;
       setobject.status = "examining";
+
+      this.endGamePing(game_id);
+
       setobject.examiners = [];
       if (game.white.id !== "computer")
         setobject.examiners.push({ id: game.white.id, username: game.white.name });

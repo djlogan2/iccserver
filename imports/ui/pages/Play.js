@@ -507,14 +507,8 @@ Game.find({ status: "playing" }).observeChanges({
   },
   removed(id) {
     if (!!game_timestamps[id]) {
-      game_timestamps[id].end();
+      game_timestamps[id].timestamp.end();
       delete game_timestamps[id];
     }
   }
 });
-//    if (played_game_id !== newDocument._id) {
-//       game_timestamp_client = new TimestampClient("client game", (_, msg) =>
-//         Meteor.call("gamepong", newDocument._id, msg)
-//       );
-//       newDocument.lag[color].active.forEach(ping => game_timestamp_client.pingArrived(ping));
-//     }
