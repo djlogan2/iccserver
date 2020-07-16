@@ -18,7 +18,6 @@ class MenuLinks extends Component {
   logout() {
     Meteor.logout(err => {
       if (err) {
-        // console.log(err.reason);
       } else {
         this.props.history.push("/login");
       }

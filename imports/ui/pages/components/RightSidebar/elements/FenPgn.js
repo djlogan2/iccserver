@@ -41,7 +41,6 @@ class FenPgn extends Component {
       })
       .then(data => {
         debugger;
-        console.log(data);
       });
   };
 
