@@ -9,6 +9,23 @@ import { Accounts } from "meteor/accounts-base";
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("client/main_js");
 
+//
+// *******************************************************************************************************
+// * PLEASE DO NOT REMOVE THIS AGAIN. PLEASE DO NOT REMOVE THIS AGAIN. PLEASE DO NOT REMOVE THIS AGAIN.  *
+// * THIS LINE LOGS ERRORS BACK TO THE SERVER, SO THAT WE CAN DEBUG REMOTELY. I DISCOVERED THIS BECAUSE  *
+// * A USER IN TESTING IS CLAIMING THINGS HAPPEN, AND I SAW NO CRASHES IN THE LOG FILE. WHY? SOMEBODY    *
+// * REMOVED THIS.                                                                                       *
+// * PLEASE DO NOT REMOVE THIS AGAIN. PLEASE DO NOT REMOVE THIS AGAIN. PLEASE DO NOT REMOVE THIS AGAIN.  *
+// *******************************************************************************************************
+//
+window.onerror = function myErrorHandler(message, source, lineno, colno, error) {
+  log.error(message + "::" + source + "::" + lineno + "::" + colno + "::" + error.toString());
+  return false;
+};
+// *******************************************************************************************************
+// * PLEASE DO NOT REMOVE THIS AGAIN. PLEASE DO NOT REMOVE THIS AGAIN. PLEASE DO NOT REMOVE THIS AGAIN.  *
+// *******************************************************************************************************
+
 Meteor.startup(() => {
   // TODO: Hey guys, this should be in the database. It shouldn't be hard coded like this.
   //       You can make your own collection, I suppose, but it seems to me it would make sense

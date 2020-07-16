@@ -16,7 +16,7 @@ import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
-import {Parser} from "./pgn/pgnsigh";
+import { Parser } from "./pgn/pgnsigh";
 
 import date from "date-and-time";
 
@@ -63,7 +63,7 @@ class Game {
         // Games we are playing
         {
           find(user) {
-            return self.GameCollection.find(
+            const cursor = self.GameCollection.find(
               {
                 $and: [
                   { isolation_group: user.isolation_group },
@@ -90,19 +90,28 @@ class Game {
                 }
               }
             );
+            log.debug(
+              "user=" + user._id + ", publish 'games' games we are playing=" + cursor.count()
+            );
+            return cursor;
           }
         },
         // Games for which the user is the owner (doesn't matter if it's private
         // or public, the result is the same.)
         {
           find(user) {
-            return self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
+            const cursor = self.GameCollection.find(
+              { owner: user._id },
+              { fields: { actions: 0 } }
+            );
+            log.debug("user=" + user._id + ", publish 'games' games we own=" + cursor.count());
+            return cursor;
           }
         },
         // Games we are observing and can observe computer analysis
         {
           find(user) {
-            return self.GameCollection.find(
+            const cursor = self.GameCollection.find(
               {
                 $and: [
                   { isolation_group: user.isolation_group },
@@ -121,12 +130,19 @@ class Game {
                 }
               }
             );
+            log.debug(
+              "user=" +
+                user._id +
+                ", publish 'games' games we are observing with analysis=" +
+                cursor.count()
+            );
+            return cursor;
           }
         },
         // Games we are observing but cannot view computer analysis
         {
           find(user) {
-            return self.GameCollection.find(
+            const cursor = self.GameCollection.find(
               {
                 $and: [
                   { isolation_group: user.isolation_group },
@@ -147,18 +163,31 @@ class Game {
                 }
               }
             );
+            log.debug(
+              "user=" +
+                user._id +
+                ", publish 'games' games we are observing without analysis=" +
+                cursor.count()
+            );
+            return cursor;
           }
         },
         // Game we are not playing nor are observing
         {
           find(user) {
             if (user.status.game === "playing") return self.GameCollection.find({ _id: "none" });
-            return self.GameCollection.find(
+            const cursor = self.GameCollection.find(
               {
                 $and: [
                   { isolation_group: user.isolation_group },
-                  { "white.id": { $ne: user._id } },
-                  { "black.id": { $ne: user.id } },
+                  {
+                    $or: [
+                      { status: "examining" },
+                      {
+                        $and: [{ "white.id": { $ne: user._id } }, { "black.id": { $ne: user._id } }]
+                      }
+                    ]
+                  },
                   { "observers.id": { $ne: user._id } },
                   { owner: { $ne: user._id } },
                   { private: { $ne: true } }
@@ -181,6 +210,8 @@ class Game {
                 }
               }
             );
+            log.debug("user=" + user._id + ", publish 'games' all games list=" + cursor.count());
+            return cursor;
           }
         }
       ]
@@ -495,7 +526,9 @@ class Game {
         ", black=" +
         black.username
     );
-    this.startGamePing(game_id);
+    const computer_color =
+      white._id === "computer" ? "white" : black._id === "computer" ? "black" : null;
+    this.startGamePing(game_id, computer_color);
     this.startMoveTimer(
       game_id,
       "white",
@@ -1649,8 +1682,10 @@ class Game {
       Users.setGameStatus(message_identifier, game.black.id, "examining");
       const status2 = active_games[game_id].in_threefold_repetition() ? 15 : 16;
       const examiners = [];
-      if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
-      if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+      if (game.white.id !== "computer")
+        examiners.push({ id: game.white.id, username: game.white.name });
+      if (game.black.id !== "computer")
+        examiners.push({ id: game.black.id, username: game.black.name });
       this.GameCollection.update(
         { _id: game_id, status: "playing" },
         {
@@ -1735,8 +1770,10 @@ class Game {
       this.endMoveTimer(game_id);
 
       const examiners = [];
-      if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
-      if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+      if (game.white.id !== "computer")
+        examiners.push({ id: game.white.id, username: game.white.name });
+      if (game.black.id !== "computer")
+        examiners.push({ id: game.black.id, username: game.black.name });
       this.GameCollection.update(
         { _id: game_id, status: "playing" },
         {
@@ -1848,8 +1885,10 @@ class Game {
     this.endMoveTimer(game_id);
 
     const examiners = [];
-    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
-    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+    if (game.white.id !== "computer")
+      examiners.push({ id: game.white.id, username: game.white.name });
+    if (game.black.id !== "computer")
+      examiners.push({ id: game.black.id, username: game.black.name });
 
     this.GameCollection.update(
       { _id: game_id },
@@ -1908,8 +1947,10 @@ class Game {
     this.endMoveTimer(game_id);
 
     const examiners = [];
-    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
-    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+    if (game.white.id !== "computer")
+      examiners.push({ id: game.white.id, username: game.white.name });
+    if (game.black.id !== "computer")
+      examiners.push({ id: game.black.id, username: game.black.name });
 
     this.GameCollection.update(
       { _id: game_id, status: "playing" },
@@ -1964,8 +2005,10 @@ class Game {
     Users.setGameStatus(message_identifier, game.black.id, "examining");
 
     const examiners = [];
-    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
-    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+    if (game.white.id !== "computer")
+      examiners.push({ id: game.white.id, username: game.white.name });
+    if (game.black.id !== "computer")
+      examiners.push({ id: game.black.id, username: game.black.name });
 
     this.GameCollection.update(
       { _id: game_id, status: "playing" },
@@ -2322,8 +2365,10 @@ class Game {
     }
 
     const examiners = [];
-    if(game.white.id !== "computer") examiners.push({id: game.white.id, username: game.white.name});
-    if(game.black.id !== "computer") examiners.push({id: game.black.id, username: game.black.name});
+    if (game.white.id !== "computer")
+      examiners.push({ id: game.white.id, username: game.white.name });
+    if (game.black.id !== "computer")
+      examiners.push({ id: game.black.id, username: game.black.name });
 
     this.GameCollection.update(
       { _id: game._id, status: "playing" },
@@ -3394,20 +3439,20 @@ class Game {
     return reformatted;
   }
 
-  startGamePing(game_id) {
-    this._startGamePing(game_id, "white");
-    this._startGamePing(game_id, "black");
+  startGamePing(game_id, computer_color) {
+    if (computer_color !== "white") this._startGamePing(game_id, "white");
+    if (computer_color !== "black") this._startGamePing(game_id, "black");
   }
 
   _startGamePing(game_id, color) {
-    //log.debug("_startGamePing game_id=" + game_id + ", color=" + color);
+    log.debug("_startGamePing game_id=" + game_id + ", color=" + color);
     if (!game_pings[game_id]) game_pings[game_id] = {};
     game_pings[game_id][color] = new TimestampServer(
       "server game",
       (key, msg) => {
-        // log.debug(
-        //   "_startGamePing game_id=" + game_id + ", key=" + key + ", ping=" + JSON.stringify(msg)
-        // );
+        log.debug(
+          "_startGamePing game_id=" + game_id + ", key=" + key + ", ping=" + JSON.stringify(msg)
+        );
         if (key === "ping") {
           const pushobject = {};
           pushobject["lag." + color + ".active"] = msg;
@@ -3447,10 +3492,12 @@ class Game {
 
   endGamePing(game_id) {
     log.debug("endGamePing game_id=" + game_id);
-    if (!game_pings[game_id])
-      throw new ICCMeteorError("server", "Unable to locate game to ping (1)");
-    game_pings[game_id]["white"].end();
-    game_pings[game_id]["black"].end();
+    if (!game_pings[game_id]) {
+      log.error("Unable to locate game to ping (1)");
+      return;
+    }
+    if (!!game_pings[game_id].white) game_pings[game_id].white.end();
+    if (!!game_pings[game_id].black) game_pings[game_id].black.end();
     delete game_pings[game_id];
   }
 

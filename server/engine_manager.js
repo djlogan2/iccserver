@@ -240,6 +240,6 @@ function watchAllGamesForAnalysis() {
 Meteor.startup(() => {
   if (!!SystemConfiguration.enginePath()) {
     watchForComputerGames();
-    watchAllGamesForAnalysis();
+    //watchAllGamesForAnalysis();
   }
 });

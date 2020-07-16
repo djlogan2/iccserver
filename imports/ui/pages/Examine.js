@@ -49,11 +49,6 @@ let game_timestamp_client;
 //   }
 // });
 
-// window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-//   // log.error(errorMsg + "::" + url + "::" + lineNumber);
-//   return false;
-// };
-
 // Meteor.startup(() => {
 //   Tracker.autorun(() => {
 //     //
