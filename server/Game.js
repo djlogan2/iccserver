@@ -1098,7 +1098,7 @@ class Game {
         setobject.result,
         setobject.status2
       );
-    } else
+    } else if (game.status === "playing")
       this.startMoveTimer(
         game_id,
         otherbw,
