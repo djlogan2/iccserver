@@ -7,7 +7,7 @@ const logger = new Logger("client/GameControlBlock");
 
 let handleError = error => {
   if (error) {
-    logger(error);
+    logger.error(error);
   }
 };
 

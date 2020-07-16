@@ -990,10 +990,12 @@ class Game {
 
       if (!!setobject.result) {
         setobject.status = "examining";
-        setobject.examining = [];
-        if (game.white.id !== "computer") setobject.examining.push(game.white.id);
-        if (game.black.id !== "computer") setobject.examining.push(game.black.id);
-        //setobject.examining = [game.white.id, game.black.id];
+        setobject.examiners = [];
+        if (game.white.id !== "computer")
+          setobject.examiners.push({ id: game.white.id, username: game.white.name });
+        if (game.black.id !== "computer")
+          setobject.examiners.push({ id: game.black.id, username: game.black.name });
+        setobject.observers = game.observers.concat(setobject.examiners);
         unsetobject.pending = "";
       } else {
         setobject["pending." + otherbw + ".draw"] = "0";
@@ -1096,9 +1098,7 @@ class Game {
         setobject.result,
         setobject.status2
       );
-    }
-
-    if (game.status === "playing")
+    } else
       this.startMoveTimer(
         game_id,
         otherbw,
@@ -3466,8 +3466,8 @@ class Game {
           if (!game)
             throw new ICCMeteorError("server", "Unable to set ping information", "game not found");
 
-          const item = game.lag[color].active.filter(ping => ping.id === msg.id);
-          if (!item || item.length !== 1)
+          const item = game.lag[color].active.find(ping => ping.id === msg.id);
+          if (!item)
             throw new ICCMeteorError(
               "server",
               "Unable to set ping information",
@@ -3477,7 +3477,7 @@ class Game {
           const pushobject = {};
           const pullobject = {};
 
-          pullobject["lag." + color + ".active"] = item[0];
+          pullobject["lag." + color + ".active"] = item;
           pushobject["lag." + color + ".pings"] = msg.delay;
 
           this.GameCollection.update(

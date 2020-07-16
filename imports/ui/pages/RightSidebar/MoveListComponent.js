@@ -9,7 +9,7 @@ const logger = new Logger("client/MoveListComponent");
 
 let handleError = error => {
   if (error) {
-    logger(error);
+    logger.error(error);
   }
 };
 

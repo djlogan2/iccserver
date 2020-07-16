@@ -26,7 +26,7 @@ const logger = new Logger("client/AppContainer");
 
 let handleError = error => {
   if (error) {
-    logger(error);
+    logger.error(error);
   }
 };
 class PlayNotifier extends Component {
