@@ -117,7 +117,7 @@ class Game {
                   { isolation_group: user.isolation_group },
                   { "observers.id": user._id },
                   { owner: { $ne: user._id } },
-                  { $or: [{ status: "playing" }, { private: false }, { "analysis.id": user._id }] }
+                  { $or: [{ status: "playing" }, { private: {$ne: true} }, { "analysis.id": user._id }] }
                 ]
               },
               {
