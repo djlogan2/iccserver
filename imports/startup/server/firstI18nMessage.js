@@ -3,24 +3,64 @@ import { Meteor } from "meteor/meteor";
 
 //["messageid", "en_us", "es", "ru"]
 const messages = [
-  ["ABORT_ALREADY_PENDING", "ABORT ALREADY PENDING {0}", "El mensaje con el valor {0} como valor de parámetro", "АБОРТ УЖЕ В ОЖИДАНИИ {0}"],
-  ["ABORT_DECLINED", "ABORT DECLINED {0}", "El mensaje con el valor {0} como valor de parámetro", "АБОРТ ОТКЛОНЕН {0}"],
-  ["ADJOURN_ALREADY_PENDING", "ADJOURN ALREADY PENDING {0}", "El mensaje con el valor {0} como valor de parámetro", "ADJOURN УЖЕ В ОЖИДАНИИ {0}"],
-  ["ADJOURN_DECLINED", "ADJOURN DECLINED {0}", "El mensaje con el valor {0} como valor de parámetro", "ADJOURN ОТКЛОНЕН {0}"],
+  [
+    "ABORT_ALREADY_PENDING",
+    "ABORT ALREADY PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "АБОРТ УЖЕ В ОЖИДАНИИ {0}"
+  ],
+  [
+    "ABORT_DECLINED",
+    "ABORT DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "АБОРТ ОТКЛОНЕН {0}"
+  ],
+  [
+    "ADJOURN_ALREADY_PENDING",
+    "ADJOURN ALREADY PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ADJOURN УЖЕ В ОЖИДАНИИ {0}"
+  ],
+  [
+    "ADJOURN_DECLINED",
+    "ADJOURN DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ADJOURN ОТКЛОНЕН {0}"
+  ],
   ["ALREADY_AN_EXAMINER", "You are already an examiner"],
   ["ALREADY_PLAYING", "You are already playing a game"],
   ["BEGINNING_OF_GAME", "You are at the beginning of the game"],
   ["CANNOT_INVITE_YOURSELF", "You cannot invite yourself"],
-  ["CANNOT_MATCH_LOGGED_OFF_USER", "CANNOT MATCH LOGGED OFF USER {0}", "El mensaje con el valor {0} como valor de parámetro", "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ {0}"],
+  [
+    "CANNOT_MATCH_LOGGED_OFF_USER",
+    "CANNOT MATCH LOGGED OFF USER {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ МОЖЕТ СОГЛАСОВАТЬСЯ, ВЫЙТИ ИЗ ПОЛЬЗОВАТЕЛЯ {0}"
+  ],
   ["CHILD_CHAT_EXEMPT_KIBITZ_NOT_ALLOWED", "Not allowed to kibitz"],
   ["CHILD_CHAT_FREEFORM_NOT_ALLOWED", "Not allowed to chat"],
   ["CHILD_CHAT_NOT_ALLOWED", "Not allowed to chat"],
   ["COMMAND_INVALID_NOT_YOUR_MOVE", "Not your move"],
   ["COMMAND_INVALID_ON_PUBLIC_GAME", "Invalid command for a public game"],
   ["COMMAND_INVALID_WITH_OWNED_GAME", "Invalid command for an owned game"],
-  ["DRAW_ALREADY_PENDING", "DRAW ALREADY PENDING {0}", "El mensaje con el valor {0} como valor de parámetro", "ВЕРНУТЬСЯ ОТКЛОНЕНО {0}"],
-  ["DRAW_DECLINED", "DRAW DECLINED {0}", "El mensaje con el valor {0} como valor de parámetro", "РИСУНОК ОТКЛОНЕН {0}"],
-  ["END_OF_GAME", "END OF GAME {0}", "El mensaje con el valor {0} como valor de parámetro", "конец игры {0}"],
+  [
+    "DRAW_ALREADY_PENDING",
+    "DRAW ALREADY PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ВЕРНУТЬСЯ ОТКЛОНЕНО {0}"
+  ],
+  [
+    "DRAW_DECLINED",
+    "DRAW DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "РИСУНОК ОТКЛОНЕН {0}"
+  ],
+  [
+    "END_OF_GAME",
+    "END OF GAME {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "конец игры {0}"
+  ],
   ["END_OF_GAME", "End of game"],
   ["FOR_TESTING_10", "For testing"],
   ["GAME_STATUS_b0", "White resigns"],
@@ -57,7 +97,12 @@ const messages = [
   ["INVALID_ROOM", "Invalid room or room does not exist"],
   ["INVALID_SQUARE", "{0} is an invalid square"],
   ["INVALID_USER", "Invalid user or user does not exist"],
-  ["INVALID_VARIATION", "INVALID VARIATION {0}", "El mensaje con el valor {0} como valor de parámetro", "недопустимый вариант изменения {0}"],
+  [
+    "INVALID_VARIATION",
+    "INVALID VARIATION {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "недопустимый вариант изменения {0}"
+  ],
   ["LEGACY_MATCH_REMOVED", "Legacy match removed: {0}"],
   ["LOGIN_FAILED_1"],
   ["LOGIN_FAILED_2"],
@@ -81,18 +126,43 @@ const messages = [
   ["LOGIN_FAILED_20"],
   ["LOGIN_FAILED_21"],
   ["LOGIN_FAILED_22"],
-  ["MATCH_DECLINED", "MATCH DECLINED {0}", "El mensaje con el valor {0} como valor de parámetro", "МАТЧ ОТКЛОНЕН {0}"],
-  ["NO_MATCH_FOUND", "NO MATCH FOUND {0}", "El mensaje con el valor {0} como valor de parámetro", "НЕ НАЙДЕНО {0}"],
-  ["NO_TAKEBACK_PENDING", "NO TAKEBACK PENDING {0}", "El mensaje con el valor {0} como valor de parámetro", "НЕТ ВЕРНУТЬ В ОЖИДАНИИ {0}"],
+  [
+    "MATCH_DECLINED",
+    "MATCH DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "МАТЧ ОТКЛОНЕН {0}"
+  ],
+  [
+    "NO_MATCH_FOUND",
+    "NO MATCH FOUND {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ НАЙДЕНО {0}"
+  ],
+  [
+    "NO_TAKEBACK_PENDING",
+    "NO TAKEBACK PENDING {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕТ ВЕРНУТЬ В ОЖИДАНИИ {0}"
+  ],
   ["NOT_ALLOWED_TO_CHAT_IN_ROOM", "Not allowed to chat in rooms"],
   ["NOT_ALLOWED_TO_DELETE_ROOM", "Not allowed to delete room"],
   ["NOT_ALLOWED_TO_JOIN_ROOM", "Not allowed to join room"],
   ["NOT_ALLOWED_TO_KIBITZ", "Not allowed to kibitz"],
-  ["NOT_AN_EXAMINER", "NOT AN EXAMINER {0}", "El mensaje con el valor {0} como valor de parámetro", "НЕ ЭКСПЕРТ {0}"],
+  [
+    "NOT_AN_EXAMINER",
+    "NOT AN EXAMINER {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ ЭКСПЕРТ {0}"
+  ],
   ["NOT_AN_OBSERVER", "You are not an observer"],
   ["NOT_AUTHORIZED", "You are not authorized"],
   ["NOT_IN_ROOM", "You are not in room"],
-  ["NOT_PLAYING_A_GAME", "NOT PLAYING A GAME {0}", "El mensaje con el valor {0} como valor de parámetro", "НЕ ИГРАТЬ В ИГРУ {0}"],
+  [
+    "NOT_PLAYING_A_GAME",
+    "NOT PLAYING A GAME {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ ИГРАТЬ В ИГРУ {0}"
+  ],
   ["NOT_PLAYING_OR_EXAMINING", "You are not playing nor examining"],
   ["NOT_THE_OWNER", "You are not the owner"],
   ["PRIVATE_ENTRY_ACCEPTED", "You have been accepted into the room"],
@@ -106,12 +176,27 @@ const messages = [
   ["ROOM_DOES_NOT_EXIST", "Room does not exist"],
   ["SENDER_NOT_ALLOWED_TO_PERSONAL_CHAT", "Not allowed to chat privately"],
   ["SERVER_ERROR", "SERVER_ERROR. message={0} reason={1}", "SERVER_ERROR", "SERVER_ERROR"],
-  ["TAKEBACK_ACCEPTED", "TAKEBACK ACCEPTED {0}", "El mensaje con el valor {0} como valor de parámetro", "ПРИНЯТЬ ОБРАТНО ПРИНЯТО {0}"],
+  [
+    "TAKEBACK_ACCEPTED",
+    "TAKEBACK ACCEPTED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ПРИНЯТЬ ОБРАТНО ПРИНЯТО {0}"
+  ],
   ["TAKEBACK_ALREADY_PENDING", "A takeback is already pending"],
-  ["TAKEBACK_DECLINED", "TAKEBACK DECLINED {0}", "El mensaje con el valor {0} como valor de parámetro", "НЕ НАЙДЕНО {0}"],
+  [
+    "TAKEBACK_DECLINED",
+    "TAKEBACK DECLINED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "НЕ НАЙДЕНО {0}"
+  ],
   ["TOO_MANY_PRIVATE_ROOMS", "You are at the limit of private rooms you can create"],
   ["UNABLE_TO_CHANGE_OWNER", "Unable to change the rooms owner"],
-  ["UNABLE_TO_PLAY_OPPONENT", "UNABLE TO PLAY OPPONENT {0}", "El mensaje con el valor {0} como valor de parámetro", "Невозможно играть противником {0}"],
+  [
+    "UNABLE_TO_PLAY_OPPONENT",
+    "UNABLE TO PLAY OPPONENT {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "Невозможно играть противником {0}"
+  ],
   ["UNABLE_TO_PLAY_RATED_GAMES", "Unable to play a rated game"],
   ["UNABLE_TO_PLAY_UNRATED_GAMES", "Unable to play an unrated game"],
   ["UNABLE_TO_PRIVATIZE", "Unable to privatize game"],
@@ -119,22 +204,26 @@ const messages = [
   ["UNABLE_TO_RESTRICT_CHAT", "Unable to restrict chat"],
   ["USER_DECLINED_INVITE", "User declined invite"],
   ["USER_LOGGED_OFF", "User logged off"],
-  ["VARIATION_REQUIRED", "VARIATION REQUIRED {0}", "El mensaje con el valor {0} como valor de parámetro", "ВАРИАЦИЯ ТРЕБУЕТСЯ {0}"]
+  [
+    "VARIATION_REQUIRED",
+    "VARIATION REQUIRED {0}",
+    "El mensaje con el valor {0} como valor de parámetro",
+    "ВАРИАЦИЯ ТРЕБУЕТСЯ {0}"
+  ]
 ];
 
 export default function firstAddI18nMessage() {
+  //
   if (!Meteor.isTest && !Meteor.isAppTest && i18nCollection.find().count() === 0) {
-    //  i18nCollection.rawCollection().createIndex({ messageid: 1, locale: 1 }, { unique: true });
     messages.forEach(i18nMessage => {
       const locales = ["x", "en_us", "es", "ru"];
       ////["messageid", "en_us", "es", "ru"]
-      for (let x = 1; x < Math.min(locales.length, i18nMessage[x].length) ; x++) {
-        const record = {
+      for (let x = 1; x < Math.min(locales.length, i18nMessage.length); x++) {
+        i18nCollection.insert({
           messageid: i18nMessage[0],
           locale: locales[x],
           text: i18nMessage[x]
-        };
-        i18nCollection.insert(record);
+        });
       }
     });
   }
