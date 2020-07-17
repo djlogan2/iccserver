@@ -4003,5 +4003,7 @@ Meteor.methods({
     global._gameObject.localUnobserveAllGames(message_identifier, user_id, false, false),
   // eslint-disable-next-line meteor/audit-argument-checks
   observeUser: (message_identifier, user_id) =>
-    global._gameObject.observeUser(message_identifier, user_id)
+    global._gameObject.observeUser(message_identifier, user_id),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  exportToPGN: (message_identifier, game_id) => global._gameObject.exportToPGN(game_id)
 });
