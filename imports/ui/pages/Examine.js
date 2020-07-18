@@ -62,6 +62,15 @@ let game_timestamp_client;
 //   });
 // });
 
+const EXAMINING_QUOTE = {
+  $or: [
+    { "black.id": Meteor.userId() },
+    { "white.id": Meteor.userId() },
+    { "observer.id": Meteor.userId() },
+    { owner: Meteor.userId() }
+  ]
+};
+
 class Examine extends Component {
   constructor(props) {
     super(props);
@@ -131,7 +140,7 @@ class Examine extends Component {
   }
 
   startExamine = () => {
-    let examine_game = Game.find({ "observers.id": Meteor.userId() }).fetch();
+    let examine_game = Game.find(EXAMINING_QUOTE).fetch();
     if (examine_game.length === 0) {
       this.initExamine();
     }
@@ -218,8 +227,7 @@ class Examine extends Component {
       }
       that.initExamine();
     });
-
-  }
+  };
 
   gameHistoryload(data) {
     if (data === "mygame") {
@@ -372,7 +380,7 @@ class Examine extends Component {
         <ExaminePage
           userId={Meteor.userId()}
           user={this.props.user}
-           cssManager={css}
+          cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
           gameId={this.props.examine_game[0]._id}
@@ -401,7 +409,7 @@ class Examine extends Component {
 
 export default withTracker(props => {
   return {
-    examine_game: Game.find({ "observers.id": Meteor.userId() }).fetch(),
+    examine_game: Game.find(EXAMINING_QUOTE).fetch(),
     // chats: Chat.find({"id": examine_game._id}),
     // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
     // chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),

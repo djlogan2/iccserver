@@ -1,47 +1,67 @@
 import React, { Component } from "react";
-import { Input, Upload, message, Button } from "antd";
+import { Input, Upload, message, Button, notification } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { Meteor } from "meteor/meteor";
 
 import buildPgn from "./../../../helpers/build-pgn";
-// import { FS } from "meteor/cfs:base-package";
-// import "../../../../lib/client/pgnimportfilesystem.client";
-// const PgnImports = new FS.Collection("uploaded_pgns", {
-//   stores: [new FS.Store.PGNImportFileSystem()]
-// });
+import { FS } from "meteor/cfs:base-package";
+import "./../../../../../../lib/client/pgnimportfilesystem.client";
+const PgnImports = new FS.Collection("uploaded_pgns", {
+  stores: [new FS.Store.PGNImportFileSystem()]
+});
 
 const { TextArea } = Input;
 
 class FenPgn extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      fen: "",
+      fen: props.fen,
       pgn: ""
     };
+  }
+
+  componentDidMount() {
+    this.loadPgn();
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.fen !== this.props.fen) {
       this.loadPgn();
+      this.setState({
+        fen: this.props.fen
+      });
     }
   }
 
-  loadPgn = () => {
-    fetch("export/pgn/game/" + this.props.gameId, {
-      headers : {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-       }
+  handlePgnLoaded = () => {
+    notification.open({
+      message: "PGN successfully loaded"
+    });
+  };
 
-    })
-      .then(response => {
+  loadPgn = () => {
+    // fetch("export/pgn/game/" + this.props.gameId, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Accept: "application/json"
+    //   }
+    // })
+    //   .then(response => {
+    //     debugger;
+    //     return response.json();
+    //   })
+    //   .then(data => {
+    //     debugger;
+    //   });
+    let that = this;
+    Meteor.call("exportToPGN", "exportToPGN", this.props.gameId, (err, response) => {
+      if (err) {
         debugger;
-        return response.json()
-      })
-      .then(data => {
-        debugger;
-      });
+      }
+      console.log(response);
+      that.setState({ pgn: response.pgn });
+    });
   };
 
   handleFenChange = e => {
@@ -52,39 +72,50 @@ class FenPgn extends Component {
     this.setState({ pgn: e.target.value });
   };
 
-  render() {
-    const props = {
-      name: "file",
-      action: "https://www.mocky.io/v2/5cc8019d300000980a055e76",
-      headers: {
-        authorization: "authorization-text"
-      },
-      onChange(info) {
-        if (info.file.status !== "uploading") {
-        }
-        if (info.file.status === "done") {
-          message.success(`${info.file.name} file uploaded successfully`);
-        } else if (info.file.status === "error") {
-          message.error(`${info.file.name} file upload failed.`);
-        }
-      }
-    };
+  changeFilehandler = event => {
+    let file = event.target.files[0];
+    let that = this;
 
-    let pgn = buildPgn(this.props.moveList);
+    if (!!file) {
+      var msFile = new FS.File(file);
+      msFile.creatorId = Meteor.userId();
+
+      let confirm = PgnImports.insert(msFile, function(err, fileObj) {
+        if (err) {
+          alert("Upload PGN error: " + err);
+        }
+      });
+      if (confirm) {
+        debugger;
+        if (msFile._id) {
+          that.handlePgnLoaded();
+          Meteor.call("examineGame", "ExaminedGame", msFile._id, true, err => {
+            if (err) {
+              debugger;
+            }
+          });
+        }
+        // this.props.uploadPgn();
+      }
+    }
+  };
+
+  render() {
+    // let pgn = buildPgn(this.props.moveList);
 
     return (
       <div className="fen-png">
         <div className="fen-png__content">
-          <label>Fen</label>
+          <label>FEN</label>
           <Input
-            value={this.props.fen}
+            value={this.state.fen}
             onChange={this.handleFenChange}
             placeholder="Your message"
           />
-          <label>Pgn</label>
+          <label>PGN</label>
           <TextArea
             row={4}
-            value={pgn}
+            value={this.state.pgn}
             onChange={this.handlePgnChange}
             placeholder="1. f3 d6 2. e4 Nf6 3. Nh3 Nxe4"
           />
@@ -95,14 +126,20 @@ class FenPgn extends Component {
               PGN Export
             </Button>
           </a>
-          {/* <Button className="fen-pgn__button" type="primary">
-            Import PGN
-          </Button> */}
-          <Upload {...props}>
-            <Button type="primary" className="fen-pgn__button">
-              <UploadOutlined /> Import PGN
-            </Button>
-          </Upload>
+          <label htmlFor="files" className="ant-btn fen-pgn__button ant-btn-primary">
+            {" "}
+            <i>
+              <img src="images/pgn-import-icon.png" />
+            </i>{" "}
+            PGN Import
+          </label>
+          <input
+            id="files"
+            className="ant-btn fen-pgn__button ant-btn-primary"
+            // style={{ visibility: "hidden" }}
+            type="file"
+            onChange={e => this.changeFilehandler(e)}
+          />
         </div>
       </div>
     );

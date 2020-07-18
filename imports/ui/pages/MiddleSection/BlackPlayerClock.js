@@ -26,8 +26,8 @@ export default class BlackPlayerClock extends Component {
     let minute = 0;
     let second = 0;
     let millisecond;
-    if (!!this.props.ClockData && this.props.ClockData.status === "playing") {
-      time = this.getTime(this.props.ClockData, this.props.color);
+    if (!!this.props.game && this.props.game.status === "playing") {
+      time = this.getTime(this.props.game, this.props.color);
       millisecond = time;
       let hh = Math.floor(millisecond / 1000 / 60 / 60);
       millisecond -= hh * 1000 * 60 * 60;

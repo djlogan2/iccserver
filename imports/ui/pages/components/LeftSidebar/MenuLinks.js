@@ -82,7 +82,14 @@ class MenuLinks extends Component {
 
     return (
       <div className="menu-links">
-        <ul className="list-sidebar bg-defoult list-unstyled components desktop">{linksMarkup}</ul>
+        <ul className="list-sidebar bg-defoult list-unstyled components desktop">
+          {linksMarkup}
+          <li className="menu-link__item">
+            <a href="#" onClick={this.props.onMyGames}>
+              <img src={"../../../images/learning-icon-white.png"} alt="" /> <span>My games</span>
+            </a>
+          </li>
+        </ul>
         <div className="menu-links__bottom">
           {sidebarBottom.map((link, index) => {
             return (
@@ -93,11 +100,6 @@ class MenuLinks extends Component {
               </li>
             );
           })}
-          <li className="menu-link__item">
-            <a href="#" onClick={this.handleMyGames}>
-              <img src={"../../../images/learning-icon-white.png"} alt="" /> <span>My games</span>
-            </a>
-          </li>
         </div>
       </div>
     );

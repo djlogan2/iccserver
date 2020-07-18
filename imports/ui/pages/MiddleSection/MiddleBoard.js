@@ -71,17 +71,17 @@ export default class MiddleBoard extends Component {
 
   getTopPlayerData = () => {
     if (this.props.game === undefined) {
-      return null
+      return null;
     }
     return this.state.top === "w" ? this.props.game.white : this.props.game.black;
-  }
+  };
 
   getBottomPlayerData = () => {
     if (this.props.game === undefined) {
-      return null
+      return null;
     }
     return this.state.top === "b" ? this.props.game.white : this.props.game.black;
-  }
+  };
 
   render() {
     if (!!this.props.game) {
@@ -162,10 +162,15 @@ export default class MiddleBoard extends Component {
       fen = this.chess.fen();
     }
 
+    let isUserPlaying = this.props.gameStatus === "playing";
+    let isUserExamining = this.props.gameStatus === "examining";
+
+    let isPlayingOrExamining = isUserPlaying || isUserExamining;
+
     return (
       <div>
         <div style={{ width: size }}>
-          {this.props.gameStatus === "playing" && (
+          {isPlayingOrExamining && (
             <Player
               playerData={topPlayer}
               cssManager={this.props.cssManager}
@@ -178,10 +183,10 @@ export default class MiddleBoard extends Component {
             />
           )}
 
-          {this.props.gameStatus === "playing" && (
+          {isPlayingOrExamining && (
             <BlackPlayerClock
               cssManager={this.props.cssManager}
-              ClockData={this.props.game}
+              game={this.props.game}
               color={topPlayertime}
               side={size}
             />
@@ -198,7 +203,7 @@ export default class MiddleBoard extends Component {
             currentGame={this.props.currentGame}
           />
 
-          {this.props.gameStatus === "playing" && (
+          {isPlayingOrExamining && (
             <Player
               playerData={bottomPlayer}
               cssManager={this.props.cssManager}
@@ -210,10 +215,10 @@ export default class MiddleBoard extends Component {
               Playermsg={botPlayermsg}
             />
           )}
-          {this.props.gameStatus === "playing" && (
+          {isPlayingOrExamining && (
             <BlackPlayerClock
               cssManager={this.props.cssManager}
-              ClockData={this.props.game}
+              game={this.props.game}
               color={bottomPlayertime}
               side={size}
             />
