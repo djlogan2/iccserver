@@ -32,6 +32,14 @@
 	background-position: center;
 	background-size: contain;
 	background-repeat: no-repeat;
+	/* for presentation */
+	background: url('images/JHU_logo_sm.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 11rem;
+	height: 6rem;
+	margin-top: 0;
 }
 .fliph .sidebar__logo {
 	height: 3rem;
