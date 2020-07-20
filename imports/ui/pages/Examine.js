@@ -66,7 +66,7 @@ const EXAMINING_QUOTE = {
   $or: [
     { "black.id": Meteor.userId() },
     { "white.id": Meteor.userId() },
-    { "observer.id": Meteor.userId() },
+    { "observers.id": Meteor.userId() },
     { owner: Meteor.userId() }
   ]
 };
@@ -216,7 +216,7 @@ class Examine extends Component {
   handleObserveUser = userId => {
     Meteor.call("observeUser", "observeUser", userId, (err, result) => {
       if (err) {
-        //
+        debugger;
       }
     });
   };
