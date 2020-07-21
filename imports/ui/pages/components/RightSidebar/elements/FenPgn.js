@@ -6,9 +6,12 @@ import { Meteor } from "meteor/meteor";
 import buildPgn from "./../../../helpers/build-pgn";
 import { FS } from "meteor/cfs:base-package";
 import "./../../../../../../lib/client/pgnimportfilesystem.client";
+import { Logger } from "./../../../../../../lib/client/Logger";
 const PgnImports = new FS.Collection("uploaded_pgns", {
   stores: [new FS.Store.PGNImportFileSystem()]
 });
+
+const log = new Logger("client/FenPgn_js");
 
 const { TextArea } = Input;
 
@@ -57,15 +60,21 @@ class FenPgn extends Component {
     let that = this;
     Meteor.call("exportToPGN", "exportToPGN", this.props.gameId, (err, response) => {
       if (err) {
-        debugger;
+        log.error(err.reason);
       }
-      console.log(response);
       that.setState({ pgn: response.pgn });
     });
   };
 
   handleFenChange = e => {
-    this.setState({ fen: e.target.value });
+    let newFen = e.target.value;
+    this.setState({fen: newFen});
+
+    Meteor.call("loadFen", "loadFen", this.props.gameId, newFen, (err, response) => {
+      if (err) {
+        log.error(err.reason);
+      }
+    });
   };
 
   handlePgnChange = e => {

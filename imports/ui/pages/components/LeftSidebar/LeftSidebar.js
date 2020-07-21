@@ -117,6 +117,7 @@ const MyGameModal = ({gameList, ...rest}) => {
                       <a href={"export/pgn/history/" + game.id} className="pgnbtn">
                         <img
                           // src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
+                          src="images/pgnicon.png"
                           style={{ width: "25px", height: "25px" }}
                           alt="PgnDownload"
                         />

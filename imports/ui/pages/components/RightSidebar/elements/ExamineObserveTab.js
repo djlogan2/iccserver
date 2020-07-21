@@ -123,7 +123,7 @@ export default class ExamineObserveTab extends Component {
     let isShowing = this.props.userGameStatus === "examining" && this.props.game.observers.length > 1;
     return (
       <div className="examine-observer-tab">
-        {!isShowing && !isObserving && <AutoComplete options={options} style={{ width: 200 }} onSelect={this.handleSelect} onSearch={this.handleSearch} placeholder="input here" />}
+        {!isShowing && !isObserving && <AutoComplete options={options} style={{ width: 200 }} onSelect={this.handleSelect} onSearch={this.handleSearch} placeholder="Find user to observe" />}
         {isObserving && <ExamineObserverTabBlock game={this.props.game} userId={this.props.userId} unObserveUser={this.props.unObserveUser} />}
         {isShowing && <ExamineOwnerTabBlock game={this.props.game} />}
       </div>
