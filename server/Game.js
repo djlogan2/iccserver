@@ -117,7 +117,13 @@ class Game {
                   { isolation_group: user.isolation_group },
                   { "observers.id": user._id },
                   { owner: { $ne: user._id } },
-                  { $or: [{ status: "playing" }, { private: {$ne: true} }, { "analysis.id": user._id }] }
+                  {
+                    $or: [
+                      { status: "playing" },
+                      { private: { $ne: true } },
+                      { "analysis.id": user._id }
+                    ]
+                  }
                 ]
               },
               {
@@ -3448,6 +3454,7 @@ class Game {
     log.debug("_startGamePing game_id=" + game_id + ", color=" + color);
     if (!game_pings[game_id]) game_pings[game_id] = {};
     game_pings[game_id][color] = new TimestampServer(
+      new Logger("server/game/timestamp_js"),
       "server game",
       (key, msg) => {
         log.debug(

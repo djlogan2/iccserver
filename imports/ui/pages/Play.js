@@ -174,7 +174,7 @@ class Play extends Component {
     e.preventDefault();
     Meteor.logout(err => {
       if (err) {
-        log.error(err.reason);
+        logger.error(err.reason);
       } else {
         this.props.history.push("/login");
       }
@@ -489,7 +489,9 @@ Game.find({ status: "playing" }).observeChanges({
     if (!color) throw new Meteor.Error("Unable to discern which color we are");
     game_timestamps[id] = {
       color: color,
-      timestamp: new TimestampClient("client game", (_, msg) => Meteor.call("gamepong", id, msg))
+      timestamp: new TimestampClient(new Logger("play/client/timestamp"), "client game", (_, msg) =>
+        Meteor.call("gamepong", id, msg)
+      )
     };
   },
   changed(id, fields) {
