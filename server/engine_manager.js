@@ -4,6 +4,7 @@ import { Logger } from "../lib/server/Logger";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import Chess from "chess.js";
 import { Random } from "meteor/random";
+import AWS from "aws-sdk";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
@@ -15,6 +16,12 @@ const _engines = {
   position: [],
   waiting: []
 };
+
+//AWS.config.update();
+var credentials = new AWS.SharedIniFileCredentials({ profile: "icc" });
+AWS.config.credentials = credentials;
+AWS.config.update({ region: "us-west-1" });
+const lambda = new AWS.Lambda();
 
 async function start_engine(game_id, type, skill_level) {
   log.debug("start_engine " + game_id + ", " + type + "," + skill_level);
@@ -58,8 +65,7 @@ async function stop_engine(game_id, type) {
   if (!engine) return;
   try {
     log.debug("stop_engine for engine " + engine.ourid + ", game " + game_id + ", " + type);
-    if(type !== "position")
-      await engine.stop();
+    if (type !== "position") await engine.stop();
   } catch (e) {
     log.debug("stop_engine failed stopping for game_id " + game_id + ", error=" + e.toString());
     // skip any errors on trying to stop an engine
@@ -68,11 +74,33 @@ async function stop_engine(game_id, type) {
   delete _engines[type][game_id];
 }
 
+function awsDoIt(game) {
+  return new Promise((resolve, reject) => {
+    const params = {
+      FunctionName: "icc-stockfish",
+      Payload: JSON.stringify({
+        options: { "Skill Level": game.skill_level },
+        position: game.fen,
+        gooptions: {
+          wtime: game.clocks.white.current,
+          btime: game.clocks.black.current,
+          winc: game.clocks.white.inc_or_delay,
+          binc: game.clocks.black.inc_or_delay
+        }
+      })
+    };
+    lambda.invoke(params, (err, data) => {
+      if (err) reject(err);
+      const payload = JSON.parse(data.Payload);
+      const body = JSON.parse(payload.body);
+      resolve(body.results);
+    });
+  });
+}
+
 const playGameMove = Meteor.bindEnvironment(game_id => {
   log.debug("playGameMove " + game_id);
   const game = Game.GameCollection.findOne({ _id: game_id });
-  let engine;
-  let result;
   if (!game) return;
   log.debug(
     "game white.id=" +
@@ -88,6 +116,8 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
   if (game.black.id === "computer" && game.tomove !== "black") return;
   if (game.status !== "playing") return;
   log.debug("playGameMove " + game_id + " starting engine");
+  //----------
+  /*
   start_engine(game_id, "position", game.skill_level)
     .then(_engine => {
       if (!_engine)
@@ -127,24 +157,19 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
       );
       return stop_engine(game_id, "position");
     })
-    .then(() => {
-      const chess = new Chess.Chess(game.fen);
-      const cmove = chess.move(result.bestmove, { sloppy: true });
-      log.debug(
-        "playGameMove " +
-          game_id +
-          ", " +
-          engine.ourid +
-          " calling internalSaveLocalMove with " +
-          cmove.san
-      );
-      Game.internalSaveLocalMove(
-        { _id: "computer", username: "Computer" },
-        "__computer__",
-        game_id,
-        cmove.san
-      );
-    });
+   */
+  //----------
+  awsDoIt(game).then(result => {
+    const chess = new Chess.Chess(game.fen);
+    const cmove = chess.move(result.bestmove, { sloppy: true });
+    log.debug("playGameMove " + game_id + ", calling internalSaveLocalMove with " + cmove.san);
+    Game.internalSaveLocalMove(
+      { _id: "computer", username: "Computer" },
+      "__computer__",
+      game_id,
+      cmove.san
+    );
+  });
 });
 
 const parseStockfishAnalysisResults = Meteor.bindEnvironment((game_id, data) => {
