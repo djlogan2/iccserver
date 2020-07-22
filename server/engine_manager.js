@@ -18,9 +18,11 @@ const _engines = {
 };
 
 //AWS.config.update();
-var credentials = new AWS.SharedIniFileCredentials({ profile: "icc" });
-AWS.config.credentials = credentials;
-AWS.config.update({ region: "us-west-1" });
+if (!process.env.AWS_ACCESS_KEY_ID) {
+  AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: "icc" });
+  AWS.config.update({ region: "us-west-1" });
+}
+
 const lambda = new AWS.Lambda();
 
 async function start_engine(game_id, type, skill_level) {
