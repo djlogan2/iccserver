@@ -16,56 +16,71 @@ import {
 
 const MyGameModal = ({gameList, ...rest}) => {
 
-  const formatGameList = (games) => {
-    let result;
-    let gameList = [];
 
-    if (!!games && games.length > 0) {
-      for (let i = 0; i < games.length; i++) {
-        if (
-          (games[i].white.id === Meteor.userId() && games[i].result === "1-0") ||
-          (games[i].black.id === Meteor.userId() && games[i].result === "0-1")
-        ) {
-          // username - opponentusername.pgn;
-
-          result = "Won";
-        } else {
-          result = "Loss";
-        }
-        let time = "Fix me"; // TODO: This line is crashing (!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
-
-        // console.log();
-        gameList.push({
-          id: games[i]._id,
-          name: "3 minut arina",
-          white: games[i].white.name.replace(/"/g, ""),
-          black: games[i].black.name.replace(/"/g, ""),
-          result: result,
-          time: time,
-          is_imported: games.is_imported
-        });
+  const handleSetExaminMode = (id, is_imported) => {
+    Meteor.call("examineGame", "ExaminedGame", id, false, (error, response) => {
+      if (error) {
+        log.debug(error);
+        console.log(error);
+        this.setState({ modalShow: false });
+      } else {
+        this.setState({ examineGame: true, activeTab: 3, modalShow: false });
       }
-    }
-    return gameList;
+    });
+
+    // this.props.removeGameHistory();
+  }
+
+  const formatGameList = (games) => {
+    // let result;
+    // let gameList = [];
+
+
+    return games.map((gameItem) => {
+      let isUserWhite = gameItem.white.id === Meteor.userId();
+      let hasWhiteWon = gameItem.result === "1-0";
+      let isUserBlack = gameItem.black.id === Meteor.userId();
+      let hasBlackWon = gameItem.result === "0-1";
+
+      let isCurrentUserWinner = (isUserWhite && hasWhiteWon) || (isUserBlack && hasBlackWon);
+      let gameResult = isCurrentUserWinner ? "Won" : "Loss";
+
+      time = `${gameItem.startTime.getDate()}.${gameItem.startTime.getFullYear()}`;
+
+      return {
+        id: gameItem._id,
+        name: "3 minut arina",
+        white: gameItem.white.name.replace(/"/g, ""),
+        black: gameItem.black.name.replace(/"/g, ""),
+        result: gameResult,
+        time: time,
+        is_imported: games.is_imported
+      }
+    });
+    // if (!!games && games.length > 0) {
+    //   for (let i = 0; i < games.length; i++) {
+
+    //     let time = "Fix me"; // TODO: This line is crashing (!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
+
+    //     // console.log();
+    //     gameList.push({
+    //       id: games[i]._id,
+    //       name: "3 minut arina",
+    //       white: games[i].white.name.replace(/"/g, ""),
+    //       black: games[i].black.name.replace(/"/g, ""),
+    //       result: result,
+    //       time: time,
+    //       is_imported: games.is_imported
+    //     });
+    //   }
+    // }
+    // return gameList;
   }
 
   const formattedGameList = formatGameList(gameList);
 
   let style = {
-    // width: "490px",
-    // borderRadius: "15px",
-    background: "#ffffff",
-    // position: "fixed",
-    // zIndex: "99999",
-    // left: "0px",
-    // right: "0",
-    // margin: "0px auto",
-    // top: "50%",
-    // transform: "translateY(-50%)",
-    // padding: "20px",
-    // textAlign: "center",
-    // border: "1px solid #ccc",
-    // boxShadow: "#0000004d"
+    background: "#ffffff"
   };
 
 
@@ -107,7 +122,7 @@ const MyGameModal = ({gameList, ...rest}) => {
                   <tr key={index} style={{ cursor: "pointer" }}>
                     <td
                       style={{ padding: "5px 5px" }}
-                      // onClick={this.setGameExaminMode.bind(this, game.id, game.is_imported)}
+                      onClick={() => { handleSetExaminMode(game.id, game.is_imported)}}
                     >
                       {game.white}-vs-{game.black}
                     </td>
@@ -131,9 +146,6 @@ const MyGameModal = ({gameList, ...rest}) => {
         ) : (
           <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>No Data Found</div>
         )}
-        {/* <button onClick={() => this.toggleModal(false)} style={btnstyle}>
-          Close
-        </button> */}
       </div>
     </Modal>
   );

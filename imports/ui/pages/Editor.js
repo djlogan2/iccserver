@@ -59,13 +59,12 @@ class Editor extends Component {
     this.observingGameSubscribe = Meteor.subscribe("observing_games");
     this.gameSubscribe = Meteor.subscribe("games");
 
-
-   // game: Meteor.subscribe("games"),
-   // gameRequests: Meteor.subscribe("game_requests"),
-   // clientMessages: Meteor.subscribe("client_messages"),
-   // //observingGames: Meteor.subscribe("observing_games"),
-   // gameHistory: Meteor.subscribe("game_history"),
-   // importedGame: Meteor.subscribe("imported_games")
+    // game: Meteor.subscribe("games"),
+    // gameRequests: Meteor.subscribe("game_requests"),
+    // clientMessages: Meteor.subscribe("client_messages"),
+    // //observingGames: Meteor.subscribe("observing_games"),
+    // gameHistory: Meteor.subscribe("game_history"),
+    // importedGame: Meteor.subscribe("imported_games")
   }
 
   componentWillUnmount() {
@@ -267,9 +266,9 @@ class Editor extends Component {
     return (
       <AppWrapper className="editor" cssManager={css}>
         <Col span={14} className="editor__main">
-          <div className="merida">
-            <BoardWrapper>
-              {this.state.game !== null && (
+          <BoardWrapper>
+            {this.state.game !== null && (
+              <div className="merida">
                 <Chessground
                   width={baordSize}
                   height={baordSize}
@@ -289,9 +288,9 @@ class Editor extends Component {
                     this.chessground = el;
                   }}
                 />
-              )}
-            </BoardWrapper>
-          </div>
+              </div>
+            )}
+          </BoardWrapper>
         </Col>
         <Col span={10} className="editor-right-sidebar-wrapper">
           <Spare onDropStart={this.handleDropStart} />
