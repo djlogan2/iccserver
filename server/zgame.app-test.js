@@ -10,6 +10,7 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { TimestampClient } from "../lib/Timestamp";
+import {Logger} from "../lib/server/Logger";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
@@ -3663,7 +3664,7 @@ describe("when playing a game", function() {
 
     self.clock.tick(150);
 
-    const client = new TimestampClient("debug1", (key, msg) => {
+    const client = new TimestampClient(new Logger("test"), "debug1", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         if (!!error) chai.assert.fail(error);
         const game2 = Game.collection.findOne({});
@@ -3743,7 +3744,7 @@ describe("when playing a game", function() {
     const game1 = Game.collection.findOne({});
     self.clock.tick(150);
 
-    const client = new TimestampClient("debug2", (key, msg) => {
+    const client = new TimestampClient(new Logger("test"), "debug2", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(error.message, "[Unable to find request for response]");
         done();
@@ -3793,7 +3794,7 @@ describe("when playing a game", function() {
 
     Game.resignLocalGame("mi2", game_id);
 
-    const client = new TimestampClient("debug3", (key, msg) => {
+    const client = new TimestampClient(new Logger("test"), "debug3", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(
           error.message,
@@ -3832,7 +3833,7 @@ describe("when playing a game", function() {
     const game1 = Game.collection.findOne({});
     self.clock.tick(150);
 
-    const client = new TimestampClient("debug4", (key, msg) => {
+    const client = new TimestampClient(new Logger("test"), "debug4", (key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(error.message, "[Unable to find request for response]");
         done();
