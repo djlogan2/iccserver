@@ -11,6 +11,12 @@
   flex-grow: 1;
 }
 
+.community__right-block {
+  width: 21.4rem;
+  background: rgba(91, 103, 133, 0.05);
+  border-left: 1px solid #e5e5e7;
+}
+
 .room-block {
   padding-bottom: 1.6rem;
   border-bottom: 1px solid #e5e5e7;
@@ -36,6 +42,21 @@
 }
 
 .room-block__add {
+
+}
+.room-block__plus {
+  border: none;
+  background: none;
+  font-size: 2rem;
+  line-height: 2rem;
+  justify-content: center;
+  align-items: center;
+  padding-right: 0;
+  padding-left: 0;
+}
+.room-block__plus:hover {
+  border: none;
+  background: none;
 }
 
 .room-block__list {

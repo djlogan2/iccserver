@@ -287,6 +287,10 @@ class Play extends Component {
     this._board.load(game.fen);
   }
 
+  handleExamine = (gameId) => {
+    debugger;
+  }
+
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
     let rank = parseInt(square.square.charAt(1));
@@ -398,8 +402,10 @@ class Play extends Component {
         <PlayModaler
           userColor={userColor}
           userName={this.props.user && this.props.user.username}
+          gameId={this.gameId}
           opponentName={opponentName}
           onRematch={this.handleChooseFriend}
+          onExamine={this.handleExamine}
           isWhiteCheckmated={isWhiteCheckmated}
           isBlackCheckmated={isBlackCheckmated}
           isWhiteStalemated={isWhiteStalemated}

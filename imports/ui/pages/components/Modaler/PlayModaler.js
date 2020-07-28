@@ -79,6 +79,17 @@ export default class PlayModaler extends Component {
     return statusText;
   };
 
+  getNumberStatus = () => {
+    let { status } = this.state;
+    let numberStatus = '1-0'
+    if (status === "White Checkmated") {
+      numberStatus = "0-1";
+    } else if (status === "Black Checkmated") {
+      numberStatus = "1-0";
+    }
+    return numberStatus;
+  };
+
   handleCancel = () => {
     this.setState({
       isModal: false,
@@ -103,6 +114,7 @@ export default class PlayModaler extends Component {
 
     let titleText = this.getTitleText();
     let statusText = this.getStatusText();
+    let numberStatus = this.getNumberStatus();
 
     return (
       <Modal
@@ -110,23 +122,36 @@ export default class PlayModaler extends Component {
         visible={isModal}
         onOk={this.handleCancel}
         onCancel={this.handleCancel}
+        footer={null}
       >
         <div className="play-modal">
           <div className="play-modal__main">
             <div className="play-modal__user-one">
+              <img  className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
               <p className="play-modal__user-name">{userName}</p>
             </div>
-            <div className="play-modal__user-two">
+            <div className="play-modal__main-center">
+              <span className="play-modal__game-short-status">{numberStatus}</span>
               <p className="play-modal__game-status">{statusText.toUpperCase()}</p>
             </div>
             <div className="play-modal__user-two">
+              <img  className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
               <p className="play-modal__user-name">{opponentName}</p>
             </div>
           </div>
           <div className="play-modal__btn-block">
             <Button
+              type="primary"
               onClick={() => {
                 this.props.onRematch(userName);
+              }}
+              className="play-modal__btn play-modal__btn--primary"
+            >
+              Rematch
+            </Button>
+            <Button
+              onClick={() => {
+                this.props.onExamine(this.props.gameId);
               }}
               className="play-modal__btn"
             >
