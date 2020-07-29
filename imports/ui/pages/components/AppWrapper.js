@@ -6,8 +6,7 @@ import { GameRequestCollection } from "./../../../api/collections";
 
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 
-// import "antd/dist/antd.css";
-import "react-chessground/dist/assets/theme.css"; // Or your own chess theme
+import "react-chessground/dist/styles/chessground.css";
 
 import "./../css/developmentboard.css";
 import "./../css/Spare.css";
@@ -40,21 +39,17 @@ const AppWrapper = ({ className, children, cssManager, game_request }) => {
           title="Game request"
           visible={game_request ? true : false}
           onOk={() => {
-            Meteor.call("gameRequestAccept", "gameAccept", game_request._id, (err, data) => {
-
-            });
+            Meteor.call("gameRequestAccept", "gameAccept", game_request._id, (err, data) => {});
           }}
           onCancel={() => {
-            Meteor.call("gameRequestDecline", "gameDecline", game_request._id, (err, data) => {
-
-            });
+            Meteor.call("gameRequestDecline", "gameDecline", game_request._id, (err, data) => {});
           }}
         >
           <p>{game_request.challenger} would like to play with you</p>
         </Modal>
       )}
 
-      <LeftSidebar  cssManager={cssManager} />
+      <LeftSidebar cssManager={cssManager} />
       <Row className={`app-wrapper__row ${className}`}>{children}</Row>
     </div>
   );

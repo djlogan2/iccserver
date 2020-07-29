@@ -3,9 +3,8 @@ import _ from "lodash";
 
 import Chess from "chess.js";
 import Chessground from "react-chessground";
-//import "react-chessground/dist/assets/chessground.css";
 import "./../css/developmentboard.css";
-import "react-chessground/dist/assets/theme.css"; // Or your own chess theme
+import "react-chessground/dist/styles/chessground.css";
 
 export default class ChessBoard extends PureComponent {
   constructor(props) {
@@ -88,12 +87,14 @@ export default class ChessBoard extends PureComponent {
           draggable={this.draggable()}
           selectable={this.draggable()}
           turnColor={this.turnColor()}
-          movable={this.calcMovable()}
           width={this.props.width}
           height={this.props.height}
           resizable={true}
           fen={this.props.fen}
           orientation={this.props.orientation}
+          /*
+          movable={this.calcMovable()}
+           */
           onMove={this.onMove}
           ref={el => {
             this.chessground = el;
