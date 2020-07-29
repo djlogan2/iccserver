@@ -17,7 +17,6 @@ const _engines = {
   waiting: []
 };
 
-//AWS.config.update();
 if (!process.env.AWS_ACCESS_KEY_ID) {
   AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: "icc" });
   AWS.config.update({ region: "us-west-1" });
@@ -265,8 +264,6 @@ function watchAllGamesForAnalysis() {
 }
 
 Meteor.startup(() => {
-  if (!!SystemConfiguration.enginePath()) {
     watchForComputerGames();
     //watchAllGamesForAnalysis();
-  }
 });
