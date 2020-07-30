@@ -287,9 +287,10 @@ class Play extends Component {
     this._board.load(game.fen);
   }
 
-  handleExamine = (gameId) => {
+  handleExamine = gameId => {
     debugger;
-  }
+    this.props.history.push("/examine");
+  };
 
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
@@ -387,6 +388,7 @@ class Play extends Component {
     //   return <Loading />;
     // }
     let opponentName;
+    let opponentId;
     let userColor;
     if (this.props.game_playing) {
       userColor =
@@ -395,6 +397,10 @@ class Play extends Component {
         userColor === "white"
           ? this.props.game_playing.black.name
           : this.props.game_playing.white.name;
+      opponentId =
+        userColor === "white"
+          ? this.props.game_playing.black._id
+          : this.props.game_playing.white._id;
     }
 
     return (
@@ -404,6 +410,7 @@ class Play extends Component {
           userName={this.props.user && this.props.user.username}
           gameId={this.gameId}
           opponentName={opponentName}
+          opponentId={opponentId}
           onRematch={this.handleChooseFriend}
           onExamine={this.handleExamine}
           isWhiteCheckmated={isWhiteCheckmated}

@@ -132,11 +132,11 @@ class Examine extends Component {
     }
   }
 
-  // componentWillUpdate() {
-  //   if (this.props.user && this.props.user.status && this.props.user.status.game === "playing") {
-  //     this.props.history.push("/play");
-  //   }
-  // }
+  componentWillUpdate() {
+    if (this.props.user && this.props.user.status && this.props.user.status.game === "playing") {
+      this.props.history.push("/play");
+    }
+  }
 
   componentDidMount() {
     if (!this.state.isAuthenticated) {
