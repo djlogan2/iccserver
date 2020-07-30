@@ -111,16 +111,7 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     if (systemCSS === undefined || systemCSS.length === 0) {
       return <Loading isPure={true} />
     }
-    const css = new CssManager(this._systemCSS());
-    let informativePopup = null;
-    if (gameRequest !== undefined) {
-      if (gameRequest.type === "match" && gameRequest.receiver_id === Meteor.userId())
-        informativePopup = this.gameRequest(
-          "Opponent has requested for a game",
-          gameRequest._id,
-          css
-        );
-    }
+    const css = new CssManager(this._systemCSS());  
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;
@@ -129,7 +120,6 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     return (
       <AppWrapper cssManager={css}>
         <div className="col-sm-10 col-md-10" style={css.parentPopup(h, w)}>
-          {informativePopup}
           <div className="home-middle-section">
             <div className="home-slider">
               <img src={css.buttonBackgroundImage("homeImage")} alt="Home" />

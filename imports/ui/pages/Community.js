@@ -136,7 +136,9 @@ class Community extends Component {
 
       chat: Meteor.subscribe("chat"),
       rooms: Meteor.subscribe("rooms"),
-      game: Meteor.subscribe("games")
+      game: Meteor.subscribe("games"),
+      gameHistory: Meteor.subscribe("game_history"),
+      importedGame: Meteor.subscribe("imported_games")
     };
   }
 
@@ -144,6 +146,8 @@ class Community extends Component {
     this.state.chat && this.state.chat.stop();
     this.state.rooms && this.state.rooms.stop();
     this.state.game && this.state.game.stop();
+    this.state.gameHistory && this.state.gameHistory.stop();
+    this.state.importedGame && this.state.importedGame.stop();
   }
 
   componentDidUpdate = prevProps => {

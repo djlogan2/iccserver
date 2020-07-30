@@ -52,7 +52,7 @@
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-addons-pure-render-mixin": "^15.6.2",
-    "react-chessground": "^1.5.0",
+    "react-chessground": "git+https://github.com/jhlywa/chess.js.git",
     "react-dom": "^16.12.0",
     "react-meteor-data": "^0.2.11",
     "react-router-dom": "^5.2.0",

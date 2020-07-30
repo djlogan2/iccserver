@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Row, Modal } from "antd";
+import { withRouter } from "react-router-dom";
 import { GameRequestCollection } from "./../../../api/collections";
 
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
@@ -29,7 +30,7 @@ import "./../css/GameControlBlock.css";
 import "./../css/Community.css";
 import "./../css/Messenger.css";
 
-const AppWrapper = ({ className, children, cssManager, game_request }) => {
+const AppWrapper = ({ className, history, children, cssManager, game_request }) => {
   Meteor.subscribe("game_requests");
 
   return (
@@ -39,7 +40,9 @@ const AppWrapper = ({ className, children, cssManager, game_request }) => {
           title="Game request"
           visible={game_request ? true : false}
           onOk={() => {
-            Meteor.call("gameRequestAccept", "gameAccept", game_request._id, (err, data) => {});
+            Meteor.call("gameRequestAccept", "gameAccept", game_request._id, (err, data) => {
+              history.push("/play");
+            });
           }}
           onCancel={() => {
             Meteor.call("gameRequestDecline", "gameDecline", game_request._id, (err, data) => {});
@@ -74,4 +77,4 @@ export default withTracker(props => {
       }
     )
   };
-})(AppWrapper);
+})(withRouter(AppWrapper));

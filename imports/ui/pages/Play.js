@@ -289,6 +289,7 @@ class Play extends Component {
 
   handleExamine = gameId => {
     debugger;
+    this.props.history.push("/examine");
   };
 
   getCoordinatesToRank(square) {
@@ -387,6 +388,7 @@ class Play extends Component {
     //   return <Loading />;
     // }
     let opponentName;
+    let opponentId;
     let userColor;
     if (this.props.game_playing) {
       userColor =
@@ -395,6 +397,10 @@ class Play extends Component {
         userColor === "white"
           ? this.props.game_playing.black.name
           : this.props.game_playing.white.name;
+      opponentId =
+        userColor === "white"
+          ? this.props.game_playing.black._id
+          : this.props.game_playing.white._id;
     }
 
     return (
@@ -404,6 +410,7 @@ class Play extends Component {
           userName={this.props.user && this.props.user.username}
           gameId={this.gameId}
           opponentName={opponentName}
+          opponentId={opponentId}
           onRematch={this.handleChooseFriend}
           onExamine={this.handleExamine}
           isWhiteCheckmated={isWhiteCheckmated}
@@ -503,11 +510,7 @@ Game.find({ status: "playing" }).observeChanges({
   changed(id, fields) {
     if (fields.status && fields.status !== "playing") {
       if (!!game_timestamps[id]) {
-        try {
-          game_timestamps[id].timestamp.end();
-        } catch (e) {
-          logger.error("Error ending timestamp", e.toString());
-        }
+        game_timestamps[id].timestamp.end();
         delete game_timestamps[id];
       }
     } else if (fields.lag) {
@@ -519,11 +522,7 @@ Game.find({ status: "playing" }).observeChanges({
   },
   removed(id) {
     if (!!game_timestamps[id]) {
-      try {
-        game_timestamps[id].timestamp.end();
-      } catch (e) {
-        logger.error("Error ending timestamp", e.toString());
-      }
+      game_timestamps[id].timestamp.end();
       delete game_timestamps[id];
     }
   }

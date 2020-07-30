@@ -143,7 +143,7 @@ export default class PlayModaler extends Component {
             <Button
               type="primary"
               onClick={() => {
-                this.props.onRematch(userName);
+                this.props.onRematch(this.props.opponentId);
               }}
               className="play-modal__btn play-modal__btn--primary"
             >
