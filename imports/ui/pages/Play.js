@@ -287,9 +287,9 @@ class Play extends Component {
     this._board.load(game.fen);
   }
 
-  handleExamine = (gameId) => {
+  handleExamine = gameId => {
     debugger;
-  }
+  };
 
   getCoordinatesToRank(square) {
     let file = square.square.charAt(0);
@@ -503,7 +503,11 @@ Game.find({ status: "playing" }).observeChanges({
   changed(id, fields) {
     if (fields.status && fields.status !== "playing") {
       if (!!game_timestamps[id]) {
-        game_timestamps[id].timestamp.end();
+        try {
+          game_timestamps[id].timestamp.end();
+        } catch (e) {
+          logger.error("Error ending timestamp", e.toString());
+        }
         delete game_timestamps[id];
       }
     } else if (fields.lag) {
@@ -515,7 +519,11 @@ Game.find({ status: "playing" }).observeChanges({
   },
   removed(id) {
     if (!!game_timestamps[id]) {
-      game_timestamps[id].timestamp.end();
+      try {
+        game_timestamps[id].timestamp.end();
+      } catch (e) {
+        logger.error("Error ending timestamp", e.toString());
+      }
       delete game_timestamps[id];
     }
   }
