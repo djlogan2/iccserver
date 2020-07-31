@@ -121,6 +121,7 @@ class Play extends Component {
         importedGame: Meteor.subscribe("imported_games")
       },
       isAuthenticated: Meteor.userId() !== null
+      // test: false
     };
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
@@ -161,7 +162,10 @@ class Play extends Component {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
     }
-    // this.startExamine();
+
+    // setTimeout(() => {
+    //   this.setState({test: true});
+    // }, 60000)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -349,7 +353,21 @@ class Play extends Component {
     //let actionlen;
     let gameExamin = [];
 
-    let { isWhiteCheckmated, isBlackCheckmated, isWhiteStalemated, isBlackStalemated } = this.props;
+    let {
+      isWhiteCheckmated,
+      isBlackCheckmated,
+      isWhiteStalemated,
+      isBlackStalemated,
+      isWhiteForfeitsOnTime,
+      isBlackForfeitsOnTime,
+      isWhiteResigns,
+      isBlackResigns,
+      isGameDrawnByMutualAgreemnent,
+      isWhiteRunOfTimeAndNoMaterial,
+      isBlackRunOfTimeAndNoMaterial,
+      isWhiteDisconnected,
+      isBlackDisconnected
+    } = this.props;
 
     const { systemCss, boardCss } = this.props;
 
@@ -407,16 +425,28 @@ class Play extends Component {
       <div className="examine">
         <PlayModaler
           userColor={userColor}
+          // userColor={"white"}
           userName={this.props.user && this.props.user.username}
           gameId={this.gameId}
           opponentName={opponentName}
           opponentId={opponentId}
           onRematch={this.handleChooseFriend}
           onExamine={this.handleExamine}
+
           isWhiteCheckmated={isWhiteCheckmated}
+          // isWhiteCheckmated={this.state.test}
           isBlackCheckmated={isBlackCheckmated}
           isWhiteStalemated={isWhiteStalemated}
           isBlackStalemated={isBlackStalemated}
+          isWhiteForfeitsOnTime={isWhiteForfeitsOnTime}
+          isBlackForfeitsOnTime={isBlackForfeitsOnTime}
+          isWhiteResigns={isWhiteResigns}
+          isBlackResigns={isBlackResigns}
+          isGameDrawnByMutualAgreemnent={isGameDrawnByMutualAgreemnent}
+          isWhiteRunOfTimeAndNoMaterial={isWhiteRunOfTimeAndNoMaterial}
+          isBlackRunOfTimeAndNoMaterial={isBlackRunOfTimeAndNoMaterial}
+          isWhiteDisconnected={isWhiteDisconnected}
+          isBlackDisconnected={isBlackDisconnected}
         />
         <PlayNotifier game={this.props.game_playing} userId={Meteor.userId()} cssManager={css} />
         <PlayPage
@@ -488,6 +518,29 @@ export default withTracker(props => {
       ClientMessagesCollection.find({ message: "White stalemated" }).fetch().length > 0,
     isBlackStalemated:
       ClientMessagesCollection.find({ message: "Black stalemated" }).fetch().length > 0,
+    isWhiteForfeitsOnTime:
+      ClientMessagesCollection.find({ message: "White forfeits on time." }).fetch().length > 0,
+    isBlackForfeitsOnTime:
+      ClientMessagesCollection.find({ message: "Black forfeits on time." }).fetch().length > 0,
+    isWhiteResigns: ClientMessagesCollection.find({ message: "White resigns" }).fetch().length > 0,
+    isBlackResigns: ClientMessagesCollection.find({ message: "Black resigns" }).fetch().length > 0,
+    isGameDrawnByMutualAgreemnent:
+      ClientMessagesCollection.find({ message: "Game drawn by mutual agreement" }).fetch().length >
+      0,
+    isWhiteRunOfTimeAndNoMaterial:
+      ClientMessagesCollection.find({
+        message: "White ran out of time and Black has no material to mate"
+      }).fetch().length > 0,
+    isBlackRunOfTimeAndNoMaterial:
+      ClientMessagesCollection.find({
+        message: "Black ran out of time and White has no material to mate"
+      }).fetch().length > 0,
+    isWhiteDisconnected:
+      ClientMessagesCollection.find({ message: "White disconnected and forfeits" }).fetch().length >
+      0,
+    isBlackDisconnected:
+      ClientMessagesCollection.find({ message: "Black disconnected and forfeits" }).fetch().length >
+      0,
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };

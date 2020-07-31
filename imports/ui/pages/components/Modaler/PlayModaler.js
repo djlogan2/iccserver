@@ -6,7 +6,7 @@ export default class PlayModaler extends Component {
     super(props);
     this.state = {
       isModal: false,
-      status: null,
+      status: "",
       hasWon: false,
       opponentName: props.opponentName,
       userColor: props.userColor
@@ -19,26 +19,38 @@ export default class PlayModaler extends Component {
       isBlackCheckmated,
       isWhiteStalemated,
       isBlackStalemated,
+      isWhiteForfeitsOnTime,
+      isBlackForfeitsOnTime,
+      isWhiteResigns,
+      isBlackResigns,
+      isGameDrawnByMutualAgreemnent,
+      isWhiteRunOfTimeAndNoMaterial,
+      isBlackRunOfTimeAndNoMaterial,
+      isWhiteDisconnected,
+      isBlackDisconnected,
       userColor
     } = this.props;
     if (prevProps.isWhiteCheckmated !== isWhiteCheckmated && isWhiteCheckmated) {
       this.setState({
         isModal: true,
         status: "White Checkmated",
-        hasWon: userColor === "white"
+        numStatus: "0-1",
+        hasWon: userColor === "black"
       });
     }
     if (prevProps.isBlackCheckmated !== isBlackCheckmated && isBlackCheckmated) {
       this.setState({
         isModal: true,
         status: "Black Checkmated",
-        hasWon: userColor === "black"
+        numStatus: "1-0",
+        hasWon: userColor === "white"
       });
     }
     if (prevProps.isWhiteStalemated !== isWhiteStalemated && isWhiteStalemated) {
       this.setState({
         isModal: true,
         status: "White Stalemated",
+        numStatus: "1/2 - 1/2",
         hasWon: false
       });
     }
@@ -46,7 +58,90 @@ export default class PlayModaler extends Component {
       this.setState({
         isModal: true,
         status: "Black Stalemated",
+        numStatus: "1/2 - 1/2",
         hasWon: false
+      });
+    }
+
+    if (prevProps.isWhiteForfeitsOnTime !== isWhiteForfeitsOnTime && isWhiteForfeitsOnTime) {
+      this.setState({
+        isModal: true,
+        status: "White forfeits on time",
+        numStatus: "0-1",
+        hasWon: userColor === "black"
+      });
+    }
+    if (prevProps.isBlackForfeitsOnTime !== isBlackForfeitsOnTime && isBlackForfeitsOnTime) {
+      this.setState({
+        isModal: true,
+        status: "Black forfeits on time",
+        numStatus: "1-0",
+        hasWon: userColor === "white"
+      });
+    }
+    if (prevProps.isWhiteResigns !== isWhiteResigns && isWhiteResigns) {
+      this.setState({
+        isModal: true,
+        status: "White resigns",
+        numStatus: "0-1",
+        hasWon: userColor === "black"
+      });
+    }
+    if (prevProps.isBlackResigns !== isBlackResigns && isBlackResigns) {
+      this.setState({
+        isModal: true,
+        status: "Black resigns",
+        numStatus: "1-0",
+        hasWon: userColor === "white"
+      });
+    }
+    if (
+      prevProps.isGameDrawnByMutualAgreemnent !== isGameDrawnByMutualAgreemnent &&
+      isGameDrawnByMutualAgreemnent
+    ) {
+      this.setState({
+        isModal: true,
+        status: "Game drawn by mutual agreement",
+        numStatus: "1/2 - 1/2",
+        hasWon: false
+      });
+    }
+    if (
+      prevProps.isWhiteRunOfTimeAndNoMaterial !== isWhiteRunOfTimeAndNoMaterial &&
+      isWhiteRunOfTimeAndNoMaterial
+    ) {
+      this.setState({
+        isModal: true,
+        status: "White ran out of time and Black has no material to mate",
+        numStatus: "1/2 - 1/2",
+        hasWon: false
+      });
+    }
+    if (
+      prevProps.isBlackRunOfTimeAndNoMaterial !== isBlackRunOfTimeAndNoMaterial &&
+      isBlackRunOfTimeAndNoMaterial
+    ) {
+      this.setState({
+        isModal: true,
+        status: "Black ran out of time and White has no material to mate",
+        numStatus: "1/2 - 1/2",
+        hasWon: false
+      });
+    }
+    if (prevProps.isWhiteDisconnected !== isWhiteDisconnected && isWhiteDisconnected) {
+      this.setState({
+        isModal: true,
+        status: "White disconnected and forfeits",
+        numStatus: "0-1",
+        hasWon: userColor === "black"
+      });
+    }
+    if (prevProps.isBlackDisconnected !== isBlackDisconnected && isBlackDisconnected) {
+      this.setState({
+        isModal: true,
+        status: "Black disconnected and forfeits",
+        numStatus: "1-0",
+        hasWon: userColor === "white"
       });
     }
 
@@ -62,17 +157,23 @@ export default class PlayModaler extends Component {
   }
 
   getTitleText = () => {
-    let { status, userColor, hasWon } = this.state;
+    let { status, userColor, hasWon, numStatus } = this.state;
     let titleText = status;
     if (hasWon) {
       titleText = `${userColor.toUpperCase()} won! Congratulations!`;
+    } else {
+      if (numStatus === "1/2 - 1/2") {
+        titleText = `Drawn!`;
+      } else {
+        titleText = `${userColor.charAt(0).toUpperCase() + userColor.slice(1)} won!`;
+      }
     }
     return titleText;
   };
 
   getStatusText = () => {
     let { status } = this.state;
-    let statusText = "checkmate";
+    let statusText = status;
     if (status === "White Stalemated" || status === "Black Stalemated") {
       statusText = "stalemate";
     }
@@ -80,21 +181,16 @@ export default class PlayModaler extends Component {
   };
 
   getNumberStatus = () => {
-    let { status } = this.state;
-    let numberStatus = '1-0'
-    if (status === "White Checkmated") {
-      numberStatus = "0-1";
-    } else if (status === "Black Checkmated") {
-      numberStatus = "1-0";
-    }
-    return numberStatus;
+    let { numStatus } = this.state;
+    return numStatus;
   };
 
   handleCancel = () => {
     this.setState({
       isModal: false,
-      status: null,
-      hasWon: false
+      status: "",
+      hasWon: false,
+      numStatus: ""
     });
   };
 
@@ -108,9 +204,9 @@ export default class PlayModaler extends Component {
     } = this.props;
 
     const { isModal, status, hasWon, opponentName, userColor } = this.state;
-    if (!isModal) {
-      return null;
-    }
+    // if (!isModal) {
+    //   return null;
+    // }
 
     let titleText = this.getTitleText();
     let statusText = this.getStatusText();
@@ -127,7 +223,7 @@ export default class PlayModaler extends Component {
         <div className="play-modal">
           <div className="play-modal__main">
             <div className="play-modal__user-one">
-              <img  className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
+              <img className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
               <p className="play-modal__user-name">{userName}</p>
             </div>
             <div className="play-modal__main-center">
@@ -135,7 +231,7 @@ export default class PlayModaler extends Component {
               <p className="play-modal__game-status">{statusText.toUpperCase()}</p>
             </div>
             <div className="play-modal__user-two">
-              <img  className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
+              <img className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
               <p className="play-modal__user-name">{opponentName}</p>
             </div>
           </div>
@@ -144,6 +240,7 @@ export default class PlayModaler extends Component {
               type="primary"
               onClick={() => {
                 this.props.onRematch(this.props.opponentId);
+                this.handleCancel();
               }}
               className="play-modal__btn play-modal__btn--primary"
             >
@@ -152,10 +249,11 @@ export default class PlayModaler extends Component {
             <Button
               onClick={() => {
                 this.props.onExamine(this.props.gameId);
+                this.handleCancel();
               }}
               className="play-modal__btn"
             >
-              Rematch
+              Examine
             </Button>
           </div>
         </div>
