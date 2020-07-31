@@ -2,6 +2,7 @@ import { Game } from "./Game";
 import Engine from "node-uci";
 import { Logger } from "../lib/server/Logger";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { Book } from "./Book";
 import Chess from "chess.js";
 import { Random } from "meteor/random";
 import AWS from "aws-sdk";
@@ -75,28 +76,74 @@ async function stop_engine(game_id, type) {
   delete _engines[type][game_id];
 }
 
+const aws_debug = Meteor.bindEnvironment((message, data, userid) =>
+  log.debug(message, data, userid)
+);
+
 function awsDoIt(game) {
   return new Promise((resolve, reject) => {
+
+    let wtime = parseInt(game.clocks.white.current / 2);
+    let btime = parseInt(game.clocks.black.current / 2);
+    if (wtime === 0) wtime = 250;
+    if (btime === 0) wtime = 250;
+
+    /*
+    const subtract = SystemConfiguration.computerGameTimeSubtract();
+    const wtime =
+      game.tomove === "white"
+        ? game.clocks.white.current - (game.clocks.white.current < subtract ? 0 : subtract)
+        : game.clocks.white.current;
+    const btime =
+      game.tomove === "black"
+        ? game.clocks.black.current - (game.clocks.black.current < subtract ? 0 : subtract)
+        : game.clocks.black.current;
+*/
     const params = {
       FunctionName: "icc-stockfish",
       Payload: JSON.stringify({
         options: { "Skill Level": game.skill_level },
         position: game.fen,
         gooptions: {
-          wtime: game.clocks.white.current,
-          btime: game.clocks.black.current,
+          wtime: wtime,
+          btime: btime,
           winc: game.clocks.white.inc_or_delay,
           binc: game.clocks.black.inc_or_delay
         }
       })
     };
+    const start = new Date();
     lambda.invoke(params, (err, data) => {
       if (err) reject(err);
       const payload = JSON.parse(data.Payload);
       const body = JSON.parse(payload.body);
+      const end = new Date();
+      const server_time = end - start;
+      const computer_start = Date.parse(body.timing.start);
+      const computer_end = Date.parse(body.timing.end);
+      const lambda_time = computer_end - computer_start;
+      const time_diff = server_time - lambda_time;
+      aws_debug(
+        "Computer move, server_time=" +
+          server_time +
+          " lambda_time=" +
+          lambda_time +
+          " lag=" +
+          time_diff
+      );
       resolve(body.results);
     });
   });
+}
+
+function getMoveCount(game) {
+  let cmi = game.variations.cmi;
+  let movecount = 0;
+  while (cmi !== 0) {
+    movecount++;
+    cmi = game.variations.movelist[cmi].prev;
+  }
+  return movecount;
 }
 
 const playGameMove = Meteor.bindEnvironment(game_id => {
@@ -117,49 +164,33 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
   if (game.black.id === "computer" && game.tomove !== "black") return;
   if (game.status !== "playing") return;
   log.debug("playGameMove " + game_id + " starting engine");
-  //----------
-  /*
-  start_engine(game_id, "position", game.skill_level)
-    .then(_engine => {
-      if (!_engine)
-        throw new Meteor.Error(
-          "Unable to start analysis",
-          "We should have an engine for game id " + game_id + ", but we do not"
-        );
-      engine = _engine;
-      log.debug(
-        "playGameMove has engine " + engine.ourid + " for game " + game_id + ", setting position"
-      );
-      return engine.position(game.fen);
-    })
-    .then(() => {
-      return engine.isready();
-    })
-    .then(() => {
-      log.debug(
-        "playGameMove " + game_id + ", " + engine.ourid + " starting analysis with move times"
-      );
-      return engine.go({
-        wtime: game.clocks.white.current,
-        btime: game.clocks.black.current,
-        winc: game.clocks.white.inc_or_delay,
-        binc: game.clocks.black.inc_or_delay
-      });
-    })
-    .then(_result => {
-      result = _result;
-      log.debug(
-        "playGameMove " +
-          game_id +
-          ", " +
-          engine.ourid +
-          " engine made move, stopping. move=" +
-          _result.bestmove
-      );
-      return stop_engine(game_id, "position");
-    })
-   */
-  //----------
+  const bookEntry = Book.findBook(game.fen);
+  if (!!bookEntry) {
+    let wt = bookEntry.entries.length;
+    const sum = bookEntry.entries.length * (bookEntry.entries.length + 1) / 2; // n(n+1)/2
+    const rnd = Random.fraction();
+    let start = 0.0;
+    let move;
+    for (let x = 0; x < bookEntry.entries.length && !move; x++) {
+      start += wt / sum;
+      wt--;
+      if (rnd <= start) {
+        move = bookEntry.entries[x];
+      }
+    }
+    if (!move) move = bookEntry.entries[bookEntry.entries.length - 1];
+    const chess = new Chess.Chess(game.fen);
+    const cmove = chess.move(move.smith, { sloppy: true });
+    log.debug("playGameMove " + game_id + ", calling internalSaveLocalMove with " + cmove.san);
+    Game.internalSaveLocalMove(
+      { _id: "computer", username: "Computer" },
+      "__computer__",
+      game_id,
+      cmove.san
+    );
+    return;
+  }
+
   awsDoIt(game).then(result => {
     const chess = new Chess.Chess(game.fen);
     const cmove = chess.move(result.bestmove, { sloppy: true });
@@ -264,6 +295,6 @@ function watchAllGamesForAnalysis() {
 }
 
 Meteor.startup(() => {
-    watchForComputerGames();
-    //watchAllGamesForAnalysis();
+  watchForComputerGames();
+  //watchAllGamesForAnalysis();
 });

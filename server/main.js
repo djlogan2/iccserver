@@ -11,6 +11,7 @@ import { Game, GameHistory } from "./Game";
 import { Chat } from "./Chat";
 import "./PgnExport";
 import "./engine_manager";
+import "./Book";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
