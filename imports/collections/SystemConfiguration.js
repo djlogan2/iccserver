@@ -23,7 +23,7 @@ SystemConfiguration.maximumPrivateRoomCount = function() {
 };
 
 SystemConfiguration.computerGameTimeSubtract = function() {
-  return 10000;
+  return 1000;
 }
 
 SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {

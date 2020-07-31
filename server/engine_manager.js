@@ -82,10 +82,12 @@ const aws_debug = Meteor.bindEnvironment((message, data, userid) =>
 
 function awsDoIt(game) {
   return new Promise((resolve, reject) => {
-    let wtime = parseInt(game.clocks.white.current / 10);
-    let btime = parseInt(game.clocks.black.current / 10);
+
+    let wtime = parseInt(game.clocks.white.current / 2);
+    let btime = parseInt(game.clocks.black.current / 2);
     if (wtime === 0) wtime = 250;
     if (btime === 0) wtime = 250;
+
     /*
     const subtract = SystemConfiguration.computerGameTimeSubtract();
     const wtime =
@@ -96,7 +98,7 @@ function awsDoIt(game) {
       game.tomove === "black"
         ? game.clocks.black.current - (game.clocks.black.current < subtract ? 0 : subtract)
         : game.clocks.black.current;
-     */
+*/
     const params = {
       FunctionName: "icc-stockfish",
       Payload: JSON.stringify({
@@ -164,18 +166,19 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
   log.debug("playGameMove " + game_id + " starting engine");
   const bookEntry = Book.findBook(game.fen);
   if (!!bookEntry) {
-    const sum = bookEntry.entries.reduce((sum, entry) => sum + entry.weight, 0);
+    let wt = bookEntry.entries.length;
+    const sum = bookEntry.entries.length * (bookEntry.entries.length + 1) / 2; // n(n+1)/2
     const rnd = Random.fraction();
     let start = 0.0;
     let move;
     for (let x = 0; x < bookEntry.entries.length && !move; x++) {
-      start += bookEntry.entries[x].weight / sum;
+      start += wt / sum;
+      wt--;
       if (rnd <= start) {
         move = bookEntry.entries[x];
       }
     }
-    if(!move)
-      move = bookEntry.entries[bookEntry.entries.length - 1];
+    if (!move) move = bookEntry.entries[bookEntry.entries.length - 1];
     const chess = new Chess.Chess(game.fen);
     const cmove = chess.move(move.smith, { sloppy: true });
     log.debug("playGameMove " + game_id + ", calling internalSaveLocalMove with " + cmove.san);
