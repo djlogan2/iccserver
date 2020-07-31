@@ -732,7 +732,7 @@ Meteor.startup(() => {
   const room = global._chatObject.roomCollection.findOne({ name: "CTY public room" });
   if (!!room) return;
 
-  const user = Meteor.users.findOne({ username: "djl1" });
+  const user = Meteor.users.findOne({ username: "djlogan" });
   if (!user) return;
 
   const room_id = global._chatObject.roomCollection.insert({
