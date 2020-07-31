@@ -204,9 +204,9 @@ export default class PlayModaler extends Component {
     } = this.props;
 
     const { isModal, status, hasWon, opponentName, userColor } = this.state;
-    // if (!isModal) {
-    //   return null;
-    // }
+    if (!isModal) {
+      return null;
+    }
 
     let titleText = this.getTitleText();
     let statusText = this.getStatusText();

@@ -28,8 +28,12 @@ class LocationControls extends Component {
   }
 
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, this.state.cmi, handleError);
+    let { cmi } = this.props.game.variations;
+    for (let i = 0; i < cmi; i++) {
+      Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, handleError);
+    }
   };
+
   moveBackword = () => {
     Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, handleError);
   };
