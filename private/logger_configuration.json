@@ -19,7 +19,8 @@
     "server/ClientMessages_js": "ERROR",
     "server/engine_manager_js": "DEBUG",
     "server/firstRunUsers_js": "ERROR",
-    "server/Game_js": "WARN",
+    "server/Game_js": "DEBUG",
+    "server/Game::ping": "WARN",
     "server/game/timestamp_js": "WARN",
     "server/GameRequest_js": "ERROR",
     "server/GameHistroy_js": "ERROR",
@@ -27,5 +28,6 @@
     "server/main_js": "ERROR",
     "server/timestamp_js": "ERROR",
     "server/UCI": "ERROR",
-    "server/users_js": "ERROR"
+    "server/users_js": "ERROR",
+    "TimestampServer": "WARN"
 }

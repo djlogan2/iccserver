@@ -17,6 +17,7 @@ import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
 import { Parser } from "./pgn/pgnsigh";
+//import { Awsmanager } from "./awsmanager";
 
 import date from "date-and-time";
 
@@ -30,6 +31,7 @@ const GameHistoryCollection = new Mongo.Collection("game_history");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
 let log = new Logger("server/Game_js");
+let pinglog = new Logger("server/Game::ping");
 
 class Game {
   constructor() {
@@ -225,6 +227,7 @@ class Game {
   }
 
   getAndCheck(self, message_identifier, game_id) {
+    log.debug("getAndCheck " + self + ", " + message_identifier + ", " + game_id);
     check(self, Object);
     check(game_id, String);
 
@@ -246,6 +249,7 @@ class Game {
   }
 
   addAction(id, action) {
+    log.debug("addAction " + id + ", " + action);
     const game = this.GameCollection.findOne({ _id: id });
     if (!!game)
       this.GameCollection.update({ _id: id, status: game.status }, { $push: { actions: action } });
@@ -302,6 +306,7 @@ class Game {
   fancy_timecontrol,
   promote_to_king*/
   ) {
+    log.debug("startLocalGame " + message_identifier);
     const self = Meteor.user();
 
     check(self, Object);
@@ -547,6 +552,7 @@ class Game {
   }
 
   startLocalExaminedGameWithObject(message_identifier, game_object) {
+    log.debug("startLocalExaminedGameWithObject " + message_identifier);
     const self = Meteor.user();
 
     check(self, Object);
@@ -601,6 +607,16 @@ class Game {
   }
 
   startLocalExaminedGame(message_identifier, white_name, black_name, wild_number) {
+    log.debug(
+      "startLocalExaminedGame " +
+        message_identifier +
+        ", " +
+        white_name +
+        ", " +
+        black_name +
+        ", " +
+        wild_number
+    );
     const self = Meteor.user();
 
     check(self, Object);
@@ -690,6 +706,7 @@ class Game {
     fancy_timecontrol,
     promote_to_king
   ) {
+    log.debug("startLegacyGame " + message_identifier);
     check(message_identifier, String);
     check(gamenumber, Number);
     check(whitename, String);
@@ -856,6 +873,7 @@ class Game {
   }
 
   saveLegacyMove(message_identifier, game_id, move) {
+    log.debug("saveLegacyMove " + message_identifier + ", " + game_id + ", " + move);
     check(message_identifier, String);
     check(game_id, Number);
     check(move, String);
@@ -888,6 +906,7 @@ class Game {
   function;
 
   calculateGameLag(lagobject) {
+    log.debug("calculateGameLag");
     let gamelag;
     let totallag = 0;
     const lagvalues = lagobject.pings.slice(-2);
@@ -903,6 +922,7 @@ class Game {
   }
 
   saveLocalMove(message_identifier, game_id, move) {
+    log.debug("saveLocalMove " + message_identifier + ", " + game_id + ", " + move);
     check(message_identifier, String);
     check(game_id, String);
     check(move, String);
@@ -912,6 +932,7 @@ class Game {
   }
 
   internalSaveLocalMove(self, message_identifier, game_id, move) {
+    log.debug("internalSaveLocalMove " + message_identifier + ", " + game_id + ", " + move);
     const game = this.getAndCheck(self, message_identifier, game_id);
 
     if (!game) return;
@@ -1127,6 +1148,7 @@ class Game {
     //description_string,
     //eco
   ) {
+    log.debug("LegacyGameEnded " + message_identifier + ", " + gamenumber);
     check(message_identifier, String);
     check(gamenumber, Number);
     check(become_examined, Boolean);
@@ -1186,6 +1208,7 @@ class Game {
   }
 
   localRemoveExaminer(message_identifier, game_id, id_to_remove) {
+    log.debug("localRemoveExaminer " + message_identifier + ", " + game_id + ", " + id_to_remove);
     check(message_identifier, String);
     check(game_id, String);
     check(id_to_remove, String);
@@ -1235,6 +1258,7 @@ class Game {
   }
 
   localAddExaminer(message_identifier, game_id, id_to_add) {
+    log.debug("localAddExaminers " + message_identifier + ", " + game_id + ", " + id_to_add);
     check(message_identifier, String);
     check(game_id, String);
     check(id_to_add, String);
@@ -1280,6 +1304,18 @@ class Game {
   }
 
   localRemoveObserver(message_identifier, game_id, id_to_remove, server_command, due_to_logout) {
+    log.debug(
+      "localRemoveObserver " +
+        message_identifier +
+        ", " +
+        game_id +
+        ", " +
+        id_to_remove +
+        ", " +
+        server_command +
+        ", " +
+        due_to_logout
+    );
     check(message_identifier, String);
     check(game_id, String);
     check(id_to_remove, String);
@@ -1474,6 +1510,7 @@ class Game {
   }
 
   removeLegacyGame(message_identifier, game_id) {
+    log.debug("removeLegacyGame " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, Number);
     const self = Meteor.user();
@@ -1491,6 +1528,7 @@ class Game {
   }
 
   requestLocalTakeback(message_identifier, game_id, number) {
+    log.debug("requestLocalTakeback " + message_identifier + ", " + game_id + ", " + number);
     check(message_identifier, String);
     check(game_id, String);
     check(number, Number);
@@ -1552,6 +1590,7 @@ class Game {
   }
 
   acceptLocalTakeback(message_identifier, game_id) {
+    log.debug("acceptLocalTakeback " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
 
@@ -1619,6 +1658,7 @@ class Game {
   }
 
   declineLocalTakeback(message_identifier, game_id) {
+    log.debug("declineLocalTakeback " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
 
@@ -1658,6 +1698,7 @@ class Game {
   }
 
   requestLocalDraw(message_identifier, game_id) {
+    log.debug("requestLocalDraw " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -1738,6 +1779,7 @@ class Game {
   }
 
   requestLocalAbort(message_identifier, game_id) {
+    log.debug("requestLocalAbort " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -1831,6 +1873,7 @@ class Game {
   }
 
   requestLocalAdjourn(message_identifier, game_id) {
+    log.debug("requestLocalAdjourn " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -1874,6 +1917,7 @@ class Game {
   }
 
   acceptLocalDraw(message_identifier, game_id) {
+    log.debug("acceptLocalDraw " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
 
@@ -1934,6 +1978,7 @@ class Game {
   }
 
   acceptLocalAbort(message_identifier, game_id) {
+    log.debug("acceptLocalAbort " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
 
@@ -1989,6 +2034,7 @@ class Game {
   }
 
   acceptLocalAdjourn(message_identifier, game_id) {
+    log.debug("acceptLocalAdjourn " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
 
@@ -2043,6 +2089,7 @@ class Game {
   }
 
   drawCircle(message_identifier, game_id, square, color, size) {
+    log.debug("drawCircle " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(square, String);
     check(color, String);
@@ -2090,6 +2137,7 @@ class Game {
   }
 
   removeCircle(message_identifier, game_id, square) {
+    log.debug("removeCircle " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(square, String);
     const self = Meteor.user();
@@ -2125,6 +2173,7 @@ class Game {
   }
 
   drawArrow(message_identifier, game_id, from, to, color, size) {
+    log.debug("drawArrow " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(from, String);
     check(to, String);
@@ -2173,6 +2222,7 @@ class Game {
   }
 
   removeArrow(message_identifier, game_id, from, to) {
+    log.debug("removeArrow " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(from, String);
     check(to, String);
@@ -2236,6 +2286,7 @@ class Game {
   }
 
   declineLocalDraw(message_identifier, game_id) {
+    log.debug("declineLocalDraw " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     check(game_id, String);
@@ -2268,6 +2319,7 @@ class Game {
   }
 
   declineLocalAbort(message_identifier, game_id) {
+    log.debug("declineLocalAbort " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     check(game_id, String);
@@ -2300,6 +2352,7 @@ class Game {
   }
 
   declineLocalAdjourn(message_identifier, game_id) {
+    log.debug("declineLocalAdjourn " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     check(game_id, String);
@@ -2336,6 +2389,7 @@ class Game {
   }
 
   resignLocalGame(message_identifier, game_id) {
+    log.debug("resignLocalGame " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -2352,6 +2406,9 @@ class Game {
   }
 
   _resignLocalGame(message_identifier, game, userId, reason) {
+    log.debug(
+      "_resignLocalGame " + message_identifier + ", " + game._id + ", " + userId + ", " + reason
+    );
     check(reason, Number);
     this.endGamePing(game._id);
     this.endMoveTimer(game._id);
@@ -2416,6 +2473,7 @@ class Game {
     wtakeback,
     btakeback
   ) {
+    log.debug("recordLegacyOffers " + message_identifier + ", " + game_number);
     check(message_identifier, String);
     check(wdraw, Boolean);
     check(bdraw, Boolean);
@@ -2476,6 +2534,16 @@ class Game {
   }
 
   moveForward(message_identifier, game_id, move_count, variation_index) {
+    log.debug(
+      "moveForward " +
+        message_identifier +
+        ", " +
+        game_id +
+        ", " +
+        move_count +
+        ", " +
+        variation_index
+    );
     const movecount = move_count || 1;
     check(game_id, String);
     check(movecount, Number);
@@ -2555,6 +2623,7 @@ class Game {
   }
 
   moveBackward(message_identifier, game_id, move_count) {
+    log.debug("moveBackward " + message_identifier + ", " + game_id + ", " + move_count);
     check(message_identifier, String);
     check(game_id, String);
     check(move_count, Match.Maybe(Number));
@@ -2626,6 +2695,16 @@ class Game {
   // As of this writing, no Meteor.method() calls this.
   //
   localUnobserveAllGames(message_identifier, user_id, server_command, due_to_logout) {
+    log.debug(
+      "localUnobserveAllGames " +
+        message_identifier +
+        ", " +
+        user_id +
+        ", " +
+        server_command +
+        ", " +
+        due_to_logout
+    );
     check(message_identifier, String);
     check(user_id, String);
     check(server_command, Match.Maybe(Boolean));
@@ -2641,6 +2720,7 @@ class Game {
   }
 
   localResignAllGames(message_identifier, user_id, reason) {
+    log.debug("localResignAllGames " + message_identifier + ", " + user_id + ", " + reason);
     const playing = this.GameCollection.find({
       $and: [{ status: "playing" }, { $or: [{ "white.id": user_id }, { "black.id": user_id }] }]
     }).fetch();
@@ -2648,6 +2728,7 @@ class Game {
   }
 
   exportToPGN(id) {
+    log.debug("exportToPGN " + id);
     check(id, String);
 
     const game = this.GameCollection.findOne({ _id: id });
@@ -2670,6 +2751,8 @@ class Game {
     //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
     //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
     pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
+    if (!game.clocks.white.inc_or_delay) game.clocks.white.inc_or_delay = "none";
+    if (!game.clocks.black.inc_or_delay) game.clocks.black.inc_or_delay = "none";
     if (!game.clocks) {
       pgn += '[TimeControl "?"]\n';
     } else {
@@ -2746,6 +2829,7 @@ class Game {
   }
 
   clearBoard(message_identifier, game_id) {
+    log.debug("clearBoard " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -2773,6 +2857,7 @@ class Game {
   }
 
   setStartingPosition(message_identifier, game_id) {
+    log.debug("setStartingPosition " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -2800,6 +2885,7 @@ class Game {
   }
 
   loadFen(message_identifier, game_id, fen_string) {
+    log.debug("loadFen " + message_identifier + ", " + game_id + ", " + fen_string);
     check(message_identifier, String);
     check(game_id, String);
     check(fen_string, String);
@@ -2831,6 +2917,7 @@ class Game {
   }
 
   addPiece(message_identifier, game_id, color, piece, where) {
+    log.debug("addPiece " + message_identifier + ", " + game_id);
     check(message_identifier, String);
     check(game_id, String);
     check(color, String);
@@ -2874,6 +2961,7 @@ class Game {
   }
 
   removePiece(message_identifier, game_id, where) {
+    log.debug("removePiece " + message_identifier + ", " + game_id + ", " + where);
     check(message_identifier, String);
     check(game_id, String);
     check(where, String);
@@ -2908,6 +2996,7 @@ class Game {
   }
 
   setToMove(message_identifier, game_id, color) {
+    log.debug("setToMove " + message_identifier + ", " + game_id + ", " + color);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -2946,6 +3035,7 @@ class Game {
   }
 
   setCastling(message_identifier, game_id, white, black) {
+    log.debug("setCastling " + message_identifier + ", " + game_id + ", " + white + ", " + black);
     check(message_identifier, String);
     check(game_id, String);
     check(white, String);
@@ -2991,6 +3081,7 @@ class Game {
   }
 
   setEnPassant(message_identifier, game_id, where) {
+    log.debug("setEnPassant " + message_identifier + ", " + game_id + ", " + where);
     check(message_identifier, String);
     check(game_id, String);
     const self = Meteor.user();
@@ -3037,6 +3128,7 @@ class Game {
   }
 
   setTag(message_identifier, game_id, tag, value) {
+    log.debug("setTag " + message_identifier + ", " + game_id + ", " + tag + ", " + value);
     check(message_identifier, String);
     check(game_id, String);
     check(tag, String);
@@ -3100,6 +3192,7 @@ class Game {
   }
 
   changeOwner(message_identifier, game_id, new_id) {
+    log.debug("changeOwner " + message_identifier + ", " + game_id + ", " + new_id);
     check(message_identifier, String);
     check(game_id, String);
     check(new_id, Match.Maybe(String));
@@ -3149,6 +3242,7 @@ class Game {
   }
 
   setPrivate(message_identifier, game_id, is_private) {
+    log.debug("setPrivate " + message_identifier + ", " + game_id + ", " + is_private);
     check(message_identifier, String);
     check(game_id, String);
     check(is_private, Match.Maybe(Boolean));
@@ -3184,6 +3278,7 @@ class Game {
   }
 
   allowRequests(message_identifier, game_id, allow_requests) {
+    log.debug("allowRequests " + message_identifier + ", " + game_id + ", " + allow_requests);
     check(message_identifier, String);
     check(game_id, String);
     check(allow_requests, Boolean);
@@ -3230,6 +3325,7 @@ class Game {
   }
 
   allowChat(message_identifier, game_id, allow_chat) {
+    log.debug("allowChat " + message_identifier + ", " + game_id + ", " + allow_chat);
     check(message_identifier, String);
     check(game_id, String);
     check(allow_chat, Boolean);
@@ -3257,6 +3353,7 @@ class Game {
   }
 
   allowAnalysis(message_identifier, game_id, user_id, allow_analysis) {
+    log.debug("allowAnalysis " + message_identifier + ", " + game_id + ", " + allow_analysis);
     check(message_identifier, String);
     check(game_id, String);
     check(user_id, String);
@@ -3303,6 +3400,7 @@ class Game {
   }
 
   localDenyObserver(message_identifier, game_id, requestor_id) {
+    log.debug("localDenyObserver " + message_identifier + ", " + game_id + ", " + requestor_id);
     check(message_identifier, String);
     check(game_id, String);
     check(requestor_id, String);
@@ -3338,6 +3436,7 @@ class Game {
   }
 
   observeUser(message_identifier, user_id) {
+    log.debug("observeUser " + message_identifier + ", " + user_id);
     check(message_identifier, String);
     check(user_id, String);
     const self = Meteor.user();
@@ -3437,7 +3536,12 @@ class Game {
       const idx1 = long_string.lastIndexOf(" ", 255);
       const idx2 = long_string.indexOf("\n"); // May be in a comment. Also we just want the first one!
       const idx3 = long_string.lastIndexOf("\t", 255); // May be in a comment
-      const idx = Math.min(idx1, idx2, idx3);
+      const idxmax = Math.max(idx1, idx2, idx3);
+      const idx = Math.min(
+        idx1 === -1 ? idxmax : idx1,
+        idx2 === -1 ? idxmax : idx2,
+        idx3 === -1 ? idxmax : idx3
+      );
       reformatted = long_string.substr(0, idx) + "\n";
       long_string = long_string.substring(idx);
     }
@@ -3451,13 +3555,13 @@ class Game {
   }
 
   _startGamePing(game_id, color) {
-    log.debug("_startGamePing game_id=" + game_id + ", color=" + color);
+    pinglog.debug("_startGamePing game_id=" + game_id + ", color=" + color);
     if (!game_pings[game_id]) game_pings[game_id] = {};
     game_pings[game_id][color] = new TimestampServer(
-      new Logger("server/game/timestamp_js"),
+      new Logger("TimestampServer"),
       "server game",
       (key, msg) => {
-        log.debug(
+        pinglog.debug(
           "_startGamePing game_id=" + game_id + ", key=" + key + ", ping=" + JSON.stringify(msg)
         );
         if (key === "ping") {
@@ -3498,9 +3602,9 @@ class Game {
   }
 
   endGamePing(game_id) {
-    log.debug("endGamePing game_id=" + game_id);
+    pinglog.debug("endGamePing game_id=" + game_id);
     if (!game_pings[game_id]) {
-      log.error("Unable to locate game to ping (1)");
+      pinglog.error("Unable to locate game to ping (1)");
       return;
     }
     if (!!game_pings[game_id].white) game_pings[game_id].white.end();
@@ -3514,6 +3618,16 @@ class Game {
   // In Bronstein delay, we count down, but then add the delay back in when they make their move
   //
   startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds) {
+    log.debug(
+      "startDelayTimer " +
+        game_id +
+        ", " +
+        color +
+        ", " +
+        delay_milliseconds +
+        ", " +
+        actual_milliseconds
+    );
     if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
 
     move_timers[game_id] = Meteor.setInterval(() => {
@@ -3524,7 +3638,7 @@ class Game {
   }
 
   startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_milliseconds) {
-    log.debug("startMoveTimer, gameid=" + game_id + ", color=" + color);
+    log.debug("startMoveTimer " + game_id + ", " + color);
     if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
 
     if (delay_milliseconds && delaytype === "us") {
@@ -3566,6 +3680,7 @@ class Game {
   }
 
   endMoveTimer(game_id) {
+    log.debug("endMoveTimer " + game_id);
     log.debug("endMoveTimer, gameid=" + game_id);
     const interval_id = move_timers[game_id];
     if (!interval_id) return;
@@ -3603,6 +3718,18 @@ class Game {
   updateUserRatings(game, result, reason) {}
 
   sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
+    log.debug(
+      "sendGameStatus " +
+        game_id +
+        ", " +
+        white_id +
+        ", " +
+        black_id +
+        ", " +
+        result +
+        ", " +
+        status
+    );
     const message_identifier = "server:game:" + game_id;
     let color = tomove === "white" ? "w" : "b";
     switch (result) {
@@ -3630,6 +3757,7 @@ class Game {
   }
 
   importPGNString(pgnstring) {
+    log.debug("importPGNString");
     const parser = new Parser();
     parser.feed(pgnstring);
   }

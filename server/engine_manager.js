@@ -82,9 +82,8 @@ const aws_debug = Meteor.bindEnvironment((message, data, userid) =>
 
 function awsDoIt(game) {
   return new Promise((resolve, reject) => {
-
-    let wtime = parseInt(game.clocks.white.current / 2);
-    let btime = parseInt(game.clocks.black.current / 2);
+    let wtime = parseInt(game.clocks.white.current / 4);
+    let btime = parseInt(game.clocks.black.current / 4);
     if (wtime === 0) wtime = 250;
     if (btime === 0) wtime = 250;
 
@@ -167,7 +166,7 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
   const bookEntry = Book.findBook(game.fen);
   if (!!bookEntry) {
     let wt = bookEntry.entries.length;
-    const sum = bookEntry.entries.length * (bookEntry.entries.length + 1) / 2; // n(n+1)/2
+    const sum = (bookEntry.entries.length * (bookEntry.entries.length + 1)) / 2; // n(n+1)/2
     const rnd = Random.fraction();
     let start = 0.0;
     let move;
@@ -253,7 +252,7 @@ async function end_analysis(game_id) {
 
 function watchForComputerGames() {
   Game.GameCollection.find({
-    $or: [{ "white.id": "computer" }, { "black.id": "computer" }]
+    $and: [{ status: "playing" }, { $or: [{ "white.id": "computer" }, { "black.id": "computer" }] }]
   }).observeChanges({
     added(id, fields) {
       log.debug(
