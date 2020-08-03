@@ -27,6 +27,7 @@ const game_pings = {};
 const move_timers = {};
 
 const GameHistoryCollection = new Mongo.Collection("game_history");
+export const ImportedGameCollection = new Mongo.Collection("imported_games");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
 let log = new Logger("server/Game_js");

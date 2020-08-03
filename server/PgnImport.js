@@ -2,14 +2,17 @@ import { _ } from "meteor/underscore";
 import { FilesCollection } from "meteor/ostrio:files";
 import { Parser } from "./pgn/pgnparser";
 import fs from "fs";
-import { Mongo } from "meteor/mongo";
+import { ImportedGameCollection } from "./Game";
+import { Logger } from "../lib/server/Logger";
+const log = new Logger("server/PgnImport_js");
 
-export const ImportedGameCollection = new Mongo.Collection("imported_games");
-
-const insert = Meteor.bindEnvironment((document) => ImportedGameCollection.insert(document));
+const insert = Meteor.bindEnvironment(document => ImportedGameCollection.insert(document));
+const debug = Meteor.bindEnvironment((message, data) => {
+  log.debug(message, data);
+});
 
 // Declare the Meteor file collection on the Server
-const ImportedPgnFiles = new FilesCollection({
+export const ImportedPgnFiles = new FilesCollection({
   debug: true, // Change to `true` for debugging
   storagePath: "assets/app/uploads/uploadedFiles",
   collectionName: "importedPgnFiles",
@@ -18,25 +21,20 @@ const ImportedPgnFiles = new FilesCollection({
 
   // Start parsing pgn files
   // after fully received by the Meteor server
-  onAfterUpload(fileRef) {
+  onAfterUpload(fileRef, testCallback) {
     // Run through each of the uploaded file
     // argh!
     _.each(fileRef.versions, (vRef, version) => {
-      // We use Random.id() instead of real file's _id
-      // to secure files from reverse engineering on the AWS client
-      //const filePath = "files/" + Random.id() + "-" + version + "." + fileRef.extension;
       const fss = fs.createReadStream(vRef.path);
       const parser = new Parser();
-      console.log("process the file here");
+      let saveBuffer;
       fss
         .on("readable", () => {
+          //debug("on.readable");
           let _chunk;
-          let saveBuffer;
           let gamelist;
           while (null !== (_chunk = fss.read())) {
-            console.log("---data---");
-            console.log(_chunk);
-            //--
+            //debug("on.readable.read");
             let chunk;
 
             if (!!saveBuffer && saveBuffer.length)
@@ -48,6 +46,9 @@ const ImportedPgnFiles = new FilesCollection({
               saveBuffer = chunk;
             } else {
               end++;
+              // if (chunk.length > 32)
+              //   debug(chunk.toString("utf8", 0, 16) + " ... " + chunk.toString("utf8", end - 16));
+              // else debug(chunk.toString("utf8"));
               parser.feed(chunk.toString("utf8", 0, end));
             }
             saveBuffer = chunk.slice(end);
@@ -55,39 +56,48 @@ const ImportedPgnFiles = new FilesCollection({
               gamelist = parser.gamelist;
               delete parser.gamelist;
               gamelist.forEach(game => {
-                game.creatorId = fileRef.meta.creatorId;
+                game.creatorId = fileRef.userId;
+                game.fileRef = fileRef._id;
                 insert(game);
               });
             }
-            //--
+            //debug("on.readable.read.end");
           }
+          //debug("on.readable end");
+        })
+        .on("end", () => {
+          //debug("on.end");
           if (!!saveBuffer && saveBuffer.length) {
+            // if (saveBuffer.length > 32)
+            //   debug(
+            //     saveBuffer.toString("utf8", 0, 16) +
+            //       " ... " +
+            //       saveBuffer.toString("utf8", saveBuffer.length - 16)
+            //   );
+            // else debug(saveBuffer.toString("utf8"));
             parser.feed(saveBuffer.toString("utf8"));
-            if (!!parser.gamelist) {
-              gamelist = parser.gamelist;
-            } else gamelist = [];
-            if (!!parser.gameobject) gamelist.push(parser.gameobject);
-            if (!!gamelist)
-              gamelist.forEach(game => {
-                game.creatorId = fileRef.meta.creatorId;
+            if (!!parser.gameobject) parser.gamelist.push(parser.gameobject);
+            if (!!parser.gamelist)
+              parser.gamelist.forEach(game => {
+                game.creatorId = fileRef.userId;
+                game.fileRef = fileRef._id;
                 insert(game);
               });
           }
-        })
-        .on("end", () => {
-          console.log("---We are done---");
+          this._unlink(fileRef._id, version);
+          if (!!testCallback && typeof testCallback === "function") testCallback();
+          //debug("end on.end");
         });
     });
   },
 
   // Intercept access to the file
-  // And redirect request to AWS:S3
   interceptDownload(http, fileRef, version) {
     return false;
   }
 });
 
-// Intercept FilesCollection's remove method to remove file from AWS:S3
+// Intercept FilesCollection's remove method to remove file
 const _origRemove = ImportedPgnFiles.remove;
 ImportedPgnFiles.remove = function(search) {
   const cursor = this.collection.find(search);
@@ -102,3 +112,7 @@ ImportedPgnFiles.remove = function(search) {
   //remove original file from database
   _origRemove.call(this, search);
 };
+
+ImportedPgnFiles._unlink = Meteor.bindEnvironment((id, version) => {
+  ImportedPgnFiles.unlink.call(ImportedPgnFiles, ImportedPgnFiles.collection.findOne(id), version);
+});
