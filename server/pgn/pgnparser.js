@@ -4,15 +4,13 @@ import moo from "moo";
 
 const log = new Logger("server/pgnparser_js");
 
-const debug = Meteor.bindEnvironment((message, data) => log.debug(message, data));
-//const //debug = console.log;
-
 export class Parser {
   constructor() {
+    this.debug = [];
     this.lexer = moo.states({
       notcomment: {
         WS: /[ \t]+/,
-        STRING: /"(?:\\["\\]|[^\n"\\])*"/,
+        STRING: /"(?:\\["\\]|[^\n"])*"/,
         NAG: /\$[0-9]+/,
         RESULT: ["0-1", "1-0", "1/2-1/2", "*"],
         INTEGER: /[0-9]+/,
@@ -39,6 +37,12 @@ export class Parser {
     this.info = null;
     this.line = 1;
     this.state = this.game;
+  }
+
+  pushdebug(name, type, value) {
+    if(this.debug.length >= 100)
+      this.debug.shift();
+    this.debug.push([name, type, value]);
   }
 
   feed(chunk) {
@@ -72,11 +76,14 @@ export class Parser {
       "'";
     const e = new Error(m);
     e.token = token;
+    this.debug.forEach(step => {
+      log.error("parse failed, steps: " + step[0] + " token=" + step[1] + ", value=" + step[2]);
+    });
     throw e;
   }
 
   game(token) {
-    //debug("game token=" + token.type + ", text=" + token.text);
+    this.pushdebug("game", token.type, token.text);
     if (token.type === "LBRACKET") {
       this.state = this.tagname;
       this.gameobject = { tags: {}, variations: { movelist: [{}] } };
@@ -85,7 +92,7 @@ export class Parser {
   }
 
   tagname(token) {
-    //debug("tagname token=" + token.type + ", text=" + token.text);
+    this.pushdebug("tagname", token.type, token.text);
     if (token.type === "SYMBOL") {
       this._tagname = token.value;
       this.state = this.tagvalue;
@@ -93,7 +100,7 @@ export class Parser {
   }
 
   tagvalue(token) {
-    //debug("tagvalue token=" + token.type + ", text=" + token.text);
+    this.pushdebug("tagvalue", token.type, token.text);
     if (token.type === "STRING") {
       this.gameobject.tags[this._tagname] = token.value.slice(1, token.value.length - 1);
       this.state = this.endtag;
@@ -101,14 +108,14 @@ export class Parser {
   }
 
   endtag(token) {
-    //debug("endtag token=" + token.type + ", text=" + token.text);
+    this.pushdebug("endtag", token.type, token.text);
     if (token.type === "RBRACKET") {
       this.state = this.nexttag;
     } else this.error("Expecting a right bracket", token);
   }
 
   nexttag(token) {
-    //debug("nexttag token=" + token.type + ", text=" + token.text);
+    this.pushdebug("nexttag", token.type, token.text);
     switch (token.type) {
       case "LBRACKET":
         this.state = this.tagname;
@@ -125,7 +132,7 @@ export class Parser {
   }
 
   variationstart(token) {
-    //debug("variationstart token=" + token.type + ", text=" + token.text);
+    this.pushdebug("variationstart", token.type, token.text);
     switch (token.type) {
       case "INTEGER":
         this.state = this.movenumber;
@@ -140,14 +147,14 @@ export class Parser {
   }
 
   movenumber(token) {
-    //debug("movenumber token=" + token.type + ", text=" + token.text);
+    this.pushdebug("movenumber", token.type, token.text);
     if (token.type === "PERIOD" || token.type === "DOTDOTDOT") {
       this.state = this.san;
     } else this.error("Expecting a PERIOD (.)", token);
   }
 
   san(token) {
-    //debug("san token=" + token.type + ", text=" + token.text);
+    this.pushdebug("san", token.type, token.text);
     if (token.type === "PERIOD" || token.type === "DOTDOTDOT") return; // Skip "1." "1..." "1. ..." "..." etc.
     if (token.type !== "SAN") this.error("Expecting periods or a SAN move", token);
     if (!this.gameobject.variations.movelist[this.cmi].variations)
@@ -161,14 +168,14 @@ export class Parser {
   }
 
   nag(token) {
-    //debug("nag token=" + token.type + ", text=" + token.text);
+    this.pushdebug("nag", token.type, token.text);
     if (token.type === "NAG") {
       this.gameobject.variations.movelist[this.cmi].nag = token.value;
     } else this.comment(token);
   }
 
   comment(token) {
-    //debug("comment token=" + token.type + ", text=" + token.text);
+    this.pushdebug("comment", token.type, token.text);
     if (token.type === "LBRACE" || token.type === "SEMICOLON") {
       this.state = this.commenttext;
       this.gameobject.variations.movelist[this.cmi].comment = "";
@@ -176,7 +183,7 @@ export class Parser {
   }
 
   commenttext(token) {
-    //debug("commenttext token=" + token.type + ", text=" + token.text);
+    this.pushdebug("commenttext", token.type, token.text);
     switch (token.type) {
       case "C1NL":
         this.gameobject.variations.movelist[this.cmi].comment += token.value;
@@ -198,7 +205,7 @@ export class Parser {
   }
 
   recursive(token) {
-    //debug("recursive token=" + token.type + ", text=" + token.text);
+    this.pushdebug("recursive", token.type, token.text);
     switch (token.type) {
       case "LPAREN":
         this.state = this.variationstart;
@@ -225,7 +232,7 @@ export class Parser {
   }
 
   savegame(result) {
-    //debug("savegame result=" + result);
+    this.pushdebug("savegame", null, result);
     this.gameobject.result = result;
     this.gameobject.white = { name: "?", rating: 1600 };
     this.gameobject.black = { name: "?", rating: 1600 };

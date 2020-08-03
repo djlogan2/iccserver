@@ -2,7 +2,7 @@ import chai from "chai";
 import { TestHelpers } from "../../imports/server/TestHelpers";
 import { Parser } from "./pgnparser";
 import { Game } from "../Game";
-import { ImportedPgnFiles } from "../PgnImport";
+//import { ImportedPgnFiles } from "../PgnImport";
 
 describe("PGN Import", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -100,6 +100,24 @@ describe("PGN Import", function() {
     "1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. c3 d5 5. exd5 Nxd5 6. Qb3 Be6 7. O-O Be7\n" +
     "8. d3 O-O 9. Re1 {Game adjourned when White disconnected} *";
 
+  const pgn2 =
+    '[Event "Waldshut Sen\\Nes"]\n' +
+    '[Site "Waldshut Sen\\Nes"]\n' +
+    '[Date "1991.??.??"]\n' +
+    '[Round "1"]\n' +
+    '[White "Nadenau, Oskar"]\n' +
+    '[Black "Seiter, G"]\n' +
+    '[Result "1-0"]\n' +
+    '[ECO "A30d"]\n' +
+    '[EventDate "1991.??.??"]\n' +
+    "\n" +
+    "1. c4 c5 2. Nf3 Nf6 3. g3 g6 4. Bg2 Bg7 5. O-O d6 6. d4 cxd4 7. Nxd4 O-O \n" +
+    "8. Nc3 Qc7 9. b3 Bd7 10. Bb2 Nc6 11. Nc2 a6 12. e4 Rad8 13. Ne3 e6 14. Qd2\n" +
+    "Ne7 15. Rac1 Bc6 16. Rfd1 Rd7 17. Qc2 Rc8 18. Qe2 Qd8 19. h3 d5 20. cxd5 \n" +
+    "exd5 21. Ncxd5 Nfxd5 22. exd5 Bb5 23. Rxc8 Qxc8 24. Qd2 Bxb2 25. Qxb2 Rd6 \n" +
+    "26. Ng4 Nf5 27. Nf6+ Kf8 28. Nxh7+ Kg8 29. Nf6+ Kf8 30. Ne4 Rd8 31. Qh8+ \n" +
+    "Ke7 32. Qf6+ Kd7 33. Qxf7+ 1-0";
+
   valid.forEach(v =>
     it(v.replace(/[\r\n]/g, "^") + " is valid", function() {
       const parser = new Parser();
@@ -118,6 +136,12 @@ describe("PGN Import", function() {
   it("should parse pgn1 correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn1));
+    chai.assert.equal(2, parser.gamelist.length);
+  });
+
+  it.only("should parse pgn2 correctly", function() {
+    const parser = new Parser();
+    chai.assert.doesNotThrow(() => parser.feed(pgn2));
     chai.assert.equal(2, parser.gamelist.length);
   });
 
@@ -184,47 +208,47 @@ describe("PGN Import", function() {
     compareMovelist(0, 0, parser.gamelist[0].variations, game.variations);
   });
 
-  it.only("should parse a big file correctly in the file processor", function(done) {
-    this.timeout(500000);
-    ImportedPgnFiles.onAfterUpload(
-      {
-        size: 3578758,
-        type: "application/x-chess-pgn",
-        name: "test2.pgn",
-        meta: {
-          creatorId: "jXuMKNjAaX74v6RJs"
-        },
-        ext: "pgn",
-        extension: "pgn",
-        extensionWithDot: ".pgn",
-        mime: "application/x-chess-pgn",
-        "mime-type": "application/x-chess-pgn",
-        _id: "6LHas4DYCHxb8esFN",
-        userId: "jXuMKNjAaX74v6RJs",
-        path: "/Users/davidlogan/workspace/icc/pgns/test2.pgn",
-        versions: {
-          original: {
-            path: "/Users/davidlogan/workspace/icc/pgns/test2.pgn",
-            size: 3578758,
-            type: "application/x-chess-pgn",
-            extension: "pgn"
-          }
-        },
-        _downloadRoute: "/cdn/storage",
-        _collectionName: "importedPgnFiles",
-        isVideo: false,
-        isAudio: false,
-        isImage: false,
-        isText: false,
-        isJSON: false,
-        isPDF: false,
-        _storagePath: "assets/app/uploads/uploadedFiles",
-        public: false
-      },
-      () => {
-        console.log("here");
-        done();
-      }
-    );
-  });
+  // it.only("should parse a big file correctly in the file processor", function(done) {
+  //   this.timeout(500000);
+  //   ImportedPgnFiles.onAfterUpload(
+  //     {
+  //       size: 3578758,
+  //       type: "application/x-chess-pgn",
+  //       name: "test2.pgn",
+  //       meta: {
+  //         creatorId: "jXuMKNjAaX74v6RJs"
+  //       },
+  //       ext: "pgn",
+  //       extension: "pgn",
+  //       extensionWithDot: ".pgn",
+  //       mime: "application/x-chess-pgn",
+  //       "mime-type": "application/x-chess-pgn",
+  //       _id: "6LHas4DYCHxb8esFN",
+  //       userId: "jXuMKNjAaX74v6RJs",
+  //       path: "/Users/davidlogan/workspace/icc/pgns/test2.pgn",
+  //       versions: {
+  //         original: {
+  //           path: "/Users/davidlogan/workspace/icc/pgns/test2.pgn",
+  //           size: 3578758,
+  //           type: "application/x-chess-pgn",
+  //           extension: "pgn"
+  //         }
+  //       },
+  //       _downloadRoute: "/cdn/storage",
+  //       _collectionName: "importedPgnFiles",
+  //       isVideo: false,
+  //       isAudio: false,
+  //       isImage: false,
+  //       isText: false,
+  //       isJSON: false,
+  //       isPDF: false,
+  //       _storagePath: "assets/app/uploads/uploadedFiles",
+  //       public: false
+  //     },
+  //     () => {
+  //       console.log("here");
+  //       done();
+  //     }
+  //   );
+  // });
 });
