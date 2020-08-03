@@ -32,6 +32,7 @@ class FenPgn extends Component {
   }
 
   handlePgnLoaded = () => {
+
     notification.open({
       message: "PGN successfully loaded"
     });
@@ -89,12 +90,13 @@ class FenPgn extends Component {
         transport: "http",
         onUploaded: (err, fileRef) => {
           debugger;
+          that.props.onPgnUpload(fileRef);
           that.handlePgnLoaded();
-          Meteor.call("examineGame", "ExaminedGame", fileRef._id, true, err => {
-            if (err) {
-              log.error(err.reason);
-            }
-          });
+          // Meteor.call("examineGame", "ExaminedGame", fileRef._id, true, err => {
+          //   if (err) {
+          //     log.error(err.reason);
+          //   }
+          // });
         },
         streams: "dynamic",
         chunkSize: "dynamic"

@@ -388,6 +388,7 @@ export default class ExaminePage extends Component {
             gameRequest={this.props.gameRequest}
             ref="right_sidebar"
             startGameExamine={this.startGameExamine}
+            onPgnUpload={this.props.onPgnUpload}
             examineAction={this.examineActionHandler}
             activeTabnumber={this.state.activeTab}
             uploadPgn={this.uploadPgn}

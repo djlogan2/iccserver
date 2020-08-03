@@ -6,6 +6,7 @@ import { Logger } from "../../../lib/client/Logger";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "../pages/components/Css/CssManager";
 import Loading from "../pages/components/Loading";
+import GameListModal from "./components/Modaler/GameListModal";
 import Chess from "chess.js";
 import { Link } from "react-router-dom";
 import { Tracker } from "meteor/tracker";
@@ -83,6 +84,8 @@ class Examine extends Component {
     this.state = {
       gameId: null,
       GameHistory: null,
+      isImportedGamesModal: false,
+      importedGames: [],
       subscription: {
         css: Meteor.subscribe("css"),
         users: Meteor.subscribe("loggedOnUsers"),
@@ -100,7 +103,7 @@ class Examine extends Component {
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
     this.removeCircle = this.removeCircle.bind(this);
-    this.gameHistoryload = this.gameHistoryload.bind(this);
+    // this.gameHistoryload = this.gameHistoryload.bind(this);
     this.removeGameHistory = this.removeGameHistory.bind(this);
   }
 
@@ -235,19 +238,19 @@ class Examine extends Component {
     });
   };
 
-  gameHistoryload(data) {
-    if (data === "mygame") {
-      const GameHistory = GameHistoryCollection.find({
-        $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-      }).fetch();
-      GameHistory.is_imported = false;
-      this.setState({ GameHistory: GameHistory });
-    } else if (data === "uploadpgn") {
-      const importedGame = ImportedGameCollection.find({}).fetch();
-      importedGame.is_imported = true;
-      this.setState({ GameHistory: importedGame });
-    }
-  }
+  // gameHistoryload(data) {
+  //   if (data === "mygame") {
+  //     const GameHistory = GameHistoryCollection.find({
+  //       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+  //     }).fetch();
+  //     GameHistory.is_imported = false;
+  //     this.setState({ GameHistory: GameHistory });
+  //   } else if (data === "uploadpgn") {
+  //     const importedGame = ImportedGameCollection.find({}).fetch();
+  //     importedGame.is_imported = true;
+  //     this.setState({ GameHistory: importedGame });
+  //   }
+  // }
 
   removeGameHistory() {
     this.setState({ GameHistory: null });
@@ -323,6 +326,13 @@ class Examine extends Component {
       ]
     });
   }
+
+  handlePgnUpload = fileId => {
+    this.setState({
+      isImportedGamesModal: true,
+      importedGames: this.props.imported_games
+    });
+  };
   render() {
     const gameRequest = this.props.game_request;
     let game = this.props.game_messages;
@@ -383,6 +393,13 @@ class Examine extends Component {
 
     return (
       <div className="examine">
+        <GameListModal
+          visible={this.state.isImportedGamesModal}
+          gameList={this.state.importedGames}
+          onClose={() => {
+            this.setState({ isImportedGamesModal: false });
+          }}
+        />
         <ExaminePage
           userId={Meteor.userId()}
           user={this.props.user}
@@ -391,12 +408,13 @@ class Examine extends Component {
           board={this._board}
           gameId={this.props.examine_game[0]._id}
           observeUser={this.handleObserveUser}
+          onPgnUpload={this.handlePgnUpload}
           unObserveUser={this.handleUnobserveUser}
           // fen={this._board.fen()}
           capture={capture}
           //len={actionlen}
           game={game}
-          gameHistoryload={this.gameHistoryload}
+          // gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}
           gameRequest={gameRequest}
@@ -419,6 +437,7 @@ export default withTracker(props => {
     // chats: Chat.find({"id": examine_game._id}),
     // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
     // chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),
+    imported_games: ImportedGameCollection.find({}).fetch(),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
