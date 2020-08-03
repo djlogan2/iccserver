@@ -1,6 +1,6 @@
 import chai from "chai";
 import { TestHelpers } from "../../imports/server/TestHelpers";
-import { Parser } from "./pgnsigh";
+import { Parser } from "./pgnparser";
 import { Game } from "../Game";
 
 describe("PGN Import", function() {
@@ -44,7 +44,21 @@ describe("PGN Import", function() {
     '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) ;Other opening moves\n e5 2. d4 d5 1-0',
     '[a "b"] 1. e4 (1. d4 d5 $7 (... c5 $3) (1... f5 $4)(1. ... c5 $5 2. Nc3 $6) (1. c4) ;Other opening moves\r\n e5 2. d4 d5 1-0'
   ];
-  const pgn = '[Event "?"]\n' + '[Site "?"]\n' + '[Date "????.??.??"]\n' + '[Round "?"]\n' + '[White "?"]\n' + '[Black "?"]\n' + '[Result "*"]\n' + "\n" + "1. e4 e5 \n" + "    ( 1. ... d5 2. exd5 )\n" + "    ( 1. ... c5 2. d4 )\n" + "    ( 1. ... Nc6 2. Nc3 )\n" + "2. Nf3 *" + "\n";
+  const pgn =
+    '[Event "?"]\n' +
+    '[Site "?"]\n' +
+    '[Date "????.??.??"]\n' +
+    '[Round "?"]\n' +
+    '[White "?"]\n' +
+    '[Black "?"]\n' +
+    '[Result "*"]\n' +
+    "\n" +
+    "1. e4 e5 \n" +
+    "    ( 1. ... d5 2. exd5 )\n" +
+    "    ( 1. ... c5 2. d4 )\n" +
+    "    ( 1. ... Nc6 2. Nc3 )\n" +
+    "2. Nf3 *" +
+    "\n";
 
   const pgn1 =
     '[Event "ICC 5 0 u"]\n' +
@@ -122,15 +136,47 @@ describe("PGN Import", function() {
     chai.assert.equal(1, parser.gamelist.length);
 
     function compareMovelist(cmi1, cmi2, v1, v2) {
-      chai.assert.equal(v1.movelist[cmi1].move, v2.movelist[cmi2].move, "Move for cmi " + cmi1 + " does not match. parser=" + v1.movelist[cmi1].move + ", actual=" + v2.movelist[cmi2].move);
-      chai.assert.equal(v1.movelist[cmi1].prev, v2.movelist[cmi2].prev, "Prev for cmi " + cmi1 + " does not match. parser=" + v1.movelist[cmi1].prev + ", actual=" + v2.movelist[cmi2].prev);
+      chai.assert.equal(
+        v1.movelist[cmi1].move,
+        v2.movelist[cmi2].move,
+        "Move for cmi " +
+          cmi1 +
+          " does not match. parser=" +
+          v1.movelist[cmi1].move +
+          ", actual=" +
+          v2.movelist[cmi2].move
+      );
+      chai.assert.equal(
+        v1.movelist[cmi1].prev,
+        v2.movelist[cmi2].prev,
+        "Prev for cmi " +
+          cmi1 +
+          " does not match. parser=" +
+          v1.movelist[cmi1].prev +
+          ", actual=" +
+          v2.movelist[cmi2].prev
+      );
       if (v1.movelist[cmi1].variations && !v2.movelist[cmi2].variations) {
-        chai.assert.fail("Parser has a variation at cmi " + cmi1 + ", whereas the actual game does not");
+        chai.assert.fail(
+          "Parser has a variation at cmi " + cmi1 + ", whereas the actual game does not"
+        );
       } else if (!v1.movelist[cmi1].variations && v2.movelist[cmi2].variations) {
-        chai.assert.fail("Parser does not have a variation at cmi " + cmi1 + ", whereas the actual game does");
+        chai.assert.fail(
+          "Parser does not have a variation at cmi " + cmi1 + ", whereas the actual game does"
+        );
       } else if (v1.movelist[cmi1].variations && v2.movelist[cmi2].variations) {
-        chai.assert.equal(v1.movelist[cmi1].variations.length, v2.movelist[cmi2].variations.length, "Variations differ for cmi " + cmi1 + ". parser=" + v1.movelist[cmi1].variations + ", actual=" + v2.movelist[cmi2].variations);
-        for (let x = 0; x < v1.movelist[cmi1].variations.length; x++) compareMovelist(v1.movelist[cmi1].variations[x], v2.movelist[cmi2].variations[x], v1, v2);
+        chai.assert.equal(
+          v1.movelist[cmi1].variations.length,
+          v2.movelist[cmi2].variations.length,
+          "Variations differ for cmi " +
+            cmi1 +
+            ". parser=" +
+            v1.movelist[cmi1].variations +
+            ", actual=" +
+            v2.movelist[cmi2].variations
+        );
+        for (let x = 0; x < v1.movelist[cmi1].variations.length; x++)
+          compareMovelist(v1.movelist[cmi1].variations[x], v2.movelist[cmi2].variations[x], v1, v2);
       }
     }
 

@@ -7,7 +7,7 @@ import CssManager from "./components/Css/CssManager";
 // import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
 import AppWrapper from "./components/AppWrapper";
 import Loading from "./components/Loading";
-import { mongoCss, GameRequestCollection } from "../../api/collections";
+import { mongoCss, GameRequestCollection } from "../../api/client/collections";
 
 export default class HomeContainer extends TrackerReact(React.Component) {
   constructor(props) {
@@ -111,7 +111,7 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     if (systemCSS === undefined || systemCSS.length === 0) {
       return <Loading isPure={true} />
     }
-    const css = new CssManager(this._systemCSS());  
+    const css = new CssManager(this._systemCSS());
     let w = this.state.width;
     let h = this.state.height;
     if (!w) w = window.innerWidth;

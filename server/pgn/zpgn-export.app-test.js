@@ -1,5 +1,5 @@
 import chai from "chai";
-import { Parser } from "./pgnsigh";
+import { Parser } from "./pgnparser";
 import { Game } from "../Game";
 import { TestHelpers } from "../../imports/server/TestHelpers";
 

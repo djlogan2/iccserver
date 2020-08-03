@@ -15,8 +15,7 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
-import { ImportedGameCollection } from "./pgn/PGNImportStorageAdapter";
-import { Parser } from "./pgn/pgnsigh";
+import { Parser } from "./pgn/pgnparser";
 //import { Awsmanager } from "./awsmanager";
 
 import date from "date-and-time";
@@ -2751,11 +2750,11 @@ class Game {
     //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
     //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
     pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
-    if (!game.clocks.white.inc_or_delay) game.clocks.white.inc_or_delay = "none";
-    if (!game.clocks.black.inc_or_delay) game.clocks.black.inc_or_delay = "none";
     if (!game.clocks) {
       pgn += '[TimeControl "?"]\n';
     } else {
+      if (!game.clocks.white.inc_or_delay) game.clocks.white.inc_or_delay = "none";
+      if (!game.clocks.black.inc_or_delay) game.clocks.black.inc_or_delay = "none";
       switch (game.clocks.white.inc_or_delay_type) {
         case "none":
           pgn += '"[TimeControl ' + game.clocks.white.initial / 1000 + '"]\n';

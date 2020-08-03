@@ -12,7 +12,7 @@ import {
   GameRequestCollection,
   mongoCss,
   mongoUser
-} from "./../../../../api/collections";
+} from "../../../../api/client/collections";
 
 const MyGameModal = ({gameList, ...rest}) => {
 

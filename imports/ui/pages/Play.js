@@ -19,7 +19,7 @@ import {
   GameRequestCollection,
   mongoCss,
   mongoUser
-} from "../../api/collections";
+} from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
 const logger = new Logger("client/AppContainer");

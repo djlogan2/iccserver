@@ -13,14 +13,12 @@ import "./PgnExport";
 import "./engine_manager";
 //import "./awsmanager";
 import "./Book";
+import "./PgnImport";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
 import firstAddI18nMessage from "../imports/startup/server/firstI18nMessage";
-import "./Mugshots";
-import "./PgnImport";
 import fs from "fs";
-import "./pgn/pgnimportfilesystem.server";
 
 import "../imports/collections/css";
 import "../imports/collections/users";

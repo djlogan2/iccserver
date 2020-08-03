@@ -18,7 +18,7 @@ import {
   GameRequestCollection,
   mongoCss,
   mongoUser
-} from "../../api/collections";
+} from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
 const log = new Logger("client/AppContainer");
