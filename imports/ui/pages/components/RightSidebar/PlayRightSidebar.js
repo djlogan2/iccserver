@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import { Tabs, Button } from "antd";
+import { Form, Tabs, Button, Radio } from "antd";
 import KibitzChatApp from "./../Chat/KibitzChatApp";
 import PersonalChatApp from "./../Chat/PersonalChatApp";
 import GameHistory from "./elements/GameHistory";
@@ -36,6 +36,75 @@ const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
   );
 };
 
+class PlayChooseBot extends Component {
+  constructor() {
+    super();
+    this.state = {
+      difficulty: 5,
+      color: "none"
+    };
+  }
+  handleChangeDifficulty = e => {
+    this.setState({
+      difficulty: e.target.value
+    });
+  };
+  handleChangeColor = e => {
+    this.setState({
+      color: e.target.value
+    });
+  };
+  handlePlay = () => {
+    let color  = this.state.color;
+
+    if (color === "random") {
+      color = (Math.random() < 0.5) ? "white" : "black";
+    }
+    this.props.onPlay({
+      skillLevel: this.state.difficulty * 2,
+      color: color
+    });
+  };
+  render() {
+    let { onClose } = this.props;
+    return (
+      <div className="play-friend">
+        <div className="play-friend__head">
+          <h2 className="play-friend__name-title">Play with computer</h2>
+          <Button onClick={onClose}>Back</Button>
+        </div>
+        <h3 className="play-friend__header">Friends</h3>
+        <Form className="play-bot__form" layout="vertical">
+          <Form.Item label="Difficulty" name="layout">
+            <Radio.Group onChange={this.handleChangeDifficulty} defaultValue={5}>
+              <Radio.Button value={1}>1</Radio.Button>
+              <Radio.Button value={2}>2</Radio.Button>
+              <Radio.Button value={3}>3</Radio.Button>
+              <Radio.Button value={4}>4</Radio.Button>
+              <Radio.Button value={5}>5</Radio.Button>
+              <Radio.Button value={6}>6</Radio.Button>
+              <Radio.Button value={7}>7</Radio.Button>
+              <Radio.Button value={8}>8</Radio.Button>
+              <Radio.Button value={9}>9</Radio.Button>
+              <Radio.Button value={10}>10</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item label="Color" name="layout">
+            <Radio.Group onChange={this.handleChangeColor} defaultValue={"random"}>
+              <Radio.Button value={"random"}>Random</Radio.Button>
+              <Radio.Button value={"white"}>White</Radio.Button>
+              <Radio.Button value={"black"}>Black</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+          <Button type="primary" onClick={this.handlePlay}>
+            Start the game
+          </Button>
+        </Form>
+      </div>
+    );
+  }
+}
+
 class PlayBlock extends Component {
   constructor(props) {
     super(props);
@@ -64,7 +133,42 @@ class PlayBlock extends Component {
   };
 
   handlePlayComputer = () => {
-    Meteor.call("startBotGame", "play_computer", 0, "blitz", 5, 0, "none", 5, 0, "none", 3);
+    this.setState({ status: "choose-bot" });
+    // Meteor.call("startBotGame", "play_computer", 0, "blitz", 5, 0, "none", 5, 0, "none", 3);
+    // this.setState({ status: "playing" });
+  };
+
+  hanldePlayWithBot = data => {
+    const { skillLevel, color } = data;
+    // wild_number,
+    //   rating_type,
+    //   white_initial,
+    //   white_increment_or_delay,
+    //   white_increment_or_delay_type,
+    //   black_initial,
+    //   black_increment_or_delay,
+    //   black_increment_or_delay_type,
+    //   color,
+    //   skill_level
+    Meteor.call(
+      "startBotGame",
+      "play_computer",
+      0,
+      "blitz",
+      5,
+      0,
+      "none",
+      5,
+      0,
+      "none",
+      skillLevel,
+      color,
+      err => {
+        if (err) {
+          debugger;
+        }
+      }
+    );
     this.setState({ status: "playing" });
   };
 
@@ -102,6 +206,16 @@ class PlayBlock extends Component {
           }}
           usersToPlayWith={this.props.usersToPlayWith}
           onChoose={this.props.onChooseFriend}
+        />
+      );
+    }
+    if (this.state.status === "choose-bot") {
+      return (
+        <PlayChooseBot
+          onClose={() => {
+            this.setState({ status: "none" });
+          }}
+          onPlay={this.hanldePlayWithBot}
         />
       );
     }
