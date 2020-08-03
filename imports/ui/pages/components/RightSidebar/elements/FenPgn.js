@@ -100,7 +100,7 @@ class FenPgn extends Component {
           that.handlePgnLoaded();
           Meteor.call("examineGame", "ExaminedGame", msFile._id, true, err => {
             if (err) {
-              debugger;
+              log.error(err.reason);
             }
           });
         }

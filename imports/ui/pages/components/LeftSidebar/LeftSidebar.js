@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Modal } from "antd";
+import moment from "moment";
 import { withRouter } from "react-router";
 import MenuLinks from "./MenuLinks";
 import { Meteor } from "meteor/meteor";
@@ -14,9 +15,7 @@ import {
   mongoUser
 } from "./../../../../api/collections";
 
-const MyGameModal = ({gameList, ...rest}) => {
-
-
+const MyGameModal = ({ gameList, ...rest }) => {
   const handleSetExaminMode = (id, is_imported) => {
     Meteor.call("examineGame", "ExaminedGame", id, false, (error, response) => {
       if (error) {
@@ -29,14 +28,13 @@ const MyGameModal = ({gameList, ...rest}) => {
     });
 
     // this.props.removeGameHistory();
-  }
+  };
 
-  const formatGameList = (games) => {
+  const formatGameList = games => {
     // let result;
     // let gameList = [];
 
-
-    return games.map((gameItem) => {
+    return games.map(gameItem => {
       let isUserWhite = gameItem.white.id === Meteor.userId();
       let hasWhiteWon = gameItem.result === "1-0";
       let isUserBlack = gameItem.black.id === Meteor.userId();
@@ -45,7 +43,8 @@ const MyGameModal = ({gameList, ...rest}) => {
       let isCurrentUserWinner = (isUserWhite && hasWhiteWon) || (isUserBlack && hasBlackWon);
       let gameResult = isCurrentUserWinner ? "Won" : "Loss";
 
-      time = `${gameItem.startTime.getDate()}.${gameItem.startTime.getFullYear()}`;
+      // time = `${gameItem.startTime.getDate()}.${gameItem.startTime.getFullYear()}`;
+      time = moment(gameItem.startTime).format("DD.MM.YYYY");
 
       return {
         id: gameItem._id,
@@ -54,8 +53,9 @@ const MyGameModal = ({gameList, ...rest}) => {
         black: gameItem.black.name.replace(/"/g, ""),
         result: gameResult,
         time: time,
+        date: gameItem.startTime,
         is_imported: games.is_imported
-      }
+      };
     });
     // if (!!games && games.length > 0) {
     //   for (let i = 0; i < games.length; i++) {
@@ -75,14 +75,15 @@ const MyGameModal = ({gameList, ...rest}) => {
     //   }
     // }
     // return gameList;
-  }
+  };
 
-  const formattedGameList = formatGameList(gameList);
+  const formattedGameList = formatGameList(gameList).sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
 
   let style = {
     background: "#ffffff"
   };
-
 
   return (
     <Modal
@@ -122,7 +123,9 @@ const MyGameModal = ({gameList, ...rest}) => {
                   <tr key={index} style={{ cursor: "pointer" }}>
                     <td
                       style={{ padding: "5px 5px" }}
-                      onClick={() => { handleSetExaminMode(game.id, game.is_imported)}}
+                      onClick={() => {
+                        handleSetExaminMode(game.id, game.is_imported);
+                      }}
                     >
                       {game.white}-vs-{game.black}
                     </td>
@@ -207,8 +210,6 @@ class LeftSidebar extends Component {
     // }
   }
 
-
-
   handleExamine = () => {
     this.props.history.push("/examine");
     // Meteor.call(
@@ -236,8 +237,8 @@ class LeftSidebar extends Component {
   };
 
   handleMyGamesClose = () => {
-    this.setState({isMyGamesModal: false})
-  }
+    this.setState({ isMyGamesModal: false });
+  };
 
   render() {
     return (
@@ -246,10 +247,13 @@ class LeftSidebar extends Component {
           this.state.visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"
         }
       >
-        <MyGameModal visible={this.state.isMyGamesModal} gameList={this.state.gameList} onClose={this.handleMyGamesClose} />
+        <MyGameModal
+          visible={this.state.isMyGamesModal}
+          gameList={this.state.gameList}
+          onClose={this.handleMyGamesClose}
+        />
         <div className="sidebar__logo" />
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
-
 
         <MenuLinks
           onCommunity={this.handleCommunity}
