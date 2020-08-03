@@ -6,6 +6,9 @@ import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { Logger } from "../lib/server/Logger";
+
+let log = new Logger("server/Chat_js");
 
 const ChatCollectionSchema = new SimpleSchema({
   create_date: {
@@ -164,6 +167,7 @@ class Chat {
   }
 
   kibitz(message_identifier, game_id, kibitz, txt) {
+    log.debug("kibitz " + message_identifier + ", " + game_id + ", " + kibitz + ", " + txt);
     check(message_identifier, String);
     check(txt, String);
     check(game_id, String);
@@ -223,6 +227,7 @@ class Chat {
   }
 
   createRoom(message_identifier, roomName, priv) {
+    log.debug("createRoom " + message_identifier + ", " + roomName + ", " + priv);
     check(message_identifier, String);
     check(roomName, String);
     check(priv, Match.Maybe(Boolean));
@@ -270,6 +275,7 @@ class Chat {
   }
 
   writeToRoom(message_identifier, room_id, txt) {
+    log.debug("writeToRoom " + message_identifier + ", " + room_id + ", " + txt);
     check(message_identifier, String);
     check(room_id, String);
     check(txt, String);
@@ -319,6 +325,7 @@ class Chat {
   }
 
   deleteRoom(message_identifier, room_id) {
+    log.debug("deleteRoom " + message_identifier + ", " + room_id);
     check(message_identifier, String);
     check(room_id, String);
 
@@ -350,6 +357,7 @@ class Chat {
   }
 
   joinRoom(message_identifier, room_id) {
+    log.debug("joinRoom " + message_identifier + ", " + room_id);
     check(message_identifier, String);
     check(room_id, String);
 
@@ -403,6 +411,7 @@ class Chat {
   }
 
   leaveRoom(message_identifier, room_id, user_id) {
+    log.debug("leaveRoom " + message_identifier + ", " + room_id + ", " + user_id);
     check(message_identifier, String);
     check(room_id, String);
 
@@ -453,6 +462,7 @@ class Chat {
   }
 
   inviteToRoom(message_identifier, room_id, user_id) {
+    log.debug("inviteToRoom " + message_identifier + ", " + room_id + ", " + user_id);
     check(message_identifier, String);
     check(room_id, String);
     check(user_id, String);
@@ -527,6 +537,7 @@ class Chat {
   }
 
   writeToUser(message_identifier, user_id, text) {
+    log.debug("writeToUser " + message_identifier + ", " + user_id + ", " + text);
     const self = Meteor.user();
     const user = Meteor.users.findOne({ _id: user_id });
     const isoGroup = self.isolation_group;
@@ -732,7 +743,7 @@ Meteor.startup(() => {
   const room = global._chatObject.roomCollection.findOne({ name: "CTY public room" });
   if (!!room) return;
 
-  const user = Meteor.users.findOne({ username: "djl1" });
+  const user = Meteor.users.findOne({ username: "djlogan" });
   if (!user) return;
 
   const room_id = global._chatObject.roomCollection.insert({

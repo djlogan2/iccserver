@@ -2,8 +2,6 @@ import React from "react";
 import PieceSquare from "../pages/components/Board/PieceSquare";
 import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
-import UploadMugshot from "../pages/components/FileUpload/UploadMugshot";
-//import UploadPGN from "../pages/components/FileUpload/UploadPGN";
 import Board from "../pages/components/Board/Board";
 import CssManager from "../pages/components/Css/TestContainerCssManager";
 import Chess from "chess.js";

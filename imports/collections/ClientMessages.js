@@ -241,6 +241,7 @@ Meteor.publish("client_messages", function() {
 
 Meteor.methods({
   "acknowledge.client.message": function(id) {
+    log.debug("Meteor.methods acknowledge.client.message");
     check(id, String);
     const rec = ClientMessagesCollection.findOne({ _id: id });
     if (!rec)

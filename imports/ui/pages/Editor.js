@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss, GameHistoryCollection, Game } from "./../../api/collections.js";
+import { mongoCss, GameHistoryCollection, Game } from "../../api/client/collections.js";
 import Chess from "chess.js";
 import Chessground from "react-chessground";
 import FenParser from "@chess-fu/fen-parser";

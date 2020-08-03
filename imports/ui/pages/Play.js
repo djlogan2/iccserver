@@ -19,7 +19,7 @@ import {
   GameRequestCollection,
   mongoCss,
   mongoUser
-} from "../../api/collections";
+} from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
 const logger = new Logger("client/AppContainer");
@@ -575,8 +575,13 @@ Game.find({ status: "playing" }).observeChanges({
   },
   removed(id) {
     if (!!game_timestamps[id]) {
-      game_timestamps[id].timestamp.end();
-      delete game_timestamps[id];
+      try {
+        game_timestamps[id].timestamp.end();
+      } catch (e) {
+        logger.error(e);
+      } finally {
+        delete game_timestamps[id];
+      }
     }
   }
 });

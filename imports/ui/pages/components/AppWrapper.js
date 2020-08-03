@@ -3,7 +3,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Row, Modal } from "antd";
 import { withRouter } from "react-router-dom";
-import { GameRequestCollection } from "./../../../api/collections";
+import { GameRequestCollection } from "../../../api/client/collections";
 
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 

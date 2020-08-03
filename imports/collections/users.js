@@ -41,6 +41,7 @@ Meteor.publish("userData", function() {
 
 Meteor.methods({
   getPartialUsernames: function(prefix) {
+    log.debug("Meteor.methods getPartialUsernames");
     check(prefix, String);
     check(this.userId, String);
     if (prefix.length === 0) return [];
@@ -199,6 +200,7 @@ Accounts.validateLoginAttempt(function(params) {
 // User methods: update fingerprint
 Meteor.methods({
   updateFingerprint(fingerprint) {
+    log.debug("Meteor.methods updateFingerprint");
     check(fingerprint, Object);
     this.unblock();
     // Retrieve current fingerprint

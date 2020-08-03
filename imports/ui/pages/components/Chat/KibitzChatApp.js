@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import ChatApp from "./ChatApp";
 import { withTracker } from "meteor/react-meteor-data";
 
-import { Chat } from "../../../../api/collections";
+import { Chat } from "../../../../api/client/collections";
 
 const KibitzChatApp = ({ gameId, chats, ...rest }) => {
   const handleMessage = text => {

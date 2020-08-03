@@ -1,15 +1,9 @@
 import React, { Component } from "react";
-import { Input, Upload, message, Button, notification } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Input, Button, notification } from "antd";
 import { Meteor } from "meteor/meteor";
 
-import buildPgn from "./../../../helpers/build-pgn";
-import { FS } from "meteor/cfs:base-package";
-import "./../../../../../../lib/client/pgnimportfilesystem.client";
-import { Logger } from "./../../../../../../lib/client/Logger";
-const PgnImports = new FS.Collection("uploaded_pgns", {
-  stores: [new FS.Store.PGNImportFileSystem()]
-});
+import { Logger } from "../../../../../../lib/client/Logger";
+import { ImportedPgnFiles } from "../../../../../../lib/client/importpgnfiles";
 
 const log = new Logger("client/FenPgn_js");
 
@@ -68,7 +62,7 @@ class FenPgn extends Component {
 
   handleFenChange = e => {
     let newFen = e.target.value;
-    this.setState({fen: newFen});
+    this.setState({ fen: newFen });
 
     Meteor.call("loadFen", "loadFen", this.props.gameId, newFen, (err, response) => {
       if (err) {
@@ -86,26 +80,25 @@ class FenPgn extends Component {
     let that = this;
 
     if (!!file) {
-      var msFile = new FS.File(file);
-      msFile.creatorId = Meteor.userId();
 
-      let confirm = PgnImports.insert(msFile, function(err, fileObj) {
-        if (err) {
-          alert("Upload PGN error: " + err);
-        }
-      });
-      if (confirm) {
-        debugger;
-        if (msFile._id) {
+      ImportedPgnFiles.insert({
+        file: file,
+        meta: {
+          creatorId: Meteor.userId()
+        },
+        transport: "http",
+        onUploaded: (err, fileRef) => {
+          debugger;
           that.handlePgnLoaded();
-          Meteor.call("examineGame", "ExaminedGame", msFile._id, true, err => {
+          Meteor.call("examineGame", "ExaminedGame", fileRef._id, true, err => {
             if (err) {
               log.error(err.reason);
             }
           });
-        }
-        // this.props.uploadPgn();
-      }
+        },
+        streams: "dynamic",
+        chunkSize: "dynamic"
+      });
     }
   };
 

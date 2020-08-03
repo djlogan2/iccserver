@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import { GameHistoryCollection } from "../../../api/collections";
+import { GameHistoryCollection } from "../../../api/client/collections";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 
 export default class GameHistroyComponent extends TrackerReact(React.Component) {

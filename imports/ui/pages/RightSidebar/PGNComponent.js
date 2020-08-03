@@ -1,10 +1,5 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import { FS } from "meteor/cfs:base-package";
-import "../../../../lib/client/pgnimportfilesystem.client";
-const PgnImports = new FS.Collection("uploaded_pgns", {
-  stores: [new FS.Store.PGNImportFileSystem()]
-});
 
 class PGN extends Component {
   constructor(props) {

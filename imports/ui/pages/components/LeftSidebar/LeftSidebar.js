@@ -13,7 +13,7 @@ import {
   GameRequestCollection,
   mongoCss,
   mongoUser
-} from "./../../../../api/collections";
+} from "../../../../api/client/collections";
 
 const MyGameModal = ({ gameList, ...rest }) => {
   const handleSetExaminMode = (id, is_imported) => {
