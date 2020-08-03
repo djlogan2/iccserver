@@ -47,6 +47,7 @@
     "is-whitespace-character": "^1.0.4",
     "lodash": "^4.17.19",
     "meteor-node-stubs": "^0.4.1",
+    "moment": "^2.27.0",
     "moo": "^0.5.1",
     "mup": "^1.5.1",
     "node-uci": "^1.3.4",
