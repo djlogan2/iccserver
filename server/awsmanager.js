@@ -1,9 +1,9 @@
 import { Mongo } from "meteor/mongo";
-
+import { HTTP } from "meteor/http";
 import { Picker } from "meteor/meteorhacks:picker";
 import AWS from "aws-sdk";
 import { Logger } from "../lib/server/Logger";
-
+import ssh2 from "ssh2";
 const log = new Logger("server/awsmanager_js");
 //
 //  OK, so we need support classes here:
@@ -12,6 +12,15 @@ const log = new Logger("server/awsmanager_js");
 // class ChessEngine {} -- One for each request -- this is the bridge between the entity wants to run an engine, and an engine
 //                         If we have to change engines, it will install a new InstanceEngine into ChessEngine
 //
+
+// when an instance is discovered to be running:
+// (1) Check to see if it's been configured        [state: "check"]
+// (2) Configure it -- loop to #1 -- Maybe count?  [state: "configuring"]
+// (3) Set it to ready                             [state: "ready"]
+//
+// when an instance is discovered to be on its way down:
+// (4) Move engines from this instance to another  [state: "quiescing"]
+// (5) Wait for shutdown                           [state: "quiesced"]
 
 // eslint-disable-next-line no-unused-vars
 
@@ -29,7 +38,9 @@ class Awsmanager {
     this.spot_fleet_id = "aws:ec2spot:fleet-request-id";
     this.ec2 = new AWS.EC2();
     this.sns = new AWS.SNS();
+    this.instances = [];
     Meteor.startup(() => {
+      this.collection.remove({}); // Remove all instances
       this.setupSNS();
       this.getCurrentInstances();
       this.watchUsersAndGames();
@@ -121,7 +132,10 @@ class Awsmanager {
               ) {
                 if (this.collection.find({ InstanceId: i.InstanceId }).count() === 0) {
                   i.icc_instance_state = "check";
-                  this.collection.insert(i);
+                  const id = this.collection.insert(i);
+                  const awsi = new AWSInstance(id, this.collection);
+                  this.instances.push(awsi);
+                  awsi.check();
                 }
               }
             });
@@ -242,12 +256,68 @@ Picker.route("/aws_spot_interruption", function(params, req, res) {
       else
         log.error("Received SpotWarning confirmation request, but our AWS object does not exist");
     } else {
-      // ARGH!!!
       const message = JSON.parse(payload.Message);
       spotInterruption(message.detail["instance-action"], message.detail["instance-id"]);
     }
     res.end("ok");
   });
 });
+
+class AWSInstance {
+  constructor(id, collection) {
+    this.id = id;
+    this.collection = collection;
+    this.instance = this.collection.findOne({ _id: id });
+    this.sshReadyFunction = Meteor.bindEnvironment(() => this._sshReadyFunction());
+  }
+
+  check() {
+    const url = "http://" + this.instance.PublicIpAddress + "/ok";
+    HTTP.get(url, {}, (error, result) => {
+      if (error) {
+        if (error.errno === "ECONNREFUSED") {
+          this.instance.icc_status = "setup";
+          this.collection.update({ _id: this.id }, { $set: { icc_status: "setup" } });
+          this.setup();
+          return;
+        }
+        console.log("First, the error where it doesn't even respond");
+        throw error;
+      } else {
+        console.log("health check passed -- set it to ready to go?");
+        throw "Yes, do something here";
+      }
+    });
+  }
+
+  _sshReadyFunction() {
+    this.sshConn.exec("ps ax", (err, stream) => {
+      if (err) throw err;
+      stream
+        .on("close", (code, signal) => {
+          console.log("Stream closed, code=" + code + ", signal=" + signal);
+          this.sshConn.end();
+          delete this.sshConn;
+        })
+        .on("data", data => {
+          console.log("STDOUT: " + data);
+        })
+        .stderr.on("data", data => {
+          console.log("What to do with this? : " + data);
+        });
+    });
+  }
+
+  setup() {
+    this.sshConn = new ssh2.Client.Client();
+    const creds = {
+      host: this.instance.PublicIpAddress,
+      port: 22,
+      username: "ubuntu",
+      privateKey: require("fs").readFileSync("/Users/davidlogan/.ssh/id_rsa")
+    };
+    this.sshConn.on("ready", this.sshReadyFunction).connect(creds);
+  }
+}
 
 module.exports.Awsmanager = global._awsObject;

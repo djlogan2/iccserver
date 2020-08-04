@@ -11,7 +11,7 @@ import { Game, GameHistory } from "./Game";
 import { Chat } from "./Chat";
 import "./PgnExport";
 import "./engine_manager";
-//import "./awsmanager";
+import "./awsmanager";
 import "./Book";
 import "./PgnImport";
 

@@ -7,14 +7,6 @@ import Chess from "chess.js";
 import { Random } from "meteor/random";
 import AWS from "aws-sdk";
 
-// when an instance is discovered to be running:
-// (1) Check to see if it's been configured        [state: "check"]
-// (2) Configure it -- loop to #1 -- Maybe count?  [state: "configuring"]
-// (3) Set it to ready                             [state: "ready"]
-//
-// when an instance is discovered to be on its way down:
-// (4) Move engines from this instance to another  [state: "quiescing"]
-// (5) Wait for shutdown                           [state: "quiesced"]
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
