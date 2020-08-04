@@ -60,9 +60,9 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
         <Modal title="Create Room" visible={isModal} onOk={onOk} onCancel={onCancel}>
           <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
         </Modal>
-        <Button onClick={onOpen} className="room-block__add">
+        {/* <Button onClick={onOpen} className="room-block__add">
           Add
-        </Button>
+        </Button> */}
         <Button onClick={openRightBlock} className="room-block__plus">
           +
         </Button>
