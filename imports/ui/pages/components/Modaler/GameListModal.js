@@ -3,9 +3,9 @@ import { Modal } from "antd";
 import moment from "moment";
 import { Meteor } from "meteor/meteor";
 
-export default ({ gameList, ...rest }) => {
+export default ({ gameList, isImported = false, ...rest }) => {
     const handleSetExaminMode = (id, is_imported) => {
-      Meteor.call("examineGame", "ExaminedGame", id, false, (error, response) => {
+      Meteor.call("examineGame", "ExaminedGame", id, isImported, (error, response) => {
         if (error) {
           log.debug(error);
           console.log(error);
@@ -94,7 +94,8 @@ export default ({ gameList, ...rest }) => {
                       <td
                         style={{ padding: "5px 5px" }}
                         onClick={() => {
-                          handleSetExaminMode(game.id, game.is_imported);
+                          handleSetExaminMode(game.id, isImported);
+                          rest.onClose();
                         }}
                       >
                         {game.white}-vs-{game.black}

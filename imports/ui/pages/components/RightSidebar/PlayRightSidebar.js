@@ -41,7 +41,7 @@ class PlayChooseBot extends Component {
     super();
     this.state = {
       difficulty: 5,
-      color: "none"
+      color: "random"
     };
   }
   handleChangeDifficulty = e => {
@@ -55,13 +55,13 @@ class PlayChooseBot extends Component {
     });
   };
   handlePlay = () => {
-    let color  = this.state.color;
+    let color = this.state.color;
 
     if (color === "random") {
-      color = (Math.random() < 0.5) ? "white" : "black";
+      color = Math.random() < 0.5 ? "white" : "black";
     }
     this.props.onPlay({
-      skillLevel: this.state.difficulty * 2,
+      skillLevel: this.state.difficulty,
       color: color
     });
   };
@@ -73,10 +73,10 @@ class PlayChooseBot extends Component {
           <h2 className="play-friend__name-title">Play with computer</h2>
           <Button onClick={onClose}>Back</Button>
         </div>
-        <h3 className="play-friend__header">Friends</h3>
         <Form className="play-bot__form" layout="vertical">
-          <Form.Item label="Difficulty" name="layout">
-            <Radio.Group onChange={this.handleChangeDifficulty} defaultValue={5}>
+          <Form.Item label="Difficulty" name="difficulty">
+            <Radio.Group onChange={this.handleChangeDifficulty} defaultValue={this.state.difficulty} value={this.state.difficulty}>
+              <Radio.Button value={0}>0</Radio.Button>
               <Radio.Button value={1}>1</Radio.Button>
               <Radio.Button value={2}>2</Radio.Button>
               <Radio.Button value={3}>3</Radio.Button>
@@ -89,8 +89,8 @@ class PlayChooseBot extends Component {
               <Radio.Button value={10}>10</Radio.Button>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label="Color" name="layout">
-            <Radio.Group onChange={this.handleChangeColor} defaultValue={"random"}>
+          <Form.Item label="Color" name="color">
+            <Radio.Group onChange={this.handleChangeColor} defaultValue={this.state.color} value={this.state.color}>
               <Radio.Button value={"random"}>Random</Radio.Button>
               <Radio.Button value={"white"}>White</Radio.Button>
               <Radio.Button value={"black"}>Black</Radio.Button>

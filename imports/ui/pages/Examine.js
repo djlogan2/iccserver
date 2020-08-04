@@ -327,10 +327,23 @@ class Examine extends Component {
     });
   }
 
-  handlePgnUpload = fileId => {
-    this.setState({
-      isImportedGamesModal: true,
-      importedGames: this.props.imported_games
+  handlePgnUpload = fileData => {
+    let that = this;
+    let count = 0
+    ImportedGameCollection.find({ fileRef: fileData._id }).observeChanges({
+      added: (id, data) => {
+        if (count === 0) {
+          count = count+1
+          setTimeout(() => {
+            let importedGames = ImportedGameCollection.find({ fileRef: fileData._id }).fetch();
+            debugger;
+            that.setState({
+              isImportedGamesModal: true,
+              importedGames: importedGames
+            });
+          }, 10)
+        }
+      }
     });
   };
   render() {
@@ -394,6 +407,7 @@ class Examine extends Component {
     return (
       <div className="examine">
         <GameListModal
+          isImported={true}
           visible={this.state.isImportedGamesModal}
           gameList={this.state.importedGames}
           onClose={() => {
@@ -437,7 +451,7 @@ export default withTracker(props => {
     // chats: Chat.find({"id": examine_game._id}),
     // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
     // chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),
-    imported_games: ImportedGameCollection.find({}).fetch(),
+    // imported_games: ImportedGameCollection.find({}).fetch(),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
