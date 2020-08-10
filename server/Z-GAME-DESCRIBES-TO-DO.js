@@ -1,105 +1,102 @@
-
 describe("Game.offerMoreTime", function() {
-  it("fails if user is not playing a game", function () {
+  it("fails if user is not playing a game", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if the game is examined", function () {
+  it("should error out if the game is examined", function() {
     chai.assert.fail("do me");
   });
-  it("works on their move", function () {
+  it("works on their move", function() {
     chai.assert.fail("do me");
   });
-  it("works on their opponents move", function () {
+  it("works on their opponents move", function() {
     chai.assert.fail("do me");
   });
-  it("pushes an action when it succeeds as a local game", function () {
+  it("pushes an action when it succeeds as a local game", function() {
     chai.assert.fail("do me");
   });
-  it("pushes an action when it succeeds as a legacy game", function () {
+  it("pushes an action when it succeeds as a legacy game", function() {
     chai.assert.fail("do me");
   });
-  it("calls legacy user 'moretime' if it's a legacy game", function () {
+  it("calls legacy user 'moretime' if it's a legacy game", function() {
     chai.assert.fail("do me");
   });
 });
 describe("Game.declineMoreTime", function() {
-  it("fails if user is not playing a game", function () {
+  it("fails if user is not playing a game", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if the game is examined", function () {
+  it("should error out if the game is examined", function() {
     chai.assert.fail("do me");
   });
-  it("works on their move", function () {
+  it("works on their move", function() {
     chai.assert.fail("do me");
   });
-  it("works on their opponents move", function () {
+  it("works on their opponents move", function() {
     chai.assert.fail("do me");
   });
-  it("pushes an action when it succeeds as a local game", function () {
+  it("pushes an action when it succeeds as a local game", function() {
     chai.assert.fail("do me");
   });
 });
 
 describe("Game.acceptMoretime", function() {
-  it("fails if user is not playing a game", function () {
+  it("fails if user is not playing a game", function() {
     chai.assert.fail("do me");
   });
-  it("should error out if the game is examined", function () {
+  it("should error out if the game is examined", function() {
     chai.assert.fail("do me");
   });
-  it("works on their move", function () {
+  it("works on their move", function() {
     chai.assert.fail("do me");
   });
-  it("works on their opponents move", function () {
+  it("works on their opponents move", function() {
     chai.assert.fail("do me");
   });
-  it("pushes an action when it succeeds as a local game", function () {
+  it("pushes an action when it succeeds as a local game", function() {
     chai.assert.fail("do me");
   });
 });
 
 
 describe("Game.updateClock", function() {
-  it("still needs to be written", function () {
+  it("still needs to be written", function() {
     chai.assert.fail("do me");
   });
-  it("errors if milliseconds is null, not a number, or negative", function () {
+  it("errors if milliseconds is null, not a number, or negative", function() {
     chai.assert.fail("do me");
   });
-  it("requires color to exist and be 'white' or 'black'", function () {
+  it("requires color to exist and be 'white' or 'black'", function() {
     chai.assert.fail("do me");
   });
-  it("requires game_id to exist and be a valid examined game record", function () {
+  it("requires game_id to exist and be a valid examined game record", function() {
     chai.assert.fail("do me");
   });
-  it("errors out if the game is not being played", function () {
+  it("errors out if the game is not being played", function() {
     chai.assert.fail("do me");
   });
-  it("updates the white clock when color is white", function () {
+  it("updates the white clock when color is white", function() {
     chai.assert.fail("do me");
   });
-  it("updates the black clock when color is black", function () {
+  it("updates the black clock when color is black", function() {
     chai.assert.fail("do me");
   });
 });
 describe("getLegacyUser", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("getAndCheck", function() {
-  it("still needs to be written", function () {
-    chai.assert.fail("do me");
-  });
-});
-describe("Game.changeHeaders", function() {
-  it("still needs to be written", function () {
+  it("still needs to be written", function() {
     chai.assert.fail("do me");
   });
 });
 
-describe("Game ends from legacy we need to replicate in local", function(){
-  it("needs to be defined using the doc below as reference", function(){chai.assert.fail("do me")});
+describe("Game.changeHeaders", function() {
+  it("still needs to be written", function() {
+    chai.assert.fail("do me");
+  });
+});
+
+describe("Game ends from legacy we need to replicate in local", function() {
+  it("needs to be defined using the doc below as reference", function() {
+    chai.assert.fail("do me");
+  });
   //		mode 0:  (Res) Black resigns
   // 		mode 1:  (Mat) Black checkmated
   // 		mode 2:  (Fla) Black forfeits on time.
@@ -148,13 +145,29 @@ describe("Game ends from legacy we need to replicate in local", function(){
   // 		mode 12: (?)   No result [specific reason unknown]
 });
 
-describe("When a played game ends", function(){
-  it("should convert one, the other, or both users to examiners of the game, and convert the game to examined, if their 'examine after play' setting is true", function(){chai.assert.fail("do me")});
-  it("should delete the game if neither player has their examine flag set", function(){chai.assert.fail("do me")});
-  it("should allow any examiner to make moves in an examined game", function(){chai.assert.fail("do me")});
-  it("should not allow adding of an examiner to a game being played", function(){chai.assert.fail("do me")});
-  it("should allow adding of an examiner to a game being examined", function(){chai.assert.fail("do me")});
-  it("should only add an examiner once. Second plus should just report they are already examiners", function(){chai.assert.fail("do me")});
-  it("should not delete the game record when examiners leave if they are not the last examiner", function(){chai.assert.fail("do me")});
-  it("should delete the game record when the last examiner leaves", function(){chai.assert.fail("do me")});
+describe("When a played game ends", function() {
+  it("should convert one, the other, or both users to examiners of the game, and convert the game to examined, if their 'examine after play' setting is true", function() {
+    chai.assert.fail("do me");
+  });
+  it("should delete the game if neither player has their examine flag set", function() {
+    chai.assert.fail("do me");
+  });
+  it("should allow any examiner to make moves in an examined game", function() {
+    chai.assert.fail("do me");
+  });
+  it("should not allow adding of an examiner to a game being played", function() {
+    chai.assert.fail("do me");
+  });
+  it("should allow adding of an examiner to a game being examined", function() {
+    chai.assert.fail("do me");
+  });
+  it("should only add an examiner once. Second plus should just report they are already examiners", function() {
+    chai.assert.fail("do me");
+  });
+  it("should not delete the game record when examiners leave if they are not the last examiner", function() {
+    chai.assert.fail("do me");
+  });
+  it("should delete the game record when the last examiner leaves", function() {
+    chai.assert.fail("do me");
+  });
 });

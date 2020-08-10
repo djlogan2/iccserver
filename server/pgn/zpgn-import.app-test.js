@@ -139,7 +139,7 @@ describe("PGN Import", function() {
     chai.assert.equal(2, parser.gamelist.length);
   });
 
-  it.only("should parse pgn2 correctly", function() {
+  it("should parse pgn2 correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn2));
     chai.assert.equal(2, parser.gamelist.length);
