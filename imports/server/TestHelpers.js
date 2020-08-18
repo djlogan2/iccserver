@@ -24,7 +24,13 @@ if (Meteor.isTest || Meteor.isAppTest) {
       email: options.email || faker.internet.email(),
       password: options.password || faker.internet.password()
     };
-    if (options.legacy === undefined || !!options.legacy || options.legacy_username || options.legacy_password || options.legacy_autologin) {
+    if (
+      options.legacy === undefined ||
+      !!options.legacy ||
+      options.legacy_username ||
+      options.legacy_password ||
+      options.legacy_autologin
+    ) {
       userRecord.profile = {
         legacy: {
           username: options.legacy_username || faker.internet.userName(),
@@ -49,7 +55,8 @@ if (Meteor.isTest || Meteor.isAppTest) {
     setobject.locale = options.locale || "en-us";
     setobject.board_css = options.board_css || "developmentcss";
 
-    if (userRecord.profile && userRecord.profile.legacy) setobject["profile.legacy.validated"] = true;
+    if (userRecord.profile && userRecord.profile.legacy)
+      setobject["profile.legacy.validated"] = true;
 
     Meteor.users.update({ _id: id }, { $set: setobject });
 
@@ -90,7 +97,11 @@ if (Meteor.isTest || Meteor.isAppTest) {
           })
         );
 
-        self.sandbox.replace(DynamicRatings, "meetsRatingTypeRules", self.sandbox.fake.returns(true));
+        self.sandbox.replace(
+          DynamicRatings,
+          "meetsRatingTypeRules",
+          self.sandbox.fake.returns(true)
+        );
       }
 
       self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
@@ -120,7 +131,13 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
       self.clientMessagesSpy = self.sandbox.spy(global._clientMessages, "sendMessageToClient");
 
-      self.sandbox.replace(Timestamp, "averageLag", self.sandbox.fake(() => (!options || options.averagelag === undefined ? 0 : options.averagelag))); //.returns(123));
+      self.sandbox.replace(
+        Timestamp,
+        "averageLag",
+        self.sandbox.fake(() =>
+          !options || options.averagelag === undefined ? 0 : options.averagelag
+        )
+      ); //.returns(123));
 
       self.sandbox.replace(Timestamp, "pingTime", self.sandbox.fake.returns(456));
 
@@ -163,14 +180,16 @@ function isObject(obj) {
 export function compare(testobject, actualobject, propheader) {
   propheader = propheader || "";
   if (isObject(testobject) || isObject(actualobject)) {
-    if (typeof testobject !== typeof actualobject) return "object types failed to match: " + (propheader || "entire object");
+    if (typeof testobject !== typeof actualobject)
+      return "object types failed to match: " + (propheader || "entire object");
   }
 
   let prop;
   for (prop in testobject) {
     if (Object.prototype.hasOwnProperty.call(testobject, prop)) {
       if (prop !== "ratings") {
-        if (actualobject[prop] === undefined) return propheader + prop + " not found in database object";
+        if (actualobject[prop] === undefined)
+          return propheader + prop + " not found in database object";
         else if (testobject[prop] instanceof Object) {
           const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
           if (!!msg) return msg;
@@ -182,7 +201,8 @@ export function compare(testobject, actualobject, propheader) {
   for (prop in actualobject) {
     if (Object.prototype.hasOwnProperty.call(actualobject, prop)) {
       if (prop !== "ratings") {
-        if (!testobject[prop]) return propheader + prop + " is not supposed to be viewable, but is in the subscription";
+        if (!testobject[prop])
+          return propheader + prop + " is not supposed to be viewable, but is in the subscription";
         else if (isObject(actualobject[prop])) {
           const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
           if (!!msg) return msg;

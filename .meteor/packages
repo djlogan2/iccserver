@@ -19,25 +19,26 @@ ecmascript@0.14.3              # Enable ECMAScript2015+ syntax in app code
 shell-server@0.5.0            # Server-side component of the `meteor shell` command
 
 accounts-password@1.6.0
-meteortoys:allthings
 reactive-dict@1.3.0
-react-meteor-data
 static-html
 ultimatejs:tracker-react
 universe:i18n
 
-mizzao:user-status
-meteortesting:mocha
 johanbrook:publication-collector
 xolvio:cleaner
 hwillson:stub-collections
 lmieulet:meteor-coverage
 omega:json-protocol
 practicalmeteor:faker
-alanning:roles
-meteortoys:toykit
-msavin:mongol
 aldeed:collection2
 reywood:publish-composite
 meteorhacks:picker
 ostrio:files
+http
+alanning:roles
+meteortesting:mocha
+mizzao:user-status
+react-meteor-data
+meteortoys:toykit
+msavin:mongol
+meteortoys:allthings

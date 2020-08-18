@@ -1,23 +1,14 @@
 import { Game } from "./Game";
-import Engine from "node-uci";
 import { Logger } from "../lib/server/Logger";
-import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { Book } from "./Book";
 import Chess from "chess.js";
 import { Random } from "meteor/random";
 import AWS from "aws-sdk";
-
+import { AWSmanager } from "./awsmanager";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
 const ANALYSIS_THREADS = 1;
-
-// keys are game_ids, or "waiting" for running, but waiting, engines
-const _engines = {
-  analysis: [],
-  position: [],
-  waiting: []
-};
 
 if (!process.env.AWS_ACCESS_KEY_ID) {
   AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: "icc" });
@@ -26,55 +17,13 @@ if (!process.env.AWS_ACCESS_KEY_ID) {
 
 const lambda = new AWS.Lambda();
 
-async function start_engine(game_id, type, skill_level) {
-  log.debug("start_engine " + game_id + ", " + type + "," + skill_level);
-
-  skill_level = skill_level | 20;
-
-  if (type === "analysis") skill_level = 20; // Force this to be sure
-
-  if (!!_engines[type][game_id]) return _engines[type][game_id];
-
-  let engine;
-  if (_engines.waiting && _engines.waiting.length) engine = _engines.waiting.shift();
-  else {
-    log.debug("start_engine " + game_id + " Starting a new engine");
-    engine = new Engine.Engine(SystemConfiguration.enginePath());
-    engine.ourid = Random.id();
-    log.debug("start_engine " + game_id + " Started engine with ourid=" + engine.ourid);
-    // result.id.name = our engines name
-    // Just keep everything in case we want it later
-    _engines.result = await engine.init();
-    await engine.isready();
-  }
-
-  log.debug("start_engine " + game_id + ", " + engine.ourid + ", " + type + "," + skill_level);
-  await engine.setoption("Threads", type === "position" ? 1 : ANALYSIS_THREADS);
-  await engine.isready();
-  await engine.setoption("MultiPV", type === "position" ? 1 : 3);
-  await engine.isready();
-  await engine.setoption("Skill Level", skill_level);
-  await engine.isready();
-
-  await engine.ucinewgame();
-  await engine.isready();
-  _engines[type][game_id] = engine;
-  return engine;
+async function start_engine(game_id) {
+  log.debug("start_engine " + game_id);
+  return AWSmanager.getEngine(game_id, { MultiPV: 3 });
 }
 
-async function stop_engine(game_id, type) {
-  log.debug("stop_engine for game " + game_id + ", " + type);
-  const engine = _engines[type][game_id];
-  if (!engine) return;
-  try {
-    log.debug("stop_engine for engine " + engine.ourid + ", game " + game_id + ", " + type);
-    if (type !== "position") await engine.stop();
-  } catch (e) {
-    log.debug("stop_engine failed stopping for game_id " + game_id + ", error=" + e.toString());
-    // skip any errors on trying to stop an engine
-  }
-  _engines.waiting.push(engine);
-  delete _engines[type][game_id];
+async function stop_engine(game_id) {
+  AWSmanager.releaseEngine(game_id);
 }
 
 const aws_debug = Meteor.bindEnvironment((message, data, userid) =>
@@ -226,7 +175,7 @@ const parseStockfishAnalysisResults = Meteor.bindEnvironment((game_id, data) => 
 
 async function start_analysis(game_id, game) {
   log.debug("start_analysis for " + game_id);
-  const engine = await start_engine(game_id, "analysis");
+  const engine = start_engine(game_id, "analysis");
   if (!engine)
     throw new Meteor.Error(
       "Unable to start analysis",
@@ -234,8 +183,7 @@ async function start_analysis(game_id, game) {
     );
 
   log.debug("start_analysis for " + game_id + ", " + engine.ourid);
-  await engine.position(game.fen);
-  await engine.isready();
+  engine.position(game.fen);
   engine.goInfinite().on("data", data => parseStockfishAnalysisResults(game_id, data));
 }
 
@@ -296,5 +244,5 @@ function watchAllGamesForAnalysis() {
 
 Meteor.startup(() => {
   watchForComputerGames();
-  //watchAllGamesForAnalysis();
+  watchAllGamesForAnalysis();
 });

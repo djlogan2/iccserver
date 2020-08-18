@@ -15,7 +15,6 @@
     <orderEntry type="library" name="@types/jest" level="application" />
     <orderEntry type="library" name="@types/mocha" level="application" />
     <orderEntry type="library" name="@types/assert" level="application" />
-    <orderEntry type="library" name="@types/meteor-publish-composite" level="application" />
     <orderEntry type="library" name="@types/node" level="application" />
   </component>
 </module>
