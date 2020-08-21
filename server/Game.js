@@ -4131,6 +4131,9 @@ Meteor.methods({
   localDenyObserver: (message_identifier, game_id, requestor_id) =>
     global._gameObject.localDenyObserver(message_identifier, game_id, requestor_id),
   // eslint-disable-next-line meteor/audit-argument-checks
+  localAddExaminer: (message_identifier, game_id, id_to_add) =>
+    global._gameObject.localAddExaminer(message_identifier, game_id, id_to_add),
+  // eslint-disable-next-line meteor/audit-argument-checks
   localAddObserver: (message_identifier, game_id, id_to_add) =>
     global._gameObject.localAddObserver(message_identifier, game_id, id_to_add),
   // eslint-disable-next-line meteor/audit-argument-checks
