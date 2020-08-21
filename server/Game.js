@@ -4134,6 +4134,9 @@ Meteor.methods({
   localAddExaminer: (message_identifier, game_id, id_to_add) =>
     global._gameObject.localAddExaminer(message_identifier, game_id, id_to_add),
   // eslint-disable-next-line meteor/audit-argument-checks
+  localRemoveExaminer: (message_identifier, game_id, id_to_remove) =>
+    global._gameObject.localAddExaminer(message_identifier, game_id, id_to_remove),
+  // eslint-disable-next-line meteor/audit-argument-checks
   localAddObserver: (message_identifier, game_id, id_to_add) =>
     global._gameObject.localAddObserver(message_identifier, game_id, id_to_add),
   // eslint-disable-next-line meteor/audit-argument-checks
