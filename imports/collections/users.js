@@ -1,7 +1,12 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check, Match } from "meteor/check";
-import { all_roles, fields_viewable_by_account_owner, standard_member_roles, viewable_logged_on_user_fields } from "../server/userConstants";
+import {
+  all_roles,
+  fields_viewable_by_account_owner,
+  standard_member_roles,
+  viewable_logged_on_user_fields
+} from "../server/userConstants";
 import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
@@ -15,7 +20,10 @@ export const Users = {};
 
 Meteor.publishComposite("loggedOnUsers", {
   find() {
-    return Meteor.users.find({ _id: this.userId, "status.online": true }, { fields: { isolation_group: 1, _id: 1, username: 1 } });
+    return Meteor.users.find(
+      { _id: this.userId, "status.online": true },
+      { fields: { isolation_group: 1, _id: 1, username: 1 } }
+    );
   },
   children: [
     {
@@ -23,7 +31,16 @@ Meteor.publishComposite("loggedOnUsers", {
       find(user) {
         if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
         else {
-          return Meteor.users.find({ $and: [{ "status.online": true }, { _id: { $ne: user._id } }, { isolation_group: user.isolation_group }] }, { fields: viewable_logged_on_user_fields });
+          return Meteor.users.find(
+            {
+              $and: [
+                { "status.online": true },
+                { _id: { $ne: user._id } },
+                { isolation_group: user.isolation_group }
+              ]
+            },
+            { fields: viewable_logged_on_user_fields }
+          );
         }
       }
     }
@@ -63,7 +80,10 @@ Accounts.onCreateUser(function(options, user) {
       lastname: options.profile.lastname || "?"
     };
 
-    if (options.profile.legacy && (options.profile.legacy.username || options.profile.legacy.password))
+    if (
+      options.profile.legacy &&
+      (options.profile.legacy.username || options.profile.legacy.password)
+    )
       user.profile.legacy = {
         username: options.profile.legacy.username,
         validated: false,
@@ -76,8 +96,9 @@ Accounts.onCreateUser(function(options, user) {
   user.settings = default_settings;
   user.locale = "unknown";
   user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
-  user.roles = [];
-  standard_member_roles.forEach(role => user.roles.push({ _id: role, scope: null, assigned: true }));
+  user.newguy = true;
+  // user.roles = [];
+  // standard_member_roles.forEach(role => user.roles.push({ _id: role, scope: null, assigned: true }));
 
   if (!user.status) user.status = {};
   user.status.game = "none";
@@ -86,6 +107,13 @@ Accounts.onCreateUser(function(options, user) {
   return user;
 });
 
+// Meteor.users.find().observeChanges({
+//   added(id) {
+//     console.log("Adding roles to new user");
+//     Roles.addUsersToRoles(id, standard_member_roles);
+//   }
+// });
+
 Users.setGameStatus = function(message_identifier, user, status) {
   check(message_identifier, String);
   check(user, Match.OneOf(Object, String));
@@ -93,7 +121,12 @@ Users.setGameStatus = function(message_identifier, user, status) {
 
   if (typeof user === "object") user = user._id;
 
-  if (["examining", "observing", "playing", "none"].indexOf(status) === -1) throw new ICCMeteorError(message_identifier, "Unable to set users game status", "Invalid status");
+  if (["examining", "observing", "playing", "none"].indexOf(status) === -1)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to set users game status",
+      "Invalid status"
+    );
   Meteor.users.update({ _id: user, "status.online": true }, { $set: { "status.game": status } });
 };
 
@@ -120,7 +153,8 @@ Users.isAuthorized = function(user, roles, scope) {
   check(roles, Match.OneOf(Array, String));
   if (!Array.isArray(roles)) roles = [roles];
 
-  if (Roles.userIsInRole(user, ["developer"], scope)) return !roles.some(role => role === "child_chat");
+  if (Roles.userIsInRole(user, ["developer"], scope))
+    return !roles.some(role => role === "child_chat");
   else return Roles.userIsInRole(user, roles, scope);
 };
 
@@ -145,12 +179,17 @@ function runLogoutHooks(context, user) {
 }
 
 Meteor.startup(function() {
-  const users = Meteor.users.find({ isolation_group: { $exists: false } }, { fields: { _id: 1 } }).fetch();
+  const users = Meteor.users
+    .find({ isolation_group: { $exists: false } }, { fields: { _id: 1 } })
+    .fetch();
   Roles.createRole("kibitz", { unlessExists: true });
   Roles.createRole("room_chat", { unlessExists: true });
   Roles.createRole("personal_chat", { unlessExists: true });
   Roles.addUsersToRoles(users, ["kibitz", "room_chat", "personal_chat"]);
-  Meteor.users.update({ isolation_group: { $exists: false } }, { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } });
+  Meteor.users.update(
+    { isolation_group: { $exists: false } },
+    { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } }
+  );
   if (Meteor.isTest || Meteor.isAppTest) {
     Users.runLoginHooks = runLoginHooks;
     Users.ruLogoutHooks = runLogoutHooks;
@@ -187,6 +226,11 @@ Accounts.validateLoginAttempt(function(params) {
       .replace("_", "-");
     Meteor.users.update({ _id: params.user._id }, { $set: { locale: acceptLanguage } });
     params.user.locale = acceptLanguage;
+  }
+
+  if (params.user.newguy) {
+    Meteor.users.update({ _id: params.user._id }, { $unset: { newguy: 1 } });
+    Roles.addUsersToRoles(params.user, standard_member_roles);
   }
 
   if (!Users.isAuthorized(params.user, "login")) {
