@@ -11,7 +11,7 @@ import { UCI } from "../../server/UCI";
 import { Timestamp } from "../../lib/server/timestamp";
 import { Game } from "../../server/Game";
 import { DynamicRatings } from "../../server/DynamicRatings";
-import { all_roles } from "./userConstants";
+import { all_roles, standard_member_roles } from "./userConstants";
 import { Users } from "../collections/users";
 
 export const TestHelpers = {};
@@ -43,10 +43,12 @@ if (Meteor.isTest || Meteor.isAppTest) {
     const id = Accounts.createUser(userRecord);
     userRecord._id = id;
 
+    all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+
     if (!!options.roles) {
       options.roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
       Roles.setUserRoles(id, options.roles);
-    }
+    } else Roles.setUserRoles(id, standard_member_roles);
 
     const setobject = {};
     setobject["status.online"] = options.login === undefined || options.login;

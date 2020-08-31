@@ -1,4 +1,7 @@
-describe("AWS Stockfish", function(){
+import chai from "chai";
+import { Awsmanager } from "./awsmanager";
+
+describe("AWS Stockfish", function() {
   // manager
   //    get all instances
   //    for each instance
@@ -7,23 +10,43 @@ describe("AWS Stockfish", function(){
   //    watch games and users
   //       increase number of available engines when threshholds are met
   //       decrease number of available engines when threshholds are met
-  it("should start a new instance when game/user/engine threshhold is met", function(){});
-  it("should add an instance to the five minute shutdown queue when game/user/engine threshhold is met", function(){});
-  it("should shut down an instance five minutes after it's been marked for termination", function(){});
+  it.only("should start a new instance when game/user/engine threshhold is met", function() {
+    this.timeout(500000);
+    const aws = Awsmanager;
+    console.log("here");
+  });
+  it("should add an instance to the five minute shutdown queue when game/user/engine threshhold is met", function() {
+    chai.assert.fail("do me");
+  });
+  it("should shut down an instance five minutes after it's been marked for termination", function() {
+    chai.assert.fail("do me");
+  });
   //
   //    await engine request
   //       return an engine from an instance with the fewest available
   //       return an engine from an instance on its way up
   //       Start an instance, and return an engine from this upcoming
-  it("should return an engine if one is available, from the instance with the fewest available engines", function(){});
-  it("should start a new instance if the number of available engines fall below the thresshold after allocating one", function(){});
-  it("should wait for a new instance if we happen to have no engines available", function(){});
-  it("should wait for an instance that is already on its way up if there is one", function(){});
+  it("should return an engine if one is available, from the instance with the fewest available engines", function() {
+    chai.assert.fail("do me");
+  });
+  it("should start a new instance if the number of available engines fall below the thresshold after allocating one", function() {
+    chai.assert.fail("do me");
+  });
+  it("should wait for a new instance if we have no engines available", function() {
+    chai.assert.fail("do me");
+  });
+  it("should wait for an instance that is already on its way up if there is one", function() {
+    chai.assert.fail("do me");
+  });
   //
   //    engine release
   //       add this engine back to the available queue
-  it("should make the engine available when releasing an engine", function(){});
-  it("should mark an instance for termination when releasing an engine causes game/user/engine to fall below the thresshold", function(){});
+  it("should make the engine available when releasing an engine", function() {
+    chai.assert.fail("do me");
+  });
+  it("should mark an instance for termination when releasing an engine causes game/user/engine to fall below the thresshold", function() {
+    chai.assert.fail("do me");
+  });
   //
   //    when an instance is terminated outside of our control
   //    or when we get a spot instance warning
@@ -31,10 +54,21 @@ describe("AWS Stockfish", function(){
   //       for all engines in use, find alternative engines (from above calls)
   //       notify new engine to get up to speed from old engine
   //       update number of available engines based on threshholds
-  it("should move all engines from a dying instance to other places", function(){});
-  it("should start a new instance if it has to in order to move engines from a dying instance to another one", function(){});
-  it("will ask engines to transfer it's current status from the dying ones to new ones", function(){});
-  it("will update the number of available engines after a 'dying' adjustment", function(){});
+  it("should move all engines from a dying instance to other places", function() {
+    chai.assert.fail("do me");
+  });
+  it("should start a new instance if it has to in order to move engines from a dying instance to another one", function() {
+    chai.assert.fail("do me");
+  });
+  it("will ask engines to transfer it's current status from the dying ones to new ones", function() {
+    chai.assert.fail("do me");
+  });
+  it("will update the number of available engines after a 'dying' adjustment", function() {
+    chai.assert.fail("do me");
+  });
+  it("will restart operation on new engine when it was required to be moved", function() {
+    chai.assert.fail("do me");
+  });
   //
   //    when an instance is created
   //       do the same thing for "for each instance" above - that is, check, install, set, etc.
@@ -68,8 +102,27 @@ describe("AWS Stockfish", function(){
   //       sets the state to terminating, which will cause uci commands to await
   // connector
   //    ...
-  it("")
+  it("");
   // instance
   // engine
   // connector
+
+  //
+  // distributed network
+  //
+  it("should allow a user machine to join the network and be used", function() {
+    chai.assert.fail("do me");
+  });
+  it("should add a user machine to the queue when it connects", function() {
+    chai.assert.fail("do me");
+  });
+  it("should make user machines highest priority above aws instances", function() {
+    chai.assert.fail("do me");
+  });
+  it("should notice when a user machine leaves (by virtue of not getting a timed update)", function() {
+    chai.assert.fail("do me");
+  });
+  it("should handle the move from user machine when user machine leaves", function() {
+    chai.assert.fail("do me");
+  });
 });

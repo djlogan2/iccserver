@@ -28,6 +28,6 @@
     "server/main_js": "ERROR",
     "server/timestamp_js": "ERROR",
     "server/UCI": "ERROR",
-    "server/users_js": "ERROR",
+    "server/users_js": "DEBUG",
     "TimestampServer": "WARN"
 }
