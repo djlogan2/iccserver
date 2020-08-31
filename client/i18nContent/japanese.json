@@ -1,0 +1,53 @@
+{
+    "Common":{
+      "HomeContainer":{"mainContent":"お忘れ"},
+      "loginForm":{
+        "login":"お忘れでですか",
+        "email":"パスワードをお忘れですか",
+        "password":"パ-ードをお忘",
+        "submit":"忘れです忘れです"
+      },
+      "signupForm":{
+        "signup":"お忘れでですか",
+        "name":"ードをお忘",
+        "email":"をお忘 ドをお忘",
+        "password":"をお忘 ドを",
+        "submit":"忘 ドを"
+      },
+      "rightBarTop":{
+        "game":"ドを",
+        "play":"ドをay",
+        "tournaments":"ドをドを",
+        "quikpairing":"ドをドを",
+        "seekgame":"ドをドをドをドを",
+        "matchuser":"ドドド"
+      },
+      "rightBarBottom":{
+        "chat":"ドを",
+        "events":"ドをay",
+        "friends":"ドをドを",
+        "fen_pgn":"FEN/PGN",
+        "history":"ドをドを"
+      },
+      "menuLinkLabel":{
+        "play":"ドを",
+        "learn":"ドをaドをr",
+        "connect":"ドを",
+        "examine":"ドを",
+        "topPlayers":"とあ事片そ",
+        "logIn":"ドを ドをドを",
+        "singUp":"とあ事片そ",
+        "help":"ドを",
+        "mygame":"ドを ド"
+      },
+      "MoveListComponent":{
+        "takeBack":"とあ事片",
+        "draw":"とあ片そ",
+        "resign":"とあ事",
+        "abort":"とあ片そ",
+        "Gamestatus":"とあ片そ",
+        "examining":"Exaとあ片そmining",
+        "playing":"とあ片"
+      }
+    }
+  }

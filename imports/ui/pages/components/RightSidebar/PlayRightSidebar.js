@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import { Form, Tabs, Button, Radio } from "antd";
+import { Form, Tabs, Button, Radio, InputNumber } from "antd";
 import KibitzChatApp from "./../Chat/KibitzChatApp";
 import PersonalChatApp from "./../Chat/PersonalChatApp";
 import GameHistory from "./elements/GameHistory";
@@ -41,7 +41,10 @@ class PlayChooseBot extends Component {
     super();
     this.state = {
       difficulty: 5,
-      color: "random"
+      color: "random",
+      incrementOrDelayType: "none",
+      initial: 7,
+      incrementOrDelay: 0
     };
   }
   handleChangeDifficulty = e => {
@@ -53,6 +56,15 @@ class PlayChooseBot extends Component {
     this.setState({
       color: e.target.value
     });
+  };
+  handleChangeIncrementOrDeleyType = e => {
+    this.setState({
+      incrementOrDelayType: e.target.value
+    });
+  };
+
+  handleChange = e => {
+    this.setState({});
   };
   handlePlay = () => {
     let color = this.state.color;
@@ -75,7 +87,11 @@ class PlayChooseBot extends Component {
         </div>
         <Form className="play-bot__form" layout="vertical">
           <Form.Item label="Difficulty" name="difficulty">
-            <Radio.Group onChange={this.handleChangeDifficulty} defaultValue={this.state.difficulty} value={this.state.difficulty}>
+            <Radio.Group
+              onChange={this.handleChangeDifficulty}
+              defaultValue={this.state.difficulty}
+              value={this.state.difficulty}
+            >
               <Radio.Button value={0}>0</Radio.Button>
               <Radio.Button value={1}>1</Radio.Button>
               <Radio.Button value={2}>2</Radio.Button>
@@ -90,11 +106,44 @@ class PlayChooseBot extends Component {
             </Radio.Group>
           </Form.Item>
           <Form.Item label="Color" name="color">
-            <Radio.Group onChange={this.handleChangeColor} defaultValue={this.state.color} value={this.state.color}>
+            {/* ["none", "us", "bronstein", "inc"] */}
+            <Radio.Group
+              onChange={this.handleChangeColor}
+              defaultValue={this.state.color}
+              value={this.state.color}
+            >
               <Radio.Button value={"random"}>Random</Radio.Button>
               <Radio.Button value={"white"}>White</Radio.Button>
               <Radio.Button value={"black"}>Black</Radio.Button>
             </Radio.Group>
+          </Form.Item>
+          <Form.Item label="Time control" name="time-control">
+            <Radio.Group
+              onChange={this.handleChangeIncrementOrDelayType}
+              defaultValue={this.state.incrementOrDelayType}
+              value={this.state.incrementOrDelayType}
+            >
+              <Radio.Button value={"none"}>none</Radio.Button>
+              <Radio.Button value={"us"}>us</Radio.Button>
+              <Radio.Button value={"bronstein"}>bronstein</Radio.Button>
+              <Radio.Button value={"inc"}>inc</Radio.Button>
+            </Radio.Group>
+            <Form.Item label="minutes" name="initial">
+              <InputNumber
+                min={0}
+                defaultValue={this.state.initial}
+                value={this.state.initial}
+                onChange={this.handleChange}
+              />
+            </Form.Item>
+            <Form.Item label="minutes" name="incrementOrDelay">
+              <InputNumber
+                min={0}
+                defaultValue={this.state.incrementOrDelay}
+                value={this.state.incrementOrDelay}
+                onChange={this.handleChange}
+              />
+            </Form.Item>
           </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
             Start the game
@@ -150,26 +199,29 @@ class PlayBlock extends Component {
     //   black_increment_or_delay_type,
     //   color,
     //   skill_level
-    Meteor.call(
-      "startBotGame",
-      "play_computer",
-      0,
-      "blitz",
-      5,
-      0,
-      "none",
-      5,
-      0,
-      "none",
-      skillLevel,
-      color,
-      err => {
-        if (err) {
-          debugger;
-        }
-      }
-    );
+
+    this.props.onBotPlay(0, "blitz", 5, 0, "none", 5, 0, "none", skillLevel, color);
     this.setState({ status: "playing" });
+    // Meteor.call(
+    //   "startBotGame",
+    //   "play_computer",
+    //   0,
+    //   "blitz",
+    //   5,
+    //   0,
+    //   "none",
+    //   5,
+    //   0,
+    //   "none",
+    //   skillLevel,
+    //   color,
+    //   err => {
+    //     if (err) {
+    //       debugger;
+    //     }
+    //   }
+    // );
+
   };
 
   render() {
@@ -281,6 +333,7 @@ export default class PlayRightSidebar extends Component {
               userGameStatus={
                 this.props.user && this.props.user.status && this.props.user.status.game
               }
+              onBotPlay={this.props.onBotPlay}
               usersToPlayWith={this.props.usersToPlayWith}
               onChooseFriend={this.props.onChooseFriend}
               cssManager={this.props.cssManager}

@@ -9,4 +9,5 @@ export const GameRequestCollection = new Mongo.Collection("game_requests");
 export const ClientMessagesCollection = new Mongo.Collection("client_messages");
 export const GameHistoryCollection = new Mongo.Collection("game_history");
 export const ImportedGameCollection = new Mongo.Collection("imported_games");
+export const I18nFrontCollection = new Mongo.Collection("i18n_front");
 

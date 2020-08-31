@@ -53,7 +53,7 @@ export default class SignUpPage extends Component {
               <h1 className="text-center">{translator("signup")}</h1>
             </div>
             <div className="modal-body">
-              {error.length > 0 ? <div className="alert alert-danger fade in">{error}</div> : ""}
+              {(error && error.length > 0) ? <div className="alert alert-danger fade in">{error}</div> : ""}
               <form
                 id="login-form"
                 className="form col-md-12 center-block"

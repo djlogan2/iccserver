@@ -1,0 +1,32 @@
+{
+    "Common":{
+      "HomeContainer":{"mainContent":"xxxx"},
+      "loginForm":{
+        "login":"Добро пожаловать в пожа пожаxc ловатьлов ать !",
+        "email":"пожаловать",
+        "password":"passwпожаxc",
+        "submit":"ать"
+      },
+      "signupForm":{
+        "signup":"пожа пожаxc",
+        "name":"по жаxc",
+        "email":"пожаловать",
+        "password":"passwпожаxc",
+        "submit":"ать"
+      },
+      "MatchUserSubTab":{"friends":"пожвать","recentOpponent":"ватьпожвать"},
+      "GameForm":{
+        "timeControl":"passwпожаxc",
+        "minutes":"passwпожаxc",
+        "secondPerMove":"Spasswпожаxcove",
+        "typeOfGame":"ловатьловать",
+        "rated":"пожаь",
+        "pickAcolor":"пожа л овать",
+        "white":"пожаловать",
+        "black":"пожвать",
+        "random":"пожа ловать",
+        "submit":"пожаx"
+      },
+      "chatBoxMessage":{"NEW_MESSAGE":"пожа ловать"}
+    }
+  }

@@ -287,6 +287,7 @@ export default class PlayPage extends Component {
             game={this.props.game}
             usersToPlayWith={this.props.usersToPlayWith}
             onChooseFriend={this.props.onChooseFriend}
+            onBotPlay={this.props.onBotPlay}
             cssManager={this.props.cssManager}
             flip={this._flipboard}
             RightSidebarData={this.Main.RightSection}

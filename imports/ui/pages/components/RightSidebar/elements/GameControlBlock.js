@@ -34,6 +34,7 @@ class LocationControls extends Component {
     }
   };
 
+
   moveBackword = () => {
     Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, handleError);
   };

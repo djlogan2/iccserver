@@ -18,7 +18,8 @@ import {
   GameHistoryCollection,
   GameRequestCollection,
   mongoCss,
-  mongoUser
+  mongoUser,
+  I18nFrontCollection
 } from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
@@ -107,12 +108,16 @@ class Play extends Component {
     this.userpending = null;
     this.state = {
       gameId: null,
+      gameUserId: null,
+      gameType: null,
+      gameData: null,
       GameHistory: null,
       subscription: {
         css: Meteor.subscribe("css"),
         //game: Meteor.subscribe("playing_games"),
         game: Meteor.subscribe("games"),
         chats: Meteor.subscribe("chat"),
+        i18n: Meteor.subscribe("i18n_front"),
         users: Meteor.subscribe("loggedOnUsers"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
@@ -313,6 +318,43 @@ class Play extends Component {
     });
   }
 
+  handleRematch = gameId => {
+    // Meteor.call(
+    //   "rematchRequest",
+    //   "rematchRequest",
+    //   userId
+    // );
+
+    if (this.state.gameType === "startBotGame") {
+      let {
+        wild_number,
+        rating_type,
+        white_initial,
+        white_increment_or_delay,
+        white_increment_or_delay_type,
+        black_initial,
+        black_increment_or_delay,
+        black_increment_or_delay_type,
+        skill_level,
+        color
+      } = this.state.gameData;
+      this.handleBotPlay(
+        wild_number,
+        rating_type,
+        white_initial,
+        white_increment_or_delay,
+        white_increment_or_delay_type,
+        black_initial,
+        black_increment_or_delay,
+        black_increment_or_delay_type,
+        skill_level,
+        color
+      );
+    } else {
+      this.handleChooseFriend();
+    }
+  }
+
   handleChooseFriend = userId => {
     const defaultData = {
       user: null,
@@ -326,6 +368,8 @@ class Play extends Component {
       incOrdelayType: "inc",
       color: null
     };
+
+    this.setState({gameType: "addLocalMatchRequest", gameData: null, gameUserId: userId});
 
     Meteor.call(
       "addLocalMatchRequest",
@@ -344,6 +388,58 @@ class Play extends Component {
       defaultData.color,
       handleError
     );
+  };
+
+  handleBotPlay = (
+    wild_number,
+    rating_type,
+    white_initial,
+    white_increment_or_delay,
+    white_increment_or_delay_type,
+    black_initial,
+    black_increment_or_delay,
+    black_increment_or_delay_type,
+    skill_level,
+    color
+    ) => {
+
+    let data = {
+      wild_number,
+      rating_type,
+      white_initial,
+      white_increment_or_delay,
+      white_increment_or_delay_type,
+      black_initial,
+      black_increment_or_delay,
+      black_increment_or_delay_type,
+      skill_level,
+      color
+    };
+
+    let that = this;
+
+
+    Meteor.call(
+      "startBotGame",
+      "play_computer",
+      wild_number,
+      rating_type,
+      white_initial,
+      white_increment_or_delay,
+      white_increment_or_delay_type,
+      black_initial,
+      black_increment_or_delay,
+      black_increment_or_delay_type,
+      skill_level,
+      color,
+      err => {
+        if (err) {
+          debugger;
+        }
+        that.setState({gameType: "startBotGame", gameData: data, gameUserId: null});
+      }
+    );
+    // this.setState({ status: "playing" });
   };
 
   render() {
@@ -430,11 +526,12 @@ class Play extends Component {
           gameId={this.gameId}
           opponentName={opponentName}
           opponentId={opponentId}
-          onRematch={this.handleChooseFriend}
+          onRematch={this.handleRematch}
           onExamine={this.handleExamine}
 
+          clientMessages={this.props.client_messages}
+
           isWhiteCheckmated={isWhiteCheckmated}
-          // isWhiteCheckmated={this.state.test}
           isBlackCheckmated={isBlackCheckmated}
           isWhiteStalemated={isWhiteStalemated}
           isBlackStalemated={isBlackStalemated}
@@ -456,6 +553,7 @@ class Play extends Component {
           gameId={this.gameId}
           usersToPlayWith={this.props.usersToPlayWith}
           onChooseFriend={this.handleChooseFriend}
+          onBotPlay={this.handleBotPlay}
           // fen={this._board.fen()}
           capture={capture}
           //len={actionlen}
