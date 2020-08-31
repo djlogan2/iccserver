@@ -42,7 +42,7 @@
     "date-and-time": "^0.12.0",
     "faker": "^4.1.0",
     "fingerprintjs2": "^2.1.2",
-    "icclegacy": "file:../icclegacy/",
+    "icclegacy": "file:../icclegacy",
     "indexof": "0.0.1",
     "is-whitespace-character": "^1.0.4",
     "lodash": "^4.17.19",

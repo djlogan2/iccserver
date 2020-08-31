@@ -6,6 +6,7 @@ const { Search } = Input;
 
 const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
   let ownerData = !!game.observers ? game.observers.find(item => item.id === game.owner) : null;
+
   return (
     <div className="examine-observer-tab-block">
       <div className="examine-observer-tab-block__head">
@@ -46,28 +47,86 @@ const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
   );
 };
 
-const ExamineOwnerTabBlock = ({ game }) => {
+const ExamineOwnerTabBlock = ({game }) => {
+  let userId = Meteor.userId();
+  const handleAddExaminer = (game_id, id_to_add) => {
+    // localAddExaminer: (message_identifier, game_id, id_to_add)
+    // localRemoveExaminer: (message_identifier, game_id, id_to_remove) 
+    return () => {
+      Meteor.call("localAddExaminer", "localAddExaminer", game_id, id_to_add, (error, response) => {
+        if (error) {
+          debugger;
+        }
+      });
+    }
+  }
+  const handleRemoveExaminer = (game_id, id_to_remove) => {
+    // localAddExaminer: (message_identifier, game_id, id_to_add)
+    // localRemoveExaminer: (message_identifier, game_id, id_to_remove) 
+    return () => {
+      Meteor.call("localRemoveExaminer", "localRemoveExaminer", game_id, id_to_remove, (error, response) => {
+        if (error) {
+          debugger;
+        }
+      });
+    }
+  }
+
+  if (game.owner === userId) {
+    return (
+      <div className="examine-owner-tab-block">
+        <div className="examine-owner-tab-block__head">
+          {/* <div className="examine-owner-tab-block__name"> */}
+          {/* <h2 className="examine-owner-tab-block__name-title">{ownerData.username}</h2> */}
+          {/* </div> */}
+          <span className="examine-owner-tab-block__head-right">{game.observers.length - 1} people are observing your board</span>
+        </div>
+        <ul className="examine-owner-tab-block__list">
+          {game.observers.map(observerItem => {
+            if (game.owner === observerItem.id) {
+              return null;
+            }
+            if (userId === observerItem.id) {
+              return null;
+            }
+            let isExaminer = game.examiners.filter(examinerItem => examinerItem.id === observerItem.id).length > 0;
+            return (
+              <li key={observerItem.username} className="examine-owner-tab-block__list-item">
+                {isExaminer ? (
+                  <button onClick={handleRemoveExaminer(game._id, observerItem.id)} className="examine-observer-tab-block__list-item__move-pieces-btn examine-observer-tab-block__list-item__move-pieces-btn--active"></button>
+                ) : (
+                    <button onClick={handleAddExaminer(game._id, observerItem.id)} className="examine-observer-tab-block__list-item__move-pieces-btn"></button>
+                  )}
+                {observerItem.username}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )
+  }
+
   return (
     <div className="examine-owner-tab-block">
-      <div className="examine-owner-tab-block__head">
-        {/* <div className="examine-owner-tab-block__name"> */}
-        {/* <h2 className="examine-owner-tab-block__name-title">{ownerData.username}</h2> */}
-        {/* </div> */}
-        <span className="examine-owner-tab-block__head-right">{game.observers.length - 1} people are observing your board</span>
+        <div className="examine-owner-tab-block__head">
+          <span className="examine-owner-tab-block__head-right">{game.observers.length - 1} people are observing this board</span>
+        </div>
+        <ul className="examine-owner-tab-block__list">
+          {game.observers.map(observerItem => {
+            if (game.owner === observerItem.id) {
+              return null;
+            }
+            if (userId === observerItem.id) {
+              return null;
+            }
+            return (
+              <li key={observerItem.username} className="examine-owner-tab-block__list-item">
+                {observerItem.username}
+              </li>
+            );
+          })}
+        </ul>
       </div>
-      <ul className="examine-owner-tab-block__list">
-        {game.observers.map(observerItem => {
-          if (game.owner === observerItem.id) {
-            return null;
-          }
-          return (
-            <li key={observerItem.username} className="examine-owner-tab-block__list-item">
-              {observerItem.username}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
   );
 };
 
@@ -125,7 +184,7 @@ export default class ExamineObserveTab extends Component {
       <div className="examine-observer-tab">
         {!isShowing && !isObserving && <AutoComplete options={options} style={{ width: 200 }} onSelect={this.handleSelect} onSearch={this.handleSearch} placeholder="Find user to observe" />}
         {isObserving && <ExamineObserverTabBlock game={this.props.game} userId={this.props.userId} unObserveUser={this.props.unObserveUser} />}
-        {isShowing && <ExamineOwnerTabBlock game={this.props.game} />}
+        {isShowing && <ExamineOwnerTabBlock userId={this.props.userId} game={this.props.game} />}
       </div>
     );
   }

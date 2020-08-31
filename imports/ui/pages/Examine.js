@@ -136,9 +136,12 @@ class Examine extends Component {
   }
 
   componentWillUpdate() {
-    if (this.props.user && this.props.user.status && this.props.user.status.game === "playing") {
-      this.props.history.push("/play");
+    if (this.props.user && this.props.user.status) {
+      if (this.props.user.status.game === "playing") {
+        this.props.history.push("/play");
+      }
     }
+    
   }
 
   componentDidMount() {

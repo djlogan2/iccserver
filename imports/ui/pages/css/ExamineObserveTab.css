@@ -41,6 +41,7 @@
 }
 
 .examine-observer-tab-block__list-item {
+  display: flex;
   padding: .8rem 0;
   margin: 0;
   border-bottom: 1px solid rgba(91, 103, 133, 0.5);
@@ -50,6 +51,24 @@
   font-weight: normal;
   font-size: 16px;
   line-height: 19px;
+}
+.examine-observer-tab-block__list-item__move-pieces-btn {
+  background: url(images/move-icon.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 0;
+  height: 2rem;
+  width: 3rem;
+  outline: none;
+}
+
+.examine-observer-tab-block__list-item__move-pieces-btn--active {
+  background: url(images/move-icon-active.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  border: 0;
+  height: 2rem;
+  width: 3rem;
 }
 
 .examine-owner-tab-block__list {

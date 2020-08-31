@@ -22,6 +22,16 @@
     flex-shrink: 0;
 }
 
+
+.play-right-sidebar__inc-deley-wrap {
+    display: flex;
+    margin-top: 2rem;
+}
+
+.play-right-sidebar__inc-deley-wrap .ant-form-item {
+    margin-right: 2rem;
+}
+
 .ant-tabs .ant-tabs-top-content {
     height: 100%;
     overflow: auto;

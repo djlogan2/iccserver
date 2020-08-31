@@ -25,6 +25,15 @@ import { TimestampClient } from "../../../lib/Timestamp";
 
 const logger = new Logger("client/AppContainer");
 
+const EXAMINING_QUOTE = {
+  $or: [
+    { "black.id": Meteor.userId() },
+    { "white.id": Meteor.userId() },
+    { "observers.id": Meteor.userId() },
+    { owner: Meteor.userId() }
+  ]
+};
+
 let handleError = error => {
   if (error) {
     logger.error(error);
@@ -355,7 +364,7 @@ class Play extends Component {
     }
   }
 
-  handleChooseFriend = userId => {
+  handleChooseFriend = ({friendId, options}) => {
     const defaultData = {
       user: null,
       userId: null,
@@ -368,24 +377,25 @@ class Play extends Component {
       incOrdelayType: "inc",
       color: null
     };
+    let {color, initial, incrementOrDelayType, incrementOrDelay} = options;
 
-    this.setState({gameType: "addLocalMatchRequest", gameData: null, gameUserId: userId});
+    this.setState({gameType: "addLocalMatchRequest", gameData: null, gameUserId: friendId});
 
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
-      userId,
+      friendId,
       defaultData.wild_number,
       defaultData.rating_type,
       defaultData.rated,
       defaultData.is_adjourned,
-      defaultData.time,
-      defaultData.inc,
-      defaultData.incOrdelayType,
-      defaultData.time,
-      defaultData.inc,
-      defaultData.incOrdelayType,
-      defaultData.color,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      color,
       handleError
     );
   };
@@ -445,6 +455,11 @@ class Play extends Component {
   render() {
     const gameRequest = this.props.game_request;
     let game = this.props.game_playing;
+
+    if (this.props.user && this.props.user.status && this.props.user.status.game === "examining") {
+      game = this.props.examine_game[0];
+    }
+
     let circles = [];
     //let actionlen;
     let gameExamin = [];
@@ -582,7 +597,7 @@ export default withTracker(props => {
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
       .fetch(),
-    examine_game: Game.find({ "observers.id": Meteor.userId() }).fetch(),
+    examine_game: Game.find(EXAMINING_QUOTE).fetch(),
     game_request: GameRequestCollection.findOne(
       {
         $or: [

@@ -36,6 +36,111 @@ const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
   );
 };
 
+class PlayFriendOptions extends Component {
+  constructor() {
+    super();
+    this.state = {
+      color: "random",
+      incrementOrDelayType: "none",
+      initial: 7,
+      incrementOrDelay: 0
+    };
+  }
+  handleChangeDifficulty = e => {
+    this.setState({
+      difficulty: e.target.value
+    });
+  };
+  handleChangeColor = e => {
+    this.setState({
+      color: e.target.value
+    });
+  };
+  handleChangeIncrementOrDelayType = e => {
+    this.setState({
+      incrementOrDelayType: e.target.value
+    });
+  };
+
+  handleChange = e => {
+    this.setState({});
+  };
+  handlePlay = () => {
+    let color = this.state.color;
+
+    if (color === "random") {
+      color = Math.random() < 0.5 ? "white" : "black";
+    }
+    this.props.onPlay({
+      skillLevel: this.state.difficulty,
+      color: color,
+      incrementOrDelayType: this.state.incrementOrDelayType,
+      initial: this.state.initial,
+      incrementOrDelay: this.state.incrementOrDelay
+    });
+  };
+  render() {
+    let { onClose } = this.props;
+    return (
+      <div className="play-friend">
+        <div className="play-friend__head">
+          <h2 className="play-friend__name-title">Create game</h2>
+          <Button onClick={onClose}>Back</Button>
+        </div>
+        <Form className="play-bot__form" layout="vertical">
+          <Form.Item label="Time control" name="time-control">
+            <Radio.Group
+              onChange={this.handleChangeIncrementOrDelayType}
+              defaultValue={this.state.incrementOrDelayType}
+              value={this.state.incrementOrDelayType}
+            >
+              <Radio.Button value={"none"}>none</Radio.Button>
+              <Radio.Button value={"us"}>us</Radio.Button>
+              <Radio.Button value={"bronstein"}>bronstein</Radio.Button>
+              <Radio.Button value={"inc"}>inc</Radio.Button>
+            </Radio.Group>
+            <div className="play-right-sidebar__inc-deley-wrap">
+              <Form.Item label="Initial" name="initial">
+                <InputNumber
+                  min={0}
+                  disabled={this.state.incrementOrDelayType === "none"}
+                  defaultValue={this.state.initial}
+                  value={this.state.initial}
+                  onChange={this.handleChange}
+                />
+              </Form.Item>
+              <Form.Item label="increment or delay" name="incrementOrDelay">
+                <InputNumber
+                  min={0}
+                  disabled={this.state.incrementOrDelayType === "none"}
+                  defaultValue={this.state.incrementOrDelay}
+                  value={this.state.incrementOrDelay}
+                  onChange={this.handleChange}
+                />
+              </Form.Item>
+            </div>
+          </Form.Item>
+          <Form.Item label="Color" name="color">
+            {/* ["none", "us", "bronstein", "inc"] */}
+            <Radio.Group
+              onChange={this.handleChangeColor}
+              defaultValue={this.state.color}
+              value={this.state.color}
+            >
+              <Radio.Button value={"random"}>Random</Radio.Button>
+              <Radio.Button value={"white"}>White</Radio.Button>
+              <Radio.Button value={"black"}>Black</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
+          <Button type="primary" onClick={this.handlePlay}>
+            Start the game
+          </Button>
+        </Form>
+      </div>
+    );
+  }
+}
+
 class PlayChooseBot extends Component {
   constructor() {
     super();
@@ -57,7 +162,7 @@ class PlayChooseBot extends Component {
       color: e.target.value
     });
   };
-  handleChangeIncrementOrDeleyType = e => {
+  handleChangeIncrementOrDelayType = e => {
     this.setState({
       incrementOrDelayType: e.target.value
     });
@@ -74,7 +179,10 @@ class PlayChooseBot extends Component {
     }
     this.props.onPlay({
       skillLevel: this.state.difficulty,
-      color: color
+      color: color,
+      incrementOrDelayType: this.state.incrementOrDelayType,
+      initial: this.state.initial,
+      incrementOrDelay: this.state.incrementOrDelay
     });
   };
   render() {
@@ -128,22 +236,26 @@ class PlayChooseBot extends Component {
               <Radio.Button value={"bronstein"}>bronstein</Radio.Button>
               <Radio.Button value={"inc"}>inc</Radio.Button>
             </Radio.Group>
-            <Form.Item label="minutes" name="initial">
-              <InputNumber
-                min={0}
-                defaultValue={this.state.initial}
-                value={this.state.initial}
-                onChange={this.handleChange}
-              />
-            </Form.Item>
-            <Form.Item label="minutes" name="incrementOrDelay">
-              <InputNumber
-                min={0}
-                defaultValue={this.state.incrementOrDelay}
-                value={this.state.incrementOrDelay}
-                onChange={this.handleChange}
-              />
-            </Form.Item>
+            <div className="play-right-sidebar__inc-deley-wrap">
+              <Form.Item label="Initial" name="initial">
+                <InputNumber
+                  min={0}
+                  disabled={this.state.incrementOrDelayType === "none"}
+                  defaultValue={this.state.initial}
+                  value={this.state.initial}
+                  onChange={this.handleChange}
+                />
+              </Form.Item>
+              <Form.Item label="Increment or delay" name="incrementOrDelay">
+                <InputNumber
+                  min={0}
+                  disabled={this.state.incrementOrDelayType === "none"}
+                  defaultValue={this.state.incrementOrDelay}
+                  value={this.state.incrementOrDelay}
+                  onChange={this.handleChange}
+                />
+              </Form.Item>
+            </div>
           </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
             Start the game
@@ -159,7 +271,8 @@ class PlayBlock extends Component {
     super(props);
     let status = this.props.userGameStatus === "playing" ? "playing" : "none";
     this.state = {
-      status: status // 'none', 'play-with-friend', 'playing'
+      status: status, // 'none', 'play-with-friend', 'playing', 'play-friend-options'
+      option: null // handlePlayFriendOptions
     };
   }
 
@@ -178,8 +291,20 @@ class PlayBlock extends Component {
   }
 
   handlePlayWithFriend = () => {
-    this.setState({ status: "play-with-friend" });
+
+    this.setState({ status: "play-friend-options" });
   };
+
+  handlePlayFriendOptions = (data) => {
+    this.setState({ status: "play-with-friend", options: data });
+  }
+
+  handleChooseFriend = (friendId) => {
+    this.props.onChooseFriend({
+      friendId: friendId,
+      options: this.state.options
+    })
+  }
 
   handlePlayComputer = () => {
     this.setState({ status: "choose-bot" });
@@ -188,7 +313,10 @@ class PlayBlock extends Component {
   };
 
   hanldePlayWithBot = data => {
-    const { skillLevel, color } = data;
+    const { skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
+    // incrementOrDelayType: this.state.incrementOrDelayType,
+    //   initial: this.state.initial,
+    //   incrementOrDelay: this.state.incrementOrDelay
     // wild_number,
     //   rating_type,
     //   white_initial,
@@ -200,7 +328,7 @@ class PlayBlock extends Component {
     //   color,
     //   skill_level
 
-    this.props.onBotPlay(0, "blitz", 5, 0, "none", 5, 0, "none", skillLevel, color);
+    this.props.onBotPlay(0, "blitz", initial, incrementOrDelay, incrementOrDelayType, initial, incrementOrDelay, incrementOrDelayType, skillLevel, color);
     this.setState({ status: "playing" });
     // Meteor.call(
     //   "startBotGame",
@@ -250,6 +378,14 @@ class PlayBlock extends Component {
         </div>
       );
     }
+    if (this.state.status === "play-friend-options") {
+      return (
+        <PlayFriendOptions
+          onClose={() => {
+            this.setState({ status: "none" });
+          }} onPlay={this.handlePlayFriendOptions} />
+      )
+    }
     if (this.state.status === "play-with-friend") {
       return (
         <PlayWithFriend
@@ -257,7 +393,7 @@ class PlayBlock extends Component {
             this.setState({ status: "none" });
           }}
           usersToPlayWith={this.props.usersToPlayWith}
-          onChoose={this.props.onChooseFriend}
+          onChoose={this.handleChooseFriend}
         />
       );
     }

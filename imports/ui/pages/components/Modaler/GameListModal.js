@@ -1,3 +1,4 @@
+import React, { Component } from "react";
 import { Modal } from "antd";
 import moment from "moment";
 import { Meteor } from "meteor/meteor";
