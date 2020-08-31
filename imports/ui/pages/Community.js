@@ -158,7 +158,6 @@ class Community extends Component {
 
   handleAdd = roomName => {
     // createRoom
-    console.log(this.props.allRooms);
     Meteor.call("createRoom", "createRoom", roomName, true, (error, data) => {
       if (error) {
         // add

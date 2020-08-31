@@ -13,6 +13,7 @@ import { Logger } from "../../lib/server/Logger";
 import { i18n } from "./i18n";
 import { DynamicRatings } from "../../server/DynamicRatings";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
+import { UserStatus } from "meteor/mizzao:user-status";
 
 let log = new Logger("server/users_js");
 
@@ -136,15 +137,6 @@ Users.addGroupChangeHook = function(func) {
   Meteor.startup(() => group_change_hooks.push(func));
 };
 
-Accounts.onLogin(function(user_parameter) {
-  const user = user_parameter.user;
-  const connection = user_parameter.connection;
-  Meteor.users.update({ _id: user._id }, { $set: { "status.game": "none" } });
-
-  log.debug("user record", user);
-  runLoginHooks(this, user, connection);
-});
-
 const loginHooks = [];
 const logoutHooks = [];
 
@@ -194,16 +186,55 @@ Meteor.startup(function() {
     Users.runLoginHooks = runLoginHooks;
     Users.ruLogoutHooks = runLogoutHooks;
   } else {
-    // Do not do this in test.
-    Meteor.users.find({ "status.online": true }).observeChanges({
-      changed(id, fields) {
-        if (!!fields.status && fields.status.online !== undefined && !fields.status.online) {
-          runLogoutHooks(this, id);
-        }
-      },
-      removed(id) {
-        runLogoutHooks(this, id);
-      }
+    UserStatus.events.on("connectionLogin", fields => {
+      log.debug(
+        "connectionLogin userId=" +
+          fields.userId +
+          ", connectionId=" +
+          fields.connectionId +
+          ", ipAddr=" +
+          fields.ipAddr +
+          ", userAgent=" +
+          fields.userAgent +
+          ", loginTime=" +
+          fields.loginTime
+      );
+      Meteor.users.update({ _id: fields.userId }, { $set: { "status.game": "none" } });
+      const user = Meteor.users.findOne({ _id: fields.userId });
+      runLoginHooks(this, user, fields.connectionId);
+    });
+    UserStatus.events.on("connectionLogout", fields => {
+      log.debug(
+        "connectionLogout userId=" +
+          fields.userId +
+          ", connectionId=" +
+          fields.connectionId +
+          ", lastActivity=" +
+          fields.lastActivity +
+          ", logoutTime=" +
+          fields.logoutTime
+      );
+      runLogoutHooks(this, fields.userId);
+    });
+    UserStatus.events.on("connectionIdle", fields => {
+      log.debug(
+        "connectionIdle userId=" +
+          fields.userId +
+          ", connectionId=" +
+          fields.connectionId +
+          ", lastActivity=" +
+          fields.lastActivity
+      );
+    });
+    UserStatus.events.on("connectionActive", fields => {
+      log.debug(
+        "connectionActive userId=" +
+          fields.userId +
+          ", connectionId=" +
+          fields.connectionId +
+          ", lastActivity=" +
+          fields.lastActivity
+      );
     });
   }
   all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));

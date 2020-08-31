@@ -1,4 +1,3 @@
-import React, { Component } from "react";
 import { Modal } from "antd";
 import moment from "moment";
 import { Meteor } from "meteor/meteor";
@@ -7,8 +6,6 @@ export default ({ gameList, isImported = false, ...rest }) => {
   const handleSetExaminMode = (id, is_imported) => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported, (error, response) => {
       if (error) {
-        log.debug(error);
-        console.log(error);
         this.setState({ modalShow: false });
       } else {
         this.setState({ examineGame: true, activeTab: 3, modalShow: false });
@@ -32,7 +29,7 @@ export default ({ gameList, isImported = false, ...rest }) => {
       let gameResult = isCurrentUserWinner ? "Won" : "Loss";
 
       // time = `${gameItem.startTime.getDate()}.${gameItem.startTime.getFullYear()}`;
-      time = moment(gameItem.startTime).format("DD.MM.YYYY");
+      //time = moment(gameItem.startTime).format("DD.MM.YYYY");
 
       return {
         id: gameItem._id,
@@ -40,7 +37,7 @@ export default ({ gameList, isImported = false, ...rest }) => {
         white: gameItem.white.name.replace(/"/g, ""),
         black: gameItem.black.name.replace(/"/g, ""),
         result: gameResult,
-        time: time,
+        time: null, //time,
         date: gameItem.startTime,
         is_imported: games.is_imported
       };

@@ -437,7 +437,7 @@ class AWSEngineConnector {
     this.engine = engine;
     this.game_id = game_id;
     this.collection = this.engine.collection;
-    this.collection.insert({game_id: game_id, engine_id: engine.id});
+    this.collection.insert({ game_id: game_id, engine_id: engine.id });
   }
 }
 

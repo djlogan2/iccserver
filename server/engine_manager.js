@@ -5,6 +5,7 @@ import Chess from "chess.js";
 import { Random } from "meteor/random";
 import AWS from "aws-sdk";
 import { AWSmanager } from "./awsmanager";
+import { Meteor } from "meteor/meteor";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
@@ -37,21 +38,13 @@ function awsDoIt(game) {
     if (wtime === 0) wtime = 250;
     if (btime === 0) wtime = 250;
 
-    /*
-    const subtract = SystemConfiguration.computerGameTimeSubtract();
-    const wtime =
-      game.tomove === "white"
-        ? game.clocks.white.current - (game.clocks.white.current < subtract ? 0 : subtract)
-        : game.clocks.white.current;
-    const btime =
-      game.tomove === "black"
-        ? game.clocks.black.current - (game.clocks.black.current < subtract ? 0 : subtract)
-        : game.clocks.black.current;
-*/
+    //const elo = ((2850 - 1350) * game.skill_level) / 10 + 1350;
+    const levels = [1350, 1450, 1550, 1650, 1700, 1750, 1850, 1900, 1950, 2100, 2300];
+    const elo = levels[game.skill_level];
     const params = {
       FunctionName: "icc-stockfish",
       Payload: JSON.stringify({
-        options: { "Skill Level": game.skill_level },
+        options: { UCI_LimitStrength: true, UCI_Elo: elo },
         position: game.fen,
         gooptions: {
           wtime: wtime,
@@ -243,6 +236,8 @@ function watchAllGamesForAnalysis() {
 }
 
 Meteor.startup(() => {
-  watchForComputerGames();
-  watchAllGamesForAnalysis();
+  if (!Meteor.isTest && !Meteor.isAppTest) {
+    watchForComputerGames();
+    //watchAllGamesForAnalysis();
+  }
 });
