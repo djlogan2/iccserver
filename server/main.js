@@ -21,7 +21,6 @@ import firstAddI18nMessage from "../imports/startup/server/firstI18nMessage";
 import fs from "fs";
 
 import "../imports/collections/css";
-import "../imports/collections/i18nFront";
 import "../imports/collections/users";
 import "../lib/server/timestamp";
 
