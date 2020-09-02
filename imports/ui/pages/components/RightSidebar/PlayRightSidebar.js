@@ -6,16 +6,29 @@ import PersonalChatApp from "./../Chat/PersonalChatApp";
 import GameHistory from "./elements/GameHistory";
 import { GameControlBlock } from "./elements/GameControlBlock";
 
+import i18n from "meteor/universe:i18n";
+
+const getLang = () => {
+  return (
+    (navigator.languages && navigator.languages[0]) ||
+    navigator.language ||
+    navigator.browserLanguage ||
+    navigator.userLanguage ||
+    "en-US"
+  );
+}
+
 const { TabPane } = Tabs;
 
 const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
+  let translator = i18n.createTranslator("Play.PlayWithFriend", getLang());
   return (
     <div className="play-friend">
       <div className="play-friend__head">
-        <h2 className="play-friend__name-title">Play with friend</h2>
-        <Button onClick={onClose}>Back</Button>
+        <h2 className="play-friend__name-title">{translator("PLAY_WITH_FRIEND")}</h2>
+        <Button onClick={onClose}>{translator("BACK")}</Button>
       </div>
-      <h3 className="play-friend__header">Friends</h3>
+      <h3 className="play-friend__header">{translator("FRIENDS")}</h3>
       <ul className="play-friend__list">
         {usersToPlayWith.map(userItem => {
           return (
@@ -26,7 +39,7 @@ const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
                   onChoose(userItem._id);
                 }}
               >
-                Choose
+                {translator("CHOOSE")}
               </Button>
             </li>
           );
@@ -62,8 +75,12 @@ class PlayFriendOptions extends Component {
     });
   };
 
-  handleChange = e => {
-    this.setState({});
+  handleChange = inputName => {
+    return (number) => {
+      let newState = {};
+      newState[inputName] = number;
+      this.setState(newState);
+    }
   };
   handlePlay = () => {
     let color = this.state.color;
@@ -106,7 +123,7 @@ class PlayFriendOptions extends Component {
                   disabled={this.state.incrementOrDelayType === "none"}
                   defaultValue={this.state.initial}
                   value={this.state.initial}
-                  onChange={this.handleChange}
+                  onChange={this.handleChange('initial')}
                 />
               </Form.Item>
               <Form.Item label="increment or delay" name="incrementOrDelay">
@@ -115,7 +132,7 @@ class PlayFriendOptions extends Component {
                   disabled={this.state.incrementOrDelayType === "none"}
                   defaultValue={this.state.incrementOrDelay}
                   value={this.state.incrementOrDelay}
-                  onChange={this.handleChange}
+                  onChange={this.handleChange('incrementOrDelay')}
                 />
               </Form.Item>
             </div>
@@ -168,9 +185,14 @@ class PlayChooseBot extends Component {
     });
   };
 
-  handleChange = e => {
-    this.setState({});
+  handleChange = inputName => {
+    return (number) => {
+      let newState = {};
+      newState[inputName] = number;
+      this.setState(newState);
+    }
   };
+
   handlePlay = () => {
     let color = this.state.color;
 
@@ -243,7 +265,7 @@ class PlayChooseBot extends Component {
                   disabled={this.state.incrementOrDelayType === "none"}
                   defaultValue={this.state.initial}
                   value={this.state.initial}
-                  onChange={this.handleChange}
+                  onChange={this.handleChange("initial")}
                 />
               </Form.Item>
               <Form.Item label="Increment or delay" name="incrementOrDelay">
@@ -252,7 +274,7 @@ class PlayChooseBot extends Component {
                   disabled={this.state.incrementOrDelayType === "none"}
                   defaultValue={this.state.incrementOrDelay}
                   value={this.state.incrementOrDelay}
-                  onChange={this.handleChange}
+                  onChange={this.handleChange("incrementOrDelay")}
                 />
               </Form.Item>
             </div>
@@ -460,15 +482,18 @@ export default class PlayRightSidebar extends Component {
     let topClasses = isPlaying
       ? "play-right-sidebar__top play-right-sidebar__top--small"
       : "play-right-sidebar__top";
+
+    let userGameStatus = this.props.user && this.props.user.status && this.props.user.status.game;
+    if (userGameStatus === undefined) {
+      userGameStatus = 'none';
+    }
     return (
       <div className="play-right-sidebar">
         <Tabs className={topClasses} defaultActiveKey="1" size="small" type="card">
           <TabPane tab={"Play"} key="play">
             <PlayBlock
               game={this.props.game}
-              userGameStatus={
-                this.props.user && this.props.user.status && this.props.user.status.game
-              }
+              userGameStatus={userGameStatus}
               onBotPlay={this.props.onBotPlay}
               usersToPlayWith={this.props.usersToPlayWith}
               onChooseFriend={this.props.onChooseFriend}

@@ -1,6 +1,40 @@
 import React, { Component } from "react";
 import { Modal, Button } from "antd";
 
+
+
+// isWhiteCheckmated:
+//       ClientMessagesCollection.find({ message: "White checkmated" }).fetch().length > 0,
+//     isBlackCheckmated:
+//       ClientMessagesCollection.find({ message: "Black checkmated" }).fetch().length > 0,
+//     isWhiteStalemated:
+//       ClientMessagesCollection.find({ message: "White stalemated" }).fetch().length > 0,
+//     isBlackStalemated:
+//       ClientMessagesCollection.find({ message: "Black stalemated" }).fetch().length > 0,
+//     isWhiteForfeitsOnTime:
+//       ClientMessagesCollection.find({ message: "White forfeits on time." }).fetch().length > 0,
+//     isBlackForfeitsOnTime:
+//       ClientMessagesCollection.find({ message: "Black forfeits on time." }).fetch().length > 0,
+//     isWhiteResigns: ClientMessagesCollection.find({ message: "White resigns" }).fetch().length > 0,
+//     isBlackResigns: ClientMessagesCollection.find({ message: "Black resigns" }).fetch().length > 0,
+//     isGameDrawnByMutualAgreemnent:
+//       ClientMessagesCollection.find({ message: "Game drawn by mutual agreement" }).fetch().length >
+//       0,
+//     isWhiteRunOfTimeAndNoMaterial:
+//       ClientMessagesCollection.find({
+//         message: "White ran out of time and Black has no material to mate"
+//       }).fetch().length > 0,
+//     isBlackRunOfTimeAndNoMaterial:
+//       ClientMessagesCollection.find({
+//         message: "Black ran out of time and White has no material to mate"
+//       }).fetch().length > 0,
+//     isWhiteDisconnected:
+//       ClientMessagesCollection.find({ message: "White disconnected and forfeits" }).fetch().length >
+//       0,
+//     isBlackDisconnected:
+//       ClientMessagesCollection.find({ message: "Black disconnected and forfeits" }).fetch().length >
+//       0,
+
 export default class PlayModaler extends Component {
   constructor(props) {
     super(props);
@@ -9,7 +43,8 @@ export default class PlayModaler extends Component {
       status: "",
       hasWon: false,
       opponentName: props.opponentName,
-      userColor: props.userColor
+      userColor: props.userColor,
+      clientMessagesLength:  props.clientMessages.length
     };
   }
 
@@ -37,14 +72,21 @@ export default class PlayModaler extends Component {
       return item.message.indexOf("SERVER_ERROR") === -1;
     });
 
+    if (this.state.clientMessagesLength < this.props.clientMessages.length) {
+      this.setState({clientMessagesLength:  this.props.clientMessages.length})
+    } else {
+      return
+    }
+
     if (clientMessages.length > 0) {
       latestMessage = clientMessages[clientMessages.length - 1].message;
     }
 
     if (
-      latestMessage === isWhiteCheckmated &&
-      prevProps.isWhiteCheckmated !== isWhiteCheckmated &&
+      latestMessage === "White checkmated" &&
+      // prevProps.isWhiteCheckmated !== isWhiteCheckmated &&
       isWhiteCheckmated
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -54,9 +96,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isBlackCheckmated &&
-      prevProps.isBlackCheckmated !== isBlackCheckmated &&
+      latestMessage === "Black checkmated" &&
+      // prevProps.isBlackCheckmated !== isBlackCheckmated &&
       isBlackCheckmated
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -66,9 +109,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isWhiteStalemated &&
-      prevProps.isWhiteStalemated !== isWhiteStalemated &&
+      latestMessage === "White stalemated" &&
+      // prevProps.isWhiteStalemated !== isWhiteStalemated &&
       isWhiteStalemated
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -78,9 +122,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isBlackStalemated &&
-      prevProps.isBlackStalemated !== isBlackStalemated &&
+      latestMessage === "Black stalemated" &&
+      // prevProps.isBlackStalemated !== isBlackStalemated &&
       isBlackStalemated
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -90,9 +135,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isWhiteForfeitsOnTime &&
-      prevProps.isWhiteForfeitsOnTime !== isWhiteForfeitsOnTime &&
+      latestMessage === "White forfeits on time." &&
+      // prevProps.isWhiteForfeitsOnTime !== isWhiteForfeitsOnTime &&
       isWhiteForfeitsOnTime
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -102,9 +148,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isBlackForfeitsOnTime &&
-      prevProps.isBlackForfeitsOnTime !== isBlackForfeitsOnTime &&
+      latestMessage === "Black forfeits on time." &&
+      // prevProps.isBlackForfeitsOnTime !== isBlackForfeitsOnTime &&
       isBlackForfeitsOnTime
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -114,9 +161,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isWhiteResigns &&
-      prevProps.isWhiteResigns !== isWhiteResigns &&
+      latestMessage === "White resigns" &&
+      // prevProps.isWhiteResigns !== isWhiteResigns &&
       isWhiteResigns
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -126,9 +174,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isBlackResigns &&
-      prevProps.isBlackResigns !== isBlackResigns &&
+      latestMessage === "Black resigns" &&
+      // prevProps.isBlackResigns !== isBlackResigns &&
       isBlackResigns
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -138,9 +187,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isGameDrawnByMutualAgreemnent &&
-      prevProps.isGameDrawnByMutualAgreemnent !== isGameDrawnByMutualAgreemnent &&
-      isGameDrawnByMutualAgreemnent
+      latestMessage === "Game drawn by mutual agreement" &&
+      // prevProps.isGameDrawnByMutualAgreemnent !== isGameDrawnByMutualAgreemnent &&
+      isGameDrawnByMutualAgreemnent 
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -150,9 +200,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isWhiteRunOfTimeAndNoMaterial &&
-      prevProps.isWhiteRunOfTimeAndNoMaterial !== isWhiteRunOfTimeAndNoMaterial &&
+      latestMessage === "White ran out of time and Black has no material to mate" &&
+      // prevProps.isWhiteRunOfTimeAndNoMaterial !== isWhiteRunOfTimeAndNoMaterial &&
       isWhiteRunOfTimeAndNoMaterial
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -162,9 +213,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isBlackRunOfTimeAndNoMaterial &&
-      prevProps.isBlackRunOfTimeAndNoMaterial !== isBlackRunOfTimeAndNoMaterial &&
+      latestMessage === "Black ran out of time and White has no material to mate" &&
+      // prevProps.isBlackRunOfTimeAndNoMaterial !== isBlackRunOfTimeAndNoMaterial &&
       isBlackRunOfTimeAndNoMaterial
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -174,9 +226,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isWhiteDisconnected &&
-      prevProps.isWhiteDisconnected !== isWhiteDisconnected &&
+      latestMessage === "White disconnected and forfeits" &&
+      // prevProps.isWhiteDisconnected !== isWhiteDisconnected &&
       isWhiteDisconnected
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -186,9 +239,10 @@ export default class PlayModaler extends Component {
       });
     }
     if (
-      latestMessage === isBlackDisconnected &&
-      prevProps.isBlackDisconnected !== isBlackDisconnected &&
+      latestMessage === "Black disconnected and forfeits" &&
+      // prevProps.isBlackDisconnected !== isBlackDisconnected &&
       isBlackDisconnected
+      && !this.state.isModal
     ) {
       this.setState({
         isModal: true,
@@ -210,7 +264,8 @@ export default class PlayModaler extends Component {
   }
 
   getTitleText = () => {
-    let { status, userColor, hasWon, numStatus } = this.state;
+    let { status, hasWon, numStatus } = this.state;
+    let { userColor } = this.props;
     let titleText = status;
     if (hasWon) {
       titleText = `${userColor.toUpperCase()} won! Congratulations!`;

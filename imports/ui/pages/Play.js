@@ -252,6 +252,9 @@ class Play extends Component {
   }
 
   _boardFromMongoMessages(game) {
+    if (!game.fen) {
+      return
+    }
     let variation = game.variations;
     this._board.load(game.fen);
     this._boardfallensolder = new Chess.Chess();
@@ -327,12 +330,25 @@ class Play extends Component {
     });
   }
 
+  genOptions = (gameData) => {
+    let friendId = (this.props.user._id === gameData.white.id) ? gameData.black.id : gameData.white.id;
+
+    let color = (this.props.user._id === gameData.white.id) ? "white" : "black";
+    let initial = gameData.clocks.white.initial;
+    let incrementOrDelay = gameData.clocks.white.inc_or_delay;
+    let incrementOrDelayType = gameData.clocks.white.delaytype;
+
+    let options = { color, initial, incrementOrDelayType, incrementOrDelay };
+    return { friendId, options }
+  }
+
   handleRematch = gameId => {
     // Meteor.call(
     //   "rematchRequest",
     //   "rematchRequest",
     //   userId
     // );
+
 
     if (this.state.gameType === "startBotGame") {
       let {
@@ -360,11 +376,49 @@ class Play extends Component {
         color
       );
     } else {
-      this.handleChooseFriend();
+      this.initFriendRematch()
     }
   }
 
-  handleChooseFriend = ({friendId, options}) => {
+  initFriendRematch = () => {
+    let game = this.props.examine_game[0];
+    let newMatchData = this.genOptions(game);
+    this.handleChooseFriend(newMatchData);
+  }
+
+  handleChooseFriend = ({ friendId, options }) => {
+    // const defaultData = {
+    //   user: null,
+    //   userId: null,
+    //   wild_number: 0,
+    //   rating_type: "standard",
+    //   rated: true,
+    //   is_adjourned: false,
+    //   time: 14,
+    //   inc: 1,
+    //   incOrdelayType: "inc",
+    //   color: null
+    // };
+
+    // Meteor.call(
+    //   "addLocalMatchRequest",
+    //   "matchRequest",
+    //   friendId,
+    //   defaultData.wild_number,
+    //   defaultData.rating_type,
+    //   defaultData.rated,
+    //   defaultData.is_adjourned,
+    //   defaultData.time,
+    //   defaultData.inc,
+    //   defaultData.incOrdelayType,
+    //   defaultData.time,
+    //   defaultData.inc,
+    //   defaultData.incOrdelayType,
+    //   defaultData.color,
+    //   handleError
+    // );
+
+
     const defaultData = {
       user: null,
       userId: null,
@@ -377,9 +431,10 @@ class Play extends Component {
       incOrdelayType: "inc",
       color: null
     };
-    let {color, initial, incrementOrDelayType, incrementOrDelay} = options;
 
-    this.setState({gameType: "addLocalMatchRequest", gameData: null, gameUserId: friendId});
+    let { color, initial, incrementOrDelayType, incrementOrDelay } = options;
+
+    this.setState({ gameType: "addLocalMatchRequest", gameData: null, gameUserId: friendId });
 
     Meteor.call(
       "addLocalMatchRequest",
@@ -392,6 +447,12 @@ class Play extends Component {
       initial,
       incrementOrDelay,
       incrementOrDelayType,
+      // defaultData.time,
+      // defaultData.inc,
+      // defaultData.incOrdelayType,
+      // defaultData.time,
+      // defaultData.inc,
+      // defaultData.incOrdelayType,
       initial,
       incrementOrDelay,
       incrementOrDelayType,
@@ -411,7 +472,7 @@ class Play extends Component {
     black_increment_or_delay_type,
     skill_level,
     color
-    ) => {
+  ) => {
 
     let data = {
       wild_number,
@@ -446,7 +507,7 @@ class Play extends Component {
         if (err) {
           debugger;
         }
-        that.setState({gameType: "startBotGame", gameData: data, gameUserId: null});
+        that.setState({ gameType: "startBotGame", gameData: data, gameUserId: null });
       }
     );
     // this.setState({ status: "playing" });
@@ -519,47 +580,51 @@ class Play extends Component {
     let opponentName;
     let opponentId;
     let userColor;
-    if (this.props.game_playing) {
+    if (game) {
       userColor =
-        this.props.game_playing.white.name === this.props.user.username ? "white" : "black";
+        game.white.name === this.props.user.username ? "white" : "black";
+      if (userColor === undefined) {
+        debugger;
+      }
       opponentName =
         userColor === "white"
-          ? this.props.game_playing.black.name
-          : this.props.game_playing.white.name;
+          ? game.black.name
+          : game.white.name;
       opponentId =
         userColor === "white"
-          ? this.props.game_playing.black._id
-          : this.props.game_playing.white._id;
+          ? game.black._id
+          : game.white._id;
     }
 
     return (
       <div className="examine">
-        <PlayModaler
-          userColor={userColor}
-          // userColor={"white"}
-          userName={this.props.user && this.props.user.username}
-          gameId={this.gameId}
-          opponentName={opponentName}
-          opponentId={opponentId}
-          onRematch={this.handleRematch}
-          onExamine={this.handleExamine}
+        {this.state.subscription.clientMessages.ready() && (
+          <PlayModaler
+            userColor={userColor}
+            // userColor={"white"}
+            userName={this.props.user && this.props.user.username}
+            gameId={this.gameId}
+            opponentName={opponentName}
+            opponentId={opponentId}
+            onRematch={this.handleRematch}
+            onExamine={this.handleExamine}
+            clientMessages={this.props.client_messages}
+            isWhiteCheckmated={isWhiteCheckmated}
+            isBlackCheckmated={isBlackCheckmated}
+            isWhiteStalemated={isWhiteStalemated}
+            isBlackStalemated={isBlackStalemated}
+            isWhiteForfeitsOnTime={isWhiteForfeitsOnTime}
+            isBlackForfeitsOnTime={isBlackForfeitsOnTime}
+            isWhiteResigns={isWhiteResigns}
+            isBlackResigns={isBlackResigns}
+            isGameDrawnByMutualAgreemnent={isGameDrawnByMutualAgreemnent}
+            isWhiteRunOfTimeAndNoMaterial={isWhiteRunOfTimeAndNoMaterial}
+            isBlackRunOfTimeAndNoMaterial={isBlackRunOfTimeAndNoMaterial}
+            isWhiteDisconnected={isWhiteDisconnected}
+            isBlackDisconnected={isBlackDisconnected}
+          />
+        )}
 
-          clientMessages={this.props.client_messages}
-
-          isWhiteCheckmated={isWhiteCheckmated}
-          isBlackCheckmated={isBlackCheckmated}
-          isWhiteStalemated={isWhiteStalemated}
-          isBlackStalemated={isBlackStalemated}
-          isWhiteForfeitsOnTime={isWhiteForfeitsOnTime}
-          isBlackForfeitsOnTime={isBlackForfeitsOnTime}
-          isWhiteResigns={isWhiteResigns}
-          isBlackResigns={isBlackResigns}
-          isGameDrawnByMutualAgreemnent={isGameDrawnByMutualAgreemnent}
-          isWhiteRunOfTimeAndNoMaterial={isWhiteRunOfTimeAndNoMaterial}
-          isBlackRunOfTimeAndNoMaterial={isBlackRunOfTimeAndNoMaterial}
-          isWhiteDisconnected={isWhiteDisconnected}
-          isBlackDisconnected={isBlackDisconnected}
-        />
         <PlayNotifier game={this.props.game_playing} userId={Meteor.userId()} cssManager={css} />
         <PlayPage
           userId={Meteor.userId()}

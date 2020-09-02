@@ -84,8 +84,16 @@ export default class MiddleBoard extends Component {
   };
 
   render() {
+    if (!!this.props.game && this.props.game.fen === undefined) {
+      return null
+    }
     if (!!this.props.game) {
+      // try {
       this.chess.load(this.props.game.fen);
+      // } catch(err) {
+      //   debugger;
+      // }
+
     }
 
     let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
