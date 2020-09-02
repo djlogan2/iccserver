@@ -1,7 +1,7 @@
 import chai from "chai";
 import { Awsmanager } from "./awsmanager";
 
-describe("AWS Stockfish", function() {
+describe.skip("AWS Stockfish", function() {
   // manager
   //    get all instances
   //    for each instance
@@ -10,7 +10,7 @@ describe("AWS Stockfish", function() {
   //    watch games and users
   //       increase number of available engines when threshholds are met
   //       decrease number of available engines when threshholds are met
-  it.only("should start a new instance when game/user/engine threshhold is met", function() {
+  it("should start a new instance when game/user/engine threshhold is met", function() {
     this.timeout(500000);
     const aws = Awsmanager;
     console.log("here");
