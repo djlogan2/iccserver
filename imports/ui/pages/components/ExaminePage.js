@@ -16,7 +16,6 @@ import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import { Logger } from "../../../../lib/client/Logger";
-import { ModalProvider } from "../ModalContext";
 import {
   GameRequestPopup,
   GamenotificationPopup,

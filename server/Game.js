@@ -2433,6 +2433,7 @@ class Game {
     if (game.black.id !== "computer")
       examiners.push({ id: game.black.id, username: game.black.name });
 
+
     this.GameCollection.update(
       { _id: game._id, status: "playing" },
       {

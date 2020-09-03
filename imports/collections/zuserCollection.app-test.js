@@ -71,7 +71,6 @@ const all_fields = {
   settings: {
     autoaccept: 1
   },
-  roles: 1,
   status: {
     //    online: 1,
     game: 1

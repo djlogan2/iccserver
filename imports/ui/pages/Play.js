@@ -2,24 +2,21 @@ import React, { Component } from "react";
 import PlayPage from "./components/PlayPage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Modal, Button } from "antd";
 import { Logger } from "../../../lib/client/Logger";
 import CssManager from "../pages/components/Css/CssManager";
 import Loading from "../pages/components/Loading";
 import PlayModaler from "../pages/components/Modaler/PlayModaler";
 import Chess from "chess.js";
-import { Link } from "react-router-dom";
 import i18n from "meteor/universe:i18n";
 import { ActionPopup } from "./components/Popup/Popup";
 import {
   ClientMessagesCollection,
   Game,
-  ImportedGameCollection,
   GameHistoryCollection,
   GameRequestCollection,
+  ImportedGameCollection,
   mongoCss,
-  mongoUser,
-  I18nFrontCollection
+  mongoUser
 } from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
@@ -39,11 +36,8 @@ let handleError = error => {
     logger.error(error);
   }
 };
-class PlayNotifier extends Component {
-  constructor() {
-    super();
-  }
 
+class PlayNotifier extends Component {
   renderActionPopup = (title, action) => {
     return (
       <ActionPopup
@@ -207,7 +201,7 @@ class Play extends Component {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    let capturedSoldiers = history.reduce((accumulator, move) => {
+    return history.reduce((accumulator, move) => {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
@@ -217,8 +211,6 @@ class Play extends Component {
         return accumulator;
       }
     }, position);
-
-    return capturedSoldiers;
   }
 
   drawCircle(square, color, size) {
@@ -253,7 +245,7 @@ class Play extends Component {
 
   _boardFromMongoMessages(game) {
     if (!game.fen) {
-      return
+      return;
     }
     let variation = game.variations;
     this._board.load(game.fen);
@@ -290,7 +282,7 @@ class Play extends Component {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    let capturedSoldiers = history.reduce((accumulator, move) => {
+    return history.reduce((accumulator, move) => {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
@@ -300,12 +292,10 @@ class Play extends Component {
         return accumulator;
       }
     }, position);
-
-    return capturedSoldiers;
   }
 
   _examinBoard(game) {
-    this._board.load(game.fen);
+    if (!!game && !!game.fen) this._board.load(game.fen);
   }
 
   handleExamine = gameId => {
@@ -322,25 +312,21 @@ class Play extends Component {
   }
 
   clientMessages(id) {
-    return ClientMessagesCollection.findOne({
-      $or: [
-        { client_identifier: "matchRequest" },
-        { $and: [{ to: Meteor.userId() }, { client_identifier: id }] }
-      ]
-    });
+    return ClientMessagesCollection.findOne({ client_identifier: id });
   }
 
-  genOptions = (gameData) => {
-    let friendId = (this.props.user._id === gameData.white.id) ? gameData.black.id : gameData.white.id;
+  genOptions = gameData => {
+    let friendId =
+      this.props.user._id === gameData.white.id ? gameData.black.id : gameData.white.id;
 
-    let color = (this.props.user._id === gameData.white.id) ? "white" : "black";
+    let color = this.props.user._id === gameData.white.id ? "white" : "black";
     let initial = gameData.clocks.white.initial;
     let incrementOrDelay = gameData.clocks.white.inc_or_delay;
     let incrementOrDelayType = gameData.clocks.white.delaytype;
 
     let options = { color, initial, incrementOrDelayType, incrementOrDelay };
-    return { friendId, options }
-  }
+    return { friendId, options };
+  };
 
   handleRematch = gameId => {
     // Meteor.call(
@@ -348,7 +334,6 @@ class Play extends Component {
     //   "rematchRequest",
     //   userId
     // );
-
 
     if (this.state.gameType === "startBotGame") {
       let {
@@ -376,15 +361,15 @@ class Play extends Component {
         color
       );
     } else {
-      this.initFriendRematch()
+      this.initFriendRematch();
     }
-  }
+  };
 
   initFriendRematch = () => {
     let game = this.props.examine_game[0];
     let newMatchData = this.genOptions(game);
     this.handleChooseFriend(newMatchData);
-  }
+  };
 
   handleChooseFriend = ({ friendId, options }) => {
     // const defaultData = {
@@ -417,7 +402,6 @@ class Play extends Component {
     //   defaultData.color,
     //   handleError
     // );
-
 
     const defaultData = {
       user: null,
@@ -473,7 +457,6 @@ class Play extends Component {
     skill_level,
     color
   ) => {
-
     let data = {
       wild_number,
       rating_type,
@@ -488,7 +471,6 @@ class Play extends Component {
     };
 
     let that = this;
-
 
     Meteor.call(
       "startBotGame",
@@ -520,26 +502,6 @@ class Play extends Component {
     if (this.props.user && this.props.user.status && this.props.user.status.game === "examining") {
       game = this.props.examine_game[0];
     }
-
-    let circles = [];
-    //let actionlen;
-    let gameExamin = [];
-
-    let {
-      isWhiteCheckmated,
-      isBlackCheckmated,
-      isWhiteStalemated,
-      isBlackStalemated,
-      isWhiteForfeitsOnTime,
-      isBlackForfeitsOnTime,
-      isWhiteResigns,
-      isBlackResigns,
-      isGameDrawnByMutualAgreemnent,
-      isWhiteRunOfTimeAndNoMaterial,
-      isBlackRunOfTimeAndNoMaterial,
-      isWhiteDisconnected,
-      isBlackDisconnected
-    } = this.props;
 
     const { systemCss, boardCss } = this.props;
 
@@ -580,20 +542,17 @@ class Play extends Component {
     let opponentName;
     let opponentId;
     let userColor;
+    let result;
+    let status2;
     if (game) {
-      userColor =
-        game.white.name === this.props.user.username ? "white" : "black";
+      result = game.result;
+      status2 = game.status2;
+      userColor = game.white.name === this.props.user.username ? "white" : "black";
       if (userColor === undefined) {
         debugger;
       }
-      opponentName =
-        userColor === "white"
-          ? game.black.name
-          : game.white.name;
-      opponentId =
-        userColor === "white"
-          ? game.black._id
-          : game.white._id;
+      opponentName = userColor === "white" ? game.black.name : game.white.name;
+      opponentId = userColor === "white" ? game.black._id : game.white._id;
     }
 
     return (
@@ -604,24 +563,13 @@ class Play extends Component {
             // userColor={"white"}
             userName={this.props.user && this.props.user.username}
             gameId={this.gameId}
+            gameResult={result}
+            gameStatus2={status2}
+            clientMessage={clientMessage}
             opponentName={opponentName}
             opponentId={opponentId}
             onRematch={this.handleRematch}
             onExamine={this.handleExamine}
-            clientMessages={this.props.client_messages}
-            isWhiteCheckmated={isWhiteCheckmated}
-            isBlackCheckmated={isBlackCheckmated}
-            isWhiteStalemated={isWhiteStalemated}
-            isBlackStalemated={isBlackStalemated}
-            isWhiteForfeitsOnTime={isWhiteForfeitsOnTime}
-            isBlackForfeitsOnTime={isBlackForfeitsOnTime}
-            isWhiteResigns={isWhiteResigns}
-            isBlackResigns={isBlackResigns}
-            isGameDrawnByMutualAgreemnent={isGameDrawnByMutualAgreemnent}
-            isWhiteRunOfTimeAndNoMaterial={isWhiteRunOfTimeAndNoMaterial}
-            isBlackRunOfTimeAndNoMaterial={isBlackRunOfTimeAndNoMaterial}
-            isWhiteDisconnected={isWhiteDisconnected}
-            isBlackDisconnected={isBlackDisconnected}
           />
         )}
 
@@ -634,9 +582,7 @@ class Play extends Component {
           usersToPlayWith={this.props.usersToPlayWith}
           onChooseFriend={this.handleChooseFriend}
           onBotPlay={this.handleBotPlay}
-          // fen={this._board.fen()}
           capture={capture}
-          //len={actionlen}
           game={game}
           user={this.props.user}
           gameHistoryload={this.gameHistoryload}
@@ -648,8 +594,8 @@ class Play extends Component {
           onDrawCircle={this.drawCircle}
           onRemoveCircle={this.removeCircle}
           ref="main_page"
-          examing={gameExamin}
-          circles={circles}
+          examing={[]}
+          circles={[]}
         />
       </div>
     );
@@ -687,38 +633,7 @@ export default withTracker(props => {
         }
       ]
     }),
-    client_messages: ClientMessagesCollection.find({ to: Meteor.userId() }).fetch(),
-    isWhiteCheckmated:
-      ClientMessagesCollection.find({ message: "White checkmated" }).fetch().length > 0,
-    isBlackCheckmated:
-      ClientMessagesCollection.find({ message: "Black checkmated" }).fetch().length > 0,
-    isWhiteStalemated:
-      ClientMessagesCollection.find({ message: "White stalemated" }).fetch().length > 0,
-    isBlackStalemated:
-      ClientMessagesCollection.find({ message: "Black stalemated" }).fetch().length > 0,
-    isWhiteForfeitsOnTime:
-      ClientMessagesCollection.find({ message: "White forfeits on time." }).fetch().length > 0,
-    isBlackForfeitsOnTime:
-      ClientMessagesCollection.find({ message: "Black forfeits on time." }).fetch().length > 0,
-    isWhiteResigns: ClientMessagesCollection.find({ message: "White resigns" }).fetch().length > 0,
-    isBlackResigns: ClientMessagesCollection.find({ message: "Black resigns" }).fetch().length > 0,
-    isGameDrawnByMutualAgreemnent:
-      ClientMessagesCollection.find({ message: "Game drawn by mutual agreement" }).fetch().length >
-      0,
-    isWhiteRunOfTimeAndNoMaterial:
-      ClientMessagesCollection.find({
-        message: "White ran out of time and Black has no material to mate"
-      }).fetch().length > 0,
-    isBlackRunOfTimeAndNoMaterial:
-      ClientMessagesCollection.find({
-        message: "Black ran out of time and White has no material to mate"
-      }).fetch().length > 0,
-    isWhiteDisconnected:
-      ClientMessagesCollection.find({ message: "White disconnected and forfeits" }).fetch().length >
-      0,
-    isBlackDisconnected:
-      ClientMessagesCollection.find({ message: "Black disconnected and forfeits" }).fetch().length >
-      0,
+    client_messages: ClientMessagesCollection.find().fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };
