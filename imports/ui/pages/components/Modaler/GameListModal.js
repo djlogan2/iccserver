@@ -29,6 +29,7 @@ export default ({ gameList, isImported = false, ...rest }) => {
       let isCurrentUserWinner = (isUserWhite && hasWhiteWon) || (isUserBlack && hasBlackWon);
       let gameResult = isCurrentUserWinner ? "Won" : "Loss";
 
+      console.log(isCurrentUserWinner);
       // time = `${gameItem.startTime.getDate()}.${gameItem.startTime.getFullYear()}`;
       //time = moment(gameItem.startTime).format("DD.MM.YYYY");
 

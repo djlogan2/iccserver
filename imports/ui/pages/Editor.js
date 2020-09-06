@@ -75,13 +75,13 @@ class Editor extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.game === null && this.props.observed_games.length > 0) {
-      let game = this.props.observed_games[0];
+    if (this.state.game === null && this.props.examine_game) {
+      let game = this.props.examine_game;
       this.setInitial(game);
     }
-    if (prevProps.observed_games.length > 0 && this.props.observed_games.length > 0) {
-      if (prevProps.observed_games[0].fen !== this.props.observed_games[0].fen) {
-        let game = this.props.observed_games[0];
+    if (prevProps.examine_game && this.props.examine_game) {
+      if (prevProps.examine_game.fen !== this.props.examine_game.fen) {
+        let game = this.props.examine_game;
         let newFen = game.fen;
         this.chessground.cg.set({ fen: newFen });
         this.setState({ fen: newFen, game: game });
@@ -115,8 +115,8 @@ class Editor extends Component {
   }
 
   initNewExamineGame = () => {
-    let observedGames = Game.find({ "observers.id": Meteor.userId() }).fetch();
-    if (observedGames.length === 0) {
+    let examine_game = Game.findOne({ "examiners.id": Meteor.userId() });
+    if (!examine_game) {
       this.startLocalExaminedGame();
     }
   };
@@ -258,7 +258,7 @@ class Editor extends Component {
       this.chessground.cg.state.viewOnly = pause;
     }
 
-    if (this.props.observed_games.length === 0) {
+    if (!this.props.examine_game) {
       return <Loading />;
     }
     const baordSize = this.calcBoardSize();
@@ -315,9 +315,10 @@ class Editor extends Component {
 
 export default withTracker(props => {
   return {
-    observed_games: Game.find({
-      "observers.id": Meteor.userId()
-    }).fetch(),
+    // observed_games: Game.find({
+    //   "observers.id": Meteor.userId()
+    // }).fetch(),
+    examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
     gameHistory: GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     }).fetch(),

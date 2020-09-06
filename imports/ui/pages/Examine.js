@@ -72,6 +72,12 @@ const EXAMINING_QUOTE = {
   ]
 };
 
+const test = {
+  $or: [
+    {"examiners.id" : Meteor.userId() }
+  ]
+}
+
 class Examine extends Component {
   constructor(props) {
     super(props);
@@ -107,14 +113,6 @@ class Examine extends Component {
     this.removeGameHistory = this.removeGameHistory.bind(this);
   }
 
-  userRecord() {
-    return mongoUser.find().fetch();
-  }
-
-  isAuthenticated() {
-    return Meteor.userId() !== null;
-  }
-
   componentWillUnmount() {
     if (this.state.subscription) {
       this.state.subscription.chats && this.state.subscription.chats.stop();
@@ -135,15 +133,6 @@ class Examine extends Component {
     }
   }
 
-  componentWillUpdate() {
-    if (this.props.user && this.props.user.status) {
-      if (this.props.user.status.game === "playing") {
-        this.props.history.push("/play");
-      }
-    }
-    
-  }
-
   componentDidMount() {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
@@ -151,9 +140,25 @@ class Examine extends Component {
     this.startExamine();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (this.props.user && this.props.user.status) {
+      if (this.props.user.status.game === "playing") {
+        this.props.history.push("/play");
+      }
+      if (prevProps.user && prevProps.user.status && prevProps.user.status.game === "examining" && this.props.user.status.game === "none") {
+        // this.props.history.push("/");
+      }
+    }
+    if (!this.state.isAuthenticated) {
+      this.props.history.push("/home");
+    }
+  }
+
   startExamine = () => {
-    let examine_game = Game.find(EXAMINING_QUOTE).fetch();
-    if (examine_game.length === 0) {
+    let examine_game = Game.findOne({"examiners.id" : Meteor.userId() });
+    if (!examine_game) {
+      this.initExamine();
+    } else if (this.props.user && this.props.user.status && this.props.user.status.game !== "examining") {
       this.initExamine();
     }
   };
@@ -174,10 +179,14 @@ class Examine extends Component {
     );
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/home");
-    }
+  
+
+  userRecord() {
+    return mongoUser.find().fetch();
+  }
+
+  isAuthenticated() {
+    return Meteor.userId() !== null;
   }
 
   logout(e) {
@@ -310,7 +319,9 @@ class Examine extends Component {
   }
 
   _examinBoard(game) {
-    this._board.load(game.fen);
+    if (game.fen) {
+      this._board.load(game.fen);
+    }
   }
 
   getCoordinatesToRank(square) {
@@ -349,7 +360,93 @@ class Examine extends Component {
       }
     });
   };
+
+  renderObserver() {
+
+    const game = this.props.observe_game;
+
+    if (!game) {
+      return <Loading />
+    }
+
+    const { systemCss, boardCss } = this.props;
+
+    let clientMessage = null;
+    let capture = {
+      w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
+      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
+    };
+    if (
+      systemCss === undefined ||
+      boardCss === undefined ||
+      systemCss.length === 0 ||
+      boardCss.length === 0
+    ) {
+      return <Loading />;
+    }
+
+    const css = new CssManager(systemCss, boardCss);
+    
+
+    return (
+      <div className="examine">
+        <GameListModal
+          isImported={true}
+          visible={this.state.isImportedGamesModal}
+          gameList={this.state.importedGames}
+          onClose={() => {
+            this.setState({ isImportedGamesModal: false });
+          }}
+        />
+        <ExaminePage
+          userId={Meteor.userId()}
+          user={this.props.user}
+          cssManager={css}
+          allUsers={this.props.all_users}
+          board={this._board}
+          gameId={game._id}
+          observeUser={this.handleObserveUser}
+          onPgnUpload={this.handlePgnUpload}
+          unObserveUser={this.handleUnobserveUser}
+          // fen={this._board.fen()}
+          capture={capture}
+          //len={actionlen}
+          game={game}
+          // gameHistoryload={this.gameHistoryload}
+          GameHistory={this.state.GameHistory}
+          removeGameHistory={this.removeGameHistory}
+          // gameRequest={gameRequest}
+          // clientMessage={clientMessage}
+          onDrop={this._pieceSquareDragStop}
+          onDrawCircle={this.drawCircle}
+          onRemoveCircle={this.removeCircle}
+          ref="main_page"
+          // examing={gameExamin}
+          // circles={circles}
+        />
+      </div>
+    );
+  }
   render() {
+
+    if (this.props.user && this.props.user.status && (this.props.user.status.game !== "examining" && this.props.user.status.game !== "observing")) {
+      return <Loading />
+    }
+
+    if (this.props.user && this.props.user.status && this.props.user.status.game === "observing") {
+      return this.renderObserver()
+    }
+
+    if (!this.props.examine_game) {
+      return <Loading />
+    }
+
+
+    // let examineGame = this.props.examine_game[this.props.examine_game.length - 1];
+    // if (!examineGame.fen) {
+    //   debugger;
+    //   return <Loading />
+    // }
     const gameRequest = this.props.game_request;
     let game = this.props.game_messages;
     let circles = [];
@@ -384,8 +481,8 @@ class Examine extends Component {
       capture = this._boardFromMongoMessages(game);
     } else {
       gameExamin = this.props.examine_game;
-      if (!!gameExamin && gameExamin.length > 0) {
-        game = gameExamin[gameExamin.length - 1];
+      if (!!gameExamin) {
+        game = gameExamin;
         //actionlen = game.actions ? game.actions.length : 0;
         this.gameId = game._id;
         this._examinBoard(game);
@@ -403,9 +500,7 @@ class Examine extends Component {
       clientMessage = this.clientMessages(this.message_identifier);
     }
 
-    if (this.props.examine_game.length === 0) {
-      return <Loading />;
-    }
+    
 
     return (
       <div className="examine">
@@ -423,7 +518,7 @@ class Examine extends Component {
           cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
-          gameId={this.props.examine_game[0]._id}
+          gameId={this.props.examine_game._id}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
           unObserveUser={this.handleUnobserveUser}
@@ -434,7 +529,7 @@ class Examine extends Component {
           // gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}
-          gameRequest={gameRequest}
+          // gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawCircle={this.drawCircle}
@@ -450,7 +545,9 @@ class Examine extends Component {
 
 export default withTracker(props => {
   return {
-    examine_game: Game.find(EXAMINING_QUOTE).fetch(),
+    // examine_game: Game.find(EXAMINING_QUOTE).fetch(),
+    examine_game: Game.findOne({"examiners.id" : Meteor.userId() }),
+    observe_game: Game.findOne({ "observers.id": Meteor.userId() }),
     // chats: Chat.find({"id": examine_game._id}),
     // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
     // chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),

@@ -54,7 +54,7 @@ class PlayFriendOptions extends Component {
     super();
     this.state = {
       color: "random",
-      incrementOrDelayType: "none",
+      incrementOrDelayType: "inc",
       initial: 7,
       incrementOrDelay: 0
     };
@@ -111,10 +111,10 @@ class PlayFriendOptions extends Component {
               defaultValue={this.state.incrementOrDelayType}
               value={this.state.incrementOrDelayType}
             >
+              <Radio.Button value={"inc"}>inc</Radio.Button>
               <Radio.Button value={"none"}>none</Radio.Button>
               <Radio.Button value={"us"}>us</Radio.Button>
               <Radio.Button value={"bronstein"}>bronstein</Radio.Button>
-              <Radio.Button value={"inc"}>inc</Radio.Button>
             </Radio.Group>
             <div className="play-right-sidebar__inc-deley-wrap">
               <Form.Item label="Initial" name="initial">
@@ -150,7 +150,7 @@ class PlayFriendOptions extends Component {
             </Radio.Group>
           </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
-            Start the game
+            Select opponent
           </Button>
         </Form>
       </div>
@@ -164,7 +164,7 @@ class PlayChooseBot extends Component {
     this.state = {
       difficulty: 5,
       color: "random",
-      incrementOrDelayType: "none",
+      incrementOrDelayType: "inc",
       initial: 7,
       incrementOrDelay: 0
     };
@@ -253,10 +253,10 @@ class PlayChooseBot extends Component {
               defaultValue={this.state.incrementOrDelayType}
               value={this.state.incrementOrDelayType}
             >
+              <Radio.Button value={"inc"}>inc</Radio.Button>
               <Radio.Button value={"none"}>none</Radio.Button>
               <Radio.Button value={"us"}>us</Radio.Button>
               <Radio.Button value={"bronstein"}>bronstein</Radio.Button>
-              <Radio.Button value={"inc"}>inc</Radio.Button>
             </Radio.Group>
             <div className="play-right-sidebar__inc-deley-wrap">
               <Form.Item label="Initial" name="initial">
@@ -453,6 +453,13 @@ class PlayBlock extends Component {
   }
 }
 
+const ObserveBlock = () => {
+  return (
+    <div className="observe-block">
+      work in progress
+    </div>
+  )
+}
 export default class PlayRightSidebar extends Component {
   constructor(props) {
     super();
@@ -503,8 +510,8 @@ export default class PlayRightSidebar extends Component {
             />
           </TabPane>
 
-          <TabPane tab="observe" key="observe">
-            observe
+          <TabPane tab="Observe" key="observe">
+            <ObserveBlock/>
           </TabPane>
         </Tabs>
         {this.props.user && this.props.game && this.renderBottom()}
