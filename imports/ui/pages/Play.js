@@ -420,12 +420,20 @@ class Play extends Component {
 
     this.setState({ gameType: "addLocalMatchRequest", gameData: null, gameUserId: friendId });
 
+    //TEMP - BAD SOLUTION - BAD!
+    let stupidstupidstupid;
+    const sigh = initial + (2 * incrementOrDelay) / 3;
+    if (sigh >= 15) stupidstupidstupid = "standard";
+    else if (sigh >= 3) stupidstupidstupid = "blitz";
+    else stupidstupidstupid = "bullet";
+    //TEMP - BAD SOLUTION - BAD!
+
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
       friendId,
       defaultData.wild_number,
-      defaultData.rating_type,
+      stupidstupidstupid,
       defaultData.rated,
       defaultData.is_adjourned,
       initial,
