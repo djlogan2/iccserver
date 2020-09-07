@@ -20,8 +20,8 @@ export default class ExamineRightSidebarBottom extends Component {
         <TabPane tab="FEN/PGN" key="fen-png">
           <FenPgn gameId={this.props.gameId} fen={this.props.fen} moveList={this.props.moveList} onPgnUpload={this.props.onPgnUpload} />
         </TabPane>
-        <TabPane tab="GAMES" key="games">
-          Content of tab 2
+        <TabPane tab="Games" key="games">
+          <div className="examine-sidebar-game">work in progress</div>
         </TabPane>
       </Tabs>
     );

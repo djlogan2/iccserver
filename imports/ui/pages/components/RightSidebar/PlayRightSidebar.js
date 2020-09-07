@@ -56,8 +56,12 @@ class PlayFriendOptions extends Component {
       color: "random",
       incrementOrDelayType: "inc",
       initial: 7,
-      incrementOrDelay: 0
+      incrementOrDelay: 0,
+      ratingType: "none"
     };
+  }
+  componentDidMount() {
+    this.updateRating();
   }
   handleChangeDifficulty = e => {
     this.setState({
@@ -78,24 +82,51 @@ class PlayFriendOptions extends Component {
   handleChange = inputName => {
     return (number) => {
       let newState = {};
+      let that = this;
       newState[inputName] = number;
-      this.setState(newState);
+      this.setState(newState, () => {
+        that.updateRating();
+      });
     }
   };
+
+  updateRating = () => {
+    let { initial, incrementOrDelay } = this.state;
+    let index = initial + 2 / 3 * incrementOrDelay;
+
+    const ratingConfig = {
+      "bullet": [0, 2],
+      "blitz": [3, 14],
+      "standard": [15, 600]
+    };
+    let ratingType = "none";
+    if (ratingConfig.bullet[0] <= index && index <= ratingConfig.bullet[1]) {
+      ratingType = "bullet";
+    } else if (ratingConfig.blitz[0] <= index && index <= ratingConfig.blitz[1]) {
+      ratingType = "blitz";
+    } else if (ratingConfig.standard[0] <= index && index <= ratingConfig.standard[1]) {
+      ratingType = "standard";
+    }
+    this.setState({ ratingType: ratingType });
+  }
+
   handlePlay = () => {
     let color = this.state.color;
+    let ratingType = this.state.ratingType;
 
     if (color === "random") {
       color = Math.random() < 0.5 ? "white" : "black";
     }
     this.props.onPlay({
-      skillLevel: this.state.difficulty,
+      ratingType: ratingType,
+      // skillLevel: this.state.difficulty,
       color: color,
       incrementOrDelayType: this.state.incrementOrDelayType,
       initial: this.state.initial,
       incrementOrDelay: this.state.incrementOrDelay
     });
   };
+
   render() {
     let { onClose } = this.props;
     return (
@@ -104,11 +135,14 @@ class PlayFriendOptions extends Component {
           <h2 className="play-friend__name-title">Create game</h2>
           <Button onClick={onClose}>Back</Button>
         </div>
-        <Form className="play-bot__form" layout="vertical">
+        <Form className="play-bot__form" layout="vertical" initialValues={{
+          initial: this.state.initial,
+          incrementOrDelay: this.state.incrementOrDelay
+        }}>
           <Form.Item label="Time control" name="time-control">
             <Radio.Group
               onChange={this.handleChangeIncrementOrDelayType}
-              defaultValue={this.state.incrementOrDelayType}
+              // defaultValue={this.state.incrementOrDelayType}
               value={this.state.incrementOrDelayType}
             >
               <Radio.Button value={"inc"}>inc</Radio.Button>
@@ -136,6 +170,9 @@ class PlayFriendOptions extends Component {
                 />
               </Form.Item>
             </div>
+          </Form.Item>
+          <Form.Item label="rating type" name="ratingType">
+            <p>{this.state.ratingType}</p>
           </Form.Item>
           <Form.Item label="Color" name="color">
             {/* ["none", "us", "bronstein", "inc"] */}
@@ -166,8 +203,12 @@ class PlayChooseBot extends Component {
       color: "random",
       incrementOrDelayType: "inc",
       initial: 7,
-      incrementOrDelay: 0
+      incrementOrDelay: 0,
+      ratingType: "none"
     };
+  }
+  componentDidMount() {
+    this.updateRating();
   }
   handleChangeDifficulty = e => {
     this.setState({
@@ -188,18 +229,43 @@ class PlayChooseBot extends Component {
   handleChange = inputName => {
     return (number) => {
       let newState = {};
+      let that = this;
       newState[inputName] = number;
-      this.setState(newState);
+      this.setState(newState, () => {
+        that.updateRating();
+      });
     }
   };
 
+  updateRating = () => {
+    let { initial, incrementOrDelay } = this.state;
+    let index = initial + 2 / 3 * incrementOrDelay;
+
+    const ratingConfig = {
+      "bullet": [0, 2],
+      "blitz": [3, 14],
+      "standard": [15, 600]
+    };
+    let ratingType = "none";
+    if (ratingConfig.bullet[0] <= index && index <= ratingConfig.bullet[1]) {
+      ratingType = "bullet";
+    } else if (ratingConfig.blitz[0] <= index && index <= ratingConfig.blitz[1]) {
+      ratingType = "blitz";
+    } else if (ratingConfig.standard[0] <= index && index <= ratingConfig.standard[1]) {
+      ratingType = "standard";
+    }
+    this.setState({ ratingType: ratingType });
+  }
+
   handlePlay = () => {
     let color = this.state.color;
+    let ratingType = this.state.ratingType;
 
     if (color === "random") {
       color = Math.random() < 0.5 ? "white" : "black";
     }
     this.props.onPlay({
+      ratingType: ratingType,
       skillLevel: this.state.difficulty,
       color: color,
       incrementOrDelayType: this.state.incrementOrDelayType,
@@ -215,7 +281,11 @@ class PlayChooseBot extends Component {
           <h2 className="play-friend__name-title">Play with computer</h2>
           <Button onClick={onClose}>Back</Button>
         </div>
-        <Form className="play-bot__form" layout="vertical">
+        <Form className="play-bot__form" layout="vertical"
+          initialValues={{
+            initial: this.state.initial,
+            incrementOrDelay: this.state.incrementOrDelay
+          }}>
           <Form.Item label="Difficulty" name="difficulty">
             <Radio.Group
               onChange={this.handleChangeDifficulty}
@@ -279,6 +349,9 @@ class PlayChooseBot extends Component {
               </Form.Item>
             </div>
           </Form.Item>
+          <Form.Item label="rating type" name="ratingType">
+            <p>{this.state.ratingType}</p>
+          </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
             Start the game
           </Button>
@@ -335,7 +408,7 @@ class PlayBlock extends Component {
   };
 
   hanldePlayWithBot = data => {
-    const { skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
+    const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
     // incrementOrDelayType: this.state.incrementOrDelayType,
     //   initial: this.state.initial,
     //   incrementOrDelay: this.state.incrementOrDelay
@@ -350,7 +423,7 @@ class PlayBlock extends Component {
     //   color,
     //   skill_level
 
-    this.props.onBotPlay(0, "blitz", initial, incrementOrDelay, incrementOrDelayType, initial, incrementOrDelay, incrementOrDelayType, skillLevel, color);
+    this.props.onBotPlay(0, ratingType, initial, incrementOrDelay, incrementOrDelayType, initial, incrementOrDelay, incrementOrDelayType, skillLevel, color);
     this.setState({ status: "playing" });
     // Meteor.call(
     //   "startBotGame",
@@ -511,7 +584,7 @@ export default class PlayRightSidebar extends Component {
           </TabPane>
 
           <TabPane tab="Observe" key="observe">
-            <ObserveBlock/>
+            <ObserveBlock />
           </TabPane>
         </Tabs>
         {this.props.user && this.props.game && this.renderBottom()}

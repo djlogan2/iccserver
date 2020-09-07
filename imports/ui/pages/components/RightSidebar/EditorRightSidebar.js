@@ -80,7 +80,7 @@ class EditorRightSidebar extends Component {
           <div className="editor-right-sidebar__color-block">
             <Radio.Group
               className="editor-right-sidebar__select"
-              defaultValue="w"
+              initialValues="w"
               value={this.props.color}
               buttonStyle="solid"
               onChange={handleColor}
