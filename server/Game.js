@@ -671,6 +671,7 @@ class Game {
       actions: [],
       observers: [{ id: self._id, username: self.username }],
       examiners: [{ id: self._id, username: self.username }],
+      analysis: [{ id: self._id, username: self.username }],
       variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
       computer_variations: []
     };
@@ -1244,7 +1245,10 @@ class Game {
       return;
     }
 
-    if (!game.examiners || game.examiners.map(e => e.id).indexOf(id_to_remove) === -1) {
+    if (
+      game.owner !== self._id &&
+      (!game.examiners || !game.examiners.some(e => e.id === id_to_remove))
+    ) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -2432,7 +2436,6 @@ class Game {
       examiners.push({ id: game.white.id, username: game.white.name });
     if (game.black.id !== "computer")
       examiners.push({ id: game.black.id, username: game.black.name });
-
 
     this.GameCollection.update(
       { _id: game._id, status: "playing" },
