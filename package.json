@@ -45,6 +45,7 @@
     "icclegacy": "file:../icclegacy",
     "indexof": "0.0.1",
     "is-whitespace-character": "^1.0.4",
+    "jsdom": "^16.4.0",
     "lodash": "^4.17.19",
     "meteor-node-stubs": "^0.4.1",
     "moment": "^2.27.0",
