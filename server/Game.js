@@ -4150,5 +4150,11 @@ Meteor.methods({
   observeUser: (message_identifier, user_id) =>
     global._gameObject.observeUser(message_identifier, user_id),
   // eslint-disable-next-line meteor/audit-argument-checks
-  exportToPGN: (message_identifier, game_id) => global._gameObject.exportToPGN(game_id)
+  exportToPGN: (message_identifier, game_id) => global._gameObject.exportToPGN(game_id),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  drawArrow: (message_identifier, game_id, from, to, color, size) =>
+    global._gameObject.drawArrow(message_identifier, game_id, from, to, color, size),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  removeArrow: (message_identifier, game_id, from, to) =>
+    global._gameObject.removeArrow(message_identifier, game_id, from, to)
 });
