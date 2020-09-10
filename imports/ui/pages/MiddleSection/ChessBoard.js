@@ -147,13 +147,7 @@ export default class ChessBoard extends PureComponent {
           resizable={true}
           fen={this.props.fen}
           orientation={this.props.orientation}
-
           movable={this.calcMovable()}
-          // animation={{
-          //   enabled: true,
-          //   duration: 200
-          // }}
-
           onMove={this.onMove}
           ref={el => {
             this.chessground = el;
