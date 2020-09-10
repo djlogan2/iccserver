@@ -255,7 +255,7 @@ export default class PlayPage extends Component {
               capture={this.props.capture}
               board={this.props.board}
               onDrop={this.props.onDrop}
-              onDrawCircle={this.props.onDrawCircle}
+              onDrawObject={this.props.onDrawObject}
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
               circles={this.props.circles}

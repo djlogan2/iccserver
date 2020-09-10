@@ -599,7 +599,7 @@ class Play extends Component {
           gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
-          onDrawCircle={this.drawCircle}
+          onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
           ref="main_page"
           examing={[]}

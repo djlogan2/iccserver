@@ -361,8 +361,7 @@ export default class ExaminePage extends Component {
               capture={this.props.capture}
               board={this.props.board}
               onDrop={this.props.onDrop}
-              onDrawCircle={this.props.onDrawCircle}
-              onRemoveCircle={this.props.onRemoveCircle}
+              onDrawObject={this.props.onDrawObject}
               top={position.top}
               circles={this.props.circles}
               width={this.state.width}

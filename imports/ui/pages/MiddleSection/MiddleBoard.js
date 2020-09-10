@@ -88,13 +88,9 @@ export default class MiddleBoard extends Component {
       return null
     }
     if (!!this.props.game) {
-      // try {
       this.chess.load(this.props.game.fen);
-      // } catch(err) {
-      //   debugger;
-      // }
-
     }
+
 
     let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
     let w = this.props.width;
@@ -199,17 +195,22 @@ export default class MiddleBoard extends Component {
               side={size}
             />
           )}
+          {this.props.game && (
+            <ChessBoard
+              fen={fen}
+              height={boardsize}
+              width={boardsize}
+              arrows={this.props.game.arrows}
+              circles={this.props.game.circles}
+              orientation={boardtop}
+              onDrop={this.props.onDrop}
+              onDrawObject={this.props.onDrawObject}
+              mycolor={mypeiceColor}
+              gameStatus={this.props.gameStatus}
+              currentGame={this.props.currentGame}
+            />
+          )}
 
-          <ChessBoard
-            fen={fen}
-            height={boardsize}
-            width={boardsize}
-            orientation={boardtop}
-            onDrop={this.props.onDrop}
-            mycolor={mypeiceColor}
-            gameStatus={this.props.gameStatus}
-            currentGame={this.props.currentGame}
-          />
 
           {isPlayingOrExamining && (
             <Player

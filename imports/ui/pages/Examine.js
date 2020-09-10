@@ -22,7 +22,14 @@ import {
 } from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
-const log = new Logger("client/AppContainer");
+const logger = new Logger("client/AppContainer");
+
+let handleError = error => {
+  if (error) {
+    logger.error(error);
+  }
+};
+
 
 let played_game_id;
 let game_timestamp_client;
@@ -224,6 +231,20 @@ class Examine extends Component {
 
   drawCircle(square, color, size) {
     Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size);
+  }
+
+  handleDraw = (objectList) => {
+    let gameId = this.gameId;
+
+    objectList.forEach((item) => {
+      const { brush, mouseSq, orig } = item;
+      const size = 1; // hardcode
+      if (orig === mouseSq) {
+        Meteor.call("drawCircle", "DrawCircle", gameId, orig, brush, size, handleError);
+      } else {
+        Meteor.call("drawArrow", "DrawArrow", gameId, orig, mouseSq, brush, size, handleError);
+      }
+    });
   }
 
   removeCircle(square) {
@@ -532,7 +553,7 @@ class Examine extends Component {
           // gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
-          onDrawCircle={this.drawCircle}
+          onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
           ref="main_page"
           examing={gameExamin}

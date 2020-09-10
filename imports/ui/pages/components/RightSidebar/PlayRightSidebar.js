@@ -209,17 +209,20 @@ class PlayChooseBot extends Component {
   }
   componentDidMount() {
     this.updateRating();
-  }
+  };
+
   handleChangeDifficulty = e => {
     this.setState({
       difficulty: e.target.value
     });
   };
+
   handleChangeColor = e => {
     this.setState({
       color: e.target.value
     });
   };
+  
   handleChangeIncrementOrDelayType = e => {
     this.setState({
       incrementOrDelayType: e.target.value

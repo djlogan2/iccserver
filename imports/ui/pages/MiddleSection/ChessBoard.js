@@ -6,6 +6,7 @@ import Chessground from "react-chessground";
 import "./../css/developmentboard.css";
 import "react-chessground/dist/styles/chessground.css";
 import "./../css/Theme.css";
+import Meta from "antd/lib/card/Meta";
 export default class ChessBoard extends PureComponent {
   constructor(props) {
     super(props);
@@ -59,6 +60,45 @@ export default class ChessBoard extends PureComponent {
       };
     }
   }
+
+  getObjects = () => {
+    let arrowList = this.props.arrows.map((arrowItem) => {
+      return {
+        "brush": arrowItem.color,
+        "dest": arrowItem.to,
+        "mouseSq": arrowItem.to,
+        "orig": arrowItem.from,
+        "pos": [],
+        "snapToValidMove": true
+      }
+    })
+    let circleList = this.props.circles.map((arrowItem) => {
+      return {
+        "brush": arrowItem.color,
+        "dest": undefined,
+        "mouseSq": arrowItem.square,
+        "orig": arrowItem.square,
+        "pos": [],
+        "snapToValidMove": true
+      }
+    })
+
+    return [...arrowList, ...circleList]
+  }
+  
+
+  // drawArrow = (data) => {
+  //   debugger;
+  //   Meteor.call("drawArrow", "DrawArrow", "gameId", "from", "to", "color", "size", (err) => {
+  //     debugger;
+  //     if (err) {
+
+  //     }
+  //   });
+
+  //   // onDrawObject={this.props.onDrawObject}
+  // }
+
   calcMovable() {
     const dests = {};
     this.chess.SQUARES.forEach(s => {
@@ -66,24 +106,42 @@ export default class ChessBoard extends PureComponent {
       if (ms.length) dests[s] = ms.map(m => m.to);
     });
     let color = "both";
-    if (!!this.props.gameStatus && this.props.gameStatus === "playing") {
+    if (this.getIsPlaying()) {
       color = this.props.orientation;
     }
     return {
       free: false,
       dests,
+      showDests: true,
       color: color
     };
   }
+
+  getIsPlaying = () => {
+    return !!this.props.gameStatus && this.props.gameStatus === "playing"
+  }
+
+  getIsExamining = () => {
+    return !!this.props.gameStatus && this.props.gameStatus === "examining"
+  }
+
   turnColor() {
     return this.chess.turn() === "w" ? "white" : "black";
   }
 
   render() {
     this.chess.load(this.props.fen);
+
+    const drawable = {
+      enabled: true,
+      autoShapes: this.getObjects(),
+      onChange: this.props.onDrawObject
+    };
+
     return (
       <div className="merida">
         <Chessground
+          drawable={drawable}
           draggable={this.draggable()}
           selectable={this.draggable()}
           turnColor={this.turnColor()}
@@ -92,9 +150,9 @@ export default class ChessBoard extends PureComponent {
           resizable={true}
           fen={this.props.fen}
           orientation={this.props.orientation}
-          /*
-          movable={this.calcMovable()}
-           */
+
+          // movable={this.calcMovable()}
+
           onMove={this.onMove}
           ref={el => {
             this.chessground = el;
