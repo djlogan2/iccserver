@@ -116,16 +116,17 @@ export default class PlayPage extends Component {
    */
   componentDidMount() {
     this.updateDimensions();
-    window.addEventListener("resize", this.updateDimensions.bind(this));
+    window.addEventListener("resize", this.updateDimensions);
   }
 
   /**
    * Remove event listener
    */
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions.bind(this));
+    window.removeEventListener("resize", this.updateDimensions);
   }
   updateDimensions = () => {
+
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight

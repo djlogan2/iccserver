@@ -137,7 +137,8 @@ class PlayFriendOptions extends Component {
         </div>
         <Form className="play-bot__form" layout="vertical" initialValues={{
           initial: this.state.initial,
-          incrementOrDelay: this.state.incrementOrDelay
+          incrementOrDelay: this.state.incrementOrDelay,
+          color: "random"
         }}>
           <Form.Item label="Time control" name="time-control">
             <Radio.Group
@@ -155,7 +156,6 @@ class PlayFriendOptions extends Component {
                 <InputNumber
                   min={0}
                   disabled={this.state.incrementOrDelayType === "none"}
-                  defaultValue={this.state.initial}
                   value={this.state.initial}
                   onChange={this.handleChange('initial')}
                 />
@@ -164,7 +164,6 @@ class PlayFriendOptions extends Component {
                 <InputNumber
                   min={0}
                   disabled={this.state.incrementOrDelayType === "none"}
-                  defaultValue={this.state.incrementOrDelay}
                   value={this.state.incrementOrDelay}
                   onChange={this.handleChange('incrementOrDelay')}
                 />
@@ -175,10 +174,8 @@ class PlayFriendOptions extends Component {
             <p>{this.state.ratingType}</p>
           </Form.Item>
           <Form.Item label="Color" name="color">
-            {/* ["none", "us", "bronstein", "inc"] */}
             <Radio.Group
               onChange={this.handleChangeColor}
-              defaultValue={this.state.color}
               value={this.state.color}
             >
               <Radio.Button value={"random"}>Random</Radio.Button>
@@ -336,7 +333,6 @@ class PlayChooseBot extends Component {
                 <InputNumber
                   min={0}
                   disabled={this.state.incrementOrDelayType === "none"}
-                  defaultValue={this.state.initial}
                   value={this.state.initial}
                   onChange={this.handleChange("initial")}
                 />
@@ -345,7 +341,6 @@ class PlayChooseBot extends Component {
                 <InputNumber
                   min={0}
                   disabled={this.state.incrementOrDelayType === "none"}
-                  defaultValue={this.state.incrementOrDelay}
                   value={this.state.incrementOrDelay}
                   onChange={this.handleChange("incrementOrDelay")}
                 />
@@ -412,42 +407,9 @@ class PlayBlock extends Component {
 
   hanldePlayWithBot = data => {
     const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
-    // incrementOrDelayType: this.state.incrementOrDelayType,
-    //   initial: this.state.initial,
-    //   incrementOrDelay: this.state.incrementOrDelay
-    // wild_number,
-    //   rating_type,
-    //   white_initial,
-    //   white_increment_or_delay,
-    //   white_increment_or_delay_type,
-    //   black_initial,
-    //   black_increment_or_delay,
-    //   black_increment_or_delay_type,
-    //   color,
-    //   skill_level
 
     this.props.onBotPlay(0, ratingType, initial, incrementOrDelay, incrementOrDelayType, initial, incrementOrDelay, incrementOrDelayType, skillLevel, color);
     this.setState({ status: "playing" });
-    // Meteor.call(
-    //   "startBotGame",
-    //   "play_computer",
-    //   0,
-    //   "blitz",
-    //   5,
-    //   0,
-    //   "none",
-    //   5,
-    //   0,
-    //   "none",
-    //   skillLevel,
-    //   color,
-    //   err => {
-    //     if (err) {
-    //       debugger;
-    //     }
-    //   }
-    // );
-
   };
 
   render() {

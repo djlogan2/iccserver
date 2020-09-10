@@ -62,7 +62,14 @@ export default class ChessBoard extends PureComponent {
   }
 
   getObjects = () => {
-    let arrowList = this.props.arrows.map((arrowItem) => {
+    let {arrows, circles} = this.props;
+    if (!arrows) {
+      arrows = [];
+    }
+    if (!circles) {
+      circles = [];
+    }
+    let arrowList = arrows.map((arrowItem) => {
       return {
         "brush": arrowItem.color,
         "dest": arrowItem.to,
@@ -72,7 +79,7 @@ export default class ChessBoard extends PureComponent {
         "snapToValidMove": true
       }
     })
-    let circleList = this.props.circles.map((arrowItem) => {
+    let circleList = circles.map((arrowItem) => {
       return {
         "brush": arrowItem.color,
         "dest": undefined,
@@ -85,33 +92,23 @@ export default class ChessBoard extends PureComponent {
 
     return [...arrowList, ...circleList]
   }
-  
-
-  // drawArrow = (data) => {
-  //   debugger;
-  //   Meteor.call("drawArrow", "DrawArrow", "gameId", "from", "to", "color", "size", (err) => {
-  //     debugger;
-  //     if (err) {
-
-  //     }
-  //   });
-
-  //   // onDrawObject={this.props.onDrawObject}
-  // }
 
   calcMovable() {
-    const dests = {};
+    const dests = [];
     this.chess.SQUARES.forEach(s => {
       const ms = this.chess.moves({ square: s, verbose: true });
-      if (ms.length) dests[s] = ms.map(m => m.to);
+      if (ms.length) {
+        dests.push([s, ms.map(m => m.to)]);
+      }
     });
     let color = "both";
     if (this.getIsPlaying()) {
       color = this.props.orientation;
     }
+
     return {
       free: false,
-      dests,
+      dests: new Map(dests),
       showDests: true,
       color: color
     };
@@ -151,7 +148,11 @@ export default class ChessBoard extends PureComponent {
           fen={this.props.fen}
           orientation={this.props.orientation}
 
-          // movable={this.calcMovable()}
+          movable={this.calcMovable()}
+          // animation={{
+          //   enabled: true,
+          //   duration: 200
+          // }}
 
           onMove={this.onMove}
           ref={el => {
