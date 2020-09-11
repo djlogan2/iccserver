@@ -1,7 +1,16 @@
 import chai from "chai";
-import { Awsmanager } from "./awsmanager";
-
-describe.skip("AWS Stockfish", function() {
+import sinon from "sinon";
+import {
+  awsmanager_class,
+  awsinstance_class,
+  awsengine_class,
+  awsengine_connector_class
+} from "./awsmanager";
+//module.exports.awsmanager_class = Awsmanager;
+// module.exports.awsinstance_class = AWSInstance;
+// module.exports.awsengine_class = AWSEngine;
+// module.exports.awsengine_connector_class = AWSEngineConnector;
+describe.only("AWS Stockfish", function() {
   // manager
   //    get all instances
   //    for each instance
@@ -10,9 +19,13 @@ describe.skip("AWS Stockfish", function() {
   //    watch games and users
   //       increase number of available engines when threshholds are met
   //       decrease number of available engines when threshholds are met
-  it("should start a new instance when game/user/engine threshhold is met", function() {
+  it("should start a new instance when game/user/engine threshhold is met", function(done) {
     this.timeout(500000);
-    const aws = Awsmanager;
+    sinon.stub(awsmanager_class.prototype, "setupSNS").returns(0);
+    sinon.stub(awsmanager_class.prototype, "getCurrentInstances").returns(0);
+    sinon.stub(awsmanager_class.prototype, "watchUsersAndGames").returns(0);
+    const aws = new awsmanager_class();
+
     console.log("here");
   });
   it("should add an instance to the five minute shutdown queue when game/user/engine threshhold is met", function() {

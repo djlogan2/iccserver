@@ -442,3 +442,7 @@ class AWSEngineConnector {
 }
 
 module.exports.Awsmanager = global._awsObject;
+module.exports.awsmanager_class = Awsmanager;
+module.exports.awsinstance_class = AWSInstance;
+module.exports.awsengine_class = AWSEngine;
+module.exports.awsengine_connector_class = AWSEngineConnector;

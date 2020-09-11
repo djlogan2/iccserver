@@ -6,7 +6,7 @@ import React from "react";
 import ReactTestUtils from "react-dom/test-utils";
 import JSDOM from "jsdom";
 
-describe.only("test this", function() {
+describe.skip("test this", function() {
   //let dom;
   let container;
 

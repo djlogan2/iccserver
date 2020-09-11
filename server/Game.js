@@ -602,6 +602,7 @@ class Game {
 
     delete game_object._id; // For safety
     const game_id = this.GameCollection.insert(game_object);
+    Users.setGameStatus("server", self._id, "examining");
     active_games[game_id] = chess;
     return game_id;
   }
