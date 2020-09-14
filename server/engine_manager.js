@@ -6,6 +6,7 @@ import { Random } from "meteor/random";
 import AWS from "aws-sdk";
 import { AWSmanager } from "./awsmanager";
 import { Meteor } from "meteor/meteor";
+import {Singular} from "./singular";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
@@ -237,7 +238,8 @@ function watchAllGamesForAnalysis() {
 
 Meteor.startup(() => {
   if (!Meteor.isTest && !Meteor.isAppTest) {
-    watchForComputerGames();
+    Singular.addTask(watchForComputerGames);
+    //watchForComputerGames();
     //watchAllGamesForAnalysis();
   }
 });

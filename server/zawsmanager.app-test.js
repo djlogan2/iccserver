@@ -20,7 +20,7 @@ describe.only("AWS Stockfish", function() {
   //       increase number of available engines when threshholds are met
   //       decrease number of available engines when threshholds are met
   it("should start a new instance when game/user/engine threshhold is met", function(done) {
-    this.timeout(500000);
+    this.timeout(5000000);
     sinon.stub(awsmanager_class.prototype, "setupSNS").returns(0);
     sinon.stub(awsmanager_class.prototype, "getCurrentInstances").returns(0);
     sinon.stub(awsmanager_class.prototype, "watchUsersAndGames").returns(0);

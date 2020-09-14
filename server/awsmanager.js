@@ -4,6 +4,11 @@ import { Picker } from "meteor/meteorhacks:picker";
 import AWS from "aws-sdk";
 import { Logger } from "../lib/server/Logger";
 import ssh2 from "ssh2";
+import { Game } from "./Game";
+import legacy from "icclegacy";
+import { Meteor } from "meteor/meteor";
+import { Singular } from "./singular";
+
 const log = new Logger("server/awsmanager_js");
 //
 //  OK, so we need support classes here:
@@ -45,10 +50,20 @@ class Awsmanager {
     this.ec2 = new AWS.EC2();
     this.sns = new AWS.SNS();
     Meteor.startup(() => {
-      this.collection.remove({}); // Remove all instances
+      this.collection.remove({ type: { $ne: "trainingdata" } }); // Remove all instances
+
       this.setupSNS();
       this.getCurrentInstances();
       this.watchUsersAndGames();
+      Singular.addTask(() => this.oneTimeTrain());
+
+      // temp
+      const loggedOnUsers = Meteor.users.find({ "status.online": true }).count();
+      const activeGames = Game.GameCollection.find().count();
+      const now = new Date();
+      const currentDay = now.getDay();
+      const currentHour = now.getHours();
+      this.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
     });
   }
 
@@ -94,23 +109,20 @@ class Awsmanager {
       Endpoint: "http://" + this.my_ip + ":" + this.my_port + path,
       ReturnSubscriptionArn: true
     };
-    this.sns.subscribe(params, (err, data) => {
+    this.sns.subscribe(params, err => {
       if (err) meteorerror("Error subscribing to " + sns_topic + ": " + err.toString());
     });
   }
 
   confirmSubscription(sns_topic, token) {
     meteordebug("Awsmanager::confirmSubscription");
-    this.sns.confirmSubscription(
-      { TopicArn: this.sns_topic[sns_topic], Token: token },
-      (err, data) => {
-        if (err) {
-          meteorerror("Error confirming subscription to " + sns_topic + ": " + err.toString());
-          return;
-        }
-        //console.log(data);
+    this.sns.confirmSubscription({ TopicArn: this.sns_topic[sns_topic], Token: token }, err => {
+      if (err) {
+        meteorerror("Error confirming subscription to " + sns_topic + ": " + err.toString());
+        return;
       }
-    );
+      //console.log(data);
+    });
   }
 
   getCurrentInstances() {
@@ -144,9 +156,145 @@ class Awsmanager {
     });
   }
 
+  updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour) {
+    // const data = {
+    //   lou: loggedOnUsers / 10000,
+    //   ag: activeGames / 10000,
+    //   cd: currentDay / 7,
+    //   ch: currentHour / 24,
+    //   louag: !loggedOnUsers ? 0 : activeGames / loggedOnUsers
+    // };
+    // const pctOfLoggedOnUsers = 0 /* # of stockfishes */ / loggedOnUsers;
+    // const output = this.net.run(data);
+    // if (!output) {
+    //   this.net.train([{ input: data, output: { pctOfLoggedOnUsers: data.louag } }]);
+    // }
+  }
+
   watchUsersAndGames() {
+    let loggedOnUsers = 0;
+    let activeGames = 0;
+    let currentDay;
+    let currentHour;
+    let self = this;
+
     meteordebug("Awsmanager::watchUsersAndGames");
-    // this will increase/decrease instance count based on hour, day, # users, # games, etc.
+    this.usersHandle = Meteor.users.find().observeChanges({
+      added(id, fields) {
+        if (fields.status.online) loggedOnUsers++;
+        self.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+      },
+      changed(id, fields) {
+        if (fields.status !== undefined && fields.status.online !== undefined) {
+          if (!!fields.status.online) loggedOnUsers++;
+          else loggedOnUsers--;
+        }
+        self.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+      },
+      removed(id) {
+        loggedOnUsers = Meteor.users.find({ "status.online": true }).count();
+        self.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+      }
+    });
+
+    this.gameHandle = Game.GameCollection.find().observeChanges({
+      added(id, fields) {
+        activeGames++;
+        self.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+      },
+      changed(id, fields) {},
+      removed(id) {
+        activeGames--;
+        self.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+      }
+    });
+
+    this.intervalHandle = Meteor.setInterval(() => {
+      const now = new Date();
+      currentDay = now.getDay();
+      currentHour = now.getHours();
+      self.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+    }, 60000);
+  }
+
+  oneTimeTrainTrain() {
+    const now = new Date();
+    if (!this.onetimetrain.start) {
+      this.onetimetrain.start = new Date(now.getTime() + 30000);
+    } else if (this.onetimetrain.start < now) {
+      const currentDay = now.getDay();
+      const currentHour = now.getHours();
+      const data = this.collection.findOne({
+        type: "trainingdata",
+        currentDay: currentDay,
+        currentHour: currentHour,
+        currentUsers: this.onetimetrain.currentUsers
+      });
+      if (!data) {
+        this.collection.insert({
+          type: "trainingdata",
+          currentHour: currentHour,
+          currentDay: currentDay,
+          currentUsers: this.onetimetrain.currentUsers,
+          minGames: this.onetimetrain.currentGames,
+          maxGames: this.onetimetrain.currentGames,
+          count: 1,
+          averageGames: this.onetimetrain.currentGames
+        });
+      } else {
+        this.collection.update(
+          {
+            type: "trainingdata",
+            currentDay: currentDay,
+            currentHour: currentHour,
+            currentUsers: this.onetimetrain.currentUsers
+          },
+          {
+            $set: {
+              minGames: Math.min(this.onetimetrain.currentGames, data.minGames),
+              maxGames: Math.max(this.onetimetrain.currentGames, data.maxGames),
+              count: data.count + 1,
+              averageGames:
+                (data.averageGames * data.count + this.onetimetrain.currentGames) / (data.count + 1)
+            }
+          }
+        );
+      }
+    }
+  }
+
+  player_arrived() {
+    this.onetimetrain.currentUsers++;
+    this.oneTimeTrainTrain();
+  }
+  player_left() {
+    this.onetimetrain.currentUsers--;
+    this.oneTimeTrainTrain();
+  }
+
+  game_started() {
+    this.onetimetrain.currentGames++;
+    this.oneTimeTrainTrain();
+  }
+
+  game_ended() {
+    this.onetimetrain.currentGames--;
+    this.oneTimeTrainTrain();
+  }
+
+  oneTimeTrain() {
+    const self = this;
+    this.onetimetrain = new legacy.LegacyICC({
+      username: "stcbot",
+      password: "ca014dedjl",
+      player_arrived: Meteor.bindEnvironment(data => self.player_arrived(data)),
+      player_left: Meteor.bindEnvironment(data => self.player_left(data)),
+      game_started: Meteor.bindEnvironment(data => self.game_started(data)),
+      game_result: Meteor.bindEnvironment(data => self.game_ended(data))
+    });
+    this.onetimetrain.currentUsers = 0;
+    this.onetimetrain.currentGames = 0;
+    this.onetimetrain.login();
   }
 
   instanceChanged(state, instance_id) {

@@ -37,6 +37,7 @@
     "async": "^3.2.0",
     "aws-sdk": "^2.724.0",
     "bcrypt": "^3.0.8",
+    "brain.js": "^2.0.0-beta.2",
     "chess.js": "git+https://github.com/jhlywa/chess.js.git",
     "create-react-class": "^15.6.3",
     "date-and-time": "^0.12.0",
