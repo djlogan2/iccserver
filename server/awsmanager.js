@@ -267,16 +267,40 @@ class Awsmanager {
   }
 
   player_arrived(packet) {
+    log.debug(
+      "player arrived currentGames=" +
+        this.onetimetrain.currentGames +
+        ", currentUsers=" +
+        this.onetimetrain.currentUsers +
+        ", player=" +
+        packet.player_name
+    );
     this.onetimetrain.currentUsers++;
     this.oneTimeTrainTrain();
   }
 
   player_left(packet) {
+    log.debug(
+      "player left currentGames=" +
+        this.onetimetrain.currentGames +
+        ", currentUsers=" +
+        this.onetimetrain.currentUsers +
+        ", player=" +
+        packet.player_name
+    );
     this.onetimetrain.currentUsers--;
     this.oneTimeTrainTrain();
   }
 
   game_started(packet) {
+    log.debug(
+      "game_started currentGames=" +
+        this.onetimetrain.currentGames +
+        ", currentUsers=" +
+        this.onetimetrain.currentUsers +
+        ", gamenumber=" +
+        packet.gamenumber
+    );
     if (this.onetimetrain.games.some(gamenumber => gamenumber === packet.gamenumber)) {
       meteorerror("We already have game number " + packet.gamenumber);
     } else {
@@ -287,6 +311,15 @@ class Awsmanager {
   }
 
   game_ended(packet) {
+    if (packet.become_examined) return; // It's not gone if it's being examined
+    log.debug(
+      "game ended currentGames=" +
+        this.onetimetrain.currentGames +
+        ", currentUsers=" +
+        this.onetimetrain.currentUsers +
+        ", gamenumber=" +
+        packet.gamenumber
+    );
     if (this.onetimetrain.games.some(gamenumber => gamenumber === packet.gamenumber)) {
       this.onetimetrain.games = this.onetimetrain.games.filter(
         gamenumber => gamenumber !== packet.gamenumber
@@ -307,6 +340,7 @@ class Awsmanager {
       player_left: Meteor.bindEnvironment(data => self.player_left(data)),
       game_started: Meteor.bindEnvironment(data => self.game_started(data)),
       game_result: Meteor.bindEnvironment(data => self.game_ended(data)),
+      examined_game_is_gone: Meteor.bindEnvironment(data => self.game_ended(data)),
       loggedin: () => this.onetimetrain.autologout(false)
     });
     this.onetimetrain.currentUsers = 0;
