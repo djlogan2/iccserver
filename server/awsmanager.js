@@ -46,6 +46,8 @@ class Awsmanager {
     this.collection = new Mongo.Collection("aws_stockfish_instances");
     this.my_ip = process.env.MY_IP_ADDRESS;
     this.my_port = process.env.MY_PORT;
+    this.ott_username = process.env.OTT_USERNAME;
+    this.ott_password = process.env.OTT_PASSWORD;
     this.spot_fleet_id = "aws:ec2spot:fleet-request-id";
     this.ec2 = new AWS.EC2();
     this.sns = new AWS.SNS();
@@ -55,7 +57,8 @@ class Awsmanager {
         this.setupSNS();
         this.getCurrentInstances();
         this.watchUsersAndGames();
-        this.oneTimeTrain();
+        if(!!this.ott_username && !!this.ott_password)
+          this.oneTimeTrain();
         // temp
         const loggedOnUsers = Meteor.users.find({ "status.online": true }).count();
         const activeGames = Game.GameCollection.find().count();
@@ -286,8 +289,8 @@ class Awsmanager {
   oneTimeTrain() {
     const self = this;
     this.onetimetrain = new legacy.LegacyICC({
-      username: "stcbot",
-      password: "ca014dedjl",
+      username: this.ott_username,
+      password: this.ott_password,
       player_arrived: Meteor.bindEnvironment(data => self.player_arrived(data)),
       player_left: Meteor.bindEnvironment(data => self.player_left(data)),
       game_started: Meteor.bindEnvironment(data => self.game_started(data)),
