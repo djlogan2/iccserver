@@ -57,8 +57,7 @@ class Awsmanager {
         this.setupSNS();
         this.getCurrentInstances();
         this.watchUsersAndGames();
-        if(!!this.ott_username && !!this.ott_password)
-          this.oneTimeTrain();
+        if (!!this.ott_username && !!this.ott_password) this.oneTimeTrain();
         // temp
         const loggedOnUsers = Meteor.users.find({ "status.online": true }).count();
         const activeGames = Game.GameCollection.find().count();
@@ -267,23 +266,36 @@ class Awsmanager {
     }
   }
 
-  player_arrived() {
+  player_arrived(packet) {
     this.onetimetrain.currentUsers++;
     this.oneTimeTrainTrain();
   }
-  player_left() {
+
+  player_left(packet) {
     this.onetimetrain.currentUsers--;
     this.oneTimeTrainTrain();
   }
 
-  game_started() {
-    this.onetimetrain.currentGames++;
-    this.oneTimeTrainTrain();
+  game_started(packet) {
+    if (this.onetimetrain.games.some(gamenumber => gamenumber === packet.gamenumber)) {
+      meteorerror("We already have game number " + packet.gamenumber);
+    } else {
+      this.onetimetrain.games.push(packet.gamenumber);
+      this.onetimetrain.currentGames++;
+      this.oneTimeTrainTrain();
+    }
   }
 
-  game_ended() {
-    this.onetimetrain.currentGames--;
-    this.oneTimeTrainTrain();
+  game_ended(packet) {
+    if (this.onetimetrain.games.some(gamenumber => gamenumber === packet.gamenumber)) {
+      this.onetimetrain.games = this.onetimetrain.games.filter(
+        gamenumber => gamenumber !== packet.gamenumber
+      );
+      this.onetimetrain.currentGames--;
+      this.oneTimeTrainTrain();
+    } else {
+      meteorerror("Unable to find game number " + packet.gamenumber);
+    }
   }
 
   oneTimeTrain() {
@@ -299,6 +311,7 @@ class Awsmanager {
     });
     this.onetimetrain.currentUsers = 0;
     this.onetimetrain.currentGames = 0;
+    this.onetimetrain.games = [];
     this.onetimetrain.login();
   }
 
