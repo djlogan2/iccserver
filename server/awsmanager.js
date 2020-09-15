@@ -50,20 +50,21 @@ class Awsmanager {
     this.ec2 = new AWS.EC2();
     this.sns = new AWS.SNS();
     Meteor.startup(() => {
-      this.collection.remove({ type: { $ne: "trainingdata" } }); // Remove all instances
-
-      this.setupSNS();
-      this.getCurrentInstances();
-      this.watchUsersAndGames();
-      Singular.addTask(() => this.oneTimeTrain());
-
-      // temp
-      const loggedOnUsers = Meteor.users.find({ "status.online": true }).count();
-      const activeGames = Game.GameCollection.find().count();
-      const now = new Date();
-      const currentDay = now.getDay();
-      const currentHour = now.getHours();
-      this.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+      Singular.addTask(() => {
+        this.collection.remove({ type: { $ne: "trainingdata" } }); // Remove all instances
+        this.setupSNS();
+        this.getCurrentInstances();
+        this.watchUsersAndGames();
+        this.oneTimeTrain();
+        // temp
+        const loggedOnUsers = Meteor.users.find({ "status.online": true }).count();
+        const activeGames = Game.GameCollection.find().count();
+        const now = new Date();
+        const currentDay = now.getDay();
+        const currentHour = now.getHours();
+        this.updateInstancesFromModel(loggedOnUsers, activeGames, currentDay, currentHour);
+        // temp
+      });
     });
   }
 
@@ -290,7 +291,8 @@ class Awsmanager {
       player_arrived: Meteor.bindEnvironment(data => self.player_arrived(data)),
       player_left: Meteor.bindEnvironment(data => self.player_left(data)),
       game_started: Meteor.bindEnvironment(data => self.game_started(data)),
-      game_result: Meteor.bindEnvironment(data => self.game_ended(data))
+      game_result: Meteor.bindEnvironment(data => self.game_ended(data)),
+      loggedin: () => this.onetimetrain.autologout(false)
     });
     this.onetimetrain.currentUsers = 0;
     this.onetimetrain.currentGames = 0;
