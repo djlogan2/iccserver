@@ -347,6 +347,7 @@ class Awsmanager {
     this.onetimetrain.currentGames = 0;
     this.onetimetrain.games = [];
     this.onetimetrain.login();
+    this.onetimetrain.autologout("noa", true);
   }
 
   instanceChanged(state, instance_id) {
