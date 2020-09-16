@@ -331,6 +331,8 @@ class Awsmanager {
     }
   }
 
+  // FUCK ME WHAT WHAT THE FUCKING FUCK
+
   oneTimeTrain() {
     const self = this;
     this.onetimetrain = new legacy.LegacyICC({
@@ -341,13 +343,12 @@ class Awsmanager {
       game_started: Meteor.bindEnvironment(data => self.game_started(data)),
       game_result: Meteor.bindEnvironment(data => self.game_ended(data)),
       examined_game_is_gone: Meteor.bindEnvironment(data => self.game_ended(data)),
-      loggedin: () => this.onetimetrain.autologout(false)
+      loggedin: () => this.onetimetrain.noautologout("noautologout", true)
     });
     this.onetimetrain.currentUsers = 0;
     this.onetimetrain.currentGames = 0;
     this.onetimetrain.games = [];
     this.onetimetrain.login();
-    this.onetimetrain.autologout("noa", true);
   }
 
   instanceChanged(state, instance_id) {
