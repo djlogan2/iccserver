@@ -41,6 +41,25 @@
 	height: 6rem;
 	margin-top: 0;
 }
+.sidebar__user {
+	padding: 0.8rem;
+	background: rgba(10, 10, 10, 0.1);
+	border-radius: .5rem;
+	width: calc(100% - 2rem);
+	margin-left: 1rem;
+}
+.sidebar__user-img {
+	width: 3.2rem;
+	height: 3.2rem;
+	border-radius: 50%;
+	overflow: hidden;
+    background: grey;
+}
+.sidebar__user-name {
+	color: #fff;
+	text-align: left !important;
+	padding-left: 1rem;
+}
 .fliph .sidebar__logo {
 	height: 3rem;
     width: 3rem;
@@ -242,7 +261,7 @@
 	flex-direction: column;
 	justify-content: space-between;
 	flex-grow: 1;
-	margin-top: 78px;
+	margin-top: 46px;
   }
 
   .sidebar li a {

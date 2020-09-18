@@ -16,8 +16,6 @@ import {
   mongoUser
 } from "../../../../api/client/collections";
 
-
-
 class LeftSidebar extends Component {
   constructor(props) {
     super(props);
@@ -38,7 +36,6 @@ class LeftSidebar extends Component {
   };
 
   handleUploadpgn = () => {
-
     this.props.history.push("/upload-pgn");
   };
 
@@ -61,7 +58,6 @@ class LeftSidebar extends Component {
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     }).fetch();
     return gameList;
-
   }
 
   handleExamine = () => {
@@ -108,7 +104,12 @@ class LeftSidebar extends Component {
         />
         <div className="sidebar__logo" />
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
-
+        {this.props.user && (
+          <div className="sidebar__user">
+            <img src="" alt="" className="sidebar__user-img" />
+            <span className="sidebar__user-name">{this.props.user.username}</span>
+          </div>
+        )}
         <MenuLinks
           onCommunity={this.handleCommunity}
           onUploadpgn={this.handleUploadpgn}

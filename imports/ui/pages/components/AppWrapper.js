@@ -30,7 +30,7 @@ import "./../css/GameControlBlock.css";
 import "./../css/Community.css";
 import "./../css/Messenger.css";
 
-const AppWrapper = ({ className, history, children, cssManager, game_request }) => {
+const AppWrapper = ({ className, user, history, children, cssManager, game_request }) => {
   Meteor.subscribe("game_requests");
 
   return (
@@ -52,7 +52,7 @@ const AppWrapper = ({ className, history, children, cssManager, game_request }) 
         </Modal>
       )}
 
-      <LeftSidebar cssManager={cssManager} />
+      <LeftSidebar user={user} cssManager={cssManager} />
       <Row className={`app-wrapper__row ${className}`}>{children}</Row>
     </div>
   );
@@ -75,6 +75,7 @@ export default withTracker(props => {
       {
         sort: { create_date: -1 }
       }
-    )
+    ),
+    user: Meteor.users.findOne({ _id: Meteor.userId() })
   };
 })(withRouter(AppWrapper));
