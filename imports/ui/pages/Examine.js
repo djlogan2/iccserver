@@ -53,8 +53,7 @@ class Examine extends Component {
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
-    this.drawCircle = this.drawCircle.bind(this);
-    this.removeCircle = this.removeCircle.bind(this);
+    // this.removeCircle = this.removeCircle.bind(this);
     // this.gameHistoryload = this.gameHistoryload.bind(this);
     this.removeGameHistory = this.removeGameHistory.bind(this);
   }
@@ -154,27 +153,86 @@ class Examine extends Component {
     this.props.history.push("/login");
   }
 
-  drawCircle(square, color, size) {
-    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size);
-  }
+  getIsExamining = () => {
+    return (
+      this.props.user && this.props.user.status & (this.props.user.status.game !== "examining")
+    );
+  };
 
   handleDraw = objectList => {
-    let gameId = this.gameId;
+    if (this.getIsExamining()) {
+      return;
+    }
 
-    objectList.forEach(item => {
+    let { circles, arrows, _id } = this.props.examine_game;
+    let circleList = objectList.filter(({ orig, mouseSq }) => orig === mouseSq);
+    let arrowList = objectList.filter(({ orig, mouseSq }) => orig !== mouseSq);
+
+    let circlesToAdd = circleList.filter(circle => {
+      let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
+      return index === -1;
+    });
+    let circlesToRemove = circleList.filter(circle => {
+      let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
+      return index !== -1;
+    });
+
+    let arrowsToAdd = arrowList.filter(arrow => {
+      let index = arrows.findIndex(arrowItem => {
+        return arrowItem.from === arrow.orig && arrowItem.to === arrow.dest;
+      });
+      return index === -1;
+    });
+    let arrowsToRemove = arrowList.filter(arrow => {
+      let index = arrows.findIndex(arrowItem => {
+        return arrowItem.from === arrow.orig && arrowItem.to === arrow.dest;
+      });
+      return index !== -1;
+    });
+
+    if (circlesToAdd.length > 0) {
+      this.drawCircles(_id, circlesToAdd);
+    }
+    if (arrowsToAdd.length > 0) {
+      this.drawArrows(_id, arrowsToAdd);
+    }
+    if (circlesToRemove.length > 0) {
+      this.removeCircles(_id, circlesToRemove);
+    }
+    if (arrowsToRemove.length > 0) {
+      this.removeArrows(_id, arrowsToRemove);
+    }
+  };
+
+  drawCircles = (gameId, list) => {
+    list.forEach(item => {
       const { brush, mouseSq, orig } = item;
       const size = 1; // hardcode
-      if (orig === mouseSq) {
-        Meteor.call("drawCircle", "DrawCircle", gameId, orig, brush, size, handleError);
-      } else {
-        Meteor.call("drawArrow", "DrawArrow", gameId, orig, mouseSq, brush, size, handleError);
-      }
+      Meteor.call("drawCircle", "DrawCircle", gameId, orig, brush, size, handleError);
     });
   };
 
-  removeCircle(square) {
-    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square);
-  }
+  removeCircles = (gameId, list) => {
+    list.forEach(item => {
+      const { brush, mouseSq, orig } = item;
+      Meteor.call("removeCircle", "RemoveCircle", gameId, orig, handleError);
+    });
+  };
+
+  drawArrows = (gameId, list) => {
+    list.forEach(item => {
+      const { brush, mouseSq, orig } = item;
+      const size = 1; // hardcode
+      Meteor.call("drawArrow", "DrawArrow", gameId, orig, mouseSq, brush, size, handleError);
+    });
+  };
+
+  removeArrows = (gameId, list) => {
+    list.forEach(item => {
+      const { brush, mouseSq, orig } = item;
+      Meteor.call("removeArrow", "RemoveArrow", gameId, orig, mouseSq, handleError);
+    });
+  };
 
   _pieceSquareDragStop = raf => {
     Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
@@ -359,8 +417,8 @@ class Examine extends Component {
           // gameRequest={gameRequest}
           // clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
-          onDrawCircle={this.drawCircle}
-          onRemoveCircle={this.removeCircle}
+          // onDrawCircle={this.drawCircle}
+          // onRemoveCircle={this.removeCircle}
           ref="main_page"
           // examing={gameExamin}
           // circles={circles}
@@ -474,7 +532,7 @@ class Examine extends Component {
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
-          onRemoveCircle={this.removeCircle}
+          // onRemoveCircle={this.removeCircle}
           ref="main_page"
           examing={gameExamin}
           circles={circles}

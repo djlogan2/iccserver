@@ -13,17 +13,30 @@ export default class ChessBoard extends PureComponent {
     this.chess = new Chess.Chess();
     this.state = {
       fen: this.chess.fen(),
-      boardTop: "black"
+      boardTop: "black",
+      shapes: []
     };
     this.deleyedHandleResize = _.debounce(this.handleResize, 300);
   }
 
   componentDidMount() {
     window.addEventListener("resize", this.deleyedHandleResize);
+    if (this.getIsExaminingOrObserving()) {
+      this.updateShapes();
+    }
   }
 
   componentWillUnmount() {
     window.removeEventListener("resize", this.deleyedHandleResize);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    let { arrows, circles } = this.props;
+    if (arrows.length !== prevProps.arrows.length) {
+      this.updateShapes();
+    } else if (circles.length !== prevProps.circles.length) {
+      this.updateShapes();
+    }
   }
 
   handleResize = () => {
@@ -49,6 +62,7 @@ export default class ChessBoard extends PureComponent {
       //  this.setState({ fen: this.chess.fen() });
     }
   };
+
   draggable() {
     if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
       return {
@@ -61,37 +75,73 @@ export default class ChessBoard extends PureComponent {
     }
   }
 
-  getObjects = () => {
-    let {arrows, circles} = this.props;
+  getShapes = () => {
+    let { arrows, circles } = this.props;
     if (!arrows) {
       arrows = [];
     }
     if (!circles) {
       circles = [];
     }
-    let arrowList = arrows.map((arrowItem) => {
+    let arrowList = arrows.map(arrowItem => {
       return {
-        "brush": arrowItem.color,
-        "dest": arrowItem.to,
-        "mouseSq": arrowItem.to,
-        "orig": arrowItem.from,
-        "pos": [],
-        "snapToValidMove": true
-      }
-    })
-    let circleList = circles.map((arrowItem) => {
+        brush: arrowItem.color,
+        dest: arrowItem.to,
+        mouseSq: arrowItem.to,
+        orig: arrowItem.from,
+        pos: [],
+        snapToValidMove: true
+      };
+    });
+    let circleList = circles.map(arrowItem => {
       return {
-        "brush": arrowItem.color,
-        "dest": undefined,
-        "mouseSq": arrowItem.square,
-        "orig": arrowItem.square,
-        "pos": [],
-        "snapToValidMove": true
-      }
-    })
+        brush: arrowItem.color,
+        dest: undefined,
+        mouseSq: arrowItem.square,
+        orig: arrowItem.square,
+        pos: [],
+        snapToValidMove: true
+      };
+    });
 
-    return [...arrowList, ...circleList]
-  }
+    return [...arrowList, ...circleList];
+  };
+
+  updateShapes = () => {
+    this.setState(
+      {
+        shapes: this.getShapes()
+      },
+      () => {
+        this.chessground.cg.setAutoShapes(this.state.shapes);
+      }
+    );
+  };
+
+  handleDrawObject = list => {
+    this.props.onDrawObject(list);
+    let objItem = list[0];
+    let shapes = [...this.state.shapes];
+    let newShapes = shapes.filter(shape => {
+      // cirle
+      // if (shape.orig !== objItem.orig) {
+      if (shape.orig !== objItem.orig || shape.mouseSq !== objItem.mouseSq) {
+        return true;
+      }
+      return false;
+    });
+    if (shapes.length === newShapes.length) {
+      newShapes = [...newShapes, { ...objItem }];
+    }
+    this.setState(
+      {
+        shapes: [...newShapes]
+      },
+      () => {
+        this.chessground.cg.setAutoShapes(this.state.shapes);
+      }
+    );
+  };
 
   calcMovable() {
     const dests = [];
@@ -115,12 +165,12 @@ export default class ChessBoard extends PureComponent {
   }
 
   getIsPlaying = () => {
-    return !!this.props.gameStatus && this.props.gameStatus === "playing"
-  }
+    return !!this.props.gameStatus && this.props.gameStatus === "playing";
+  };
 
-  getIsExamining = () => {
-    return !!this.props.gameStatus && this.props.gameStatus === "examining"
-  }
+  getIsExaminingOrObserving = () => {
+    return !!this.props.gameStatus && (this.props.gameStatus === "examining"|| this.props.gameStatus === "observing");
+  };
 
   turnColor() {
     return this.chess.turn() === "w" ? "white" : "black";
@@ -131,8 +181,9 @@ export default class ChessBoard extends PureComponent {
 
     const drawable = {
       enabled: true,
-      autoShapes: this.getObjects(),
-      onChange: this.props.onDrawObject
+      // autoShapes: [],
+      shapes: this.state.shapes,
+      onChange: this.handleDrawObject
     };
 
     return (
