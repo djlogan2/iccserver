@@ -153,6 +153,8 @@ class Examine extends Component {
     this.props.history.push("/login");
   }
 
+  // TODO: Not a good idea. There are going to be hundreds of user statuses over time.
+  //       Negative logic like this is going to be an avoidable tech-debt bug.
   getIsExamining = () => {
     return (
       this.props.user && this.props.user.status & (this.props.user.status.game !== "examining")
@@ -343,6 +345,10 @@ class Examine extends Component {
     });
   }
 
+  // TODO: This really makes no sense, does it? Why use an observeChanges().added() when
+  //       Meteor already sends you new records? If you are writing this reactively,
+  //       shouldn't you just be using a Tracker like you are already doing for all of
+  //       your other collections? Why is this one different?
   handlePgnUpload = fileData => {
     let that = this;
     let count = 0;

@@ -158,6 +158,7 @@ class Chat {
       self.roomCollection.remove({ public: false });
       Users.addLogoutHook(user => self.chatLogoutHook.bind(self, user));
       Users.addLoginHook(user => self.chatLoginHook.bind(self, user));
+      // singular
       Game.GameCollection.find({}).observeChanges({
         removed(id) {
           self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
