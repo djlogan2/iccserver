@@ -1,5 +1,4 @@
 import React, { PureComponent } from "react";
-import PropTypes from 'prop-types';
 import _ from "lodash";
 
 import Chess from "chess.js";
@@ -7,7 +6,7 @@ import Chessground from "react-chessground";
 import "./../css/developmentboard.css";
 import "react-chessground/dist/styles/chessground.css";
 import "./../css/Theme.css";
-import Meta from "antd/lib/card/Meta";
+
 export default class ChessBoard extends PureComponent {
   constructor(props) {
     super(props);
@@ -52,7 +51,6 @@ export default class ChessBoard extends PureComponent {
     });
     if (move === null) {
       this.setState({ fen: this.chess.fen() });
-      return;
     } else {
       let history = this.chess.history();
       let moves = history[history.length - 1];
@@ -126,10 +124,7 @@ export default class ChessBoard extends PureComponent {
     let newShapes = shapes.filter(shape => {
       // cirle
       // if (shape.orig !== objItem.orig) {
-      if (shape.orig !== objItem.orig || shape.mouseSq !== objItem.mouseSq) {
-        return true;
-      }
-      return false;
+      return shape.orig !== objItem.orig || shape.mouseSq !== objItem.mouseSq;
     });
     if (shapes.length === newShapes.length) {
       newShapes = [...newShapes, { ...objItem }];
