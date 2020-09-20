@@ -127,6 +127,12 @@ const messages = [
   ["LOGIN_FAILED_21"],
   ["LOGIN_FAILED_22"],
   [
+    "LOGIN_FAILED_DUP",
+    "This user is already logged in",
+    "Este usuario ya ha iniciado sesión",
+    "Этот пользователь уже вошел в систему"
+  ],
+  [
     "MATCH_DECLINED",
     "MATCH DECLINED {0}",
     "El mensaje con el valor {0} como valor de parámetro",

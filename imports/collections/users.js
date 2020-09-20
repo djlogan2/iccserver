@@ -18,6 +18,7 @@ import { UserStatus } from "meteor/mizzao:user-status";
 let log = new Logger("server/users_js");
 
 export const Users = {};
+const LoggedOnUsers = new Mongo.Collection("loggedon_users");
 
 Meteor.publishComposite("loggedOnUsers", {
   find() {
@@ -214,6 +215,7 @@ Meteor.startup(function() {
           ", logoutTime=" +
           fields.logoutTime
       );
+      LoggedOnUsers.remove({userid: fields.userId});
       runLogoutHooks(this, fields.userId);
     });
     UserStatus.events.on("connectionIdle", fields => {
@@ -247,8 +249,12 @@ Accounts.validateLoginAttempt(function(params) {
   // params.connection
   // params.methodName
   // params.methodArguments
+  if (!params.allowed) return false;
   if (!params.user) return false;
-  // Pretty simple so far. Allow the user to login if they are in the role allowing them to do so.
+
+  //
+  // Set the users locale from the http headers if they don't already have one set.
+  //
   if (!params.user.locale || params.user.locale === "unknown") {
     const httpHeaders = params.connection.httpHeaders || {};
     const acceptLanguage = (httpHeaders["accept-language"] || "en-us")
@@ -259,16 +265,35 @@ Accounts.validateLoginAttempt(function(params) {
     params.user.locale = acceptLanguage;
   }
 
+  //
+  // We have no choice near as I can tell but to implement this hack. We cannot set roles for a user
+  // that doesn't exist yet, so instead we just set "newguy" in the account creation, and upon the first
+  // login, we get here, where we delete that, and fill in the users roles.
+  //
   if (params.user.newguy) {
     Meteor.users.update({ _id: params.user._id }, { $unset: { newguy: 1 } });
     Roles.addUsersToRoles(params.user, standard_member_roles);
   }
 
+  //
+  // If the user is not being allowed to login, fail, and say so
+  //
   if (!Users.isAuthorized(params.user, "login")) {
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_12");
-    throw new Meteor.Error(message);
+    throw new Meteor.Error(401, message);
   }
 
+  //
+  // If the user has already logged in, disallow subsequent logins.
+  // I don't think this is 100% yet. I think in some cases this is being skipped when the login
+  // code thinks a previous browser is reconnecting rather than logging in. Sigh.
+  //
+  const lou = LoggedOnUsers.findOne({ userid: params.user._id });
+  if (lou) {
+    const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
+    throw new Meteor.Error(401, message);
+  }
+  LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
   return true;
 });
 

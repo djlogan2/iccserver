@@ -26,7 +26,7 @@ export default class LoginPage extends Component {
       if (err) {
         log.error("Error occurs on Login: " + err);
         this.setState({
-          error: "Email and Password not match"
+          error: err.reason //"Email and Password not match"
         });
       } else {
         this.props.history.push("/home");
