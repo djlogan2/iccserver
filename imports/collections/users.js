@@ -18,6 +18,7 @@ import { UserStatus } from "meteor/mizzao:user-status";
 let log = new Logger("server/users_js");
 
 export const Users = {};
+const LoggedOnUsers = new Mongo.Collection("loggedon_users");
 
 Meteor.publishComposite("loggedOnUsers", {
   find() {
@@ -214,6 +215,7 @@ Meteor.startup(function() {
           ", logoutTime=" +
           fields.logoutTime
       );
+      LoggedOnUsers.remove({ userid: fields.userId });
       runLogoutHooks(this, fields.userId);
     });
     UserStatus.events.on("connectionIdle", fields => {
@@ -241,14 +243,22 @@ Meteor.startup(function() {
 });
 
 Accounts.validateLoginAttempt(function(params) {
+  log.debug(
+    "validateLoginAttempt " +
+      (!params.user ? "no user" : params.user.username + "/" + params.user._id)
+  );
   // params.type = service name
   // params.allowed = t/f
   // params.user
   // params.connection
   // params.methodName
   // params.methodArguments
+  if (!params.allowed) return false;
   if (!params.user) return false;
-  // Pretty simple so far. Allow the user to login if they are in the role allowing them to do so.
+
+  //
+  // Set the users locale from the http headers if they don't already have one set.
+  //
   if (!params.user.locale || params.user.locale === "unknown") {
     const httpHeaders = params.connection.httpHeaders || {};
     const acceptLanguage = (httpHeaders["accept-language"] || "en-us")
@@ -259,40 +269,33 @@ Accounts.validateLoginAttempt(function(params) {
     params.user.locale = acceptLanguage;
   }
 
+  //
+  // We have no choice near as I can tell but to implement this hack. We cannot set roles for a user
+  // that doesn't exist yet, so instead we just set "newguy" in the account creation, and upon the first
+  // login, we get here, where we delete that, and fill in the users roles.
+  //
   if (params.user.newguy) {
     Meteor.users.update({ _id: params.user._id }, { $unset: { newguy: 1 } });
     Roles.addUsersToRoles(params.user, standard_member_roles);
   }
 
+  //
+  // If the user is not being allowed to login, fail, and say so
+  //
   if (!Users.isAuthorized(params.user, "login")) {
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_12");
-    throw new Meteor.Error(message);
+    throw new Meteor.Error(401, message);
   }
 
+  //
+  // If the user has already logged in, disallow subsequent logins.
+  //
+  const lou = LoggedOnUsers.findOne({ userid: params.user._id });
+  if (lou) {
+    log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
+    const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
+    throw new Meteor.Error(401, message);
+  }
+  LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
   return true;
-});
-
-// User methods: update fingerprint
-Meteor.methods({
-  updateFingerprint(fingerprint) {
-    log.debug("Meteor.methods updateFingerprint");
-    check(fingerprint, Object);
-    this.unblock();
-    // Retrieve current fingerprint
-    const userId = Meteor.userId();
-    const user = Meteor.users.findOne({ _id: userId }, { fields: { fingerprint: true } });
-
-    // If no fingerprint, store it
-    if (user && !user.fingerprint) {
-      Meteor.users.update({ _id: userId }, { $set: { fingerprint } });
-      return;
-    }
-
-    // If fingerprint is different, throw error and update the      fingerprint
-    // On the client side, it will logout other users
-    if (user && user.fingerprint !== fingerprint) {
-      Meteor.users.update({ _id: userId }, { $set: { fingerprint } });
-      throw new Meteor.Error("multiple-logins");
-    }
-  }
 });

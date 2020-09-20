@@ -14,49 +14,43 @@ import japanese from "./i18nContent/japanese.json";
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("client/main_js");
 
-
 let unflatten = function(data) {
-  "use strict";
-  if (Object(data) !== data || Array.isArray(data))
-      return data;
+  if (Object(data) !== data || Array.isArray(data)) return data;
   var regex = /\.?([^.\[\]]+)|\[(\d+)\]/g,
-      resultholder = {};
+    resultholder = {};
   for (var p in data) {
-      var cur = resultholder,
-          prop = "",
-          m;
-      while (m = regex.exec(p)) {
-          cur = cur[prop] || (cur[prop] = (m[2] ? [] : {}));
-          prop = m[2] || m[1];
-      }
-      cur[prop] = data[p];
+    var cur = resultholder,
+      prop = "",
+      m;
+    while ((m = regex.exec(p))) {
+      cur = cur[prop] || (cur[prop] = m[2] ? [] : {});
+      prop = m[2] || m[1];
+    }
+    cur[prop] = data[p];
   }
   return resultholder[""] || resultholder;
 };
 
 let flatten = function(data) {
   var result = {};
-  function recurse (cur, prop) {
-      if (Object(cur) !== cur) {
-          result[prop] = cur;
-      } else if (Array.isArray(cur)) {
-           for(var i=0, l=cur.length; i<l; i++)
-               recurse(cur[i], prop + "[" + i + "]");
-          if (l == 0)
-              result[prop] = [];
-      } else {
-          var isEmpty = true;
-          for (var p in cur) {
-              isEmpty = false;
-              recurse(cur[p], prop ? prop+"."+p : p);
-          }
-          if (isEmpty && prop)
-              result[prop] = {};
+  function recurse(cur, prop) {
+    if (Object(cur) !== cur) {
+      result[prop] = cur;
+    } else if (Array.isArray(cur)) {
+      for (var i = 0, l = cur.length; i < l; i++) recurse(cur[i], prop + "[" + i + "]");
+      if (l == 0) result[prop] = [];
+    } else {
+      var isEmpty = true;
+      for (var p in cur) {
+        isEmpty = false;
+        recurse(cur[p], prop ? prop + "." + p : p);
       }
+      if (isEmpty && prop) result[prop] = {};
+    }
   }
   recurse(data, "");
   return result;
-}
+};
 
 //
 // *******************************************************************************************************
@@ -97,49 +91,4 @@ Meteor.startup(() => {
     defaultLocale: "en-US"
   });
   render(renderRoutes(), document.getElementById("target"));
-});
-
-// On login hook
-// Logout all other clients on login to prevent users using same user
-Accounts.onLogin(() => {
-  import("fingerprintjs2").then(mod => {
-    let Fingerprint2 = null;
-    if (process.env.NODE_ENV === "test") {
-      Fingerprint2 = mod;
-    }
-    Fingerprint2 = mod.default;
-    const options = {
-      excludes: {
-        plugins: true,
-        adBlock: true,
-        screenResolution: true,
-        availableScreenResolution: true
-      }
-    };
-    if (window.requestIdleCallback) {
-      requestIdleCallback(() => {
-        Fingerprint2.get(options, components => {
-          const values = components.map(component => component.value);
-          const fingerprint = Fingerprint2.x64hash128(values.join(""), 31);
-          Meteor.call("updateFingerprint", { fingerprint }, error => {
-            if (error) {
-              Meteor.logoutOtherClients();
-            }
-          });
-        });
-      });
-    } else {
-      setTimeout(() => {
-        Fingerprint2.get(options, components => {
-          const values = components.map(component => component.value);
-          const fingerprint = Fingerprint2.x64hash128(values.join(""), 31);
-          Meteor.call("users.updateFingerprint", { fingerprint }, error => {
-            if (error) {
-              Meteor.logoutOtherClients();
-            }
-          });
-        });
-      }, 500);
-    }
-  });
 });

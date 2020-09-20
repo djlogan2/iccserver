@@ -53,7 +53,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
     const setobject = {};
     setobject["status.online"] = options.login === undefined || options.login;
     setobject.isolation_group = options.isolation_group;
-    if (setobject["status.online"]) setobject.fingerprint = { fingerprint: "fingerprint" };
     setobject.locale = options.locale || "en-us";
     setobject.board_css = options.board_css || "developmentcss";
 

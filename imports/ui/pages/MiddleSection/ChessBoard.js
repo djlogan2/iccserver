@@ -169,8 +169,13 @@ export default class ChessBoard extends PureComponent {
     return !!this.props.gameStatus && this.props.gameStatus === "playing";
   };
 
+  // TODO: You cannot be examining a game you are not also observing, so this logic says:
+  //       if observing and examining or just observing ...
   getIsExaminingOrObserving = () => {
-    return !!this.props.gameStatus && (this.props.gameStatus === "examining"|| this.props.gameStatus === "observing");
+    return (
+      !!this.props.gameStatus &&
+      (this.props.gameStatus === "examining" || this.props.gameStatus === "observing")
+    );
   };
 
   turnColor() {
