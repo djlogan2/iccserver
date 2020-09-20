@@ -215,7 +215,7 @@ Meteor.startup(function() {
           ", logoutTime=" +
           fields.logoutTime
       );
-      LoggedOnUsers.remove({userid: fields.userId});
+      LoggedOnUsers.remove({ userid: fields.userId });
       runLogoutHooks(this, fields.userId);
     });
     UserStatus.events.on("connectionIdle", fields => {
@@ -243,6 +243,10 @@ Meteor.startup(function() {
 });
 
 Accounts.validateLoginAttempt(function(params) {
+  log.debug(
+    "validateLoginAttempt " +
+      (!params.user ? "no user" : params.user.username + "/" + params.user._id)
+  );
   // params.type = service name
   // params.allowed = t/f
   // params.user
@@ -285,39 +289,13 @@ Accounts.validateLoginAttempt(function(params) {
 
   //
   // If the user has already logged in, disallow subsequent logins.
-  // I don't think this is 100% yet. I think in some cases this is being skipped when the login
-  // code thinks a previous browser is reconnecting rather than logging in. Sigh.
   //
   const lou = LoggedOnUsers.findOne({ userid: params.user._id });
   if (lou) {
+    log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
     throw new Meteor.Error(401, message);
   }
   LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
   return true;
-});
-
-// User methods: update fingerprint
-Meteor.methods({
-  updateFingerprint(fingerprint) {
-    log.debug("Meteor.methods updateFingerprint");
-    check(fingerprint, Object);
-    this.unblock();
-    // Retrieve current fingerprint
-    const userId = Meteor.userId();
-    const user = Meteor.users.findOne({ _id: userId }, { fields: { fingerprint: true } });
-
-    // If no fingerprint, store it
-    if (user && !user.fingerprint) {
-      Meteor.users.update({ _id: userId }, { $set: { fingerprint } });
-      return;
-    }
-
-    // If fingerprint is different, throw error and update the      fingerprint
-    // On the client side, it will logout other users
-    if (user && user.fingerprint !== fingerprint) {
-      Meteor.users.update({ _id: userId }, { $set: { fingerprint } });
-      throw new Meteor.Error("multiple-logins");
-    }
-  }
 });

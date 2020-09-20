@@ -80,9 +80,6 @@ const all_fields = {
     //   userAgent: 1
     // }
   },
-  fingerprint: {
-    fingerprint: 1
-  },
   isolation_group: 1
   // services: {
   //   resume: {
@@ -108,7 +105,7 @@ describe("Users", function() {
     Meteor.users.update(
       { username: "user1" },
       {
-        $set: { isolation_group: "isolation_group_1", fingerprint: { fingerprint: "fingerprint" } }
+        $set: { isolation_group: "isolation_group_1"}
       }
     );
     const user1 = Meteor.users.findOne({ username: "user1" });
