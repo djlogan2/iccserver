@@ -1,4 +1,5 @@
 import React, { PureComponent } from "react";
+import PropTypes from 'prop-types';
 import _ from "lodash";
 
 import Chess from "chess.js";
@@ -208,3 +209,13 @@ export default class ChessBoard extends PureComponent {
     );
   }
 }
+
+ChessBoard.defaultProps = {
+  arrows: [],
+  circles: [],
+  width: 100,
+  height: 100,
+  fen: "",
+  orientation: "w",
+  gameStatus: "none"
+};
