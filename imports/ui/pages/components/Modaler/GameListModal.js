@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import { Modal } from "antd";
+import { withRouter } from "react-router";
 import moment from "moment";
 import { Meteor } from "meteor/meteor";
 
-export default ({ gameList, isImported = false, ...rest }) => {
+const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
   const handleSetExaminMode = (id, is_imported) => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported, (error, response) => {
       if (error) {
-        this.setState({ modalShow: false });
-      } else {
-        this.setState({ examineGame: true, activeTab: 3, modalShow: false });
+        // to add logger
       }
+      history.push("/examine");
     });
 
     // this.props.removeGameHistory();
@@ -127,3 +127,6 @@ export default ({ gameList, isImported = false, ...rest }) => {
     </Modal>
   );
 };
+
+
+export default withRouter(GameListModal);
