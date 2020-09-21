@@ -179,6 +179,11 @@ Meteor.startup(function() {
   Roles.createRole("room_chat", { unlessExists: true });
   Roles.createRole("personal_chat", { unlessExists: true });
   Roles.addUsersToRoles(users, ["kibitz", "room_chat", "personal_chat"]);
+  const loggedin_users = Meteor.users
+    .find({ "status.online": true }, { fields: { _id: 1 } })
+    .fetch()
+    .map(user => user._id);
+  LoggedOnUsers.remove({ userid: { $nin: loggedin_users } });
   Meteor.users.update(
     { isolation_group: { $exists: false } },
     { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } }
@@ -289,9 +294,11 @@ Accounts.validateLoginAttempt(function(params) {
 
   //
   // If the user has already logged in, disallow subsequent logins.
+  // Why this damn piece of code has decided to validate the same login twice in a row is BEYOND ME
+  // ARGH ARGH ARGH ARGH -- But check to make sure if the record exists, it's the same connection id
   //
   const lou = LoggedOnUsers.findOne({ userid: params.user._id });
-  if (lou) {
+  if (!!lou && lou.connection.connection.id !== params.connection.id) {
     log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
     throw new Meteor.Error(401, message);
