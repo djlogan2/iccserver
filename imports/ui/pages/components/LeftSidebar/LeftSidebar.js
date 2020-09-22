@@ -106,7 +106,7 @@ class LeftSidebar extends Component {
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
         {this.props.user && (
           <div className="sidebar__user">
-            <img src="" alt="" className="sidebar__user-img" />
+            <img src={"../../../images/avatar.png"} alt="" className="sidebar__user-img" />
             <span className="sidebar__user-name">{this.props.user.username}</span>
           </div>
         )}
