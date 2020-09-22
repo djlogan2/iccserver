@@ -220,6 +220,8 @@ Meteor.startup(function() {
           ", logoutTime=" +
           fields.logoutTime
       );
+      const err = new Error();
+      log.debug("connectionLogout " + err.stack);
       LoggedOnUsers.remove({ userid: fields.userId });
       runLogoutHooks(this, fields.userId);
     });
@@ -258,13 +260,20 @@ Accounts.validateLoginAttempt(function(params) {
   // params.connection
   // params.methodName
   // params.methodArguments
-  if (!params.allowed) return false;
-  if (!params.user) return false;
+  if (!params.allowed) {
+    log.debug("validateLoginAttempt not allowed");
+    return false;
+  }
+  if (!params.user) {
+    log.debug("validateLoginAttempt no user");
+    return false;
+  }
 
   //
   // Set the users locale from the http headers if they don't already have one set.
   //
   if (!params.user.locale || params.user.locale === "unknown") {
+    log.debug("validateLoginAttempt updating locale");
     const httpHeaders = params.connection.httpHeaders || {};
     const acceptLanguage = (httpHeaders["accept-language"] || "en-us")
       .split(/[,;]/)[0]
@@ -280,6 +289,7 @@ Accounts.validateLoginAttempt(function(params) {
   // login, we get here, where we delete that, and fill in the users roles.
   //
   if (params.user.newguy) {
+    log.debug("validateLoginAttempt updating roles for new user");
     Meteor.users.update({ _id: params.user._id }, { $unset: { newguy: 1 } });
     Roles.addUsersToRoles(params.user, standard_member_roles);
   }
@@ -288,6 +298,7 @@ Accounts.validateLoginAttempt(function(params) {
   // If the user is not being allowed to login, fail, and say so
   //
   if (!Users.isAuthorized(params.user, "login")) {
+    log.error("validateLoginAttempt login not allowed for " + params.user.username);
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_12");
     throw new Meteor.Error(401, message);
   }
@@ -298,11 +309,12 @@ Accounts.validateLoginAttempt(function(params) {
   // ARGH ARGH ARGH ARGH -- But check to make sure if the record exists, it's the same connection id
   //
   const lou = LoggedOnUsers.findOne({ userid: params.user._id });
-  if (!!lou && lou.connection.connection.id !== params.connection.id) {
+  if (!!lou && lou.connection.id !== params.connection.id) {
     log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
     throw new Meteor.Error(401, message);
   }
   LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
+  log.debug("validateLoginAttempt succeeded");
   return true;
 });
