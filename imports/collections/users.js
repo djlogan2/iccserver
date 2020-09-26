@@ -220,8 +220,6 @@ Meteor.startup(function() {
           ", logoutTime=" +
           fields.logoutTime
       );
-      const err = new Error();
-      log.debug("connectionLogout " + err.stack);
       LoggedOnUsers.remove({ userid: fields.userId });
       runLogoutHooks(this, fields.userId);
     });
@@ -300,7 +298,7 @@ Accounts.validateLoginAttempt(function(params) {
   if (!Users.isAuthorized(params.user, "login")) {
     log.error("validateLoginAttempt login not allowed for " + params.user.username);
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_12");
-    throw new Meteor.Error(401, message);
+    throw new Meteor.Error("401", message);
   }
 
   //
@@ -312,7 +310,7 @@ Accounts.validateLoginAttempt(function(params) {
   if (!!lou && lou.connection.id !== params.connection.id) {
     log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
     const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
-    throw new Meteor.Error(401, message);
+    throw new Meteor.Error("401", message);
   }
   LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
   log.debug("validateLoginAttempt succeeded");

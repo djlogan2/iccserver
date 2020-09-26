@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Player from "./Player";
-import CircleAndArrow from "./CircleAndArrow";
 import BlackPlayerClock from "./BlackPlayerClock";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
@@ -13,6 +12,7 @@ const log = new Logger("client/MiddleBoard");
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
+    log.debug("MiddleBoard constructor", props);
     this.chess = new Chess.Chess();
     this.state = {
       fen: this.chess.fen(),
@@ -84,36 +84,24 @@ export default class MiddleBoard extends Component {
   };
 
   render() {
+    log.debug("MiddleBoard render", this.props);
     if (!!this.props.game && this.props.game.fen === undefined) {
-      return null
+      return null;
     }
     if (!!this.props.game) {
       this.chess.load(this.props.game.fen);
     }
 
-
     let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
-    let w = this.props.width;
-    let h = this.props.height;
 
     let boardsize = this.calcBoardSize();
     let size = this.calcSize();
-    let m = Math.min(w, h);
 
     const topPlayer = this.getTopPlayerData();
     const bottomPlayer = this.getBottomPlayerData();
 
     const topPlayertime = this.state.top === "w" ? "white" : "black";
     const bottomPlayertime = this.state.top === "b" ? "white" : "black";
-
-    const topPlayerClock =
-      this.state.top === "w"
-        ? this.props.MiddleBoardData.clocks.white
-        : this.props.MiddleBoardData.clocks.black;
-    const bottomPlayerClock =
-      this.state.top === "b"
-        ? this.props.MiddleBoardData.clocks.white
-        : this.props.MiddleBoardData.clocks.black;
 
     const topPlayerFallenSoldier =
       this.state.top === "w" ? this.props.capture.b : this.props.capture.w;
@@ -210,7 +198,6 @@ export default class MiddleBoard extends Component {
               currentGame={this.props.currentGame}
             />
           )}
-
 
           {isPlayingOrExamining && (
             <Player

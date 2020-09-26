@@ -1,13 +1,11 @@
 import React, { Component } from "react";
 import Tabs from "./Tabs/Tabs";
 import GameHistory from "./GameComponent";
-import CreateGame from "./CreateGameComponent";
-import TournamentsList from "./TournamentsListComponent";
 import i18n from "meteor/universe:i18n";
 import "./Tabs/styles";
 import { Logger } from "../../../../lib/client/Logger";
 
-const log = new Logger("client/RightBarTop");
+const log = new Logger("client/RightBarActivetabs");
 
 export default class RightBarTopActivetabs extends Component {
   constructor(props) {

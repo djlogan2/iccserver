@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Row, Modal } from "antd";
@@ -38,7 +38,7 @@ const AppWrapper = ({ className, user, history, children, cssManager, game_reque
       {game_request && (
         <Modal
           title="Game request"
-          visible={game_request ? true : false}
+          visible={!!game_request}
           onOk={() => {
             Meteor.call("gameRequestAccept", "gameAccept", game_request._id, (err, data) => {
               history.push("/play");

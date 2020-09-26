@@ -106,8 +106,15 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
   if (game.white.id === "computer" && game.tomove !== "white") return;
   if (game.black.id === "computer" && game.tomove !== "black") return;
   if (game.status !== "playing") return;
-  log.debug("playGameMove " + game_id + " starting engine");
   const bookEntry = Book.findBook(game.fen);
+  log.debug(
+    "playGameMove " +
+      game_id +
+      " starting engine, fen=" +
+      game.fen +
+      ", book=" +
+      (!!bookEntry ? bookEntry._id : "none")
+  );
   if (!!bookEntry) {
     let wt = bookEntry.entries.length;
     const sum = (bookEntry.entries.length * (bookEntry.entries.length + 1)) / 2; // n(n+1)/2

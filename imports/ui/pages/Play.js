@@ -20,7 +20,7 @@ import {
 } from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 
-const logger = new Logger("client/AppContainer");
+const log = new Logger("client/Play_js");
 
 const EXAMINING_QUOTE = {
   $or: [
@@ -33,7 +33,7 @@ const EXAMINING_QUOTE = {
 
 let handleError = error => {
   if (error) {
-    logger.error(error);
+    log.error(error);
   }
 };
 
@@ -103,6 +103,7 @@ class PlayNotifier extends Component {
 class Play extends Component {
   constructor(props) {
     super(props);
+    log.debug("Play constructor", props);
     this.gameId = null;
     this.userId = null;
     // You need to quit using Chess.chess() and start using the data from the game record.
@@ -186,31 +187,12 @@ class Play extends Component {
     e.preventDefault();
     Meteor.logout(err => {
       if (err) {
-        logger.error(err.reason);
+        log.error(err.reason);
       } else {
         this.props.history.push("/login");
       }
     });
     this.props.history.push("/login");
-  }
-
-  _fallenSoldier() {
-    let history = this._boardfallensolder.history({ verbose: true });
-    let position = {
-      w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
-    };
-
-    return history.reduce((accumulator, move) => {
-      if ("captured" in move) {
-        let piece = move.captured;
-        let color = move.color === "w" ? "b" : "w";
-        accumulator[color][piece] += 1;
-        return accumulator;
-      } else {
-        return accumulator;
-      }
-    }, position);
   }
 
   drawCircle(square, color, size) {
@@ -244,6 +226,7 @@ class Play extends Component {
   }
 
   _boardFromMongoMessages(game) {
+    //logger.debug("_boardFromMongoMessages", game);
     if (!game.fen) {
       return;
     }
@@ -254,11 +237,11 @@ class Play extends Component {
 
     for (let i = 0; i < variation.cmi; i++) {
       if (itemToBeRemoved.indexOf(i) === -1) {
-        var moveListItem = variation.movelist[i];
+        const moveListItem = variation.movelist[i];
         if (moveListItem !== undefined) {
-          var variationI = moveListItem.variations;
+          const variationI = moveListItem.variations;
           if (variationI !== undefined) {
-            var len = variationI.length;
+            const len = variationI.length;
             if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
               this._boardfallensolder.move(variation.movelist[variationI[0]].move);
             } else if (len > 1) {
@@ -276,8 +259,8 @@ class Play extends Component {
         }
       }
     }
-    let history = this._boardfallensolder.history({ verbose: true });
-    let position = {
+    const history = this._boardfallensolder.history({ verbose: true });
+    const position = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
@@ -294,11 +277,7 @@ class Play extends Component {
     }, position);
   }
 
-  _examinBoard(game) {
-    if (!!game && !!game.fen) this._board.load(game.fen);
-  }
-
-  handleExamine = gameId => {
+  handleExamine = () => {
     debugger;
     this.props.history.push("/examine");
   };
@@ -328,13 +307,7 @@ class Play extends Component {
     return { friendId, options };
   };
 
-  handleRematch = gameId => {
-    // Meteor.call(
-    //   "rematchRequest",
-    //   "rematchRequest",
-    //   userId
-    // );
-
+  handleRematch = () => {
     if (this.state.gameType === "startBotGame") {
       let {
         wild_number,
@@ -372,37 +345,6 @@ class Play extends Component {
   };
 
   handleChooseFriend = ({ friendId, options }) => {
-    // const defaultData = {
-    //   user: null,
-    //   userId: null,
-    //   wild_number: 0,
-    //   rating_type: "standard",
-    //   rated: true,
-    //   is_adjourned: false,
-    //   time: 14,
-    //   inc: 1,
-    //   incOrdelayType: "inc",
-    //   color: null
-    // };
-
-    // Meteor.call(
-    //   "addLocalMatchRequest",
-    //   "matchRequest",
-    //   friendId,
-    //   defaultData.wild_number,
-    //   defaultData.rating_type,
-    //   defaultData.rated,
-    //   defaultData.is_adjourned,
-    //   defaultData.time,
-    //   defaultData.inc,
-    //   defaultData.incOrdelayType,
-    //   defaultData.time,
-    //   defaultData.inc,
-    //   defaultData.incOrdelayType,
-    //   defaultData.color,
-    //   handleError
-    // );
-
     const defaultData = {
       user: null,
       userId: null,
@@ -439,12 +381,6 @@ class Play extends Component {
       initial,
       incrementOrDelay,
       incrementOrDelayType,
-      // defaultData.time,
-      // defaultData.inc,
-      // defaultData.incOrdelayType,
-      // defaultData.time,
-      // defaultData.inc,
-      // defaultData.incOrdelayType,
       initial,
       incrementOrDelay,
       incrementOrDelayType,
@@ -504,6 +440,7 @@ class Play extends Component {
   };
 
   render() {
+    log.debug("Play render", this.props);
     const gameRequest = this.props.game_request;
     let game = this.props.game_playing;
 
@@ -610,7 +547,7 @@ class Play extends Component {
   }
 }
 
-export default withTracker(props => {
+export default withTracker(() => {
   return {
     user: Meteor.users.findOne({ _id: Meteor.userId() }),
     usersToPlayWith: Meteor.users
@@ -679,7 +616,7 @@ Game.find({ status: "playing" }).observeChanges({
       try {
         game_timestamps[id].timestamp.end();
       } catch (e) {
-        logger.error(e);
+        log.error(e);
       } finally {
         delete game_timestamps[id];
       }

@@ -6,10 +6,14 @@ import Chessground from "react-chessground";
 import "./../css/developmentboard.css";
 import "react-chessground/dist/styles/chessground.css";
 import "./../css/Theme.css";
+import { Logger } from "../../../../lib/client/Logger";
+
+const log = new Logger("client/ChessBoard_js");
 
 export default class ChessBoard extends PureComponent {
   constructor(props) {
     super(props);
+    log.debug("ChessBoard constructor", props);
     this.chess = new Chess.Chess();
     this.state = {
       fen: this.chess.fen(),
@@ -44,6 +48,7 @@ export default class ChessBoard extends PureComponent {
   };
 
   onMove = (from, to) => {
+    log.debug("onMove from=" + from + ", to=" + to);
     let move = this.chess.move({
       from: from,
       to: to,
@@ -178,6 +183,7 @@ export default class ChessBoard extends PureComponent {
   }
 
   render() {
+    log.debug("ChessBoard render", this.props);
     this.chess.load(this.props.fen);
 
     const drawable = {

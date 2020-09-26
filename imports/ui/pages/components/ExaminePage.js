@@ -24,7 +24,7 @@ import {
   ActionPopup
 } from "./Popup/Popup";
 import i18n from "meteor/universe:i18n";
-const log = new Logger("client/MainPage");
+const log = new Logger("client/ExaminePage");
 
 export default class ExaminePage extends Component {
   constructor(props) {

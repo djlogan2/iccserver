@@ -1,10 +1,7 @@
 import React, { Component } from "react";
-import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
-// import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
 import AppWrapper from "./AppWrapper";
 import PlayRightSidebar from "./RightSidebar/PlayRightSidebar";
-// import RightSidebar from "./RightSidebar/RightSidebar";
 import "./../css/ChessBoard";
 import "./../css/leftsidebar";
 import "./../css/RightSidebar";
@@ -15,20 +12,12 @@ import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import { Logger } from "../../../../lib/client/Logger";
-// import { ModalProvider } from "../ModalContext";
-// import {
-//   GameRequestPopup,
-//   GamenotificationPopup,
-//   GameResignedPopup,
-//   ExaminActionPopup,
-//   ActionPopup
-// } from "./Popup/Popup";
-import i18n from "meteor/universe:i18n";
-const log = new Logger("client/MainPage");
+const log = new Logger("client/PlayPage");
 
 export default class PlayPage extends Component {
   constructor(props) {
     super(props);
+    log.debug("PlayPage constructor", props);
     this.toggleModal = data => {
       this.setState({
         modalShow: data
@@ -94,23 +83,6 @@ export default class PlayPage extends Component {
     // this.uploadPgn = this.uploadPgn.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    // if (!!this.props.len && !!nextProps.len) {
-    //   if (nextProps.len !== this.props.len)
-    //     if (
-    //       this.props.game.status === "examining" &&
-    //       (this.state.exnotification === true || this.state.newOppenetRequest === true)
-    //     ) {
-    //       this.setState({ exnotification: false, newOppenetRequest: false });
-    //     }
-    //   if (
-    //     this.props.game.status === "playing" &&
-    //     (this.state.newOppenetRequest === true || this.state.examineGame === true)
-    //   ) {
-    //     this.setState({ newOppenetRequest: false, examineGame: false });
-    //   }
-    // }
-  }
   /**
    * Add event listener
    */
@@ -126,7 +98,6 @@ export default class PlayPage extends Component {
     window.removeEventListener("resize", this.updateDimensions);
   }
   updateDimensions = () => {
-
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
@@ -191,14 +162,10 @@ export default class PlayPage extends Component {
     );
   }
   render() {
-    let translator = i18n.createTranslator("Common.MainPage", this.getLang());
+    log.debug("PlayPage render", this.props);
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-    const GameRequest = this.props.gameRequest;
-    let exPopup = null;
-    let actionPopup = null;
-    let informativePopup = null;
-    let status = "others";
+    let status;
     let position = { top: "w" };
     if (!!game) {
       if (game.black.id === this.props.userId) {
@@ -211,7 +178,6 @@ export default class PlayPage extends Component {
     } else {
       Object.assign(position, { top: this.top });
     }
-
 
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
@@ -230,22 +196,12 @@ export default class PlayPage extends Component {
         }
       }
       this.Main.RightSection.MoveList = game;
-
-      const othercolor = this.userId === game.white.id ? "black" : "white";
-
     } else {
       status = "idlemode";
-      // this.intializeBoard();
     }
 
-    let w = this.state.width;
-    let h = this.state.height;
-
-    if (!w) w = window.innerWidth;
-    if (!h) h = window.innerHeight;
-
     return (
-      <AppWrapper cssManager={this.props. cssManager}>
+      <AppWrapper cssManager={this.props.cssManager}>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
