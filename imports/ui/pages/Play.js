@@ -22,15 +22,6 @@ import { TimestampClient } from "../../../lib/Timestamp";
 
 const log = new Logger("client/Play_js");
 
-const EXAMINING_QUOTE = {
-  $or: [
-    { "black.id": Meteor.userId() },
-    { "white.id": Meteor.userId() },
-    { "observers.id": Meteor.userId() },
-    { owner: Meteor.userId() }
-  ]
-};
-
 let handleError = error => {
   if (error) {
     log.error(error);
@@ -103,15 +94,13 @@ class PlayNotifier extends Component {
 class Play extends Component {
   constructor(props) {
     super(props);
-    log.debug("Play constructor", props);
-    this.gameId = null;
+    log.trace("Play constructor", props);
     this.userId = null;
     // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
     this.userpending = null;
     this.state = {
-      gameId: null,
       gameUserId: null,
       gameType: null,
       gameData: null,
@@ -171,10 +160,6 @@ class Play extends Component {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
     }
-
-    // setTimeout(() => {
-    //   this.setState({test: true});
-    // }, 60000)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -196,15 +181,24 @@ class Play extends Component {
   }
 
   drawCircle(square, color, size) {
-    Meteor.call("drawCircle", "DrawCircle", this.gameId, square, color, size, handleError);
+    Meteor.call(
+      "drawCircle",
+      "DrawCircle",
+      this.props.in_game._id,
+      square,
+      color,
+      size,
+      handleError
+    );
   }
 
   removeCircle(square) {
-    Meteor.call("removeCircle", "RemoveCircle", this.gameId, square, handleError);
+    Meteor.call("removeCircle", "RemoveCircle", this.props.in_game._id, square, handleError);
   }
 
   _pieceSquareDragStop = raf => {
-    Meteor.call("addGameMove", "gameMove", this.gameId, raf.move, handleError);
+    log.debug("_pieceSquareDragStop", [this.props.in_game._id, raf.move]);
+    Meteor.call("addGameMove", "gameMove", this.props.in_game._id, raf.move, handleError);
   };
 
   gameHistoryload(data) {
@@ -440,17 +434,10 @@ class Play extends Component {
   };
 
   render() {
-    log.debug("Play render", this.props);
-    const gameRequest = this.props.game_request;
-    let game = this.props.game_playing;
-
-    if (this.props.user && this.props.user.status && this.props.user.status.game === "examining") {
-      game = this.props.examine_game[0];
-    }
+    log.trace("Play render", this.props);
 
     const { systemCss, boardCss } = this.props;
 
-    let clientMessage = null;
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
@@ -465,39 +452,33 @@ class Play extends Component {
     }
 
     const css = new CssManager(systemCss, boardCss);
-    if (!!gameRequest) {
-      this.gameId = gameRequest._id;
-      this.message_identifier = "server:game:" + this.gameId;
+    if (!!this.props.game_request)
+      this.message_identifier = "server:game:" + this.props.game_request._id;
+    if (this.props.in_game) {
+      this.message_identifier = "server:game:" + this.props.in_game._id;
+      capture = this._boardFromMongoMessages(this.props.in_game);
     }
 
-    if (game) {
-      this.gameId = game._id;
-      this.message_identifier = "server:game:" + this.gameId;
-      //actionlen = game.actions.length;
-      capture = this._boardFromMongoMessages(game);
-    }
-
-    if (!!this.gameId) {
-      clientMessage = this.clientMessages(this.message_identifier);
-    }
-
-    // if (!game) {
-    //   return <Loading />;
-    // }
     let opponentName;
     let opponentId;
     let userColor;
     let result;
     let status2;
-    if (game) {
-      result = game.result;
-      status2 = game.status2;
-      userColor = game.white.name === this.props.user.username ? "white" : "black";
+    const gamemessage = this.clientMessages(this.message_identifier);
+    const visible =
+      !!gamemessage && !!this.props.in_game && this.props.in_game.status === "examining";
+
+    if (visible) {
+      result = this.props.in_game.result;
+      status2 = this.props.in_game.status2;
+      userColor = this.props.in_game.white.name === this.props.user.username ? "white" : "black";
       if (userColor === undefined) {
         debugger;
       }
-      opponentName = userColor === "white" ? game.black.name : game.white.name;
-      opponentId = userColor === "white" ? game.black._id : game.white._id;
+      opponentName =
+        userColor === "white" ? this.props.in_game.black.name : this.props.in_game.white.name;
+      opponentId =
+        userColor === "white" ? this.props.in_game.black._id : this.props.in_game.white._id;
     }
 
     return (
@@ -505,12 +486,11 @@ class Play extends Component {
         {this.state.subscription.clientMessages.ready() && (
           <PlayModaler
             userColor={userColor}
-            // userColor={"white"}
+            visible={visible}
             userName={this.props.user && this.props.user.username}
-            gameId={this.gameId}
             gameResult={result}
             gameStatus2={status2}
-            clientMessage={clientMessage}
+            clientMessage={gamemessage}
             opponentName={opponentName}
             opponentId={opponentId}
             onRematch={this.handleRematch}
@@ -518,23 +498,21 @@ class Play extends Component {
           />
         )}
 
-        <PlayNotifier game={this.props.game_playing} userId={Meteor.userId()} cssManager={css} />
+        <PlayNotifier game={this.props.in_game} userId={Meteor.userId()} cssManager={css} />
         <PlayPage
           userId={Meteor.userId()}
           cssManager={css}
           board={this._board}
-          gameId={this.gameId}
           usersToPlayWith={this.props.usersToPlayWith}
           onChooseFriend={this.handleChooseFriend}
           onBotPlay={this.handleBotPlay}
           capture={capture}
-          game={game}
+          game={this.props.in_game}
           user={this.props.user}
           gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}
-          gameRequest={gameRequest}
-          clientMessage={clientMessage}
+          gameRequest={this.props.game_request}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
@@ -548,12 +526,24 @@ class Play extends Component {
 }
 
 export default withTracker(() => {
+  const PLAYING_SELECTOR = {
+    $and: [
+      { status: "playing" },
+      { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
+    ]
+  };
+  const EXAMINING_SELECTOR = {
+    $and: [
+      { status: "examining" },
+      { $or: [{ "observers.id": Meteor.userId() }, { owner: Meteor.userId() }] }
+    ]
+  };
   return {
     user: Meteor.users.findOne({ _id: Meteor.userId() }),
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
       .fetch(),
-    examine_game: Game.find(EXAMINING_QUOTE).fetch(),
+    in_game: Game.findOne({ $or: [PLAYING_SELECTOR, EXAMINING_SELECTOR] }),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
@@ -570,14 +560,6 @@ export default withTracker(() => {
         sort: { create_date: -1 }
       }
     ),
-    game_playing: Game.findOne({
-      $and: [
-        { status: "playing" },
-        {
-          $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-        }
-      ]
-    }),
     client_messages: ClientMessagesCollection.find().fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })

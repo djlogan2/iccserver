@@ -17,7 +17,7 @@ const log = new Logger("client/PlayPage");
 export default class PlayPage extends Component {
   constructor(props) {
     super(props);
-    log.debug("PlayPage constructor", props);
+    log.trace("PlayPage constructor", props);
     this.toggleModal = data => {
       this.setState({
         modalShow: data
@@ -75,12 +75,10 @@ export default class PlayPage extends Component {
         Action: {}
       }
     };
-    //  this.notificationHandler = this.notificationHandler.bind(this);
     this.examineActionHandler = this.examineActionHandler.bind(this);
     this.startGameExamine = this.startGameExamine.bind(this);
     this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
     this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
-    // this.uploadPgn = this.uploadPgn.bind(this);
   }
 
   /**
@@ -162,13 +160,12 @@ export default class PlayPage extends Component {
     );
   }
   render() {
-    log.debug("PlayPage render", this.props);
+    log.trace("PlayPage render", this.props);
     let gameTurn = this.props.board.turn();
-    const game = this.props.game;
     let status;
     let position = { top: "w" };
-    if (!!game) {
-      if (game.black.id === this.props.userId) {
+    if (!!this.props.game) {
+      if (this.props.game.black.id === this.props.userId) {
         this.top = "w";
         Object.assign(position, { top: "w" });
       } else {
@@ -179,14 +176,18 @@ export default class PlayPage extends Component {
       Object.assign(position, { top: this.top });
     }
 
-    if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
-      status = game.status;
-      this.gameId = game._id;
+    if (!!this.props.game) {
+      status = this.props.game.status;
+      this.gameId = this.props.game._id;
 
-      Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
+      Object.assign(
+        this.Main.MiddleSection,
+        { black: this.props.game.black },
+        { white: this.props.game.white }
+      );
       if (status === "examining") {
       } else {
-        Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
+        Object.assign(this.Main.MiddleSection, { clocks: this.props.game.clocks });
         if (gameTurn === "w") {
           Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
           Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
@@ -195,7 +196,7 @@ export default class PlayPage extends Component {
           Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
         }
       }
-      this.Main.RightSection.MoveList = game;
+      this.Main.RightSection.MoveList = this.props.game;
     } else {
       status = "idlemode";
     }
@@ -207,7 +208,6 @@ export default class PlayPage extends Component {
             <MiddleBoard
               cssManager={this.props.cssManager}
               MiddleBoardData={this.Main.MiddleSection}
-              currentGame={this.state.examineGame}
               ref="middleBoard"
               capture={this.props.capture}
               board={this.props.board}
@@ -216,28 +216,14 @@ export default class PlayPage extends Component {
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
               circles={this.props.circles}
-              //  fen={this.props.fen}
               width={this.state.width}
               height={this.state.height}
               gameStatus={status}
-              game={game}
+              game={this.props.game}
             />
           </BoardWrapper>
         </Col>
         <Col span={10}>
-          {/* <ExamineRightSidebar
-            gameId={this.props.gameId}
-             cssManager={this.props. cssManager}
-            RightSidebarData={this.Main.RightSection}
-            currentGame={this.state.examineGame}
-            flip={this._flipboard}
-            gameRequest={this.props.gameRequest}
-            ref="right_sidebar"
-            startGameExamine={this.startGameExamine}
-            examineAction={this.examineActionHandler}
-            activeTabnumber={this.state.activeTab}
-            uploadPgn={this.uploadPgn}
-          /> */}
           <PlayRightSidebar
             gameId={this.props.gameId}
             user={this.props.user}
@@ -249,22 +235,6 @@ export default class PlayPage extends Component {
             flip={this._flipboard}
             RightSidebarData={this.Main.RightSection}
           />
-          {/* <RightSidebar
-             cssManager={this.props. cssManager}
-            RightSidebarData={this.Main.RightSection}
-            gameStatus={status}
-            currentGame={this.state.examineGame}
-            newOppenetRequest={this.state.newOppenetRequest}
-            flip={this._flipboard}
-            gameRequest={this.props.gameRequest}
-            clientMessage={this.props.clientMessage}
-            ref="right_sidebar"
-            examing={this.props.examing}
-            startGameExamine={this.startGameExamine}
-            examineAction={this.examineActionHandler}
-            activeTabnumber={this.state.activeTab}
-            uploadPgn={this.uploadPgn}
-          /> */}
         </Col>
       </AppWrapper>
     );

@@ -16,11 +16,11 @@ import {
   mongoUser
 } from "../../api/client/collections";
 
-const logger = new Logger("client/Examine_js");
+const log = new Logger("client/Examine_js");
 
 let handleError = error => {
   if (error) {
-    logger.error(error);
+    log.error(error);
   }
 };
 
@@ -145,7 +145,7 @@ class Examine extends Component {
     e.preventDefault();
     Meteor.logout(err => {
       if (err) {
-        logger.error(err.reason);
+        log.error(err.reason);
       } else {
         this.props.history.push("/login");
       }
@@ -153,16 +153,8 @@ class Examine extends Component {
     this.props.history.push("/login");
   }
 
-  // TODO: Not a good idea. There are going to be hundreds of user statuses over time.
-  //       Negative logic like this is going to be an avoidable tech-debt bug.
-  getIsExamining = () => {
-    return (
-      this.props.user && this.props.user.status & (this.props.user.status.game !== "examining")
-    );
-  };
-
   handleDraw = objectList => {
-    if (this.getIsExamining()) {
+    if (this.props.user && this.props.user.status && this.props.user.status.game === "examining") {
       return;
     }
 

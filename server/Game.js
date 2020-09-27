@@ -30,7 +30,7 @@ const GameHistoryCollection = new Mongo.Collection("game_history");
 export const ImportedGameCollection = new Mongo.Collection("imported_games");
 GameHistoryCollection.attachSchema(GameHistorySchema);
 
-let log = new Logger("server/Game_js");
+const log = new Logger("server/Game_js");
 let pinglog = new Logger("server/Game::ping");
 
 class Game {
@@ -57,173 +57,188 @@ class Game {
       this.collection = self.GameCollection;
     }
 
-    Meteor.publishComposite("games", {
-      find() {
-        return Meteor.users.find({ _id: this.userId, "status.online": true });
-      },
-      children: [
-        // Games we are playing
+    function gamesWeArePlaying(user) {
+      return self.GameCollection.find(
         {
-          find(user) {
-            const cursor = self.GameCollection.find(
-              {
-                $and: [
-                  { isolation_group: user.isolation_group },
-                  { status: "playing" },
-                  { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
-                ]
-              },
-              {
-                fields: {
-                  black: 1,
-                  clocks: 1,
-                  fen: 1,
-                  lag: 1,
-                  observers: 1,
-                  pending: 1,
-                  rated: 1,
-                  rating_type: 1,
-                  startTime: 1,
-                  status: 1,
-                  tomove: 1,
-                  variations: 1,
-                  white: 1,
-                  wild: 1
-                }
-              }
-            );
-            log.debug(
-              "user=" + user._id + ", publish 'games' games we are playing=" + cursor.count()
-            );
-            return cursor;
-          }
+          $and: [
+            { isolation_group: user.isolation_group },
+            { status: "playing" },
+            { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
+          ]
         },
-        // Games for which the user is the owner (doesn't matter if it's private
-        // or public, the result is the same.)
         {
-          find(user) {
-            const cursor = self.GameCollection.find(
-              { owner: user._id },
-              { fields: { actions: 0 } }
-            );
-            log.debug("user=" + user._id + ", publish 'games' games we own=" + cursor.count());
-            return cursor;
-          }
-        },
-        // Games we are observing and can observe computer analysis
-        {
-          find(user) {
-            const cursor = self.GameCollection.find(
-              {
-                $and: [
-                  { isolation_group: user.isolation_group },
-                  { "observers.id": user._id },
-                  { owner: { $ne: user._id } },
-                  {
-                    $or: [
-                      { status: "playing" },
-                      { private: { $ne: true } },
-                      { "analysis.id": user._id }
-                    ]
-                  }
-                ]
-              },
-              {
-                fields: {
-                  deny_chat: 0,
-                  deny_requests: 0,
-                  requestors: 0,
-                  analysis: 0,
-                  actions: 0
-                }
-              }
-            );
-            log.debug(
-              "user=" +
-                user._id +
-                ", publish 'games' games we are observing with analysis=" +
-                cursor.count()
-            );
-            return cursor;
-          }
-        },
-        // Games we are observing but cannot view computer analysis
-        {
-          find(user) {
-            const cursor = self.GameCollection.find(
-              {
-                $and: [
-                  { isolation_group: user.isolation_group },
-                  { "observers.id": user._id },
-                  { owner: { $ne: user._id } },
-                  { private: true },
-                  { "analysis.id": { $ne: user._id } }
-                ]
-              },
-              {
-                fields: {
-                  deny_chat: 0,
-                  deny_requests: 0,
-                  requestors: 0,
-                  computer_variations: 0,
-                  analysis: 0,
-                  actions: 0
-                }
-              }
-            );
-            log.debug(
-              "user=" +
-                user._id +
-                ", publish 'games' games we are observing without analysis=" +
-                cursor.count()
-            );
-            return cursor;
-          }
-        },
-        // Game we are not playing nor are observing
-        {
-          find(user) {
-            if (user.status.game === "playing") return self.GameCollection.find({ _id: "none" });
-            const cursor = self.GameCollection.find(
-              {
-                $and: [
-                  { isolation_group: user.isolation_group },
-                  {
-                    $or: [
-                      { status: "examining" },
-                      {
-                        $and: [{ "white.id": { $ne: user._id } }, { "black.id": { $ne: user._id } }]
-                      }
-                    ]
-                  },
-                  { "observers.id": { $ne: user._id } },
-                  { owner: { $ne: user._id } },
-                  { private: { $ne: true } }
-                ]
-              },
-              {
-                fields: {
-                  startTime: 1,
-                  result: 1,
-                  status2: 1,
-                  private: 1,
-                  tomove: 1,
-                  wild: 1,
-                  rating_type: 1,
-                  rated: 1,
-                  status: 1,
-                  clocks: 1,
-                  white: 1,
-                  black: 1
-                }
-              }
-            );
-            log.debug("user=" + user._id + ", publish 'games' all games list=" + cursor.count());
-            return cursor;
+          fields: {
+            black: 1,
+            clocks: 1,
+            fen: 1,
+            lag: 1,
+            observers: 1,
+            pending: 1,
+            rated: 1,
+            rating_type: 1,
+            startTime: 1,
+            status: 1,
+            tomove: 1,
+            variations: 1,
+            white: 1,
+            wild: 1
           }
         }
-      ]
-    });
+      );
+    }
+
+    function gamesWeOwn(user) {
+      return self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
+    }
+
+    function examineWithAnalysis(user) {
+      return self.GameCollection.find(
+        {
+          $and: [
+            { isolation_group: user.isolation_group },
+            { "observers.id": user._id },
+            { owner: { $ne: user._id } },
+            {
+              $or: [{ status: "playing" }, { private: { $ne: true } }, { "analysis.id": user._id }]
+            }
+          ]
+        },
+        {
+          fields: {
+            deny_chat: 0,
+            deny_requests: 0,
+            requestors: 0,
+            analysis: 0,
+            actions: 0
+          }
+        }
+      );
+    }
+
+    function examineWithoutAnalysis(user) {
+      return self.GameCollection.find(
+        {
+          $and: [
+            { isolation_group: user.isolation_group },
+            { "observers.id": user._id },
+            { owner: { $ne: user._id } },
+            { private: true },
+            { "analysis.id": { $ne: user._id } }
+          ]
+        },
+        {
+          fields: {
+            deny_chat: 0,
+            deny_requests: 0,
+            requestors: 0,
+            computer_variations: 0,
+            analysis: 0,
+            actions: 0
+          }
+        }
+      );
+    }
+
+    function allGames(user) {
+      if (user.status.game === "playing") return self.GameCollection.find({ _id: "none" });
+      return self.GameCollection.find(
+        {
+          $and: [
+            { isolation_group: user.isolation_group },
+            {
+              $or: [
+                { status: "examining" },
+                {
+                  $and: [{ "white.id": { $ne: user._id } }, { "black.id": { $ne: user._id } }]
+                }
+              ]
+            },
+            { "observers.id": { $ne: user._id } },
+            { owner: { $ne: user._id } },
+            { private: { $ne: true } }
+          ]
+        },
+        {
+          fields: {
+            startTime: 1,
+            result: 1,
+            status2: 1,
+            private: 1,
+            tomove: 1,
+            wild: 1,
+            rating_type: 1,
+            rated: 1,
+            status: 1,
+            clocks: 1,
+            white: 1,
+            black: 1
+          }
+        }
+      );
+    }
+    function userRecord() {
+      return Meteor.users.find({ _id: self.userId, "status.online": true });
+    }
+    Meteor.publishComposite("games", [
+      {
+        find: userRecord,
+        children: [
+          {
+            find: gamesWeArePlaying
+          }
+        ]
+      },
+      {
+        find: userRecord,
+        children: [
+          {
+            find: gamesWeOwn
+          }
+        ]
+      },
+      {
+        find: userRecord,
+        children: [
+          {
+            find: examineWithAnalysis
+          }
+        ]
+      },
+      {
+        find: userRecord,
+        children: [
+          {
+            find: examineWithoutAnalysis
+          }
+        ]
+      },
+      {
+        find: userRecord,
+        children: [
+          {
+            find: allGames
+          }
+        ]
+      }
+    ]);
+    // Meteor.publishComposite("games", {
+    //   find() {
+    //     return Meteor.users.find({ _id: this.userId, "status.online": true });
+    //   },
+    //   children: [
+    //     {
+    //       find(user) {
+    //         return [
+    //           gamesWeArePlaying(user),
+    //           gamesWeOwn(user),
+    //           examineWithAnalysis(user),
+    //           examineWithoutAnalysis(user),
+    //           allGames(user)
+    //         ];
+    //       }
+    //     }
+    //   ]
+    // });
   }
 
   getAndCheck(self, message_identifier, game_id) {
@@ -1107,14 +1122,14 @@ class Game {
         Users.setGameStatus(message_identifier, game.black.id, "examining");
     }
 
-    this.GameCollection.update(
-      { _id: game_id, status: game.status },
-      {
-        $unset: unsetobject,
-        $set: setobject,
-        $push: { actions: { type: "move", issuer: self._id, parameter: move_parameter } }
-      }
-    );
+    const modifier = {
+      $push: { actions: { type: "move", issuer: self._id, parameter: move_parameter } }
+    };
+    if (!!unsetobject && Object.entries(unsetobject).length) modifier.$unset = unsetobject;
+    if (!!setobject && Object.entries(setobject).length) modifier.$set = setobject;
+
+    log.debug("MODIFIER=", modifier);
+    this.GameCollection.update({ _id: game_id, status: game.status }, modifier);
 
     if (setobject.result) {
       if (game.rated) this.updateUserRatings(game, setobject.result, setobject.status2);

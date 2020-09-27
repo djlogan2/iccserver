@@ -49,13 +49,13 @@ class GameRequestPopup extends Component {
           </h3>
           <button
             onClick={this.gameRequestHandler.bind(this, "gameAccept", requestId)}
-            style={this.props. cssManager.innerPopupMain()}
+            style={this.props.cssManager.innerPopupMain()}
           >
             {translator("accept")}
           </button>
           <button
             onClick={this.gameRequestHandler.bind(this, "gameDecline", requestId)}
-            style={this.props. cssManager.innerPopupMain()}
+            style={this.props.cssManager.innerPopupMain()}
           >
             {translator("decline")}
           </button>
@@ -117,7 +117,7 @@ class ActionPopup extends Component {
     const title = this.props.title;
     const action = this.props.action;
     const gameId = this.props.gameID;
-    let translator = i18n.createTranslator("Common.ActionPopup", this.getLang());
+
     return (
       <div style={{ position: "relative" }}>
         <div
@@ -141,7 +141,7 @@ class ActionPopup extends Component {
           }}
         >
           <img
-            src={this.props. cssManager.buttonBackgroundImage("infoIcon")}
+            src={this.props.cssManager.buttonBackgroundImage("infoIcon")}
             style={{ width: "18px", marginRight: "10px" }}
             alt="info"
           />
@@ -151,7 +151,7 @@ class ActionPopup extends Component {
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
             <img
-              src={this.props. cssManager.buttonBackgroundImage("checkedIcon")}
+              src={this.props.cssManager.buttonBackgroundImage("checkedIcon")}
               style={{ width: "18px" }}
               alt="accept"
             />
@@ -161,7 +161,7 @@ class ActionPopup extends Component {
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
             <img
-              src={this.props. cssManager.buttonBackgroundImage("closeIcon")}
+              src={this.props.cssManager.buttonBackgroundImage("closeIcon")}
               style={{ width: "15px" }}
               alt="close"
             />
@@ -220,7 +220,7 @@ class GamenotificationPopup extends Component {
           </h3>
           <button
             onClick={() => this.removeAcknowledgeMessage(mid)}
-            style={this.props. cssManager.innerPopupMain()}
+            style={this.props.cssManager.innerPopupMain()}
           >
             {translator("close")}
           </button>
@@ -274,7 +274,7 @@ class ExaminActionPopup extends Component {
             <div>
               <button
                 onClick={() => this.props.examinActionCloseHandler()}
-                style={this.props. cssManager.innerPopupMain()}
+                style={this.props.cssManager.innerPopupMain()}
               >
                 {translator("submit")}
               </button>
@@ -294,7 +294,7 @@ class ExaminActionPopup extends Component {
             <div>
               <button
                 onClick={() => this.props.examinActionCloseHandler()}
-                style={this.props. cssManager.innerPopupMain()}
+                style={this.props.cssManager.innerPopupMain()}
               >
                 {translator("submit")}
               </button>
@@ -318,7 +318,6 @@ class GameResignedPopup extends Component {
   }
   render() {
     const title = this.props.title;
-    const mid = this.props.mid;
     let translator = i18n.createTranslator("Common.GameResignedPopup", this.getLang());
     return (
       <div
@@ -351,7 +350,7 @@ class GameResignedPopup extends Component {
           </h3>
           <button
             onClick={() => this.props.resignNotificationCloseHandler()}
-            style={this.props. cssManager.innerPopupMain()}
+            style={this.props.cssManager.innerPopupMain()}
           >
             {translator("close")}
           </button>

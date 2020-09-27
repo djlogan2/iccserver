@@ -3,13 +3,13 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
-import { Logger } from "../../../../../../lib/client/Logger";
-import { object } from "prop-types";
-const logger = new Logger("client/MoveListComponent");
+import {Logger} from "../../../../lib/client/Logger";
+
+const log = new Logger("client/MoveListComponent");
 
 let handleError = error => {
   if (error) {
-    logger.error(error);
+    log.error(error);
   }
 };
 
@@ -62,7 +62,7 @@ export default class MoveListComponent extends Component {
     }
     Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc, handleError);
   };
-  moveForwardEnd = cmi => {
+  moveForwardEnd = () => {
     let movedata = this.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
@@ -223,8 +223,6 @@ export default class MoveListComponent extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.MoveListComponent", MoveListComponent.getLang());
-    let moves = [];
-    let variation;
     let game = this.props.game;
     let status = this.props.game.status;
     if (!!game) {
@@ -256,11 +254,7 @@ export default class MoveListComponent extends Component {
       statuslabel = 1;
     }
 
-    if (status === "playing") {
-      isPlaying = true;
-    } else {
-      isPlaying = false;
-    }
+    isPlaying = status === "playing";
 
     /*End of code */
     let cnt = 1;
@@ -292,8 +286,7 @@ export default class MoveListComponent extends Component {
         </span>
       );
     });
-    let btnstyle = {};
-    btnstyle = this.props. cssManager.buttonStyle();
+    let btnstyle = this.props. cssManager.buttonStyle();
     Object.assign(btnstyle, {
       background: "#f1f1f1",
       borderRadius: "5px",

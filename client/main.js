@@ -4,9 +4,7 @@ import { renderRoutes } from "../imports/startup/client/routes.jsx";
 import i18n from "meteor/universe:i18n";
 import "../lib/client/timestamp";
 import { Logger } from "../lib/client/Logger";
-import { Accounts } from "meteor/accounts-base";
 
-import { I18nFrontCollection } from "./../imports/api/client/collections";
 import english from "./i18nContent/english.json";
 import russian from "./i18nContent/russian.json";
 import japanese from "./i18nContent/japanese.json";
@@ -16,7 +14,7 @@ const log = new Logger("client/main_js");
 
 let unflatten = function(data) {
   if (Object(data) !== data || Array.isArray(data)) return data;
-  var regex = /\.?([^.\[\]]+)|\[(\d+)\]/g,
+  var regex = /\.?([^.[\]]+)|\[(\d+)]/g,
     resultholder = {};
   for (var p in data) {
     var cur = resultholder,
@@ -38,7 +36,7 @@ let flatten = function(data) {
       result[prop] = cur;
     } else if (Array.isArray(cur)) {
       for (var i = 0, l = cur.length; i < l; i++) recurse(cur[i], prop + "[" + i + "]");
-      if (l == 0) result[prop] = [];
+      if (l === 0) result[prop] = [];
     } else {
       var isEmpty = true;
       for (var p in cur) {
@@ -80,12 +78,6 @@ Meteor.startup(() => {
   i18n.addTranslations("en-US", english);
   i18n.addTranslations("ru-RU", russian);
   i18n.addTranslations("ja", japanese);
-
-  // ClientMessages.collection.insert({
-  //   locale: "en_us",
-  //   "messageid": "test",
-  //   "text": "some test text"
-  // });
 
   i18n.setOptions({
     defaultLocale: "en-US"

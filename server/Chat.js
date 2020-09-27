@@ -8,7 +8,7 @@ import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { Logger } from "../lib/server/Logger";
 
-let log = new Logger("server/Chat_js");
+const log = new Logger("server/Chat_js");
 
 const ChatCollectionSchema = new SimpleSchema({
   create_date: {

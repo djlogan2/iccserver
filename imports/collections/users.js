@@ -15,7 +15,7 @@ import { DynamicRatings } from "../../server/DynamicRatings";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 import { UserStatus } from "meteor/mizzao:user-status";
 
-let log = new Logger("server/users_js");
+const log = new Logger("server/users_js");
 
 export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");

@@ -160,7 +160,7 @@ GameRequestCollection.attachSchema(LegacySeekSchema, {
   selector: { type: "legacyseek" }
 });
 
-let log = new Logger("server/GameRequest_js");
+const log = new Logger("server/GameRequest_js");
 
 export const GameRequests = {};
 GameRequests.addLegacyGameSeek = function(

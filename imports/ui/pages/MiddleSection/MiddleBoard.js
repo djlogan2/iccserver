@@ -12,7 +12,7 @@ const log = new Logger("client/MiddleBoard");
 export default class MiddleBoard extends Component {
   constructor(props) {
     super(props);
-    log.debug("MiddleBoard constructor", props);
+    log.trace("MiddleBoard constructor", props);
     this.chess = new Chess.Chess();
     this.state = {
       fen: this.chess.fen(),
@@ -84,7 +84,7 @@ export default class MiddleBoard extends Component {
   };
 
   render() {
-    log.debug("MiddleBoard render", this.props);
+    log.trace("MiddleBoard render", this.props);
     if (!!this.props.game && this.props.game.fen === undefined) {
       return null;
     }
@@ -195,7 +195,6 @@ export default class MiddleBoard extends Component {
               onDrawObject={this.props.onDrawObject}
               mycolor={mypeiceColor}
               gameStatus={this.props.gameStatus}
-              currentGame={this.props.currentGame}
             />
           )}
 

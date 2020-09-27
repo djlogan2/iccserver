@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Logger } from "../../../../lib/client/Logger";
 const TOTAL_MINUTES = 60;
-let log = new Logger("server/WhitePlayerClock_JS");
+const log = new Logger("client/WhitePlayerClock_JS");
 export default class WhitePlayerClock extends Component {
   constructor(props) {
     super(props);

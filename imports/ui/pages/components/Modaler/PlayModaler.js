@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import { Modal, Button } from "antd";
+import { Logger } from "../../../../../lib/client/Logger";
+
+const log = new Logger("client/PlayModaler_js");
 
 export default class PlayModaler extends Component {
   handleCancel = () => {
@@ -7,9 +10,9 @@ export default class PlayModaler extends Component {
   };
 
   render() {
+    log.trace("PlayModaler render", this.props);
     let titleText;
     let message = !this.props.clientMessage ? "" : this.props.clientMessage.message;
-    let visible = !!message;
 
     switch (this.props.gameResult) {
       case "1-0":
@@ -29,7 +32,7 @@ export default class PlayModaler extends Component {
     return (
       <Modal
         title={titleText}
-        visible={visible}
+        visible={this.props.visible}
         onOk={this.handleCancel}
         onCancel={this.handleCancel}
         footer={null}
@@ -53,7 +56,7 @@ export default class PlayModaler extends Component {
             <Button
               type="primary"
               onClick={() => {
-                this.props.onRematch(this.props.gameId);
+                this.props.onRematch();
                 this.handleCancel();
               }}
               className="play-modal__btn play-modal__btn--primary"
@@ -62,7 +65,7 @@ export default class PlayModaler extends Component {
             </Button>
             <Button
               onClick={() => {
-                this.props.onExamine(this.props.gameId);
+                this.props.onExamine();
                 this.handleCancel();
               }}
               className="play-modal__btn"

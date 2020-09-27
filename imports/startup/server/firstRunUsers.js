@@ -4,7 +4,8 @@ import { Accounts } from "meteor/accounts-base";
 import { Roles } from "meteor/alanning:roles";
 import { all_roles, standard_member_roles } from "../../server/userConstants";
 
-let log = new Logger("server/firstRunUsers_js");
+// eslint-disable-next-line no-unused-vars
+const log = new Logger("server/firstRunUsers_js");
 
 export default function firstRunUsers() {
   if (Meteor.users.find().count() === 0)

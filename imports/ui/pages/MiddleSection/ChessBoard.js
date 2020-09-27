@@ -13,7 +13,7 @@ const log = new Logger("client/ChessBoard_js");
 export default class ChessBoard extends PureComponent {
   constructor(props) {
     super(props);
-    log.debug("ChessBoard constructor", props);
+    log.trace("ChessBoard constructor", props);
     this.chess = new Chess.Chess();
     this.state = {
       fen: this.chess.fen(),
@@ -62,8 +62,6 @@ export default class ChessBoard extends PureComponent {
       this.props.onDrop({
         move: moves
       });
-
-      //  this.setState({ fen: this.chess.fen() });
     }
   };
 
@@ -183,7 +181,7 @@ export default class ChessBoard extends PureComponent {
   }
 
   render() {
-    log.debug("ChessBoard render", this.props);
+    log.trace("ChessBoard render", this.props);
     this.chess.load(this.props.fen);
 
     const drawable = {

@@ -4,7 +4,8 @@ import newid from "../../../../../lib/client/newid";
 import Square from "./Square";
 import { Logger } from "../../../../../lib/client/Logger";
 
-let log = new Logger("client/PieceSquare_js");
+// eslint-disable-next-line no-unused-vars
+const log = new Logger("client/PieceSquare_js");
 /**
  * @param props React properties
  * @param props.rank The rank of the square being drawn
@@ -56,7 +57,7 @@ export default class PieceSquare extends Square {
 
   renderRankAndFile() {
     if (this.props.draw_rank_and_file) {
-      const rafStyle = this.props. cssManager.internalRankAndFileStyle(
+      const rafStyle = this.props.cssManager.internalRankAndFileStyle(
         this.props.draw_rank_and_file,
         this._squarecolor,
         this.props.side
@@ -75,7 +76,7 @@ export default class PieceSquare extends Square {
     });
   };
 
-  mouseUp = event => {
+  mouseUp = () => {
     this.props.onMouseUp({
       rank: this.props.rank,
       file: this.props.file
@@ -88,16 +89,11 @@ export default class PieceSquare extends Square {
     });
   };
   dragStop = event => {
-    let isMove = this.props.onDrop({
+    this.props.onDrop({
       rank: this.props.rank,
       file: this.props.file,
       piece: this.props.piece
     });
-
-    // var theData = event.dataTransfer.getData("Text");
-    // var theDraggedElement = document.getElementById(theData);
-    // if (isMove) event.target.appendChild(theDraggedElement);
-    // event.preventDefault();
   };
 
   /**Image drag and drop */
@@ -117,11 +113,11 @@ export default class PieceSquare extends Square {
     // TODO: Can we, and should we, disable drawing of text in mobile devices? If so, how?
     //
 
-    const squareStyle = this.props. cssManager.squareStyle(this._squarecolor, this.props.side);
-    let peiceImage = this.props. cssManager.imagePeice(this.props.piece, this.props.color);
+    const squareStyle = this.props.cssManager.squareStyle(this._squarecolor, this.props.side);
+    let peiceImage = this.props.cssManager.imagePeice(this.props.piece, this.props.color);
 
     let canvasStyle;
-    if (this.props.circle) canvasStyle = this.props. cssManager.squareCanvasStyle(this.props.side);
+    if (this.props.circle) canvasStyle = this.props.cssManager.squareCanvasStyle(this.props.side);
 
     return (
       <div

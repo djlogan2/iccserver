@@ -89,7 +89,7 @@ export const GameHistorySchema = new SimpleSchema({
   variations: { type: Object, required: false },
   "variations.movelist": Array,
   "variations.movelist.$": Object,
-  "variations.ecocodes": Array,
+  "variations.ecocodes": { type: Array, required: false },
   "variations.ecocodes.$": Object,
   "variations.ecocodes.$.code": String,
   "variations.ecocodes.$.name": String,

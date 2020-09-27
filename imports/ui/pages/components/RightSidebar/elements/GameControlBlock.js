@@ -1,17 +1,14 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import { Tabs, Button } from "antd";
 import { Logger } from "../../../../../../lib/client/Logger";
 
-const logger = new Logger("client/GameControlBlock");
+const log = new Logger("client/GameControlBlock");
 
 let handleError = error => {
   if (error) {
-    logger.error(error);
+    log.error(error);
   }
 };
-
-const { TabPane } = Tabs;
 
 class LocationControls extends Component {
   constructor() {
@@ -34,7 +31,6 @@ class LocationControls extends Component {
     }
   };
 
-
   moveBackword = () => {
     Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, handleError);
   };
@@ -49,7 +45,7 @@ class LocationControls extends Component {
     Meteor.call("moveForward", "moveForward", this.props.gameId, 1, variationIndex, handleError);
   };
 
-  moveForwardEnd = cmi => {
+  moveForwardEnd = () => {
     let { movelist } = this.props.game.variations;
 
     let slicemoves = movelist.slice(this.state.cmi + 1, movelist.length);
