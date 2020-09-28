@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import _ from "lodash";
-import { Meteor } from "meteor/meteor";
 import PropTypes from "prop-types";
-// import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
 import AppWrapper from "./AppWrapper";
 import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar";
 // import RightSidebar from "./RightSidebar/RightSidebar";
@@ -23,7 +21,8 @@ import {
   ExaminActionPopup,
   ActionPopup
 } from "./Popup/Popup";
-import i18n from "meteor/universe:i18n";
+
+// eslint-disable-next-line no-unused-vars
 const log = new Logger("client/ExaminePage");
 
 export default class ExaminePage extends Component {
@@ -38,7 +37,6 @@ export default class ExaminePage extends Component {
       }
     };
     this.gameId = null;
-    this.userId = props.userId;
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -86,7 +84,7 @@ export default class ExaminePage extends Component {
         Action: {}
       }
     };
-    //  this.notificationHandler = this.notificationHandler.bind(this);
+
     this.examineActionHandler = this.examineActionHandler.bind(this);
     this.startGameExamine = this.startGameExamine.bind(this);
     this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
@@ -234,17 +232,12 @@ export default class ExaminePage extends Component {
     );
   }
   render() {
-    let translator = i18n.createTranslator("Common.MainPage", this.getLang());
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-    const GameRequest = this.props.gameRequest;
-    let exPopup = null;
-    let actionPopup = null;
-    let informativePopup = null;
     let status = "others";
     let position = { top: "w" };
     if (!!game) {
-      if (game.black.id === this.props.userId) {
+      if (game.black.id === Meteor.userId()) {
         this.top = "w";
         Object.assign(position, { top: "w" });
       } else {
@@ -254,28 +247,12 @@ export default class ExaminePage extends Component {
     } else {
       Object.assign(position, { top: this.top });
     }
-    if (
-      !!GameRequest &&
-      GameRequest.type === "match" &&
-      GameRequest.receiver_id === this.props.userId
-    ) {
-      let msg = translator("gamerequest");
-      informativePopup = this.gameRequest(GameRequest["challenger"] + msg, GameRequest["_id"]);
-    }
-
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
       this.gameId = game._id;
 
       Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
-      if (status === "examining") {
-        if (
-          this.state.exnotification === false &&
-          (this.state.examinAction === "emailgame" || this.state.examinAction === "complain")
-        ) {
-          informativePopup = this.examinActionPopup(this.state.examinAction);
-        }
-      } else {
+      if (status !== "examining") {
         Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
         if (gameTurn === "w") {
           Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
@@ -286,62 +263,8 @@ export default class ExaminePage extends Component {
         }
       }
       this.Main.RightSection.MoveList = game;
-
-      const othercolor = this.userId === game.white.id ? "black" : "white";
-      /*
-      const actions = game.actions;
-
-      if (!!actions && actions.length !== 0) {
-        for (const action of actions) {
-          const issuer = action["issuer"];
-          switch (action["type"]) {
-            case "takeback_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].takeback.number > 0)
-              ) {
-                let moveCount =
-                  game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
-                actionPopup = this.actionPopup(translator(moveCount), "takeBack");
-              }
-              break;
-            case "draw_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].draw !== "0")
-              ) {
-                actionPopup = this.actionPopup(translator("draw"), "draw");
-              }
-              break;
-            case "abort_requested":
-              if (
-                issuer !== this.userId &&
-                (!!game.pending && game.pending[othercolor].abort !== "0")
-              ) {
-                actionPopup = this.actionPopup(translator("abort"), "abort");
-              }
-              break;
-            default:
-              break;
-          }
-        }
-      }
-      */
     } else {
       status = "idlemode";
-      // this.intializeBoard();
-    }
-    if (!!this.props.GameHistory) {
-      informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
-    }
-    if (!!this.props.clientMessage) {
-      informativePopup = this.GamenotificationPopup(
-        this.props.clientMessage.message,
-        this.props.clientMessage._id
-      );
-    }
-    if (!!this.state.notification) {
-      informativePopup = this.GameResignedPopup("File upload succeshfully", "mid");
     }
     let w = this.state.width;
     let h = this.state.height;
@@ -366,7 +289,7 @@ export default class ExaminePage extends Component {
               circles={this.props.circles}
               width={this.state.width}
               height={this.state.height}
-              gameStatus={this.props.user.status.game}
+              gameStatus={Meteor.user().status.game} // DJL REMOVE
               game={game}
             />
           </BoardWrapper>
@@ -375,7 +298,6 @@ export default class ExaminePage extends Component {
           <ExamineRightSidebar
             gameId={this.props.gameId}
             game={game}
-            user={this.props.user}
             allUsers={this.props.allUsers}
             observeUser={this.props.observeUser}
             unObserveUser={this.props.unObserveUser}
@@ -391,22 +313,6 @@ export default class ExaminePage extends Component {
             activeTabnumber={this.state.activeTab}
             uploadPgn={this.uploadPgn}
           />
-          {/* <RightSidebar
-             cssManager={this.props. cssManager}
-            RightSidebarData={this.Main.RightSection}
-            gameStatus={status}
-            currentGame={this.state.examineGame}
-            newOppenetRequest={this.state.newOppenetRequest}
-            flip={this._flipboard}
-            gameRequest={this.props.gameRequest}
-            clientMessage={this.props.clientMessage}
-            ref="right_sidebar"
-            examing={this.props.examing}
-            startGameExamine={this.startGameExamine}
-            examineAction={this.examineActionHandler}
-            activeTabnumber={this.state.activeTab}
-            uploadPgn={this.uploadPgn}
-          /> */}
         </Col>
       </AppWrapper>
     );

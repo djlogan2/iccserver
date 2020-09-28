@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { AutoComplete, Button } from "antd";
 
-const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
+const ExamineObserverTabBlock = ({ game, ...props }) => {
   let ownerData = !!game.observers ? game.observers.find(item => item.id === game.owner) : null;
 
   return (
@@ -18,7 +18,7 @@ const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
       <div className="examine-observer-tab-block__action-list">
         <Button
           onClick={() => {
-            props.unObserveUser(userId);
+            props.unObserveUser(Meteor.userId());
           }}
         >
           Unobserve
@@ -26,7 +26,7 @@ const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
       </div>
       <ul className="examine-observer-tab-block__list">
         {game.observers.map(observerItem => {
-          if (game.owner === userId) {
+          if (game.owner === Meteor.userId()) {
             return (
               <li key={observerItem.username} className="examine-owner-tab-block__list-item">
                 {observerItem.username}
@@ -45,7 +45,6 @@ const ExamineObserverTabBlock = ({ game, userId, ...props }) => {
 };
 
 const ExamineOwnerTabBlock = ({ game }) => {
-  let userId = Meteor.userId();
   const handleAddExaminer = (game_id, id_to_add) => {
     // localAddExaminer: (message_identifier, game_id, id_to_add)
     // localRemoveExaminer: (message_identifier, game_id, id_to_remove)
@@ -69,13 +68,10 @@ const ExamineOwnerTabBlock = ({ game }) => {
     };
   };
 
-  if (game.owner === userId) {
+  if (game.owner === Meteor.userId()) {
     return (
       <div className="examine-owner-tab-block">
         <div className="examine-owner-tab-block__head">
-          {/* <div className="examine-owner-tab-block__name"> */}
-          {/* <h2 className="examine-owner-tab-block__name-title">{ownerData.username}</h2> */}
-          {/* </div> */}
           <span className="examine-owner-tab-block__head-right">
             {game.observers.length - 1} people are observing your board
           </span>
@@ -85,7 +81,7 @@ const ExamineOwnerTabBlock = ({ game }) => {
             if (game.owner === observerItem.id) {
               return null;
             }
-            if (userId === observerItem.id) {
+            if (Meteor.userId() === observerItem.id) {
               return null;
             }
             let isExaminer =
@@ -124,7 +120,7 @@ const ExamineOwnerTabBlock = ({ game }) => {
           if (game.owner === observerItem.id) {
             return null;
           }
-          if (userId === observerItem.id) {
+          if (Meteor.userId() === observerItem.id) {
             return null;
           }
           return (
@@ -162,7 +158,7 @@ export default class ExamineObserveTab extends Component {
     let { searchValue } = this.state;
     let that = this;
     let userList = this.props.allUsers
-      .filter(item => item._id !== this.props.userId)
+      .filter(item => item._id !== Meteor.userId())
       .map(item => item.username);
     const list = userList.filter(item => item.toLowerCase().indexOf(searchValue) >= 0);
     return list.map((name, i) => {
@@ -182,9 +178,9 @@ export default class ExamineObserveTab extends Component {
 
   render() {
     let options = this.getList();
-    let isObserving = this.props.userGameStatus === "observing";
+    let isObserving = Meteor.user().status.game === "observing";
     let isShowing =
-      this.props.userGameStatus === "examining" && this.props.game.observers.length > 1;
+      Meteor.user().status.game === "examining" && this.props.game.observers.length > 1;
     return (
       <div className="examine-observer-tab">
         {!isShowing && !isObserving && (
@@ -199,11 +195,10 @@ export default class ExamineObserveTab extends Component {
         {isObserving && (
           <ExamineObserverTabBlock
             game={this.props.game}
-            userId={this.props.userId}
             unObserveUser={this.props.unObserveUser}
           />
         )}
-        {isShowing && <ExamineOwnerTabBlock userId={this.props.userId} game={this.props.game} />}
+        {isShowing && <ExamineOwnerTabBlock game={this.props.game} />}
       </div>
     );
   }

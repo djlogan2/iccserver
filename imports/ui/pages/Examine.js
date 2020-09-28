@@ -42,19 +42,15 @@ class Examine extends Component {
         css: Meteor.subscribe("css"),
         users: Meteor.subscribe("loggedOnUsers"),
         chats: Meteor.subscribe("chat"),
-        //game: Meteor.subscribe("playing_games"),
         game: Meteor.subscribe("games"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
-        //observingGames: Meteor.subscribe("observing_games"),
         gameHistory: Meteor.subscribe("game_history"),
         importedGame: Meteor.subscribe("imported_games")
       },
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
-    // this.removeCircle = this.removeCircle.bind(this);
-    // this.gameHistoryload = this.gameHistoryload.bind(this);
     this.removeGameHistory = this.removeGameHistory.bind(this);
   }
 
@@ -86,15 +82,15 @@ class Examine extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.user && this.props.user.status) {
-      if (this.props.user.status.game === "playing") {
+    if (Meteor.user() && Meteor.user().status) {
+      if (Meteor.user().status.game === "playing") {
         this.props.history.push("/play");
       }
       if (
         prevProps.user &&
         prevProps.user.status &&
         prevProps.user.status.game === "examining" &&
-        this.props.user.status.game === "none"
+        Meteor.user().status.game === "none"
       ) {
         // this.props.history.push("/");
       }
@@ -108,11 +104,7 @@ class Examine extends Component {
     let examine_game = Game.findOne({ "examiners.id": Meteor.userId() });
     if (!examine_game) {
       this.initExamine();
-    } else if (
-      this.props.user &&
-      this.props.user.status &&
-      this.props.user.status.game !== "examining"
-    ) {
+    } else if (Meteor.user() && Meteor.user().status && Meteor.user().status.game !== "examining") {
       this.initExamine();
     }
   };
@@ -154,7 +146,7 @@ class Examine extends Component {
   }
 
   handleDraw = objectList => {
-    if (this.props.user && this.props.user.status && this.props.user.status.game === "examining") {
+    if (Meteor.user() && Meteor.user().status && Meteor.user().status.game === "examining") {
       return;
     }
 
@@ -397,7 +389,7 @@ class Examine extends Component {
         />
         <ExaminePage
           userId={Meteor.userId()}
-          user={this.props.user}
+          user={Meteor.user()}
           cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
@@ -405,35 +397,22 @@ class Examine extends Component {
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
           unObserveUser={this.handleUnobserveUser}
-          // fen={this._board.fen()}
           capture={capture}
-          //len={actionlen}
           game={game}
-          // gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}
-          // gameRequest={gameRequest}
-          // clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
-          // onDrawCircle={this.drawCircle}
-          // onRemoveCircle={this.removeCircle}
           ref="main_page"
-          // examing={gameExamin}
-          // circles={circles}
         />
       </div>
     );
   }
   render() {
-    if (
-      this.props.user &&
-      this.props.user.status &&
-      (this.props.user.status.game !== "examining" && this.props.user.status.game !== "observing")
-    ) {
+    if (Meteor.user().status.game !== "examining" && Meteor.user().status.game !== "observing") {
       return <Loading />;
     }
 
-    if (this.props.user && this.props.user.status && this.props.user.status.game === "observing") {
+    if (Meteor.user().status.game === "observing") {
       return this.renderObserver();
     }
 
@@ -510,8 +489,6 @@ class Examine extends Component {
           }}
         />
         <ExaminePage
-          userId={Meteor.userId()}
-          user={this.props.user}
           cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
@@ -519,18 +496,13 @@ class Examine extends Component {
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
           unObserveUser={this.handleUnobserveUser}
-          // fen={this._board.fen()}
           capture={capture}
-          //len={actionlen}
           game={game}
-          // gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}
-          // gameRequest={gameRequest}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
-          // onRemoveCircle={this.removeCircle}
           ref="main_page"
           examing={gameExamin}
           circles={circles}
@@ -542,13 +514,8 @@ class Examine extends Component {
 
 export default withTracker(() => {
   return {
-    // examine_game: Game.find(EXAMINING_QUOTE).fetch(),
     examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
     observe_game: Game.findOne({ "observers.id": Meteor.userId() }),
-    // chats: Chat.find({"id": examine_game._id}),
-    // chats: Chat.find({ type: { $in: ["kibitz", "whisper"] } }).fetch(),
-    // chat: Chat.find({ "observers.id": Meteor.userId() }).fetch(),
-    // imported_games: ImportedGameCollection.find({}).fetch(),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
@@ -565,13 +532,10 @@ export default withTracker(() => {
         sort: { create_date: -1 }
       }
     ),
-    // all_games2: Game.find().fetch(),
     all_games: Game.find({
       $or: [{ status: "playing" }, { status: "examining" }]
     }).fetch(),
-    // all_users: Meteor.users.find({ "game.status": { $in: ["playing", "examining"] } }).fetch(),
     all_users: Meteor.users.find().fetch(),
-    user: Meteor.users.findOne({ _id: Meteor.userId() }),
     game_messages: Game.findOne({
       $and: [
         { status: "playing" },
