@@ -52,7 +52,7 @@ const AppWrapper = ({ className, user, history, children, cssManager, game_reque
         </Modal>
       )}
 
-      <LeftSidebar user={user} cssManager={cssManager} />
+      <LeftSidebar cssManager={cssManager} />
       <Row className={`app-wrapper__row ${className}`}>{children}</Row>
     </div>
   );

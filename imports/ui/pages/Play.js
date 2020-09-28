@@ -500,7 +500,6 @@ class Play extends Component {
 
         <PlayNotifier game={this.props.in_game} userId={Meteor.userId()} cssManager={css} />
         <PlayPage
-          userId={Meteor.userId()}
           cssManager={css}
           board={this._board}
           usersToPlayWith={this.props.usersToPlayWith}
@@ -508,7 +507,6 @@ class Play extends Component {
           onBotPlay={this.handleBotPlay}
           capture={capture}
           game={this.props.in_game}
-          user={this.props.user}
           gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}

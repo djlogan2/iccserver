@@ -388,8 +388,6 @@ class Examine extends Component {
           }}
         />
         <ExaminePage
-          userId={Meteor.userId()}
-          user={Meteor.user()}
           cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
@@ -419,11 +417,6 @@ class Examine extends Component {
       return <Loading />;
     }
 
-    // let examineGame = this.props.examine_game[this.props.examine_game.length - 1];
-    // if (!examineGame.fen) {
-    //   debugger;
-    //   return <Loading />
-    // }
     const gameRequest = this.props.game_request;
     let game = this.props.game_messages;
     let circles = [];

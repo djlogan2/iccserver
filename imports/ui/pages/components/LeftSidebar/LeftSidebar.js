@@ -1,20 +1,10 @@
 import React, { Component } from "react";
-import { Modal } from "antd";
-import moment from "moment";
 import { withRouter } from "react-router";
 import MenuLinks from "./MenuLinks";
 import GameListModal from "./../Modaler/GameListModal";
 import { Meteor } from "meteor/meteor";
 
-import {
-  ClientMessagesCollection,
-  Game,
-  ImportedGameCollection,
-  GameHistoryCollection,
-  GameRequestCollection,
-  mongoCss,
-  mongoUser
-} from "../../../../api/client/collections";
+import { GameHistoryCollection } from "../../../../api/client/collections";
 
 class LeftSidebar extends Component {
   constructor(props) {
@@ -53,28 +43,13 @@ class LeftSidebar extends Component {
   };
 
   loadGameList(data) {
-    // if (data === "mygame") {
-    const gameList = GameHistoryCollection.find({
+    return GameHistoryCollection.findOne({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-    }).fetch();
-    return gameList;
+    });
   }
 
   handleExamine = () => {
     this.props.history.push("/examine");
-    // Meteor.call(
-    //   "startLocalExaminedGame",
-    //   "startlocalExaminedGame",
-    //   "Mr white",
-    //   "Mr black",
-    //   0,
-    //   (error, response) => {
-    //     if (response) {
-    //       this.props.history.push('/examine');
-    //       // this.props.examineAction(action);
-    //     }
-    //   }
-    // );
   };
 
   handleLogout = () => {
@@ -91,6 +66,7 @@ class LeftSidebar extends Component {
   };
 
   render() {
+    const username = !!Meteor.user() ? Meteor.user().username : "Please login";
     return (
       <div
         className={
@@ -104,12 +80,10 @@ class LeftSidebar extends Component {
         />
         <div className="sidebar__logo" />
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
-        {this.props.user && (
-          <div className="sidebar__user">
-            <img src={"../../../images/avatar.png"} alt="" className="sidebar__user-img" />
-            <span className="sidebar__user-name">{this.props.user.username}</span>
-          </div>
-        )}
+        <div className="sidebar__user">
+          <img src={"../../../images/avatar.png"} alt="" className="sidebar__user-img" />
+          <span className="sidebar__user-name">{username}</span>
+        </div>
         <MenuLinks
           onCommunity={this.handleCommunity}
           onUploadpgn={this.handleUploadpgn}

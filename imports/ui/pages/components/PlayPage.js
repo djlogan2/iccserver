@@ -27,7 +27,6 @@ export default class PlayPage extends Component {
       }
     };
     this.gameId = null;
-    this.userId = props.userId;
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -165,7 +164,7 @@ export default class PlayPage extends Component {
     let status;
     let position = { top: "w" };
     if (!!this.props.game) {
-      if (this.props.game.black.id === this.props.userId) {
+      if (this.props.game.black.id === Meteor.userId()) {
         this.top = "w";
         Object.assign(position, { top: "w" });
       } else {
