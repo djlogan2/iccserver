@@ -7,6 +7,9 @@ import GameHistory from "./elements/GameHistory";
 import { GameControlBlock } from "./elements/GameControlBlock";
 
 import i18n from "meteor/universe:i18n";
+import { Logger } from "../../../../../lib/client/Logger";
+
+const log = new Logger("client/PlayRightSidebar");
 
 const getLang = () => {
   return (
@@ -50,8 +53,9 @@ const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
 };
 
 class PlayFriendOptions extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    log.trace("PlayFriendOptions constructor", props);
     this.state = {
       color: "random",
       incrementOrDelayType: "inc",
@@ -130,6 +134,7 @@ class PlayFriendOptions extends Component {
   };
 
   render() {
+    log.trace("PlayFriendOptions render", this.props);
     let { onClose } = this.props;
     return (
       <div className="play-friend">
@@ -196,8 +201,9 @@ class PlayFriendOptions extends Component {
 }
 
 class PlayChooseBot extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    log.trace("PlayChooseBot constructor", props);
     this.state = {
       difficulty: 5,
       color: "random",
@@ -277,6 +283,7 @@ class PlayChooseBot extends Component {
     });
   };
   render() {
+    log.trace("PlayChooseBot render", this.props);
     let { onClose } = this.props;
     return (
       <div className="play-friend">
@@ -368,26 +375,9 @@ class PlayChooseBot extends Component {
 class PlayBlock extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      status: Meteor.user().status.game,
-      option: null
-    };
+    log.trace("PlayBlock constructor", props);
+    this.state = { status: "none" };
   }
-
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.userGameStatus !== Meteor.user().status.game &&
-      nextProps.userGameStatus === "playing"
-    ) {
-      this.setState({ status: "playing" });
-    } else if (
-      nextProps.userGameStatus !== Meteor.user().status.game &&
-      nextProps.userGameStatus !== "playing"
-    ) {
-      this.setState({ status: "none" });
-    }
-  }
-
   handlePlayWithFriend = () => {
     this.setState({ status: "play-friend-options" });
   };
@@ -405,8 +395,6 @@ class PlayBlock extends Component {
 
   handlePlayComputer = () => {
     this.setState({ status: "choose-bot" });
-    // Meteor.call("startBotGame", "play_computer", 0, "blitz", 5, 0, "none", 5, 0, "none", 3);
-    // this.setState({ status: "playing" });
   };
 
   hanldePlayWithBot = data => {
@@ -424,11 +412,19 @@ class PlayBlock extends Component {
       skillLevel,
       color
     );
-    this.setState({ status: "playing" });
   };
 
   render() {
-    if (this.state.status === "none") {
+    log.trace("PlayBlock render", this.props);
+    const isPlaying =
+      this.props.game &&
+      this.props.game.status === "playing" &&
+      (Meteor.userId() === this.props.game.white.id ||
+        Meteor.userId() === this.props.game.black.id);
+    log.debug(
+      "PlayBlock render, isPlaying=" + isPlaying + ", this.state.status=" + this.state.status
+    );
+    if (!isPlaying && this.state.status === "none") {
       return (
         <div className="play-block">
           <div className="play-block__top">
@@ -453,7 +449,7 @@ class PlayBlock extends Component {
         </div>
       );
     }
-    if (this.state.status === "play-friend-options") {
+    if (!isPlaying && this.state.status === "play-friend-options") {
       return (
         <PlayFriendOptions
           onClose={() => {
@@ -463,7 +459,7 @@ class PlayBlock extends Component {
         />
       );
     }
-    if (this.state.status === "play-with-friend") {
+    if (!isPlaying && this.state.status === "play-with-friend") {
       return (
         <PlayWithFriend
           onClose={() => {
@@ -474,7 +470,7 @@ class PlayBlock extends Component {
         />
       );
     }
-    if (this.state.status === "choose-bot") {
+    if (!isPlaying && this.state.status === "choose-bot") {
       return (
         <PlayChooseBot
           onClose={() => {
@@ -484,7 +480,7 @@ class PlayBlock extends Component {
         />
       );
     }
-    if (this.state.status === "playing" && this.props.game) {
+    if (isPlaying) {
       return (
         <div className="playing">
           <GameHistory
@@ -508,12 +504,14 @@ const ObserveBlock = () => {
   return <div className="observe-block">work in progress</div>;
 };
 export default class PlayRightSidebar extends Component {
-  constructor(props) {
-    super();
-  }
-
   renderBottom = () => {
-    if (Meteor.user().status.game === "playing") {
+    const isPlaying =
+      this.props.game &&
+      this.props.game.status === "playing" &&
+      (Meteor.userId() === this.props.game.white.id ||
+        Meteor.userId() === this.props.game.black.id);
+
+    if (isPlaying) {
       const whiteId = this.props.game.white.id;
       const blackId = this.props.game.black.id;
       let isPlayersWhite = Meteor.userId() === whiteId;
@@ -531,10 +529,15 @@ export default class PlayRightSidebar extends Component {
   };
 
   render() {
-    let topClasses =
-      Meteor.user().status.game === "playing"
-        ? "play-right-sidebar__top play-right-sidebar__top--small"
-        : "play-right-sidebar__top";
+    log.trace("PlayRightSidebar render", this.props);
+    const isPlaying =
+      this.props.game &&
+      this.props.game.status === "playing" &&
+      (Meteor.userId() === this.props.game.white.id ||
+        Meteor.userId() === this.props.game.black.id);
+    let topClasses = isPlaying
+      ? "play-right-sidebar__top play-right-sidebar__top--small"
+      : "play-right-sidebar__top";
 
     return (
       <div className="play-right-sidebar">

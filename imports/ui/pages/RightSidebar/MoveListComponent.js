@@ -223,13 +223,12 @@ export default class MoveListComponent extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.MoveListComponent", MoveListComponent.getLang());
-    let game = this.props.game;
-    let status = this.props.game.status;
-    if (!!game) {
+    let status = !!this.props.game && this.props.game.status === "playing" && (Meteor.userId() === this.props.game.white.id || Meteor.userId() === this.props.game.black.id);
+
+    if (!!this.props.game) {
       this.message_identifier = "server:game:" + this.gameId;
-      this.gameId = game._id;
     }
-    let string = this.buildPgnFromMovelist(game.variations.movelist);
+    let string = this.buildPgnFromMovelist(this.props.game.variations.movelist);
     let chunks = string.split("|");
     chunks.splice(-1, 1);
     this.cmi = chunks.length;
@@ -337,12 +336,6 @@ export default class MoveListComponent extends Component {
             <button style={btnstyle} onClick={this.props.flip}>
               <img src={this.props. cssManager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
             </button>
-            {/*  <button style={btnstyle}>
-              <img
-                src={this.props. cssManager.buttonBackgroundImage("settingIcon")}
-                alt="setting-icon"
-              />
-            </button> */}
           </div>
         ) : null}
         <div className="draw-section">
@@ -420,7 +413,7 @@ export default class MoveListComponent extends Component {
                     alt="Draw"
                     style={this.props. cssManager.drawSectionButton()}
                   />
-                  New Oppenent
+                  New Opponent
                 </button>
               </li>
               <li style={this.props. cssManager.drawSectionList()}>

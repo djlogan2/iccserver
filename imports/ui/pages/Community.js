@@ -1,30 +1,16 @@
 import React, { Component, useState } from "react";
-import ExaminePage from "./components/ExaminePage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../lib/client/Logger";
-import TrackerReact from "meteor/ultimatejs:tracker-react";
-import CssManager from "../pages/components/Css/CssManager";
-import Loading from "../pages/components/Loading";
 import AppWrapper from "../pages/components/AppWrapper";
 
 import Messenger from "./components/Chat/Messenger";
-import Chess from "chess.js";
-import { Link } from "react-router-dom";
-import { Tracker } from "meteor/tracker";
-import { Button, Input, Modal, Popconfirm, message } from "antd";
+import { Button, Input, Modal } from "antd";
 import {
-  ClientMessagesCollection,
-  Game,
   Chat,
   Rooms,
-  ImportedGameCollection,
-  GameHistoryCollection,
-  GameRequestCollection,
   mongoCss,
-  mongoUser
 } from "../../api/client/collections";
-import { TimestampClient } from "../../../lib/Timestamp";
 
 const log = new Logger("client/Community");
 
