@@ -393,7 +393,6 @@ class Examine extends Component {
           cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
-          gameId={game._id}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
           unObserveUser={this.handleUnobserveUser}
@@ -492,7 +491,6 @@ class Examine extends Component {
           cssManager={css}
           allUsers={this.props.all_users}
           board={this._board}
-          gameId={this.props.examine_game._id}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
           unObserveUser={this.handleUnobserveUser}

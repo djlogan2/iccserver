@@ -112,18 +112,17 @@ export default class MiddleBoard extends Component {
 
     let boardtop;
 
-    if (this.props.gameStatus !== "idlemode") {
-      if (this.state.top === "w") {
-        boardtop = "black";
-      } else {
-        boardtop = "white";
-      }
+    if (this.state.top === "w") {
+      boardtop = "black";
+    } else {
+      boardtop = "white";
     }
+
     let topPlayermsg;
     let botPlayermsg;
     let color;
     let mypeiceColor;
-    if (this.props.gameStatus === "playing") {
+    if (this.props.game && this.props.game.status === "playing") {
       if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
         mypeiceColor = "black";
         if (this.chess.turn() === "b") {
@@ -146,16 +145,16 @@ export default class MiddleBoard extends Component {
     }
     let fen;
     if (
-      !!this.props.gameStatus &&
-      (this.props.gameStatus === "examining" || this.props.gameStatus === "playing")
+      !!this.props.game &&
+      (this.props.game.status === "examining" || this.props.game.status === "playing")
     ) {
       fen = this.props.game.fen;
     } else {
-      fen = this.chess.fen();
+      fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     }
 
-    let isUserPlaying = this.props.gameStatus === "playing";
-    let isUserExamining = this.props.gameStatus === "examining";
+    let isUserPlaying = !!this.props.game && this.props.game.status === "playing";
+    let isUserExamining = !!this.props.game && this.props.game.status === "examining";
 
     let isPlayingOrExamining = isUserPlaying || isUserExamining;
 
@@ -194,7 +193,7 @@ export default class MiddleBoard extends Component {
               onDrop={this.props.onDrop}
               onDrawObject={this.props.onDrawObject}
               mycolor={mypeiceColor}
-              gameStatus={this.props.gameStatus}
+              gameStatus={this.props.game.status}
             />
           )}
 

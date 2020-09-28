@@ -225,8 +225,6 @@ export default class PlayPage extends Component {
         </Col>
         <Col span={10}>
           <PlayRightSidebar
-            gameId={this.props.gameId}
-            user={this.props.user}
             game={this.props.game}
             usersToPlayWith={this.props.usersToPlayWith}
             onChooseFriend={this.props.onChooseFriend}

@@ -16,7 +16,7 @@ const getLang = () => {
     navigator.userLanguage ||
     "en-US"
   );
-}
+};
 
 const { TabPane } = Tabs;
 
@@ -80,24 +80,25 @@ class PlayFriendOptions extends Component {
   };
 
   handleChange = inputName => {
-    return (number) => {
+    return number => {
       let newState = {};
       let that = this;
       newState[inputName] = number;
       this.setState(newState, () => {
         that.updateRating();
       });
-    }
+    };
   };
 
   updateRating = () => {
     let { initial, incrementOrDelay } = this.state;
-    let index = initial + 2 / 3 * incrementOrDelay;
+    let index = initial + (2 / 3) * incrementOrDelay;
 
+    // TODO: Please fix this. Previous programmers did NOT know what they were doing!!
     const ratingConfig = {
-      "bullet": [0, 2],
-      "blitz": [3, 14],
-      "standard": [15, 600]
+      bullet: [0, 2],
+      blitz: [3, 14],
+      standard: [15, 600]
     };
     let ratingType = "none";
     if (ratingConfig.bullet[0] <= index && index <= ratingConfig.bullet[1]) {
@@ -107,8 +108,9 @@ class PlayFriendOptions extends Component {
     } else if (ratingConfig.standard[0] <= index && index <= ratingConfig.standard[1]) {
       ratingType = "standard";
     }
+    // TODO: Please fix this. Previous programmers did NOT know what they were doing!!
     this.setState({ ratingType: ratingType });
-  }
+  };
 
   handlePlay = () => {
     let color = this.state.color;
@@ -135,11 +137,15 @@ class PlayFriendOptions extends Component {
           <h2 className="play-friend__name-title">Create game</h2>
           <Button onClick={onClose}>Back</Button>
         </div>
-        <Form className="play-bot__form" layout="vertical" initialValues={{
-          initial: this.state.initial,
-          incrementOrDelay: this.state.incrementOrDelay,
-          color: "random"
-        }}>
+        <Form
+          className="play-bot__form"
+          layout="vertical"
+          initialValues={{
+            initial: this.state.initial,
+            incrementOrDelay: this.state.incrementOrDelay,
+            color: "random"
+          }}
+        >
           <Form.Item label="Time control" name="time-control">
             <Radio.Group
               onChange={this.handleChangeIncrementOrDelayType}
@@ -157,7 +163,7 @@ class PlayFriendOptions extends Component {
                   min={0}
                   disabled={this.state.incrementOrDelayType === "none"}
                   value={this.state.initial}
-                  onChange={this.handleChange('initial')}
+                  onChange={this.handleChange("initial")}
                 />
               </Form.Item>
               <Form.Item label="increment or delay" name="incrementOrDelay">
@@ -165,7 +171,7 @@ class PlayFriendOptions extends Component {
                   min={0}
                   disabled={this.state.incrementOrDelayType === "none"}
                   value={this.state.incrementOrDelay}
-                  onChange={this.handleChange('incrementOrDelay')}
+                  onChange={this.handleChange("incrementOrDelay")}
                 />
               </Form.Item>
             </div>
@@ -174,10 +180,7 @@ class PlayFriendOptions extends Component {
             <p>{this.state.ratingType}</p>
           </Form.Item>
           <Form.Item label="Color" name="color">
-            <Radio.Group
-              onChange={this.handleChangeColor}
-              value={this.state.color}
-            >
+            <Radio.Group onChange={this.handleChangeColor} value={this.state.color}>
               <Radio.Button value={"random"}>Random</Radio.Button>
               <Radio.Button value={"white"}>White</Radio.Button>
               <Radio.Button value={"black"}>Black</Radio.Button>
@@ -206,7 +209,7 @@ class PlayChooseBot extends Component {
   }
   componentDidMount() {
     this.updateRating();
-  };
+  }
 
   handleChangeDifficulty = e => {
     this.setState({
@@ -227,24 +230,24 @@ class PlayChooseBot extends Component {
   };
 
   handleChange = inputName => {
-    return (number) => {
+    return number => {
       let newState = {};
       let that = this;
       newState[inputName] = number;
       this.setState(newState, () => {
         that.updateRating();
       });
-    }
+    };
   };
 
   updateRating = () => {
     let { initial, incrementOrDelay } = this.state;
-    let index = initial + 2 / 3 * incrementOrDelay;
+    let index = initial + (2 / 3) * incrementOrDelay;
 
     const ratingConfig = {
-      "bullet": [0, 2],
-      "blitz": [3, 14],
-      "standard": [15, 600]
+      bullet: [0, 2],
+      blitz: [3, 14],
+      standard: [15, 600]
     };
     let ratingType = "none";
     if (ratingConfig.bullet[0] <= index && index <= ratingConfig.bullet[1]) {
@@ -255,7 +258,7 @@ class PlayChooseBot extends Component {
       ratingType = "standard";
     }
     this.setState({ ratingType: ratingType });
-  }
+  };
 
   handlePlay = () => {
     let color = this.state.color;
@@ -281,11 +284,14 @@ class PlayChooseBot extends Component {
           <h2 className="play-friend__name-title">Play with computer</h2>
           <Button onClick={onClose}>Back</Button>
         </div>
-        <Form className="play-bot__form" layout="vertical"
+        <Form
+          className="play-bot__form"
+          layout="vertical"
           initialValues={{
             initial: this.state.initial,
             incrementOrDelay: this.state.incrementOrDelay
-          }}>
+          }}
+        >
           <Form.Item label="Difficulty" name="difficulty">
             <Radio.Group
               onChange={this.handleChangeDifficulty}
@@ -362,21 +368,20 @@ class PlayChooseBot extends Component {
 class PlayBlock extends Component {
   constructor(props) {
     super(props);
-    let status = this.props.userGameStatus === "playing" ? "playing" : "none";
     this.state = {
-      status: status, // 'none', 'play-with-friend', 'playing', 'play-friend-options'
-      option: null // handlePlayFriendOptions
+      status: Meteor.user().status.game,
+      option: null
     };
   }
 
   componentWillReceiveProps(nextProps) {
     if (
-      nextProps.userGameStatus !== this.props.userGameStatus &&
+      nextProps.userGameStatus !== Meteor.user().status.game &&
       nextProps.userGameStatus === "playing"
     ) {
       this.setState({ status: "playing" });
     } else if (
-      nextProps.userGameStatus !== this.props.userGameStatus &&
+      nextProps.userGameStatus !== Meteor.user().status.game &&
       nextProps.userGameStatus !== "playing"
     ) {
       this.setState({ status: "none" });
@@ -384,20 +389,19 @@ class PlayBlock extends Component {
   }
 
   handlePlayWithFriend = () => {
-
     this.setState({ status: "play-friend-options" });
   };
 
-  handlePlayFriendOptions = (data) => {
+  handlePlayFriendOptions = data => {
     this.setState({ status: "play-with-friend", options: data });
-  }
+  };
 
-  handleChooseFriend = (friendId) => {
+  handleChooseFriend = friendId => {
     this.props.onChooseFriend({
       friendId: friendId,
       options: this.state.options
-    })
-  }
+    });
+  };
 
   handlePlayComputer = () => {
     this.setState({ status: "choose-bot" });
@@ -408,7 +412,18 @@ class PlayBlock extends Component {
   hanldePlayWithBot = data => {
     const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
 
-    this.props.onBotPlay(0, ratingType, initial, incrementOrDelay, incrementOrDelayType, initial, incrementOrDelay, incrementOrDelayType, skillLevel, color);
+    this.props.onBotPlay(
+      0,
+      ratingType,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      skillLevel,
+      color
+    );
     this.setState({ status: "playing" });
   };
 
@@ -443,8 +458,10 @@ class PlayBlock extends Component {
         <PlayFriendOptions
           onClose={() => {
             this.setState({ status: "none" });
-          }} onPlay={this.handlePlayFriendOptions} />
-      )
+          }}
+          onPlay={this.handlePlayFriendOptions}
+        />
+      );
     }
     if (this.state.status === "play-with-friend") {
       return (
@@ -479,10 +496,7 @@ class PlayBlock extends Component {
             examineAction={this.props.examineAction}
             currentGame={this.props.currentGame}
           />
-          <GameControlBlock
-            game={this.props.game}
-            flip={this.props.flip}
-          />
+          <GameControlBlock game={this.props.game} flip={this.props.flip} />
         </div>
       );
     }
@@ -491,19 +505,15 @@ class PlayBlock extends Component {
 }
 
 const ObserveBlock = () => {
-  return (
-    <div className="observe-block">
-      work in progress
-    </div>
-  )
-}
+  return <div className="observe-block">work in progress</div>;
+};
 export default class PlayRightSidebar extends Component {
   constructor(props) {
     super();
   }
 
   renderBottom = () => {
-    if (this.props.user.status && this.props.user.status.game === "playing") {
+    if (Meteor.user().status.game === "playing") {
       const whiteId = this.props.game.white.id;
       const blackId = this.props.game.black.id;
       let isPlayersWhite = Meteor.userId() === whiteId;
@@ -513,7 +523,7 @@ export default class PlayRightSidebar extends Component {
             <PersonalChatApp opponentId={isPlayersWhite ? blackId : whiteId} />
           </TabPane>
           <TabPane tab={"Kibitz"} key="kibitz">
-            <KibitzChatApp isKibitz={true} gameId={this.props.gameId} />
+            <KibitzChatApp isKibitz={true} gameId={this.props.game._id} />
           </TabPane>
         </Tabs>
       );
@@ -521,23 +531,17 @@ export default class PlayRightSidebar extends Component {
   };
 
   render() {
-    let isPlaying =
-      this.props.user && this.props.user.status ? this.props.user.status.game === "playing" : false;
-    let topClasses = isPlaying
-      ? "play-right-sidebar__top play-right-sidebar__top--small"
-      : "play-right-sidebar__top";
+    let topClasses =
+      Meteor.user().status.game === "playing"
+        ? "play-right-sidebar__top play-right-sidebar__top--small"
+        : "play-right-sidebar__top";
 
-    let userGameStatus = this.props.user && this.props.user.status && this.props.user.status.game;
-    if (userGameStatus === undefined) {
-      userGameStatus = 'none';
-    }
     return (
       <div className="play-right-sidebar">
         <Tabs className={topClasses} defaultActiveKey="1" size="small" type="card">
           <TabPane tab={"Play"} key="play">
             <PlayBlock
               game={this.props.game}
-              userGameStatus={userGameStatus}
               onBotPlay={this.props.onBotPlay}
               usersToPlayWith={this.props.usersToPlayWith}
               onChooseFriend={this.props.onChooseFriend}
@@ -551,7 +555,7 @@ export default class PlayRightSidebar extends Component {
             <ObserveBlock />
           </TabPane>
         </Tabs>
-        {this.props.user && this.props.game && this.renderBottom()}
+        {this.props.game && this.renderBottom()}
       </div>
     );
   }

@@ -35,7 +35,7 @@ class ExamineRightSidebar extends Component {
           ref="right_bar_top"
         />
         <ExamineRightSidebarBottom
-          gameId={this.props.gameId}
+          gameId={this.props.game._id}
           fen={this.props.game.fen}
           onPgnUpload={this.props.onPgnUpload}
           moveList={this.props.game.variations.movelist}

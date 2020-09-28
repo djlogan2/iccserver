@@ -36,7 +36,6 @@ export default class ExaminePage extends Component {
         props.removeGameHistory();
       }
     };
-    this.gameId = null;
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -165,7 +164,7 @@ export default class ExaminePage extends Component {
   actionPopup = (title, action) => {
     return (
       <ActionPopup
-        gameID={this.gameId}
+        gameID={this.game._id}
         title={title}
         action={action}
         cssManager={this.props.cssManager}
@@ -249,7 +248,6 @@ export default class ExaminePage extends Component {
     }
     if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
       status = game.status;
-      this.gameId = game._id;
 
       Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
       if (status !== "examining") {
@@ -296,7 +294,6 @@ export default class ExaminePage extends Component {
         </Col>
         <Col span={10}>
           <ExamineRightSidebar
-            gameId={this.props.gameId}
             game={game}
             allUsers={this.props.allUsers}
             observeUser={this.props.observeUser}
