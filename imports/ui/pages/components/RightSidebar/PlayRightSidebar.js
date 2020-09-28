@@ -219,7 +219,7 @@ class PlayChooseBot extends Component {
       color: e.target.value
     });
   };
-  
+
   handleChangeIncrementOrDelayType = e => {
     this.setState({
       incrementOrDelayType: e.target.value
@@ -480,7 +480,6 @@ class PlayBlock extends Component {
             currentGame={this.props.currentGame}
           />
           <GameControlBlock
-            gameId={this.props.game._id}
             game={this.props.game}
             flip={this.props.flip}
           />

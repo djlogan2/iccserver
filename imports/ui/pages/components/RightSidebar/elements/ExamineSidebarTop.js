@@ -55,7 +55,6 @@ export default class ExamineSidebarTop extends Component {
             currentGame={this.props.currentGame}
           />
           <ExamineGameControlBlock
-            gameId={this.props.game._id}
             game={this.props.game}
             flip={this.props.flip}
           />

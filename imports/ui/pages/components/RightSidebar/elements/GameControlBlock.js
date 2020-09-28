@@ -27,12 +27,12 @@ class LocationControls extends Component {
   moveBackwordBeginning = () => {
     let { cmi } = this.props.game.variations;
     for (let i = 0; i < cmi; i++) {
-      Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, handleError);
+      Meteor.call("moveBackward", "MoveBackward", this.props.game._id, 1, handleError);
     }
   };
 
   moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.gameId, 1, handleError);
+    Meteor.call("moveBackward", "MoveBackward", this.props.game._id, 1, handleError);
   };
 
   moveForward = () => {
@@ -42,7 +42,7 @@ class LocationControls extends Component {
       variationIndex = this.props.game.variations.movelist[ind].idc;
     }
 
-    Meteor.call("moveForward", "moveForward", this.props.gameId, 1, variationIndex, handleError);
+    Meteor.call("moveForward", "moveForward", this.props.game._id, 1, variationIndex, handleError);
   };
 
   moveForwardEnd = () => {
@@ -50,7 +50,7 @@ class LocationControls extends Component {
 
     let slicemoves = movelist.slice(this.state.cmi + 1, movelist.length);
     for (let i = 0; i <= slicemoves.length; i++) {
-      Meteor.call("moveForward", "moveForward", this.props.gameId, 1, 0, handleError);
+      Meteor.call("moveForward", "moveForward", this.props.game._id, 1, 0, handleError);
     }
   };
 
@@ -89,21 +89,21 @@ class ActionControls extends Component {
   }
 
   handleTakeback = () => {
-    Meteor.call("requestTakeback", "requestTakeback", this.props.gameId, 1, handleError);
+    Meteor.call("requestTakeback", "requestTakeback", this.props.game._id, 1, handleError);
   };
 
   handleResign = () => {
     // resignGame
-    Meteor.call("resignGame", "resignGame", this.props.gameId, handleError);
+    Meteor.call("resignGame", "resignGame", this.props.game._id, handleError);
   };
   handleDraw = () => {
-    Meteor.call("requestToDraw", "requestToDraw", this.props.gameId, handleError);
+    Meteor.call("requestToDraw", "requestToDraw", this.props.game._id, handleError);
   };
   handleAdjorn = () => {
-    Meteor.call("requestToAdjourn", "requestToAdjourn", this.props.gameId, handleError);
+    Meteor.call("requestToAdjourn", "requestToAdjourn", this.props.game._id, handleError);
   };
   handleAbort = () => {
-    Meteor.call("requestToAbort", "requestToAbort", this.props.gameId, handleError);
+    Meteor.call("requestToAbort", "requestToAbort", this.props.game._id, handleError);
   };
 
   render() {
@@ -139,19 +139,19 @@ class ActionControls extends Component {
   }
 }
 
-const GameControlBlock = ({ gameId, game, flip }) => {
+const GameControlBlock = ({ game, flip }) => {
   return (
     <div className="game-control-block">
-      <LocationControls gameId={gameId} game={game} flip={flip} />
-      <ActionControls gameId={gameId} />
+      <LocationControls game={game} flip={flip} />
+      <ActionControls game={game} />
     </div>
   );
 };
 
-const ExamineGameControlBlock = ({ gameId, game, flip }) => {
+const ExamineGameControlBlock = ({ game, flip }) => {
   return (
     <div className="game-control-block">
-      <LocationControls gameId={gameId} game={game} flip={flip} />
+      <LocationControls game={game} flip={flip} />
     </div>
   );
 };
