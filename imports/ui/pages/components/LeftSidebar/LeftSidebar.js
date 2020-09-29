@@ -5,9 +5,13 @@ import GameListModal from "./../Modaler/GameListModal";
 import { Meteor } from "meteor/meteor";
 
 import { GameHistoryCollection } from "../../../../api/client/collections";
+import { Logger } from "../../../../../lib/client/Logger";
+
+const log = new Logger("client/LeftSidebar_js");
 
 class LeftSidebar extends Component {
   constructor(props) {
+    log.trace("LeftSidebar constructor", props);
     super(props);
     this.state = {
       visible: false,
@@ -43,7 +47,7 @@ class LeftSidebar extends Component {
   };
 
   loadGameList(data) {
-    return GameHistoryCollection.findOne({
+    return GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     });
   }
@@ -66,6 +70,7 @@ class LeftSidebar extends Component {
   };
 
   render() {
+    log.trace("LeftSidebar render", this.props);
     const username = !!Meteor.user() ? Meteor.user().username : "Please login";
     return (
       <div

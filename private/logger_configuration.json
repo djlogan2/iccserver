@@ -1,5 +1,5 @@
 {
-    "client/AppContainer": "DEBUG",
+    "client/AppContainer": "TRACE",
     "client/Board_js": "DEBUG",
     "client/ChessBoard_js": "DEBUG",
     "client/Community": "DEBUG",
@@ -12,7 +12,7 @@
     "client/GameControlBlock": "DEBUG",
     "client/LoginPage_js": "DEBUG",
     "client/main_js": "DEBUG",
-    "client/MainPage": "DEBUG",
+    "client/MainPage": "TRACE",
     "client/MatchUserComponent": "DEBUG",
     "client/MiddleBoard": "DEBUG",
     "client/MoveListComponent": "DEBUG",

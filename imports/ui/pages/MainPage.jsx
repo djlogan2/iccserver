@@ -23,6 +23,7 @@ const log = new Logger("client/MainPage");
 export default class MainPage extends Component {
   constructor(props) {
     super(props);
+    log.trace("MainPage constructor", props);
     this.toggleModal = data => {
       this.setState({
         modalShow: data
@@ -153,7 +154,7 @@ export default class MainPage extends Component {
 
   gameRequest = (title, requestId) => {
     return (
-      <GameRequestPopup requestId={requestId} title={title}  cssManager={this.props. cssManager} />
+      <GameRequestPopup requestId={requestId} title={title} cssManager={this.props.cssManager} />
     );
   };
   actionPopup = (title, action) => {
@@ -162,20 +163,20 @@ export default class MainPage extends Component {
         gameID={this.gameId}
         title={title}
         action={action}
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
       />
     );
   };
 
   GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title}  cssManager={this.props. cssManager} />;
+    return <GamenotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
   };
   GameResignedPopup = (title, mid) => {
     return (
       <GameResignedPopup
         mid={mid}
         title={title}
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         resignNotificationCloseHandler={this.resignNotificationCloseHandler}
       />
     );
@@ -184,7 +185,7 @@ export default class MainPage extends Component {
     return (
       <ExaminActionPopup
         action={action}
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
       />
     );
@@ -239,7 +240,7 @@ export default class MainPage extends Component {
       border: "1px solid #ccc",
       boxShadow: "#0000004d"
     };
-    let btnstyle = this.props. cssManager.innerPopupMain();
+    let btnstyle = this.props.cssManager.innerPopupMain();
     Object.assign(btnstyle, { marginTop: "15px" });
 
     return (
@@ -281,7 +282,7 @@ export default class MainPage extends Component {
                       <td style={{ padding: "5px 5px" }}>
                         <a href={"export/pgn/history/" + game.id} className="pgnbtn">
                           <img
-                            src={this.props. cssManager.buttonBackgroundImage("pgnIcon")}
+                            src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
                             style={{ width: "25px", height: "25px" }}
                             alt="PgnDownload"
                           />
@@ -307,8 +308,7 @@ export default class MainPage extends Component {
   setGameExaminMode(id, is_imported) {
     Meteor.call("examineGame", "ExaminedGame", id, is_imported, (error, response) => {
       if (error) {
-        log.debug(error);
-        console.log(error);
+        log.error(error);
         this.setState({ modalShow: false });
       } else {
         this.setState({ examineGame: true, activeTab: 3, modalShow: false });
@@ -350,6 +350,7 @@ export default class MainPage extends Component {
     );
   }
   render() {
+    log.trace("MainPage render", this.props);
     let translator = i18n.createTranslator("Common.MainPage", this.getLang());
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
@@ -444,7 +445,6 @@ export default class MainPage extends Component {
       }
     } else {
       status = "idlemode";
-      // this.intializeBoard();
     }
     if (!!this.props.GameHistory) {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
@@ -464,14 +464,12 @@ export default class MainPage extends Component {
     if (!w) w = window.innerWidth;
     if (!h) h = window.innerHeight;
 
-    let leftmenu = null;
-    let rightmenu = null;
+    let leftmenu;
     if (w <= 1199) leftmenu = null;
     else {
       leftmenu = (
         <LeftSidebar
-           cssManager={this.props. cssManager}
-          // LefSideBoarData={this.Main.LeftSection}
+          cssManager={this.props.cssManager}
           history={this.props.history}
           gameHistory={this.props.gameHistoryload}
           examineAction={this.examineActionHandler}
@@ -490,7 +488,7 @@ export default class MainPage extends Component {
               {exPopup}
 
               <MiddleBoard
-                 cssManager={this.props. cssManager}
+                cssManager={this.props.cssManager}
                 MiddleBoardData={this.Main.MiddleSection}
                 currentGame={this.state.examineGame}
                 ref="middleBoard"
@@ -501,8 +499,6 @@ export default class MainPage extends Component {
                 onRemoveCircle={this.props.onRemoveCircle}
                 top={position.top}
                 circles={this.props.circles}
-                //  fen={this.props.fen}
-
                 width={this.state.width}
                 height={this.state.height}
                 gameStatus={status}
@@ -512,7 +508,7 @@ export default class MainPage extends Component {
             <div className="col-sm-5 col-md-4 col-lg-5 right-section">
               {actionPopup}
               <RightSidebar
-                 cssManager={this.props. cssManager}
+                cssManager={this.props.cssManager}
                 RightSidebarData={this.Main.RightSection}
                 gameStatus={status}
                 currentGame={this.state.examineGame}

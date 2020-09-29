@@ -9,9 +9,9 @@ import { Tracker } from "meteor/tracker";
 import {
   ClientMessagesCollection,
   Game,
-  ImportedGameCollection,
   GameHistoryCollection,
   GameRequestCollection,
+  ImportedGameCollection,
   mongoCss,
   mongoUser
 } from "../../api/client/collections";
@@ -64,6 +64,7 @@ Meteor.startup(() => {
 export default class AppContainer extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);
+    log.trace("AppContainer constructor", props);
     this.gameId = null;
     this.userId = null;
     // You need to quit using Chess.chess() and start using the data from the game record.
@@ -103,8 +104,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   examineGame() {
-    let response = Game.find({ "observers.id": Meteor.userId() }).fetch();
-    return response
+    return Game.findOne({ "observers.id": Meteor.userId() });
   }
   renderGameRequest() {
     return GameRequestCollection.findOne(
@@ -191,7 +191,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    let capturedSoldiers = history.reduce((accumulator, move) => {
+    return history.reduce((accumulator, move) => {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
@@ -201,8 +201,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         return accumulator;
       }
     }, position);
-
-    return capturedSoldiers;
   }
 
   drawCircle(square, color, size) {
@@ -271,7 +269,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    let capturedSoldiers = history.reduce((accumulator, move) => {
+    return history.reduce((accumulator, move) => {
       if ("captured" in move) {
         let piece = move.captured;
         let color = move.color === "w" ? "b" : "w";
@@ -281,8 +279,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
         return accumulator;
       }
     }, position);
-
-    return capturedSoldiers;
   }
 
   _examinBoard(game) {
@@ -306,6 +302,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
     });
   }
   render() {
+    log.trace("AppContainer render", this.props);
     const gameRequest = this.renderGameRequest();
     let game = this.renderGameMessages();
     let circles = [];
@@ -359,9 +356,8 @@ export default class AppContainer extends TrackerReact(React.Component) {
     return (
       <div>
         <MainPage
-           cssManager={css}
+          cssManager={css}
           board={this._board}
-          // fen={this._board.fen()}
           capture={capture}
           len={actionlen}
           game={game}

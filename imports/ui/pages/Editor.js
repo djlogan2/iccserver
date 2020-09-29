@@ -14,7 +14,6 @@ import Loading from "./components/Loading";
 import BoardWrapper from "./components/BoardWrapper";
 import { Logger } from "../../../lib/client/Logger";
 
-// import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
 import AppWrapper from "./components/AppWrapper";
 
 const log = new Logger("client/Editor_js");

@@ -1,7 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import { Modal } from "antd";
 import { withRouter } from "react-router";
-import moment from "moment";
 import { Meteor } from "meteor/meteor";
 
 const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
@@ -12,14 +11,9 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
       }
       history.push("/examine");
     });
-
-    // this.props.removeGameHistory();
   };
 
   const formatGameList = games => {
-    // let result;
-    // let gameList = [];
-
     return games.map(gameItem => {
       let isUserWhite = gameItem.white.id === Meteor.userId();
       let hasWhiteWon = gameItem.result === "1-0";
@@ -28,9 +22,6 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
 
       let isCurrentUserWinner = (isUserWhite && hasWhiteWon) || (isUserBlack && hasBlackWon);
       let gameResult = isCurrentUserWinner ? "Won" : "Loss";
-
-      // time = `${gameItem.startTime.getDate()}.${gameItem.startTime.getFullYear()}`;
-      //time = moment(gameItem.startTime).format("DD.MM.YYYY");
 
       return {
         id: gameItem._id,
@@ -54,15 +45,7 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
   };
 
   return (
-    <Modal
-      title="My Games"
-      // visible={this.state.visible}
-      visable={true}
-      // onOk={this.handleOk}
-      onCancel={rest.onClose}
-      footer={null}
-      {...rest}
-    >
+    <Modal title="My Games" visable={true} onCancel={rest.onClose} footer={null} {...rest}>
       <div style={style}>
         {formattedGameList.length > 0 ? (
           <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
@@ -107,7 +90,6 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
                       <td style={{ padding: "5px 5px" }}>
                         <a href={"export/pgn/history/" + game.id} className="pgnbtn">
                           <img
-                            // src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
                             src="images/pgnicon.png"
                             style={{ width: "25px", height: "25px" }}
                             alt="PgnDownload"
@@ -127,6 +109,5 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
     </Modal>
   );
 };
-
 
 export default withRouter(GameListModal);

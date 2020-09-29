@@ -1,10 +1,8 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
-import { Mongo } from "meteor/mongo";
 import i18n from "meteor/universe:i18n";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "./components/Css/CssManager";
-// import LeftSidebar from "./components/LeftSidebar/LeftSidebar";
 import AppWrapper from "./components/AppWrapper";
 import Loading from "./components/Loading";
 import { mongoCss, GameRequestCollection } from "../../api/client/collections";
