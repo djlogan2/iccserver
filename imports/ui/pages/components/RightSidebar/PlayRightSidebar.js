@@ -421,9 +421,6 @@ class PlayBlock extends Component {
       this.props.game.status === "playing" &&
       (Meteor.userId() === this.props.game.white.id ||
         Meteor.userId() === this.props.game.black.id);
-    log.debug(
-      "PlayBlock render, isPlaying=" + isPlaying + ", this.state.status=" + this.state.status
-    );
     if (!isPlaying && this.state.status === "none") {
       return (
         <div className="play-block">

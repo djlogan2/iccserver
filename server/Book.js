@@ -1,14 +1,18 @@
 import { Chess } from "chess.js";
 import { Mongo } from "meteor/mongo";
+import { Logger } from "../lib/server/Logger";
 
 const BOOKNAME = "defaultbook";
 
 const BookCollection = new Mongo.Collection("book");
 
+const log = new Logger("server/Book_js");
+
 export const Book = {};
 
 Book.findBook = function(fen) {
   const hash = getHash(fen).toString();
+  log.debug("Book.findBook fen=" + fen + ", hash=" + hash);
   return BookCollection.findOne({ key: hash });
 };
 
