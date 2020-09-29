@@ -248,10 +248,7 @@ Meteor.startup(function() {
 });
 
 Accounts.validateLoginAttempt(function(params) {
-  log.debug(
-    "validateLoginAttempt " +
-      (!params.user ? "no user" : params.user.username + "/" + params.user._id)
-  );
+  log.debug("validateLoginAttempt", params);
   // params.type = service name
   // params.allowed = t/f
   // params.user
@@ -307,12 +304,14 @@ Accounts.validateLoginAttempt(function(params) {
   // ARGH ARGH ARGH ARGH -- But check to make sure if the record exists, it's the same connection id
   //
   const lou = LoggedOnUsers.findOne({ userid: params.user._id });
-  if (!!lou && lou.connection.id !== params.connection.id) {
-    log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
-    const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
-    throw new Meteor.Error("401", message);
-  }
-  LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
+  log.debug("validateLoginAttempt lou", lou);
+  if (!!lou) {
+    if (lou.connection.id !== params.connection.id) {
+      log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
+      const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
+      throw new Meteor.Error("401", message);
+    }
+  } else LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
   log.debug("validateLoginAttempt succeeded");
   return true;
 });
