@@ -233,7 +233,7 @@ export default class ExaminePage extends Component {
   render() {
     let gameTurn = this.props.board.turn();
     const game = this.props.game;
-    let status = "others";
+    let status;
     let position = { top: "w" };
     if (!!game) {
       if (game.black.id === Meteor.userId()) {
@@ -261,14 +261,9 @@ export default class ExaminePage extends Component {
         }
       }
       this.Main.RightSection.MoveList = game;
-    } else {
-      status = "idlemode";
     }
     let w = this.state.width;
     let h = this.state.height;
-
-    if (!w) w = window.innerWidth;
-    if (!h) h = window.innerHeight;
 
     return (
       <AppWrapper cssManager={this.props.cssManager}>
@@ -284,7 +279,6 @@ export default class ExaminePage extends Component {
               onDrop={this.props.onDrop}
               onDrawObject={this.props.onDrawObject}
               top={position.top}
-              circles={this.props.circles}
               width={this.state.width}
               height={this.state.height}
               gameStatus={Meteor.user().status.game} // DJL REMOVE

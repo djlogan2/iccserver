@@ -107,19 +107,16 @@ class Play extends Component {
       GameHistory: null,
       subscription: {
         css: Meteor.subscribe("css"),
-        //game: Meteor.subscribe("playing_games"),
         game: Meteor.subscribe("games"),
         chats: Meteor.subscribe("chat"),
         i18n: Meteor.subscribe("i18n_front"),
         users: Meteor.subscribe("loggedOnUsers"),
         gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
-        //observingGames: Meteor.subscribe("observing_games"),
         gameHistory: Meteor.subscribe("game_history"),
         importedGame: Meteor.subscribe("imported_games")
       },
       isAuthenticated: Meteor.userId() !== null
-      // test: false
     };
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
@@ -515,8 +512,6 @@ class Play extends Component {
           onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
           ref="main_page"
-          examing={[]}
-          circles={[]}
         />
       </div>
     );

@@ -420,8 +420,6 @@ class Examine extends Component {
 
     const gameRequest = this.props.game_request;
     let game = this.props.game_messages;
-    let circles = [];
-    //let actionlen;
     let gameExamin = [];
 
     const { systemCss, boardCss } = this.props;
@@ -454,16 +452,8 @@ class Examine extends Component {
       gameExamin = this.props.examine_game;
       if (!!gameExamin) {
         game = gameExamin;
-        //actionlen = game.actions ? game.actions.length : 0;
         this.gameId = game._id;
         this._examinBoard(game);
-        if (!!game.circles) {
-          let circleslist = game.circles;
-          circleslist.forEach(circle => {
-            let c1 = this.getCoordinatesToRank(circle);
-            circles.push(c1);
-          });
-        }
       }
     }
 
@@ -498,7 +488,6 @@ class Examine extends Component {
           onDrawObject={this.handleDraw}
           ref="main_page"
           examing={gameExamin}
-          circles={circles}
         />
       </div>
     );

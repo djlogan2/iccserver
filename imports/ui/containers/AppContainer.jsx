@@ -46,7 +46,7 @@ Game.find().observe({
 });
 
 window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-  // log.error(errorMsg + "::" + url + "::" + lineNumber);
+  log.error(errorMsg + "::" + url + "::" + lineNumber);
   return false;
 };
 
@@ -82,8 +82,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
         observingGames: Meteor.subscribe("observing_games"),
         gameHistory: Meteor.subscribe("game_history"),
         importedGame: Meteor.subscribe("imported_games")
-      },
-      isAuthenticated: Meteor.userId() !== null
+      }
     };
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
@@ -138,10 +137,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
     return mongoUser.find().fetch();
   }
 
-  isAuthenticated() {
-    return Meteor.userId() !== null;
-  }
-
   componentWillUnmount() {
     if (this.state.subscription) {
       this.state.subscription.css && this.state.subscription.css.stop();
@@ -155,19 +150,19 @@ export default class AppContainer extends TrackerReact(React.Component) {
   }
 
   componentWillMount() {
-    if (!this.state.isAuthenticated) {
+    if (Meteor.userId() !== null) {
       this.props.history.push("/sign-up");
     }
   }
 
   componentDidMount() {
-    if (!this.state.isAuthenticated) {
+    if (Meteor.userId() !== null) {
       this.props.history.push("/home");
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated) {
+  componentDidUpdate() {
+    if (Meteor.userId() !== null) {
       this.props.history.push("/home");
     }
   }
@@ -371,7 +366,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
           onRemoveCircle={this.removeCircle}
           ref="main_page"
           examing={gameExamin}
-          circles={circles}
         />
       </div>
     );

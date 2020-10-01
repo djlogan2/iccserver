@@ -214,7 +214,6 @@ export default class PlayPage extends Component {
               onDrawObject={this.props.onDrawObject}
               onRemoveCircle={this.props.onRemoveCircle}
               top={position.top}
-              circles={this.props.circles}
               width={this.state.width}
               height={this.state.height}
               gameStatus={status}

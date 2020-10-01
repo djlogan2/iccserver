@@ -2,29 +2,7 @@ import React, { Component } from "react";
 import FallenSoldier from "./FallenSoldier";
 export default class Player extends Component {
   render() {
-    /*
-    const ph = this.props.side / 9;
-    const pw = this.props.side / 9; */
-
-    let playerData = {
-      name: "Player-1",
-      rating: 1600,
-      userPicture: "player-img-top.png"
-    };
-    // black: {
-    //   name: "Player-2",
-    //   rating: 1600,
-    //   userPicture: "player-img-bottom.png"
-    // }
-    // let userpic;
-    // if (!!playerData.userPicture && playerData.userPicture !== undefined)
-    //   userpic = playerData.userPicture;
     let userpic = "player-img-top.png";
-
-    const ph = this.props.side / 10;
-    const pw = this.props.side / 10;
-
-    let _user_side = pw / 1.3;
 
     let userPicture = this.props.cssManager.userPicture(this.props.side * 0.08);
     Object.assign(userPicture, { display: "inline-block", float: "left" });
@@ -95,7 +73,6 @@ export default class Player extends Component {
               </span>
             </div>
           </div>
-          {/* <img style={userflag} src={this.props.cssManager.flags("us")} alt="us" /> */}
         </div>
 
         <div

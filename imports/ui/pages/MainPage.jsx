@@ -306,7 +306,7 @@ export default class MainPage extends Component {
     );
   }
   setGameExaminMode(id, is_imported) {
-    Meteor.call("examineGame", "ExaminedGame", id, is_imported, (error, response) => {
+    Meteor.call("examineGame", "ExaminedGame", id, is_imported, error => {
       if (error) {
         log.error(error);
         this.setState({ modalShow: false });
@@ -358,7 +358,7 @@ export default class MainPage extends Component {
     let exPopup = null;
     let actionPopup = null;
     let informativePopup = null;
-    let status = "others";
+    let status;
     let position = { top: "w" };
     if (!!game) {
       if (game.black.id === Meteor.userId()) {
@@ -458,11 +458,9 @@ export default class MainPage extends Component {
     if (!!this.state.notification) {
       informativePopup = this.GameResignedPopup("File upload succeshfully", "mid");
     }
-    let w = this.state.width;
-    let h = this.state.height;
 
+    let w = this.state.width;
     if (!w) w = window.innerWidth;
-    if (!h) h = window.innerHeight;
 
     let leftmenu;
     if (w <= 1199) leftmenu = null;
@@ -498,7 +496,6 @@ export default class MainPage extends Component {
                 onDrawCircle={this.props.onDrawCircle}
                 onRemoveCircle={this.props.onRemoveCircle}
                 top={position.top}
-                circles={this.props.circles}
                 width={this.state.width}
                 height={this.state.height}
                 gameStatus={status}

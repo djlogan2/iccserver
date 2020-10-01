@@ -1083,9 +1083,12 @@ class Game {
         //
         // Add the expected lag to the oppnents clock for the receiving of this move
         //
-        let opponentlag = this.calculateGameLag(game.lag[otherbw]) | 0;
-        if (!opponentlag) opponentlag = Timestamp.averageLag(game[otherbw].id) | 0;
-        if (!opponentlag) opponentlag = 0;
+        let opponentlag = 0;
+        if (game[otherbw].id !== "computer") {
+          opponentlag = this.calculateGameLag(game.lag[otherbw]) | 0;
+          if (!opponentlag) opponentlag = Timestamp.averageLag(game[otherbw].id) | 0;
+          if (!opponentlag) opponentlag = 0;
+        }
 
         log.debug("used=" + used + ", addback=" + addback);
         if (used <= SystemConfiguration.minimumMoveTime())
