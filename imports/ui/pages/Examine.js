@@ -334,7 +334,6 @@ class Examine extends Component {
 
     const css = new CssManager(systemCss, boardCss);
 
-    log.debug("Calling GameListModal 1");
     return (
       <div className="examine">
         <GameListModal
@@ -398,7 +397,6 @@ class Examine extends Component {
       }
     }
 
-    log.debug("Calling GameListModal 2");
     return (
       <div className="examine">
         <GameListModal

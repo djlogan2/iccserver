@@ -1,5 +1,6 @@
 {
     "client/AppContainer": "DEBUG",
+    "client/AppWrapper_js": "DEBUG",
     "client/Board_js": "DEBUG",
     "client/ChessBoard_js": "DEBUG",
     "client/Community": "DEBUG",
