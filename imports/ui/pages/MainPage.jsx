@@ -498,7 +498,6 @@ export default class MainPage extends Component {
                 top={position.top}
                 width={this.state.width}
                 height={this.state.height}
-                gameStatus={status}
                 game={game}
               />
             </div>
@@ -507,14 +506,13 @@ export default class MainPage extends Component {
               <RightSidebar
                 cssManager={this.props.cssManager}
                 RightSidebarData={this.Main.RightSection}
-                gameStatus={status}
-                currentGame={this.state.examineGame}
+                gameStatus={this.props.game.status}
                 newOppenetRequest={this.state.newOppenetRequest}
                 flip={this._flipboard}
                 gameRequest={this.props.gameRequest}
                 clientMessage={this.props.clientMessage}
                 ref="right_sidebar"
-                examing={this.props.examing}
+                game={game}
                 startGameExamine={this.startGameExamine}
                 examineAction={this.examineActionHandler}
                 activeTabnumber={this.state.activeTab}

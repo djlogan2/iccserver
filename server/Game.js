@@ -58,6 +58,7 @@ class Game {
     }
 
     function gamesWeArePlaying(user) {
+      log.debug("gamesWeArePlaying", user._id);
       return self.GameCollection.find(
         {
           $and: [
@@ -88,10 +89,12 @@ class Game {
     }
 
     function gamesWeOwn(user) {
+      log.debug("gamesWeOwn", user._id);
       return self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
     }
 
     function examineWithAnalysis(user) {
+      log.debug("examineWithAnalysis", user._id);
       return self.GameCollection.find(
         {
           $and: [
@@ -116,6 +119,7 @@ class Game {
     }
 
     function examineWithoutAnalysis(user) {
+      log.debug("examineWithoutAnalysis", user._id);
       return self.GameCollection.find(
         {
           $and: [
@@ -140,6 +144,7 @@ class Game {
     }
 
     function allGames(user) {
+      log.debug("allGames", user._id);
       if (user.status.game === "playing") return self.GameCollection.find({ _id: "none" });
       return self.GameCollection.find(
         {

@@ -39,7 +39,6 @@ export default class ExaminePage extends Component {
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
-      examineGame: false,
       exnotification: false,
       notification: false,
       newOppenetRequest: false,
@@ -262,8 +261,6 @@ export default class ExaminePage extends Component {
       }
       this.Main.RightSection.MoveList = game;
     }
-    let w = this.state.width;
-    let h = this.state.height;
 
     return (
       <AppWrapper cssManager={this.props.cssManager}>
@@ -272,7 +269,6 @@ export default class ExaminePage extends Component {
             <MiddleBoard
               cssManager={this.props.cssManager}
               MiddleBoardData={this.Main.MiddleSection}
-              currentGame={this.state.examineGame}
               ref="middleBoard"
               capture={this.props.capture}
               board={this.props.board}
@@ -294,7 +290,6 @@ export default class ExaminePage extends Component {
             unObserveUser={this.props.unObserveUser}
             cssManager={this.props.cssManager}
             RightSidebarData={this.Main.RightSection}
-            currentGame={this.state.examineGame}
             flip={this._flipboard}
             gameRequest={this.props.gameRequest}
             ref="right_sidebar"

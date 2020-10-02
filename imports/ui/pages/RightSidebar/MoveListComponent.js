@@ -223,29 +223,34 @@ export default class MoveListComponent extends Component {
 
   render() {
     let translator = i18n.createTranslator("Common.MoveListComponent", MoveListComponent.getLang());
-    let status = !!this.props.game && this.props.game.status === "playing" && (Meteor.userId() === this.props.game.white.id || Meteor.userId() === this.props.game.black.id);
 
-    if (!!this.props.game) {
+    let status = "none";
+    if(!!this.props.game) {
+      if (this.props.game.status === "playing" && (Meteor.userId() === this.props.game.white.id || Meteor.userId() === this.props.game.black.id))
+        status = "playing";
+      else if (!!this.props.game.examiners && this.props.game.examiners.some(ex => ex.id === Meteor.userId()))
+        status = "examining";
+      else if (this.props.game.observers.some(ex => ex.id === Meteor.userId()))
+        status = "observing";
       this.message_identifier = "server:game:" + this.gameId;
-    }
-    let string = this.buildPgnFromMovelist(this.props.game.variations.movelist);
-    let chunks = string.split("|");
-    chunks.splice(-1, 1);
-    this.cmi = chunks.length;
-    this.moves = [];
-    this.moves.push({ idc: 0, idx: 0, move: "" });
-    for (let i = 0; i < chunks.length; i++) {
-      let ch = chunks[i].split("*-");
-      this.moves.push({ idc: parseInt(ch[0]), idx: parseInt(ch[1]), move: ch[2] });
+      let string = this.buildPgnFromMovelist(this.props.game.variations.movelist);
+      let chunks = string.split("|");
+      chunks.splice(-1, 1);
+      this.cmi = chunks.length;
+      this.moves = [];
+      this.moves.push({ idc: 0, idx: 0, move: "" });
+      for (let i = 0; i < chunks.length; i++) {
+        let ch = chunks[i].split("*-");
+        this.moves.push({ idc: parseInt(ch[0]), idx: parseInt(ch[1]), move: ch[2] });
+      }
     }
 
     /* TODO: movlist button display operation*/
     let displayButton = 0;
     let statuslabel = 0;
-    let isPlaying;
 
     let mbtnstyle = this.props. cssManager.gameButtonMove();
-    if (this.props.currentGame === true && status === "examining") {
+    if (status === "examining") {
       displayButton = 1;
       statuslabel = 1;
       Object.assign(mbtnstyle, { bottom: "85px", padding: "0px" });
@@ -253,7 +258,7 @@ export default class MoveListComponent extends Component {
       statuslabel = 1;
     }
 
-    isPlaying = status === "playing";
+    const isPlaying = status === "playing";
 
     /*End of code */
     let cnt = 1;

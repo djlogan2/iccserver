@@ -29,9 +29,13 @@ import "./../css/GameControlBlock.css";
 
 import "./../css/Community.css";
 import "./../css/Messenger.css";
+import { Logger } from "../../../../lib/client/Logger";
+
+const log = new Logger("client/AppWrapper_js");
 
 const AppWrapper = ({ className, user, history, children, cssManager, game_request }) => {
   Meteor.subscribe("game_requests");
+  log.trace("AppWrapper render", this.props);
 
   return (
     <div className={`app-wrapper`}>

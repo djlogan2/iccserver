@@ -3,10 +3,14 @@ import { Checkbox, Radio, Input, Button } from "antd";
 import { Link } from "react-router-dom";
 
 import "./../../css/EditorRightSidebar.css";
+import { Logger } from "../../../../../lib/client/Logger";
+
+const log = new Logger("client/EditorRightSidebar_js");
 
 class EditorRightSidebar extends Component {
   constructor(props) {
     super(props);
+    log.trace("EditorRightSidebar constructor", props);
     this.state = {
       fen: props.fen,
       whiteCastling: props.whiteCastling,
@@ -14,17 +18,17 @@ class EditorRightSidebar extends Component {
     };
   }
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.fen !== this.props.fen) {
-      this.setState({ fen: this.props.fen });
-    }
-    if (prevProps.whiteCastling !== this.props.whiteCastling) {
-      this.setState({ whiteCastling: this.props.whiteCastling });
-    }
-    if (prevProps.blackCastling !== this.props.blackCastling) {
-      this.setState({ blackCastling: this.props.blackCastling });
-    }
-  }
+  // componentDidUpdate(prevProps) {
+  //   if (prevProps.fen !== this.props.fen) {
+  //     this.setState({ fen: this.props.fen });
+  //   }
+  //   if (prevProps.whiteCastling !== this.props.whiteCastling) {
+  //     this.setState({ whiteCastling: this.props.whiteCastling });
+  //   }
+  //   if (prevProps.blackCastling !== this.props.blackCastling) {
+  //     this.setState({ blackCastling: this.props.blackCastling });
+  //   }
+  // }
 
   handleFen = e => {
     let that = this;
@@ -60,6 +64,7 @@ class EditorRightSidebar extends Component {
   }
 
   render() {
+    log.trace("EditorRightSidebar render", this.props);
     const whiteOptions = [{ label: "0-0", value: "K" }, { label: "0-0-0", value: "Q" }];
     const blackOptions = [{ label: "0-0", value: "k" }, { label: "0-0-0", value: "q" }];
     const handleColor = e => {
@@ -69,9 +74,7 @@ class EditorRightSidebar extends Component {
       <div className="editor-right-sidebar">
         <div className="editor-right-sidebar__head">
           <Link to="/examine">
-            <Button className="editor-right-sidebar__back-btn">
-              Back to Play
-            </Button>
+            <Button className="editor-right-sidebar__back-btn">Back to Play</Button>
           </Link>
 
           <h2 className="editor-right-sidebar__title">Board set up</h2>

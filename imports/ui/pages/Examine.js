@@ -27,26 +27,24 @@ let handleError = error => {
 class Examine extends Component {
   constructor(props) {
     super(props);
-    this.gameId = null;
     this.userId = null;
     // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
     this.userpending = null;
     this.state = {
-      gameId: null,
       GameHistory: null,
       isImportedGamesModal: false,
       importedGames: [],
       subscription: {
-        css: Meteor.subscribe("css"),
-        users: Meteor.subscribe("loggedOnUsers"),
         chats: Meteor.subscribe("chat"),
-        game: Meteor.subscribe("games"),
-        gameRequests: Meteor.subscribe("game_requests"),
         clientMessages: Meteor.subscribe("client_messages"),
+        css: Meteor.subscribe("css"),
+        game: Meteor.subscribe("games"),
         gameHistory: Meteor.subscribe("game_history"),
-        importedGame: Meteor.subscribe("imported_games")
+        gameRequests: Meteor.subscribe("game_requests"),
+        importedGame: Meteor.subscribe("imported_games"),
+        users: Meteor.subscribe("loggedOnUsers")
       },
       isAuthenticated: Meteor.userId() !== null
     };
@@ -57,14 +55,13 @@ class Examine extends Component {
   componentWillUnmount() {
     if (this.state.subscription) {
       this.state.subscription.chats && this.state.subscription.chats.stop();
-      this.state.subscription.css && this.state.subscription.css.stop();
-      this.state.subscription.users && this.state.subscription.users.stop();
-      this.state.subscription.game && this.state.subscription.game.stop();
-      this.state.subscription.gameRequests && this.state.subscription.gameRequests.stop();
       this.state.subscription.clientMessages && this.state.subscription.clientMessages.stop();
-      this.state.subscription.observingGames && this.state.subscription.observingGames.stop();
+      this.state.subscription.css && this.state.subscription.css.stop();
+      this.state.subscription.game && this.state.subscription.game.stop();
       this.state.subscription.gameHistory && this.state.subscription.gameHistory.stop();
+      this.state.subscription.gameRequests && this.state.subscription.gameRequests.stop();
       this.state.subscription.importedGame && this.state.subscription.importedGame.stop();
+      this.state.subscription.users && this.state.subscription.users.stop();
     }
   }
 
@@ -146,11 +143,14 @@ class Examine extends Component {
   }
 
   handleDraw = objectList => {
-    if (Meteor.user() && Meteor.user().status && Meteor.user().status.game === "examining") {
-      return;
-    }
+    // if (Meteor.user() && Meteor.user().status && Meteor.user().status.game === "examining") {
+    //   return;
+    // }
+    //
+    if (!this.props.examine_game && !this.props.observe_game) return;
 
-    let { circles, arrows, _id } = this.props.examine_game;
+    const game = this.props.examine_game || this.props.observe_game;
+    const { circles, arrows, _id } = game;
     let circleList = objectList.filter(({ orig, mouseSq }) => orig === mouseSq);
     let arrowList = objectList.filter(({ orig, mouseSq }) => orig !== mouseSq);
 
@@ -192,7 +192,7 @@ class Examine extends Component {
 
   drawCircles = (gameId, list) => {
     list.forEach(item => {
-      const { brush, mouseSq, orig } = item;
+      const { brush, orig } = item;
       const size = 1; // hardcode
       Meteor.call("drawCircle", "DrawCircle", gameId, orig, brush, size, handleError);
     });
@@ -200,7 +200,7 @@ class Examine extends Component {
 
   removeCircles = (gameId, list) => {
     list.forEach(item => {
-      const { brush, mouseSq, orig } = item;
+      const { orig } = item;
       Meteor.call("removeCircle", "RemoveCircle", gameId, orig, handleError);
     });
   };
@@ -215,13 +215,17 @@ class Examine extends Component {
 
   removeArrows = (gameId, list) => {
     list.forEach(item => {
-      const { brush, mouseSq, orig } = item;
+      const { mouseSq, orig } = item;
       Meteor.call("removeArrow", "RemoveArrow", gameId, orig, mouseSq, handleError);
     });
   };
 
   _pieceSquareDragStop = raf => {
-    Meteor.call("addGameMove", "gameMove", this.gameId, raf.move);
+    if (!this.props.examine_game) {
+      log.error("How are we dropping pieces on a non-examined game?");
+      return;
+    }
+    Meteor.call("addGameMove", "gameMove", this.props.examine_game._id, raf.move);
   };
 
   handleObserveUser = userId => {
@@ -239,20 +243,6 @@ class Examine extends Component {
       that.initExamine();
     });
   };
-
-  // gameHistoryload(data) {
-  //   if (data === "mygame") {
-  //     const GameHistory = GameHistoryCollection.find({
-  //       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-  //     }).fetch();
-  //     GameHistory.is_imported = false;
-  //     this.setState({ GameHistory: GameHistory });
-  //   } else if (data === "uploadpgn") {
-  //     const importedGame = ImportedGameCollection.find({}).fetch();
-  //     importedGame.is_imported = true;
-  //     this.setState({ GameHistory: importedGame });
-  //   }
-  // }
 
   removeGameHistory() {
     this.setState({ GameHistory: null });
@@ -406,7 +396,8 @@ class Examine extends Component {
     );
   }
   render() {
-    if (Meteor.user().status.game !== "examining" && Meteor.user().status.game !== "observing") {
+    if (!this.props.examine_game && !this.props.observe_game) {
+      log.error("Examine LOADING");
       return <Loading />;
     }
 
@@ -418,12 +409,7 @@ class Examine extends Component {
       return <Loading />;
     }
 
-    const gameRequest = this.props.game_request;
-    let game = this.props.game_messages;
-    let gameExamin = [];
-
     const { systemCss, boardCss } = this.props;
-
     let clientMessage = null;
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
@@ -439,26 +425,13 @@ class Examine extends Component {
     }
 
     const css = new CssManager(systemCss, boardCss);
-    if (!!gameRequest) {
-      this.gameId = gameRequest._id;
-      this.message_identifier = "server:game:" + this.gameId;
-    }
-    if (!!game) {
-      this.gameId = game._id;
-      this.message_identifier = "server:game:" + this.gameId;
-      //actionlen = game.actions.length;
-      capture = this._boardFromMongoMessages(game);
+    if (!!this.props.played_game) {
+      this.message_identifier = "server:game:" + this.props.played_game._id;
+      capture = this._boardFromMongoMessages(this.props.played_game);
     } else {
-      gameExamin = this.props.examine_game;
-      if (!!gameExamin) {
-        game = gameExamin;
-        this.gameId = game._id;
-        this._examinBoard(game);
+      if (!!this.props.examine_game) {
+        this._examinBoard(this.props.examine_game);
       }
-    }
-
-    if (!!this.gameId) {
-      clientMessage = this.clientMessages(this.message_identifier);
     }
 
     log.debug("Calling GameListModal 2");
@@ -480,14 +453,13 @@ class Examine extends Component {
           onPgnUpload={this.handlePgnUpload}
           unObserveUser={this.handleUnobserveUser}
           capture={capture}
-          game={game}
+          game={this.props.played_game || this.props.examine_game}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
           ref="main_page"
-          examing={gameExamin}
         />
       </div>
     );
@@ -497,7 +469,9 @@ class Examine extends Component {
 export default withTracker(() => {
   return {
     examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
-    observe_game: Game.findOne({ "observers.id": Meteor.userId() }),
+    observe_game: Game.findOne({
+      $and: [{ "observers.id": Meteor.userId() }, { "examiners.id": { $ne: Meteor.userId() } }]
+    }),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
@@ -514,11 +488,8 @@ export default withTracker(() => {
         sort: { create_date: -1 }
       }
     ),
-    all_games: Game.find({
-      $or: [{ status: "playing" }, { status: "examining" }]
-    }).fetch(),
     all_users: Meteor.users.find().fetch(),
-    game_messages: Game.findOne({
+    played_game: Game.findOne({
       $and: [
         { status: "playing" },
         {

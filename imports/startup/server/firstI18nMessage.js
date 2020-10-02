@@ -215,7 +215,8 @@ const messages = [
     "VARIATION REQUIRED {0}",
     "El mensaje con el valor {0} como valor de parámetro",
     "ВАРИАЦИЯ ТРЕБУЕТСЯ {0}"
-  ]
+  ],
+  ["INVALID_FEN", "FEN string is invalid"]
 ];
 
 export default function firstAddI18nMessage() {
@@ -223,14 +224,22 @@ export default function firstAddI18nMessage() {
   if (!Meteor.isTest && !Meteor.isAppTest && i18nCollection.find().count() === 0) {
     messages.forEach(i18nMessage => {
       const locales = ["x", "en_us", "es", "ru"];
-      ////["messageid", "en_us", "es", "ru"]
-      for (let x = 1; x < Math.min(locales.length, i18nMessage.length); x++) {
-        i18nCollection.insert({
-          messageid: i18nMessage[0],
-          locale: locales[x],
-          text: i18nMessage[x]
+      if (i18nMessage.length === 1) {
+        locales.forEach(locale => {
+          i18nCollection.insert({
+            messageid: i18nMessage[0],
+            locale: locale,
+            text: i18nMessage[0]
+          });
         });
-      }
+      } else
+        for (let x = 1; x < Math.min(locales.length, i18nMessage.length); x++) {
+          i18nCollection.insert({
+            messageid: i18nMessage[0],
+            locale: locales[x],
+            text: i18nMessage[x]
+          });
+        }
     });
   }
 }

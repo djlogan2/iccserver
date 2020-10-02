@@ -365,7 +365,6 @@ export default class AppContainer extends TrackerReact(React.Component) {
           onDrawCircle={this.drawCircle}
           onRemoveCircle={this.removeCircle}
           ref="main_page"
-          examing={gameExamin}
         />
       </div>
     );

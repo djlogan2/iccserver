@@ -1,6 +1,5 @@
-import React, { Component } from "react";
+import React from "react";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 
 export default class ObserversComponent extends React.Component {
   getLang() {
@@ -21,26 +20,23 @@ export default class ObserversComponent extends React.Component {
 
     let whitename;
     let blackname;
-    let games = this.props.examing;
-    for (let i = 0; i < games.length; i++) {
-      let observers = games[i].observers;
-      for (let j = 0; j < observers.length; j++) {
-        if (observers[j].id === games[i].white.id) {
-          whitename = observers[j].username;
-        } else {
-          blackname = observers[j].username;
-        }
+    let observers = this.props.game.observers;
+    for (let j = 0; j < observers.length; j++) {
+      if (observers[j].id === this.props.game.white.id) {
+        whitename = observers[j].username;
+      } else {
+        blackname = observers[j].username;
       }
-      gamelist.push({
-        name: "3 minut arina",
-
-        result: games[i].result,
-        white: whitename,
-        black: blackname,
-        status: games[i].status,
-        time: games[i].startTime.toDateString()
-      });
     }
+    gamelist.push({
+      name: "3 minut arina",
+
+      result: this.props.game.result,
+      white: whitename,
+      black: blackname,
+      status: this.props.game.status,
+      time: this.props.game.startTime.toDateString()
+    });
 
     return (
       <div>

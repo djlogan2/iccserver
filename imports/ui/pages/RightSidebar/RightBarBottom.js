@@ -43,7 +43,6 @@ class RightBarBottom extends Component {
         >
           <FollowCoach
              cssManager={this.props. cssManager}
-            examing={this.props.examing}
             clientMessage={this.props.clientMessage}
           />
         </div>

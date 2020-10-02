@@ -41,7 +41,6 @@ class RightSidebar extends Component {
           gameRequest={this.state.gameRequest}
           startGameExamine={this.props.startGameExamine}
           examineAction={this.props.examineAction}
-          currentGame={this.props.currentGame}
           ref="right_bar_top"
         />
       );
@@ -60,25 +59,24 @@ class RightSidebar extends Component {
 
   renderBottomRightSidebar = () => {
     let bottomTabitem = null;
-    if (this.props.gameStatus === "examining" && this.props.currentGame === true) {
+    if (this.props.gameStatus === "examining") {
       bottomTabitem = (
         <RightBarBottom
           cssManager={this.props.cssManager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
-          examing={this.props.examing}
           activeTabnumber={this.props.activeTabnumber}
           Gamedata={this.props.RightSidebarData}
           uploadPgn={this.props.uploadPgn}
         />
       );
-    } else if (this.props.gameStatus === "examining" && this.props.currentGame === false) {
+    } else if (this.props.gameStatus === "examining") {
       bottomTabitem = (
         <RightBarBottomPostGameTabs
           cssManager={this.props.cssManager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
-          examing={this.props.examing}
+          game={this.props.game}
         />
       );
     } else {
@@ -87,7 +85,7 @@ class RightSidebar extends Component {
           cssManager={this.props.cssManager}
           gameRequest={this.props.gameRequest}
           clientMessage={this.props.clientMessage}
-          examing={this.props.examing}
+          game={this.props.game}
         />
       );
     }

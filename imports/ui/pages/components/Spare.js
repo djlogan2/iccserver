@@ -1,6 +1,11 @@
 import React from "react";
+import { Logger } from "../../../../lib/client/Logger";
+
+const log = new Logger("client/Spare_js");
+
 
 const Spare = props => {
+  log.trace("Spare render?", props);
   const mouseDown = e => {
     let pieceEl = e.target.children[0];
     let color = pieceEl.getAttribute("datacolor");

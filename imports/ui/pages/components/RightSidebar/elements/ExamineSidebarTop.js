@@ -52,7 +52,6 @@ export default class ExamineSidebarTop extends Component {
             startGameExamine={this.props.startGameExamine}
             gameRequest={this.props.gameRequest}
             examineAction={this.props.examineAction}
-            currentGame={this.props.currentGame}
           />
           <ExamineGameControlBlock
             game={this.props.game}

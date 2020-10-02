@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import Tabs from "./Tabs/Tabs";
 import Chat from "./ChatComponent";
 import Observers from "./ObserversComponent";
-import RoomChat from "./RoomChatComponent";
 
 import "./Tabs/BottomStyles";
 import i18n from "meteor/universe:i18n";
@@ -37,8 +36,8 @@ class RightBarBottomPostGameTabs extends Component {
         <div label="Observers" imgsrc="images/observers.png" hoverSrc="images/observers-active.png">
           <Observers
              cssManager={this.props. cssManager}
-            examing={this.props.examing}
             clientMessage={this.props.clientMessage}
+             game={this.props.game}
           />
         </div>
       </Tabs>

@@ -145,7 +145,8 @@ const DefinedClientMessagesMap = {
   NOT_AUTHORIZED: {},
   NOT_PLAYING_OR_EXAMINING: {},
   USER_DECLINED_INVITE: {},
-  TOO_MANY_PRIVATE_ROOMS: {}
+  TOO_MANY_PRIVATE_ROOMS: {},
+  INVALID_FEN: {}
 };
 
 class ClientMessages {
