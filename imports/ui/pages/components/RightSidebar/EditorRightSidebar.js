@@ -18,18 +18,6 @@ class EditorRightSidebar extends Component {
     };
   }
 
-  // componentDidUpdate(prevProps) {
-  //   if (prevProps.fen !== this.props.fen) {
-  //     this.setState({ fen: this.props.fen });
-  //   }
-  //   if (prevProps.whiteCastling !== this.props.whiteCastling) {
-  //     this.setState({ whiteCastling: this.props.whiteCastling });
-  //   }
-  //   if (prevProps.blackCastling !== this.props.blackCastling) {
-  //     this.setState({ blackCastling: this.props.blackCastling });
-  //   }
-  // }
-
   handleFen = e => {
     let that = this;
     let { value } = e.target;

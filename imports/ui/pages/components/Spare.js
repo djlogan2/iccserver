@@ -47,8 +47,8 @@ const Spare = props => {
             </div>
           </div>
           <div className="no-square trash">
-            <div onMouseDown={mouseDown}>
-              <piece draggable="true" className="trash" />
+            <div>
+              <piece draggable="false" className="xxtrash" />
             </div>
           </div>
           <div className="no-square selected-square">
