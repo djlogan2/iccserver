@@ -16,7 +16,6 @@ export default class ChessBoard extends PureComponent {
     log.trace("ChessBoard constructor", props);
     this.chess = new Chess.Chess();
     this.state = {
-      fen: this.chess.fen(),
       boardTop: "black",
       shapes: []
     };
@@ -54,9 +53,7 @@ export default class ChessBoard extends PureComponent {
       to: to,
       promotion: "q"
     });
-    if (move === null) {
-      this.setState({ fen: this.chess.fen() });
-    } else {
+    if (move !== null) {
       let history = this.chess.history();
       let moves = history[history.length - 1];
       this.props.onDrop({
@@ -167,13 +164,8 @@ export default class ChessBoard extends PureComponent {
     return !!this.props.gameStatus && this.props.gameStatus === "playing";
   };
 
-  // TODO: You cannot be examining a game you are not also observing, so this logic says:
-  //       if observing and examining or just observing ...
   getIsExaminingOrObserving = () => {
-    return (
-      !!this.props.gameStatus &&
-      (this.props.gameStatus === "examining" || this.props.gameStatus === "observing")
-    );
+    return !!this.props.gameStatus && this.props.gameStatus === "observing";
   };
 
   turnColor() {
@@ -186,7 +178,6 @@ export default class ChessBoard extends PureComponent {
 
     const drawable = {
       enabled: true,
-      // autoShapes: [],
       shapes: this.state.shapes,
       onChange: this.handleDrawObject
     };
