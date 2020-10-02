@@ -445,6 +445,7 @@ class Play extends Component {
       systemCss.length === 0 ||
       boardCss.length === 0
     ) {
+      log.error("Play LOADING");
       return <Loading />;
     }
 

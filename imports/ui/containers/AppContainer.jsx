@@ -91,20 +91,16 @@ export default class AppContainer extends TrackerReact(React.Component) {
     this.removeGameHistory = this.removeGameHistory.bind(this);
   }
 
-  renderGameMessages() {
+  getPlayedOrExaminedGame() {
     return Game.findOne({
-      $and: [
-        { status: "playing" },
-        {
-          $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-        }
+      $or: [
+        { "white.id": Meteor.userId() },
+        { "black.id": Meteor.userId() },
+        { "examines.id": Meteor.userId() }
       ]
     });
   }
 
-  examineGame() {
-    return Game.findOne({ "observers.id": Meteor.userId() });
-  }
   renderGameRequest() {
     return GameRequestCollection.findOne(
       {
@@ -299,10 +295,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
   render() {
     log.trace("AppContainer render", this.props);
     const gameRequest = this.renderGameRequest();
-    let game = this.renderGameMessages();
-    let circles = [];
-    let actionlen;
-    let gameExamin = []; // this.examineGame();
+    let played_game = this.getPlayedOrExaminedGame();
     const systemCSS = this._systemCSS();
     const boardCSS = this._boardCSS();
     let clientMessage = null;
@@ -315,33 +308,17 @@ export default class AppContainer extends TrackerReact(React.Component) {
       boardCSS === undefined ||
       systemCSS.length === 0 ||
       boardCSS.length === 0
-    )
+    ) {
+      log.error("AppContainer LOADING");
       return <div>Loading...</div>;
+    }
     const css = new CssManager(this._systemCSS(), this._boardCSS());
     if (!!gameRequest) {
       this.gameId = gameRequest._id;
       this.message_identifier = "server:game:" + this.gameId;
     }
-    if (!!game) {
-      this.gameId = game._id;
-      this.message_identifier = "server:game:" + this.gameId;
-      actionlen = game.actions.length;
-      capture = this._boardFromMongoMessages(game);
-    } else {
-      gameExamin = this.examineGame();
-      if (!!gameExamin && gameExamin.length > 0) {
-        game = gameExamin[gameExamin.length - 1];
-        actionlen = game.actions.length;
-        this.gameId = game._id;
-        this._examinBoard(game);
-        if (!!game.circles) {
-          let circleslist = game.circles;
-          circleslist.forEach(circle => {
-            let c1 = this.getCoordinatesToRank(circle);
-            circles.push(c1);
-          });
-        }
-      }
+    if (!!played_game) {
+      this.message_identifier = "server:game:" + played_game._id;
     }
 
     if (!!this.gameId) {
@@ -354,8 +331,7 @@ export default class AppContainer extends TrackerReact(React.Component) {
           cssManager={css}
           board={this._board}
           capture={capture}
-          len={actionlen}
-          game={game}
+          game={played_game}
           gameHistoryload={this.gameHistoryload}
           GameHistory={this.state.GameHistory}
           removeGameHistory={this.removeGameHistory}

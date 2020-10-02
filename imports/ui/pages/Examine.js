@@ -33,7 +33,6 @@ class Examine extends Component {
     this._boardfallensolder = new Chess.Chess();
     this.userpending = null;
     this.state = {
-      GameHistory: null,
       isImportedGamesModal: false,
       importedGames: [],
       subscription: {
@@ -49,7 +48,6 @@ class Examine extends Component {
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
-    this.removeGameHistory = this.removeGameHistory.bind(this);
   }
 
   componentWillUnmount() {
@@ -244,56 +242,23 @@ class Examine extends Component {
     });
   };
 
-  removeGameHistory() {
-    this.setState({ GameHistory: null });
-  }
-
   _boardFromMongoMessages(game) {
-    let variation = game.variations;
-    this._board.load(game.fen);
-    this._boardfallensolder = new Chess.Chess();
-    let itemToBeRemoved = [];
-
-    for (let i = 0; i < variation.cmi; i++) {
-      if (itemToBeRemoved.indexOf(i) === -1) {
-        const moveListItem = variation.movelist[i];
-        if (moveListItem !== undefined) {
-          const variationI = moveListItem.variations;
-          if (variationI !== undefined) {
-            var len = variationI.length;
-            if (len === 1 && variation.movelist[variationI[0]] !== undefined) {
-              this._boardfallensolder.move(variation.movelist[variationI[0]].move);
-            } else if (len > 1) {
-              if (variation.movelist[variationI[len - 1]] !== undefined) {
-                this._boardfallensolder.move(variation.movelist[variationI[len - 1]].move);
-              }
-              if (variation.cmi === variationI[len - 1]) {
-                break;
-              }
-              for (let n = variationI[0]; n < variationI[len - 1]; n++) {
-                itemToBeRemoved.push(n);
-              }
-            }
-          }
-        }
-      }
-    }
-    let history = this._boardfallensolder.history({ verbose: true });
     let position = {
-      w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
+      w: { p: 8, n: 2, b: 2, r: 2, q: 1 },
+      b: { p: 8, n: 2, b: 2, r: 2, q: 1 }
     };
 
-    return history.reduce((accumulator, move) => {
-      if ("captured" in move) {
-        let piece = move.captured;
-        let color = move.color === "w" ? "b" : "w";
-        accumulator[color][piece] += 1;
-        return accumulator;
-      } else {
-        return accumulator;
-      }
-    }, position);
+    const shortfen = game.fen.split(" ")[0];
+    let i = shortfen.length;
+
+    while (i--) {
+      let pc = shortfen.charAt(i);
+      let color = pc > "A" ? "w" : "b";
+      pc = pc.toLowerCase();
+      position[color][pc]--;
+    }
+
+    return position;
   }
 
   _examinBoard(game) {
@@ -347,6 +312,7 @@ class Examine extends Component {
     const game = this.props.observe_game;
 
     if (!game) {
+      log.error("Examine LOADING/1");
       return <Loading />;
     }
 
@@ -362,6 +328,7 @@ class Examine extends Component {
       systemCss.length === 0 ||
       boardCss.length === 0
     ) {
+      log.error("Examine LOADING/2");
       return <Loading />;
     }
 
@@ -387,8 +354,6 @@ class Examine extends Component {
           unObserveUser={this.handleUnobserveUser}
           capture={capture}
           game={game}
-          GameHistory={this.state.GameHistory}
-          removeGameHistory={this.removeGameHistory}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
         />
@@ -397,15 +362,13 @@ class Examine extends Component {
   }
   render() {
     if (!this.props.examine_game && !this.props.observe_game) {
-      log.error("Examine LOADING");
+      log.error("Examine LOADING/3");
       return <Loading />;
     }
 
-    if (Meteor.user().status.game === "observing") {
-      return this.renderObserver();
-    }
-
-    if (!this.props.examine_game) {
+    if (!!this.props.observe_game) return this.renderObserver();
+    else if (!this.props.examine_game) {
+      log.error("Examine LOADING/4");
       return <Loading />;
     }
 
@@ -421,6 +384,7 @@ class Examine extends Component {
       systemCss.length === 0 ||
       boardCss.length === 0
     ) {
+      log.error("Examine LOADING/5");
       return <Loading />;
     }
 
@@ -454,8 +418,6 @@ class Examine extends Component {
           unObserveUser={this.handleUnobserveUser}
           capture={capture}
           game={this.props.played_game || this.props.examine_game}
-          GameHistory={this.state.GameHistory}
-          removeGameHistory={this.removeGameHistory}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}

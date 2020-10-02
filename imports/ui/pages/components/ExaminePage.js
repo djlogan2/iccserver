@@ -32,9 +32,6 @@ export default class ExaminePage extends Component {
       this.setState({
         modalShow: data
       });
-      if (!data) {
-        props.removeGameHistory();
-      }
     };
     this.state = {
       width: window.innerWidth,

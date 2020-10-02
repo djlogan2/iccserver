@@ -81,7 +81,6 @@ export default class MainPage extends Component {
         Action: {}
       }
     };
-    //  this.notificationHandler = this.notificationHandler.bind(this);
     this.examineActionHandler = this.examineActionHandler.bind(this);
     this.startGameExamine = this.startGameExamine.bind(this);
     this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
@@ -90,8 +89,8 @@ export default class MainPage extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!!this.props.len && !!nextProps.len) {
-      if (nextProps.len !== this.props.len)
+    if (!!this.props.game && !!nextProps.game) {
+      if (nextProps.game.actions.length !== this.props.game.actions.length)
         if (
           this.props.game.status === "examining" &&
           (this.state.exnotification === true || this.state.newOppenetRequest === true)
