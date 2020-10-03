@@ -27,40 +27,18 @@ let handleError = error => {
 class Examine extends Component {
   constructor(props) {
     super(props);
+    log.trace("Examine constructor", props);
     this.userId = null;
-    // You need to quit using Chess.chess() and start using the data from the game record.
+    // TODO: You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
     this.userpending = null;
     this.state = {
       isImportedGamesModal: false,
       importedGames: [],
-      subscription: {
-        chats: Meteor.subscribe("chat"),
-        clientMessages: Meteor.subscribe("client_messages"),
-        css: Meteor.subscribe("css"),
-        game: Meteor.subscribe("games"),
-        gameHistory: Meteor.subscribe("game_history"),
-        gameRequests: Meteor.subscribe("game_requests"),
-        importedGame: Meteor.subscribe("imported_games"),
-        users: Meteor.subscribe("loggedOnUsers")
-      },
       isAuthenticated: Meteor.userId() !== null
     };
     this.logout = this.logout.bind(this);
-  }
-
-  componentWillUnmount() {
-    if (this.state.subscription) {
-      this.state.subscription.chats && this.state.subscription.chats.stop();
-      this.state.subscription.clientMessages && this.state.subscription.clientMessages.stop();
-      this.state.subscription.css && this.state.subscription.css.stop();
-      this.state.subscription.game && this.state.subscription.game.stop();
-      this.state.subscription.gameHistory && this.state.subscription.gameHistory.stop();
-      this.state.subscription.gameRequests && this.state.subscription.gameRequests.stop();
-      this.state.subscription.importedGame && this.state.subscription.importedGame.stop();
-      this.state.subscription.users && this.state.subscription.users.stop();
-    }
   }
 
   componentWillMount() {
@@ -73,51 +51,17 @@ class Examine extends Component {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
     }
-    this.startExamine();
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (Meteor.user() && Meteor.user().status) {
-      if (Meteor.user().status.game === "playing") {
-        this.props.history.push("/play");
-      }
-      if (
-        prevProps.user &&
-        prevProps.user.status &&
-        prevProps.user.status.game === "examining" &&
-        Meteor.user().status.game === "none"
-      ) {
-        // this.props.history.push("/");
-      }
-    }
     if (!this.state.isAuthenticated) {
       this.props.history.push("/home");
+      if (!!this.props.played_game) this.props.history.push("/play");
     }
   }
 
-  startExamine = () => {
-    let examine_game = Game.findOne({ "examiners.id": Meteor.userId() });
-    if (!examine_game) {
-      this.initExamine();
-    } else if (Meteor.user() && Meteor.user().status && Meteor.user().status.game !== "examining") {
-      this.initExamine();
-    }
-  };
-
   initExamine = () => {
-    Meteor.call(
-      "startLocalExaminedGame",
-      "startlocalExaminedGame",
-      "Mr white",
-      "Mr black",
-      0,
-      (error, response) => {
-        if (response) {
-          // this.props.history.push('/examine');
-          // this.props.examineAction(action);
-        }
-      }
-    );
+    Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
   };
 
   userRecord() {
@@ -141,10 +85,6 @@ class Examine extends Component {
   }
 
   handleDraw = objectList => {
-    // if (Meteor.user() && Meteor.user().status && Meteor.user().status.game === "examining") {
-    //   return;
-    // }
-    //
     if (!this.props.examine_game && !this.props.observe_game) return;
 
     const game = this.props.examine_game || this.props.observe_game;
@@ -360,10 +300,15 @@ class Examine extends Component {
     );
   }
   render() {
-    if (!this.props.examine_game && !this.props.observe_game) {
-      log.error("Examine LOADING/3");
+    log.trace("Examine render", [this.props, this.state]);
+    if (!this.props.examine_game && !this.props.observe_game && !this.props.played_game) {
+      if (this.props.isready && !this.startExaminedGameCalled) {
+        this.startExaminedGameCalled = true;
+        this.initExamine();
+      }
+      log.error("Examine LOADING/3, subscription=" + this.props.isready);
       return <Loading />;
-    }
+    } else if (this.startExaminedGameCalled) delete this.startExaminedGameCalled;
 
     if (!!this.props.observe_game) return this.renderObserver();
     else if (!this.props.examine_game) {
@@ -427,7 +372,24 @@ class Examine extends Component {
 }
 
 export default withTracker(() => {
+  const subscriptions = {
+    chats: Meteor.subscribe("chat"),
+    clientMessages: Meteor.subscribe("client_messages"),
+    css: Meteor.subscribe("css"),
+    game: Meteor.subscribe("games"),
+    gameHistory: Meteor.subscribe("game_history"),
+    gameRequests: Meteor.subscribe("game_requests"),
+    importedGame: Meteor.subscribe("imported_games"),
+    users: Meteor.subscribe("loggedOnUsers")
+  };
+
+  function isready() {
+    for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
+    return true;
+  }
+
   return {
+    isready: isready(),
     examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
     observe_game: Game.findOne({
       $and: [{ "observers.id": Meteor.userId() }, { "examiners.id": { $ne: Meteor.userId() } }]
