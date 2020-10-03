@@ -104,19 +104,7 @@ class Play extends Component {
       gameUserId: null,
       gameType: null,
       gameData: null,
-      GameHistory: null,
-      subscription: {
-        css: Meteor.subscribe("css"),
-        game: Meteor.subscribe("games"),
-        chats: Meteor.subscribe("chat"),
-        i18n: Meteor.subscribe("i18n_front"),
-        users: Meteor.subscribe("loggedOnUsers"),
-        gameRequests: Meteor.subscribe("game_requests"),
-        clientMessages: Meteor.subscribe("client_messages"),
-        gameHistory: Meteor.subscribe("game_history"),
-        importedGame: Meteor.subscribe("imported_games")
-      },
-      isAuthenticated: Meteor.userId() !== null
+      GameHistory: null
     };
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
@@ -129,38 +117,20 @@ class Play extends Component {
     return mongoUser.find().fetch();
   }
 
-  isAuthenticated() {
-    return Meteor.userId() !== null;
-  }
-
-  componentWillUnmount() {
-    if (this.state.subscription) {
-      this.state.subscription.css && this.state.subscription.css.stop();
-      this.state.subscription.chats && this.state.subscription.chats.stop();
-      this.state.subscription.game && this.state.subscription.game.stop();
-      this.state.subscription.users && this.state.subscription.users.stop();
-      this.state.subscription.gameRequests && this.state.subscription.gameRequests.stop();
-      this.state.subscription.clientMessages && this.state.subscription.clientMessages.stop();
-      this.state.subscription.observingGames && this.state.subscription.observingGames.stop();
-      this.state.subscription.gameHistory && this.state.subscription.gameHistory.stop();
-      this.state.subscription.importedGame && this.state.subscription.importedGame.stop();
-    }
-  }
-
   componentWillMount() {
-    if (!this.state.isAuthenticated) {
+    if (!this.props.isAuthenticated) {
       this.props.history.push("/sign-up");
     }
   }
 
   componentDidMount() {
-    if (!this.state.isAuthenticated) {
+    if (!this.props.isAuthenticated) {
       this.props.history.push("/home");
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated) {
+    if (!this.props.isAuthenticated) {
       this.props.history.push("/home");
     }
   }
@@ -433,21 +403,17 @@ class Play extends Component {
   render() {
     log.trace("Play render", this.props);
 
+    if (!this.props.isready) {
+      log.error("Play LOADING");
+      return <Loading />;
+    }
+
     const { systemCss, boardCss } = this.props;
 
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
-    if (
-      systemCss === undefined ||
-      boardCss === undefined ||
-      systemCss.length === 0 ||
-      boardCss.length === 0
-    ) {
-      log.error("Play LOADING");
-      return <Loading />;
-    }
 
     const css = new CssManager(systemCss, boardCss);
     if (!!this.props.game_request)
@@ -481,20 +447,18 @@ class Play extends Component {
 
     return (
       <div className="examine">
-        {this.state.subscription.clientMessages.ready() && (
-          <PlayModaler
-            userColor={userColor}
-            visible={visible}
-            userName={this.props.user && this.props.user.username}
-            gameResult={result}
-            gameStatus2={status2}
-            clientMessage={gamemessage}
-            opponentName={opponentName}
-            opponentId={opponentId}
-            onRematch={this.handleRematch}
-            onExamine={this.handleExamine}
-          />
-        )}
+        <PlayModaler
+          userColor={userColor}
+          visible={visible}
+          userName={this.props.user && this.props.user.username}
+          gameResult={result}
+          gameStatus2={status2}
+          clientMessage={gamemessage}
+          opponentName={opponentName}
+          opponentId={opponentId}
+          onRematch={this.handleRematch}
+          onExamine={this.handleExamine}
+        />
 
         <PlayNotifier game={this.props.in_game} userId={Meteor.userId()} cssManager={css} />
         <PlayPage
@@ -520,6 +484,28 @@ class Play extends Component {
 }
 
 export default withTracker(() => {
+  const subscriptions = {
+    css: Meteor.subscribe("css"),
+    game: Meteor.subscribe("games"),
+    chats: Meteor.subscribe("chat"),
+    users: Meteor.subscribe("loggedOnUsers"),
+    gameRequests: Meteor.subscribe("game_requests"),
+    clientMessages: Meteor.subscribe("client_messages"),
+    gameHistory: Meteor.subscribe("game_history"),
+    importedGame: Meteor.subscribe("imported_games")
+  };
+
+  const isAuthenticated = Meteor.userId() !== null;
+
+  function isready() {
+    for (const k in subscriptions)
+      if (!subscriptions[k].ready()) {
+        log.error("Play render, " + k + " subscription is not ready");
+        return false;
+      }
+    return true;
+  }
+
   const PLAYING_SELECTOR = {
     $and: [
       { status: "playing" },
@@ -533,6 +519,8 @@ export default withTracker(() => {
     ]
   };
   return {
+    isready: isready(),
+    isAuthenticated: isAuthenticated,
     user: Meteor.users.findOne({ _id: Meteor.userId() }),
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })

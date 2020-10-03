@@ -19,7 +19,7 @@
     "client/MiddleBoard": "DEBUG",
     "client/MoveListComponent": "DEBUG",
     "client/PieceSquare_js": "DEBUG",
-    "client/Play_js": "DEBUG",
+    "client/Play_js": "TRACE",
     "client/PlayModaler_js": "DEBUG",
     "client/PlayPage": "DEBUG",
     "client/PlayRightSidebar": "DEBUG",
