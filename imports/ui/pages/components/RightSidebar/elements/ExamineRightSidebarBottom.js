@@ -18,7 +18,12 @@ export default class ExamineRightSidebarBottom extends Component {
           <KibitzChatApp isKibitz={true} gameId={this.props.gameId} />
         </TabPane>
         <TabPane tab="FEN/PGN" key="fen-png">
-          <FenPgn gameId={this.props.gameId} fen={this.props.fen} moveList={this.props.moveList} onPgnUpload={this.props.onPgnUpload} />
+          <FenPgn
+            gameId={this.props.gameId}
+            fen={this.props.fen}
+            moveList={this.props.moveList}
+            onPgnUpload={this.props.onPgnUpload}
+          />
         </TabPane>
         <TabPane tab="Games" key="games">
           <div className="examine-sidebar-game">work in progress</div>

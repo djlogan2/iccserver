@@ -13,7 +13,6 @@ class FenPgn extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fen: props.fen,
       pgn: ""
     };
   }
@@ -25,33 +24,16 @@ class FenPgn extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.fen !== this.props.fen) {
       this.loadPgn();
-      this.setState({
-        fen: this.props.fen
-      });
     }
   }
 
   handlePgnLoaded = () => {
-
     notification.open({
       message: "PGN successfully loaded"
     });
   };
 
   loadPgn = () => {
-    // fetch("export/pgn/game/" + this.props.gameId, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Accept: "application/json"
-    //   }
-    // })
-    //   .then(response => {
-    //     debugger;
-    //     return response.json();
-    //   })
-    //   .then(data => {
-    //     debugger;
-    //   });
     let that = this;
     Meteor.call("exportToPGN", "exportToPGN", this.props.gameId, (err, response) => {
       if (err) {
@@ -63,9 +45,8 @@ class FenPgn extends Component {
 
   handleFenChange = e => {
     let newFen = e.target.value;
-    this.setState({ fen: newFen });
 
-    Meteor.call("loadFen", "loadFen", this.props.gameId, newFen, (err, response) => {
+    Meteor.call("loadFen", "loadFen", this.props.gameId, newFen, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -81,7 +62,6 @@ class FenPgn extends Component {
     let that = this;
 
     if (!!file) {
-
       ImportedPgnFiles.insert({
         file: file,
         meta: {
@@ -92,11 +72,6 @@ class FenPgn extends Component {
           debugger;
           that.props.onPgnUpload(fileRef);
           that.handlePgnLoaded();
-          // Meteor.call("examineGame", "ExaminedGame", fileRef._id, true, err => {
-          //   if (err) {
-          //     log.error(err.reason);
-          //   }
-          // });
         },
         streams: "dynamic",
         chunkSize: "dynamic"
@@ -105,14 +80,12 @@ class FenPgn extends Component {
   };
 
   render() {
-    // let pgn = buildPgn(this.props.moveList);
-
     return (
       <div className="fen-png">
         <div className="fen-png__content">
           <label>FEN</label>
           <Input
-            value={this.state.fen}
+            value={this.props.fen}
             onChange={this.handleFenChange}
             placeholder="Your message"
           />
@@ -140,7 +113,6 @@ class FenPgn extends Component {
           <input
             id="files"
             className="ant-btn fen-pgn__button ant-btn-primary"
-            // style={{ visibility: "hidden" }}
             type="file"
             onChange={e => this.changeFilehandler(e)}
           />
