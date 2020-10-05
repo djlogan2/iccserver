@@ -3,7 +3,6 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper";
 import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar";
-// import RightSidebar from "./RightSidebar/RightSidebar";
 import "./../css/ChessBoard";
 import "./../css/leftsidebar";
 import "./../css/RightSidebar";

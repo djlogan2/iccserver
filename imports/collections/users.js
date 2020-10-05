@@ -117,6 +117,7 @@ Accounts.onCreateUser(function(options, user) {
 // });
 
 Users.setGameStatus = function(message_identifier, user, status) {
+  log.debug("setGameStatus", [message_identifier, user, status]);
   check(message_identifier, String);
   check(user, Match.OneOf(Object, String));
   check(status, String);

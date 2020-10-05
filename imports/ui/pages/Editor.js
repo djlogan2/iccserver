@@ -9,6 +9,7 @@ import { Col } from "antd";
 
 import CssManager from "./components/Css/CssManager";
 import EditorRightSidebar from "./components/RightSidebar/EditorRightSidebar";
+import Loading from "../pages/components/Loading";
 import Spare from "./components/Spare";
 import BoardWrapper from "./components/BoardWrapper";
 import { Logger } from "../../../lib/client/Logger";
@@ -25,20 +26,10 @@ class Editor extends Component {
     this.state = {
       whiteCastling: [],
       blackCastling: [],
-      orientation: "white",
-      subscription: {
-        chats: Meteor.subscribe("chat"),
-        clientMessages: Meteor.subscribe("client_messages"),
-        css: Meteor.subscribe("css"),
-        game: Meteor.subscribe("games"),
-        gameHistory: Meteor.subscribe("game_history"),
-        gameRequests: Meteor.subscribe("game_requests"),
-        importedGame: Meteor.subscribe("imported_games"),
-        users: Meteor.subscribe("loggedOnUsers")
-      }
+      orientation: "white"
     };
 
-    if (this.props.examine_game) {
+    if (this.props.isready && this.props.examine_game) {
       this.setInitial();
     }
 
@@ -50,16 +41,6 @@ class Editor extends Component {
   }
 
   componentWillUnmount() {
-    if (this.state.subscription) {
-      this.state.subscription.chats && this.state.subscription.chats.stop();
-      this.state.subscription.clientMessages && this.state.subscription.clientMessages.stop();
-      this.state.subscription.css && this.state.subscription.css.stop();
-      this.state.subscription.game && this.state.subscription.game.stop();
-      this.state.subscription.gameHistory && this.state.subscription.gameHistory.stop();
-      this.state.subscription.gameRequests && this.state.subscription.gameRequests.stop();
-      this.state.subscription.importedGame && this.state.subscription.importedGame.stop();
-      this.state.subscription.users && this.state.subscription.users.stop();
-    }
     window.removeEventListener("resize", this.handleResize);
   }
 
@@ -193,6 +174,9 @@ class Editor extends Component {
 
   render() {
     log.trace("Editor render", this.props);
+
+    if (!this.props.isready) return <Loading />;
+
     const { whiteCastling, blackCastling, orientation } = this.state;
 
     let css;
@@ -259,9 +243,25 @@ class Editor extends Component {
 }
 
 export default withTracker(() => {
+  const subscriptions = {
+    chats: Meteor.subscribe("chat"),
+    clientMessages: Meteor.subscribe("client_messages"),
+    css: Meteor.subscribe("css"),
+    game: Meteor.subscribe("games"),
+    gameHistory: Meteor.subscribe("game_history"),
+    gameRequests: Meteor.subscribe("game_requests"),
+    importedGame: Meteor.subscribe("imported_games"),
+    users: Meteor.subscribe("loggedOnUsers")
+  };
+
+  function isready() {
+    for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
+    return true;
+  }
+
   return {
+    isready: isready(),
     examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
-    wtf: Game.find({}).fetch(),
     gameHistory: GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     }).fetch(),

@@ -24,7 +24,7 @@ const log = new Logger("client/Play_js");
 
 let handleError = error => {
   if (error) {
-    log.error(error);
+    log.error("handleError", error);
   }
 };
 
@@ -41,11 +41,10 @@ class PlayNotifier extends Component {
   };
 
   render() {
+    log.trace("PlayNotifier render", this.props);
     const translator = i18n.createTranslator("Common.MainPage", "en-US");
+
     if (!this.props.game) {
-      return null;
-    }
-    if (this.props.game.actions === undefined || this.props.game.actions.length === 0) {
       return null;
     }
 
@@ -139,7 +138,7 @@ class Play extends Component {
     e.preventDefault();
     Meteor.logout(err => {
       if (err) {
-        log.error(err.reason);
+        log.error("logout error", err.reason);
       } else {
         this.props.history.push("/login");
       }
@@ -439,6 +438,7 @@ class Play extends Component {
       if (userColor === undefined) {
         debugger;
       }
+
       opponentName =
         userColor === "white" ? this.props.in_game.black.name : this.props.in_game.white.name;
       opponentId =
@@ -580,7 +580,7 @@ Game.find({ status: "playing" }).observeChanges({
       try {
         game_timestamps[id].timestamp.end();
       } catch (e) {
-        log.error(e);
+        log.error("observeChanges removed error", e);
       } finally {
         delete game_timestamps[id];
       }

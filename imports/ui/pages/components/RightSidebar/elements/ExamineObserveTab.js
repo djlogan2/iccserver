@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import { AutoComplete, Button } from "antd";
+import { Logger } from "../../../../../../lib/client/Logger";
+
+const log = new Logger("server/ExamineObserveTab_js");
 
 const ExamineObserverTabBlock = ({ game, ...props }) => {
   let ownerData = !!game.observers ? game.observers.find(item => item.id === game.owner) : null;
@@ -46,10 +49,9 @@ const ExamineObserverTabBlock = ({ game, ...props }) => {
 
 const ExamineOwnerTabBlock = ({ game }) => {
   const handleAddExaminer = (game_id, id_to_add) => {
-    // localAddExaminer: (message_identifier, game_id, id_to_add)
-    // localRemoveExaminer: (message_identifier, game_id, id_to_remove)
+    log.debug("handleAddExaminer", game_id);
     return () => {
-      Meteor.call("localAddExaminer", "localAddExaminer", game_id, id_to_add, error => {
+      Meteor.call("localAddObserver", "localAddObserver", game_id, id_to_add, error => {
         if (error) {
           debugger;
         }
@@ -57,10 +59,9 @@ const ExamineOwnerTabBlock = ({ game }) => {
     };
   };
   const handleRemoveExaminer = (game_id, id_to_remove) => {
-    // localAddExaminer: (message_identifier, game_id, id_to_add)
-    // localRemoveExaminer: (message_identifier, game_id, id_to_remove)
+    log.debug("handleRemoveExaminer", [game_id, id_to_remove]);
     return () => {
-      Meteor.call("localRemoveExaminer", "localRemoveExaminer", game_id, id_to_remove, error => {
+      Meteor.call("localRemoveObserver", "localRemoveObserver", game_id, id_to_remove, error => {
         if (error) {
           debugger;
         }

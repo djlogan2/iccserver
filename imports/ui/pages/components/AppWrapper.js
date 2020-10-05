@@ -34,7 +34,6 @@ import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("client/AppWrapper_js");
 
 const AppWrapper = ({ className, user, history, children, cssManager, game_request }) => {
-  Meteor.subscribe("game_requests");
   log.trace("AppWrapper render", this.props);
 
   return (
@@ -44,12 +43,12 @@ const AppWrapper = ({ className, user, history, children, cssManager, game_reque
           title="Game request"
           visible={!!game_request}
           onOk={() => {
-            Meteor.call("gameRequestAccept", "gameAccept", game_request._id, (err, data) => {
+            Meteor.call("gameRequestAccept", "gameAccept", game_request._id, () => {
               history.push("/play");
             });
           }}
           onCancel={() => {
-            Meteor.call("gameRequestDecline", "gameDecline", game_request._id, (err, data) => {});
+            Meteor.call("gameRequestDecline", "gameDecline", game_request._id);
           }}
         >
           <p>{game_request.challenger} would like to play with you</p>
@@ -63,6 +62,7 @@ const AppWrapper = ({ className, user, history, children, cssManager, game_reque
 };
 
 export default withTracker(props => {
+  Meteor.subscribe("game_requests");
   return {
     game_request: GameRequestCollection.findOne(
       {

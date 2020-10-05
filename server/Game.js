@@ -58,8 +58,7 @@ class Game {
     }
 
     function gamesWeArePlaying(user) {
-      log.debug("gamesWeArePlaying", user._id);
-      return self.GameCollection.find(
+      const cursor = self.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -86,16 +85,18 @@ class Game {
           }
         }
       );
+      log.debug("gamesWeArePlaying", [user._id, cursor.count()]);
+      return cursor;
     }
 
     function gamesWeOwn(user) {
-      log.debug("gamesWeOwn", user._id);
-      return self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
+      const cursor = self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
+      log.debug("gamesWeOwn", [user._id, cursor.count()]);
+      return cursor;
     }
 
     function examineWithAnalysis(user) {
-      log.debug("examineWithAnalysis", user._id);
-      return self.GameCollection.find(
+      const cursor = self.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -116,11 +117,12 @@ class Game {
           }
         }
       );
+      log.debug("examineWithAnalysis", [user._id, cursor.count()]);
+      return cursor;
     }
 
     function examineWithoutAnalysis(user) {
-      log.debug("examineWithoutAnalysis", user._id);
-      return self.GameCollection.find(
+      const cursor = self.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -141,6 +143,8 @@ class Game {
           }
         }
       );
+      log.debug("examineWithoutAnalysis", [user._id, cursor.count()]);
+      return cursor;
     }
 
     function allGames(user) {
@@ -226,24 +230,6 @@ class Game {
         ]
       }
     ]);
-    // Meteor.publishComposite("games", {
-    //   find() {
-    //     return Meteor.users.find({ _id: this.userId, "status.online": true });
-    //   },
-    //   children: [
-    //     {
-    //       find(user) {
-    //         return [
-    //           gamesWeArePlaying(user),
-    //           gamesWeOwn(user),
-    //           examineWithAnalysis(user),
-    //           examineWithoutAnalysis(user),
-    //           allGames(user)
-    //         ];
-    //       }
-    //     }
-    //   ]
-    // });
   }
 
   getAndCheck(self, message_identifier, game_id) {
@@ -697,8 +683,8 @@ class Game {
       computer_variations: []
     };
 
-    Users.setGameStatus(message_identifier, self, "examining");
     const game_id = this.GameCollection.insert(game);
+    Users.setGameStatus(message_identifier, self, "examining");
     active_games[game_id] = chess;
     return game_id;
   }
@@ -1386,21 +1372,29 @@ class Game {
 
     Users.setGameStatus(message_identifier, id_to_remove, "none");
 
-    let delete_game =
-      !game.private &&
-      game.examiners &&
-      game.examiners.length === 1 &&
-      game.examiners[0].id === id_to_remove; // Last examiner in a private game;
-    delete_game =
-      delete_game ||
-      (game.private &&
-        game.owner === id_to_remove &&
-        (game.observers.length === 1 && game.observers[0].id === id_to_remove)); // Owner of a private game,
-    // There was a game record in the DB not private, observer=[] and no examiners. I do not yet know how
-    delete_game =
-      delete_game ||
-      (!game.private &&
-        (!game.examiners || !game.examiners.length || !game.observers || !game.observers.length));
+    function not_being_played() {
+      return game.status !== "playing";
+    }
+
+    function last_examiner_in_a_public_game() {
+      return (
+        game.status !== "playing" &&
+        !game.private &&
+        (!game.examiners || (game.examiners.length <= 1 && game.examiners[0].id === id_to_remove))
+      );
+    }
+
+    function owner_and_no_observers_in_a_private_game() {
+      return (
+        game.status !== "playing" &&
+        game.private &&
+        (!game.observers || (game.observers.length === 1 && game.observers[0].id === id_to_remove))
+      );
+    }
+
+    const delete_game =
+      not_being_played() &&
+      (last_examiner_in_a_public_game() || owner_and_no_observers_in_a_private_game());
 
     if (game.private && self._id !== id_to_remove && !due_to_logout)
       ClientMessages.sendMessageToClient(id_to_remove, message_identifier, "PRIVATE_ENTRY_REMOVED");
@@ -1414,9 +1408,11 @@ class Game {
     }
 
     if (delete_game) {
+      log.debug("localRemoveObserver deleting game", game_id);
       this.GameCollection.remove({ _id: game_id });
       delete active_games[game_id];
     } else {
+      log.debug("localRemoveObserver removing user from game", [game_id, id_to_remove]);
       this.GameCollection.update(
         { _id: game_id, status: game.status },
         {
@@ -1535,6 +1531,7 @@ class Game {
     this.localUnobserveAllGames(message_identifier, id_to_add, id_to_add !== self._id);
     Users.setGameStatus(message_identifier, id_to_add, "observing");
     this.GameCollection.update({ _id: game_id, status: game.status }, updateobject);
+    log.debug("localAddObserver, game updated", [game_id, updateobject]);
   }
 
   removeLegacyGame(message_identifier, game_id) {

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import ExaminePage from "./components/ExaminePage";
 import { Meteor } from "meteor/meteor";
+import { Random } from "meteor/random";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../lib/client/Logger";
 import CssManager from "../pages/components/Css/CssManager";
@@ -61,7 +62,13 @@ class Examine extends Component {
   }
 
   initExamine = () => {
-    Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
+    Meteor.call(
+      "startLocalExaminedGame",
+      "startlocalExaminedGame",
+      "Mr white - " + Random.id(),
+      "Mr black",
+      0
+    );
   };
 
   userRecord() {
@@ -85,10 +92,9 @@ class Examine extends Component {
   }
 
   handleDraw = objectList => {
-    if (!this.props.examine_game && !this.props.observe_game) return;
+    if (!this.props.game) return;
 
-    const game = this.props.examine_game || this.props.observe_game;
-    const { circles, arrows, _id } = game;
+    const { circles, arrows, _id } = this.props.game;
     let circleList = objectList.filter(({ orig, mouseSq }) => orig === mouseSq);
     let arrowList = objectList.filter(({ orig, mouseSq }) => orig !== mouseSq);
 
@@ -159,26 +165,20 @@ class Examine extends Component {
   };
 
   _pieceSquareDragStop = raf => {
-    if (!this.props.examine_game) {
+    if (!this.props.game) {
       log.error("How are we dropping pieces on a non-examined game?");
       return;
     }
-    Meteor.call("addGameMove", "gameMove", this.props.examine_game._id, raf.move);
+    Meteor.call("addGameMove", "gameMove", this.props.game._id, raf.move);
   };
 
   handleObserveUser = userId => {
+    log.debug("handleObserveUser", userId);
+    if (this.props.game) this.setState({ leaving_game: this.props.game._id });
     Meteor.call("observeUser", "observeUser", userId, err => {
       if (err) {
         debugger;
       }
-    });
-  };
-  handleUnobserveUser = userId => {
-    let that = this;
-    Meteor.call("localUnobserveAllGames", "localUnobserveAllGames", userId, err => {
-      if (err) {
-      }
-      that.initExamine();
     });
   };
 
@@ -199,12 +199,6 @@ class Examine extends Component {
     }
 
     return position;
-  }
-
-  _examinBoard(game) {
-    if (game.fen) {
-      this._board.load(game.fen);
-    }
   }
 
   getCoordinatesToRank(square) {
@@ -249,28 +243,19 @@ class Examine extends Component {
   };
 
   renderObserver() {
-    const game = this.props.observe_game;
-
-    if (!game) {
-      log.error("Examine LOADING/1");
-      return <Loading />;
-    }
-
+    const game = this.props.game || {
+      _id: "bogus",
+      fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+      white: { id: "bogus", name: "White", rating: 1600 },
+      black: { id: "bogus", name: "White", rating: 1600 }
+    };
+    log.trace("Examine renderObserver", this.props);
     const { systemCss, boardCss } = this.props;
 
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
-    if (
-      systemCss === undefined ||
-      boardCss === undefined ||
-      systemCss.length === 0 ||
-      boardCss.length === 0
-    ) {
-      log.error("Examine LOADING/2");
-      return <Loading />;
-    }
 
     const css = new CssManager(systemCss, boardCss);
 
@@ -290,7 +275,6 @@ class Examine extends Component {
           board={this._board}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
-          unObserveUser={this.handleUnobserveUser}
           capture={capture}
           game={game}
           onDrop={this._pieceSquareDragStop}
@@ -299,22 +283,19 @@ class Examine extends Component {
       </div>
     );
   }
+
   render() {
     log.trace("Examine render", [this.props, this.state]);
-    if (!this.props.examine_game && !this.props.observe_game && !this.props.played_game) {
-      if (this.props.isready && !this.startExaminedGameCalled) {
-        this.startExaminedGameCalled = true;
-        this.initExamine();
-      }
-      log.error("Examine LOADING/3, subscription=" + this.props.isready);
-      return <Loading />;
-    } else if (this.startExaminedGameCalled) delete this.startExaminedGameCalled;
+    if (!this.props.isready) return <Loading />;
 
-    if (!!this.props.observe_game) return this.renderObserver();
-    else if (!this.props.examine_game) {
-      log.error("Examine LOADING/4");
+    if (!this.props.game) {
+      if (!this.state.leaving_game) this.initExamine();
       return <Loading />;
-    }
+    } else if (this.props.game._id === this.state.leaving_game) return <Loading />;
+
+    const game = this.props.game;
+    if (!game.examiners || !!game.examiners.some(user => user.id === Meteor.userId()))
+      return this.renderObserver();
 
     const { systemCss, boardCss } = this.props;
     let clientMessage = null;
@@ -322,25 +303,9 @@ class Examine extends Component {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
-    if (
-      systemCss === undefined ||
-      boardCss === undefined ||
-      systemCss.length === 0 ||
-      boardCss.length === 0
-    ) {
-      log.error("Examine LOADING/5");
-      return <Loading />;
-    }
 
     const css = new CssManager(systemCss, boardCss);
-    if (!!this.props.played_game) {
-      this.message_identifier = "server:game:" + this.props.played_game._id;
-      capture = this._boardFromMongoMessages(this.props.played_game);
-    } else {
-      if (!!this.props.examine_game) {
-        this._examinBoard(this.props.examine_game);
-      }
-    }
+    this._board.load(game.fen);
 
     return (
       <div className="examine">
@@ -358,9 +323,8 @@ class Examine extends Component {
           board={this._board}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
-          unObserveUser={this.handleUnobserveUser}
           capture={capture}
-          game={this.props.played_game || this.props.examine_game}
+          game={game}
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
@@ -390,10 +354,7 @@ export default withTracker(() => {
 
   return {
     isready: isready(),
-    examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
-    observe_game: Game.findOne({
-      $and: [{ "observers.id": Meteor.userId() }, { "examiners.id": { $ne: Meteor.userId() } }]
-    }),
+    game: Game.findOne({ "observers.id": Meteor.userId() }),
     game_request: GameRequestCollection.findOne(
       {
         $or: [
