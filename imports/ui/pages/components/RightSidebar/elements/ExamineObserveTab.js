@@ -49,9 +49,12 @@ const ExamineObserverTabBlock = ({ game, ...props }) => {
 
 const ExamineOwnerTabBlock = ({ game }) => {
   const handleAddExaminer = (game_id, id_to_add) => {
-    log.debug("handleAddExaminer", game_id);
     return () => {
-      Meteor.call("localAddObserver", "localAddObserver", game_id, id_to_add, error => {
+      log.debug("handleAddExaminer", game_id);
+      let call = "localAddObserver";
+      if (!!game.examiners && game.examiners.some(ex => ex.id === Meteor.userId()))
+        call = "localAddExaminer";
+      Meteor.call(call, call, game_id, id_to_add, error => {
         if (error) {
           debugger;
         }
@@ -60,8 +63,11 @@ const ExamineOwnerTabBlock = ({ game }) => {
   };
   const handleRemoveExaminer = (game_id, id_to_remove) => {
     log.debug("handleRemoveExaminer", [game_id, id_to_remove]);
+    let call = "localRemoveObserver";
+    if (!!game.examiners && game.examiners.some(ex => ex.id === Meteor.userId()))
+      call = "localRemoveExaminer";
     return () => {
-      Meteor.call("localRemoveObserver", "localRemoveObserver", game_id, id_to_remove, error => {
+      Meteor.call(call, call, game_id, id_to_remove, error => {
         if (error) {
           debugger;
         }

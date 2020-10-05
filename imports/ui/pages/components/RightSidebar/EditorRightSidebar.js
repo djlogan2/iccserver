@@ -12,19 +12,10 @@ class EditorRightSidebar extends Component {
     super(props);
     log.trace("EditorRightSidebar constructor", props);
     this.state = {
-      fen: props.fen,
       whiteCastling: props.whiteCastling,
       blackCastling: props.blackCastling
     };
   }
-
-  handleFen = e => {
-    let that = this;
-    let { value } = e.target;
-    this.setState({ fen: value }, () => {
-      that.props.onFen(value);
-    });
-  };
 
   handleCastling = (color, value) => {
     if (color === "white") {
@@ -129,7 +120,11 @@ class EditorRightSidebar extends Component {
           </div>
           <div className="editor-right-sidebar__fen-block">
             <h3 className="editor-right-sidebar__name">FEN</h3>
-            <Input onChange={this.handleFen} value={this.state.fen} placeholder="Insert FEN here" />
+            <Input
+              onChange={e => this.props.onFen(e.target.value)}
+              value={this.props.fen}
+              placeholder="Insert FEN here"
+            />
           </div>
         </div>
       </div>
