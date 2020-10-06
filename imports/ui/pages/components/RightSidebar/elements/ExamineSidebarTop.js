@@ -53,10 +53,7 @@ export default class ExamineSidebarTop extends Component {
             gameRequest={this.props.gameRequest}
             examineAction={this.props.examineAction}
           />
-          <ExamineGameControlBlock
-            game={this.props.game}
-            flip={this.props.flip}
-          />
+          <ExamineGameControlBlock game={this.props.game} flip={this.props.flip} />
         </TabPane>
         <TabPane tab="Observe" key="2">
           <ExamineObserveTab

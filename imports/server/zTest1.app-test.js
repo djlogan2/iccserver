@@ -1,3 +1,4 @@
+/*
 import PlayModaler from "../ui/pages/components/Modaler/PlayModaler";
 import chai from "chai";
 
@@ -39,3 +40,4 @@ describe.skip("test this", function() {
     chai.assert.fail("do me");
   });
 });
+*/

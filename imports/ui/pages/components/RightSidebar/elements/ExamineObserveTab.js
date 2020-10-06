@@ -165,7 +165,12 @@ export default class ExamineObserveTab extends Component {
     let { searchValue } = this.state;
     let that = this;
     let userList = this.props.allUsers
-      .filter(item => item._id !== Meteor.userId())
+      .filter(
+        item =>
+          item._id !== Meteor.userId() &&
+          !!item.status &&
+          (item.status.game === "examining" || item.status.game === "playing")
+      )
       .map(item => item.username);
     const list = userList.filter(item => item.toLowerCase().indexOf(searchValue) >= 0);
     return list.map((name, i) => {

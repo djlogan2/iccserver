@@ -118,6 +118,39 @@ describe("PGN Import", function() {
     "26. Ng4 Nf5 27. Nf6+ Kf8 28. Nxh7+ Kg8 29. Nf6+ Kf8 30. Ne4 Rd8 31. Qh8+ \n" +
     "Ke7 32. Qf6+ Kd7 33. Qxf7+ 1-0";
 
+  const pgn3 =
+    '[Event "Waldshut Sen\\Nes"]\n' +
+    '[Site "Waldshut Sen\\Nes"]\n' +
+    '[Date "1991.??.??"]\n' +
+    '[Round "1"]\n' +
+    '[White "Nadenau, Oskar"]\n' +
+    '[Black "Seiter, G"]\n' +
+    '[Result "1-0"]\n' +
+    '[ECO "A30d"]\n' +
+    '[EventDate "1991.??.??"]\n' +
+    "\n" +
+    '[Event "Waldshut Sen\\Nes"]\n' +
+    '[Site "Waldshut Sen\\Nes"]\n' +
+    '[Date "1991.??.??"]\n' +
+    '[Round "1"]\n' +
+    '[White "Nadenau, Oskar"]\n' +
+    '[Black "Seiter, G"]\n' +
+    '[Result "1-0"]\n' +
+    '[ECO "A30d"]\n' +
+    '[EventDate "1991.??.??"]\n' +
+    "\n" +
+    '[Event "Waldshut Sen\\Nes"]\n' +
+    '[Site "Waldshut Sen\\Nes"]\n' +
+    '[Date "1991.??.??"]\n' +
+    '[Round "1"]\n' +
+    '[White "Nadenau, Oskar"]\n' +
+    '[Black "Seiter, G"]\n' +
+    '[Result "1-0"]\n' +
+    '[ECO "A30d"]\n' +
+    '[EventDate "1991.??.??"]\n' +
+    "\n";
+
+
   valid.forEach(v =>
     it(v.replace(/[\r\n]/g, "^") + " is valid", function() {
       const parser = new Parser();
@@ -142,7 +175,13 @@ describe("PGN Import", function() {
   it("should parse pgn2 correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn2));
-    chai.assert.equal(2, parser.gamelist.length);
+    chai.assert.equal(1, parser.gamelist.length);
+  });
+
+  it("should parse pgn3 correctly", function() {
+    const parser = new Parser();
+    chai.assert.doesNotThrow(() => parser.feed(pgn2));
+    chai.assert.equal(3, parser.gamelist.length);
   });
 
   it("should export and import their own games correctly", function() {

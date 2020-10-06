@@ -10,7 +10,7 @@ import {
 // module.exports.awsinstance_class = AWSInstance;
 // module.exports.awsengine_class = AWSEngine;
 // module.exports.awsengine_connector_class = AWSEngineConnector;
-describe.only("AWS Stockfish", function() {
+describe.skip("AWS Stockfish", function() {
   // manager
   //    get all instances
   //    for each instance

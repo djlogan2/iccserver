@@ -53,6 +53,7 @@ const all_fields = {
   board_css: 1,
   createdAt: 1,
   emails: 1,
+  newguy: 1,
   services: {
     password: {
       bcrypt: 1

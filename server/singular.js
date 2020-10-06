@@ -1,4 +1,8 @@
 import { Mongo } from "meteor/mongo";
+import { Logger } from "../lib/server/Logger";
+import { Meteor } from "meteor/meteor";
+
+const log = new Logger("server/Singular_js");
 
 class Singular {
   constructor() {
@@ -7,6 +11,7 @@ class Singular {
     this.my_port = process.env.MY_PORT;
     this.tasklist = [];
     this.master = false;
+    if (Meteor.isTest || Meteor.isAppTest) return;
     Meteor.startup(() => {
       //
       // If this is the first ever firing up of any server, add a bogus record
@@ -36,6 +41,9 @@ class Singular {
               Meteor.clearInterval(this.interval);
               this.startMaster();
             }
+          })
+          .catch(e => {
+            log.error("Error updating master record", e);
           });
       }, 5000);
     });

@@ -86,12 +86,14 @@ class Game {
         }
       );
       log.debug("gamesWeArePlaying", [user._id, cursor.count()]);
+      console.log("here 1");
       return cursor;
     }
 
     function gamesWeOwn(user) {
       const cursor = self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
       log.debug("gamesWeOwn", [user._id, cursor.count()]);
+      console.log("here 2");
       return cursor;
     }
 
@@ -118,6 +120,7 @@ class Game {
         }
       );
       log.debug("examineWithAnalysis", [user._id, cursor.count()]);
+      console.log("here 3");
       return cursor;
     }
 
@@ -144,11 +147,13 @@ class Game {
         }
       );
       log.debug("examineWithoutAnalysis", [user._id, cursor.count()]);
+      console.log("here 4");
       return cursor;
     }
 
     function allGames(user) {
       log.debug("allGames", user._id);
+      console.log("here 5");
       if (user.status.game === "playing") return self.GameCollection.find({ _id: "none" });
       return self.GameCollection.find(
         {

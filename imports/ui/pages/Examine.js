@@ -65,7 +65,7 @@ class Examine extends Component {
     Meteor.call(
       "startLocalExaminedGame",
       "startlocalExaminedGame",
-      "Mr white - " + Random.id(),
+      "Mr white",
       "Mr black",
       0
     );

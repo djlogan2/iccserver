@@ -1033,7 +1033,7 @@ describe("Game owners", function() {
   });
 
   it("will not send computer analysis to a player when they are not in the analysis array", function(done) {
-    this.timeout(500000);
+    this.timeout(5000);
     const owner = (self.loggedonuser = TestHelpers.createUser({
       roles: ["allow_restrict_analysis", "allow_private_games"]
     }));
