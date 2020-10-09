@@ -5,7 +5,6 @@ import chai from "chai";
 describe.skip("ECO codes", function(done) {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should add eco index and associated eco information to each new move in game play", function() {
-    this.timeout(500000);
     Game.waitForECOCodes(
       Meteor.bindEnvironment(() => {
         const us = TestHelpers.createUser();

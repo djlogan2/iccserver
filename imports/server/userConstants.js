@@ -26,8 +26,6 @@ export const all_roles = [
   "allow_restrict_analysis",
   "upload_pgn",
   "kibitz",
-  "child_chat",
-  "child_chat_exempt",
   "create_room",
   "create_private_room",
   "room_chat",

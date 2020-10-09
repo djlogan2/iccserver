@@ -1,11 +1,7 @@
-import React, { Component, Fragment } from "react";
-import { Input, Button } from "antd";
-import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import ChatInput from "./ChatInput";
+import ChildChatInput from "./ChildChatInput";
 import MessageItem from "./MessageItem";
-
-
 
 export default class ChatApp extends Component {
   constructor() {
@@ -16,32 +12,18 @@ export default class ChatApp extends Component {
     };
   }
 
-  handleChange = e => {
+  handleChange = text => {
     this.setState({
-      inputValue: e.target.value
+      inputValue: text
     });
   };
 
   handleMessage = () => {
     let newMessage = { text: this.state.inputValue, name: "you" };
-    let isKibitz = this.props.isKibitz === true ? true : false;
     this.setState({
       inputValue: "",
       messageList: [...this.state.messageList, newMessage]
     });
-    // function(message_identifier, game_id, kibitz, txt)
-    // Meteor.call(
-    //   "kibitz",
-    //   "kibitz",
-    //   this.props.gameId,
-    //   isKibitz,
-    //   newMessage.text,
-    //   (err, response) => {
-    //     if (err) {
-
-    //     }
-    //   }
-    // );
 
     this.props.onMessage(newMessage.text);
   };
@@ -61,11 +43,21 @@ export default class ChatApp extends Component {
           </div>
         </div>
         <div className="chat-app__input-bar">
-          <ChatInput
-            value={this.state.inputValue}
-            onChange={this.handleChange}
-            onMessage={this.handleMessage}
-          />
+          {this.props.child_chat && (
+            <ChildChatInput
+              child_chat_texts={this.props.child_chat_texts}
+              selected={this.state.inputValue}
+              onChange={this.handleChange}
+              onMessage={this.handleMessage}
+            />
+          )}
+          {!this.props.child_chat && (
+            <ChatInput
+              value={this.state.inputValue}
+              onChange={this.handleChange}
+              onMessage={this.handleMessage}
+            />
+          )}
         </div>
       </div>
     );

@@ -8,8 +8,22 @@ import { all_roles, standard_member_roles } from "../../server/userConstants";
 const log = new Logger("server/firstRunUsers_js");
 
 export default function firstRunUsers() {
-  if (Meteor.users.find().count() === 0)
-    all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+  const roles_in_db = Meteor.roles
+    .find()
+    .fetch()
+    .map(r => r._id);
+
+  const remove_from_db = [];
+  const add_to_db = [];
+  all_roles.forEach(r => {
+    if (!roles_in_db.some(rr => rr === r)) add_to_db.push(r);
+  });
+  roles_in_db.forEach(r => {
+    if (!all_roles.some(rr => rr === r)) remove_from_db.push(r);
+  });
+
+  add_to_db.forEach(r => Roles.createRole(r, { unlessExists: true }));
+  remove_from_db.forEach(r => Roles.deleteRole(r));
 
   if (!Meteor.isTest && !Meteor.isAppTest && Meteor.users.find().count() === 0) {
     const id = Accounts.createUser({
@@ -26,8 +40,8 @@ export default function firstRunUsers() {
         autoaccept: false
       }
     });
-    Roles.addUsersToRoles(id, "administrator");
-    Roles.addUsersToRoles(id, standard_member_roles);
+    Roles.addUserToRoles(id, "administrator");
+    Roles.addUserToRoles(id, standard_member_roles);
 
     // TODO: Remove this after we are done with development
     for (let x = 1; x < 3; x++) {
@@ -51,8 +65,8 @@ export default function firstRunUsers() {
           autoaccept: true
         }
       });
-      Roles.addUsersToRoles(idx, standard_member_roles);
-      Roles.addUsersToRoles(idx, "legacy_login");
+      Users.addUserToRoles(idx, standard_member_roles);
+      Users.addUserToRoles(idx, "legacy_login");
     }
   }
 }

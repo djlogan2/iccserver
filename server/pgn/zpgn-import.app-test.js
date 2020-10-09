@@ -156,36 +156,35 @@ describe("PGN Import", function() {
       const parser = new Parser();
       chai.assert.doesNotThrow(() => parser.feed(v));
       if (v.length === 0) chai.assert.isUndefined(parser.gamelist);
-      else chai.assert.equal(1, parser.gamelist.length);
+      else chai.assert.equal(parser.gamelist.length, 1);
     })
   );
 
   it("should parse pgn correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn));
-    chai.assert.equal(1, parser.gamelist.length);
+    chai.assert.equal(parser.gamelist.length, 1);
   });
 
   it("should parse pgn1 correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn1));
-    chai.assert.equal(2, parser.gamelist.length);
+    chai.assert.equal(parser.gamelist.length, 2);
   });
 
   it("should parse pgn2 correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn2));
-    chai.assert.equal(1, parser.gamelist.length);
+    chai.assert.equal(parser.gamelist.length, 1);
   });
 
   it("should parse pgn3 correctly", function() {
     const parser = new Parser();
-    chai.assert.doesNotThrow(() => parser.feed(pgn2));
-    chai.assert.equal(3, parser.gamelist.length);
+    chai.assert.doesNotThrow(() => parser.feed(pgn3));
+    chai.assert.equal(parser.gamelist.length, 3);
   });
 
   it("should export and import their own games correctly", function() {
-    this.timeout(5000000);
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.saveLocalMove("mi2", game_id, "e4");

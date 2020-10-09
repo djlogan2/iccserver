@@ -4,7 +4,6 @@ import { Roles } from "meteor/alanning:roles";
 import faker from "faker";
 import "../../imports/collections/users";
 import sinon from "sinon";
-//import { ClientMessages } from "../collections/ClientMessages";
 import { i18n } from "../collections/i18n";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { UCI } from "../../server/UCI";
@@ -46,9 +45,9 @@ if (Meteor.isTest || Meteor.isAppTest) {
     all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
 
     if (!!options.roles) {
-      options.roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
-      Roles.setUserRoles(id, options.roles);
-    } else Roles.setUserRoles(id, standard_member_roles);
+      //  options.roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+      Users.addUserToRoles(id, options.roles);
+    } else Users.addUserToRoles(id, standard_member_roles);
 
     const setobject = {};
     setobject["status.online"] = options.login === undefined || options.login;
@@ -113,13 +112,21 @@ if (Meteor.isTest || Meteor.isAppTest) {
         "isAuthorized",
         self.sandbox.fake((user, roles, scope) => {
           if (typeof roles === "string") {
-            if (all_roles.indexOf(roles) === -1)
+            if (
+              roles !== "child_chat" &&
+              roles !== "child_chat_exempt" &&
+              all_roles.indexOf(roles) === -1
+            )
               // eslint-disable-next-line no-console
               console.log("Unable to find known role of " + roles);
             return orig_isauthorized(user, roles, scope);
           } else {
             for (let x = 0; x < roles.length; x++) {
-              if (all_roles.indexOf(roles[x]) === -1) {
+              if (
+                roles[x] !== "child_chat" &&
+                roles[x] !== "child_chat_exempt" &&
+                all_roles.indexOf(roles[x]) === -1
+              ) {
                 // eslint-disable-next-line no-console
                 console.log("Unable to find known role of " + roles[x]);
                 return false;

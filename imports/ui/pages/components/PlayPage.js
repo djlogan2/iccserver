@@ -129,6 +129,7 @@ export default class PlayPage extends Component {
   startGameExamine() {
     this.setState({ examineGame: true, newOppenetRequest: false });
   }
+
   examineActionHandler(action) {
     if (action === "newoppent" || action === "play") {
       this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
@@ -136,13 +137,11 @@ export default class PlayPage extends Component {
       this.startGameExamine();
     } else this.setState({ exnotification: false, examinAction: action });
   }
+
   resignNotificationCloseHandler() {
     this.setState({ notification: !this.state.notification });
   }
-  /*
-  notificationHandler() {
-    this.setState({ notification: !this.state.notification });
-  }*/
+
   examinActionCloseHandler() {
     this.setState({ exnotification: true });
   }

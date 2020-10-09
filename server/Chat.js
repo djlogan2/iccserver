@@ -3,7 +3,7 @@ import { Match, check } from "meteor/check";
 import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
-import { ClientMessages } from "../imports/collections/ClientMessages";
+import { ClientMessages, ChildChats } from "../imports/collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { Logger } from "../lib/server/Logger";
@@ -53,6 +53,27 @@ class Chat {
     this.roomCollection = new Mongo.Collection("rooms");
     this.roomCollection.attachSchema(RoomCollectionSchema);
     const self = this;
+
+    if (this.childChatCollection.find().count() === 0) {
+      [
+        "Hi.",
+        "Good luck!",
+        "This is fun!",
+        "Your turn.",
+        "Whoops!",
+        "Nice move!",
+        "Mouse slip 🙁",
+        "It's not looking good, is it?",
+        "I've got you now!",
+        "Another game after this?",
+        "Yes",
+        "No",
+        "Good game"
+      ].forEach(text => this.childChatCollection.insert({ text: text }));
+    }
+
+    //
+    Meteor.publish("child_chat_texts", () => this.childChatCollection.find());
 
     Meteor.publishComposite("chat", {
       find() {
@@ -539,29 +560,12 @@ class Chat {
 
   writeToUser(message_identifier, user_id, text) {
     log.debug("writeToUser " + message_identifier + ", " + user_id + ", " + text);
+
     const self = Meteor.user();
     const user = Meteor.users.findOne({ _id: user_id });
-    const isoGroup = self.isolation_group;
-    const senderInRole = Users.isAuthorized(self, "personal_chat");
-    const recieverInRole = Users.isAuthorized(user, "personal_chat");
-    const ccsender = Users.isAuthorized(self, "child_chat");
-    const ccrec = Users.isAuthorized(user, "child_chat");
-    const ccerec = Users.isAuthorized(user, "child_chat_exempt");
-    const ccesender = Users.isAuthorized(self, "child_chat_exempt");
-    const ccid = this.childChatCollection.findOne({ _id: text });
-    const resultText = ccid ? ccid.text : text;
-    const child_chat = (ccid || ccrec || (ccsender && ccerec)) && true;
-    let loggedon = 0;
-
-    if (self.status.online) {
-      loggedon++;
-    }
-    if (user.status.online && user_id !== self._id) {
-      loggedon++;
-    }
 
     // only allowed if sender has personal chat
-    if (!senderInRole) {
+    if (!Users.isAuthorized(self, "personal_chat")) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -570,8 +574,7 @@ class Chat {
       return;
     }
 
-    //only allowed if reciever has personal chat
-    if (!recieverInRole) {
+    if (!Users.isAuthorized(user, "personal_chat")) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -580,8 +583,23 @@ class Chat {
       return;
     }
 
-    //child_chat can child chat only unless to a child chat
-    if (ccsender && !ccid && !ccerec) {
+    let loggedon = 0;
+
+    if (self.status.online) loggedon++;
+
+    if (user.status.online && user_id !== self._id) loggedon++;
+
+    let is_child_chat =
+      Users.isAuthorized(user, "child_chat_exempt") ||
+      Users.isAuthorized(self, "child_chat_exempt");
+
+    const child_chat = this.childChatCollection.findOne({ _id: text });
+    if (!!child_chat) {
+      text = child_chat.text;
+      is_child_chat = true;
+    }
+
+    if (!is_child_chat && Users.isAuthorized(self, "child_chat")) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -590,8 +608,7 @@ class Chat {
       return;
     }
 
-    // Not allow freeform to child_chat except child_chat_exempt
-    if (!ccid && ccrec && !ccerec && !ccesender) {
+    if (!is_child_chat && Users.isAuthorized(user, "child_chat")) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -608,12 +625,11 @@ class Chat {
 
     // actual private message, uses id field as the recipient
     this.collection.insert({
-      isolation_group: isoGroup,
+      isolation_group: self.isolation_group,
       type: "private",
       id: user_id,
-      what: resultText,
-      child_chat: child_chat,
-      create_date: Meteor.date,
+      what: text,
+      child_chat: is_child_chat,
       logons: loggedon,
       issuer: { id: self._id, username: self.username }
     });

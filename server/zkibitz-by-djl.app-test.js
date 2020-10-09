@@ -2,7 +2,7 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Chat } from "./Chat";
 import { Game } from "./Game";
-import { Roles } from "meteor/alanning:roles";
+import { Users } from "../imports/collections/users";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
 function checkLastAction(gamerecord, reverse_index, type, issuer, parameter) {
@@ -27,7 +27,7 @@ describe("kibitzes", function() {
 
   it("should not allow kibitzes if user is not in the 'allow kibitzes' role", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Roles.removeUsersFromRoles(self.loggedonuser._id, "kibitz");
+    Users.removeUserFromRoles(self.loggedonuser._id, "kibitz");
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, true, "the text");
     chai.assert.equal(Chat.collection.find().count(), 0);
@@ -41,7 +41,19 @@ describe("kibitzes", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, true, "the text");
     const chat = Chat.collection.findOne();
-    chai.assert.deepEqual({ create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "kibitz", issuer: { id: self.loggedonuser._id, username: self.loggedonuser.username }, child_chat: true, what: "the text" }, chat);
+    chai.assert.deepEqual(
+      {
+        create_date: chat.create_date,
+        isolation_group: "public",
+        _id: chat._id,
+        id: game_id,
+        type: "kibitz",
+        issuer: { id: self.loggedonuser._id, username: self.loggedonuser.username },
+        child_chat: true,
+        what: "the text"
+      },
+      chat
+    );
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "kibitz", self._id, { what: "the text" });
   });
@@ -121,7 +133,10 @@ describe("kibitzes", function() {
     const collector = new PublicationCollector({ userId: child._id });
     collector.collect("chat", collections => {
       chai.assert.equal(collections.chat.length, 2); // The child exempt one and the child chat one
-      chai.assert.sameMembers(["the exempt text", "child chat 1"], collections.chat.map(r => r.what));
+      chai.assert.sameMembers(
+        ["the exempt text", "child chat 1"],
+        collections.chat.map(r => r.what)
+      );
       done();
     });
   });
@@ -147,7 +162,10 @@ describe("kibitzes", function() {
     const collector = new PublicationCollector({ userId: p1._id });
     collector.collect("chat", collections => {
       chai.assert.equal(collections.chat.length, 4); // The child exempt one and the child chat one
-      chai.assert.sameMembers(["p1 kibitz", "p2 kibitz", "the exempt text", "child chat 1"], collections.chat.map(r => r.what));
+      chai.assert.sameMembers(
+        ["p1 kibitz", "p2 kibitz", "the exempt text", "child chat 1"],
+        collections.chat.map(r => r.what)
+      );
       done();
     });
   });
@@ -166,7 +184,7 @@ describe("whispers", function() {
 
   it("should not allow whispers if user is not in the 'allow kibitzes' role", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Roles.removeUsersFromRoles(self.loggedonuser._id, "kibitz");
+    Users.removeUserFromRoles(self.loggedonuser._id, "kibitz");
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, false, "the text");
     chai.assert.equal(Chat.collection.find().count(), 0);
@@ -180,7 +198,19 @@ describe("whispers", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, false, "the text");
     const chat = Chat.collection.findOne();
-    chai.assert.deepEqual({ create_date: chat.create_date, isolation_group: "public", _id: chat._id, id: game_id, type: "whisper", issuer: { id: self.loggedonuser._id, username: self.loggedonuser.username }, child_chat: true, what: "the text" }, chat);
+    chai.assert.deepEqual(
+      {
+        create_date: chat.create_date,
+        isolation_group: "public",
+        _id: chat._id,
+        id: game_id,
+        type: "whisper",
+        issuer: { id: self.loggedonuser._id, username: self.loggedonuser.username },
+        child_chat: true,
+        what: "the text"
+      },
+      chat
+    );
     const game = Game.collection.findOne();
     checkLastAction(game, 0, "whisper", self._id, { what: "the text" });
   });
@@ -260,7 +290,10 @@ describe("whispers", function() {
     const collector = new PublicationCollector({ userId: child._id });
     collector.collect("chat", collections => {
       chai.assert.equal(collections.chat.length, 2);
-      chai.assert.sameMembers(["the exempt text", "child chat 1"], collections.chat.map(r => r.what));
+      chai.assert.sameMembers(
+        ["the exempt text", "child chat 1"],
+        collections.chat.map(r => r.what)
+      );
       done();
     });
   });
@@ -285,7 +318,9 @@ describe("whispers", function() {
     self.loggedonuser = p1;
     const collector = new PublicationCollector({ userId: p1._id });
     collector.collect("chat", collections => {
-      chai.assert.isTrue(!collections.chat || !collections.chat.length || collections.chat.length === 0);
+      chai.assert.isTrue(
+        !collections.chat || !collections.chat.length || collections.chat.length === 0
+      );
       done();
     });
   });

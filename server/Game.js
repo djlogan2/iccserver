@@ -35,7 +35,7 @@ let pinglog = new Logger("server/Game::ping");
 
 class Game {
   constructor() {
-    const self = this;
+    const _self = this;
 
     this.ecoCollection = new Mongo.Collection("ecocodes");
     this.GameCollection = new Mongo.Collection("game");
@@ -48,17 +48,17 @@ class Game {
     });
 
     // TODO: Need to adjourn these, not just delete them
-    Meteor.startup(() => self.GameCollection.remove({}));
+    Meteor.startup(() => _self.GameCollection.remove({}));
 
     Users.addLogoutHook(user => this.gameLogoutHook(user));
     Users.addLoginHook(user => this.gameLoginHook(user));
 
     if (Meteor.isTest || Meteor.isAppTest) {
-      this.collection = self.GameCollection;
+      this.collection = _self.GameCollection;
     }
 
     function gamesWeArePlaying(user) {
-      const cursor = self.GameCollection.find(
+      const cursor = _self.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -86,19 +86,17 @@ class Game {
         }
       );
       log.debug("gamesWeArePlaying", [user._id, cursor.count()]);
-      console.log("here 1");
       return cursor;
     }
 
     function gamesWeOwn(user) {
-      const cursor = self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
+      const cursor = _self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
       log.debug("gamesWeOwn", [user._id, cursor.count()]);
-      console.log("here 2");
       return cursor;
     }
 
     function examineWithAnalysis(user) {
-      const cursor = self.GameCollection.find(
+      const cursor = _self.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -120,12 +118,11 @@ class Game {
         }
       );
       log.debug("examineWithAnalysis", [user._id, cursor.count()]);
-      console.log("here 3");
       return cursor;
     }
 
     function examineWithoutAnalysis(user) {
-      const cursor = self.GameCollection.find(
+      const cursor = _self.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -147,15 +144,13 @@ class Game {
         }
       );
       log.debug("examineWithoutAnalysis", [user._id, cursor.count()]);
-      console.log("here 4");
       return cursor;
     }
 
     function allGames(user) {
       log.debug("allGames", user._id);
-      console.log("here 5");
-      if (user.status.game === "playing") return self.GameCollection.find({ _id: "none" });
-      return self.GameCollection.find(
+      if (user.status.game === "playing") return _self.GameCollection.find({ _id: "none" });
+      return _self.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -191,7 +186,7 @@ class Game {
       );
     }
     function userRecord() {
-      return Meteor.users.find({ _id: self.userId, "status.online": true });
+      return Meteor.users.find({ _id: this.userId, "status.online": true });
     }
     Meteor.publishComposite("games", [
       {

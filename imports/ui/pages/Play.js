@@ -49,7 +49,7 @@ class PlayNotifier extends Component {
     }
 
     const { game, userId } = this.props;
-    const { actions } = game;
+    const actions = game.actions || [];
 
     let actionPopup = null;
     const othercolor = this.props.userId === this.props.game.white.id ? "black" : "white";
@@ -299,7 +299,7 @@ class Play extends Component {
   };
 
   initFriendRematch = () => {
-    let game = this.props.examine_game[0];
+    let game = this.props.in_game;
     let newMatchData = this.genOptions(game);
     this.handleChooseFriend(newMatchData);
   };
@@ -488,7 +488,10 @@ export default withTracker(() => {
     css: Meteor.subscribe("css"),
     game: Meteor.subscribe("games"),
     chats: Meteor.subscribe("chat"),
+    child_chat_texts: Meteor.subscribe("child_chat_texts"),
     users: Meteor.subscribe("loggedOnUsers"),
+    userData: Meteor.subscribe("userData"),
+    ccu: Meteor.subscribe("ccu"),
     gameRequests: Meteor.subscribe("game_requests"),
     clientMessages: Meteor.subscribe("client_messages"),
     gameHistory: Meteor.subscribe("game_history"),

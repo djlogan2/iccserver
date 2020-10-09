@@ -1,7 +1,7 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
 import { Game } from "./Game";
-import { Roles } from "meteor/alanning:roles";
+import { Users } from "../imports/collections/users";
 
 describe("Observing a user", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -130,7 +130,7 @@ describe("Observing a user", function() {
     const someguy = TestHelpers.createUser();
     const victim = TestHelpers.createUser();
     const stalker = TestHelpers.createUser();
-    Roles.addUsersToRoles(someguy, "allow_private_games");
+    Users.addUserToRoles(someguy, "allow_private_games");
 
     self.loggedonuser = someguy;
     const game_id = Game.startLocalExaminedGame("mi2", "white", "black", 0);

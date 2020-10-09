@@ -2,8 +2,8 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Chat } from "./Chat";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
-import { Roles } from "meteor/alanning:roles";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+import { Users } from "../imports/collections/users";
 
 describe("private group chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -30,7 +30,7 @@ describe("private group chats", function() {
 
   it("should return client message if a new room is requested and user is not in create_private_room role", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Roles.removeUsersFromRoles(self.loggedonuser, "create_private_room");
+    Users.removeUserFromRoles(self.loggedonuser, "create_private_room");
     Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(0, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -39,7 +39,7 @@ describe("private group chats", function() {
 
   it("should return a client message if the user is in the child chat role (children cannot create rooms", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(self.loggedonuser, "child_chat");
+    Users.addUserToRoles(self.loggedonuser, "child_chat");
     Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(0, Chat.roomCollection.find().count());
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -129,7 +129,7 @@ describe("private group chats", function() {
 
   it("should return a client message if invitee is in the child_chat role (children cannot be in private rooms)", function() {
     const invited = TestHelpers.createUser();
-    Roles.addUsersToRoles(invited, "child_chat");
+    Users.addUserToRoles(invited, "child_chat");
     self.loggedonuser = TestHelpers.createUser();
     const room_id = Chat.createRoom("mi1", "My Room", true);
     chai.assert.equal(1, Chat.roomCollection.find().count());
@@ -214,7 +214,7 @@ describe("private group chats", function() {
     const private_room = Chat.createRoom("mi1", "My Room", true);
     Chat.inviteToRoom("mi2", private_room, child._id);
 
-    Roles.addUsersToRoles(child, "child_chat");
+    Users.addUserToRoles(child, "child_chat");
 
     // Fake this out, since a user being added to child_chat should be removed from all things illegal at time of setting
     Chat.roomCollection.update(
@@ -590,11 +590,11 @@ describe("private group chats", function() {
 
   it("should not publish even public rooms to users in the child_chat role", function(done) {
     self.loggedonuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(self.loggedonuser, "create_room");
+    Users.addUserToRoles(self.loggedonuser, "create_room");
     Chat.createRoom("mi1", "Public room");
     Chat.createRoom("mi2", "Private room", true);
     self.loggedonuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(self.loggedonuser, "child_chat");
+    Users.addUserToRoles(self.loggedonuser, "child_chat");
     const collector = new PublicationCollector({ userId: self.loggedonuser._id });
     collector.collect("chat", collections => {
       chai.assert.isTrue(!collections.rooms || !collections.rooms.length);
@@ -604,11 +604,11 @@ describe("private group chats", function() {
 
   it("should not allow a user in the child_chat role to join a public room", function() {
     self.loggedonuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(self.loggedonuser, "create_room");
+    Users.addUserToRoles(self.loggedonuser, "create_room");
     const pubroom = Chat.createRoom("mi1", "Public room");
     const prvroom = Chat.createRoom("mi2", "Private room", true);
     self.loggedonuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(self.loggedonuser, "child_chat");
+    Users.addUserToRoles(self.loggedonuser, "child_chat");
     Chat.joinRoom("mi3", pubroom);
     Chat.joinRoom("mi4", prvroom);
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);

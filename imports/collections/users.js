@@ -20,6 +20,16 @@ const log = new Logger("server/users_js");
 export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
 
+Users.ChildChatUserCollection = new Mongo.Collection("child_chat_users");
+
+// Meteor.publish(null, function() {
+//   if (this.userId) {
+//     return Meteor.roleAssignment.find({ "user._id": this.userId });
+//   } else {
+//     this.ready();
+//   }
+// });
+
 Meteor.publishComposite("loggedOnUsers", {
   find() {
     return Meteor.users.find(
@@ -44,23 +54,48 @@ Meteor.publishComposite("loggedOnUsers", {
             { fields: viewable_logged_on_user_fields }
           );
         }
+      },
+      children: [
+        {
+          find(lou) {
+            log.debug("Returning ccuc for " + lou._id + ", " + lou.username);
+            return Users.ChildChatUserCollection.find({ userid: lou._id });
+          }
+        }
+      ]
+    }
+  ]
+});
+
+Meteor.publish("userData", function() {
+  if (!this.userId) return [];
+
+  log.debug("User " + this.userId + " has arrived");
+  return [
+    Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner }),
+    Meteor.roleAssignment.find({ "user._id": this.userId })
+  ];
+});
+
+Meteor.publishComposite("ccu", {
+  find() {
+    return Meteor.users.find({
+      "status.online": true,
+      isolation_group: Meteor.user().isolation_group
+    });
+  },
+  children: [
+    {
+      find(lou) {
+        return Users.ChildChatUserCollection.find({ userid: lou._id });
       }
     }
   ]
 });
 
-// TODO: Add a method that is draining the server (i.e. not allowing anyone to login)
-//       and add this to the login attempt method below.
-Meteor.publish("userData", function() {
-  if (!this.userId) return [];
-
-  log.debug("User " + this.userId + " has arrived");
-  return Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner });
-});
-
 Meteor.methods({
   getPartialUsernames: function(prefix) {
-    log.debug("Meteor.methods getPartialUsernames");
+    log.debug("Meteor.methods getPartialUsernames", prefix);
     check(prefix, String);
     check(this.userId, String);
     if (prefix.length === 0) return [];
@@ -112,7 +147,7 @@ Accounts.onCreateUser(function(options, user) {
 // Meteor.users.find().observeChanges({
 //   added(id) {
 //     console.log("Adding roles to new user");
-//     Roles.addUsersToRoles(id, standard_member_roles);
+//     Users.addUserToRoles(id, standard_member_roles);
 //   }
 // });
 
@@ -142,14 +177,57 @@ Users.addGroupChangeHook = function(func) {
 const loginHooks = [];
 const logoutHooks = [];
 
-Users.isAuthorized = function(user, roles, scope) {
-  check(user, Object);
+Users.addUserToRoles = function(user, roles, options) {
+  check(user, Match.OneOf(Object, String));
   check(roles, Match.OneOf(Array, String));
   if (!Array.isArray(roles)) roles = [roles];
 
-  if (Roles.userIsInRole(user, ["developer"], scope))
-    return !roles.some(role => role === "child_chat");
-  else return Roles.userIsInRole(user, roles, scope);
+  const cc = roles.some(r => r === "child_chat");
+  const cce = roles.some(r => r === "child_chat_exempt");
+
+  roles = roles.filter(e => e !== "child_chat" && e !== "child_chat_exempt");
+
+  if (!!roles.length) Roles.addUsersToRoles(user, roles, options);
+
+  const id = typeof user === "string" ? user : user._id;
+  if (cc || cce)
+    Users.ChildChatUserCollection.upsert({ userid: id }, { $set: { type: cc ? 0 : 1 } });
+};
+
+Users.removeUserFromRoles = function(user, roles, options) {
+  check(user, Match.OneOf(Object, String));
+  check(roles, Match.OneOf(Array, String));
+  if (!Array.isArray(roles)) roles = [roles];
+
+  const cc = roles.indexOf("child_chat");
+  const cce = roles.indexOf("child_chat_exempt");
+
+  roles = roles.filter(e => e !== "child_chat" && e !== "child_chat_exempt");
+
+  if (!!roles.length) Roles.removeUsersFromRoles(user, roles, options);
+
+  const id = typeof user === "string" ? user : user._id;
+  if (cc) Users.ChildChatUserCollection.remove({ userid: id, type: 0 });
+  if (cce) Users.ChildChatUserCollection.remove({ userid: id, type: 1 });
+};
+
+Users.isAuthorized = function(user, roles, scope) {
+  check(user, Match.OneOf(Object, String));
+  check(roles, Match.OneOf(Array, String));
+  if (!Array.isArray(roles)) roles = [roles];
+
+  const cc = roles.some(r => r === "child_chat");
+  const cce = roles.some(r => r === "child_chat_exempt");
+
+  if (cc || cce) roles = roles.filter(e => e !== "child_chat" && e !== "child_chat_exempt");
+
+  if (Roles.userIsInRole(user, ["developer"], scope)) return !cc;
+
+  if (roles.length && Roles.userIsInRole(user, roles, scope)) return true;
+
+  const id = typeof user === "string" ? user : user._id;
+  if (cc && Users.ChildChatUserCollection.find({ userid: id, type: 0 }).count() !== 0) return true;
+  return cce && Users.ChildChatUserCollection.find({ userid: id, type: 1 }).count() !== 0;
 };
 
 Users.addLoginHook = function(f) {
@@ -287,7 +365,7 @@ Accounts.validateLoginAttempt(function(params) {
   if (params.user.newguy) {
     log.debug("validateLoginAttempt updating roles for new user");
     Meteor.users.update({ _id: params.user._id }, { $unset: { newguy: 1 } });
-    Roles.addUsersToRoles(params.user, standard_member_roles);
+    Users.addUserToRoles(params.user, standard_member_roles);
   }
 
   //

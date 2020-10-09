@@ -302,7 +302,7 @@ describe("Chats", function() {
   it("should allow normal user to write freeform, but it won't be child_chat friendly", function() {
     const normalguy = TestHelpers.createUser();
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["create_room", "room_chat", "join_room", "child_exempt"]
+      roles: ["create_room", "room_chat", "join_room", "child_chat_exempt"]
     });
     const room_id = Chat.createRoom("mi1", "The room");
     self.loggedonuser = normalguy;
@@ -775,6 +775,7 @@ describe("Chats", function() {
   });
 
   it("should publish private chats to both senders and receivers", function(done) {
+    this.timeout(5000);
     const user1 = TestHelpers.createUser({ roles: ["personal_chat"] });
     const user2 = TestHelpers.createUser({ roles: ["personal_chat"] });
     self.loggedonuser = user1;
