@@ -20,16 +20,6 @@ const log = new Logger("server/users_js");
 export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
 
-Users.ChildChatUserCollection = new Mongo.Collection("child_chat_users");
-
-// Meteor.publish(null, function() {
-//   if (this.userId) {
-//     return Meteor.roleAssignment.find({ "user._id": this.userId });
-//   } else {
-//     this.ready();
-//   }
-// });
-
 Meteor.publishComposite("loggedOnUsers", {
   find() {
     return Meteor.users.find(
@@ -41,7 +31,7 @@ Meteor.publishComposite("loggedOnUsers", {
     {
       // We are going to leave this here to reinstate publishComposite with isolation groups
       find(user) {
-        if (!Users.isAuthorized(user, "show_users")) return Meteor.users.find({ _id: "invalid" });
+        if (!Users.isAuthorized(user, "show_users")) return this.ready();
         else {
           return Meteor.users.find(
             {
@@ -54,15 +44,7 @@ Meteor.publishComposite("loggedOnUsers", {
             { fields: viewable_logged_on_user_fields }
           );
         }
-      },
-      children: [
-        {
-          find(lou) {
-            log.debug("Returning ccuc for " + lou._id + ", " + lou.username);
-            return Users.ChildChatUserCollection.find({ userid: lou._id });
-          }
-        }
-      ]
+      }
     }
   ]
 });
@@ -75,22 +57,6 @@ Meteor.publish("userData", function() {
     Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner }),
     Meteor.roleAssignment.find({ "user._id": this.userId })
   ];
-});
-
-Meteor.publishComposite("ccu", {
-  find() {
-    return Meteor.users.find({
-      "status.online": true,
-      isolation_group: Meteor.user().isolation_group
-    });
-  },
-  children: [
-    {
-      find(lou) {
-        return Users.ChildChatUserCollection.find({ userid: lou._id });
-      }
-    }
-  ]
 });
 
 Meteor.methods({
@@ -190,8 +156,7 @@ Users.addUserToRoles = function(user, roles, options) {
   if (!!roles.length) Roles.addUsersToRoles(user, roles, options);
 
   const id = typeof user === "string" ? user : user._id;
-  if (cc || cce)
-    Users.ChildChatUserCollection.upsert({ userid: id }, { $set: { type: cc ? 0 : 1 } });
+  if (cc || cce) Meteor.users.update({ _id: id }, { $set: { cf: cc ? "c" : "e" } });
 };
 
 Users.removeUserFromRoles = function(user, roles, options) {
@@ -207,8 +172,7 @@ Users.removeUserFromRoles = function(user, roles, options) {
   if (!!roles.length) Roles.removeUsersFromRoles(user, roles, options);
 
   const id = typeof user === "string" ? user : user._id;
-  if (cc) Users.ChildChatUserCollection.remove({ userid: id, type: 0 });
-  if (cce) Users.ChildChatUserCollection.remove({ userid: id, type: 1 });
+  if (cc || cce) Meteor.users.update({ _id: id }, { $unset: { cf: 1 } });
 };
 
 Users.isAuthorized = function(user, roles, scope) {
@@ -226,8 +190,8 @@ Users.isAuthorized = function(user, roles, scope) {
   if (roles.length && Roles.userIsInRole(user, roles, scope)) return true;
 
   const id = typeof user === "string" ? user : user._id;
-  if (cc && Users.ChildChatUserCollection.find({ userid: id, type: 0 }).count() !== 0) return true;
-  return cce && Users.ChildChatUserCollection.find({ userid: id, type: 1 }).count() !== 0;
+  if (cc && !!Meteor.users.findOne({ _id: id, cf: "c" }).count()) return true;
+  return cce && !!Meteor.users.findOne({ _id: id, cf: "e" }).count();
 };
 
 Users.addLoginHook = function(f) {

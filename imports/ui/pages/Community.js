@@ -6,12 +6,9 @@ import AppWrapper from "../pages/components/AppWrapper";
 
 import Messenger from "./components/Chat/Messenger";
 import { Button, Input, Modal } from "antd";
-import {
-  Chat,
-  Rooms,
-  mongoCss,
-} from "../../api/client/collections";
+import { Chat, Rooms, mongoCss } from "../../api/client/collections";
 
+// eslint-disable-next-line no-unused-vars
 const log = new Logger("client/Community");
 
 const MessengerWithData = withTracker(props => {
@@ -27,9 +24,6 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
   const [roomName, setRoomName] = useState("");
   const [isModal, setModal] = useState(0);
 
-  const onOpen = () => {
-    setModal(true);
-  };
   const onCancel = () => {
     setRoomName("");
     setModal(false);
@@ -52,7 +46,6 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
         <Button onClick={openRightBlock} className="room-block__plus">
           +
         </Button>
-
       </div>
 
       <ul className="room-block__list">
@@ -78,7 +71,7 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
   );
 };
 
-const CommunityRightBlock = ({ activeRoom, roomList, onChange, onAdd, onClose }) => {
+const CommunityRightBlock = ({ activeRoom, roomList, onChange, onClose }) => {
   return (
     <div className="room-block">
       <div className="room-block__head">
@@ -144,7 +137,7 @@ class Community extends Component {
 
   handleAdd = roomName => {
     // createRoom
-    Meteor.call("createRoom", "createRoom", roomName, true, (error, data) => {
+    Meteor.call("createRoom", "createRoom", roomName, true, error => {
       if (error) {
         // add
         debugger;
@@ -153,12 +146,12 @@ class Community extends Component {
   };
 
   handleOpenRightBlock = () => {
-    this.setState({isRightMenu: true})
-  }
+    this.setState({ isRightMenu: true });
+  };
 
   handleCloseRightBlock = () => {
-    this.setState({isRightMenu: false})
-  }
+    this.setState({ isRightMenu: false });
+  };
 
   handleChangeRoom = roomId => {
     this.setState({ activeRoom: roomId });
@@ -172,13 +165,12 @@ class Community extends Component {
 
   handleMessage = roomId => {
     let newMessage = { text: this.state.inputValue, name: "you" };
-    let isKibitz = this.props.isKibitz === true ? true : false;
     this.setState({
       inputValue: "",
       messageList: [...this.state.messageList, newMessage]
     });
 
-    Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, (err, response) => {
+    Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, err => {
       if (err) {
         debugger;
       }
@@ -196,16 +188,14 @@ class Community extends Component {
       <MessengerWithData
         roomData={roomData}
         inputValue={this.state.inputValue}
-        // messageList={this.props.chatList}
         onChange={this.handleChange}
         onMessage={this.handleMessage}
       />
     );
   };
 
-
   render() {
-    const rightBlockWidth = this.state.isRightMenu ? '214px' : 0;
+    const rightBlockWidth = this.state.isRightMenu ? "214px" : 0;
 
     return (
       <AppWrapper>
@@ -219,7 +209,7 @@ class Community extends Component {
           />
         </div>
         <div className="community__messenger">{this.renderMessenger()}</div>
-        <div className="community__right-block" style={{maxWidth: rightBlockWidth}}>
+        <div className="community__right-block" style={{ maxWidth: rightBlockWidth }}>
           <CommunityRightBlock
             activeRoom={this.state.activeRoom}
             roomList={this.props.notMyRooms}
@@ -234,14 +224,10 @@ class Community extends Component {
   }
 }
 
-export default withTracker(props => {
+export default withTracker(() => {
   return {
     allRooms: Rooms.find().fetch(),
-    notMyRooms: Rooms.find({"members.id": { "$not": Meteor.userId()}}).fetch(),
-    // chatList: Chat.find({
-    //   type: "room",
-    //   id:
-    // }).fetch(),
+    notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };

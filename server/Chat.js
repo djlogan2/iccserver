@@ -3,7 +3,7 @@ import { Match, check } from "meteor/check";
 import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
-import { ClientMessages, ChildChats } from "../imports/collections/ClientMessages";
+import { ClientMessages } from "../imports/collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { Logger } from "../lib/server/Logger";
@@ -90,16 +90,14 @@ class Chat {
                 { $or: [{ id: user._id }, { "issuer.id": user._id }] }
               ]
             };
-            if (Users.isAuthorized(user, "child_chat"))
-              query_object.$and.push({ child_chat: true });
+            if (user.cf === "c") query_object.$and.push({ child_chat: true });
             return self.collection.find(query_object);
           }
         },
         // room chat
         {
           find(user) {
-            if (Users.isAuthorized(user, "child_chat"))
-              return self.roomCollection.find({ _id: "none" });
+            if (user.cf === "c") return this.ready();
             return self.roomCollection.find({
               isolation_group: user.isolation_group,
               $or: [
@@ -114,8 +112,7 @@ class Chat {
             {
               find(room, user) {
                 // Children cannot be in rooms
-                if (Users.isAuthorized(user, "child_chat"))
-                  return self.collection.find({ _id: "none" });
+                if (user.cf === "c") return this.ready();
                 // No chats if they aren't members. If they are just invited, no chats!
                 if (!room.members.some(member => member.id === user._id))
                   return self.collection.find({ _id: "none" });
@@ -146,7 +143,7 @@ class Chat {
                   id: game._id,
                   isolation_group: user.isolation_group
                 };
-                if (Users.isAuthorized(user, "child_chat")) query_object.child_chat = true;
+                if (user.cf === "c") query_object.child_chat = true;
                 return self.collection.find(query_object);
               }
             }
@@ -165,7 +162,7 @@ class Chat {
                   id: game._id,
                   isolation_group: user.isolation_group
                 };
-                if (Users.isAuthorized(user, "child_chat")) query_object.child_chat = true;
+                if (user.cf === "c") query_object.child_chat = true;
                 return self.collection.find(query_object);
               }
             }
@@ -219,11 +216,11 @@ class Chat {
       child_chat = true;
       txt = child_chat_record.text;
     } else {
-      child_chat = Users.isAuthorized(self, "child_chat_exempt");
+      child_chat = self.cf === "e";
     }
 
     // Otherwise, someone in the child chat role must be sending a child chat.
-    if (!child_chat && Users.isAuthorized(self, ["child_chat"])) {
+    if (!child_chat && self.cf === "c") {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -257,7 +254,7 @@ class Chat {
     // check if user is in role
     if (
       !Users.isAuthorized(self, priv ? "create_private_room" : "create_room") ||
-      Users.isAuthorized(self, "child_chat")
+      self.cf === "c"
     ) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AUTHORIZED");
       return;
@@ -309,7 +306,7 @@ class Chat {
     if (
       !Users.isAuthorized(self, "room_chat") ||
       !Users.isAuthorized(self, "join_room") ||
-      Users.isAuthorized(self, "child_chat")
+      self.cf === "c"
     ) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
       return;
@@ -397,7 +394,7 @@ class Chat {
       return;
     }
 
-    if (!Users.isAuthorized(self, "join_room") || Users.isAuthorized(self, "child_chat")) {
+    if (!Users.isAuthorized(self, "join_room") || self.cf === "c") {
       const invitee = room.invited.find(invitee => invitee.id === self._id);
       if (!!invitee) {
         ClientMessages.sendMessageToClient(
@@ -495,7 +492,7 @@ class Chat {
     if (
       !Users.isAuthorized(self, "create_private_room") ||
       !Users.isAuthorized(self, "room_chat") ||
-      Users.isAuthorized(self, "child_chat")
+      self.cf === "c"
     ) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
       return;
@@ -525,7 +522,7 @@ class Chat {
       return;
     }
 
-    if (!Users.isAuthorized(otherguy, "room_chat") || Users.isAuthorized(otherguy, "child_chat")) {
+    if (!Users.isAuthorized(otherguy, "room_chat") || otherguy.cf === "c") {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_USER");
       return;
     }
@@ -589,9 +586,7 @@ class Chat {
 
     if (user.status.online && user_id !== self._id) loggedon++;
 
-    let is_child_chat =
-      Users.isAuthorized(user, "child_chat_exempt") ||
-      Users.isAuthorized(self, "child_chat_exempt");
+    let is_child_chat = user.cf === "e" || self.cf === "e";
 
     const child_chat = this.childChatCollection.findOne({ _id: text });
     if (!!child_chat) {
@@ -599,7 +594,7 @@ class Chat {
       is_child_chat = true;
     }
 
-    if (!is_child_chat && Users.isAuthorized(self, "child_chat")) {
+    if (!is_child_chat && self.cf === "c") {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -608,7 +603,7 @@ class Chat {
       return;
     }
 
-    if (!is_child_chat && Users.isAuthorized(user, "child_chat")) {
+    if (!is_child_chat && user.cf === "c") {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,

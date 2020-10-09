@@ -491,7 +491,6 @@ export default withTracker(() => {
     child_chat_texts: Meteor.subscribe("child_chat_texts"),
     users: Meteor.subscribe("loggedOnUsers"),
     userData: Meteor.subscribe("userData"),
-    ccu: Meteor.subscribe("ccu"),
     gameRequests: Meteor.subscribe("game_requests"),
     clientMessages: Meteor.subscribe("client_messages"),
     gameHistory: Meteor.subscribe("game_history"),
@@ -524,7 +523,6 @@ export default withTracker(() => {
   return {
     isready: isready(),
     isAuthenticated: isAuthenticated,
-    user: Meteor.users.findOne({ _id: Meteor.userId() }),
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
       .fetch(),

@@ -63,12 +63,14 @@ export const fields_viewable_by_account_owner = {
   "profile.lastname": 1,
   "profile.legacy.validated": 1,
   "profile.legacy.username": 1,
-  "profile.legacy.autologin": 1
+  "profile.legacy.autologin": 1,
+  cf: 1
 };
 
 export const viewable_logged_on_user_fields = {
   username: 1,
   ratings: 1,
   mugshot: 1,
-  "status.game": 1
+  "status.game": 1,
+  cf: 1
 };

@@ -46,6 +46,7 @@ export default class ChatApp extends Component {
           {this.props.child_chat && (
             <ChildChatInput
               child_chat_texts={this.props.child_chat_texts}
+              user={this.props.user}
               selected={this.state.inputValue}
               onChange={this.handleChange}
               onMessage={this.handleMessage}
