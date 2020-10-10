@@ -335,9 +335,11 @@ class Examine extends Component {
   }
 }
 
+//xxx
 export default withTracker(() => {
   const subscriptions = {
     chats: Meteor.subscribe("chat"),
+    child_chat_texts: Meteor.subscribe("child_chat_texts"),
     clientMessages: Meteor.subscribe("client_messages"),
     css: Meteor.subscribe("css"),
     game: Meteor.subscribe("games"),

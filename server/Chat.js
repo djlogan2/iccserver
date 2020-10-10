@@ -91,7 +91,7 @@ class Chat {
               ]
             };
             if (user.cf === "c") query_object.$and.push({ child_chat: true });
-            return self.collection.find(query_object);
+            return self.collection.find(query_object, { sort: { createdAt: 1 } });
           }
         },
         // room chat
@@ -144,7 +144,7 @@ class Chat {
                   isolation_group: user.isolation_group
                 };
                 if (user.cf === "c") query_object.child_chat = true;
-                return self.collection.find(query_object);
+                return self.collection.find(query_object, { sort: { createdAt: 1 } });
               }
             }
           ]
@@ -163,7 +163,7 @@ class Chat {
                   isolation_group: user.isolation_group
                 };
                 if (user.cf === "c") query_object.child_chat = true;
-                return self.collection.find(query_object);
+                return self.collection.find(query_object, { sort: { createdAt: 1 } });
               }
             }
           ]

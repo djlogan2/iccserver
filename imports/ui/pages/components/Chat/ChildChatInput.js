@@ -22,11 +22,9 @@ export default ({ child_chat_texts, selected, onChange, onMessage }) => {
           value={selected}
           ref={el => (this.select = el)}
         >
-          <Option value={"first"}>First</Option>
           {child_chat_texts.map(chatItem => (
             <Option value={chatItem._id}>{chatItem.text}</Option>
           ))}
-          <Option value={"last"}>Last</Option>
         </Select>
         <Button htmlType="submit">Send</Button>
       </form>
