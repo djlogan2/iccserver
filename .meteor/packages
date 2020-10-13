@@ -39,3 +39,4 @@ meteortesting:mocha
 mizzao:user-status
 react-meteor-data
 aldeed:collection2
+msavin:mongol

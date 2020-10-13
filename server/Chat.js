@@ -85,7 +85,7 @@ class Chat {
       };
       if (user.cf === "c") query_object.$and.push({ child_chat: true });
       const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
-      console.log("personalChat", cursor.count());
+      log.debug("personalChat", cursor.count());
       return cursor;
     }
 
@@ -100,7 +100,7 @@ class Chat {
           { owner: user._id }
         ]
       });
-      console.log("roomChatRooms", cursor.count());
+      log.debug("roomChatRooms", cursor.count());
       return cursor;
     }
 
@@ -115,7 +115,7 @@ class Chat {
         type: "room",
         id: room._id
       });
-      console.log("roomChat", cursor.count());
+      log.debug("roomChat", cursor.count());
       return cursor;
     }
 
@@ -123,7 +123,7 @@ class Chat {
       const cursor = Game.GameCollection.find({
         $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
       });
-      console.log("playedGames", cursor.count());
+      log.debug("playedGames", cursor.count());
       return cursor;
     }
 
@@ -135,13 +135,13 @@ class Chat {
       };
       if (user.cf === "c") query_object.child_chat = true;
       const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
-      console.log("playedGameKibitzes", cursor.count());
+      log.debug("playedGameKibitzes", cursor.count());
       return cursor;
     }
 
     function observedGames(user) {
       const cursor = Game.GameCollection.find({ "observers.id": user._id });
-      console.log("ObservedGames", cursor.count());
+      log.debug("ObservedGames", cursor.count());
       return cursor;
     }
 
@@ -153,7 +153,7 @@ class Chat {
       };
       if (user.cf === "c") query_object.child_chat = true;
       const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
-      console.log("observedGameKibitzes", cursor.count());
+      log.debug("observedGameKibitzes", cursor.count());
       return cursor;
     }
 
