@@ -157,9 +157,9 @@ class Community extends Component {
     this.setState({ activeRoom: roomId });
   };
 
-  handleChange = e => {
+  handleChange = text => {
     this.setState({
-      inputValue: e.target.value
+      inputValue: text
     });
   };
 
