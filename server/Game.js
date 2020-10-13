@@ -1243,32 +1243,33 @@ class Game {
         "game id does not exist"
       );
 
-    if (!game.examiners || game.examiners.map(e => e.id).indexOf(self._id) === -1)
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to remove examiner",
-        "Issuer is not an examiner"
-      );
+    if (!game.examiners || game.examiners.map(e => e.id).indexOf(self._id) === -1) {
+      ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
+      return;
+    }
 
     if (game.private && game.owner !== self._id) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_THE_OWNER");
       return;
-    }
-
-    if (
-      game.owner !== self._id &&
-      (!game.examiners || !game.examiners.some(e => e.id === id_to_remove))
+    } else if (
+      !game.private &&
+      (!game.examiners || game.examiners.map(e => e.id).indexOf(self._id) === -1)
     ) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
 
-    Users.setGameStatus(message_identifier, id_to_remove, "observing");
+    if (!game.examiners || !game.examiners.some(e => e.id === id_to_remove)) {
+      ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
+      return;
+    }
 
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       { $pull: { examiners: { id: id_to_remove } } }
     );
+
+    Users.setGameStatus(message_identifier, id_to_remove, "observing");
   }
 
   localAddExaminer(message_identifier, game_id, id_to_add) {
@@ -1403,7 +1404,7 @@ class Game {
       this.setPrivate(message_identifier, game_id, false);
       this.GameCollection.update(
         { _id: game_id, status: "examining" },
-        { $unset: { owner: 1, deny_z: 1 } }
+        { $unset: { owner: 1, deny_chat: 1 } }
       );
     }
 
@@ -3583,7 +3584,7 @@ class Game {
     pinglog.debug("_startGamePing game_id=" + game_id + ", color=" + color);
     if (!game_pings[game_id]) game_pings[game_id] = {};
     game_pings[game_id][color] = new TimestampServer(
-      new Logger("TimestampServer"),
+      new Logger("sever/TimestampServer"),
       "server game",
       (key, msg) => {
         pinglog.debug(

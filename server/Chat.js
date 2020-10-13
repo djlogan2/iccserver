@@ -75,99 +75,97 @@ class Chat {
     //
     Meteor.publish("child_chat_texts", () => this.childChatCollection.find());
 
+    function personalChat(user) {
+      const query_object = {
+        $and: [
+          { isolation_group: user.isolation_group },
+          { type: "private" },
+          { $or: [{ id: user._id }, { "issuer.id": user._id }] }
+        ]
+      };
+      if (user.cf === "c") query_object.$and.push({ child_chat: true });
+      const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
+      console.log("personalChat", cursor.count());
+      return cursor;
+    }
+
+    function roomChatRooms(user) {
+      if (user.cf === "c") return this.ready();
+      const cursor = self.roomCollection.find({
+        isolation_group: user.isolation_group,
+        $or: [
+          { public: true },
+          { "members.id": user._id },
+          { "invited.id": user._id },
+          { owner: user._id }
+        ]
+      });
+      console.log("roomChatRooms", cursor.count());
+      return cursor;
+    }
+
+    function roomChat(room, user) {
+      // Children cannot be in rooms
+      if (user.cf === "c") return this.ready();
+      // No chats if they aren't members. If they are just invited, no chats!
+      if (!room.members.some(member => member.id === user._id))
+        return self.collection.find({ _id: "none" });
+      const cursor = self.collection.find({
+        isolation_group: user.isolation_group,
+        type: "room",
+        id: room._id
+      });
+      console.log("roomChat", cursor.count());
+      return cursor;
+    }
+
+    function playedGames(user) {
+      const cursor = Game.GameCollection.find({
+        $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
+      });
+      console.log("playedGames", cursor.count());
+      return cursor;
+    }
+
+    function playedGameKibitzes(game, user) {
+      const query_object = {
+        type: "kibitz",
+        id: game._id,
+        isolation_group: user.isolation_group
+      };
+      if (user.cf === "c") query_object.child_chat = true;
+      const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
+      console.log("playedGameKibitzes", cursor.count());
+      return cursor;
+    }
+
+    function observedGames(user) {
+      const cursor = Game.GameCollection.find({ "observers.id": user._id });
+      console.log("ObservedGames", cursor.count());
+      return cursor;
+    }
+
+    function observedGameKibitzes(game, user) {
+      const query_object = {
+        type: { $in: ["kibitz", "whisper"] },
+        id: game._id,
+        isolation_group: user.isolation_group
+      };
+      if (user.cf === "c") query_object.child_chat = true;
+      const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
+      console.log("observedGameKibitzes", cursor.count());
+      return cursor;
+    }
+
     Meteor.publishComposite("chat", {
       find() {
         return Meteor.users.find({ _id: this.userId });
       },
       children: [
-        // personal chat
-        {
-          find(user) {
-            const query_object = {
-              $and: [
-                { isolation_group: user.isolation_group },
-                { type: "private" },
-                { $or: [{ id: user._id }, { "issuer.id": user._id }] }
-              ]
-            };
-            if (user.cf === "c") query_object.$and.push({ child_chat: true });
-            return self.collection.find(query_object, { sort: { createdAt: 1 } });
-          }
-        },
-        // room chat
-        {
-          find(user) {
-            if (user.cf === "c") return this.ready();
-            return self.roomCollection.find({
-              isolation_group: user.isolation_group,
-              $or: [
-                { public: true },
-                { "members.id": user._id },
-                { "invited.id": user._id },
-                { owner: user._id }
-              ]
-            });
-          },
-          children: [
-            {
-              find(room, user) {
-                // Children cannot be in rooms
-                if (user.cf === "c") return this.ready();
-                // No chats if they aren't members. If they are just invited, no chats!
-                if (!room.members.some(member => member.id === user._id))
-                  return self.collection.find({ _id: "none" });
-                return self.collection.find({
-                  isolation_group: user.isolation_group,
-                  type: "room",
-                  id: room._id
-                });
-              }
-            }
-          ]
-        },
-        // game chat - players
-        {
-          find(user) {
-            return Game.GameCollection.find({
-              $and: [
-                { status: "playing" },
-                { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
-              ]
-            });
-          },
-          children: [
-            {
-              find(game, user) {
-                const query_object = {
-                  type: "kibitz",
-                  id: game._id,
-                  isolation_group: user.isolation_group
-                };
-                if (user.cf === "c") query_object.child_chat = true;
-                return self.collection.find(query_object, { sort: { createdAt: 1 } });
-              }
-            }
-          ]
-        },
-        // game chat - observers
-        {
-          find(user) {
-            return Game.GameCollection.find({ "observers.id": user._id });
-          },
-          children: [
-            {
-              find(game, user) {
-                const query_object = {
-                  type: { $in: ["kibitz", "whisper"] },
-                  id: game._id,
-                  isolation_group: user.isolation_group
-                };
-                if (user.cf === "c") query_object.child_chat = true;
-                return self.collection.find(query_object, { sort: { createdAt: 1 } });
-              }
-            }
-          ]
-        }
+        { find: personalChat },
+        { find: roomChatRooms, children: [{ find: roomChat }] },
+        { find: playedGames, children: [{ find: playedGameKibitzes }] },
+        { find: observedGames, children: [{ find: observedGameKibitzes }] }
       ]
     });
 

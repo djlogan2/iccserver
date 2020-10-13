@@ -80,6 +80,5 @@ export default withTracker(props => {
         sort: { create_date: -1 }
       }
     ),
-    user: Meteor.users.findOne({ _id: Meteor.userId() })
   };
 })(withRouter(AppWrapper));

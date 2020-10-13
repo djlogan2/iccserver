@@ -105,7 +105,10 @@ describe("kibitzes", function() {
   });
 
   it("should save the child chat text if all is well", function() {
-    const ccid1 = Chat.childChatCollection.insert({ text: "child chat 1" });
+    const ccid1 = Chat.childChatCollection.insert({
+      isolation_group: "public",
+      text: "child chat 1"
+    });
     self.loggedonuser = TestHelpers.createUser({ roles: ["child_chat", "kibitz"] });
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, true, ccid1);
@@ -115,7 +118,10 @@ describe("kibitzes", function() {
   });
 
   it("should not publish non-child kibitzes to a child", function(done) {
-    const ccid1 = Chat.childChatCollection.insert({ text: "child chat 1" });
+    const ccid1 = Chat.childChatCollection.insert({
+      isolation_group: "public",
+      text: "child chat 1"
+    });
     self.loggedonuser = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({ roles: ["child_chat_exempt", "kibitz"] });
     const anotherchild = TestHelpers.createUser({ roles: ["child_chat", "kibitz"] });
@@ -142,7 +148,10 @@ describe("kibitzes", function() {
   });
 
   it("should publish kibitzes to players", function(done) {
-    const ccid1 = Chat.childChatCollection.insert({ text: "child chat 1" });
+    const ccid1 = Chat.childChatCollection.insert({
+      isolation_group: "public",
+      text: "child chat 1"
+    });
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({ roles: ["child_chat_exempt", "kibitz"] });
@@ -262,7 +271,10 @@ describe("whispers", function() {
   });
 
   it("should save the child chat text if all is well", function() {
-    const ccid1 = Chat.childChatCollection.insert({ text: "child chat 1" });
+    const ccid1 = Chat.childChatCollection.insert({
+      isolation_group: "public",
+      text: "child chat 1"
+    });
     self.loggedonuser = TestHelpers.createUser({ roles: ["child_chat", "kibitz"] });
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Chat.kibitz("mi2", game_id, false, ccid1);
@@ -272,7 +284,10 @@ describe("whispers", function() {
   });
 
   it("should not publish non-child whispers to a child", function(done) {
-    const ccid1 = Chat.childChatCollection.insert({ text: "child chat 1" });
+    const ccid1 = Chat.childChatCollection.insert({
+      isolation_group: "public",
+      text: "child chat 1"
+    });
     self.loggedonuser = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({ roles: ["child_chat_exempt", "kibitz"] });
     const anotherchild = TestHelpers.createUser({ roles: ["child_chat", "kibitz"] });
@@ -299,7 +314,10 @@ describe("whispers", function() {
   });
 
   it("should not publish whispers to players", function(done) {
-    const ccid1 = Chat.childChatCollection.insert({ text: "child chat 1" });
+    const ccid1 = Chat.childChatCollection.insert({
+      isolation_group: "public",
+      text: "child chat 1"
+    });
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const exempt = TestHelpers.createUser({ roles: ["child_chat_exempt", "kibitz"] });

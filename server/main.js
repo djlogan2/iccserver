@@ -24,6 +24,7 @@ import "../imports/collections/css";
 import "../imports/collections/users";
 import "../lib/server/timestamp";
 
+//??
 const log = new Logger("server/main_js");
 
 const bound = Meteor.bindEnvironment(callback => {

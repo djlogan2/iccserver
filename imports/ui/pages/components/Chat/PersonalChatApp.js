@@ -18,7 +18,8 @@ class PersonalChatApp extends Component {
 
   render() {
     log.trace("PersonalChatApp render", this.props);
-    const cc1 = (this.props.user.cf || "") + (this.props.opponent.cf || "");
+    const cc1 =
+      (Meteor.user().cf || "") + (!!this.props.opponent ? this.props.opponent.cf || "" : "");
 
     const child_chat = cc1.indexOf("c") !== -1 && cc1.indexOf("e") === -1;
 
@@ -26,7 +27,7 @@ class PersonalChatApp extends Component {
       <ChatApp
         child_chat={child_chat}
         child_chat_texts={this.props.child_chat_texts}
-        user={this.props.user}
+        user={Meteor.user()}
         chats={this.props.chats}
         onMessage={text => this.handleChat(text)}
       />
@@ -38,7 +39,6 @@ export default withTracker(props => {
   return {
     opponent: Meteor.users.findOne({ _id: props.opponentId }),
     child_chat_texts: ChildChatTexts.find().fetch(),
-    user: Meteor.users.findOne({ _id: Meteor.userId() }),
     chats: Chat.find({
       type: "private",
       $or: [{ id: props.opponentId }, { "issuer.id": props.opponentId }]

@@ -52,7 +52,7 @@ class PlayNotifier extends Component {
     const actions = game.actions || [];
 
     let actionPopup = null;
-    const othercolor = this.props.userId === this.props.game.white.id ? "black" : "white";
+    const othercolor = Meteor.userId() === this.props.game.white.id ? "black" : "white";
 
     for (const action of actions) {
       const issuer = action["issuer"];
@@ -256,9 +256,9 @@ class Play extends Component {
 
   genOptions = gameData => {
     let friendId =
-      this.props.user._id === gameData.white.id ? gameData.black.id : gameData.white.id;
+      Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
 
-    let color = this.props.user._id === gameData.white.id ? "white" : "black";
+    let color = Meteor.userId() === gameData.white.id ? "white" : "black";
     let initial = gameData.clocks.white.initial;
     let incrementOrDelay = gameData.clocks.white.inc_or_delay;
     let incrementOrDelayType = gameData.clocks.white.delaytype;
@@ -434,7 +434,7 @@ class Play extends Component {
     if (visible) {
       result = this.props.in_game.result;
       status2 = this.props.in_game.status2;
-      userColor = this.props.in_game.white.name === this.props.user.username ? "white" : "black";
+      userColor = this.props.in_game.white.name === Meteor.user().username ? "white" : "black";
       if (userColor === undefined) {
         debugger;
       }
@@ -450,7 +450,7 @@ class Play extends Component {
         <PlayModaler
           userColor={userColor}
           visible={visible}
-          userName={this.props.user && this.props.user.username}
+          userName={Meteor.user().username}
           gameResult={result}
           gameStatus2={status2}
           clientMessage={gamemessage}
@@ -558,7 +558,7 @@ Game.find({ status: "playing" }).observeChanges({
     if (!color) throw new Meteor.Error("Unable to discern which color we are");
     game_timestamps[id] = {
       color: color,
-      timestamp: new TimestampClient(new Logger("play/client/timestamp"), "client game", (_, msg) =>
+      timestamp: new TimestampClient(new Logger("client/play/timestamp"), "client game", (_, msg) =>
         Meteor.call("gamepong", id, msg)
       )
     };

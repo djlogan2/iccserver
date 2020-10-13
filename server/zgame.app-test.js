@@ -3719,6 +3719,7 @@ describe("when playing a game", function() {
   });
 
   it("should throw an error if the meteor method is called with a valid game id but a non-player", function(done) {
+    this.timeout(5000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
