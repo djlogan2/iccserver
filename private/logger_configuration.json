@@ -1,4 +1,5 @@
 {
+    "root": "TRACE",
     "client/AppContainer": "DEBUG",
     "client/AppWrapper_js": "DEBUG",
     "client/Board_js": "DEBUG",
