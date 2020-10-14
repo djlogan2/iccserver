@@ -294,7 +294,7 @@ class Examine extends Component {
     } else if (this.props.game._id === this.state.leaving_game) return <Loading />;
 
     const game = this.props.game;
-    if (!game.examiners || !!game.examiners.some(user => user.id === Meteor.userId()))
+    if (!game.examiners || !game.examiners.some(user => user.id === Meteor.userId()))
       return this.renderObserver();
 
     const { systemCss, boardCss } = this.props;

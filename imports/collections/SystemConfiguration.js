@@ -1,30 +1,46 @@
 import { check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
+import date from "date-and-time";
 
 export const SystemConfiguration = {};
 
-// eslint-disable-next-line no-unused-vars
 const SystemConfigurationCollection = new Mongo.Collection("system_configuration");
 
+function lookup(item, defaultValue) {
+  const accessed = date.format(new Date(), "YYYY-MM-DD");
+  const itemrecord = SystemConfigurationCollection.findOne({ item: item });
+  if (!itemrecord || !itemrecord.value) {
+    SystemConfigurationCollection.insert({ item: item, value: defaultValue, accessed: accessed });
+    return defaultValue;
+  }
+  if (itemrecord.accessed !== accessed)
+    SystemConfigurationCollection.update({ item: item }, { $set: { accessed: accessed } });
+  return itemrecord.value;
+}
+
 SystemConfiguration.minimumMoveTime = function() {
-  return 10;
+  return lookup("minimum_move_time", 10);
 };
 
 SystemConfiguration.minimumLag = function() {
-  return 100;
+  return lookup("minimum_lag", 100);
+};
+
+SystemConfiguration.roomChatLimit = function() {
+  return lookup("room_chat_limit", 500);
 };
 
 SystemConfiguration.gameHistoryCount = function() {
-  return 20;
+  return lookup("game_history_count", 20);
 };
 
 SystemConfiguration.maximumPrivateRoomCount = function() {
-  return 5;
+  return lookup("maximum_private_rooms", 5);
 };
 
 SystemConfiguration.computerGameTimeSubtract = function() {
-  return 1000;
-}
+  return lookup("maximum_computer_game_time_subtract", 1000);
+};
 
 SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   //{ rating: 1, need: 1, won: 1, draw: 1, lost: 1, best: 1 }
@@ -41,21 +57,21 @@ SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
 };
 
 SystemConfiguration.maximumGameHistorySearchCount = function() {
-  return 100;
+  return lookup("maximum_game_history_search_count", 100);
 };
 
 SystemConfiguration.maximumRunningEngines = function() {
-  return 5;
+  return lookup("maximum_running_engines", 5);
 };
 
 SystemConfiguration.enginePath = function() {
-  return process.env.DEVELOPER_UCI_ENGINE;
+  return lookup("engine_path", process.env.DEVELOPER_UCI_ENGINE);
 };
 
 SystemConfiguration.uciSecondsToPonderPerMoveScore = function() {
-  return 10;
+  return lookup("uci_seconds_to_ponder_per_move_score", 10);
 };
 
 SystemConfiguration.uciThreadsPerEngine = function() {
-  return 4;
+  return lookup("uci_threads_per_engine", 4);
 };

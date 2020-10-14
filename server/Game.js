@@ -1122,7 +1122,6 @@ class Game {
     if (!!unsetobject && Object.entries(unsetobject).length) modifier.$unset = unsetobject;
     if (!!setobject && Object.entries(setobject).length) modifier.$set = setobject;
 
-    log.debug("MODIFIER=", modifier);
     this.GameCollection.update({ _id: game_id, status: game.status }, modifier);
 
     if (setobject.result) {

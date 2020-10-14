@@ -110,11 +110,14 @@ class Chat {
       // No chats if they aren't members. If they are just invited, no chats!
       if (!room.members.some(member => member.id === user._id))
         return self.collection.find({ _id: "none" });
-      const cursor = self.collection.find({
-        isolation_group: user.isolation_group,
-        type: "room",
-        id: room._id
-      });
+      const cursor = self.collection.find(
+        {
+          isolation_group: user.isolation_group,
+          type: "room",
+          id: room._id
+        },
+        { sort: { createdAt: 1 }, limit: SystemConfiguration.roomChatLimit() }
+      );
       log.debug("roomChat", cursor.count());
       return cursor;
     }

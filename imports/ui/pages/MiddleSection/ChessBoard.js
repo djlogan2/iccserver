@@ -177,7 +177,7 @@ export default class ChessBoard extends PureComponent {
     this.chess.load(this.props.fen);
 
     const drawable = {
-      enabled: true,
+      enabled: !!this.props.onDrawObject,
       shapes: this.state.shapes,
       onChange: this.handleDrawObject
     };
