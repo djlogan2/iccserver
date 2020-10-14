@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { Row, Modal } from "antd";
@@ -33,33 +33,54 @@ import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("client/AppWrapper_js");
 
-const AppWrapper = ({ className, user, history, children, cssManager, game_request }) => {
-  log.trace("AppWrapper render", this.props);
+class AppWrapper extends Component {
+  componentWillMount() {
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
+    }
+  }
 
-  return (
-    <div className={`app-wrapper`}>
-      {game_request && (
-        <Modal
-          title="Game request"
-          visible={!!game_request}
-          onOk={() => {
-            Meteor.call("gameRequestAccept", "gameAccept", game_request._id, () => {
-              history.push("/play");
-            });
-          }}
-          onCancel={() => {
-            Meteor.call("gameRequestDecline", "gameDecline", game_request._id);
-          }}
-        >
-          <p>{game_request.challenger} would like to play with you</p>
-        </Modal>
-      )}
+  componentDidMount() {
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
+    }
+  }
 
-      <LeftSidebar cssManager={cssManager} />
-      <Row className={`app-wrapper__row ${className}`}>{children}</Row>
-    </div>
-  );
-};
+  componentDidUpdate(prevProps, prevState) {
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
+      //if (!!this.props.played_game) this.props.history.push("/play");
+    }
+  }
+
+  render() {
+    log.trace("AppWrapper render", this.props);
+
+    return (
+      <div className={`app-wrapper`}>
+        {this.props.game_request && (
+          <Modal
+            title="Game request"
+            visible={!!this.props.game_request}
+            onOk={() => {
+              Meteor.call("gameRequestAccept", "gameAccept", this.props.game_request._id, () => {
+                this.props.history.push("/play");
+              });
+            }}
+            onCancel={() => {
+              Meteor.call("gameRequestDecline", "gameDecline", this.props.game_request._id);
+            }}
+          >
+            <p>{this.props.game_request.challenger} would like to play with you</p>
+          </Modal>
+        )}
+
+        <LeftSidebar cssManager={this.props.cssManager} />
+        <Row className={`app-wrapper__row ${this.props.className}`}>{this.props.children}</Row>
+      </div>
+    );
+  }
+}
 
 export default withTracker(props => {
   Meteor.subscribe("game_requests");
@@ -67,9 +88,6 @@ export default withTracker(props => {
     game_request: GameRequestCollection.findOne(
       {
         $or: [
-          // {
-          //   challenger_id: Meteor.userId()
-          // },
           {
             receiver_id: Meteor.userId()
           },
@@ -79,6 +97,6 @@ export default withTracker(props => {
       {
         sort: { create_date: -1 }
       }
-    ),
+    )
   };
 })(withRouter(AppWrapper));

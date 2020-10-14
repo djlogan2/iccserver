@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import ExaminePage from "./components/ExaminePage";
 import { Meteor } from "meteor/meteor";
-import { Random } from "meteor/random";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../lib/client/Logger";
 import CssManager from "../pages/components/Css/CssManager";
@@ -36,47 +35,36 @@ class Examine extends Component {
     this.userpending = null;
     this.state = {
       isImportedGamesModal: false,
-      importedGames: [],
-      isAuthenticated: Meteor.userId() !== null
+      importedGames: []
     };
     this.logout = this.logout.bind(this);
   }
 
   componentWillMount() {
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/sign-up");
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
     }
   }
 
   componentDidMount() {
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/home");
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isAuthenticated) {
-      this.props.history.push("/home");
-      if (!!this.props.played_game) this.props.history.push("/play");
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
+      //if (!!this.props.played_game) this.props.history.push("/play");
     }
   }
 
   initExamine = () => {
-    Meteor.call(
-      "startLocalExaminedGame",
-      "startlocalExaminedGame",
-      "Mr white",
-      "Mr black",
-      0
-    );
+    Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
   };
 
   userRecord() {
     return mongoUser.find().fetch();
-  }
-
-  isAuthenticated() {
-    return Meteor.userId() !== null;
   }
 
   logout(e) {

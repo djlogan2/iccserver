@@ -117,20 +117,20 @@ class Play extends Component {
   }
 
   componentWillMount() {
-    if (!this.props.isAuthenticated) {
-      this.props.history.push("/sign-up");
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
     }
   }
 
   componentDidMount() {
-    if (!this.props.isAuthenticated) {
-      this.props.history.push("/home");
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.props.isAuthenticated) {
-      this.props.history.push("/home");
+    if (!Meteor.userId()) {
+      this.props.history.push("/login");
     }
   }
 
@@ -255,8 +255,7 @@ class Play extends Component {
   }
 
   genOptions = gameData => {
-    let friendId =
-      Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
+    let friendId = Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
 
     let color = Meteor.userId() === gameData.white.id ? "white" : "black";
     let initial = gameData.clocks.white.initial;
@@ -434,7 +433,10 @@ class Play extends Component {
     if (visible) {
       result = this.props.in_game.result;
       status2 = this.props.in_game.status2;
-      userColor = this.props.in_game.white.name === Meteor.user().username ? "white" : "black";
+      userColor =
+        this.props.in_game.white.name === !!Meteor.user() && Meteor.user().username
+          ? "white"
+          : "black";
       if (userColor === undefined) {
         debugger;
       }
@@ -450,7 +452,7 @@ class Play extends Component {
         <PlayModaler
           userColor={userColor}
           visible={visible}
-          userName={Meteor.user().username}
+          userName={!!Meteor.userId() ? Meteor.user().username : "Logged Out"}
           gameResult={result}
           gameStatus2={status2}
           clientMessage={gamemessage}
@@ -497,8 +499,6 @@ export default withTracker(() => {
     importedGame: Meteor.subscribe("imported_games")
   };
 
-  const isAuthenticated = Meteor.userId() !== null;
-
   function isready() {
     for (const k in subscriptions)
       if (!subscriptions[k].ready()) {
@@ -522,7 +522,6 @@ export default withTracker(() => {
   };
   return {
     isready: isready(),
-    isAuthenticated: isAuthenticated,
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
       .fetch(),
