@@ -60,7 +60,10 @@ let flatten = function(data) {
 // *******************************************************************************************************
 //
 window.onerror = function myErrorHandler(message, source, lineno, colno, error) {
-  log.error(message + "::" + source + "::" + lineno + "::" + colno + "::" + error.toString());
+  log.error(
+    message + "::" + source + "::" + lineno + "::" + colno + "::" + error.toString(),
+    !!error ? error.stack : "no error"
+  );
   return false;
 };
 // *******************************************************************************************************
@@ -72,7 +75,6 @@ Meteor.startup(() => {
   //       You can make your own collection, I suppose, but it seems to me it would make sense
   //       to put it in ClientMessages, and maybe even just use a meteor method? I'm not sure
   //       whata this package does, but you can't leave this like this.
-  Meteor.subscribe("i18n_front");
   flatten(english);
   unflatten(english);
   i18n.addTranslations("en-US", english);
