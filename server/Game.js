@@ -526,14 +526,14 @@ class Game {
           inc_or_delay: white_increment_or_delay,
           delaytype: white_increment_or_delay_type,
           current: white_initial * 60 * 1000, // milliseconds
-          starttime: new Date().getTime()
+          starttime: chess.turn() === "w" ? new Date().getTime() : 0
         },
         black: {
           initial: black_initial,
           inc_or_delay: black_increment_or_delay,
           delaytype: black_increment_or_delay_type,
           current: black_initial * 60 * 1000, //milliseconds
-          starttime: 0
+          starttime: chess.turn() === "b" ? new Date().getTime() : 0
         }
       },
       status: "playing",
