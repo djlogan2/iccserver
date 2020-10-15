@@ -491,7 +491,7 @@ class Game {
       starttime: new Date(),
       isolation_group: self.isolation_group,
       fen: chess.fen(),
-      tomove: "white",
+      tomove: chess.turn() === "w" ? "white" : "black",
       pending: {
         white: {
           draw: "0",
@@ -553,7 +553,9 @@ class Game {
       }
     };
 
-    if (!!examined_game) game.tags = { FEN: examined_game.fen };
+    if (!!examined_game) {
+      game.tags = { FEN: examined_game.fen };
+    }
     if (white._id !== "computer") Users.setGameStatus(message_identifier, white, "playing");
     if (black._id !== "computer") Users.setGameStatus(message_identifier, black, "playing");
 
