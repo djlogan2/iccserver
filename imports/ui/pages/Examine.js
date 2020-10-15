@@ -266,6 +266,7 @@ class Examine extends Component {
           capture={capture}
           game={game}
           onDrop={this._pieceSquareDragStop}
+          history={this.props.history}
           ref="main_page"
         />
       </div>
@@ -316,6 +317,7 @@ class Examine extends Component {
           clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
+          history={this.props.history}
           ref="main_page"
         />
       </div>

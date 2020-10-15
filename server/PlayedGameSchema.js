@@ -75,6 +75,7 @@ export const PlayedGameSchema = new SimpleSchema({
   },
   pending: PendingSchema,
   fen: String,
+  startingfen: { type: String, required: false },
   tomove: String,
   legacy_game_number: {
     type: Number,
@@ -154,7 +155,7 @@ export const PlayedGameSchema = new SimpleSchema({
     },
     rating: SimpleSchema.Integer
   }),
-  skill_level: {type: SimpleSchema.Integer, required: false},
+  skill_level: { type: SimpleSchema.Integer, required: false },
   lag: Object,
   "lag.white": Object,
   "lag.black": Object,
@@ -202,5 +203,7 @@ export const PlayedGameSchema = new SimpleSchema({
   "computer_variations.$.$.score.unit": String,
   "computer_variations.$.$.score.value": Number,
   "computer_variations.$.$.pv": String,
-  "computer_variations.$.$.multipv": Number
+  "computer_variations.$.$.multipv": Number,
+  tags: { type: Object, required: false },
+  "tags.FEN": String
 });

@@ -104,8 +104,6 @@ export default class HomeContainer extends TrackerReact(React.Component) {
   }
   render() {
     const systemCSS = this._systemCSS();
-    const gameRequest = this.renderGameRequest();
-    let translator = i18n.createTranslator("Common.HomeContainer", this.getLang());
     if (systemCSS === undefined || systemCSS.length === 0) {
       return <Loading isPure={true} />
     }

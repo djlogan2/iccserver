@@ -272,7 +272,8 @@ class Game {
     black_increment_or_delay,
     black_increment_or_delay_type,
     color,
-    skill_level
+    skill_level,
+    examined_game_id
   ) {
     return this.startLocalGame(
       message_identifier,
@@ -287,7 +288,8 @@ class Game {
       black_increment_or_delay,
       black_increment_or_delay_type,
       color,
-      skill_level
+      skill_level,
+      examined_game_id
     );
   }
 
@@ -304,7 +306,8 @@ class Game {
     black_increment_or_delay,
     black_increment_or_delay_type,
     color,
-    skill_level
+    skill_level,
+    examined_game_id
     /*,
   irregular_legality,
   irregular_semantics,
@@ -329,6 +332,7 @@ class Game {
     check(black_increment_or_delay_type, String);
     check(color, Match.Maybe(String));
     check(skill_level, Match.Maybe(Number));
+    check(examined_game_id, Match.Maybe(String));
 
     check(white_increment_or_delay, Number);
     check(black_increment_or_delay, Number);
@@ -342,7 +346,7 @@ class Game {
         "Unable to start local game",
         "Skill level must be defined for bot play"
       );
-    if (other_user !== "computer" && skill_level !== undefined)
+    if (other_user !== "computer" && skill_level !== undefined && skill_level !== null)
       throw new Meteor.Error(
         "Unable to start local game",
         "Skill level can only be defined for bot play"
@@ -433,16 +437,36 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
       return;
     }
+
     if (other_user !== "computer" && this.isPlayingGame(other_user._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
+      return;
+    }
+
+    let examined_game;
+    const chess = new Chess.Chess();
+
+    if (!!examined_game_id) {
+      examined_game = this.GameCollection.findOne({ _id: examined_game_id });
+      if (!examined_game) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "GAME_NOT_FOUND");
+        return;
+      }
+
+      if (!chess.validate_fen(examined_game.fen)) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN");
+        return;
+      } else chess.load(examined_game.fen);
+    }
+
+    if (chess.game_over()) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN");
       return;
     }
 
     this.localUnobserveAllGames(message_identifier, self._id, true);
     if (other_user !== "computer")
       this.localUnobserveAllGames(message_identifier, other_user._id, true);
-
-    const chess = new Chess.Chess();
 
     if (other_user === "computer") {
       other_user = {
@@ -529,6 +553,7 @@ class Game {
       }
     };
 
+    if (!!examined_game) game.tags = { FEN: examined_game.fen };
     if (white._id !== "computer") Users.setGameStatus(message_identifier, white, "playing");
     if (black._id !== "computer") Users.setGameStatus(message_identifier, black, "playing");
 
@@ -4075,7 +4100,9 @@ Meteor.methods({
     // eslint-disable-next-line meteor/audit-argument-checks
     skill_level,
     // eslint-disable-next-line meteor/audit-argument-checks
-    color
+    color,
+    // eslint-disable-next-line meteor/audit-argument-checks
+    examined_game_id
   ) =>
     global._gameObject.startBotGame(
       message_identifier,
@@ -4088,7 +4115,8 @@ Meteor.methods({
       black_increment_or_delay,
       black_increment_or_delay_type,
       color,
-      skill_level
+      skill_level,
+      examined_game_id
     ),
   // eslint-disable-next-line meteor/audit-argument-checks
   startLocalExaminedGame: (message_identifier, white_name, black_name, wild_number) =>

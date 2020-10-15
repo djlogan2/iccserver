@@ -31,6 +31,7 @@ class ExamineRightSidebar extends Component {
           cssManager={this.props.cssManager}
           flip={this.props.flip}
           gameRequest={this.state.gameRequest}
+          history={this.props.history}
           ref="right_bar_top"
         />
         <ExamineRightSidebarBottom

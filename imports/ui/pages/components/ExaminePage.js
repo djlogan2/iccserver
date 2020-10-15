@@ -294,6 +294,7 @@ export default class ExaminePage extends Component {
             examineAction={this.examineActionHandler}
             activeTabnumber={this.state.activeTab}
             uploadPgn={this.uploadPgn}
+            history={this.props.history}
           />
         </Col>
       </AppWrapper>

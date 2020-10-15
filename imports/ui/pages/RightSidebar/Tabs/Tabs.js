@@ -3,12 +3,13 @@ import PropTypes from "prop-types";
 import Tab from "./Tab";
 import { Logger } from "../../../../../lib/client/Logger";
 
+// eslint-disable-next-line no-unused-vars
 const log = new Logger("client/Tabs_js");
 
 class Tabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-     cssManager: PropTypes.object.isRequired,
+    cssManager: PropTypes.object.isRequired,
     defultactive: PropTypes.number
   };
 
@@ -23,29 +24,22 @@ class Tabs extends Component {
       hoverOut: ""
     };
   }
+
   onClickTabItem = tab => {
     this.setState({ activeTab: tab });
   };
-  /* mouseOver = label => {
-    this.setState({ onHover: label });
-  };
 
-  mouseOut = label => {
-    this.setState({ hoverOut: label });
-  }; */
   render() {
     const {
       onClickTabItem,
-      /*   mouseOver,
-      mouseOut, */
       props: { children },
       state: { activeTab, onHover, hoverOut }
     } = this;
     let tabName = this.props.tabName;
 
     return (
-      <div style={this.props. cssManager.tab()}>
-        <ol style={this.props. cssManager.tabList(tabName)}>
+      <div style={this.props.cssManager.tab()}>
+        <ol style={this.props.cssManager.tabList(tabName)}>
           {children.map(child => {
             let { label, imgsrc, hoverSrc } = child.props;
             if (
@@ -56,7 +50,7 @@ class Tabs extends Component {
             }
             return (
               <Tab
-                 cssManager={this.props. cssManager}
+                cssManager={this.props.cssManager}
                 tabListName={tabName}
                 activeTab={activeTab}
                 onHover={onHover}
@@ -65,13 +59,11 @@ class Tabs extends Component {
                 label={label}
                 src={imgsrc}
                 onClick={onClickTabItem}
-                /*    onMouseEnter={mouseOver}
-                onMouseLeave={mouseOut} */
               />
             );
           })}
         </ol>
-        <div style={this.props. cssManager.tabContent()}>
+        <div style={this.props.cssManager.tabContent()}>
           {children.map(child => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;
