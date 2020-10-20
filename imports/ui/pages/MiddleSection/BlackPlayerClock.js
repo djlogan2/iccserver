@@ -2,49 +2,126 @@ import React, { Component } from "react";
 import { Logger } from "../../../../lib/client/Logger";
 
 // eslint-disable-next-line no-unused-vars
-const log = new Logger("server/BlackPlayerClock_JS");
+const log = new Logger("client/BlackPlayerClock_JS");
 
 export default class BlackPlayerClock extends Component {
   constructor(props) {
+    log.trace("BlackPlayerClock constructor", props);
     super(props);
+    const current =
+      this.props.game && this.props.game.clocks
+        ? this.props.game.clocks[this.props.color].current
+        : 0;
     this.state = {
-      initial: 0
+      game_current: current,
+      current: current,
+      mark: new Date().getTime(),
+      running: false
     };
+    this.componentDidUpdate();
   }
-  getTime(game_record, color) {
-    if (color !== game_record.tomove) return game_record.clocks[color].current;
-    const timediff = new Date().getTime() - game_record.clocks[color].starttime;
-    if (
-      game_record.clocks[color].delaytype === "us" &&
-      (game_record.clocks[color].delay | 0) * 1000 <= timediff
-    ) {
-      return game_record.clocks[color].current;
+
+  static getDerivedStateFromProps(props, state) {
+    const running = props.game.status === "playing" && props.game.tomove === props.color;
+    const pcurrent = props.game.clocks[props.color].current;
+
+    const returnstate = {};
+    const mark = new Date().getTime();
+
+    if (pcurrent !== state.game_current) {
+      returnstate.current = pcurrent;
+      returnstate.game_current = pcurrent;
+      returnstate.mark = mark;
+    }
+
+    if (running !== state.running) {
+      returnstate.running = running;
+      returnstate.mark = mark;
+    }
+
+    if (!!Object.entries(returnstate).length)
+      log.debug("derivedStateFromProps for " + props.color, returnstate);
+
+    return returnstate;
+  }
+
+  componentWillUnmount() {
+    log.trace("BlackPlayerClock componentWillUnmount");
+    if (!!this.interval) {
+      Meteor.clearInterval(this.interval);
+      delete this.interval;
+    }
+  }
+
+  shouldComponentUpdate(nextProps, nextState, nextContext) {
+    if (!!this.interval && !nextState.running) {
+      Meteor.clearInterval(this.interval);
+      delete this.interval;
+    }
+    return true;
+  }
+
+  componentDidUpdate = () => {
+    const self = this;
+
+    if (!this.state.running || !!this.interval) {
+      return;
+    }
+
+    const iod = this.props.game.clocks[this.props.color].inc_or_delay;
+    const type = this.props.game.clocks[this.props.color].delaytype;
+
+    if (type === "us" || type === "bronstein") {
+      log.debug("starting clock for delay for " + this.props.color, this.state);
+      self.interval = Meteor.setInterval(() => {
+        Meteor.clearInterval(this.interval);
+        self.setState({ mark: new Date().getTime() });
+        self.interval = Meteor.setInterval(() => {
+          const mark = new Date().getTime();
+          const sub = mark - this.state.mark;
+          const current = self.state.current - sub;
+          self.setState({ current: current, mark: mark });
+        }, 50);
+      }, iod * 1000);
     } else {
-      return game_record.clocks[color].current - timediff;
+      log.debug("starting clock for countdown for " + this.props.color, this.state);
+      self.interval = Meteor.setInterval(() => {
+        const mark = new Date().getTime();
+        const sub = mark - self.state.mark;
+        const current = self.state.current - sub;
+        self.setState({ current: current, mark: mark });
+      }, 50);
     }
-  }
+  };
+
   render() {
-    let time;
-    let minute = 0;
-    let second = 0;
-    let millisecond;
-    if (!!this.props.game && this.props.game.status === "playing") {
-      time = this.getTime(this.props.game, this.props.color);
-      millisecond = time;
-      let hh = Math.floor(millisecond / 1000 / 60 / 60);
-      millisecond -= hh * 1000 * 60 * 60;
-      minute = Math.floor(millisecond / 1000 / 60);
-      millisecond -= minute * 1000 * 60;
-      second = Math.floor(millisecond / 1000);
-      millisecond -= second * 1000;
-      millisecond = millisecond / 100;
+    let hour;
+    let minute;
+    let second;
+    let ms;
+    let neg = "";
+
+    let time = this.state.current;
+    if (time < 0) {
+      neg = "-";
+      time = -time;
     }
-    if (minute < 10) {
-      minute = `0${minute}`;
+
+    ms = time % 1000;
+    time = (time - ms) / 1000;
+    second = time % 60;
+    time = (time - second) / 60;
+    minute = time % 60;
+    hour = (time - minute) / 60;
+
+    if (neg === "-" || !!hour || !!minute || second >= 10) {
+      ms = "";
+    } else {
+      ms = "." + ms.toString().substr(0, 1);
     }
-    if (second < 10) {
-      second = `0${second}`;
-    }
+    if (second < 10) second = `0${second}`;
+    if (minute < 10) minute = `0${minute}`;
+
     let cv = this.props.side / 10;
     let clockstyle = {
       right: "0",
@@ -73,8 +150,9 @@ export default class BlackPlayerClock extends Component {
         }}
       >
         <div style={clockstyle}>
-          {/* <div style={this.props. cssManager.clock(time)}> */}
-          {minute}:{second}
+          {neg}
+          {hour}:{minute}:{second}
+          {ms}
         </div>
       </div>
     );

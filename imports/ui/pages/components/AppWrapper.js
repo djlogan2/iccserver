@@ -49,7 +49,6 @@ class AppWrapper extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!Meteor.userId()) {
       this.props.history.push("/login");
-      //if (!!this.props.played_game) this.props.history.push("/play");
     }
   }
 

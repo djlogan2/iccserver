@@ -1115,6 +1115,8 @@ class Game {
         setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
         // TODO: check for current <= 0 and end the game, yes?
         setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
+        log.debug("new white current=" + setobject["clocks.white.current"]);
+        log.debug("new black current=" + setobject["clocks.black.current"]);
       } else {
         this.endGamePing(game_id);
       }

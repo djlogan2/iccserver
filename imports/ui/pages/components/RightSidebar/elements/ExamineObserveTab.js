@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { AutoComplete, Button } from "antd";
 import { Logger } from "../../../../../../lib/client/Logger";
 
-const log = new Logger("server/ExamineObserveTab_js");
+const log = new Logger("client/ExamineObserveTab_js");
 
 const ExamineObserverTabBlock = ({ game, ...props }) => {
   let ownerData = !!game.observers ? game.observers.find(item => item.id === game.owner) : null;
