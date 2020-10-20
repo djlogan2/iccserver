@@ -3,32 +3,41 @@ import { Modal } from "antd";
 import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
 
-const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
-  const handleSetExaminMode = (id, is_imported) => {
-    Meteor.call("examineGame", "ExaminedGame", id, isImported, (error, response) => {
-      if (error) {
-        // to add logger
-      }
-      history.push("/examine");
+const GameListModal = ({ gameList, history, ...rest }) => {
+  const handleSetExaminMode = id => {
+    Meteor.call("examineGame", "ExaminedGame", id, false, () => {
+      //history.push("/examine");
     });
   };
 
   const formatGameList = games => {
     return games.map(gameItem => {
-      let isUserWhite = gameItem.white.id === Meteor.userId();
-      let hasWhiteWon = gameItem.result === "1-0";
-      let isUserBlack = gameItem.black.id === Meteor.userId();
-      let hasBlackWon = gameItem.result === "0-1";
+      let result;
 
-      let isCurrentUserWinner = (isUserWhite && hasWhiteWon) || (isUserBlack && hasBlackWon);
-      let gameResult = isCurrentUserWinner ? "Won" : "Loss";
+      let isUserWhite = gameItem.white.id === Meteor.userId();
+      let isUserBlack = gameItem.black.id === Meteor.userId();
+
+      switch (gameItem.result) {
+        case "0-1":
+          result = isUserBlack ? "Won" : "Lost";
+          break;
+        case "1-0":
+          result = isUserWhite ? "Won" : "Lost";
+          break;
+        case "1/2-1/2":
+          result = "Drawn";
+          break;
+        default:
+          result = "Unknown";
+          break;
+      }
 
       return {
         id: gameItem._id,
         name: "3 minut arina",
         white: gameItem.white.name.replace(/"/g, ""),
         black: gameItem.black.name.replace(/"/g, ""),
-        result: gameResult,
+        result: result,
         time: null, //time,
         date: gameItem.startTime,
         is_imported: games.is_imported
@@ -64,11 +73,9 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
                   <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
                     Date
                   </th>
-                  {!isImported && (
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      PGN
-                    </th>
-                  )}
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    PGN
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -77,7 +84,7 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
                     <td
                       style={{ padding: "5px 5px" }}
                       onClick={() => {
-                        handleSetExaminMode(game.id, isImported);
+                        handleSetExaminMode(game.id);
                         rest.onClose();
                       }}
                     >
@@ -86,17 +93,15 @@ const GameListModal = ({ gameList, isImported = false, history, ...rest }) => {
                     <td style={{ padding: "5px 5px" }}>{game.result}</td>
                     <td style={{ padding: "5px 5px" }}>{game.time}</td>
 
-                    {!isImported && (
-                      <td style={{ padding: "5px 5px" }}>
-                        <a href={"export/pgn/history/" + game.id} className="pgnbtn">
-                          <img
-                            src="images/pgnicon.png"
-                            style={{ width: "25px", height: "25px" }}
-                            alt="PgnDownload"
-                          />
-                        </a>
-                      </td>
-                    )}
+                    <td style={{ padding: "5px 5px" }}>
+                      <a href={"export/pgn/history/" + game.id} className="pgnbtn">
+                        <img
+                          src="images/pgnicon.png"
+                          style={{ width: "25px", height: "25px" }}
+                          alt="PgnDownload"
+                        />
+                      </a>
+                    </td>
                   </tr>
                 ))}
               </tbody>
