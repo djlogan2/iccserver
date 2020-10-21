@@ -10,6 +10,7 @@ import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { titles } from "../imports/server/userConstants";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
+import { Singular } from "./singular";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
@@ -938,7 +939,7 @@ function seekMatchesUser(message_identifier, user, seek) {
 Meteor.publishComposite("game_requests", {
   find: function() {
     return Meteor.users.find(
-      { _id: this.userId, "status.online": true },
+      { _id: this.userId, "status.online": true, "status.game": { $ne: "playing" } },
       { fields: { "status.game": 1, isolation_group: 1 } }
     );
   },
@@ -946,7 +947,6 @@ Meteor.publishComposite("game_requests", {
     {
       find(user) {
         log.debug("publishComposite game_requests, userid=" + user._id);
-        if (user.status.game === "playing") return GameRequestCollection.find({ _id: "0" });
         return GameRequestCollection.find(
           {
             $and: [
@@ -1044,22 +1044,26 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
     });
 };
 
-GameRequests.removeAllUserMatches = function(userId) {
+GameRequests.removeAllUserMatches = function(userId, loggedOff) {
   check(userId, String);
-  GameRequestCollection.find(
-    {
-      receiver_id: userId
-    },
-    { challenger_id: 1 }
-  )
-    .fetch()
-    .forEach(match => {
-      ClientMessages.sendMessageToClient(
-        match.challenger_id,
-        "matchRequest",
-        "CANNOT_MATCH_LOGGED_OFF_USER"
-      );
-    });
+  check(loggedOff, Boolean);
+
+  if (loggedOff) {
+    GameRequestCollection.find(
+      {
+        receiver_id: userId
+      },
+      { challenger_id: 1 }
+    )
+      .fetch()
+      .forEach(match => {
+        ClientMessages.sendMessageToClient(
+          match.challenger_id,
+          "matchRequest",
+          "CANNOT_MATCH_LOGGED_OFF_USER"
+        );
+      });
+  }
 
   GameRequestCollection.remove({
     $or: [{ challenger_id: userId }, { receiver_id: userId }]
@@ -1067,11 +1071,13 @@ GameRequests.removeAllUserMatches = function(userId) {
 };
 
 function logoutHook(userId) {
-  GameRequests.removeAllUserMatches(userId);
+  GameRequests.removeAllUserMatches(userId, true);
   GameRequests.removeUserFromAllSeeks(userId);
 }
 
 function loginHook(user) {
+  GameRequests.removeAllUserMatches(user._id, false);
+  GameRequests.removeUserFromAllSeeks(user._id);
   GameRequests.updateAllUserSeeks("server", user);
 }
 
@@ -1092,8 +1098,28 @@ if (Meteor.isTest || Meteor.isAppTest) {
 }
 
 Meteor.startup(function() {
-  GameRequestCollection.remove({}); // Truncate this table on Meteor startup.
   Users.addLogoutHook(logoutHook);
   Users.addLoginHook(loginHook);
   Users.addGroupChangeHook(groupChangeHook);
+});
+
+Singular.addTask(() => {
+  Meteor.users.find({ "status.online": true }).observeChanges({
+    changed(id, fields) {
+      if ("status" in fields && "game" in fields.status) {
+        log.debug(
+          "Update users matches and seeks due to a change in game status, user=" +
+            id +
+            ", status=" +
+            fields.status.game
+        );
+        if (fields.status.game === "playing") {
+          GameRequests.removeAllUserMatches(id, false);
+          GameRequests.removeUserFromAllSeeks(id);
+        } else {
+          GameRequests.updateAllUserSeeks("server", id);
+        }
+      }
+    }
+  });
 });

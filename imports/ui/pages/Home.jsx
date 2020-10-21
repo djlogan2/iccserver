@@ -1,11 +1,10 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import CssManager from "./components/Css/CssManager";
 import AppWrapper from "./components/AppWrapper";
 import Loading from "./components/Loading";
-import { mongoCss, GameRequestCollection } from "../../api/client/collections";
+import { mongoCss } from "../../api/client/collections";
 
 export default class HomeContainer extends TrackerReact(React.Component) {
   constructor(props) {
@@ -20,52 +19,7 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     };
     this.examineActionHandler = this.examineActionHandler.bind(this);
   }
-  gameRequest = (title, param, css) => {
-    return (
-      <div style={css.outerPopupMain()}>
-        <div className="popup_inner">
-          <h3
-            style={{
-              margin: "10px 0px 20px",
-              color: "#fff",
-              fontSize: "17px"
-            }}
-          >
-            {title}
-          </h3>
 
-          <button onClick={this.gameAccept.bind(this, param)} style={css.innerPopupMain()}>
-            Accept
-          </button>
-          <button onClick={this.gameDecline.bind(this, param)} style={css.innerPopupMain()}>
-            Decline
-          </button>
-        </div>
-      </div>
-    );
-  };
-  gameAccept = Id => {
-    Meteor.call("gameRequestAccept", "gameAccept", Id);
-    this.props.history.push("/play");
-  };
-  gameDecline = Id => {
-    Meteor.call("gameRequestDecline", "gameDecline", Id);
-  };
-  renderGameRequest() {
-    return GameRequestCollection.findOne(
-      {
-        $or: [
-          {
-            receiver_id: Meteor.userId()
-          },
-          { type: "seek" }
-        ]
-      },
-      {
-        sort: { create_date: -1 }
-      }
-    );
-  }
   _systemCSS() {
     return mongoCss.findOne({ type: "system" });
   }
@@ -75,11 +29,13 @@ export default class HomeContainer extends TrackerReact(React.Component) {
       this.props.history.push("/login");
     }
   }
+
   componentDidMount() {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/login");
     }
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isAuthenticated) {
       this.props.history.push("/login");
@@ -90,22 +46,15 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     this.state.subscription.css.stop();
     this.state.subscription.gameRequests.stop();
   }
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   examineActionHandler(action) {
     window.location.href = "/play";
   }
+
   render() {
     const systemCSS = this._systemCSS();
     if (systemCSS === undefined || systemCSS.length === 0) {
-      return <Loading isPure={true} />
+      return <Loading isPure={true} />;
     }
     const css = new CssManager(this._systemCSS());
     let w = this.state.width;
