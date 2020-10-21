@@ -101,7 +101,7 @@ export default class BlackPlayerClock extends Component {
     let ms;
     let neg = "";
 
-    let time = this.state.current;
+    let time = this.state.current || 0;
     if (time < 0) {
       neg = "-";
       time = -time;

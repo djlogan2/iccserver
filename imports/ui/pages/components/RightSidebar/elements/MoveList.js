@@ -1,11 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 import buildPgn from "./../../../helpers/build-pgn";
-
-import { object } from "prop-types";
 
 export default class MoveList extends Component {
   constructor(props) {
@@ -56,7 +52,7 @@ export default class MoveList extends Component {
     }
     Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc);
   };
-  moveForwardEnd = cmi => {
+  moveForwardEnd = () => {
     let movedata = this.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
@@ -64,28 +60,11 @@ export default class MoveList extends Component {
     }
   };
 
-  moveAutoForward = () => {
-    clearInterval(this.intervalID);
-    this.setState({ toggle: !this.state.toggle });
-    this.intervalID = setInterval(() => {
-      let remainMove = this.cmi - this.currentindex;
-      if (remainMove === 0 || this.state.toggle === false) {
-        clearInterval(this.intervalID);
-        this.setState({ toggle: !this.state.toggle });
-      } else {
-        this.moveForward();
-      }
-    }, 1000);
-  };
-
   componentWillUnmount() {
     clearInterval(this.intervalID);
   }
 
   render() {
-    let translator = i18n.createTranslator("Common.MoveListComponent", MoveList.getLang());
-    let moves = [];
-    let variation;
     let game = this.props.game;
     if (!!game) {
       this.message_identifier = "server:game:" + this.gameId;
@@ -100,17 +79,6 @@ export default class MoveList extends Component {
     for (let i = 0; i < chunks.length; i++) {
       let ch = chunks[i].split("*-");
       this.moves.push({ idc: parseInt(ch[0]), idx: parseInt(ch[1]), move: ch[2] });
-    }
-
-    /* TODO: movlist button display operation*/
-    let displayButton = 0;
-    let statuslabel = 0;
-    let isPlaying;
-
-    if (status === "playing") {
-      isPlaying = true;
-    } else {
-      isPlaying = false;
     }
 
     /*End of code */
@@ -143,7 +111,7 @@ export default class MoveList extends Component {
         </span>
       );
     });
-    let btnstyle = {};
+    let btnstyle;
     btnstyle = this.props.cssManager.buttonStyle();
     Object.assign(btnstyle, {
       background: "#f1f1f1",

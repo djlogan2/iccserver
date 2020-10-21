@@ -21,7 +21,9 @@ const logged_on_user_fields = {
   _id: 1,
   username: 1,
   status: {
-    game: 1
+    game: 1,
+    idle: 1,
+    lastActivity: 1
   }
 };
 
@@ -43,6 +45,8 @@ const our_allowed_user_fields = {
   },
   status: {
     game: 1
+    // We don't send idle or lastActivity because in theory it will always be false and missing, respectively.
+    // If that turns out to not be the case, feel free to add them.
   }
 };
 
@@ -69,17 +73,25 @@ const all_fields = {
       password: 1
     }
   },
+  // For documentation purposes to show programmers what is in the
+  // user record -- please don't publish these :)
+  // services: {
+  //   password: {bcrypt: 0},
+  //   resume: {loginTokens: [{when: {$date: 0, hashedToken: 0}}]}
+  // },
   settings: {
     autoaccept: 1
   },
   status: {
     //    online: 1,
-    game: 1
+    game: 1,
     // lastLogin: {
-    //   date: 1,
+    //   date: 1,      <- We will send this for people not logged in of course
     //   ipAddr: 1,
     //   userAgent: 1
     // }
+    idle: 1,
+    lastActivity: 1
   },
   isolation_group: 1
   // services: {
