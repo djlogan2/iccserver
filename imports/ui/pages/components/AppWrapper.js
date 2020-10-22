@@ -53,7 +53,7 @@ class AppWrapper extends Component {
   }
 
   render() {
-    log.trace("AppWrapper render", this.props);
+    //log.trace("AppWrapper render", this.props);
 
     return (
       <div className={`app-wrapper`}>

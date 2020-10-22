@@ -185,9 +185,34 @@ class Game {
         }
       );
     }
+
+    const attempts = [gamesWeArePlaying, gamesWeOwn, examineWithAnalysis, examineWithoutAnalysis];
+
     function userRecord() {
       return Meteor.users.find({ _id: this.userId, "status.online": true });
     }
+    //
+    // OK, since we are currently in a "single game" system, the easy fix to publish/publishComposite
+    // not returning record data correctly is to simply assume that there will always be only one
+    // record for which we care about, and simply return that.
+    //
+    Meteor.publishComposite("games", [
+      {
+        find: userRecord,
+        children: [
+          {
+            find(user) {
+              for (let i = 0; i < attempts.length; i++) {
+                const cursor = attempts[i](user);
+                if (!!cursor.count()) return cursor;
+              }
+              return this.ready();
+            }
+          }
+        ]
+      }
+    ]);
+    /*
     Meteor.publishComposite("games", [
       {
         find: userRecord,
@@ -230,6 +255,7 @@ class Game {
         ]
       }
     ]);
+     */
   }
 
   getAndCheck(self, message_identifier, game_id) {
