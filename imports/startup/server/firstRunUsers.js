@@ -40,8 +40,8 @@ export default function firstRunUsers() {
         autoaccept: false
       }
     });
-    Roles.addUserToRoles(id, "administrator");
-    Roles.addUserToRoles(id, standard_member_roles);
+    Roles.addUsersToRoles(id, "administrator");
+    Roles.addUsersToRoles(id, standard_member_roles);
 
     // TODO: Remove this after we are done with development
     for (let x = 1; x < 3; x++) {
