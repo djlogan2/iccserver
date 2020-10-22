@@ -56,12 +56,12 @@ const LegacyMatchSchema = {
   type: String,
   challenger: String,
   challenger_rating: Number,
-  challenger_established: Number,
+  challenger_established: String,
   challenger_titles: { type: Array, optional: true },
   "challenger_titles.$": { type: String, allowedValues: titles },
   receiver: String,
   receiver_rating: Number,
-  receiver_established: Number,
+  receiver_established: String,
   receiver_titles: { type: Array, optional: true },
   "receiver_titles.$": { type: String, allowedValues: titles },
   wild_number: Number,
@@ -461,11 +461,11 @@ GameRequests.addLegacyMatchRequest = function(
   check(message_identifier, String);
   check(challenger_name, String);
   check(challenger_rating, Number);
-  check(challenger_established, Number);
+  check(challenger_established, String);
   check(challenger_titles, Match.Maybe(Array));
   check(receiver_name, String);
   check(receiver_rating, Number);
-  check(receiver_established, Number);
+  check(receiver_established, String);
   check(receiver_titles, Match.Maybe(Array));
   check(wild_number, Number);
   check(rating_type, String);
