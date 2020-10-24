@@ -911,7 +911,8 @@ GameRequests.removeLegacyMatchRequest = function(
 
 Meteor.methods({
   addLocalMatchRequest: GameRequests.addLocalMatchRequest,
-  gameRequestAccept: GameRequests.acceptMatchRequest,
+  // Look in LegacyUsers for this
+  //gameRequestAccept: GameRequests.acceptMatchRequest,
   gameRequestDecline: GameRequests.declineMatchRequest,
   createLocalGameSeek: GameRequests.addLocalGameSeek,
   acceptLocalGameSeek: GameRequests.acceptGameSeek
