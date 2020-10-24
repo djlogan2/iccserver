@@ -59,12 +59,12 @@ export const fields_viewable_by_account_owner = {
   board_css: 1,
   mugshot: 1,
   "status.game": 1,
+  "status.legacy": 1,
   "profile.firstname": 1,
   "profile.lastname": 1,
   "profile.legacy.validated": 1,
   "profile.legacy.username": 1,
   "profile.legacy.autologin": 1,
-  "profile.status.legacy": 1,
   cf: 1
 };
 

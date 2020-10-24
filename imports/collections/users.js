@@ -50,7 +50,7 @@ Meteor.publishComposite("loggedOnUsers", {
 });
 
 Meteor.publish("userData", function() {
-  if (!this.userId) return [];
+  if (!this.userId) return this.ready();
 
   log.debug("User " + this.userId + " has arrived");
   return [
