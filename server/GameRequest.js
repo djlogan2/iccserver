@@ -164,6 +164,8 @@ GameRequestCollection.attachSchema(LegacySeekSchema, {
 const log = new Logger("server/GameRequest_js");
 
 export const GameRequests = {};
+GameRequests.collection = GameRequestCollection;
+
 GameRequests.addLegacyGameSeek = function(
   message_identifier,
   index,
