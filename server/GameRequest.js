@@ -986,10 +986,15 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
     user = Meteor.users.findOne({ _id: user });
     if (!user) throw new Match.Error("Unable to find user");
   }
-  const add = [];
-  const remove = [];
 
-  GameRequestCollection.find({ type: "seek", isolation_group: user.isolation_group })
+  let add = [];
+  let remove = [];
+
+  GameRequestCollection.find({
+    type: "seek",
+    isolation_group: user.isolation_group,
+    owner: { $ne: user._id }
+  })
     .fetch()
     .forEach(seek => {
       const matches = seekMatchesUser(message_identifier, user, seek);
@@ -1014,34 +1019,33 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
       { multi: true }
     );
 
-  Meteor.users
-    .find({ "status.online": true })
-    .fetch()
-    .forEach(onlineuser => {
-      GameRequestCollection.find({
-        type: "seek",
-        owner: user._id,
-        isolation_group: user.isolation_group
-      })
-        .fetch()
-        .forEach(seek => {
-          const matches = seekMatchesUser(message_identifier, onlineuser, seek);
-          const alreadymatched = seek.matchingusers.indexOf(onlineuser._id) !== -1;
-          if (matches !== alreadymatched) {
-            if (matches) {
-              GameRequestCollection.update(
-                { _id: seek._id, type: seek.type },
-                { $addToSet: { matchingusers: onlineuser._id } }
-              );
-            } else {
-              GameRequestCollection.update(
-                { _id: seek._id, type: seek.type },
-                { $pull: { matchingusers: onlineuser._id } }
-              );
-            }
-          }
-        });
-    });
+  const everybody = Meteor.users
+    .find({
+      isolation_group: user.isolation_group,
+      "status.online": true,
+      "status.game": { $ne: "playing" }
+    })
+    .fetch();
+
+  const update = {};
+  GameRequestCollection.find({ type: "seek", owner: user._id }).forEach(seek => {
+    update.$addToSet = everybody
+      .filter(
+        user =>
+          !seek.matchingusers.some(u => u === user) &&
+          seekMatchesUser(message_identifier, user, seek)
+      )
+      .map(user => user._id);
+    update.$pull = everybody
+      .filter(
+        user =>
+          seek.matchingusers.some(u => u === user) &&
+          !seekMatchesUser(message_identifier, user, seek)
+      )
+      .map(user => user._id);
+
+    GameRequestCollection.update({ _id: seek._id, type: seek.type }, update);
+  });
 };
 
 GameRequests.removeAllUserMatches = function(userId, loggedOff) {

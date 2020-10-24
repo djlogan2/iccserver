@@ -48,7 +48,7 @@ class Game {
     });
 
     // TODO: Need to adjourn these, not just delete them
-    Meteor.startup(() => _self.GameCollection.remove({}));
+    // Meteor.startup(() => _self.GameCollection.remove({}));
 
     Users.addLogoutHook(user => this.gameLogoutHook(user));
     Users.addLoginHook(user => this.gameLoginHook(user));

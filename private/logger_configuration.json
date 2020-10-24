@@ -45,7 +45,7 @@
     "ICCMeteorError": "DEBUG",
     "server/awsmanager_js": "DEBUG",
     "server/Book_js": "DEBUG",
-    "server/Chat_js": "ERROR",
+    "server/Chat_js": "DEBUG",
     "server/ClientMessages_js": "ERROR",
     "server/engine_manager_js": "DEBUG",
     "server/firstRunUsers_js": "ERROR",

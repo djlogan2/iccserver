@@ -6,6 +6,7 @@ import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { Singular } from "./singular";
 import { Logger } from "../lib/server/Logger";
 
 const log = new Logger("server/Chat_js");
@@ -170,19 +171,6 @@ class Chat {
         { find: playedGames, children: [{ find: playedGameKibitzes }] },
         { find: observedGames, children: [{ find: observedGameKibitzes }] }
       ]
-    });
-
-    Meteor.startup(() => {
-      self.collection.remove({});
-      self.roomCollection.remove({ public: false });
-      Users.addLogoutHook(user => self.chatLogoutHook.bind(self, user));
-      Users.addLoginHook(user => self.chatLoginHook.bind(self, user));
-      // singular
-      Game.GameCollection.find({}).observeChanges({
-        removed(id) {
-          self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
-        }
-      });
     });
   }
 
@@ -632,6 +620,7 @@ class Chat {
   }
 
   chatLoginHook(user) {
+    log.debug("chatLoginHook", user._id);
     this.collection.update(
       {
         $and: [
@@ -646,6 +635,7 @@ class Chat {
   }
 
   chatLogoutHook(userId) {
+    log.debug("chatLogoutHook", userId);
     //
     // Remove the user as an invitee from all rooms he's been invited to,
     // and inform their owners
@@ -724,6 +714,17 @@ if (!global._chatObject) {
 
 module.exports.Chat = global._chatObject;
 
+Users.addLogoutHook(user => global._chatObject.chatLogoutHook.call(global._chatObject, user));
+Users.addLoginHook(user => global._chatObject.chatLoginHook.call(global._chatObject, user));
+
+Singular.addTask(() => {
+  Game.GameCollection.find({}).observeChanges({
+    removed(id) {
+      global._chatObject.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
+    }
+  });
+});
+
 Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   kibitz: (message_identifier, game_id, kibitz, txt) =>
@@ -749,30 +750,4 @@ Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   inviteToRoom: (message_identifier, room_id, user_id) =>
     global._chatObject.inviteToRoom(message_identifier, room_id, user_id)
-});
-
-// TODO: This has to come out once we either (a) have the room, or (b) are done with testing!
-Meteor.startup(() => {
-  const room = global._chatObject.roomCollection.findOne({ name: "CTY public room" });
-  if (!!room) return;
-
-  const user = Meteor.users.findOne({ username: "djlogan" });
-  if (!user) return;
-
-  const room_id = global._chatObject.roomCollection.insert({
-    name: "CTY public room",
-    owner: user._id,
-    public: true,
-    members: [{ id: user._id, username: user.username }],
-    isolation_group: user.isolation_group
-  });
-
-  global._chatObject.collection.insert({
-    isolation_group: user.isolation_group,
-    type: "room",
-    id: room_id,
-    what: "a test chat",
-    child_chat: false,
-    issuer: { id: user._id, username: user.username }
-  });
 });

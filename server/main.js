@@ -23,6 +23,7 @@ import fs from "fs";
 import "../imports/collections/css";
 import "../imports/collections/users";
 import "../lib/server/timestamp";
+import "../server/Chat";
 
 //??
 const log = new Logger("server/main_js");
