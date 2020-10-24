@@ -790,7 +790,7 @@ class Game {
     check(irregular_semantics, Match.Maybe(String));
     check(uses_plunkers, Match.Maybe(String));
     check(fancy_timecontrol, Match.Maybe(String));
-    check(promote_to_king, Match.Maybe(String));
+    check(promote_to_king, Boolean);
 
     const whiteuser = Meteor.users.findOne({
       "profile.legacy.username": whitename,
@@ -933,16 +933,16 @@ class Game {
     return this.GameCollection.insert(game);
   }
 
-  saveLegacyMove(message_identifier, game_id, move) {
-    log.debug("saveLegacyMove " + message_identifier + ", " + game_id + ", " + move);
+  saveLegacyMove(message_identifier, gamenumber, move) {
+    log.debug("saveLegacyMove " + message_identifier + ", " + gamenumber + ", " + move);
     check(message_identifier, String);
-    check(game_id, Number);
+    check(gamenumber, Number);
     check(move, String);
 
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.GameCollection.findOne({ legacy_game_number: game_id });
+    const game = this.GameCollection.findOne({ legacy_game_number: gamenumber });
 
     if (!game)
       throw new ICCMeteorError(
