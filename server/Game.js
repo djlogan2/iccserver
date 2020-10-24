@@ -191,6 +191,7 @@ class Game {
     function userRecord() {
       return Meteor.users.find({ _id: this.userId, "status.online": true });
     }
+
     //
     // OK, since we are currently in a "single game" system, the easy fix to publish/publishComposite
     // not returning record data correctly is to simply assume that there will always be only one
@@ -958,13 +959,28 @@ class Game {
         "User does not seem to be either player"
       );
 
-    this.GameCollection.update(
-      { _id: game._id, status: "playing" },
-      { $push: { actions: { type: "move", issuer: "legacy", parameter: move } } }
-    );
-  }
+    const variation = game.variations;
 
-  function;
+    this.addMoveToMoveList(
+      variation,
+      move,
+      game.status === "playing" ? game.clocks[game.tomove].current : null
+    );
+
+    const newtm = game.tomove === "white" ? "black" : "white";
+    const chess = new Chess.Chess(game.fen);
+    chess.move(move);
+    const newfen = chess.fen();
+
+    const result = this.GameCollection.update(
+      { _id: game._id, status: "playing" },
+      {
+        $push: { actions: { type: "move", issuer: "legacy", parameter: move } },
+        $set: { variations: variation, tomove: newtm, fen: newfen }
+      }
+    );
+    log.debug("saveLegacyMove result", result);
+  }
 
   calculateGameLag(lagobject) {
     log.debug("calculateGameLag");
@@ -4059,9 +4075,6 @@ Meteor.methods({
     const color = game.white.id === user._id ? "white" : "black";
     game_pings[game_id][color].pongArrived(pong);
   },
-  // eslint-disable-next-line meteor/audit-argument-checks
-  addGameMove: (message_identifier, game_id, move) =>
-    global._gameObject.saveLocalMove(message_identifier, game_id, move),
   // eslint-disable-next-line meteor/audit-argument-checks
   requestTakeback: (message_identifier, game_id, number) =>
     global._gameObject.requestLocalTakeback(message_identifier, game_id, number),
