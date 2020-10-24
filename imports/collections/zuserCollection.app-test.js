@@ -44,6 +44,7 @@ const our_allowed_user_fields = {
     }
   },
   status: {
+    legacy: 1,
     game: 1
     // We don't send idle or lastActivity because in theory it will always be false and missing, respectively.
     // If that turns out to not be the case, feel free to add them.
@@ -91,7 +92,8 @@ const all_fields = {
     //   userAgent: 1
     // }
     idle: 1,
-    lastActivity: 1
+    lastActivity: 1,
+    legacy: 1
   },
   isolation_group: 1
   // services: {
