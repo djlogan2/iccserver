@@ -973,7 +973,7 @@ class Game {
     const newfen = chess.fen();
 
     const result = this.GameCollection.update(
-      { _id: game._id, status: "playing" },
+      { _id: game._id, status: game.status },
       {
         $push: { actions: { type: "move", issuer: "legacy", parameter: move } },
         $set: { variations: variation, tomove: newtm, fen: newfen }
@@ -1260,15 +1260,6 @@ class Game {
         "Game is not being played"
       );
     if (become_examined) {
-      const examiners = [];
-      if (game.white.id) {
-        examiners.push({ id: game.white.id, username: game.white.name });
-        Users.setGameStatus(message_identifier, game.white.id, "examining");
-      }
-      if (game.black.id) {
-        examiners.push({ id: game.black.id, username: game.black.name });
-        Users.setGameStatus(message_identifier, game.black.id, "examining");
-      }
       this.GameCollection.update(
         { _id: game._id, status: "playing" },
         {
@@ -1276,14 +1267,15 @@ class Game {
             result: score_string2,
             status: "examining",
             status2: 0,
-            examiners: examiners
-          },
-          $addToSet: { observers: { $each: examiners } }
+            examiners: [{ id: self._id, username: self.username }],
+            observers: [{ id: self._id, username: self.username }],
+            analysis: [{ id: self._id, username: self.username }]
+          }
         }
       );
+      Users.setGameStatus(message_identifier, self._id, "examining");
     } else {
-      if (game.white.id) Users.setGameStatus(message_identifier, game.white.id, "none");
-      if (game.black.id) Users.setGameStatus(message_identifier, game.black.id, "none");
+      Users.setGameStatus(message_identifier, self._id, "none");
       this.GameCollection.remove({ _id: game._id });
     }
   }
@@ -3838,13 +3830,13 @@ class Game {
       default:
         break;
     }
-    if (white_id !== "computer")
+    if (!!white_id && white_id !== "computer")
       ClientMessages.sendMessageToClient(
         white_id,
         message_identifier,
         "GAME_STATUS_" + color + status
       );
-    if (black_id !== "computer")
+    if (!!black_id && black_id !== "computer")
       ClientMessages.sendMessageToClient(
         black_id,
         message_identifier,

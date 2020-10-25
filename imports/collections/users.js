@@ -20,35 +20,6 @@ const log = new Logger("server/users_js");
 export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
 
-Meteor.publishComposite("loggedOnUsers", {
-  find() {
-    return Meteor.users.find(
-      { _id: this.userId, "status.online": true },
-      { fields: { isolation_group: 1, _id: 1, username: 1 } }
-    );
-  },
-  children: [
-    {
-      // We are going to leave this here to reinstate publishComposite with isolation groups
-      find(user) {
-        if (!Users.isAuthorized(user, "show_users")) return this.ready();
-        else {
-          return Meteor.users.find(
-            {
-              $and: [
-                { "status.online": true },
-                { _id: { $ne: user._id } },
-                { isolation_group: user.isolation_group }
-              ]
-            },
-            { fields: viewable_logged_on_user_fields }
-          );
-        }
-      }
-    }
-  ]
-});
-
 Meteor.publish("userData", function() {
   if (!this.userId) return this.ready();
 

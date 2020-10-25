@@ -15,6 +15,7 @@ import {
   GameHistoryCollection,
   GameRequestCollection,
   ImportedGameCollection,
+  LegacyUsersCollection,
   mongoCss,
   mongoUser
 } from "../../api/client/collections";
@@ -525,6 +526,7 @@ export default withTracker(() => {
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
       .fetch(),
+    legacyUsersToPlayWith: LegacyUsersCollection.find().fetch(),
     in_game: Game.findOne({ $or: [PLAYING_SELECTOR, EXAMINING_SELECTOR] }),
     game_request: GameRequestCollection.findOne(
       {
