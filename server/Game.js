@@ -1273,6 +1273,9 @@ class Game {
           }
         }
       );
+
+      this.sendGameStatus(game._id, game.white.id, game.black.id, game.tomove, score_string2, 0);
+
       Users.setGameStatus(message_identifier, self._id, "examining");
     } else {
       Users.setGameStatus(message_identifier, self._id, "none");
