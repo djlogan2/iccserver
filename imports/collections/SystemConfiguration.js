@@ -22,6 +22,10 @@ SystemConfiguration.minimumMoveTime = function() {
   return lookup("minimum_move_time", 10);
 };
 
+SystemConfiguration.defaultBoardCSS = function() {
+  return lookup("board_css", "development");
+}
+
 SystemConfiguration.minimumLag = function() {
   return lookup("minimum_lag", 100);
 };

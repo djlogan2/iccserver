@@ -12,6 +12,7 @@ import { Game } from "../../server/Game";
 import { DynamicRatings } from "../../server/DynamicRatings";
 import { all_roles, standard_member_roles } from "./userConstants";
 import { Users } from "../collections/users";
+import { Random } from "meteor/random";
 
 export const TestHelpers = {};
 
@@ -50,7 +51,32 @@ if (Meteor.isTest || Meteor.isAppTest) {
     } else Users.addUserToRoles(id, standard_member_roles);
 
     const setobject = {};
-    setobject["status.online"] = options.login === undefined || options.login;
+    setobject.status = {
+      game: "none",
+      lastLogin: {
+        date: new Date(),
+        ipAddr: "127.0.0.1",
+        userAgent:
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36"
+      },
+      lastActvity: new Date(),
+      legacy: false,
+      idle: false,
+      online: options.login === undefined || options.login
+    };
+
+    setobject["services.resume"] = {
+      loginTokens: [
+        {
+          when: new Date(),
+          hashedToken: Random.id()
+        }
+      ]
+    };
+
+    if (!!options.child_chat) setobject.cf = "c";
+    else if (!!options.child_chat_exempt) setobject.cf = "e";
+
     setobject.isolation_group = options.isolation_group;
     setobject.locale = options.locale || "en-us";
     setobject.board_css = options.board_css || "developmentcss";
@@ -185,7 +211,7 @@ function isObject(obj) {
   return true;
 }
 
-export function compare(testobject, actualobject, propheader) {
+export function compare(testobject, actualobject, propheader, missingok) {
   propheader = propheader || "";
   if (isObject(testobject) || isObject(actualobject)) {
     if (typeof testobject !== typeof actualobject)
@@ -193,18 +219,19 @@ export function compare(testobject, actualobject, propheader) {
   }
 
   let prop;
-  for (prop in testobject) {
-    if (Object.prototype.hasOwnProperty.call(testobject, prop)) {
-      if (prop !== "ratings") {
-        if (actualobject[prop] === undefined)
-          return propheader + prop + " not found in database object";
-        else if (testobject[prop] instanceof Object) {
-          const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
-          if (!!msg) return msg;
+  if (!missingok)
+    for (prop in testobject) {
+      if (Object.prototype.hasOwnProperty.call(testobject, prop)) {
+        if (prop !== "ratings") {
+          if (actualobject[prop] === undefined)
+            return propheader + prop + " not found in database object";
+          else if (testobject[prop] instanceof Object) {
+            const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
+            if (!!msg) return msg;
+          }
         }
       }
     }
-  }
 
   for (prop in actualobject) {
     if (Object.prototype.hasOwnProperty.call(actualobject, prop)) {
@@ -212,7 +239,12 @@ export function compare(testobject, actualobject, propheader) {
         if (!testobject[prop])
           return propheader + prop + " is not supposed to be viewable, but is in the subscription";
         else if (isObject(actualobject[prop])) {
-          const msg = compare(testobject[prop], actualobject[prop], propheader + prop + ".");
+          const msg = compare(
+            testobject[prop],
+            actualobject[prop],
+            propheader + prop + ".",
+            missingok
+          );
           if (!!msg) return msg;
         }
       }

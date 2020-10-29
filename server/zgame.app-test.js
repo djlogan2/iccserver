@@ -37,7 +37,7 @@ function startLegacyGameParameters(self, other, rated) {
     "",
     "",
     "",
-    ""
+    false
   ];
 }
 
@@ -1098,7 +1098,12 @@ describe("Game.localRemoveExaminer", function() {
     self.loggedonuser = observer;
     Game.localAddObserver("mi3", game_id, observer._id);
     self.loggedonuser = observer;
-    chai.assert.throws(() => Game.localRemoveExaminer("mi2", game_id, us._id), ICCMeteorError);
+    //chai.assert.throws(() => Game.localRemoveExaminer("mi2", game_id, us._id), ICCMeteorError);
+    Game.localRemoveExaminer("mi2", game_id, us._id);
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
   it("should fail if user is to evict himself", function() {

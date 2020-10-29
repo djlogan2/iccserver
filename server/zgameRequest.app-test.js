@@ -13,11 +13,48 @@ import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 
 function legacyMatchRequest(challenger, receiver) {
-  return ["message_identifier", typeof challenger === "object" ? challenger.profile.legacy.username : challenger, 2000, 0, ["GM"], typeof receiver === "object" ? receiver.profile.legacy.username : receiver, 1900, 0, ["GM"], 0, "Standard", true, false, 15, 0, 15, 0, "white", 16];
+  return [
+    "message_identifier",
+    typeof challenger === "object" ? challenger.profile.legacy.username : challenger,
+    2000,
+    "none",
+    ["GM"],
+    typeof receiver === "object" ? receiver.profile.legacy.username : receiver,
+    1900,
+    "none",
+    ["GM"],
+    0,
+    "Standard",
+    true,
+    false,
+    15,
+    0,
+    15,
+    0,
+    "white",
+    16
+  ];
 }
 
 function legacySeekParameters(user) {
-  return ["id1", 999, user.profile.legacy.username, [], 2000, 0, 0, "Standard", 15, 0, true, "white", 0, 9999, true, ""];
+  return [
+    "id1",
+    999,
+    user.profile.legacy.username,
+    [],
+    2000,
+    0,
+    0,
+    "Standard",
+    15,
+    0,
+    true,
+    "white",
+    0,
+    9999,
+    true,
+    ""
+  ];
 }
 
 function localSeekParameters() {
@@ -65,7 +102,19 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should fail if wild is invalid (currently anything other than zero)", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 1, "standard", 15, 0, "none", true, null, null, null, true);
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        1,
+        "standard",
+        15,
+        0,
+        "none",
+        true,
+        null,
+        null,
+        null,
+        true
+      );
     }, Match.Error);
   });
 
@@ -73,7 +122,19 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should fail if rating_type is not a valid rating type for ICC", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "bogus", 5, 0, "none", true, null, null, null, true);
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "bogus",
+        5,
+        0,
+        "none",
+        true,
+        null,
+        null,
+        null,
+        true
+      );
     }, ICCMeteorError);
   });
 
@@ -81,15 +142,48 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should fail if time is null or not a number or not within ICC configuration requirements", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "standard", null, 0, true, null, null, null, true);
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        null,
+        0,
+        true,
+        null,
+        null,
+        null,
+        true
+      );
     }, Match.Error);
 
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "standard", "five", 0, true, null, null, null, true);
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        "five",
+        0,
+        true,
+        null,
+        null,
+        null,
+        true
+      );
     }, Match.Error);
 
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "standard", "five", 0, true, null, null, null, true);
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        "five",
+        0,
+        true,
+        null,
+        null,
+        null,
+        true
+      );
     }, Match.Error);
   });
 
@@ -97,7 +191,19 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should fail if rated is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "standard", 15, 0, "inc", "something", null, null, null, true);
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        "inc",
+        "something",
+        null,
+        null,
+        null,
+        true
+      );
     }, Match.Error);
   });
 
@@ -105,7 +211,19 @@ describe("GameRequests.addLocalGameSeek", function() {
     const roles = standard_member_roles.filter(role => role !== "play_rated_games");
     self.loggedonuser = TestHelpers.createUser({ roles: roles });
 
-    GameRequests.addLocalGameSeek("test_identifier", 0, "standard", 15, 0, "none", true, null, null, null, true);
+    GameRequests.addLocalGameSeek(
+      "test_identifier",
+      0,
+      "standard",
+      15,
+      0,
+      "none",
+      true,
+      null,
+      null,
+      null,
+      true
+    );
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_RATED_GAMES");
   });
@@ -114,7 +232,19 @@ describe("GameRequests.addLocalGameSeek", function() {
     const roles = standard_member_roles.filter(role => role !== "play_unrated_games");
     self.loggedonuser = TestHelpers.createUser({ roles: roles });
 
-    GameRequests.addLocalGameSeek("test_identifier", 0, "standard", 15, 0, "none", false, null, null, null, true);
+    GameRequests.addLocalGameSeek(
+      "test_identifier",
+      0,
+      "standard",
+      15,
+      0,
+      "none",
+      false,
+      null,
+      null,
+      null,
+      true
+    );
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_UNRATED_GAMES");
@@ -123,7 +253,19 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should fail if color is not null, 'black' or 'white'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "standard", 15, 0, "none", true, "something", null, null, true);
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        "none",
+        true,
+        "something",
+        null,
+        null,
+        true
+      );
     }, Match.Error);
   });
 
@@ -133,7 +275,19 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should fail if autoaccept not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "standard", 15, 0, "none", true, null, null, null, "something");
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        "none",
+        true,
+        null,
+        null,
+        null,
+        "something"
+      );
     }, Match.Error);
   });
 
@@ -141,7 +295,20 @@ describe("GameRequests.addLocalGameSeek", function() {
   it("should fail if formula is specified (until we write the code)", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalGameSeek("test_identifier", 0, "standard", 15, 0, "none", true, null, null, null, true, "Not yet supported");
+      GameRequests.addLocalGameSeek(
+        "test_identifier",
+        0,
+        "standard",
+        15,
+        0,
+        "none",
+        true,
+        null,
+        null,
+        null,
+        true,
+        "Not yet supported"
+      );
     }, ICCMeteorError);
   });
 
@@ -232,7 +399,10 @@ describe("GameRequests.removeGameSeek", function() {
 
   it("should fail if the seek record is not a local seek", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLegacyGameSeek.apply(null, legacySeekParameters(self.loggedonuser));
+    const seek_id = GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
     chai.assert.throws(() => {
       GameRequests.removeGameSeek("message_identifier", seek_id);
     }, ICCMeteorError);
@@ -259,7 +429,20 @@ describe("GameRequests.acceptGameSeek", function() {
 
   it("should fail if seek record does belong to the user", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLocalGameSeek("id1", 0, "standard", 15, 0, "none", false, null, null, null, true, null);
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      "none",
+      false,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
     chai.assert.throws(() => {
       GameRequests.acceptGameSeek("message_identifier", seek_id);
     }, ICCMeteorError);
@@ -274,7 +457,20 @@ describe("GameRequests.acceptGameSeek", function() {
     gm.expects("startLocalGame").once();
 
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLocalGameSeek("id1", 0, "standard", 15, 0, "none", false, null, null, null, true, null);
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      "none",
+      false,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
 
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.doesNotThrow(() => {
@@ -290,7 +486,10 @@ describe("GameRequests.acceptGameSeek", function() {
 
   it("should fail if the seek record is not a local seek", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLegacyGameSeek.apply(null, legacySeekParameters(self.loggedonuser));
+    const seek_id = GameRequests.addLegacyGameSeek.apply(
+      null,
+      legacySeekParameters(self.loggedonuser)
+    );
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.acceptGameSeek("message_identifier", seek_id);
@@ -299,7 +498,20 @@ describe("GameRequests.acceptGameSeek", function() {
 
   it("should fail if the seek is rated and user cannot play rated games", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLocalGameSeek("id1", 0, "standard", 15, 0, "none", true, null, null, null, true, null);
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      "none",
+      true,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
 
     const roles = standard_member_roles.filter(role => role !== "play_rated_games");
     self.loggedonuser = TestHelpers.createUser({ roles: roles });
@@ -311,7 +523,20 @@ describe("GameRequests.acceptGameSeek", function() {
 
   it("should fail if the seek is unrated and user cannot play unrated games", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLocalGameSeek("id1", 0, "standard", 15, 0, "none", false, null, null, null, true, null);
+    const seek_id = GameRequests.addLocalGameSeek(
+      "id1",
+      0,
+      "standard",
+      15,
+      0,
+      "none",
+      false,
+      null,
+      null,
+      null,
+      true,
+      null
+    );
 
     const roles = standard_member_roles.filter(role => role !== "play_unrated_games");
     self.loggedonuser = TestHelpers.createUser({ roles: roles });
@@ -329,7 +554,10 @@ describe("GameRequests.addLegacyMatchRequest", function() {
   it("should fail if self is null or invalid", function() {
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser()));
+      GameRequests.addLegacyMatchRequest.apply(
+        null,
+        legacyMatchRequest(TestHelpers.createUser(), TestHelpers.createUser())
+      );
     }, Match.Error);
   });
 
@@ -363,20 +591,59 @@ describe("GameRequests.addLocalMatchRequest", function() {
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mi1", otherguy, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        otherguy,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
   //   receiver_user,
   it("should fail if receiver_user is null or invalid", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mi2", undefined, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+      GameRequests.addLocalMatchRequest(
+        "mi2",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
   it("should return a client message if receiver_user is not logged on", function() {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({ login: false });
-    GameRequests.addLocalMatchRequest("mi3", otherguy, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+    GameRequests.addLocalMatchRequest(
+      "mi3",
+      otherguy,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "CANNOT_MATCH_LOGGED_OFF_USER");
   });
@@ -384,7 +651,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   it("should fail if wild is not zero", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 1, "standard", true, false, 15, 0, "none", 15, 0, "none");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        1,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
 
@@ -392,7 +672,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   it("should fail if rating_type is not a valid rating type", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "bogus", true, false, 15, 0, "none", 15, 0, "none");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "bogus",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
 
@@ -400,7 +693,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   it("should fail if is_it_rated is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", "yep", false, 15, 0, "none", 15, 0, "none");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        "yep",
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   });
 
@@ -408,7 +714,20 @@ describe("GameRequests.addLocalMatchRequest", function() {
   it("should fail if is_it_adjourned is not 'true' or 'false'", function() {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, "yep", 15, 0, "none", 15, 0, "none");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        "yep",
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
   }); // TODO: Where are we keeping adjourned games? We should connect this
 
@@ -418,8 +737,42 @@ describe("GameRequests.addLocalMatchRequest", function() {
     const receiver = TestHelpers.createUser();
 
     self.loggedonuser = challenger;
-    chai.assert.throws(() => GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, "none", 11, 0, "none"), ICCMeteorError);
-    chai.assert.throws(() => GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, "none", 15, 5, "inc"), ICCMeteorError);
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi",
+          receiver,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          0,
+          "none",
+          11,
+          0,
+          "none"
+        ),
+      ICCMeteorError
+    );
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi",
+          receiver,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          0,
+          "none",
+          15,
+          5,
+          "inc"
+        ),
+      ICCMeteorError
+    );
   });
 
   it("should succeed if color is specified and challenger time/inc !== receiver time/inc", function() {
@@ -427,31 +780,119 @@ describe("GameRequests.addLocalMatchRequest", function() {
     const receiver = TestHelpers.createUser();
 
     self.loggedonuser = challenger;
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, "none", 11, 0, "none", "black"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, "none", 15, 5, "inc", "white"));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi",
+        receiver,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        11,
+        0,
+        "none",
+        "black"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi",
+        receiver,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        5,
+        "inc",
+        "white"
+      )
+    );
     chai.assert.equal(GameRequests.collection.find().count(), 2);
   });
 
   //   challenger_color_request,
   it("should fail if challenger_color_request is null, 'white' or 'black'", function() {
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, false, 15, 0, "none", 15, 0, "none", "yep");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "yep"
+      );
     }, Match.Error);
   });
 
   //   assess_loss,
   it("should fail if assess_loss is null, not an number, < 0, or loss + win > ICC configuration maximum", function() {
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
     }, Match.Error);
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, false, 15, 0, "none", 15, 0, "none", "yep");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "yep"
+      );
     }, Match.Error);
   });
   //   fancy_time_control
   it("should fail if fancy_time_control is not null", function() {
     chai.assert.throws(() => {
-      GameRequests.addLocalMatchRequest("mid", undefined, 0, "standard", true, false, 15, 0, "none", 15, 0, "none", null, "fancy");
+      GameRequests.addLocalMatchRequest(
+        "mid",
+        undefined,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        null,
+        "fancy"
+      );
     }, Match.Error);
   });
 });
@@ -465,7 +906,21 @@ describe("GameRequests.acceptMatchRequest", function() {
     const them = TestHelpers.createUser();
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = us;
-      const match_id = GameRequests.addLocalMatchRequest("mi1", them, 0, "standard", true, false, 15, 0, "none", 15, 0, "none", "white");
+      const match_id = GameRequests.addLocalMatchRequest(
+        "mi1",
+        them,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+      );
       self.loggedonuser = them;
       GameRequests.acceptMatchRequest("accept", match_id);
       const game = Game.collection.findOne({});
@@ -480,7 +935,21 @@ describe("GameRequests.acceptMatchRequest", function() {
     const them = TestHelpers.createUser();
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = us;
-      const match_id = GameRequests.addLocalMatchRequest("mi1", them, 0, "standard", true, false, 15, 0, "none", 15, 0, "none", "black");
+      const match_id = GameRequests.addLocalMatchRequest(
+        "mi1",
+        them,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "black"
+      );
       self.loggedonuser = them;
       GameRequests.acceptMatchRequest("accept", match_id);
       const game = Game.collection.findOne({});
@@ -497,7 +966,20 @@ describe("GameRequests.acceptMatchRequest", function() {
     let black = 0;
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = us;
-      const match_id = GameRequests.addLocalMatchRequest("mi1", them, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+      const match_id = GameRequests.addLocalMatchRequest(
+        "mi1",
+        them,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none"
+      );
       self.loggedonuser = them;
       GameRequests.acceptMatchRequest("accept", match_id);
       const game = Game.collection.findOne({});
@@ -511,7 +993,20 @@ describe("GameRequests.acceptMatchRequest", function() {
   });
   it("should fail if self is null or invalid", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const match_id = GameRequests.addLocalMatchRequest("mi", TestHelpers.createUser(), 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      TestHelpers.createUser(),
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
       GameRequests.acceptMatchRequest("message_identifier", match_id);
@@ -521,7 +1016,20 @@ describe("GameRequests.acceptMatchRequest", function() {
   it("should fail if self is the challenger", function() {
     self.loggedonuser = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
-    const match_id = GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.throws(() => {
       GameRequests.acceptMatchRequest("message_identifier", match_id);
     }, ICCMeteorError);
@@ -530,7 +1038,20 @@ describe("GameRequests.acceptMatchRequest", function() {
   it("should fail if self is not the receiver", function() {
     self.loggedonuser = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
-    const match_id = GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
       GameRequests.acceptMatchRequest("message_identifier", match_id);
@@ -555,7 +1076,10 @@ describe("GameRequests.acceptMatchRequest", function() {
     self.loggedonuser = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
 
-    const game_id = GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(self.loggedonuser, receiver));
+    const game_id = GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(self.loggedonuser, receiver)
+    );
 
     self.loggedonuser = receiver;
     chai.assert.throws(() => {
@@ -570,7 +1094,20 @@ describe("GameRequests.acceptMatchRequest", function() {
     const receiver = TestHelpers.createUser();
 
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
 
     chai.assert.equal(GameRequests.collection.find().count(), 1);
     chai.assert.equal(Game.collection.find().count(), 0);
@@ -606,7 +1143,21 @@ describe("GameRequests.acceptMatchRequest", function() {
     const receiver = TestHelpers.createUser();
 
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 15, "inc", 25, 25, "inc", "white");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      25,
+      25,
+      "inc",
+      "white"
+    );
 
     self.loggedonuser = receiver;
 
@@ -634,7 +1185,21 @@ describe("GameRequests.acceptMatchRequest", function() {
     const receiver = TestHelpers.createUser();
 
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 15, "inc", 25, 25, "inc", "black");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      25,
+      25,
+      "inc",
+      "black"
+    );
 
     self.loggedonuser = receiver;
 
@@ -666,7 +1231,20 @@ describe("GameRequests.declineMatchRequest", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc"
+    );
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
       GameRequests.declineMatchRequest("mi1", match_id);
@@ -677,7 +1255,20 @@ describe("GameRequests.declineMatchRequest", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLocalMatchRequest("mi1", receiver, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc"
+    );
     self.loggedonuser = challenger;
     chai.assert.throws(() => {
       GameRequests.declineMatchRequest("mi2", match_id);
@@ -689,7 +1280,20 @@ describe("GameRequests.declineMatchRequest", function() {
     const receiver = TestHelpers.createUser();
     const somebodyelse = TestHelpers.createUser();
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLocalMatchRequest("mi", receiver, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc"
+    );
     self.loggedonuser = somebodyelse;
     chai.assert.throws(() => {
       GameRequests.declineMatchRequest("mi1", match_id);
@@ -707,7 +1311,10 @@ describe("GameRequests.declineMatchRequest", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
+    const match_id = GameRequests.addLegacyMatchRequest.apply(
+      null,
+      legacyMatchRequest(challenger, receiver)
+    );
     chai.assert.throws(() => {
       GameRequests.declineMatchRequest("mi1", match_id);
     }, ICCMeteorError);
@@ -717,7 +1324,20 @@ describe("GameRequests.declineMatchRequest", function() {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     self.loggedonuser = challenger;
-    const match_id = GameRequests.addLocalMatchRequest("mi1", receiver, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      receiver,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc"
+    );
     self.loggedonuser = receiver;
     chai.assert.equal(1, GameRequests.collection.find().count());
     GameRequests.declineMatchRequest("mi2", match_id);
@@ -739,7 +1359,12 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
     GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
     self.loggedonuser = undefined;
     chai.assert.throws(() => {
-      GameRequests.removeLegacyMatchRequest("message_identifier", challenger.profile.legacy.username, receiver.profile.legacy.username, "explanation");
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        receiver.profile.legacy.username,
+        "explanation"
+      );
     }, Match.Error);
   });
 
@@ -750,7 +1375,12 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
     GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => {
-      GameRequests.removeLegacyMatchRequest("message_identifier", challenger.profile.legacy.username, receiver.profile.legacy.username, "explanation");
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        receiver.profile.legacy.username,
+        "explanation"
+      );
     }, ICCMeteorError);
   });
 
@@ -760,16 +1390,36 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
     self.loggedonuser = challenger;
     GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
     chai.assert.throws(() => {
-      GameRequests.removeLegacyMatchRequest("message_identifier", null, receiver.profile.legacy.username, "explanation");
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        null,
+        receiver.profile.legacy.username,
+        "explanation"
+      );
     }, Match.Error);
     chai.assert.throws(() => {
-      GameRequests.removeLegacyMatchRequest("message_identifier", challenger.profile.legacy.username, null, "explanation");
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        null,
+        "explanation"
+      );
     }, Match.Error);
     chai.assert.throws(() => {
-      GameRequests.removeLegacyMatchRequest("message_identifier", "bogus1", receiver.profile.legacy.username, "explanation");
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        "bogus1",
+        receiver.profile.legacy.username,
+        "explanation"
+      );
     }, ICCMeteorError);
     chai.assert.throws(() => {
-      GameRequests.removeLegacyMatchRequest("message_identifier", challenger.profile.legacy.username, "bogus2", "explanation");
+      GameRequests.removeLegacyMatchRequest(
+        "message_identifier",
+        challenger.profile.legacy.username,
+        "bogus2",
+        "explanation"
+      );
     }, ICCMeteorError);
   });
 
@@ -780,7 +1430,12 @@ describe("GameRequests.removeLegacyMatchRequest", function() {
     chai.assert.equal(0, GameRequests.collection.find().count());
     GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
     chai.assert.equal(1, GameRequests.collection.find().count());
-    GameRequests.removeLegacyMatchRequest("message_identifier", challenger.profile.legacy.username, receiver.profile.legacy.username, "explanation");
+    GameRequests.removeLegacyMatchRequest(
+      "message_identifier",
+      challenger.profile.legacy.username,
+      receiver.profile.legacy.username,
+      "explanation"
+    );
     chai.assert.equal(0, GameRequests.collection.find().count());
   });
 });
@@ -827,7 +1482,19 @@ describe("game_requests publication", function() {
       .collect("game_requests")
       .then(collections => {
         chai.assert.equal(collections.game_requests.length, 11);
-        gameid = Game.startLocalGame("mi", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+        gameid = Game.startLocalGame(
+          "mi",
+          otherguy,
+          0,
+          "standard",
+          true,
+          15,
+          0,
+          "none",
+          15,
+          0,
+          "none"
+        );
         return Promise.resolve();
       })
       .then(() => {
@@ -863,9 +1530,27 @@ describe("Local seeks", function() {
     const guy1 = TestHelpers.createUser();
     const guy2 = TestHelpers.createUser();
     self.loggedonuser = guy1;
-    const ratings = [[null, null, true], [null, 2000, true], [null, 1000, false], [1000, 2000, true], [2000, 2500, false]];
+    const ratings = [
+      [null, null, true],
+      [null, 2000, true],
+      [null, 1000, false],
+      [1000, 2000, true],
+      [2000, 2500, false]
+    ];
     ratings.forEach(onerating => {
-      GameRequests.addLocalGameSeek("mi-" + onerating[0] + "-" + onerating[1] + "-" + onerating[2], 0, "standard", 15, 0, "none", true, null, onerating[0], onerating[1], true);
+      GameRequests.addLocalGameSeek(
+        "mi-" + onerating[0] + "-" + onerating[1] + "-" + onerating[2],
+        0,
+        "standard",
+        15,
+        0,
+        "none",
+        true,
+        null,
+        onerating[0],
+        onerating[1],
+        true
+      );
     });
     self.loggedonuser = undefined;
     GameRequests.loginHook(guy2);
@@ -882,7 +1567,19 @@ describe("Local seeks", function() {
       }
     }
     self.loggedonuser = TestHelpers.createUser();
-    const seek_id = GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 0, "none", true, null, 1500, null, true);
+    const seek_id = GameRequests.addLocalGameSeek(
+      "mi1",
+      0,
+      "standard",
+      15,
+      0,
+      "none",
+      true,
+      null,
+      1500,
+      null,
+      true
+    );
     const theseek = GameRequests.collection.findOne({ _id: seek_id });
     const matchingusers = Meteor.users
       .find({
@@ -898,22 +1595,100 @@ describe("Local seeks", function() {
 
 function add15(self, challenger, receiver, otherguy) {
   self.loggedonuser = challenger;
-  GameRequests.addLocalMatchRequest("mi1", receiver, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
-  GameRequests.addLocalMatchRequest("mi1", otherguy, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    receiver,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    otherguy,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
   GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, otherguy));
 
   self.loggedonuser = receiver;
-  GameRequests.addLocalMatchRequest("mi1", challenger, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
-  GameRequests.addLocalMatchRequest("mi1", otherguy, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    challenger,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    otherguy,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
   GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(receiver, challenger));
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(receiver, otherguy));
 
   self.loggedonuser = otherguy;
-  GameRequests.addLocalMatchRequest("mi1", challenger, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
-  GameRequests.addLocalMatchRequest("mi1", receiver, 0, "standard", true, false, 15, 0, "none", 15, 0, "none");
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    challenger,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
+  GameRequests.addLocalMatchRequest(
+    "mi1",
+    receiver,
+    0,
+    "standard",
+    true,
+    false,
+    15,
+    0,
+    "none",
+    15,
+    0,
+    "none"
+  );
   GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(otherguy, challenger));
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(otherguy, receiver));
@@ -931,14 +1706,31 @@ describe("GameRequests.seekMatchesUser", function() {
   });
 
   it("needs to work in all cases", function() {
-    const checks = [[null, null, 1600, true], [1500, null, 1600, true], [null, 2000, 1600, true], [1500, 2000, 1600, true], [1500, null, 1400, false], [null, 2000, 2200, false], [1500, 2000, 1400, false], [1500, 2000, 2400, false]];
+    const checks = [
+      [null, null, 1600, true],
+      [1500, null, 1600, true],
+      [null, 2000, 1600, true],
+      [1500, 2000, 1600, true],
+      [1500, null, 1400, false],
+      [null, 2000, 2200, false],
+      [1500, 2000, 1400, false],
+      [1500, 2000, 2400, false]
+    ];
 
     checks.forEach(check => {
       const minrating = check[0];
       const maxrating = check[1];
       const userrating = check[2];
       const succeed = check[3];
-      const message = "should " + (succeed ? "succeed" : "fail") + " when minrating is " + minrating + " and maxrating is " + maxrating + " and user rating is " + userrating;
+      const message =
+        "should " +
+        (succeed ? "succeed" : "fail") +
+        " when minrating is " +
+        minrating +
+        " and maxrating is " +
+        maxrating +
+        " and user rating is " +
+        userrating;
       const user = {
         _id: "user",
         ratings: {
@@ -960,7 +1752,9 @@ describe("normal increment", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should work in a seek", function() {
     self.loggedonuser = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "inc", true));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "inc", true)
+    );
     const gamereq = GameRequests.collection.findOne({});
     chai.assert.equal(gamereq.inc_or_delay, 15);
     chai.assert.equal(gamereq.delaytype, "inc");
@@ -969,7 +1763,22 @@ describe("normal increment", function() {
   it("should work in a match", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc"));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "inc"
+      )
+    );
     const gamereq = GameRequests.collection.findOne({});
     chai.assert.equal(gamereq.challenger_inc_or_delay, 15);
     chai.assert.equal(gamereq.challenger_delaytype, "inc");
@@ -980,7 +1789,20 @@ describe("normal increment", function() {
   it("should be converted to a local game start correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    const match_id = GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "inc",
+      15,
+      15,
+      "inc"
+    );
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
     const game = Game.collection.findOne({});
@@ -995,7 +1817,9 @@ describe("us delay", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should work in a seek", function() {
     self.loggedonuser = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "us", true));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "us", true)
+    );
     const gamereq = GameRequests.collection.findOne({});
     chai.assert.equal(gamereq.inc_or_delay, 15);
     chai.assert.equal(gamereq.delaytype, "us");
@@ -1004,7 +1828,22 @@ describe("us delay", function() {
   it("should work in a match", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "us", 15, 15, "us"));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        15,
+        "us"
+      )
+    );
     const gamereq = GameRequests.collection.findOne({});
     chai.assert.equal(gamereq.challenger_inc_or_delay, 15);
     chai.assert.equal(gamereq.challenger_delaytype, "us");
@@ -1015,7 +1854,20 @@ describe("us delay", function() {
   it("should be converted to a local game start correctly from a match", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    const match_id = GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "us", 15, 15, "us");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "us",
+      15,
+      15,
+      "us"
+    );
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
     const game = Game.collection.findOne({});
@@ -1028,7 +1880,20 @@ describe("us delay", function() {
   it("should be converted to a local game start correctly from a seek", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    const match_id = GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "us", 15, 15, "us");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "us",
+      15,
+      15,
+      "us"
+    );
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
     const game = Game.collection.findOne({});
@@ -1043,7 +1908,9 @@ describe("bronstein delay", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should work in a seek", function() {
     self.loggedonuser = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "bronstein", true));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "bronstein", true)
+    );
     const gamereq = GameRequests.collection.findOne({});
     chai.assert.equal(gamereq.inc_or_delay, 15);
     chai.assert.equal(gamereq.delaytype, "bronstein");
@@ -1052,7 +1919,22 @@ describe("bronstein delay", function() {
   it("should work in a match", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "bronstein", 15, 15, "bronstein"));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        15,
+        "bronstein"
+      )
+    );
     const gamereq = GameRequests.collection.findOne({});
     chai.assert.equal(gamereq.challenger_inc_or_delay, 15);
     chai.assert.equal(gamereq.challenger_delaytype, "bronstein");
@@ -1062,7 +1944,20 @@ describe("bronstein delay", function() {
   it("should be converted to a local game start correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    const match_id = GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "bronstein", 15, 15, "bronstein");
+    const match_id = GameRequests.addLocalMatchRequest(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      false,
+      15,
+      15,
+      "bronstein",
+      15,
+      15,
+      "bronstein"
+    );
     self.loggedonuser = p2;
     chai.assert.doesNotThrow(() => GameRequests.acceptMatchRequest("mi2", match_id));
     const game = Game.collection.findOne({});
@@ -1077,22 +1972,46 @@ describe("Local seeks", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should succeed when a seek is issued with identical values except delay types differ", function() {
     self.loggedonuser = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "us", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 15, "bronstein", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 15, "inc", true));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 15, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 15, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 15, "inc", true)
+    );
     chai.assert.equal(GameRequests.collection.find().count(), 3);
   });
   it("should succeed when a seek is issued with identical values except delay values differ", function() {
     self.loggedonuser = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 5, "us", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 10, "us", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 15, "us", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi4", 0, "standard", 15, 5, "bronstein", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi5", 0, "standard", 15, 10, "bronstein", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi6", 0, "standard", 15, 15, "bronstein", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi7", 0, "standard", 15, 5, "inc", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi8", 0, "standard", 15, 10, "inc", true));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalGameSeek("mi9", 0, "standard", 15, 15, "inc", true));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi1", 0, "standard", 15, 5, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi2", 0, "standard", 15, 10, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi3", 0, "standard", 15, 15, "us", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi4", 0, "standard", 15, 5, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi5", 0, "standard", 15, 10, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi6", 0, "standard", 15, 15, "bronstein", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi7", 0, "standard", 15, 5, "inc", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi8", 0, "standard", 15, 10, "inc", true)
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalGameSeek("mi9", 0, "standard", 15, 15, "inc", true)
+    );
     chai.assert.equal(GameRequests.collection.find().count(), 9);
   });
 });
@@ -1102,33 +2021,306 @@ describe("Local matches", function() {
   it("should fail if delaytype is not 'none', 'inc', 'us' or 'bronstein'", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    chai.assert.throws(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "bogus", 15, 15, "inc"), ICCMeteorError);
+    chai.assert.throws(
+      () =>
+        GameRequests.addLocalMatchRequest(
+          "mi1",
+          p2,
+          0,
+          "standard",
+          true,
+          false,
+          15,
+          15,
+          "bogus",
+          15,
+          15,
+          "inc"
+        ),
+      ICCMeteorError
+    );
   });
   it("should succeed when a match is issued with identical values except delay types differ", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi2", p2, 0, "standard", true, false, 15, 15, "us", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi3", p2, 0, "standard", true, false, 15, 15, "bronstein", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi4", p2, 0, "standard", true, false, 15, 0, "none", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi5", p2, 0, "standard", true, false, 15, 15, "inc", 15, 15, "us", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi6", p2, 0, "standard", true, false, 15, 15, "inc", 15, 15, "bronstein", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi7", p2, 0, "standard", true, false, 15, 15, "inc", 15, 0, "none", "white"));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi2",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi3",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi4",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        0,
+        "none",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi5",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "us",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi6",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "bronstein",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi7",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        0,
+        "none",
+        "white"
+      )
+    );
     chai.assert.equal(GameRequests.collection.find().count(), 7);
   });
 
   it("should succeed when a match is issued with identical values except delay values differ", function() {
     self.loggedonuser = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "inc", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 14, "inc", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "inc", 15, 14, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "us", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 14, "us", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "us", 15, 14, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "bronstein", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 14, "bronstein", 15, 15, "inc", "white"));
-    chai.assert.doesNotThrow(() => GameRequests.addLocalMatchRequest("mi1", p2, 0, "standard", true, false, 15, 15, "bronstein", 15, 14, "inc", "white"));
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        14,
+        "inc",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "inc",
+        15,
+        14,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        14,
+        "us",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "us",
+        15,
+        14,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        14,
+        "bronstein",
+        15,
+        15,
+        "inc",
+        "white"
+      )
+    );
+    chai.assert.doesNotThrow(() =>
+      GameRequests.addLocalMatchRequest(
+        "mi1",
+        p2,
+        0,
+        "standard",
+        true,
+        false,
+        15,
+        15,
+        "bronstein",
+        15,
+        14,
+        "inc",
+        "white"
+      )
+    );
     chai.assert.equal(GameRequests.collection.find().count(), 9);
   });
 });

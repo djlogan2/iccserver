@@ -4,7 +4,7 @@ import { resetDatabase } from "meteor/xolvio:cleaner";
 import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
 import { TestHelpers, compare } from "../server/TestHelpers";
-
+import tunnel from "tunnel-ssh";
 //
 // TODO: Check guest roles
 // TODO: Check standard member roles
@@ -19,11 +19,16 @@ import { TestHelpers, compare } from "../server/TestHelpers";
 //
 const logged_on_user_fields = {
   _id: 1,
+  cf: 1,
   username: 1,
   status: {
     game: 1,
     idle: 1,
-    lastActivity: 1
+    legacy: 1,
+    lastActivity: 1,
+    lastLogin: {
+      date: 1
+    }
   }
 };
 
@@ -39,20 +44,30 @@ const our_allowed_user_fields = {
     lastname: 1,
     legacy: {
       username: 1,
-      validated: 1,
       autologin: 1
     }
   },
+  settings: {
+    autoaccept: 1
+  },
   status: {
     legacy: 1,
-    game: 1
-    // We don't send idle or lastActivity because in theory it will always be false and missing, respectively.
-    // If that turns out to not be the case, feel free to add them.
-  }
+    game: 1,
+    idle: 1,
+    online: 1,
+    lastActivity: 1,
+    lastLogin: {
+      date: 1,
+      ipAddr: 1,
+      userAgent: 1
+    }
+  },
+  cf: 1
 };
 
 const all_fields = {
   _id: 1,
+  cf: 1,
   username: 1,
   locale: 1,
   board_css: 1,
@@ -62,6 +77,9 @@ const all_fields = {
   services: {
     password: {
       bcrypt: 1
+    },
+    resume: {
+      loginTokens: 1
     }
   },
   profile: {
@@ -72,7 +90,7 @@ const all_fields = {
       validated: 1,
       autologin: 1,
       password: 1
-    }
+    },
   },
   // For documentation purposes to show programmers what is in the
   // user record -- please don't publish these :)
@@ -86,21 +104,17 @@ const all_fields = {
   status: {
     //    online: 1,
     game: 1,
-    // lastLogin: {
-    //   date: 1,      <- We will send this for people not logged in of course
-    //   ipAddr: 1,
-    //   userAgent: 1
-    // }
-    idle: 1,
+    online: 1,
     lastActivity: 1,
+    lastLogin: {
+      date: 1,
+      ipAddr: 1,
+      userAgent: 1
+    },
+    idle: 1,
     legacy: 1
   },
   isolation_group: 1
-  // services: {
-  //   resume: {
-  //     loginTokens: 1
-  //   }
-  // }
 };
 
 describe("Users", function() {
@@ -108,27 +122,42 @@ describe("Users", function() {
     resetDatabase(null, done);
   });
 
-  it("should have all fields", function() {
-    Accounts.createUser({
-      username: "user1",
-      email: "user1@chessclub.com",
-      password: "user1",
-      profile: {
-        legacy: { username: "icc1", password: "pw1", autologin: true }
-      }
-    });
-    Meteor.users.update(
-      { username: "user1" },
-      {
-        $set: { isolation_group: "isolation_group_1"}
-      }
-    );
-    const user1 = Meteor.users.findOne({ username: "user1" });
-    chai.assert.isDefined(user1);
-    chai.assert.isDefined(user1._id);
-    const msg = compare(all_fields, user1);
-    chai.assert.isUndefined(msg);
-  });
+  // it("should have all fields", function() {
+  //   Accounts.createUser({
+  //     username: "user1",
+  //     email: "user1@chessclub.com",
+  //     password: "user1",
+  //     profile: {
+  //       legacy: { username: "icc1", password: "pw1", autologin: true, validated: true }
+  //     }
+  //   });
+  //   Meteor.users.update(
+  //     { username: "user1" },
+  //     {
+  //       $set: {
+  //         cf: "e",
+  //         isolation_group: "isolation_group_1",
+  //         status: {
+  //           game: "none",
+  //           lastLogin: {
+  //             date: new Date(),
+  //             ipAddr: "127.0.0.1",
+  //             userAgent:
+  //               "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36"
+  //           },
+  //           legacy: false,
+  //           idle: false,
+  //           online: false
+  //         }
+  //       }
+  //     }
+  //   );
+  //   const user1 = Meteor.users.findOne({ username: "user1" });
+  //   chai.assert.isDefined(user1);
+  //   chai.assert.isDefined(user1._id);
+  //   const msg = compare(all_fields, user1);
+  //   chai.assert.isUndefined(msg);
+  // });
 
   it("should only get a subset of the entire user record in the userData subscription", function(done) {
     const user1 = TestHelpers.createUser({ isolation_group: "group1" });
@@ -145,8 +174,9 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
-    const user1 = TestHelpers.createUser({ isolation_group: "group1" });
-    const user2 = TestHelpers.createUser({ isolation_group: "group1" });
+    this.timeout(500000);
+    const user1 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
+    const user2 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
@@ -166,17 +196,46 @@ describe("Users", function() {
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user3._id });
     collector.collect("loggedOnUsers", collections => {
-      chai.assert.equal(collections.users.length, 2);
-      chai.assert.sameMembers([user2.username, user3.username], collections.users.map(u => u.username));
+      chai.assert.equal(collections.users.length, 1); // I am not a loggedOnUser, I am a "userData", thus loggedOnUsers = 1
+      chai.assert.sameMembers([user2.username], collections.users.map(u => u.username));
       done();
     });
   });
-  /*
-  it("should write a new users username to and it should not be validated", function() {
-    chai.assert.fail("do me");
+
+  //
+  // Yes, this is a bit unusual, but I want to make SURE that we never add new fields to the user
+  // record that we do not know about in these tests. I want a zero percent chance that sensitive data
+  // would be published to clients.
+  //
+  it("should not have any fields in production we do not know about", function(done) {
+    this.timeout(60000);
+
+    var config = {
+      username: "david",
+      host: "100.25.103.111",
+      dstHost: "127.0.0.1",
+      dstPort: 27017,
+      localHost: "127.0.0.1",
+      localPort: 17017,
+      privateKey: require("fs").readFileSync("/Users/davidlogan/.ssh/id_rsa")
+    };
+
+    const func = (error, server) => {
+      var database = new MongoInternals.RemoteCollectionDriver(
+        "mongodb://127.0.0.1:17017/iccserver"
+      );
+      const MyCollection = database.open("users");
+
+      MyCollection.find()
+        .fetch()
+        .forEach(user => {
+          const msg = compare(all_fields, user, "produser:", true);
+          chai.assert.isUndefined(msg);
+        });
+      tnl.close();
+      done();
+    };
+
+    const tnl = tunnel(config, Meteor.bindEnvironment(func));
   });
-  it("should set legacy information as validated upon successful legacy logon", function() {
-    chai.assert.fail("do me");
-  });
- */
 });

@@ -791,7 +791,7 @@ class Game {
     check(irregular_semantics, Match.Maybe(String));
     check(uses_plunkers, Match.Maybe(String));
     check(fancy_timecontrol, Match.Maybe(String));
-    check(promote_to_king, Boolean);
+    check(promote_to_king, Match.Maybe(Boolean));
 
     const whiteuser = Meteor.users.findOne({
       "profile.legacy.username": whitename,
@@ -3757,7 +3757,11 @@ class Game {
       addtosetobject.observers = { $each: setobject.examiners };
       this.GameCollection.update(
         { _id: game_id },
-        { $set: setobject, $addToSet: addtosetobject, $unset: { pending: 1 } }
+        {
+          $set: setobject,
+          $addToSet: addtosetobject,
+          $unset: { pending: 1, "clocks.white.current": 1, "clocks.black.current": 1 }
+        }
       );
       if (game.white.id !== "computer") Users.setGameStatus("server", game.white.id, "examining");
       if (game.black.id !== "computer") Users.setGameStatus("server", game.black.id, "examining");
@@ -3783,24 +3787,55 @@ class Game {
     });
   }
 
+  getStatusFromGameCollection(userId) {
+    if (
+      !!this.GameCollection.find({
+        $and: [{ status: "playing" }, { $or: [{ "white.id": userId }, { "black.id": userId }] }]
+      }).count()
+    )
+      return "playing";
+
+    if (
+      !!this.GameCollection.find({
+        $and: [{ status: "examining" }, { $or: [{ owner: userId }, { "examiners.id": userId }] }]
+      }).count()
+    )
+      return "examining";
+
+    if (
+      !!this.GameCollection.find({
+        $and: [{ status: "examining" }, { $or: [{ owner: userId }, { "observers.id": userId }] }]
+      }).count()
+    )
+      return "observing";
+
+    return "none";
+  }
+
   gameLoginHook(user) {
-    this.localUnobserveAllGames("server", user._id, true, true);
-    const game = this.GameCollection.findOne({ owner: user._id, status: "examining" });
-    if (!game) return;
-    Users.setGameStatus("server", user, "examining");
-    const guy = { id: user._id, username: user.username };
-    this.GameCollection.update(
-      { _id: game._id, status: "examining" },
-      {
-        $addToSet: { observers: guy, examiners: guy, analysis: guy }
-      }
-    );
+    Users.setGameStatus("server", user, this.getStatusFromGameCollection(user._id));
   }
 
   gameLogoutHook(userId) {
-    this.localResignAllGames("server", userId, 4);
-    this.localUnobserveAllGames("server", userId, true, true);
-    Users.setGameStatus("server", userId, "none");
+    if (this.getStatusFromGameCollection(userId) === "none") return;
+    log.debug("Starting two minute timer for logged out user", userId);
+    const cursor = Meteor.users.find({}).observeChanges({
+      changed(id, fields) {
+        if ("status" in fields && "status.online" in fields.status && fields.status.online) {
+          log.debug("Logged out user logged back in in time", userId);
+          Meteor.clearInterval(interval);
+        }
+        cursor.stop();
+      }
+    });
+    const interval = Meteor.setInterval(() => {
+      log.debug("Two minute time expired, resigning/unobserving/status", userId);
+      this.localResignAllGames("server", userId, 4);
+      this.localUnobserveAllGames("server", userId, true, true);
+      Users.setGameStatus("server", userId, "none");
+      cursor.stop();
+      Meteor.clearInterval(interval);
+    }, 120000);
   }
 
   updateUserRatings(game, result, reason) {}

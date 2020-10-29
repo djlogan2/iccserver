@@ -14,6 +14,7 @@ import { i18n } from "./i18n";
 import { DynamicRatings } from "../../server/DynamicRatings";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 import { UserStatus } from "meteor/mizzao:user-status";
+import { SystemConfiguration } from "./SystemConfiguration";
 
 const log = new Logger("server/users_js");
 
@@ -69,10 +70,8 @@ Accounts.onCreateUser(function(options, user) {
   user.ratings = DynamicRatings.getUserRatingsObject();
   user.settings = default_settings;
   user.locale = "unknown";
-  user.board_css = "developmentcss"; // TODO: Get this from the ICC configuration collection!
+  user.board_css = SystemConfiguration.defaultBoardCSS();
   user.newguy = true;
-  // user.roles = [];
-  // standard_member_roles.forEach(role => user.roles.push({ _id: role, scope: null, assigned: true }));
 
   if (!user.status) user.status = {};
   user.status.game = "none";
@@ -80,13 +79,6 @@ Accounts.onCreateUser(function(options, user) {
 
   return user;
 });
-
-// Meteor.users.find().observeChanges({
-//   added(id) {
-//     console.log("Adding roles to new user");
-//     Users.addUserToRoles(id, standard_member_roles);
-//   }
-// });
 
 Users.setGameStatus = function(message_identifier, user, status) {
   log.debug("setGameStatus", [message_identifier, user, status]);
@@ -237,26 +229,26 @@ Meteor.startup(function() {
       LoggedOnUsers.remove({ userid: fields.userId });
       runLogoutHooks(this, fields.userId);
     });
-    UserStatus.events.on("connectionIdle", fields => {
-      log.debug(
-        "connectionIdle userId=" +
-          fields.userId +
-          ", connectionId=" +
-          fields.connectionId +
-          ", lastActivity=" +
-          fields.lastActivity
-      );
-    });
-    UserStatus.events.on("connectionActive", fields => {
-      log.debug(
-        "connectionActive userId=" +
-          fields.userId +
-          ", connectionId=" +
-          fields.connectionId +
-          ", lastActivity=" +
-          fields.lastActivity
-      );
-    });
+    // UserStatus.events.on("connectionIdle", fields => {
+    //   log.debug(
+    //     "connectionIdle userId=" +
+    //       fields.userId +
+    //       ", connectionId=" +
+    //       fields.connectionId +
+    //       ", lastActivity=" +
+    //       fields.lastActivity
+    //   );
+    // });
+    // UserStatus.events.on("connectionActive", fields => {
+    //   log.debug(
+    //     "connectionActive userId=" +
+    //       fields.userId +
+    //       ", connectionId=" +
+    //       fields.connectionId +
+    //       ", lastActivity=" +
+    //       fields.lastActivity
+    //   );
+    // });
   }
   all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
 });
@@ -314,8 +306,6 @@ Accounts.validateLoginAttempt(function(params) {
 
   //
   // If the user has already logged in, disallow subsequent logins.
-  // Why this damn piece of code has decided to validate the same login twice in a row is BEYOND ME
-  // ARGH ARGH ARGH ARGH -- But check to make sure if the record exists, it's the same connection id
   //
   const lou = LoggedOnUsers.findOne({ userid: params.user._id });
   log.debug("validateLoginAttempt lou", lou);

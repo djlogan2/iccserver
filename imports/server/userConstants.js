@@ -58,11 +58,10 @@ export const fields_viewable_by_account_owner = {
   locale: 1,
   board_css: 1,
   mugshot: 1,
-  "status.game": 1,
-  "status.legacy": 1,
+  settings: 1,
+  status: 1,
   "profile.firstname": 1,
   "profile.lastname": 1,
-  "profile.legacy.validated": 1,
   "profile.legacy.username": 1,
   "profile.legacy.autologin": 1,
   cf: 1
@@ -74,7 +73,7 @@ export const viewable_logged_on_user_fields = {
   mugshot: 1,
   "status.game": 1,
   "status.legacy": 1,
-  "status.lastActivity": 1,
+  "status.lastLogin.date": 1,
   "status.idle": 1,
   cf: 1
 };
