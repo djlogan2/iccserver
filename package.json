@@ -1,5 +1,6 @@
 {
   "name": "icc",
+  "version": "0.2.0",
   "description": "?",
   "private": true,
   "babel": {
@@ -37,7 +38,7 @@
     "antd": "4.1.0",
     "async": "^3.2.0",
     "aws-sdk": "^2.771.0",
-    "bcrypt": "^3.0.8",
+    "bcrypt": "^5.0.0",
     "brain.js": "^2.0.0-beta.2",
     "chess.js": "git+https://github.com/jhlywa/chess.js.git",
     "create-react-class": "^15.6.3",

@@ -42,7 +42,7 @@ class PlayNotifier extends Component {
   };
 
   render() {
-    log.trace("PlayNotifier render", this.props);
+    // log.trace("PlayNotifier render", this.props);
     const translator = i18n.createTranslator("Common.MainPage", "en-US");
 
     if (!this.props.game) {
@@ -94,7 +94,7 @@ class PlayNotifier extends Component {
 class Play extends Component {
   constructor(props) {
     super(props);
-    log.trace("Play constructor", props);
+    // log.trace("Play constructor", props);
     this.userId = null;
     // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
@@ -400,7 +400,7 @@ class Play extends Component {
   };
 
   render() {
-    log.trace("Play render", this.props);
+    // log.trace("Play render", this.props);
 
     if (!this.props.isready) {
       log.error("Play LOADING");
@@ -430,7 +430,14 @@ class Play extends Component {
     const gamemessage = this.clientMessages(this.message_identifier);
     const visible =
       !!gamemessage && !!this.props.in_game && this.props.in_game.status === "examining";
-
+    log.debug(
+      "Game message: " +
+        !!gamemessage +
+        ", in game: " +
+        !!this.props.in_game +
+        ", visible: " +
+        visible
+    );
     if (visible) {
       result = this.props.in_game.result;
       status2 = this.props.in_game.status2;
@@ -526,7 +533,6 @@ export default withTracker(() => {
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
       .fetch(),
-    legacyUsersToPlayWith: LegacyUsersCollection.find().fetch(),
     in_game: Game.findOne({ $or: [PLAYING_SELECTOR, EXAMINING_SELECTOR] }),
     game_request: GameRequestCollection.findOne(
       {

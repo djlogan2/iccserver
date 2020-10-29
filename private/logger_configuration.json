@@ -54,7 +54,7 @@
     "server/Game_js": "DEBUG",
     "server/GameHistroy_js": "ERROR",
     "server/GameRequest_js": "ERROR",
-    "server/LegacyUsers": "DEBUG",
+    "server/LegacyUsers": "ERROR",
     "server/main_js": "ERROR",
     "server/PgnImport_js": "DEBUG",
     "server/pgnparser_js": "DEBUG",

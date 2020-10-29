@@ -17,7 +17,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     this.state = {
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        legacyUsers: Meteor.subscribe("legacyUsers"),
+        //legacyUsers: Meteor.subscribe("legacyUsers"),
         DynamicRatings: Meteor.subscribe("DynamicRatings")
       },
       user: null,
@@ -132,18 +132,18 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
     // this.rating=this.getDynamicRatings();
-    let tabHading = this.props. cssManager.formMain();
+    let tabHading = this.props.cssManager.formMain();
     Object.assign(tabHading, { backgroundColor: "#eee", padding: "8px 5px", marginTop: "10px" });
 
     let matchForm = null;
     if (this.state.user === null) {
       matchForm = (
-        <div style={this.props. cssManager.subTabHeader()}>
+        <div style={this.props.cssManager.subTabHeader()}>
           {userdata.map((user, index) => (
             <div key={index} className="userlist">
               <button
                 onClick={this.handelUserClick.bind(this, user.username, user._id)}
-                style={this.props. cssManager.matchUserButton()}
+                style={this.props.cssManager.matchUserButton()}
               >
                 {user.username}
                 {/*   {GameRequest.map(request => (
@@ -156,24 +156,24 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       );
     } else {
       matchForm = (
-        <div style={this.props. cssManager.subTabHeader()}>
+        <div style={this.props.cssManager.subTabHeader()}>
           <div style={tabHading}>
             <div style={{ width: "75%", float: "left" }}>
-              <label style={this.props. cssManager.formLabelStyle()}>User Name :</label>
+              <label style={this.props.cssManager.formLabelStyle()}>User Name :</label>
               <span style={{ color: "#1565c0" }}>{this.state.user}</span>
             </div>
             <div style={{ width: "25%", float: "left", textAlign: "right" }}>
               <button
-                style={this.props. cssManager.buttonStyle()}
+                style={this.props.cssManager.buttonStyle()}
                 onClick={this.removeUser.bind(this)}
               >
-                <img src={this.props. cssManager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+                <img src={this.props.cssManager.buttonBackgroundImage("deleteSign")} alt="Delete" />
               </button>
             </div>
           </div>
 
           <GameForm
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             handleChangeMinute={this.handleChangeMinute}
             handleChangeSecond={this.handleChangeSecond}
             handleChangeGameType={this.handleChangeGameType}
@@ -194,22 +194,22 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
 
     return (
       <div>
-        <div style={this.props. cssManager.tabSeparator()} />
-        <div style={this.props. cssManager.matchUserScroll()}>
+        <div style={this.props.cssManager.tabSeparator()} />
+        <div style={this.props.cssManager.matchUserScroll()}>
           <div style={{ fontSize: "16px", padding: "0px 0px 15px 0px" }}>
             Option 1 - Choose a Member
           </div>
 
-          <SubTabs  cssManager={this.props. cssManager}>
+          <SubTabs cssManager={this.props.cssManager}>
             <div label={translator("friends")}>{matchForm}</div>
 
             <div label={translator("recentOpponent")}>
-              <div style={this.props. cssManager.subTabHeader()}>
+              <div style={this.props.cssManager.subTabHeader()}>
                 {userdata2.map((user, index) => (
                   <div key={index} className="userlist">
                     <button
                       onClick={this.handelUserClick.bind(this, user)}
-                      style={this.props. cssManager.matchUserButton()}
+                      style={this.props.cssManager.matchUserButton()}
                     >
                       {user}
                     </button>
@@ -246,7 +246,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
 class SubTabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-     cssManager: PropTypes.object.isRequired
+    cssManager: PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -280,7 +280,7 @@ class SubTabs extends Component {
                 key={label}
                 label={label}
                 onClick={onClickTabItem}
-                 cssManager={this.props. cssManager}
+                cssManager={this.props.cssManager}
               />
             );
           })}
