@@ -1,7 +1,6 @@
 import { DynamicRatings } from "./DynamicRatings";
 import { Migrations } from "meteor/patelutsav:meteor-migrations";
 import { Logger } from "../lib/server/Logger";
-import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { Game, GameHistory } from "./Game";
 
 const log = new Logger("server/migrations");
@@ -48,7 +47,7 @@ Meteor.startup(() => {
       const games = GameHistory.collection
         .find({ rated: true }, { sort: { "actions.date": 1 } })
         .fetch();
-      games.forEach(game => Game.updateUserRatings(game, game.result, game.status));
+      games.forEach(game => Game.updateUserRatings(game, game.result, game.status2));
     }
   });
   Migrations.migrateTo("latest");

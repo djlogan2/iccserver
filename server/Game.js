@@ -2547,7 +2547,7 @@ class Game {
 
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
-    this.updateUserRatings(game, "result", reason);
+    this.updateUserRatings(game, result, reason);
     GameHistory.savePlayedGame(message_identifier, game._id);
     this.sendGameStatus(game._id, game.white.id, game.black.id, game.tomove, result, reason);
   }
@@ -3805,11 +3805,7 @@ class Game {
     )
       return "examining";
 
-    if (
-      !!this.GameCollection.find({
-        $and: [{ status: "examining" }, { $or: [{ owner: userId }, { "observers.id": userId }] }]
-      }).count()
-    )
+    if (!!this.GameCollection.find({ "observers.id": userId }).count())
       return "observing";
 
     return "none";
