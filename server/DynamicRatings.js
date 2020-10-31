@@ -9,8 +9,6 @@ const RatingSchema = new SimpleSchema({
   wild_number: { type: Array },
   "wild_number.$": Number,
   rating_type: String,
-  rated: Boolean,
-  unrated: Boolean,
   white_initial: { type: Array, minCount: 2, maxCount: 2 },
   "white_initial.$": Number,
   white_increment_or_delay: { type: Array, minCount: 2, maxCount: 2 },
@@ -225,8 +223,6 @@ DynamicRatings.addRatingType = function(
   message_identifier,
   wild_number,
   rating_type,
-  rated,
-  unrated,
   white_initial,
   white_increment_or_delay,
   white_increment_or_delay_type,
@@ -246,8 +242,6 @@ DynamicRatings.addRatingType = function(
   check(message_identifier, String);
   check(wild_number, Match.Maybe([Number]));
   check(rating_type, String);
-  check(rated, Boolean);
-  check(unrated, Boolean);
   check(white_initial, Match.Maybe([Number]));
   check(white_increment_or_delay, Match.Maybe([Number]));
   check(white_increment_or_delay_type, Match.Maybe([String]));
@@ -275,8 +269,6 @@ DynamicRatings.addRatingType = function(
   wild_number = wild_number || [0];
   if (wild_number.length !== 1 || wild_number[0] !== 0)
     throw new Match.Error("wild_number can only be zero");
-  if (!rated && !unrated)
-    throw new Match.Error("Unusable rating type. Both rated and unrated are false");
 
   const whiteRatingObject = validateAndFillRatingObject(message_identifier, {
     initial: white_initial,
@@ -295,8 +287,6 @@ DynamicRatings.addRatingType = function(
   DynamicRatingsCollection.insert({
     wild_number: wild_number,
     rating_type: rating_type,
-    rated: rated,
-    unrated: unrated,
     white_initial: whiteRatingObject.initial,
     white_increment_or_delay: whiteRatingObject.increment,
     white_increment_or_delay_type: whiteRatingObject.increment_type,
@@ -367,11 +357,9 @@ DynamicRatings.meetsRatingTypeRules = function(
   time,
   inc_or_delay,
   inc_or_delay_type,
-  rated,
   check_type,
   color_specified
 ) {
-  const rating_object = DynamicRatingsCollection.findOne({ rating_type: rating_type });
 
   check(message_identifier, String);
   check(color, String);
@@ -379,12 +367,14 @@ DynamicRatings.meetsRatingTypeRules = function(
   check(time, Number);
   check(inc_or_delay, Number);
   check(inc_or_delay_type, String);
-  check(rated, Boolean);
   check(check_type, String);
   check(color_specified, Boolean);
 
   if (color !== "white" && color !== "black")
     throw new ICCMeteorError(message_identifier, "Invalid call", "Invalid color");
+
+  const rating_object = DynamicRatingsCollection.findOne({ rating_type: rating_type });
+
   if (!rating_object)
     throw new ICCMeteorError(message_identifier, "Invalid call", "Invalid rating type");
 
@@ -419,9 +409,6 @@ DynamicRatings.meetsRatingTypeRules = function(
       "Cannot specify inc/delay with a type of 'none'"
     );
 
-  if (rated && !rating_object.rated) return false;
-  if (!rated && !rating_object.unrated) return false;
-
   if (check_type === "match" && !rating_object.can_match) return false;
   if (check_type === "seek" && !rating_object.can_seek) return false;
 
@@ -435,17 +422,13 @@ Meteor.publish("DynamicRatings", function() {
   return DynamicRatingsCollection.find();
 });
 
-if (Meteor.isTest || Meteor.isAppTest) {
-  DynamicRatings.collection = DynamicRatingsCollection;
-}
+DynamicRatings.collection = DynamicRatingsCollection;
 
 Meteor.startup(function() {
   if (DynamicRatingsCollection.find().count() === 0) {
     DynamicRatingsCollection.insert({
       wild_number: 0,
       rating_type: "bullet",
-      rated: true,
-      unrated: true,
       white_initial: [0, 2],
       white_increment_or_delay: [0, 4],
       white_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
@@ -462,8 +445,6 @@ Meteor.startup(function() {
     DynamicRatingsCollection.insert({
       wild_number: 0,
       rating_type: "blitz",
-      rated: true,
-      unrated: true,
       white_initial: [0, 14],
       white_increment_or_delay: [0, 21],
       white_increment_or_delay_type: ["none", "inc", "us", "bronstein"],
@@ -480,8 +461,6 @@ Meteor.startup(function() {
     DynamicRatingsCollection.insert({
       wild_number: 0,
       rating_type: "standard",
-      rated: true,
-      unrated: true,
       white_initial: [0, 600],
       white_increment_or_delay: [0, 900],
       white_increment_or_delay_type: ["none", "inc", "us", "bronstein"],

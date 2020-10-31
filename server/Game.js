@@ -417,6 +417,7 @@ class Game {
     }
 
     if (
+      rated &&
       !DynamicRatings.meetsRatingTypeRules(
         message_identifier,
         "white",
@@ -424,7 +425,6 @@ class Game {
         white_initial,
         white_increment_or_delay,
         white_increment_or_delay_type,
-        rated,
         "start",
         !!color
       )
@@ -433,6 +433,7 @@ class Game {
     }
 
     if (
+      rated &&
       !DynamicRatings.meetsRatingTypeRules(
         message_identifier,
         "black",
@@ -440,7 +441,6 @@ class Game {
         black_initial,
         black_increment_or_delay,
         black_increment_or_delay_type,
-        rated,
         "start",
         !!color
       )
@@ -1196,7 +1196,7 @@ class Game {
     this.GameCollection.update({ _id: game_id, status: game.status }, modifier);
 
     if (setobject.result) {
-      if (game.rated) this.updateUserRatings(game, setobject.result, setobject.status2);
+      this.updateUserRatings(game, setobject.result, setobject.status2);
       GameHistory.savePlayedGame(message_identifier, game_id);
       this.sendGameStatus(
         game_id,
@@ -1844,7 +1844,7 @@ class Game {
           }
         }
       );
-      if (game.rated) this.updateUserRatings(game, "1/2-1/2", status2);
+      this.updateUserRatings(game, "1/2-1/2", status2);
       GameHistory.savePlayedGame(message_identifier, game_id);
       this.sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "1/2-1/2", status2);
       return;
@@ -2056,7 +2056,7 @@ class Game {
     );
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
-    if (game.rated) this.updateUserRatings(game, "1/2-1/2", 13);
+    this.updateUserRatings(game, "1/2-1/2", 13);
     GameHistory.savePlayedGame(message_identifier, game_id);
     this.sendGameStatus(
       game_id,
@@ -2547,7 +2547,7 @@ class Game {
 
     Users.setGameStatus(message_identifier, game.white.id, "examining");
     Users.setGameStatus(message_identifier, game.black.id, "examining");
-    if (game.rated) this.updateUserRatings(game, "result", reason);
+    this.updateUserRatings(game, "result", reason);
     GameHistory.savePlayedGame(message_identifier, game._id);
     this.sendGameStatus(game._id, game.white.id, game.black.id, game.tomove, result, reason);
   }
@@ -3768,7 +3768,7 @@ class Game {
       );
       if (game.white.id !== "computer") Users.setGameStatus("server", game.white.id, "examining");
       if (game.black.id !== "computer") Users.setGameStatus("server", game.black.id, "examining");
-      if (game.rated) this.updateUserRatings(game, setobject.result, 2);
+      this.updateUserRatings(game, setobject.result, 2);
       GameHistory.savePlayedGame("server", game_id);
       this.sendGameStatus(game_id, game.white.id, game.black.id, color, setobject.result, 2);
     }, actual_milliseconds);
@@ -3841,7 +3841,63 @@ class Game {
     }, 120000);
   }
 
-  updateUserRatings(game, result, reason) {}
+  updateUserRatings(game, result, reason) {
+    if (!game.rated) return;
+
+    const white = Meteor.users.findOne({ _id: game.white.id });
+    const black = Meteor.users.findOne({ _id: game.black.id });
+
+    const whiteupdate = !!white ? white.ratings[game.rating_type] : null;
+    const blackupdate = !!black ? black.ratings[game.rating_type] : null;
+
+    if (!whiteupdate || !blackupdate)
+      throw new ICCMeteorError(
+        "server",
+        "Unable to update ratings",
+        "A rated game has ended, but I cannot find two players"
+      );
+
+    const wassess = SystemConfiguration.winDrawLossAssessValues(whiteupdate, blackupdate);
+    const bassess = SystemConfiguration.winDrawLossAssessValues(blackupdate, whiteupdate);
+
+    // reason = 0-12, a win and loss
+    // reason = 13-23 is a draw
+    // reason = 24-42 is abort/adjourn/etc. no update
+    if (reason >= 24) return;
+
+    if (reason < 13) {
+      // somebody won
+      if (result === "1-0") {
+        whiteupdate.won++;
+        blackupdate.lost++;
+        whiteupdate.rating = wassess.win;
+        blackupdate.rating = bassess.loss;
+      } else {
+        whiteupdate.lost++;
+        blackupdate.won++;
+        whiteupdate.rating = wassess.loss;
+        blackupdate.rating = bassess.win;
+      }
+    } else {
+      // they both drew
+      whiteupdate.draw++;
+      blackupdate.draw++;
+      whiteupdate.rating = wassess.draw;
+      blackupdate.rating = bassess.draw;
+    }
+
+    const wg = whiteupdate.won + whiteupdate.draw + whiteupdate.lost >= 20;
+    const bg = blackupdate.won + blackupdate.draw + blackupdate.lost >= 20;
+
+    if (wg && whiteupdate.rating > whiteupdate.best) whiteupdate.best = whiteupdate.rating;
+    if (bg && blackupdate.rating > blackupdate.best) blackupdate.best = blackupdate.rating;
+
+    const setobject = { $set: {} };
+    setobject.$set["ratings." + game.rating_type] = whiteupdate;
+    Meteor.users.update({ _id: white._id }, setobject);
+    setobject.$set["ratings." + game.rating_type] = blackupdate;
+    Meteor.users.update({ _id: black._id }, setobject);
+  }
 
   sendGameStatus(game_id, white_id, black_id, tomove, result, status) {
     log.debug(
@@ -3995,9 +4051,7 @@ Meteor.publish("game_history", function() {
   );
 });
 
-if (Meteor.isTest || Meteor.isAppTest) {
-  GameHistory.collection = GameHistoryCollection;
-}
+GameHistory.collection = GameHistoryCollection;
 
 Meteor.startup(() => {
   function initialLoad() {

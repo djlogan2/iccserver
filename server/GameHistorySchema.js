@@ -59,7 +59,7 @@ export const GameHistorySchema = new SimpleSchema({
   status2: Number,
   wild: Number,
   rating_type: String,
-  rated: Boolean,
+  rated: { type: Boolean, required: false },
   clocks: {
     type: new SimpleSchema({
       white: new SimpleSchema({

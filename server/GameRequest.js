@@ -265,6 +265,7 @@ GameRequests.addLocalGameSeek = function(
   if (!self.ratings[rating_type])
     throw new ICCMeteorError(message_identifier, "Invalid rating type");
   if (
+    rated &&
     !DynamicRatings.meetsRatingTypeRules(
       message_identifier,
       "white",
@@ -272,7 +273,6 @@ GameRequests.addLocalGameSeek = function(
       time,
       inc_or_delay,
       inc_or_delay_type,
-      rated,
       "seek",
       !!color
     )
@@ -282,6 +282,7 @@ GameRequests.addLocalGameSeek = function(
       "seek fails to meet whites rating type rules for time and inc"
     );
   if (
+    rated &&
     !DynamicRatings.meetsRatingTypeRules(
       message_identifier,
       "black",
@@ -289,7 +290,6 @@ GameRequests.addLocalGameSeek = function(
       time,
       inc_or_delay,
       inc_or_delay_type,
-      rated,
       "seek",
       !!color
     )
@@ -612,6 +612,7 @@ GameRequests.addLocalMatchRequest = function(
 
   if (challenger_color_request === "white") {
     if (
+      is_it_rated &&
       !DynamicRatings.meetsRatingTypeRules(
         message_identifier,
         "white",
@@ -619,7 +620,6 @@ GameRequests.addLocalMatchRequest = function(
         challenger_time,
         challenger_inc_or_delay,
         challenger_inc_or_delay_type,
-        is_it_rated,
         "match",
         !!challenger_color_request
       )
@@ -630,6 +630,7 @@ GameRequests.addLocalMatchRequest = function(
         "Failed time and inc rules for challenger"
       );
     if (
+      is_it_rated &&
       !DynamicRatings.meetsRatingTypeRules(
         message_identifier,
         "black",
@@ -637,7 +638,6 @@ GameRequests.addLocalMatchRequest = function(
         receiver_time,
         receiver_inc_or_delay,
         receiver_inc_or_delay_type,
-        is_it_rated,
         "match",
         !!challenger_color_request
       )
@@ -649,6 +649,7 @@ GameRequests.addLocalMatchRequest = function(
       );
   } else {
     if (
+      is_it_rated &&
       !DynamicRatings.meetsRatingTypeRules(
         message_identifier,
         "black",
@@ -656,7 +657,6 @@ GameRequests.addLocalMatchRequest = function(
         challenger_time,
         challenger_inc_or_delay,
         challenger_inc_or_delay_type,
-        is_it_rated,
         "match",
         !!challenger_color_request
       )
@@ -667,6 +667,7 @@ GameRequests.addLocalMatchRequest = function(
         "Failed time and inc rules for challenger"
       );
     if (
+      is_it_rated &&
       !DynamicRatings.meetsRatingTypeRules(
         message_identifier,
         "black",
@@ -674,7 +675,6 @@ GameRequests.addLocalMatchRequest = function(
         receiver_time,
         receiver_inc_or_delay,
         receiver_inc_or_delay_type,
-        is_it_rated,
         "match",
         !!challenger_color_request
       )
