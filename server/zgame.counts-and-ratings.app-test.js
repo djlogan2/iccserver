@@ -10,7 +10,7 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game, GameHistory } from "./Game";
 
-describe.only("Game counts and ratings", function() {
+describe("Game counts and ratings", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("Winning an unrated game in a category updates rating object correctly", function() {
