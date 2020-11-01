@@ -6,6 +6,7 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { Meteor } from "meteor/meteor";
 import { Match } from "meteor/check";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { Random } from "meteor/random";
 
 describe("Ratings", function() {
   const self = TestHelpers.setupDescribe.call(this, { dynamicratings: false });
@@ -94,6 +95,7 @@ describe("Ratings", function() {
       )
     );
   });
+
   it("should allow wild_number to not be specified", function() {
     self.loggedonuser = TestHelpers.createUser({
       roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
@@ -117,17 +119,25 @@ describe("Ratings", function() {
       )
     );
   });
-  // it("should fail an add seek request if wild is not allowed", function() {
-  //   // We cannot even test this until we are allowing more than one wild type
-  //   chai.assert.fail("do me");
-  // });
-  // it("should fail an add match request if wild is not allowed", function() {
-  //   chai.assert.fail("do me");
-  // });
-  // it("should fail a start local game if wild is not allowed", function() {
-  //   // We cannot even test this until we are allowing more than one wild type
-  //   chai.assert.fail("do me");
-  // });
+  it.skip("should fail an add seek request if wild is not allowed", function() {
+    // We cannot even test this until we are allowing more than one wild type
+    chai.assert.fail("do me");
+  });
+  it.skip("should fail an add match request if wild is not allowed", function() {
+    chai.assert.fail("do me");
+  });
+  it.skip("should fail a start local game if wild is not allowed", function() {
+    // We cannot even test this until we are allowing more than one wild type
+    chai.assert.fail("do me");
+  });
+  it.skip("should fail wild types ovelap with time controls", function() {
+    // We cannot even test this until we are allowing more than one wild type
+    chai.assert.fail("do me");
+  });
+  it.skip("should succeed time controls overlap (wini, bini, winc, binc, winctype, binctype, wetime, betime) but wild types do not", function() {
+    // We cannot even test this until we are allowing more than one wild type
+    chai.assert.fail("do me");
+  });
   //   rating_type,
   it("should always require rating_type, as this is it's name", function() {
     self.loggedonuser = TestHelpers.createUser({
@@ -1303,11 +1313,11 @@ describe("Ratings", function() {
         null,
         null,
         null,
-        [5, 15],
+        [10 * x + 1, 10 * x + 10],
         null,
         null,
         null,
-        [5, 15],
+        [10 * x + 1, 10 * x + 10],
         false,
         true,
         false,
@@ -1374,5 +1384,440 @@ describe("Ratings", function() {
 
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => DynamicRatings.deleteRatingType("mi1", "rating-type"), ICCMeteorError);
+  });
+
+  it("should fail if there is any overlap. Testing overlap of parameter white_initial", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    DynamicRatings.addRatingType(
+      "mi1",
+      [0],
+      Random.id(),
+      [1, 10],
+      null,
+      ["none"],
+      null,
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    DynamicRatings.addRatingType(
+      "mi2",
+      [0],
+      Random.id(),
+      [10, 20],
+      null,
+      ["none"],
+      null,
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+    DynamicRatings.addRatingType(
+      "mi3",
+      [0],
+      Random.id(),
+      [20, 30],
+      null,
+      ["none"],
+      null,
+      null,
+      null,
+      ["none"],
+      [40, 50],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+  });
+
+  it("should fail if there is any overlap. Testing overlap of parameter white_increment_or_delay", function() {
+    this.timeout(500000);
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    DynamicRatings.addRatingType(
+      "mi4",
+      [0],
+      Random.id(),
+      [1, 10],
+      [1, 10],
+      ["inc"],
+      null,
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    DynamicRatings.addRatingType(
+      "mi5",
+      [0],
+      Random.id(),
+      [1, 10],
+      [24, 30],
+      ["inc"],
+      null,
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+    DynamicRatings.addRatingType(
+      "mi6",
+      [0],
+      Random.id(),
+      [1, 10],
+      [35, 40],
+      ["inc"],
+      null,
+      null,
+      null,
+      ["none"],
+      [30, 40],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+  });
+
+  it("should fail if there is any overlap. Testing overlap of parameter white_increment_or_delay_type", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    DynamicRatings.addRatingType(
+      "mi7",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none", "inc"],
+      [1, 10],
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    DynamicRatings.addRatingType(
+      "mi8",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["inc", "bronstein"],
+      [1, 10],
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+    DynamicRatings.addRatingType(
+      "mi9",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["bronstein"],
+      [1, 10],
+      null,
+      null,
+      ["none"],
+      [30, 40],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+  });
+
+  it("should fail if there is any overlap. Testing overlap of parameter white_etime", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    DynamicRatings.addRatingType(
+      "mi10",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    DynamicRatings.addRatingType(
+      "mi11",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [10, 20],
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+    DynamicRatings.addRatingType(
+      "mi12",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      null,
+      null,
+      ["none"],
+      [30, 40],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+  });
+
+  it("should fail if there is any overlap. Testing overlap of parameter black_initial", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    DynamicRatings.addRatingType(
+      "mi13",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      [1, 10],
+      null,
+      ["none"],
+      null,
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    DynamicRatings.addRatingType(
+      "mi14",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      [10, 20],
+      null,
+      ["none"],
+      null,
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+    DynamicRatings.addRatingType(
+      "mi15",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [30, 40],
+      [20, 30],
+      null,
+      ["none"],
+      null,
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+  });
+
+  it("should fail if there is any overlap. Testing overlap of parameter black_increment_or_delay", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    DynamicRatings.addRatingType(
+      "mi16",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      [1, 10],
+      [1, 10],
+      ["inc"],
+      null,
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    DynamicRatings.addRatingType(
+      "mi17",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      [1, 10],
+      [24, 30],
+      ["inc"],
+      null,
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+    DynamicRatings.addRatingType(
+      "mi18",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [30, 40],
+      [1, 10],
+      [35, 40],
+      ["inc"],
+      null,
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+  });
+
+  it("should fail if there is any overlap. Testing overlap of parameter black_increment_or_delay_type", function() {
+    self.loggedonuser = TestHelpers.createUser({
+      roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
+    });
+    DynamicRatings.addRatingType(
+      "mi19",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      null,
+      null,
+      ["none"],
+      [1, 10],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    DynamicRatings.addRatingType(
+      "mi20",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [20, 30],
+      null,
+      null,
+      ["none", "inc"],
+      [1, 10],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+    DynamicRatings.addRatingType(
+      "mi21",
+      [0],
+      Random.id(),
+      null,
+      null,
+      ["none"],
+      [30, 40],
+      null,
+      null,
+      ["inc", "bronstein"],
+      [1, 10],
+      true,
+      true,
+      true,
+      1600
+    );
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
   });
 });

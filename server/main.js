@@ -20,7 +20,6 @@ import "../server/migrations";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
-import firstAddI18nMessage from "../imports/startup/server/firstI18nMessage";
 
 const log = new Logger("server/main_js");
 
@@ -41,5 +40,4 @@ process.on("uncaughtException", (err, origin) => {
 Meteor.startup(() => {
   firstRunCSS();
   firstRunUsers();
-  firstAddI18nMessage();
 });

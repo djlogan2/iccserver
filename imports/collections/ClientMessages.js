@@ -147,7 +147,8 @@ const DefinedClientMessagesMap = {
   USER_DECLINED_INVITE: {},
   TOO_MANY_PRIVATE_ROOMS: {},
   INVALID_FEN: {},
-  GAME_NOT_FOUND: {}
+  GAME_NOT_FOUND: {},
+  OVERLAPPING_RATING: { parameters: ["rating_type"] }
 };
 
 class ClientMessages {
@@ -230,6 +231,7 @@ function logoutHook(userId) {
 }
 
 Meteor.startup(function() {
+  Object.keys(DefinedClientMessagesMap).forEach(i18n.addIfNotExists);
   Users.addLogoutHook(logoutHook);
 
   if (Meteor.isTest || Meteor.isAppTest) {

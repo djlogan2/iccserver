@@ -4,6 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { Users } from "../imports/collections/users";
+import { ClientMessages } from "../imports/collections/ClientMessages";
 
 const RatingSchema = new SimpleSchema({
   wild_number: { type: Array },
@@ -121,15 +122,20 @@ function validateAndFillRatingObject(message_identifier, obj) {
       "increment/delay has duplicate entries."
     );
 
-  if (
-    (!obj.increment || obj.increment[1]) &&
-    (obj.increment_type && obj.increment_type.length === 1 && obj.increment_type[0] === "none")
-  )
-    throw new ICCMeteorError(
-      message_identifier,
-      "Unable to add rating",
-      "increment/delay type must have at least one option when increment is available"
-    );
+  if (!!obj.increment && obj.increment[1]) {
+    // have an increment and it's not [0,0]
+    if (
+      !obj.increment_type || // We have to have something,
+      (obj.increment_type.length === 1 && obj.increment_type[0] === "none") // and other than "none"
+    )
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to add rating",
+        "increment/delay type must have at least one option when increment is available"
+      );
+  }
+
+  if (obj.initial && !obj.increment) obj.increment = [0, 0];
 
   if (obj.initial || obj.increment) {
     if (obj.etime) {
@@ -219,6 +225,40 @@ function validateAndFillRatingObject(message_identifier, obj) {
   return obj;
 }
 
+//
+// This was put in because Ruy did not want users to choose a rating category
+// in the client. Thus, the rating category must be determined by finding a
+// unique set of time controls, resulting in only one record.
+// This overlap check and fail must remain in here until the business --
+// and yes, until -- the business decides it wants multiple rating categories,
+// and they have the front end changed so that a rating category is actually
+// picked by a user.
+//
+function overlaps(obj1, obj2) {
+  //
+  // If one or the other is null, no overlap
+  //
+  if (!obj1) return !obj2;
+  if (!obj2) return false;
+
+  //
+  // If one of the other is empty, no overlap
+  //
+  if (!obj1.length || !obj2.length) return false;
+
+  if (typeof obj1[0] === "string") {
+    // Strings, probably increment/delay type
+    // Just make sure there are no matching elements
+    return obj1.some(o1 => obj2.some(o2 => o1 === o2));
+  } else {
+    // Ints, should be etime. Need to make sure
+    // both sets [low1, high1] <-> [low2, high2]
+    // have no overlap
+    let overlap = obj1.some(value => value >= obj2[0] && value <= obj2[1]);
+    return overlap || obj2.some(value => value >= obj1[0] && value <= obj1[1]);
+  }
+}
+
 DynamicRatings.addRatingType = function(
   message_identifier,
   wild_number,
@@ -283,6 +323,31 @@ DynamicRatings.addRatingType = function(
     increment_type: black_increment_or_delay_type,
     etime: black_etime
   });
+
+  let overlap;
+  DynamicRatingsCollection.find({
+    wild_number: { $in: wild_number }
+  })
+    .fetch()
+    .forEach(rating => {
+      if (
+        overlaps(whiteRatingObject.increment_type, rating.white_increment_or_delay_type) &&
+        overlaps(whiteRatingObject.etime, rating.white_etime)
+      ) {
+        overlap = rating["rating_type"];
+      }
+      if (
+        overlaps(blackRatingObject.increment_type, rating.black_increment_or_delay_type) &&
+        overlaps(blackRatingObject.etime, rating.black_etime)
+      ) {
+        overlap = rating["rating_type"];
+      }
+    });
+
+  if (!!overlap) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "OVERLAPPING_RATING", overlap);
+    return;
+  }
 
   DynamicRatingsCollection.insert({
     wild_number: wild_number,
@@ -360,7 +425,6 @@ DynamicRatings.meetsRatingTypeRules = function(
   check_type,
   color_specified
 ) {
-
   check(message_identifier, String);
   check(color, String);
   check(rating_type, String);
@@ -425,7 +489,7 @@ Meteor.publish("DynamicRatings", function() {
 DynamicRatings.collection = DynamicRatingsCollection;
 
 Meteor.startup(function() {
-  if (DynamicRatingsCollection.find().count() === 0) {
+  if (!Meteor.isTest && !Meteor.isAppTest && DynamicRatingsCollection.find().count() === 0) {
     DynamicRatingsCollection.insert({
       wild_number: 0,
       rating_type: "bullet",
