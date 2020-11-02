@@ -8,9 +8,11 @@ export default class BlackPlayerClock extends Component {
   constructor(props) {
     log.trace("BlackPlayerClock constructor", props);
     super(props);
+    const now = new Date().getTime();
+    const start = this.props.game.clocks[this.props.color].starttime || now;
     const current =
       this.props.game && this.props.game.clocks
-        ? this.props.game.clocks[this.props.color].current
+        ? this.props.game.clocks[this.props.color].current - now + start
         : 0;
     this.state = {
       game_current: current,
@@ -23,7 +25,9 @@ export default class BlackPlayerClock extends Component {
 
   static getDerivedStateFromProps(props, state) {
     const running = props.game.status === "playing" && props.game.tomove === props.color;
-    const pcurrent = props.game.clocks ? props.game.clocks[props.color].current : 0;
+    const now = new Date().getTime();
+    const start = props.game.clocks[props.color].starttime || now;
+    const pcurrent = props.game.clocks ? props.game.clocks[props.color].current - now + start : 0;
 
     const returnstate = {};
     const mark = new Date().getTime();
@@ -38,9 +42,6 @@ export default class BlackPlayerClock extends Component {
       returnstate.running = running;
       returnstate.mark = mark;
     }
-
-    if (!!Object.entries(returnstate).length)
-      log.debug("derivedStateFromProps for " + props.color, returnstate);
 
     return returnstate;
   }

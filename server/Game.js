@@ -3805,8 +3805,7 @@ class Game {
     )
       return "examining";
 
-    if (!!this.GameCollection.find({ "observers.id": userId }).count())
-      return "observing";
+    if (!!this.GameCollection.find({ "observers.id": userId }).count()) return "observing";
 
     return "none";
   }
@@ -3829,11 +3828,13 @@ class Game {
     });
     const interval = Meteor.setInterval(() => {
       log.debug("Two minute time expired, resigning/unobserving/status", userId);
-      this.localResignAllGames("server", userId, 4);
-      this.localUnobserveAllGames("server", userId, true, true);
-      Users.setGameStatus("server", userId, "none");
-      cursor.stop();
       Meteor.clearInterval(interval);
+      if (!!Meteor.users.find({ _id: userId, "status.online": false }).count()) {
+        this.localResignAllGames("server", userId, 4);
+        this.localUnobserveAllGames("server", userId, true, true);
+        Users.setGameStatus("server", userId, "none");
+        cursor.stop();
+      }
     }, 120000);
   }
 
