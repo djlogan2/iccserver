@@ -3805,8 +3805,7 @@ class Game {
     )
       return "examining";
 
-    if (!!this.GameCollection.find({ "observers.id": userId }).count())
-      return "observing";
+    if (!!this.GameCollection.find({ "observers.id": userId }).count()) return "observing";
 
     return "none";
   }
@@ -4165,14 +4164,14 @@ Meteor.methods({
   declineTakeback: (message_identifier, game_id) =>
     global._gameObject.declineLocalTakeback(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
-  resignGame: (message_identifier, game_id) =>
-    global._gameObject.resignLocalGame(message_identifier, game_id),
+  resignGame: (message_identifier, game_id) => LegacyUser.resignGame(message_identifier, game_id),
+  // global._gameObject.resignLocalGame(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   requestToDraw: (message_identifier, game_id) =>
-    global._gameObject.requestLocalDraw(message_identifier, game_id),
+    LegacyUser.requestToDraw(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
-  acceptDraw: (message_identifier, game_id) =>
-    global._gameObject.acceptLocalDraw(message_identifier, game_id),
+  acceptDraw: (message_identifier, game_id) => LegacyUser.acceptDraw(message_identifier, game_id),
+  // global._gameObject.acceptLocalDraw(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineDraw: (message_identifier, game_id) =>
     global._gameObject.declineLocalDraw(message_identifier, game_id),
