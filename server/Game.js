@@ -3745,7 +3745,6 @@ class Game {
       if (!game) throw new ICCMeteorError("server", "Unable to find a game to expire time on");
       const setobject = {};
       const addtosetobject = {};
-      setobject["clocks." + color + ".current"] = 0;
       setobject.result = color === "white" ? "0-1" : "1-0";
       setobject.status2 = 2;
       setobject.status = "examining";
