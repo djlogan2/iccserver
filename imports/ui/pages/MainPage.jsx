@@ -90,6 +90,8 @@ export default class MainPage extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (!!this.props.game && !!nextProps.game) {
+      // TODO: I have no idea what this is supposed to be doing, but it is not going to work.
+      //       actions do not get published.
       if (nextProps.game.actions.length !== this.props.game.actions.length)
         if (
           this.props.game.status === "examining" &&

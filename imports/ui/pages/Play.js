@@ -45,49 +45,24 @@ class PlayNotifier extends Component {
     // log.trace("PlayNotifier render", this.props);
     const translator = i18n.createTranslator("Common.MainPage", "en-US");
 
-    if (!this.props.game) {
+    if (!this.props.game || !this.props.game.pending) {
       return null;
     }
 
-    const { game, userId } = this.props;
-    const actions = game.actions || [];
-
-    let actionPopup = null;
     const othercolor = Meteor.userId() === this.props.game.white.id ? "black" : "white";
 
-    for (const action of actions) {
-      const issuer = action["issuer"];
-      switch (action["type"]) {
-        case "takeback_requested":
-          if (
-            issuer !== this.userId &&
-            (!!game.pending && game.pending[othercolor].takeback.number > 0)
-          ) {
-            let moveCount =
-              game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
-            actionPopup = this.renderActionPopup(translator(moveCount), "takeBack");
-          }
-          break;
-        case "draw_requested":
-          if (issuer !== userId && (!!game.pending && game.pending[othercolor].draw !== "0")) {
-            actionPopup = this.renderActionPopup(translator("draw"), "draw");
-          }
-          break;
-        case "adjourn_requested":
-          if (issuer !== userId && (!!game.pending && game.pending[othercolor].adjourn !== "0")) {
-            actionPopup = this.renderActionPopup("Adjourn", "adjourn");
-          }
-          break;
-        case "abort_requested":
-          if (issuer !== userId && (!!game.pending && game.pending[othercolor].abort !== "0")) {
-            actionPopup = this.renderActionPopup(translator("abort"), "abort");
-          }
-          break;
-        default:
-          break;
-      }
+    if (this.props.game.pending[othercolor].takeback.mid !== "0") {
+      let moveCount =
+        this.props.game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
+      return this.renderActionPopup(translator(moveCount), "takeBack");
+    } else if (this.props.game.pending[othercolor].draw !== "0") {
+      return this.renderActionPopup(translator("draw"), "draw");
+    } else if (this.props.game.pending[othercolor].adjourn !== "0") {
+      return this.renderActionPopup("Adjourn", "adjourn");
+    } else if (this.props.game.pending[othercolor].abort !== "0") {
+      return this.renderActionPopup(translator("abort"), "abort");
     }
-    return actionPopup;
+    return null;
   }
 }
 
@@ -430,14 +405,6 @@ class Play extends Component {
     const gamemessage = this.clientMessages(this.message_identifier);
     const visible =
       !!gamemessage && !!this.props.in_game && this.props.in_game.status === "examining";
-    log.debug(
-      "Game message: " +
-        !!gamemessage +
-        ", in game: " +
-        !!this.props.in_game +
-        ", visible: " +
-        visible
-    );
     if (visible) {
       result = this.props.in_game.result;
       status2 = this.props.in_game.status2;
@@ -559,6 +526,7 @@ export default withTracker(() => {
 const game_timestamps = {};
 Game.find({ status: "playing" }).observeChanges({
   added(id, game) {
+    log.debug("timstamp observer added, id=" + id);
     let color;
     if (game.white.id === Meteor.userId()) color = "white";
     else if (game.black.id === Meteor.userId()) color = "black";
@@ -572,11 +540,13 @@ Game.find({ status: "playing" }).observeChanges({
   },
   changed(id, fields) {
     if (fields.status && fields.status !== "playing") {
+      log.debug("timstamp observer changed, no longer playing id=" + id);
       if (!!game_timestamps[id]) {
         game_timestamps[id].timestamp.end();
         delete game_timestamps[id];
       }
     } else if (fields.lag) {
+      log.debug("timstamp observer changed lag, id=" + id);
       if (!game_timestamps[id]) {
         log.error("Unable to find timestamp for played game", id);
         return;
@@ -587,6 +557,7 @@ Game.find({ status: "playing" }).observeChanges({
     }
   },
   removed(id) {
+    log.debug("timstamp observer removed, id=" + id);
     if (!!game_timestamps[id]) {
       try {
         game_timestamps[id].timestamp.end();

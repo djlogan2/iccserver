@@ -3745,7 +3745,6 @@ class Game {
       if (!game) throw new ICCMeteorError("server", "Unable to find a game to expire time on");
       const setobject = {};
       const addtosetobject = {};
-      setobject["clocks." + color + ".current"] = 0;
       setobject.result = color === "white" ? "0-1" : "1-0";
       setobject.status2 = 2;
       setobject.status = "examining";
@@ -3828,11 +3827,13 @@ class Game {
     });
     const interval = Meteor.setInterval(() => {
       log.debug("Two minute time expired, resigning/unobserving/status", userId);
-      this.localResignAllGames("server", userId, 4);
-      this.localUnobserveAllGames("server", userId, true, true);
-      Users.setGameStatus("server", userId, "none");
-      cursor.stop();
       Meteor.clearInterval(interval);
+      if (!!Meteor.users.find({ _id: userId, "status.online": false }).count()) {
+        this.localResignAllGames("server", userId, 4);
+        this.localUnobserveAllGames("server", userId, true, true);
+        Users.setGameStatus("server", userId, "none");
+        cursor.stop();
+      }
     }, 120000);
   }
 

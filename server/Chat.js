@@ -124,9 +124,15 @@ class Chat {
     }
 
     function playedGames(user) {
-      const cursor = Game.GameCollection.find({
-        $and: [{ status: "playing" }, { $or: [{ "white.id": user._id }, { "black.id": user._id }] }]
-      });
+      const cursor = Game.GameCollection.find(
+        {
+          $and: [
+            { status: "playing" },
+            { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
+          ]
+        },
+        { fields: { _id: 1 } }
+      );
       log.debug("playedGames", cursor.count());
       return cursor;
     }
@@ -144,7 +150,7 @@ class Chat {
     }
 
     function observedGames(user) {
-      const cursor = Game.GameCollection.find({ "observers.id": user._id });
+      const cursor = Game.GameCollection.find({ "observers.id": user._id },{fields: {_id: 1}});
       log.debug("ObservedGames", cursor.count());
       return cursor;
     }
