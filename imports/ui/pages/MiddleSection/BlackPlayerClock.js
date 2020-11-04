@@ -6,8 +6,9 @@ const log = new Logger("client/BlackPlayerClock_JS");
 
 export default class BlackPlayerClock extends Component {
   constructor(props) {
-    log.trace("BlackPlayerClock constructor", props);
     super(props);
+    log.trace("BlackPlayerClock constructor", props);
+    this.interval = "none";
     const now = new Date().getTime();
     const start = this.props.game.clocks[this.props.color].starttime || now;
     const current =
@@ -25,8 +26,9 @@ export default class BlackPlayerClock extends Component {
 
   static getDerivedStateFromProps(props, state) {
     const running = props.game.status === "playing" && props.game.tomove === props.color;
-    const now = new Date().getTime();
-    const start = props.game.clocks[props.color].starttime || now;
+
+    const now = running ? new Date().getTime() : 0;
+    const start = running ? props.game.clocks[props.color].starttime || now : 0;
     const pcurrent = props.game.clocks ? props.game.clocks[props.color].current - now + start : 0;
 
     const returnstate = {};
@@ -39,6 +41,10 @@ export default class BlackPlayerClock extends Component {
     }
 
     if (running !== state.running) {
+      log.trace(
+        "BlackPlayerClock " + props.color + " getDerivedStateFromProps new running: ",
+        running
+      );
       returnstate.running = running;
       returnstate.mark = mark;
     }
@@ -47,33 +53,44 @@ export default class BlackPlayerClock extends Component {
   }
 
   componentWillUnmount() {
-    log.trace("BlackPlayerClock componentWillUnmount");
-    if (!!this.interval) {
-      Meteor.clearInterval(this.interval);
-      delete this.interval;
+    if (this.interval !== "none") {
+      const result = Meteor.clearInterval(this.interval);
+      log.trace(
+        "BlackPlayerClock " + this.props.color + " componentWillUnmount clearing interval",
+        { interval: this.interval, result: result }
+      );
+      this.interval = "none";
     }
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (!!this.interval && !nextState.running) {
-      Meteor.clearInterval(this.interval);
-      delete this.interval;
+    if (this.interval !== "none" && !nextState.running) {
+      const result = Meteor.clearInterval(this.interval);
+      log.trace(
+        "BlackPlayerClock " +
+          this.props.color +
+          " shouldComponentUpdate clearing interval because upcoming state is not running",
+        { interval: this.interval, result: result }
+      );
+      this.interval = "none";
     }
     return true;
   }
 
-  componentDidUpdate = () => {
+  componentDidUpdate() {
     const self = this;
 
-    if (!this.state.running || !!this.interval) {
+    if (!this.state.running || this.interval !== "none") {
       return;
     }
 
+    log.trace("BlackPlayerClock " + this.props.color + " starting interval");
     const iod = this.props.game.clocks[this.props.color].inc_or_delay;
     const type = this.props.game.clocks[this.props.color].delaytype;
 
     if (type === "us" || type === "bronstein") {
-      log.debug("starting clock for delay for " + this.props.color, this.state);
+      log.trace("starting clock for delay for " + this.props.color, this.state);
+
       self.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
         self.setState({ mark: new Date().getTime() });
@@ -83,17 +100,20 @@ export default class BlackPlayerClock extends Component {
           const current = self.state.current - sub;
           self.setState({ current: current, mark: mark });
         }, 50);
+        log.trace(this.props.color + " delay/run interval is", self.interval);
       }, iod * 1000);
+      log.trace(this.props.color + " delay interval is", self.interval);
     } else {
-      log.debug("starting clock for countdown for " + this.props.color, this.state);
+      log.trace("starting clock for countdown for " + this.props.color, this.state);
       self.interval = Meteor.setInterval(() => {
         const mark = new Date().getTime();
         const sub = mark - self.state.mark;
         const current = self.state.current - sub;
         self.setState({ current: current, mark: mark });
       }, 50);
+      log.trace(this.props.color + " interval is", self.interval);
     }
-  };
+  }
 
   render() {
     let hour;

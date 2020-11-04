@@ -546,7 +546,6 @@ Game.find({ status: "playing" }).observeChanges({
         delete game_timestamps[id];
       }
     } else if (fields.lag) {
-      log.debug("timstamp observer changed lag, id=" + id);
       if (!game_timestamps[id]) {
         log.error("Unable to find timestamp for played game", id);
         return;

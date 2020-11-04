@@ -275,8 +275,7 @@ class Game {
     if (game.legacy_game_number)
       throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
-    if (!active_games[game_id])
-      throw new ICCMeteorError("server", "Unable to find chessboard validator for game");
+    if (!active_games[game_id]) active_games[game_id] = new Chess.Chess(game.fen);
 
     return game;
   }
