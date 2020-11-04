@@ -88,7 +88,7 @@ export const ExaminedGameSchema = new SimpleSchema({
     }
   },
   isolation_group: String,
-  result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*"] },
+  result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*", "aborted"] },
   status2: { type: Number, required: false },
   owner: { type: String, required: false },
   private: { type: Boolean, required: false },

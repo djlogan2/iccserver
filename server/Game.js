@@ -4173,26 +4173,30 @@ Meteor.methods({
   acceptDraw: (message_identifier, game_id) => LegacyUser.acceptDraw(message_identifier, game_id),
   // global._gameObject.acceptLocalDraw(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
-  declineDraw: (message_identifier, game_id) =>
-    global._gameObject.declineLocalDraw(message_identifier, game_id),
+  declineDraw: (message_identifier, game_id) => LegacyUser.declineDraw(message_identifier, game_id),
+  // global._gameObject.declineLocalDraw(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   requestToAbort: (message_identifier, game_id) =>
-    global._gameObject.requestLocalAbort(message_identifier, game_id),
+    LegacyUser.requestToAbort(message_identifier, game_id),
+  // global._gameObject.requestLocalAbort(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
-  acceptAbort: (message_identifier, game_id) =>
-    global._gameObject.acceptLocalAbort(message_identifier, game_id),
+  acceptAbort: (message_identifier, game_id) => LegacyUser.acceptAbort(message_identifier, game_id),
+  // global._gameObject.acceptLocalAbort(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineAbort: (message_identifier, game_id) =>
     global._gameObject.declineLocalAbort(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   requestToAdjourn: (message_identifier, game_id) =>
-    global._gameObject.requestLocalAdjourn(message_identifier, game_id),
+    LegacyUser.requestToAdjourn(message_identifier, game_id),
+  //  global._gameObject.requestLocalAdjourn(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   acceptAdjourn: (message_identifier, game_id) =>
-    global._gameObject.acceptLocalAdjourn(message_identifier, game_id),
+    LegacyUser.acceptAdjourn(message_identifier, game_id),
+  // global._gameObject.acceptLocalAdjourn(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineAdjourn: (message_identifier, game_id) =>
-    global._gameObject.declineLocalAdjourn(message_identifier, game_id),
+    LegacyUser.declineAdjourn(message_identifier, game_id),
+  // global._gameObject.declineLocalAdjourn(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   drawCircle: (message_identifier, game_id, square, color, size) =>
     global._gameObject.drawCircle(message_identifier, game_id, square, color, size),
