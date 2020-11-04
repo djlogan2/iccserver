@@ -1,6 +1,6 @@
 import { Logger } from "../../lib/server/Logger";
 import moo from "moo";
-//const moo = require("moo");
+import date from "date-and-time";
 
 const log = new Logger("server/pgnparser_js");
 
@@ -40,8 +40,7 @@ export class Parser {
   }
 
   pushdebug(name, type, value) {
-    if(this.debug.length >= 100)
-      this.debug.shift();
+    if (this.debug.length >= 100) this.debug.shift();
     this.debug.push([name, type, value]);
   }
 
@@ -255,6 +254,26 @@ export class Parser {
         case "BlackUSCF":
         case "BlackElo":
           this.gameobject.black.rating = parseInt(this.gameobject.tags[tag]);
+          break;
+        case "Date":
+          const newdate = date.parse("YYYY.DD.MM");
+          if (!this.gameobject.startTime) this.gameobject.startTime = newdate;
+          else {
+            this.gameobject.startTime.setFullYear(newdate.getFullYear());
+            this.gameobject.setMonth(newdate.getMonth());
+            this.gameobject.setDate(newdate.getDate());
+          }
+          break;
+        case "Time":
+          const newtime = date.parse("hh.mm.ss");
+          if (!this.gameobject.startTime) {
+            this.gameobject.startTime = newtime;
+          } else {
+            this.gameobject.setHours(newtime.getHours());
+            this.gameobject.setMinutes(newtime.getMinutes());
+            this.gameobject.setSeconds(newtime.getSeconds());
+            this.gameobject.setMilliseconds(0);
+          }
           break;
         default:
           break;

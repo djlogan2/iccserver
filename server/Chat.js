@@ -92,15 +92,18 @@ class Chat {
 
     function roomChatRooms(user) {
       if (user.cf === "c") return this.ready();
-      const cursor = self.roomCollection.find({
-        isolation_group: user.isolation_group,
-        $or: [
-          { public: true },
-          { "members.id": user._id },
-          { "invited.id": user._id },
-          { owner: user._id }
-        ]
-      });
+      const cursor = self.roomCollection.find(
+        {
+          isolation_group: user.isolation_group,
+          $or: [
+            { public: true },
+            { "members.id": user._id },
+            { "invited.id": user._id },
+            { owner: user._id }
+          ]
+        },
+        { fields: { members: 1 } }
+      );
       log.debug("roomChatRooms", cursor.count());
       return cursor;
     }
@@ -150,7 +153,7 @@ class Chat {
     }
 
     function observedGames(user) {
-      const cursor = Game.GameCollection.find({ "observers.id": user._id },{fields: {_id: 1}});
+      const cursor = Game.GameCollection.find({ "observers.id": user._id }, { fields: { _id: 1 } });
       log.debug("ObservedGames", cursor.count());
       return cursor;
     }
@@ -169,7 +172,7 @@ class Chat {
 
     Meteor.publishComposite("chat", {
       find() {
-        return Meteor.users.find({ _id: this.userId });
+        return Meteor.users.find({ _id: this.userId }, { fields: { isolation_group: 1 } });
       },
       children: [
         { find: personalChat },
