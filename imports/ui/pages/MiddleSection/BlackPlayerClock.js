@@ -10,7 +10,10 @@ export default class BlackPlayerClock extends Component {
     log.trace("BlackPlayerClock constructor", props);
     this.interval = "none";
     const now = new Date().getTime();
-    const start = this.props.game.clocks[this.props.color].starttime || now;
+    const start =
+      this.props.game && this.props.game.clocks
+        ? this.props.game.clocks[this.props.color].starttime || now
+        : 0;
     const current =
       this.props.game && this.props.game.clocks
         ? this.props.game.clocks[this.props.color].current - now + start
