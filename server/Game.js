@@ -1,3 +1,4 @@
+import _ from "lodash";
 import Chess from "chess.js";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
@@ -19,6 +20,7 @@ import { Parser } from "./pgn/pgnparser";
 //import { Awsmanager } from "./awsmanager";
 
 import date from "date-and-time";
+import { exportGameObjectToPGN } from "../lib/exportpgn";
 
 export const GameHistory = {};
 
@@ -610,6 +612,83 @@ class Game {
     return game_id;
   }
 
+  updateLocalExaminedGameWithObject(message_identifier, game_id, game_object, pgn_text) {
+    log.debug("updateLocalExaminedGameWithObject " + message_identifier);
+    const self = Meteor.user();
+
+    check(self, Object);
+    check(message_identifier, String);
+    check(game_id, String);
+    check(game_object, Object);
+    check(pgn_text, String);
+
+    const existing_game = this.GameCollection.findOne({
+      _id: game_id,
+      status: "examining",
+      "examiners.id": self._id
+    });
+    if (!existing_game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+      return;
+    }
+
+    delete game_object.actions;
+
+    delete existing_game.fen;
+    delete existing_game.status;
+    delete existing_game.clocks;
+    delete existing_game.variations;
+
+    game_object = _.merge(existing_game, game_object);
+
+    if (!game_object.fen)
+      game_object.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+    game_object.actions.push({ type: "loadpgn", issuer: self._id, parameter: { fen: pgn_text } });
+
+    game_object.owner = self._id;
+    game_object.isolation_group = self.isolation_group;
+
+    if (!game_object.status) game_object.status = "examining";
+    if (!game_object.white) game_object.white = { name: "?", rating: 1600 };
+    if (!game_object.black) game_object.black = { name: "?", rating: 1600 };
+    if (!game_object.white.name) game_object.white.name = "?";
+    if (!game_object.black.name) game_object.black.name = "?";
+    if (!game_object.white.rating) game_object.white.rating = 1600;
+    if (!game_object.black.rating) game_object.black.rating = 1600;
+    if (!game_object.wild) game_object.wild = 0;
+    if (!game_object.actions) game_object.actions = [];
+    if (!game_object.clocks)
+      game_object.clocks = {
+        white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
+        black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+      };
+    if (!game_object.startTime) game_object.startTime = new Date();
+    if (!game_object.tomove) game_object.tomove = "w";
+    if (!game_object.actions) game_object.actions = [];
+    if (!game_object.variations) game_object.variations = { movelist: [{}], ecocodes: [] };
+    if (!game_object.variations.cmi) game_object.variations.cmi = 0;
+    if (!game_object.variations.ecocodes) game_object.variations.ecocodes = [];
+
+    function mongoReplacementModifier(keep, change) {
+      var $unset = {};
+      for (var key in change) {
+        if (keep[key] === undefined) {
+          $unset[key] = "";
+        }
+      }
+      var copy = _.clone(keep);
+      delete copy._id;
+      return { $set: copy, $unset: $unset };
+    }
+
+    const modifier = mongoReplacementModifier(game_object, existing_game);
+    this.GameCollection.update({ _id: game_id, status: "examining" }, modifier);
+
+    if (!active_games[game_id]) active_games[game_id] = new Chess.Chess();
+    active_games[game_id].load(game_object.fen);
+  }
+
   startLocalExaminedGameWithObject(message_identifier, game_object) {
     log.debug("startLocalExaminedGameWithObject " + message_identifier);
     const self = Meteor.user();
@@ -740,6 +819,34 @@ class Game {
     Users.setGameStatus(message_identifier, self, "examining");
     active_games[game_id] = chess;
     return game_id;
+  }
+
+  importPGNIntoExaminedGame(message_identifier, game_id, pgn_text) {
+    log.debug("importPGNIntoExaminedGame", pgn_text);
+
+    const self = Meteor.user();
+    check(self, Object);
+    check(message_identifier, String);
+    check(game_id, String);
+    check(pgn_text, String);
+
+    log.debug("importPGNString");
+    const parser = new Parser();
+    try {
+      parser.feed(pgn_text);
+      if (!parser.gamelist || !parser.gamelist.length || parser.gamelist.length > 1) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_PGN");
+        return;
+      }
+      this.updateLocalExaminedGameWithObject(
+        message_identifier,
+        game_id,
+        parser.gamelist[0],
+        pgn_text
+      );
+    } catch (e) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_PGN");
+    }
   }
 
   startLegacyGame(
@@ -2534,7 +2641,7 @@ class Game {
         $push: {
           actions: { type: action_string, issuer: userId }
         },
-        $unset: { pending: "" },
+        $unset: { pending: 1 },
         $set: {
           status: "examining",
           examiners: examiners,
@@ -2824,51 +2931,7 @@ class Game {
     const game = this.GameCollection.findOne({ _id: id });
 
     if (!game) return;
-    return this.finishExportToPGN(game);
-  }
-
-  finishExportToPGN(game) {
-    let title = game.white.name + "-" + game.black.name + ".pgn";
-
-    let pgn = "";
-    pgn += '[Date "' + date.format(game.startTime, "YYYY-MM-DD") + '"]\n';
-    pgn += '[White "' + game.white.name + '"]\n';
-    pgn += '[Black "' + game.black.name + '"]\n';
-    pgn += '[Result "' + game.result + '"]\n';
-    pgn += '[WhiteElo "' + game.white.rating + '"]\n';
-    pgn += '[BlackElo "' + game.black.rating + '"]\n';
-    //pgn += "[Opening " + something + "]\n"; TODO: Do this someday
-    //pgn += "[ECO " + something + "]\n"; TODO: Do this someday
-    //pgn += "[NIC " + something + "]\n"; TODO: Do this someday
-    pgn += '[Time "' + date.format(game.startTime, "HH:mm:ss") + '"]\n';
-    if (!game.clocks) {
-      pgn += '[TimeControl "?"]\n';
-    } else {
-      if (!game.clocks.white.inc_or_delay) game.clocks.white.inc_or_delay = "none";
-      if (!game.clocks.black.inc_or_delay) game.clocks.black.inc_or_delay = "none";
-      switch (game.clocks.white.inc_or_delay_type) {
-        case "none":
-          pgn += '"[TimeControl ' + game.clocks.white.initial / 1000 + '"]\n';
-          break;
-        case "us":
-        case "bronstein":
-        case "inc":
-          pgn +=
-            '[TimeControl "' +
-            game.clocks.white.initial / 1000 +
-            "+" +
-            game.clocks.white.inc_or_delay +
-            '"]\n';
-          break;
-        default:
-          pgn += '[TimeControl "?"]\n';
-          break;
-      }
-    }
-    pgn += "\n";
-    pgn += this.buildPgnFromMovelist(game.variations.movelist);
-    pgn += " " + game.result;
-    return { title, pgn };
+    return exportGameObjectToPGN(game);
   }
 
   findVariation(move, idx, movelist) {
@@ -3555,90 +3618,6 @@ class Game {
     this.localAddObserver(message_identifier, game._id, self._id);
   }
 
-  thisMove(node, move_number, write_move_number, white_to_move) {
-    let string = "";
-
-    if (write_move_number || white_to_move) {
-      string += move_number + ". ";
-      if (!white_to_move) string += "... ";
-    }
-
-    string += node.move;
-
-    if (node.nag) string += " " + node.nag;
-    if (node.comment) string += " {" + node.comment + "}";
-
-    return string;
-  }
-
-  allVariations(movelist, cmi, move_number, white_to_move) {
-    if (!movelist[cmi].variations) return "";
-
-    let string = "";
-    const variations = movelist[cmi].variations.slice(1);
-    const next_move_number = move_number + (white_to_move ? 0 : 1);
-    const next_to_move = !white_to_move;
-
-    variations.forEach(v => {
-      string += "(" + this.thisMove(movelist[v], move_number, true, white_to_move);
-      const nextmove = this.nextMove(movelist, v, next_move_number, next_to_move);
-      if (nextmove) string += " " + nextmove;
-      string += ")";
-    });
-
-    return string;
-  }
-
-  nextMove(movelist, cmi, move_number, white_to_move) {
-    if (!movelist[cmi].variations) return "";
-
-    const next_move_number = move_number + (white_to_move ? 0 : 1);
-    const next_to_move = !white_to_move;
-
-    let string = this.thisMove(
-      movelist[movelist[cmi].variations[0]],
-      move_number,
-      false,
-      white_to_move
-    );
-    const variations = this.allVariations(movelist, cmi, move_number, white_to_move);
-    let nextmove = this.nextMove(
-      movelist,
-      movelist[cmi].variations[0],
-      next_move_number,
-      next_to_move
-    );
-
-    if (!!variations) string += " " + variations;
-
-    if (!!nextmove) {
-      if (!!variations && white_to_move) string += " " + next_move_number + ". ...";
-      string += " " + nextmove;
-    }
-
-    return string;
-  }
-
-  buildPgnFromMovelist(movelist) {
-    let long_string = this.nextMove(movelist, 0, 1, true);
-    let reformatted = "";
-    while (long_string.length > 255) {
-      const idx1 = long_string.lastIndexOf(" ", 255);
-      const idx2 = long_string.indexOf("\n"); // May be in a comment. Also we just want the first one!
-      const idx3 = long_string.lastIndexOf("\t", 255); // May be in a comment
-      const idxmax = Math.max(idx1, idx2, idx3);
-      const idx = Math.min(
-        idx1 === -1 ? idxmax : idx1,
-        idx2 === -1 ? idxmax : idx2,
-        idx3 === -1 ? idxmax : idx3
-      );
-      reformatted = long_string.substr(0, idx) + "\n";
-      long_string = long_string.substring(idx);
-    }
-    reformatted += long_string;
-    return reformatted;
-  }
-
   startGamePing(game_id, computer_color) {
     if (computer_color !== "white") this._startGamePing(game_id, "white");
     if (computer_color !== "black") this._startGamePing(game_id, "black");
@@ -3932,12 +3911,6 @@ class Game {
         "GAME_STATUS_" + color + status
       );
   }
-
-  importPGNString(pgnstring) {
-    log.debug("importPGNString");
-    const parser = new Parser();
-    parser.feed(pgnstring);
-  }
 }
 
 if (!global._gameObject) {
@@ -4020,7 +3993,7 @@ GameHistory.exportToPGN = function(id) {
   check(id, String);
   const game = GameHistoryCollection.findOne({ _id: id });
   if (!game) return;
-  return global._gameObject.finishExportToPGN(game);
+  return exportGameObjectToPGN(game);
 };
 
 GameHistory.search = function(message_identifier, search_parameters, offset, count) {
@@ -4252,6 +4225,9 @@ Meteor.methods({
       black_name,
       wild_number
     ),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  importPGNIntoExaminedGame: (message_identifier, game_id, pgntext) =>
+    global._gameObject.importPGNIntoExaminedGame(message_identifier, game_id, pgntext),
   // eslint-disable-next-line meteor/audit-argument-checks
   moveBackward: (message_identifier, game_id, move_count) =>
     global._gameObject.moveBackward(message_identifier, game_id, move_count),
