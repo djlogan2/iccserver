@@ -4156,13 +4156,16 @@ Meteor.methods({
   },
   // eslint-disable-next-line meteor/audit-argument-checks
   requestTakeback: (message_identifier, game_id, number) =>
-    global._gameObject.requestLocalTakeback(message_identifier, game_id, number),
+    LegacyUser.requestTakeback(message_identifier, game_id, number),
+  // global._gameObject.requestLocalTakeback(message_identifier, game_id, number),
   // eslint-disable-next-line meteor/audit-argument-checks
   acceptTakeBack: (message_identifier, game_id) =>
-    global._gameObject.acceptLocalTakeback(message_identifier, game_id),
+    LegacyUser.acceptTakeback(message_identifier, game_id),
+  // global._gameObject.acceptLocalTakeback(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineTakeback: (message_identifier, game_id) =>
-    global._gameObject.declineLocalTakeback(message_identifier, game_id),
+    LegacyUser.declineTakeback(message_identifier, game_id),
+  // global._gameObject.declineLocalTakeback(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   resignGame: (message_identifier, game_id) => LegacyUser.resignGame(message_identifier, game_id),
   // global._gameObject.resignLocalGame(message_identifier, game_id),
