@@ -51,7 +51,8 @@ const actionSchema = new SimpleSchema({
       "setcastling",
       "setenpassant",
       "settag",
-      "loadfen"
+      "loadfen",
+      "loadpgn"
     ]
   },
   parameter: {
@@ -69,6 +70,7 @@ const actionSchema = new SimpleSchema({
   "parameter.move": { type: String, required: false },
   "parameter.castling": { type: String, required: false },
   "parameter.fen": { type: String, required: false },
+  "parameter.pgn": { type: String, required: false },
   "parameter.tag": { type: String, required: false },
   "parameter.value": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },

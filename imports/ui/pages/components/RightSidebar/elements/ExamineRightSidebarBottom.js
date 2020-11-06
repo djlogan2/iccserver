@@ -15,15 +15,10 @@ export default class ExamineRightSidebarBottom extends Component {
     return (
       <Tabs className="examine-right-sidebar-bottom" defaultActiveKey="1" size="small" type="card">
         <TabPane tab={"Chat"} key="chat">
-          <KibitzChatApp isKibitz={true} gameId={this.props.gameId} />
+          <KibitzChatApp isKibitz={true} gameId={this.props.game._id} />
         </TabPane>
         <TabPane tab="FEN/PGN" key="fen-png">
-          <FenPgn
-            gameId={this.props.gameId}
-            fen={this.props.fen}
-            moveList={this.props.moveList}
-            onPgnUpload={this.props.onPgnUpload}
-          />
+          <FenPgn game={this.props.game} onPgnUpload={this.props.onPgnUpload} />
         </TabPane>
         <TabPane tab="Games" key="games">
           <div className="examine-sidebar-game">work in progress</div>

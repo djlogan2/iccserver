@@ -4,6 +4,7 @@ import { Meteor } from "meteor/meteor";
 
 import { Logger } from "../../../../../../lib/client/Logger";
 import { ImportedPgnFiles } from "../../../../../../lib/client/importpgnfiles";
+import { exportGameObjectToPGN } from "../../../../../../lib/exportpgn";
 
 const log = new Logger("client/FenPgn_js");
 
@@ -12,17 +13,21 @@ const { TextArea } = Input;
 class FenPgn extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      pgn: ""
-    };
+    this.state = { pgn: "" };
   }
 
   componentDidMount() {
     this.loadPgn();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.fen !== this.props.fen) {
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.game.variations.movelist.length !== this.props.game.variations.movelist.length) {
+  //     this.loadPgn();
+  //   }
+  // }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.game.variations.movelist.length !== this.props.game.variations.movelist.length) {
       this.loadPgn();
     }
   }
@@ -34,19 +39,14 @@ class FenPgn extends Component {
   };
 
   loadPgn = () => {
-    let that = this;
-    Meteor.call("exportToPGN", "exportToPGN", this.props.gameId, (err, response) => {
-      if (err) {
-        log.error(err.reason);
-      }
-      that.setState({ pgn: response.pgn });
-    });
+    const pgn = exportGameObjectToPGN(this.props.game);
+    this.setState({ pgn: pgn.pgn });
   };
 
   handleFenChange = e => {
     let newFen = e.target.value;
 
-    Meteor.call("loadFen", "loadFen", this.props.gameId, newFen, err => {
+    Meteor.call("loadFen", "loadFen", this.props.game._id, newFen, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -54,12 +54,17 @@ class FenPgn extends Component {
   };
 
   handlePgnChange = e => {
-    this.setState({ pgn: e.target.value });
+    if (!e.target.value || !e.target.value.length) return;
+    Meteor.call("importPGNIntoExaminedGame", "ipieg", this.props.game._id, e.target.value, err => {
+      if (err) {
+        log.error(err.reason);
+      }
+    });
   };
 
   changeFilehandler = event => {
     let file = event.target.files[0];
-    let that = this;
+    let self = this;
 
     if (!!file) {
       ImportedPgnFiles.insert({
@@ -70,8 +75,8 @@ class FenPgn extends Component {
         transport: "http",
         onUploaded: (err, fileRef) => {
           debugger;
-          that.props.onPgnUpload(fileRef);
-          that.handlePgnLoaded();
+          self.props.onPgnUpload(fileRef);
+          self.handlePgnLoaded();
         },
         streams: "dynamic",
         chunkSize: "dynamic"
@@ -85,7 +90,7 @@ class FenPgn extends Component {
         <div className="fen-png__content">
           <label>FEN</label>
           <Input
-            value={this.props.fen}
+            value={this.props.game.fen}
             onChange={this.handleFenChange}
             placeholder="Your message"
           />
@@ -98,7 +103,7 @@ class FenPgn extends Component {
           />
         </div>
         <div className="fen-pgn__bottom">
-          <a href={"export/pgn/game/" + this.props.gameId}>
+          <a href={"export/pgn/game/" + this.props.game._id}>
             <Button className="fen-pgn__button" type="primary">
               PGN Export
             </Button>

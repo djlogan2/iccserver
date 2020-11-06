@@ -34,12 +34,7 @@ class ExamineRightSidebar extends Component {
           history={this.props.history}
           ref="right_bar_top"
         />
-        <ExamineRightSidebarBottom
-          gameId={this.props.game._id}
-          fen={this.props.game.fen}
-          onPgnUpload={this.props.onPgnUpload}
-          moveList={this.props.game.variations.movelist}
-        />
+        <ExamineRightSidebarBottom game={this.props.game} onPgnUpload={this.props.onPgnUpload} />
       </div>
     );
   }

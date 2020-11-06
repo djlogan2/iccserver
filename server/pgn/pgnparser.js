@@ -256,7 +256,7 @@ export class Parser {
           this.gameobject.black.rating = parseInt(this.gameobject.tags[tag]);
           break;
         case "Date":
-          const newdate = date.parse("YYYY.DD.MM");
+          const newdate = date.parse(this.gameobject.tags[tag], "YYYY.DD.MM");
           if (!this.gameobject.startTime) this.gameobject.startTime = newdate;
           else {
             this.gameobject.startTime.setFullYear(newdate.getFullYear());
@@ -265,7 +265,7 @@ export class Parser {
           }
           break;
         case "Time":
-          const newtime = date.parse("hh.mm.ss");
+          const newtime = date.parse(this.gameobject.tags[tag], "hh.mm.ss");
           if (!this.gameobject.startTime) {
             this.gameobject.startTime = newtime;
           } else {
