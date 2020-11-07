@@ -10,7 +10,8 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { TimestampClient } from "../lib/Timestamp";
-import {Logger} from "../lib/server/Logger";
+import { Logger } from "../lib/server/Logger";
+import { buildPgnFromMovelist } from "../lib/exportpgn";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
@@ -3269,7 +3270,7 @@ describe("Takebacks", function() {
 
     const game = Game.collection.findOne({});
 
-    const pgn = Game.buildPgnFromMovelist(game.variations.movelist);
+    const pgn = buildPgnFromMovelist(game.variations.movelist);
     // I got this from an SCID export of these moves, but removed the whitespace around the parens
     // SCID wrote: ( 1. e4 ) ... and I changed it to (1.e4)
     const expectedpgn =
