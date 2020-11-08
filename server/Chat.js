@@ -126,59 +126,37 @@ class Chat {
       return cursor;
     }
 
-    function playedGames(user) {
+    function games(user) {
       const cursor = Game.GameCollection.find(
-        {
-          $and: [
-            { status: "playing" },
-            { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
-          ]
-        },
-        { fields: { _id: 1 } }
+        { $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }] },
+        { fields: { _id: 1, observers: 1 } }
       );
       log.debug("playedGames", cursor.count());
       return cursor;
     }
 
-    function playedGameKibitzes(game, user) {
+    function gameKibitzes(game, user) {
       const query_object = {
-        type: "kibitz",
         id: game._id,
         isolation_group: user.isolation_group
       };
+      if (game.observers.some(ob => ob.id === user._id))
+        query_object.type = { $in: ["kibitz", "whisper"] };
+      else query_object.type = "kibitz";
       if (user.cf === "c") query_object.child_chat = true;
       const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
-      log.debug("playedGameKibitzes", cursor.count());
-      return cursor;
-    }
-
-    function observedGames(user) {
-      const cursor = Game.GameCollection.find({ "observers.id": user._id }, { fields: { _id: 1 } });
-      log.debug("ObservedGames", cursor.count());
-      return cursor;
-    }
-
-    function observedGameKibitzes(game, user) {
-      const query_object = {
-        type: { $in: ["kibitz", "whisper"] },
-        id: game._id,
-        isolation_group: user.isolation_group
-      };
-      if (user.cf === "c") query_object.child_chat = true;
-      const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
-      log.debug("observedGameKibitzes", cursor.count());
+      log.debug("gameKibitzes", cursor.count());
       return cursor;
     }
 
     Meteor.publishComposite("chat", {
       find() {
-        return Meteor.users.find({ _id: this.userId }, { fields: { isolation_group: 1 } });
+        return Meteor.users.find({ _id: this.userId }, { fields: { isolation_group: 1, cf: 1 } });
       },
       children: [
-        { find: personalChat },
+        { find: games, children: [{ find: gameKibitzes }] },
         { find: roomChatRooms, children: [{ find: roomChat }] },
-        { find: playedGames, children: [{ find: playedGameKibitzes }] },
-        { find: observedGames, children: [{ find: observedGameKibitzes }] }
+        { find: personalChat }
       ]
     });
   }

@@ -1559,13 +1559,13 @@ describe("Local seeks", function() {
 
   it("should add all qualified already-logged on users ids to matchingusers array when a new seek is added", function() {
     const users = [];
+    const update = [];
     for (let x = 0; x < 10; x++) {
       const user = TestHelpers.createUser();
       users.push(user);
-      if (x % 2 === 0) {
-        Meteor.users.update({ _id: user._id }, { $set: { "ratings.standard.rating": 1000 } });
-      }
+      if (!(x % 2)) update.push(user._id);
     }
+    Meteor.users.update({ _id: { $in: update } }, { multi: true });
     self.loggedonuser = TestHelpers.createUser();
     const seek_id = GameRequests.addLocalGameSeek(
       "mi1",

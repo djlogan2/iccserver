@@ -1092,18 +1092,14 @@ describe("Game.localRemoveExaminer", function() {
   it("should fail if issuer is not a current examiner of the game", function() {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
-    const newguy = TestHelpers.createUser();
     const observer = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    Game.localAddExaminer("mi2", game_id, newguy._id);
     self.loggedonuser = observer;
     Game.localAddObserver("mi3", game_id, observer._id);
-    self.loggedonuser = observer;
-    //chai.assert.throws(() => Game.localRemoveExaminer("mi2", game_id, us._id), ICCMeteorError);
     Game.localRemoveExaminer("mi2", game_id, us._id);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi4");
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
@@ -3724,44 +3720,6 @@ describe("when playing a game", function() {
     chai.assert.equal(game.actions[1].parameter.gamelag, 19);
   });
 
-  it("should throw an error if the meteor method is called with a valid game id but a non-player", function(done) {
-    this.timeout(5000);
-    const p1 = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser();
-    self.loggedonuser = p1;
-
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
-
-    self.clock.tick(1000);
-
-    const game1 = Game.collection.findOne({});
-    self.clock.tick(150);
-
-    const client = new TimestampClient(new Logger("test"), "debug2", (key, msg) => {
-      Meteor.call("gamepong", game_id, msg, error => {
-        chai.assert.equal(error.message, "[Unable to find request for response]");
-        done();
-      });
-    });
-
-    self.loggedonuser = otherguy;
-    client.pingArrived(game1.lag.white.active[0]);
-  });
-
   it("should throw an error if the meteor method is called with a an invalid game id", function(done) {
     this.timeout(5000);
     self.loggedonuser = TestHelpers.createUser();
@@ -3811,43 +3769,6 @@ describe("when playing a game", function() {
       });
     });
 
-    client.pingArrived(game1.lag.white.active[0]);
-  });
-
-  it("should throw an error if the meteor method is called with a valid game but a non-active ping id", function(done) {
-    this.timeout(5000);
-    const p1 = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
-    self.loggedonuser = p1;
-
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "standard",
-      true,
-      15,
-      0,
-      "none",
-      15,
-      0,
-      "none",
-      "white"
-    );
-
-    self.clock.tick(1000);
-
-    const game1 = Game.collection.findOne({});
-    self.clock.tick(150);
-
-    const client = new TimestampClient(new Logger("test"), "debug4", (key, msg) => {
-      Meteor.call("gamepong", game_id, msg, error => {
-        chai.assert.equal(error.message, "[Unable to find request for response]");
-        done();
-      });
-    });
-
-    game1.lag.white.active[0].id = "invalidid";
     client.pingArrived(game1.lag.white.active[0]);
   });
 });

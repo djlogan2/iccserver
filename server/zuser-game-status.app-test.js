@@ -264,6 +264,7 @@ describe("Game status field in user record", function() {
 
   gameends.forEach(ge => {
     it("should correctly set status to examining when game ends by " + ge, function(done) {
+      this.timeout(5000);
       const user = TestHelpers.createUser();
       chai.assert.equal(Meteor.users.findOne({ _id: user._id }).status.game, "none");
       setupCondition(user, "playing_local");
