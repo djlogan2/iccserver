@@ -102,7 +102,7 @@ class Chat {
             { owner: user._id }
           ]
         },
-        { fields: { members: 1 } }
+        { fields: { _id: 1, members: 1 } }
       );
       log.debug("roomChatRooms", cursor.count());
       return cursor;
