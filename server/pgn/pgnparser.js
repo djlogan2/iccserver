@@ -269,10 +269,10 @@ export class Parser {
           if (!this.gameobject.startTime) {
             this.gameobject.startTime = newtime;
           } else {
-            this.gameobject.setHours(newtime.getHours());
-            this.gameobject.setMinutes(newtime.getMinutes());
-            this.gameobject.setSeconds(newtime.getSeconds());
-            this.gameobject.setMilliseconds(0);
+            this.gameobject.startTime.setHours(newtime.getHours());
+            this.gameobject.startTime.setMinutes(newtime.getMinutes());
+            this.gameobject.startTime.setSeconds(newtime.getSeconds());
+            this.gameobject.startTime.setMilliseconds(0);
           }
           break;
         default:

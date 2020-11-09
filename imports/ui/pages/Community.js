@@ -111,13 +111,7 @@ class Community extends Component {
       activeRoom: null,
       inputValue: "",
       messageList: [],
-      isRightMenu: false,
-
-      chat: Meteor.subscribe("chat"),
-      rooms: Meteor.subscribe("rooms"),
-      game: Meteor.subscribe("games"),
-      gameHistory: Meteor.subscribe("game_history"),
-      importedGame: Meteor.subscribe("imported_games")
+      isRightMenu: false
     };
   }
 
@@ -154,6 +148,8 @@ class Community extends Component {
   };
 
   handleChangeRoom = roomId => {
+    if (this.state.activeRoom) Meteor.call("leaveRoom", "leaveRoom", this.state.activeRoom);
+    Meteor.call("joinRoom", "joinRoom", roomId);
     this.setState({ activeRoom: roomId });
   };
 
@@ -225,7 +221,17 @@ class Community extends Component {
 }
 
 export default withTracker(() => {
+  const subscriptions = {
+    chat: Meteor.subscribe("chat")
+  };
+
+  function isready() {
+    for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
+    return true;
+  }
+
   return {
+    isready: isready(),
     allRooms: Rooms.find().fetch(),
     notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),

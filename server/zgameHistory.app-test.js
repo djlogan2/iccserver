@@ -83,7 +83,19 @@ describe("Game history", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     Game.resignLocalGame("mi2", game_id);
@@ -95,7 +107,19 @@ describe("Game history", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     Game.requestLocalAbort("mi2", game_id);
@@ -109,7 +133,19 @@ describe("Game history", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     Game.requestLocalDraw("mi2", game_id);
@@ -136,7 +172,20 @@ describe("Game history", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
 
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
@@ -157,7 +206,20 @@ describe("Game history", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     // eslint-disable-next-line prettier/prettier
@@ -178,7 +240,20 @@ describe("Game history", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
-    const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     // Yea, I had to do this one manually, so it's a zillion moves. Feel free to shorten!
@@ -205,7 +280,26 @@ describe("Game history", function() {
   });
   it("must fail if trying to copy a legacy game to game history", function() {
     self.loggedonuser = TestHelpers.createUser();
-    const game_id = Game.startLegacyGame("mi2", 123, self.loggedonuser.profile.legacy.username, "blackdood", 0, "standard", true, 15, 0, 15, 0, true, 1600, 1600, "x", [], [], "");
+    const game_id = Game.startLegacyGame(
+      "mi2",
+      123,
+      self.loggedonuser.profile.legacy.username,
+      "blackdood",
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      15,
+      0,
+      true,
+      1600,
+      1600,
+      "x",
+      [],
+      [],
+      ""
+    );
     chai.assert.throws(() => GameHistory.savePlayedGame("mi2", game_id), Error);
   });
 
@@ -213,7 +307,19 @@ describe("Game history", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     Game.resignLocalGame("mi2", game_id);
     chai.assert.throws(() => GameHistory.savePlayedGame("mi3", game_id));
   });
@@ -223,7 +329,19 @@ describe("Game history", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     Game.resignLocalGame("mi2", game_id);
     Game.localRemoveObserver("mi3", game_id, p1._id);
     self.loggedonuser = p2;
@@ -246,7 +364,19 @@ describe("Game history", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     Game.resignLocalGame("mi2", game_id);
@@ -262,7 +392,19 @@ describe("Game history", function() {
     const p2 = TestHelpers.createUser();
     const p3 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
     Game.resignLocalGame("mi2", game_id);
@@ -304,7 +446,19 @@ describe("Game history", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none");
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
     Game.resignLocalGame("mi2", game_id);
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 2);
@@ -319,7 +473,8 @@ describe("Game history", function() {
   });
 
   it("needs to have a search method anyone can use, with pagination", function() {
-    this.timeout(30000);
+    this.timeout(60000); // creating the 100 games takes 30s on my machine - djl
+
     const games = [];
     for (let x = 0; x < 100; x++) games.push(createHistoryGame()._id);
     self.loggedonuser = TestHelpers.createUser({

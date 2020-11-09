@@ -5,7 +5,7 @@ import { Meteor } from "meteor/meteor";
 
 const GameListModal = ({ gameList, history, ...rest }) => {
   const handleSetExaminMode = id => {
-    Meteor.call("examineGame", "ExaminedGame", id, false, () => {
+    Meteor.call("examineGame", "ExaminedGame", id, true, () => {
       //history.push("/examine");
     });
   };

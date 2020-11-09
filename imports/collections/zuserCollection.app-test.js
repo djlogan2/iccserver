@@ -174,7 +174,6 @@ describe("Users", function() {
   });
 
   it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
-    this.timeout(500000);
     const user1 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
     const user2 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
     chai.assert.isDefined(user1);
