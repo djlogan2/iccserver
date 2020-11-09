@@ -90,25 +90,6 @@ class Chat {
       return cursor;
     }
 
-    function roomChatRooms(user) {
-      if (user.cf === "c") return this.ready();
-      if (!Users.isAuthorized(user, "join_room")) return this.ready();
-      const cursor = self.roomCollection.find(
-        {
-          isolation_group: user.isolation_group,
-          $or: [
-            { public: true },
-            { "members.id": user._id },
-            { "invited.id": user._id },
-            { owner: user._id }
-          ]
-        },
-        { fields: { _id: 1, members: 1 } }
-      );
-      log.debug("roomChatRooms", cursor.count());
-      return cursor;
-    }
-
     function roomChat(room, user) {
       if (!Users.isAuthorized(user, "join_room")) return this.ready();
       // Children cannot be in rooms
@@ -171,6 +152,7 @@ class Chat {
         isolation_group: user.isolation_group
       });
       log.debug("ownedRooms", cursor.count());
+      return cursor;
     }
 
     function nonOwnedRooms(user) {
@@ -183,9 +165,10 @@ class Chat {
             { $or: [{ "invited.id": user._id }, { public: true }] }
           ]
         },
-        { fields: { name: 1, members: 1 } }
+        { fields: { _id: 1, name: 1, members: 1 } }
       );
       log.debug("nonOwnedRooms", cursor.count());
+      return cursor;
     }
 
     Meteor.publishComposite("chat", {
@@ -194,16 +177,10 @@ class Chat {
       },
       children: [
         { find: games, children: [{ find: gameKibitzes }] },
-        { find: roomChatRooms, children: [{ find: roomChat }] },
+        { find: ownedRooms, children: [{ find: roomChat }] },
+        { find: nonOwnedRooms, children: [{ find: roomChat }] },
         { find: personalChat }
       ]
-    });
-
-    Meteor.publishComposite("rooms", {
-      find() {
-        return Meteor.users.find({ _id: this.userId }, { fields: { isolation_group: 1, cf: 1 } });
-      },
-      children: [{ find: ownedRooms }, { find: nonOwnedRooms }]
     });
   }
 
