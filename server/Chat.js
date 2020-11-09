@@ -92,6 +92,7 @@ class Chat {
 
     function roomChatRooms(user) {
       if (user.cf === "c") return this.ready();
+      if (!Users.isAuthorized(user, "join_room")) return this.ready();
       const cursor = self.roomCollection.find(
         {
           isolation_group: user.isolation_group,
@@ -109,6 +110,7 @@ class Chat {
     }
 
     function roomChat(room, user) {
+      if (!Users.isAuthorized(user, "join_room")) return this.ready();
       // Children cannot be in rooms
       if (user.cf === "c") return this.ready();
       // No chats if they aren't members. If they are just invited, no chats!
@@ -128,7 +130,18 @@ class Chat {
 
     function games(user) {
       const cursor = Game.GameCollection.find(
-        { $or: [{ "white.id": user._id }, { "black.id": user._id }, { "observers.id": user._id }] },
+        {
+          $and: [
+            { isolation_group: user.isolation_group },
+            {
+              $or: [
+                { "white.id": user._id },
+                { "black.id": user._id },
+                { "observers.id": user._id }
+              ]
+            }
+          ]
+        },
         { fields: { _id: 1, observers: 1 } }
       );
       log.debug("playedGames", cursor.count());
@@ -149,6 +162,32 @@ class Chat {
       return cursor;
     }
 
+    function ownedRooms(user) {
+      if (user.cf === "c") return this.ready();
+      if (!Users.isAuthorized(user, "join_room")) return this.ready();
+      const cursor = self.roomCollection.find({
+        owner: user._id,
+        public: false,
+        isolation_group: user.isolation_group
+      });
+      log.debug("ownedRooms", cursor.count());
+    }
+
+    function nonOwnedRooms(user) {
+      if (user.cf === "c") return this.ready();
+      if (!Users.isAuthorized(user, "join_room")) return this.ready();
+      const cursor = self.roomCollection.find(
+        {
+          $and: [
+            { isolation_group: user.isolation_group },
+            { $or: [{ "invited.id": user._id }, { public: true }] }
+          ]
+        },
+        { fields: { name: 1, members: 1 } }
+      );
+      log.debug("nonOwnedRooms", cursor.count());
+    }
+
     Meteor.publishComposite("chat", {
       find() {
         return Meteor.users.find({ _id: this.userId }, { fields: { isolation_group: 1, cf: 1 } });
@@ -158,6 +197,13 @@ class Chat {
         { find: roomChatRooms, children: [{ find: roomChat }] },
         { find: personalChat }
       ]
+    });
+
+    Meteor.publishComposite("rooms", {
+      find() {
+        return Meteor.users.find({ _id: this.userId }, { fields: { isolation_group: 1, cf: 1 } });
+      },
+      children: [{ find: ownedRooms }, { find: nonOwnedRooms }]
     });
   }
 

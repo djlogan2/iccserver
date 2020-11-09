@@ -32,7 +32,7 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 // }
 import { Chat } from "./Chat";
 
-describe("Chats", function() {
+describe.only("Chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   //createRoom
 
@@ -130,8 +130,7 @@ describe("Chats", function() {
           id: room_id,
           type: "room",
           issuer: { id: self.loggedonuser._id, username: self.loggedonuser.username },
-          what: "The text",
-          child_chat: false
+          what: "The text"
         }
       ],
       [chat]
@@ -178,8 +177,7 @@ describe("Chats", function() {
           isolation_group: "public",
           type: "room",
           issuer: { id: creator._id, username: creator.username },
-          what: "The text",
-          child_chat: false
+          what: "The text"
         }
       ],
       [chat[0]]
@@ -192,8 +190,7 @@ describe("Chats", function() {
           isolation_group: "public",
           type: "room",
           issuer: { id: newguy._id, username: newguy.username },
-          what: "The newguy text",
-          child_chat: false
+          what: "The newguy text"
         }
       ],
       [chat[1]]
@@ -216,7 +213,6 @@ describe("Chats", function() {
       [
         {
           _id: chat[0]._id,
-          child_chat: false,
           isolation_group: "public",
           create_date: chat[0].create_date,
           id: room_id,
@@ -232,77 +228,10 @@ describe("Chats", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
   });
 
-  /*
-  kids cannot be in rooms
-  it("should not allow a child to write text not from child_chat collection", function() {
-    self.loggedonuser = TestHelpers.createUser({
-      roles: ["create_room", "room_chat", "join_room", "child_chat"]
-    });
-    const room_id = Chat.createRoom("mi1", "The room");
-    chai.assert.equal(Chat.roomCollection.find({}).count(), 1);
-    Chat.writeToRoom("mi2", room_id, "The text");
-    chai.assert.equal(Chat.collection.find({}).count(), 0);
-    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_CHAT_IN_ROOM");
-  });
-
-  it("should allow child_chat_exempt to write child_chat freeform", function() {
-    const user = TestHelpers.createUser({
-      roles: ["create_room", "room_chat", "join_room", "child_chat_exempt"]
-    });
-    self.loggedonuser = user;
-    const room_id = Chat.createRoom("mi1", "The room");
-    Chat.writeToRoom("mi2", room_id, "The text");
-    const chat = Chat.collection.findOne({ id: room_id });
-    chai.assert.sameDeepMembers(
-      [
-        {
-          _id: chat._id,
-          create_date: chat.create_date,
-          id: room_id,
-          type: "room",
-          isolation_group: "public",
-          issuer: { id: user._id, username: user.username },
-          child_chat: true,
-          what: "The text"
-        }
-      ],
-      [chat]
-    );
-  });
-
-  it("should allow child_chat_exempt to write child_chat id text", function() {
-    const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
-    const user = TestHelpers.createUser({
-      roles: ["create_room", "room_chat", "join_room", "child_chat_exempt"]
-    });
-    self.loggedonuser = user;
-    const room_id = Chat.createRoom("mi1", "The room");
-    Chat.writeToRoom("mi2", room_id, ccid);
-    const chat = Chat.collection.findOne({ id: room_id });
-    chai.assert.sameDeepMembers(
-      [
-        {
-          create_date: chat.create_date,
-          _id: chat._id,
-          id: room_id,
-          type: "room",
-          isolation_group: "public",
-          issuer: { id: user._id, username: user.username },
-          child_chat: true,
-          what: "child chat text"
-        }
-      ],
-      [chat]
-    );
-  });
-  */
-
-  it("should allow normal user to write freeform, but it won't be child_chat friendly", function() {
+  it("should allow normal user to write freeform", function() {
     const normalguy = TestHelpers.createUser();
     self.loggedonuser = TestHelpers.createUser({
-      roles: ["create_room", "room_chat", "join_room", "child_chat_exempt"]
+      roles: ["create_room", "room_chat", "join_room"]
     });
     const room_id = Chat.createRoom("mi1", "The room");
     self.loggedonuser = normalguy;
@@ -312,7 +241,6 @@ describe("Chats", function() {
       {
         _id: chat._id,
         create_date: chat.create_date,
-        child_chat: false,
         isolation_group: "public",
         id: room_id,
         type: "room",
@@ -323,82 +251,75 @@ describe("Chats", function() {
     );
   });
 
-  /*
-  kids cannot be in rooms
-  it("should allow normal user to write a child_chat text", function() {
-    const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
-    const normalguy = TestHelpers.createUser({ roles: ["create_room", "room_chat", "join_room"] });
-    self.loggedonuser = TestHelpers.createUser({
-      roles: ["create_room", "room_chat", "join_room", "child_chat_exempt"]
-    });
-    const room_id = Chat.createRoom("mi1", "The room");
-    self.loggedonuser = normalguy;
-    Chat.writeToRoom("mi2", room_id, ccid);
-    const chat = Chat.collection.findOne({ id: room_id });
-    chai.assert.deepEqual(
-      {
-        _id: chat._id,
-        create_date: chat.create_date,
-        id: room_id,
-        isolation_group: "public",
-        type: "room",
-        issuer: { id: normalguy._id, username: normalguy.username },
-        child_chat: true,
-        what: "child chat text"
-      },
-      chat
-    );
-  });
+  it("should publish all public rooms to a user in join_room role", function(done) {
+    const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
+    const user2 = TestHelpers.createUser({ roles: ["play_rated_games", "join_room"] });
+    self.loggedonuser = user1;
+    Chat.createRoom("mi1", "room 1");
+    self.loggedonuser = user2;
 
-  it("should only publish child_chat texts to a user in child_chat role", function(done) {
-    const ccid = Chat.childChatCollection.insert({ text: "child chat text" });
-    const user = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
-    const child = TestHelpers.createUser({ roles: ["room_chat", "join_room", "child_chat"] });
-    const exempt = TestHelpers.createUser({
-      roles: ["room_chat", "join_room", "child_chat_exempt"]
-    });
-    self.loggedonuser = user;
-    const room_id = Chat.createRoom("mi1", "The room");
-    Chat.writeToRoom("mi2", room_id, "normal user text");
-    self.loggedonuser = child;
-    Chat.writeToRoom("mi3", room_id, ccid);
-    self.loggedonuser = exempt;
-    Chat.writeToRoom("mi4", room_id, "exempt text");
-
-    self.loggedonuser = child;
-
-    const collector = new PublicationCollector({ userId: child._id });
+    const collector = new PublicationCollector({ userId: user2._id });
     collector.collect("chat", collections => {
-      collections.chat.forEach(c => delete c.create_date);
-      chai.assert.equal(collections.chat.length, 2);
-
-      chai.assert.sameDeepMembers(
-        [
-          {
-            _id: collections.chat[0]._id,
-            type: "room",
-            isolation_group: "public",
-            id: room_id,
-            issuer: { id: child._id, username: child.username },
-            child_chat: true,
-            what: "child chat text"
-          },
-          {
-            _id: collections.chat[1]._id,
-            type: "room",
-            isolation_group: "public",
-            id: room_id,
-            issuer: { id: exempt._id, username: exempt.username },
-            child_chat: true,
-            what: "exempt text"
-          }
-        ],
-        collections.chat
-      );
+      chai.assert.equal(collections.rooms.length, 1);
       done();
     });
   });
-*/
+
+  it("should not publish any public rooms to a user not in join_room role", function(done) {
+    const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
+    const user2 = TestHelpers.createUser({ roles: ["play_rated_games"] });
+    self.loggedonuser = user1;
+    Chat.createRoom("mi1", "room 1");
+    self.loggedonuser = user2;
+
+    const collector = new PublicationCollector({ userId: user2._id });
+    collector.collect("chat", collections => {
+      chai.assert.isUndefined(collections.rooms);
+      done();
+    });
+  });
+
+  it("should not publish any rooms to child", function(done) {
+    const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
+    const user2 = TestHelpers.createUser({ roles: ["play_rated_games", "child_chat"] });
+    self.loggedonuser = user1;
+    Chat.createRoom("mi1", "room 1");
+    self.loggedonuser = user2;
+
+    const collector = new PublicationCollector({ userId: user2._id });
+    collector.collect("chat", collections => {
+      chai.assert.isUndefined(collections.rooms);
+      done();
+    });
+  });
+
+  it.only("should not allow a user not in join_room role to be invited to a private room", function() {
+    const firstguy = TestHelpers.createUser();
+    const otherguy = TestHelpers.createUser({roles: ["play_rated_games"]});
+
+    self.loggedonuser = firstguy;
+    const private_room = Chat.createRoom("mi1", "My Room", true);
+    Chat.inviteToRoom("mi2", private_room, otherguy._id);
+    const room = Chat.roomCollection.findOne();
+    chai.assert.equal(room.invited.length, 0);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+  });
+
+  it.only("should not allow a user not in join_room role to join a public room", function() {
+    self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
+    const abuser = TestHelpers.createUser({ roles: ["play_rated_games"] });
+    const room_id = Chat.createRoom("mi1", "the room");
+    chai.assert.equal(Chat.roomCollection.find().count(), 1, "Failed to create room");
+    self.loggedonuser = abuser;
+    Chat.joinRoom("mi2", room_id);
+    const room = Chat.roomCollection.findOne();
+    chai.assert.isFalse(room.members.some(member => member.id === abuser._id));
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+  });
+
   it("should publish chats from all rooms a user is in", function(done) {
     const user1 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
     const user2 = TestHelpers.createUser({ roles: ["room_chat", "create_room", "join_room"] });
@@ -428,7 +349,6 @@ describe("Chats", function() {
           {
             type: "room",
             id: room_id2,
-            child_chat: false,
             isolation_group: "public",
             issuer: { id: user1._id, username: user1.username },
             what: "room 2 text"
@@ -436,7 +356,6 @@ describe("Chats", function() {
           {
             type: "room",
             id: room_id4,
-            child_chat: false,
             isolation_group: "public",
             issuer: { id: user1._id, username: user1.username },
             what: "room 4 text"
@@ -444,7 +363,6 @@ describe("Chats", function() {
           {
             type: "room",
             id: room_id2,
-            child_chat: false,
             isolation_group: "public",
             issuer: { id: user2._id, username: user2.username },
             what: "2nd room 2 text"
@@ -452,7 +370,6 @@ describe("Chats", function() {
           {
             type: "room",
             id: room_id4,
-            child_chat: false,
             isolation_group: "public",
             issuer: { id: user2._id, username: user2.username },
             what: "2nd room 4 text"
@@ -628,7 +545,6 @@ describe("Chats", function() {
         _id: chat._id,
         create_date: chat.create_date,
         type: "private",
-        child_chat: false,
         isolation_group: "public",
         id: user2._id,
         logons: 2,
