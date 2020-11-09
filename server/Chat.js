@@ -26,7 +26,23 @@ const ChatCollectionSchema = new SimpleSchema({
   type: { type: String, allowedValues: ["kibitz", "whisper", "room", "private"] },
   logons: { type: Number, required: false },
   what: String,
-  child_chat: Boolean
+  child_chat: {
+    type: Boolean,
+    required: false,
+    custom() {
+      if (
+        this.field("type").isSet &&
+        this.field("type").value !== "room" &&
+        !this.field("child_chat").isSet
+      )
+        return [
+          {
+            name: "child_chat",
+            type: SimpleSchema.ErrorTypes.REQUIRED
+          }
+        ];
+    }
+  }
 });
 
 const RoomCollectionSchema = {
@@ -91,9 +107,9 @@ class Chat {
     }
 
     function roomChat(room, user) {
-      if (!Users.isAuthorized(user, "join_room")) return this.ready();
+      if (!Users.isAuthorized(user, "join_room")) return self.collection.find({_id: "0"});
       // Children cannot be in rooms
-      if (user.cf === "c") return this.ready();
+      if (user.cf === "c") return self.collection.find({_id: "0"});
       // No chats if they aren't members. If they are just invited, no chats!
       if (!room.members.some(member => member.id === user._id))
         return self.collection.find({ _id: "none" });
@@ -144,8 +160,8 @@ class Chat {
     }
 
     function ownedRooms(user) {
-      if (user.cf === "c") return this.ready();
-      if (!Users.isAuthorized(user, "join_room")) return this.ready();
+      if (user.cf === "c") return self.roomCollection.find({_id: "0"});
+      if (!Users.isAuthorized(user, "join_room")) return self.roomCollection.find({ _id: "0" });
       const cursor = self.roomCollection.find({
         owner: user._id,
         public: false,
@@ -156,13 +172,13 @@ class Chat {
     }
 
     function nonOwnedRooms(user) {
-      if (user.cf === "c") return this.ready();
-      if (!Users.isAuthorized(user, "join_room")) return this.ready();
+      if (user.cf === "c") return self.roomCollection.find({ _id: "0" });
+      if (!Users.isAuthorized(user, "join_room")) return self.roomCollection.find({ _id: "0" });
       const cursor = self.roomCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
-            { $or: [{ "invited.id": user._id }, { public: true }] }
+            { $or: [{ "invited.id": user._id }, { "members.id": user._id }, { public: true }] }
           ]
         },
         { fields: { _id: 1, name: 1, members: 1 } }
@@ -173,7 +189,10 @@ class Chat {
 
     Meteor.publishComposite("chat", {
       find() {
-        return Meteor.users.find({ _id: this.userId }, { fields: { isolation_group: 1, cf: 1 } });
+        return Meteor.users.find(
+          { _id: this.userId },
+          { fields: { _id: 1, isolation_group: 1, cf: 1 } }
+        );
       },
       children: [
         { find: games, children: [{ find: gameKibitzes }] },
@@ -337,7 +356,6 @@ class Chat {
       type: "room",
       id: room_id,
       what: txt,
-      child_chat: false,
       issuer: { id: self._id, username: self.username }
     });
   }

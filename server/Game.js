@@ -209,7 +209,7 @@ class Game {
                 const cursor = attempts[i](user);
                 if (!!cursor.count()) return cursor;
               }
-              return this.ready();
+              return _self.GameCollection.find({_id: "0"});
             }
           }
         ]

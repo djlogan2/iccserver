@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Logger } from "../../../../lib/client/Logger";
+import { getMilliseconds } from "../../../../lib/client/timestamp";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("client/BlackPlayerClock_JS");
@@ -9,7 +10,7 @@ export default class BlackPlayerClock extends Component {
     super(props);
     log.trace("BlackPlayerClock constructor", props);
     this.interval = "none";
-    const now = new Date().getTime();
+    const now = getMilliseconds();
     const start =
       this.props.game && this.props.game.clocks
         ? this.props.game.clocks[this.props.color].starttime || now
@@ -21,7 +22,7 @@ export default class BlackPlayerClock extends Component {
     this.state = {
       game_current: current,
       current: current,
-      mark: new Date().getTime(),
+      mark: now,
       running: false
     };
     this.componentDidUpdate();
@@ -30,12 +31,12 @@ export default class BlackPlayerClock extends Component {
   static getDerivedStateFromProps(props, state) {
     const running = props.game.status === "playing" && props.game.tomove === props.color;
 
-    const now = running ? new Date().getTime() : 0;
+    const now = running ? getMilliseconds() : 0;
     const start = running ? props.game.clocks[props.color].starttime || now : 0;
     const pcurrent = props.game.clocks ? props.game.clocks[props.color].current - now + start : 0;
 
     const returnstate = {};
-    const mark = new Date().getTime();
+    const mark = now;
 
     if (pcurrent !== state.game_current) {
       returnstate.current = pcurrent;
@@ -96,9 +97,9 @@ export default class BlackPlayerClock extends Component {
 
       self.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
-        self.setState({ mark: new Date().getTime() });
+        self.setState({ mark: getMilliseconds() });
         self.interval = Meteor.setInterval(() => {
-          const mark = new Date().getTime();
+          const mark = getMilliseconds();
           const sub = mark - this.state.mark;
           const current = self.state.current - sub;
           self.setState({ current: current, mark: mark });
@@ -109,7 +110,7 @@ export default class BlackPlayerClock extends Component {
     } else {
       log.trace("starting clock for countdown for " + this.props.color, this.state);
       self.interval = Meteor.setInterval(() => {
-        const mark = new Date().getTime();
+        const mark = getMilliseconds();
         const sub = mark - self.state.mark;
         const current = self.state.current - sub;
         self.setState({ current: current, mark: mark });
