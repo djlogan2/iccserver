@@ -79,6 +79,7 @@ class LeftSidebar extends Component {
         }
       >
         <GameListModal
+          isImported={false}
           visible={this.state.isMyGamesModal}
           gameList={this.state.gameList}
           onClose={this.handleMyGamesClose}

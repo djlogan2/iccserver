@@ -3,9 +3,9 @@ import { Modal } from "antd";
 import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
 
-const GameListModal = ({ gameList, history, ...rest }) => {
+const GameListModal = ({ gameList, isImported, history, ...rest }) => {
   const handleSetExaminMode = id => {
-    Meteor.call("examineGame", "ExaminedGame", id, true, () => {
+    Meteor.call("examineGame", "ExaminedGame", id, isImported, () => {
       //history.push("/examine");
     });
   };

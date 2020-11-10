@@ -30,10 +30,22 @@ export default class BlackPlayerClock extends Component {
 
   static getDerivedStateFromProps(props, state) {
     const running = props.game.status === "playing" && props.game.tomove === props.color;
-
     const now = running ? getMilliseconds() : 0;
-    const start = running ? props.game.clocks[props.color].starttime || now : 0;
-    const pcurrent = props.game.clocks ? props.game.clocks[props.color].current - now + start : 0;
+    let pcurrent;
+
+    if (props.game.status === "playing") {
+      const start = running ? props.game.clocks[props.color].starttime : 0;
+      pcurrent = props.game.clocks[props.color].current - now + start;
+    } else {
+      let current_move = props.game.variations.movelist[props.game.variations.cmi];
+      if (props.game.tomove !== props.color)
+        current_move = props.game.variations.movelist[current_move.prev];
+      if (!!current_move) pcurrent = current_move.current;
+    }
+
+    if (!pcurrent && !!props.game.clocks) pcurrent = props.game.clocks[props.color].initial * 60 * 1000;
+
+    if (!pcurrent) pcurrent = 0;
 
     const returnstate = {};
     const mark = now;
