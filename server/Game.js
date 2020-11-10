@@ -1041,7 +1041,7 @@ class Game {
   }
 
   saveLegacyMove(message_identifier, gamenumber, move) {
-    log.debug("saveLegacyMove " + message_identifier + ", " + gamenumber + ", " + move);
+    //log.debug("saveLegacyMove " + message_identifier + ", " + gamenumber + ", " + move);
     check(message_identifier, String);
     check(gamenumber, Number);
     check(move, String);
