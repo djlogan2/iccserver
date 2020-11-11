@@ -23,32 +23,74 @@ export default class BlackPlayerClock extends Component {
       game_current: current,
       current: current,
       mark: now,
-      running: false
+      running: false,
+      cmi: -1,
+      tomove: "x"
     };
     this.componentDidUpdate();
+  }
+
+  // TODO: So, this works, but for some reason, props.game.tomove is always
+  //       the wrong user to move's color! (???) Why is that? I could change
+  //       the code to accomodate this easily enough, but for some reason
+  //       this seems to be called BEFORE a move is made, not after. ????
+  //       If somebody deems this correct behavior, so be it, adjust.
+  static timeAfterMove(variations, cmi) {
+    if (cmi === undefined) cmi = variations.cmi;
+    const current_move = variations.movelist[cmi];
+    if (
+      !current_move ||
+      !("current" in current_move) ||
+      !current_move.variations ||
+      current_move.variations.length !== 1
+    )
+      return;
+    const skip_move = variations.movelist[current_move.variations[0]];
+    if (
+      !skip_move ||
+      !("current" in skip_move) ||
+      !skip_move.variations ||
+      skip_move.variations.length !== 1
+    )
+      return;
+    const next_move = variations.movelist[skip_move.variations[0]];
+    if (
+      !next_move ||
+      !("current" in next_move) ||
+      !next_move.variations ||
+      next_move.variations.length !== 1
+    )
+      return;
+    return next_move.current;
   }
 
   static getDerivedStateFromProps(props, state) {
     const running = props.game.status === "playing" && props.game.tomove === props.color;
     const now = running ? getMilliseconds() : 0;
     let pcurrent;
+    let cmi = props.game.variations ? props.game.variations.cmi || state.cmi : state.cmi;
+    let tomove = props.game.tomove || state.tomove;
 
     if (props.game.status === "playing") {
       const start = running ? props.game.clocks[props.color].starttime : 0;
       pcurrent = props.game.clocks[props.color].current - now + start;
-    } else {
-      let current_move = props.game.variations.movelist[props.game.variations.cmi];
-      if (props.game.tomove !== props.color)
-        current_move = props.game.variations.movelist[current_move.prev];
-      if (!!current_move) pcurrent = current_move.current;
+      // } else if (cmi !== state.cmi || tomove !== state.tomove) {
+      //   if (tomove === props.color) {
+      //     if (!!props.game.variations.movelist[cmi])
+      //       pcurrent = props.game.variations.movelist[cmi].current;
+      //   } else pcurrent = BlackPlayerClock.timeAfterMove(props.game.variations);
     }
 
-    if (!pcurrent && !!props.game.clocks) pcurrent = props.game.clocks[props.color].initial * 60 * 1000;
+    if (!pcurrent && !!props.game.clocks)
+      pcurrent = props.game.clocks[props.color].initial * 60 * 1000;
 
     if (!pcurrent) pcurrent = 0;
 
     const returnstate = {};
     const mark = now;
+
+    if (cmi !== state.cmi) returnstate.cmi = cmi;
+    if (tomove !== state.tomove) returnstate.tomove = tomove;
 
     if (pcurrent !== state.game_current) {
       returnstate.current = pcurrent;

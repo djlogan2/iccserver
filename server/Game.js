@@ -715,7 +715,7 @@ class Game {
         black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
       };
     if (!game_object.startTime) game_object.startTime = new Date();
-    if (!game_object.tomove) game_object.tomove = "w";
+    if (!game_object.tomove) game_object.tomove = "white";
     if (!game_object.actions) game_object.actions = [];
     if (!game_object.variations) game_object.variations = { movelist: [{}], ecocodes: [] };
     if (!game_object.variations.cmi) game_object.variations.cmi = 0;

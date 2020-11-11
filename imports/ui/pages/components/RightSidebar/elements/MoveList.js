@@ -70,7 +70,7 @@ export default class MoveList extends Component {
       this.message_identifier = "server:game:" + this.gameId;
       this.gameId = game._id;
     }
-    let string = buildPgn(game.variations.movelist);
+    let string = !!game.variations ? buildPgn(game.variations.movelist) : "";
     let chunks = string.split("|");
     chunks.splice(-1, 1);
     this.cmi = chunks.length;

@@ -174,14 +174,12 @@ export default class MiddleBoard extends Component {
             />
           )}
 
-          {isPlayingOrExamining && (
-            <BlackPlayerClock
-              cssManager={this.props.cssManager}
-              game={this.props.game}
-              color={topPlayertime}
-              side={size}
-            />
-          )}
+          <BlackPlayerClock
+            cssManager={this.props.cssManager}
+            game={this.props.game}
+            color={topPlayertime}
+            side={size}
+          />
           {this.props.game && (
             <ChessBoard
               fen={fen}
@@ -209,14 +207,12 @@ export default class MiddleBoard extends Component {
               Playermsg={botPlayermsg}
             />
           )}
-          {isPlayingOrExamining && (
-            <BlackPlayerClock
-              cssManager={this.props.cssManager}
-              game={this.props.game}
-              color={bottomPlayertime}
-              side={size}
-            />
-          )}
+          <BlackPlayerClock
+            cssManager={this.props.cssManager}
+            game={this.props.game}
+            color={bottomPlayertime}
+            side={size}
+          />
         </div>
       </div>
     );
