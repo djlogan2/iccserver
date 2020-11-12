@@ -30,41 +30,59 @@ export default class BlackPlayerClock extends Component {
     this.componentDidUpdate();
   }
 
-  // TODO: So, this works, but for some reason, props.game.tomove is always
-  //       the wrong user to move's color! (???) Why is that? I could change
-  //       the code to accomodate this easily enough, but for some reason
-  //       this seems to be called BEFORE a move is made, not after. ????
-  //       If somebody deems this correct behavior, so be it, adjust.
-  static timeAfterMove(variations, cmi) {
+  static timeAfterMove(variations, tomove, cmi) {
+    //
+    // This is going to assume variation sub[0] is the correct
+    // time (i.e. "main line", assuming main line is sub[0] and
+    // not sub[last]. sub[last] might be more accurate.
+    //
+    // OK, so we are sitting (cmi is sitting) on the user NOT to move.
+    //
     if (cmi === undefined) cmi = variations.cmi;
-    const current_move = variations.movelist[cmi];
-    if (
-      !current_move ||
-      !("current" in current_move) ||
-      !current_move.variations ||
-      current_move.variations.length !== 1
-    )
-      return;
-    const skip_move = variations.movelist[current_move.variations[0]];
-    if (
-      !skip_move ||
-      !("current" in skip_move) ||
-      !skip_move.variations ||
-      skip_move.variations.length !== 1
-    )
-      return;
-    const next_move = variations.movelist[skip_move.variations[0]];
-    if (
-      !next_move ||
-      !("current" in next_move) ||
-      !next_move.variations ||
-      next_move.variations.length !== 1
-    )
-      return;
-    return next_move.current;
+    if (!cmi) return;
+
+    let last_move_made = variations.movelist[cmi];
+    if (!last_move_made.variations) {
+      //
+      // If there is no "next" move, use the clocks from the last set of moves
+      //
+      let prev = variations.movelist[cmi].prev;
+      if (!prev) return;
+      last_move_made = variations.movelist[prev];
+      tomove = !tomove;
+    }
+
+    //
+    // If we are doing the user waiting to move, use the current value of the
+    // next node in the tree.
+    //
+    const upcoming_move = variations.movelist[last_move_made.variations[0]];
+    if (tomove) return upcoming_move.current;
+
+    //
+    // Obviously we are doing the user NOT waiting to move. If there is no
+    // move after the current users move, return the clocks at the beginning
+    // of the last move made by this user.
+    //
+    if (!upcoming_move.variations || !upcoming_move.variations.length)
+      return last_move_made.current;
+
+    //
+    // The "not to move" user has another move in the tree, so return the clock
+    // value for this move.
+    //
+    const upcoming_next_move = variations.movelist[upcoming_move.variations[0]];
+    return upcoming_next_move.current;
   }
 
   static getDerivedStateFromProps(props, state) {
+    log.debug("gdfp", {
+      status: props.game.status,
+      tomove: props.game.tomove,
+      cmi: props.game.variations.cmi,
+      color: props.color,
+      state: state
+    });
     const running = props.game.status === "playing" && props.game.tomove === props.color;
     const now = running ? getMilliseconds() : 0;
     let pcurrent;
@@ -74,11 +92,18 @@ export default class BlackPlayerClock extends Component {
     if (props.game.status === "playing") {
       const start = running ? props.game.clocks[props.color].starttime : 0;
       pcurrent = props.game.clocks[props.color].current - now + start;
-      // } else if (cmi !== state.cmi || tomove !== state.tomove) {
-      //   if (tomove === props.color) {
-      //     if (!!props.game.variations.movelist[cmi])
-      //       pcurrent = props.game.variations.movelist[cmi].current;
-      //   } else pcurrent = BlackPlayerClock.timeAfterMove(props.game.variations);
+    } else if (cmi !== state.cmi || tomove !== state.tomove) {
+      pcurrent = BlackPlayerClock.timeAfterMove(props.game.variations, tomove === props.color);
+      log.debug(
+        "tomove === " +
+          tomove +
+          ", color=" +
+          props.color +
+          ", cmi=" +
+          cmi +
+          ", setting pcurrent to " +
+          pcurrent
+      );
     }
 
     if (!pcurrent && !!props.game.clocks)

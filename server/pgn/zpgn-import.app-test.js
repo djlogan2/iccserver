@@ -2,7 +2,8 @@ import chai from "chai";
 import { TestHelpers } from "../../imports/server/TestHelpers";
 import { Parser } from "./pgnparser";
 import { Game } from "../Game";
-//import { ImportedPgnFiles } from "../PgnImport";
+import fs from "fs";
+import { ImportedPgnFiles } from "../PgnImport";
 
 describe("PGN Import", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -150,7 +151,6 @@ describe("PGN Import", function() {
     '[EventDate "1991.??.??"]\n' +
     "\n";
 
-
   valid.forEach(v =>
     it(v.replace(/[\r\n]/g, "^") + " is valid", function() {
       const parser = new Parser();
@@ -246,47 +246,46 @@ describe("PGN Import", function() {
     compareMovelist(0, 0, parser.gamelist[0].variations, game.variations);
   });
 
-  // it.only("should parse a big file correctly in the file processor", function(done) {
-  //   this.timeout(500000);
-  //   ImportedPgnFiles.onAfterUpload(
-  //     {
-  //       size: 3578758,
-  //       type: "application/x-chess-pgn",
-  //       name: "test2.pgn",
-  //       meta: {
-  //         creatorId: "jXuMKNjAaX74v6RJs"
-  //       },
-  //       ext: "pgn",
-  //       extension: "pgn",
-  //       extensionWithDot: ".pgn",
-  //       mime: "application/x-chess-pgn",
-  //       "mime-type": "application/x-chess-pgn",
-  //       _id: "6LHas4DYCHxb8esFN",
-  //       userId: "jXuMKNjAaX74v6RJs",
-  //       path: "/Users/davidlogan/workspace/icc/pgns/test2.pgn",
-  //       versions: {
-  //         original: {
-  //           path: "/Users/davidlogan/workspace/icc/pgns/test2.pgn",
-  //           size: 3578758,
-  //           type: "application/x-chess-pgn",
-  //           extension: "pgn"
-  //         }
-  //       },
-  //       _downloadRoute: "/cdn/storage",
-  //       _collectionName: "importedPgnFiles",
-  //       isVideo: false,
-  //       isAudio: false,
-  //       isImage: false,
-  //       isText: false,
-  //       isJSON: false,
-  //       isPDF: false,
-  //       _storagePath: "assets/app/uploads/uploadedFiles",
-  //       public: false
-  //     },
-  //     () => {
-  //       console.log("here");
-  //       done();
-  //     }
-  //   );
-  // });
+  /*
+  it.only("should parse a big file correctly in the file processor", function(done) {
+    this.timeout(5000000);
+    const fss = fs.createReadStream("/Users/davidlogan/Downloads/merged.pgn");
+    const parser = new Parser();
+    let saveBuffer;
+    fss
+      .on(
+        "readable",
+        Meteor.bindEnvironment(() => {
+          let _chunk;
+          while (null !== (_chunk = fss.read())) {
+            let chunk;
+
+            if (!!saveBuffer && saveBuffer.length)
+              chunk = Buffer.concat([saveBuffer, Buffer.from(_chunk)]);
+            else chunk = Buffer.from(_chunk);
+            let end = chunk.lastIndexOf("\n");
+            if (end === -1) end = chunk.lastIndexOf(" ");
+
+            if (end === -1) {
+              saveBuffer = chunk;
+            } else {
+              end++;
+              parser.feed(chunk.toString("utf8", 0, end));
+            }
+            saveBuffer = chunk.slice(end);
+          }
+        })
+      )
+      .on(
+        "end",
+        Meteor.bindEnvironment(() => {
+          if (!!saveBuffer && saveBuffer.length) {
+            parser.feed(saveBuffer.toString("utf8"));
+            if (!!parser.gameobject) parser.gamelist.push(parser.gameobject);
+          }
+          console.log(JSON.stringify(parser.gamelist[0]));
+        })
+      );
+  });
+   */
 });
