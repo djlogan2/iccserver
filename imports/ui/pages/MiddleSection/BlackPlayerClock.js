@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Logger } from "../../../../lib/client/Logger";
+import { getMilliseconds } from "../../../../lib/client/timestamp";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("client/BlackPlayerClock_JS");
@@ -9,7 +10,7 @@ export default class BlackPlayerClock extends Component {
     super(props);
     log.trace("BlackPlayerClock constructor", props);
     this.interval = "none";
-    const now = new Date().getTime();
+    const now = getMilliseconds();
     const start =
       this.props.game && this.props.game.clocks
         ? this.props.game.clocks[this.props.color].starttime || now
@@ -21,21 +22,75 @@ export default class BlackPlayerClock extends Component {
     this.state = {
       game_current: current,
       current: current,
-      mark: new Date().getTime(),
-      running: false
+      mark: now,
+      running: false,
+      cmi: -1,
+      tomove: "x"
     };
     this.componentDidUpdate();
   }
 
+  // TODO: So, this works, but for some reason, props.game.tomove is always
+  //       the wrong user to move's color! (???) Why is that? I could change
+  //       the code to accomodate this easily enough, but for some reason
+  //       this seems to be called BEFORE a move is made, not after. ????
+  //       If somebody deems this correct behavior, so be it, adjust.
+  static timeAfterMove(variations, cmi) {
+    if (cmi === undefined) cmi = variations.cmi;
+    const current_move = variations.movelist[cmi];
+    if (
+      !current_move ||
+      !("current" in current_move) ||
+      !current_move.variations ||
+      current_move.variations.length !== 1
+    )
+      return;
+    const skip_move = variations.movelist[current_move.variations[0]];
+    if (
+      !skip_move ||
+      !("current" in skip_move) ||
+      !skip_move.variations ||
+      skip_move.variations.length !== 1
+    )
+      return;
+    const next_move = variations.movelist[skip_move.variations[0]];
+    if (
+      !next_move ||
+      !("current" in next_move) ||
+      !next_move.variations ||
+      next_move.variations.length !== 1
+    )
+      return;
+    return next_move.current;
+  }
+
   static getDerivedStateFromProps(props, state) {
     const running = props.game.status === "playing" && props.game.tomove === props.color;
+    const now = running ? getMilliseconds() : 0;
+    let pcurrent;
+    let cmi = props.game.variations ? props.game.variations.cmi || state.cmi : state.cmi;
+    let tomove = props.game.tomove || state.tomove;
 
-    const now = running ? new Date().getTime() : 0;
-    const start = running ? props.game.clocks[props.color].starttime || now : 0;
-    const pcurrent = props.game.clocks ? props.game.clocks[props.color].current - now + start : 0;
+    if (props.game.status === "playing") {
+      const start = running ? props.game.clocks[props.color].starttime : 0;
+      pcurrent = props.game.clocks[props.color].current - now + start;
+      // } else if (cmi !== state.cmi || tomove !== state.tomove) {
+      //   if (tomove === props.color) {
+      //     if (!!props.game.variations.movelist[cmi])
+      //       pcurrent = props.game.variations.movelist[cmi].current;
+      //   } else pcurrent = BlackPlayerClock.timeAfterMove(props.game.variations);
+    }
+
+    if (!pcurrent && !!props.game.clocks)
+      pcurrent = props.game.clocks[props.color].initial * 60 * 1000;
+
+    if (!pcurrent) pcurrent = 0;
 
     const returnstate = {};
-    const mark = new Date().getTime();
+    const mark = now;
+
+    if (cmi !== state.cmi) returnstate.cmi = cmi;
+    if (tomove !== state.tomove) returnstate.tomove = tomove;
 
     if (pcurrent !== state.game_current) {
       returnstate.current = pcurrent;
@@ -96,9 +151,9 @@ export default class BlackPlayerClock extends Component {
 
       self.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
-        self.setState({ mark: new Date().getTime() });
+        self.setState({ mark: getMilliseconds() });
         self.interval = Meteor.setInterval(() => {
-          const mark = new Date().getTime();
+          const mark = getMilliseconds();
           const sub = mark - this.state.mark;
           const current = self.state.current - sub;
           self.setState({ current: current, mark: mark });
@@ -109,7 +164,7 @@ export default class BlackPlayerClock extends Component {
     } else {
       log.trace("starting clock for countdown for " + this.props.color, this.state);
       self.interval = Meteor.setInterval(() => {
-        const mark = new Date().getTime();
+        const mark = getMilliseconds();
         const sub = mark - self.state.mark;
         const current = self.state.current - sub;
         self.setState({ current: current, mark: mark });

@@ -32,7 +32,7 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 // }
 import { Chat } from "./Chat";
 
-describe.only("Chats", function() {
+describe("Chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   //createRoom
 
@@ -293,7 +293,7 @@ describe.only("Chats", function() {
     });
   });
 
-  it.only("should not allow a user not in join_room role to be invited to a private room", function() {
+  it("should not allow a user not in join_room role to be invited to a private room", function() {
     const firstguy = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({roles: ["play_rated_games"]});
 
@@ -304,10 +304,10 @@ describe.only("Chats", function() {
     chai.assert.equal(room.invited.length, 0);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_USER");
   });
 
-  it.only("should not allow a user not in join_room role to join a public room", function() {
+  it("should not allow a user not in join_room role to join a public room", function() {
     self.loggedonuser = TestHelpers.createUser({ roles: ["create_room"] });
     const abuser = TestHelpers.createUser({ roles: ["play_rated_games"] });
     const room_id = Chat.createRoom("mi1", "the room");
@@ -317,7 +317,7 @@ describe.only("Chats", function() {
     const room = Chat.roomCollection.findOne();
     chai.assert.isFalse(room.members.some(member => member.id === abuser._id));
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "?");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_ALLOWED_TO_JOIN_ROOM");
   });
 
   it("should publish chats from all rooms a user is in", function(done) {
@@ -544,6 +544,7 @@ describe.only("Chats", function() {
       {
         _id: chat._id,
         create_date: chat.create_date,
+        child_chat: false,
         type: "private",
         isolation_group: "public",
         id: user2._id,
@@ -691,7 +692,7 @@ describe.only("Chats", function() {
   });
 
   it("should publish private chats to both senders and receivers", function(done) {
-    this.timeout(5000);
+    this.timeout(50000);
     const user1 = TestHelpers.createUser({ roles: ["personal_chat"] });
     const user2 = TestHelpers.createUser({ roles: ["personal_chat"] });
     self.loggedonuser = user1;

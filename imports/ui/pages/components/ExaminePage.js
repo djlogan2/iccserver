@@ -231,7 +231,7 @@ export default class ExaminePage extends Component {
     let status;
     let position = { top: "w" };
     if (!!game) {
-      if (game.black.id === Meteor.userId()) {
+      if (!!game.black && game.black.id === Meteor.userId()) {
         this.top = "w";
         Object.assign(position, { top: "w" });
       } else {
