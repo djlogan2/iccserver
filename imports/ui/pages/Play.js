@@ -50,8 +50,8 @@ class PlayNotifier extends Component {
     }
 
     const othercolor = Meteor.userId() === this.props.game.white.id ? "black" : "white";
-
-    if (this.props.game.pending[othercolor].takeback.mid !== "0") {
+    //TODO: changed to takeback number 0
+    if (this.props.game.pending[othercolor].takeback.number !== 0) {
       let moveCount =
         this.props.game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
       return this.renderActionPopup(translator(moveCount), "takeBack");
