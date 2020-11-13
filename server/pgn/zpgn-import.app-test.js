@@ -2,8 +2,7 @@ import chai from "chai";
 import { TestHelpers } from "../../imports/server/TestHelpers";
 import { Parser } from "./pgnparser";
 import { Game } from "../Game";
-import fs from "fs";
-import { ImportedPgnFiles } from "../PgnImport";
+
 
 describe("PGN Import", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -245,10 +244,9 @@ describe("PGN Import", function() {
 
     compareMovelist(0, 0, parser.gamelist[0].variations, game.variations);
   });
-
   /*
   it.only("should parse a big file correctly in the file processor", function(done) {
-    this.timeout(5000000);
+    this.timeout(500000);
     const fss = fs.createReadStream("/Users/davidlogan/Downloads/merged.pgn");
     const parser = new Parser();
     let saveBuffer;
@@ -283,9 +281,24 @@ describe("PGN Import", function() {
             parser.feed(saveBuffer.toString("utf8"));
             if (!!parser.gameobject) parser.gamelist.push(parser.gameobject);
           }
+          const game = parser.gamelist[0];
+          const to_be_deleted = [];
+          for (let x = game.variations.movelist.length - 1; x > 0; x--)
+            if (
+              !game.variations.movelist[x].variations ||
+              !game.variations.movelist[x].variations.length === 1
+            )
+              to_be_deleted.push(x);
+          to_be_deleted.forEach(
+            delete_cmi =>
+              (game.variations.movelist = Game.deleteVariationNode(
+                game.variations.movelist,
+                delete_cmi
+              ))
+          );
           console.log(JSON.stringify(parser.gamelist[0]));
         })
       );
   });
-   */
+ */
 });

@@ -25,10 +25,7 @@ class LocationControls extends Component {
   }
 
   moveBackwordBeginning = () => {
-    let { cmi } = this.props.game.variations;
-    for (let i = 0; i < cmi; i++) {
-      Meteor.call("moveBackward", "MoveBackward", this.props.game._id, 1, handleError);
-    }
+    Meteor.call("moveToCMI", "moveToCMI", this.props.game._id, 0);
   };
 
   moveBackword = () => {
@@ -36,22 +33,30 @@ class LocationControls extends Component {
   };
 
   moveForward = () => {
-    let ind = this.state.cmi + 1;
-    let variationIndex = 0;
-    if (this.props.game.variations.movelist[ind]) {
-      variationIndex = this.props.game.variations.movelist[ind].idc;
-    }
-
-    Meteor.call("moveForward", "moveForward", this.props.game._id, 1, variationIndex, handleError);
+    // TODO: This is stupid, AND not even right. Like "end of game", there is no FORWARD
+    //       in a tree! You have to PICK which node!
+    //       As if that weren't enough, this.state.cmi + 1 is not even remotely correct.
+    //       It's just going to pick some random move in a complicated tree, and literally
+    //       break, as the server would refuse to make an illegal move!
+    //       I removed the broken code. This really needs to be made to work correctly.
+    // let ind = this.state.cmi + 1;
+    // let variationIndex = 0;
+    // if (this.props.game.variations.movelist[ind]) {
+    //   variationIndex = this.props.game.variations.movelist[ind].idc;
+    // }
+    Meteor.call("moveForward", "moveForward", this.props.game._id, 1, 0, handleError);
   };
 
   moveForwardEnd = () => {
-    let { movelist } = this.props.game.variations;
-
-    let slicemoves = movelist.slice(this.state.cmi + 1, movelist.length);
-    for (let i = 0; i <= slicemoves.length; i++) {
-      Meteor.call("moveForward", "moveForward", this.props.game._id, 1, 0, handleError);
-    }
+    // TODO: FYI, this is stupid. There is no path to "end of game" in a tree.
+    //       You have to actually PICK which final node to traverse to.
+    let cmi = this.state.cmi;
+    while (
+      !!this.props.game.variations.movelist[cmi].variations &&
+      !!this.props.game.variations.movelist[cmi].variations.length
+    )
+      cmi = this.props.game.variations.movelist[cmi].variations[0];
+    Meteor.call("moveToCMI", "moveToCMI", this.props.game._id, cmi);
   };
 
   render() {

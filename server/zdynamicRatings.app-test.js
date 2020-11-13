@@ -1449,7 +1449,6 @@ describe("Ratings", function() {
   });
 
   it("should fail if there is any overlap. Testing overlap of parameter white_increment_or_delay", function() {
-    this.timeout(500000);
     self.loggedonuser = TestHelpers.createUser({
       roles: ["add_dynamic_rating", "delete_dynamic_rating", "play_rated_games"]
     });

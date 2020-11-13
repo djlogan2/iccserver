@@ -2730,6 +2730,28 @@ class Game {
     );
   }
 
+  deleteVariationNode(movelist, cmi) {
+    if (!cmi) throw new Meteor.error("INVALID_CMI");
+    const new_movelist = [];
+    this.rebuildVariationNodes(cmi, movelist, new_movelist, 0);
+    return new_movelist;
+  }
+
+  rebuildVariationNodes(cmi_to_delete, old_movelist, new_movelist, old_cmi) {
+    if (old_cmi === cmi_to_delete) return;
+    const new_cmi = new_movelist.length;
+    new_movelist.push(old_movelist[old_cmi]);
+    if (!!new_movelist[new_cmi].variations) {
+      const old_variations = new_movelist[new_cmi].variations;
+      new_movelist[new_cmi].variations = old_variations
+        .map(oldvarcmi => {
+          return this.rebuildVariationNodes(cmi_to_delete, old_movelist, new_movelist, oldvarcmi);
+        })
+        .filter(newvarcmi => !!newvarcmi);
+    }
+    return new_cmi;
+  }
+
   moveToCMI(message_identifier, game_id, cmi) {
     check(game_id, String);
     check(cmi, Number);
@@ -2747,6 +2769,30 @@ class Game {
       return;
     }
 
+    if (game.cmi === cmi) return;
+    // if (cmi === 0) {
+    //   if (game.tags && !!game.tags.FEN) active_games[game_id].load(game.tags.FEN);
+    //   else active_games[game_id].load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    //
+    //   this.GameCollection.update(
+    //     { _id: game_id, status: "examining" },
+    //     {
+    //       $set: {
+    //         "variations.cmi": 0,
+    //         fen: active_games[game_id].fen(),
+    //         tomove: active_games[game_id] === "w" ? "white" : "black"
+    //       },
+    //       $push: {
+    //         actions: {
+    //           type: "move_to_fen",
+    //           issuer: self._id,
+    //           parameter: { cmi: 0 }
+    //         }
+    //       }
+    //     }
+    //   );
+    // }
+
     if (!active_games[game_id])
       throw new ICCMeteorError(
         message_identifier,
@@ -2763,13 +2809,13 @@ class Game {
     // when we find the matching spot, we will need to use
     // this to traverse back down.
     //
-    let cmilist = [];
+    let cmilist = [cmi];
     let current_cmi = cmi;
     while (!!current_cmi) {
       current_cmi = variation.movelist[current_cmi].prev;
-      cmilist.push(current_cmi);
+      cmilist.unshift(current_cmi);
     }
-    cmilist.push(0);
+    if (!cmilist.length) cmilist = [0];
 
     //
     // Now make current_cmi whatever value matches in both trees
@@ -2782,8 +2828,8 @@ class Game {
     //
     // Remove all of the unnecesary cmi values from the traversal list.
     //
-    const idx = cmilist.indexOf(current_cmi);
-    cmilist = cmilist.slice(idx);
+    const idx = cmilist.indexOf(backtrack_to_cmi);
+    cmilist = cmilist.slice(idx + 1);
 
     //
     // Undo all of the moves to the shared node
@@ -2795,6 +2841,7 @@ class Game {
     }
 
     cmilist.forEach(new_cmi => {
+      if (!new_cmi) return;
       const result = chessObject.move(variation.movelist[new_cmi].move);
       if (!result) {
         log.fatal("Unable to move to new CMI", {
@@ -3924,9 +3971,9 @@ class Game {
     }
 
     log.debug("Starting two minute timer for logged out user", userId);
-    const cursor = Meteor.users.find({}).observeChanges({
+    const cursor = Meteor.users.find({ _id: userId }).observeChanges({
       changed(id, fields) {
-        if ("status" in fields && "status.online" in fields.status && fields.status.online) {
+        if ("status" in fields && "online" in fields.status && fields.status.online) {
           log.debug("Logged out user logged back in in time", userId);
           Meteor.clearInterval(interval);
         }
@@ -4434,5 +4481,8 @@ Meteor.methods({
     global._gameObject.drawArrow(message_identifier, game_id, from, to, color, size),
   // eslint-disable-next-line meteor/audit-argument-checks
   removeArrow: (message_identifier, game_id, from, to) =>
-    global._gameObject.removeArrow(message_identifier, game_id, from, to)
+    global._gameObject.removeArrow(message_identifier, game_id, from, to),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  moveToCMI: (message_identifier, game_id, cmi) =>
+    global._gameObject.moveToCMI(message_identifier, game_id, cmi)
 });

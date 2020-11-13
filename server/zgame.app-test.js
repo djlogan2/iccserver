@@ -4271,4 +4271,83 @@ describe("Starting an examined game", function() {
       ICCMeteorError
     );
   });
+
+  describe("moveToCMI", function() {
+    it("should work", function() {
+      self.loggedonuser = TestHelpers.createUser();
+      const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
+      Game.saveLocalMove("e4", game_id, "e4");
+      Game.saveLocalMove("c5", game_id, "c5");
+      // rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2
+      Game.saveLocalMove("Nf3", game_id, "Nf3");
+      Game.moveBackward("mb", game_id, 2);
+      Game.saveLocalMove("e5", game_id, "e5");
+      // rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2
+      Game.saveLocalMove("Bc4", game_id, "Bc4");
+
+      const game1 = Game.collection.findOne();
+      chai.assert.equal(
+        game1.fen,
+        "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2"
+      );
+
+      Game.moveToCMI("m1", game_id, 3);
+      const game2 = Game.collection.findOne();
+      chai.assert.equal(
+        game2.fen,
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
+      );
+
+      Game.moveToCMI("m2", game_id, 3);
+      const game3 = Game.collection.findOne();
+      chai.assert.equal(
+        game3.fen,
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
+      );
+
+      Game.moveToCMI("m3", game_id, 5);
+      const game4 = Game.collection.findOne();
+      chai.assert.equal(
+        game4.fen,
+        "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2"
+      );
+
+      Game.moveToCMI("m4", game_id, 5);
+      const game5 = Game.collection.findOne();
+      chai.assert.equal(
+        game5.fen,
+        "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2"
+      );
+
+      Game.moveToCMI("m5", game_id, 0);
+      const game6 = Game.collection.findOne();
+      chai.assert.equal(game6.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+      Game.moveToCMI("m6", game_id, 3);
+      const game7 = Game.collection.findOne();
+      chai.assert.equal(
+        game7.fen,
+        "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
+      );
+
+      Game.moveToCMI("m7", game_id, 0);
+      const game8 = Game.collection.findOne();
+      chai.assert.equal(game8.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+      Game.moveToCMI("m8", game_id, 5);
+      const game9 = Game.collection.findOne();
+      chai.assert.equal(
+        game9.fen,
+        "rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2"
+      );
+
+      Game.moveToCMI("m9", game_id, 0);
+      const game10 = Game.collection.findOne();
+      chai.assert.equal(game10.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+      Game.moveToCMI("m10", game_id, 0);
+      const game11 = Game.collection.findOne();
+      chai.assert.equal(game11.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    });
+  });
 });
