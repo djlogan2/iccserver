@@ -209,7 +209,7 @@ class Game {
                 const cursor = attempts[i](user);
                 if (!!cursor.count()) return cursor;
               }
-              return _self.GameCollection.find({_id: "0"});
+              return _self.GameCollection.find({ _id: "0" });
             }
           }
         ]
@@ -644,7 +644,7 @@ class Game {
     if (!game_object.fen)
       game_object.fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-    game_object.actions.push({ type: "loadpgn", issuer: self._id, parameter: { fen: pgn_text } });
+    game_object.actions.push({ type: "loadpgn", issuer: self._id, parameter: { pgn: pgn_text } });
 
     game_object.owner = self._id;
     game_object.isolation_group = self.isolation_group;
@@ -2730,6 +2730,156 @@ class Game {
     );
   }
 
+  deleteVariationNode(movelist, cmi) {
+    if (!cmi) throw new Meteor.error("INVALID_CMI");
+    const new_movelist = [];
+    this.rebuildVariationNodes(cmi, movelist, new_movelist, 0);
+    return new_movelist;
+  }
+
+  rebuildVariationNodes(cmi_to_delete, old_movelist, new_movelist, old_cmi) {
+    if (old_cmi === cmi_to_delete) return;
+    const new_cmi = new_movelist.length;
+    new_movelist.push(old_movelist[old_cmi]);
+    if (!!new_movelist[new_cmi].variations) {
+      const old_variations = new_movelist[new_cmi].variations;
+      new_movelist[new_cmi].variations = old_variations
+        .map(oldvarcmi => {
+          return this.rebuildVariationNodes(cmi_to_delete, old_movelist, new_movelist, oldvarcmi);
+        })
+        .filter(newvarcmi => !!newvarcmi);
+    }
+    return new_cmi;
+  }
+
+  moveToCMI(message_identifier, game_id, cmi) {
+    check(game_id, String);
+    check(cmi, Number);
+
+    const self = Meteor.user();
+    check(self, Object);
+
+    const game = this.GameCollection.findOne({
+      _id: game_id,
+      status: "examining",
+      "examiners.id": self._id
+    });
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+      return;
+    }
+
+    if (game.cmi === cmi) return;
+    // if (cmi === 0) {
+    //   if (game.tags && !!game.tags.FEN) active_games[game_id].load(game.tags.FEN);
+    //   else active_games[game_id].load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    //
+    //   this.GameCollection.update(
+    //     { _id: game_id, status: "examining" },
+    //     {
+    //       $set: {
+    //         "variations.cmi": 0,
+    //         fen: active_games[game_id].fen(),
+    //         tomove: active_games[game_id] === "w" ? "white" : "black"
+    //       },
+    //       $push: {
+    //         actions: {
+    //           type: "move_to_fen",
+    //           issuer: self._id,
+    //           parameter: { cmi: 0 }
+    //         }
+    //       }
+    //     }
+    //   );
+    // }
+
+    if (!active_games[game_id])
+      throw new ICCMeteorError(
+        message_identifier,
+        "Unable to move forward",
+        "Unable to find active game"
+      );
+
+    const chessObject = active_games[game_id];
+    const variation = game.variations;
+
+    //
+    // First, get the entire list of CMI values up the tree
+    // from the desired location. We do it this way because
+    // when we find the matching spot, we will need to use
+    // this to traverse back down.
+    //
+    let cmilist = [cmi];
+    let current_cmi = cmi;
+    while (!!current_cmi) {
+      current_cmi = variation.movelist[current_cmi].prev;
+      cmilist.unshift(current_cmi);
+    }
+    if (!cmilist.length) cmilist = [0];
+
+    //
+    // Now make current_cmi whatever value matches in both trees
+    // It could go all the way back up to move zero, but it may not.
+    //
+    let backtrack_to_cmi = variation.cmi;
+    while (!cmilist.some(pcmi => pcmi === backtrack_to_cmi))
+      backtrack_to_cmi = variation.movelist[backtrack_to_cmi].prev;
+
+    //
+    // Remove all of the unnecesary cmi values from the traversal list.
+    //
+    const idx = cmilist.indexOf(backtrack_to_cmi);
+    cmilist = cmilist.slice(idx + 1);
+
+    //
+    // Undo all of the moves to the shared node
+    //
+    current_cmi = variation.cmi;
+    while (current_cmi !== backtrack_to_cmi) {
+      chessObject.undo();
+      current_cmi = variation.movelist[current_cmi].prev;
+    }
+
+    cmilist.forEach(new_cmi => {
+      if (!new_cmi) return;
+      const result = chessObject.move(variation.movelist[new_cmi].move);
+      if (!result) {
+        log.fatal("Unable to move to new CMI", {
+          cmi: cmi,
+          cmilist: cmilist,
+          new_cmi: new_cmi,
+          backtrack_to_cmi: backtrack_to_cmi,
+          gamecmi: variation.cmi,
+          move: variation.movelist[new_cmi].move
+        });
+        throw new ICCMeteorError(
+          message_identifier,
+          "Unable to move to new CMI",
+          "Some move attempt failed",
+          "Internal server error"
+        );
+      }
+    });
+
+    this.GameCollection.update(
+      { _id: game_id, status: "examining" },
+      {
+        $set: {
+          "variations.cmi": cmi,
+          fen: chessObject.fen(),
+          tomove: chessObject.turn() === "w" ? "white" : "black"
+        },
+        $push: {
+          actions: {
+            type: "move_to_fen",
+            issuer: self._id,
+            parameter: { cmi: cmi }
+          }
+        }
+      }
+    );
+  }
+
   moveForward(message_identifier, game_id, move_count, variation_index) {
     log.debug(
       "moveForward " +
@@ -2807,7 +2957,11 @@ class Game {
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
-        $set: { "variations.cmi": variation.cmi, fen: chessObject.fen() },
+        $set: {
+          "variations.cmi": variation.cmi,
+          fen: chessObject.fen(),
+          tomove: chessObject.turn() === "w" ? "white" : "black"
+        },
         $push: {
           actions: {
             type: "move_forward",
@@ -2874,7 +3028,8 @@ class Game {
       {
         $set: {
           "variations.cmi": variation.cmi,
-          fen: active_games[game_id].fen()
+          fen: active_games[game_id].fen(),
+          tomove: active_games[game_id].turn() === "w" ? "white" : "black"
         },
         $push: {
           actions: {
@@ -3720,7 +3875,11 @@ class Game {
       Meteor.clearInterval(move_timers[game_id]);
       delete move_timers[game_id];
       const game = this.GameCollection.findOne({ _id: game_id, status: "playing" });
-      if (!game) throw new ICCMeteorError("server", "Unable to find a game to expire time on");
+      if (!game) {
+        //throw new ICCMeteorError("server", "Unable to find a game to expire time on");
+        log.error("Unable to find a game to expire time on");
+        return;
+      }
       const setobject = {};
       const addtosetobject = {};
       setobject.result = color === "white" ? "0-1" : "1-0";
@@ -3816,13 +3975,13 @@ class Game {
     }
 
     log.debug("Starting two minute timer for logged out user", userId);
-    const cursor = Meteor.users.find({}).observeChanges({
+    const cursor = Meteor.users.find({ _id: userId }).observeChanges({
       changed(id, fields) {
-        if ("status" in fields && "status.online" in fields.status && fields.status.online) {
+        if ("status" in fields && "online" in fields.status && fields.status.online) {
           log.debug("Logged out user logged back in in time", userId);
           Meteor.clearInterval(interval);
+          cursor.stop();
         }
-        cursor.stop();
       }
     });
 
@@ -3830,7 +3989,7 @@ class Game {
       log.debug("Two minute time expired, resigning/unobserving/status", userId);
       Meteor.clearInterval(interval);
       cursor.stop();
-      if (!!Meteor.users.find({ _id: userId, "status.online": false }).count()) doTheLogout();
+      if (!Meteor.users.find({ _id: userId, "status.online": true }).count()) doTheLogout();
     }, SystemConfiguration.logoutTimeout());
   }
 
@@ -4329,5 +4488,8 @@ Meteor.methods({
     global._gameObject.drawArrow(message_identifier, game_id, from, to, color, size),
   // eslint-disable-next-line meteor/audit-argument-checks
   removeArrow: (message_identifier, game_id, from, to) =>
-    global._gameObject.removeArrow(message_identifier, game_id, from, to)
+    global._gameObject.removeArrow(message_identifier, game_id, from, to),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  moveToCMI: (message_identifier, game_id, cmi) =>
+    global._gameObject.moveToCMI(message_identifier, game_id, cmi)
 });

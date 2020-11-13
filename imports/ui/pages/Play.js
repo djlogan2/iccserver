@@ -483,24 +483,30 @@ export default withTracker(() => {
     return true;
   }
 
-  const PLAYING_SELECTOR = {
-    $and: [
-      { status: "playing" },
-      { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
-    ]
-  };
-  const EXAMINING_SELECTOR = {
-    $and: [
-      { status: "examining" },
-      { $or: [{ "observers.id": Meteor.userId() }, { owner: Meteor.userId() }] }
-    ]
-  };
   return {
     isready: isready(),
+
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
       .fetch(),
-    in_game: Game.findOne({ $or: [PLAYING_SELECTOR, EXAMINING_SELECTOR] }),
+
+    in_game: Game.findOne({
+      $or: [
+        {
+          $and: [
+            { status: "playing" },
+            { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
+          ]
+        },
+        {
+          $and: [
+            { status: "examining" },
+            { $or: [{ "observers.id": Meteor.userId() }, { owner: Meteor.userId() }] }
+          ]
+        }
+      ]
+    }),
+
     game_request: GameRequestCollection.findOne(
       {
         $or: [
@@ -517,6 +523,7 @@ export default withTracker(() => {
         sort: { create_date: -1 }
       }
     ),
+
     client_messages: ClientMessagesCollection.find().fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })

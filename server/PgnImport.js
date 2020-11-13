@@ -33,6 +33,7 @@ const process = (fileRef, vRef, version, testCallback) => {
             chunk = Buffer.concat([saveBuffer, Buffer.from(_chunk)]);
           else chunk = Buffer.from(_chunk);
           let end = chunk.lastIndexOf("\n");
+          if (end === -1) end = chunk.lastIndexOf(" ");
 
           if (end === -1) {
             saveBuffer = chunk;
