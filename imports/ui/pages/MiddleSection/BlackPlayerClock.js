@@ -157,6 +157,7 @@ export default class BlackPlayerClock extends Component {
   }
 
   render() {
+    if (!this.props.game) return null;
     let hour;
     let minute;
     let second;
