@@ -3875,7 +3875,11 @@ class Game {
       Meteor.clearInterval(move_timers[game_id]);
       delete move_timers[game_id];
       const game = this.GameCollection.findOne({ _id: game_id, status: "playing" });
-      if (!game) throw new ICCMeteorError("server", "Unable to find a game to expire time on");
+      if (!game) {
+        //throw new ICCMeteorError("server", "Unable to find a game to expire time on");
+        log.error("Unable to find a game to expire time on");
+        return;
+      }
       const setobject = {};
       const addtosetobject = {};
       setobject.result = color === "white" ? "0-1" : "1-0";
@@ -3976,8 +3980,8 @@ class Game {
         if ("status" in fields && "online" in fields.status && fields.status.online) {
           log.debug("Logged out user logged back in in time", userId);
           Meteor.clearInterval(interval);
+          cursor.stop();
         }
-        cursor.stop();
       }
     });
 
@@ -3985,7 +3989,7 @@ class Game {
       log.debug("Two minute time expired, resigning/unobserving/status", userId);
       Meteor.clearInterval(interval);
       cursor.stop();
-      if (!!Meteor.users.find({ _id: userId, "status.online": false }).count()) doTheLogout();
+      if (!Meteor.users.find({ _id: userId, "status.online": true }).count()) doTheLogout();
     }, SystemConfiguration.logoutTimeout());
   }
 

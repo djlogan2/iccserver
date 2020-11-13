@@ -8,7 +8,6 @@ const log = new Logger("client/BlackPlayerClock_JS");
 export default class BlackPlayerClock extends Component {
   constructor(props) {
     super(props);
-    log.trace("BlackPlayerClock constructor", props);
     this.interval = "none";
     const now = getMilliseconds();
     const start =
@@ -23,9 +22,7 @@ export default class BlackPlayerClock extends Component {
       game_current: current,
       current: current,
       mark: now,
-      running: false,
-      cmi: -1,
-      tomove: "x"
+      running: false
     };
     this.componentDidUpdate();
   }
@@ -60,8 +57,8 @@ export default class BlackPlayerClock extends Component {
     if (tomove) return upcoming_move.current;
 
     //
-    // Obviously we are doing the user NOT waiting to move. If there is no
-    // move after the current users move, return the clocks at the beginning
+    // Obviously by here we are doing the user NOT waiting to move. If there is
+    // no move after the current users move, return the clocks at the beginning
     // of the last move made by this user.
     //
     if (!upcoming_move.variations || !upcoming_move.variations.length)
@@ -76,33 +73,18 @@ export default class BlackPlayerClock extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    log.debug("gdfp", {
-      status: props.game.status,
-      tomove: props.game.tomove,
-      cmi: props.game.variations.cmi,
-      color: props.color,
-      state: state
-    });
+    if (!props.game) return;
     const running = props.game.status === "playing" && props.game.tomove === props.color;
     const now = running ? getMilliseconds() : 0;
     let pcurrent;
-    let cmi = props.game.variations ? props.game.variations.cmi || state.cmi : state.cmi;
-    let tomove = props.game.tomove || state.tomove;
 
     if (props.game.status === "playing") {
       const start = running ? props.game.clocks[props.color].starttime : 0;
       pcurrent = props.game.clocks[props.color].current - now + start;
-    } else if (cmi !== state.cmi || tomove !== state.tomove) {
-      pcurrent = BlackPlayerClock.timeAfterMove(props.game.variations, tomove === props.color);
-      log.debug(
-        "tomove === " +
-          tomove +
-          ", color=" +
-          props.color +
-          ", cmi=" +
-          cmi +
-          ", setting pcurrent to " +
-          pcurrent
+    } else {
+      pcurrent = BlackPlayerClock.timeAfterMove(
+        props.game.variations,
+        props.game.tomove === props.color
       );
     }
 
@@ -114,9 +96,6 @@ export default class BlackPlayerClock extends Component {
     const returnstate = {};
     const mark = now;
 
-    if (cmi !== state.cmi) returnstate.cmi = cmi;
-    if (tomove !== state.tomove) returnstate.tomove = tomove;
-
     if (pcurrent !== state.game_current) {
       returnstate.current = pcurrent;
       returnstate.game_current = pcurrent;
@@ -124,10 +103,6 @@ export default class BlackPlayerClock extends Component {
     }
 
     if (running !== state.running) {
-      log.trace(
-        "BlackPlayerClock " + props.color + " getDerivedStateFromProps new running: ",
-        running
-      );
       returnstate.running = running;
       returnstate.mark = mark;
     }
@@ -137,24 +112,14 @@ export default class BlackPlayerClock extends Component {
 
   componentWillUnmount() {
     if (this.interval !== "none") {
-      const result = Meteor.clearInterval(this.interval);
-      log.trace(
-        "BlackPlayerClock " + this.props.color + " componentWillUnmount clearing interval",
-        { interval: this.interval, result: result }
-      );
+      Meteor.clearInterval(this.interval);
       this.interval = "none";
     }
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
     if (this.interval !== "none" && !nextState.running) {
-      const result = Meteor.clearInterval(this.interval);
-      log.trace(
-        "BlackPlayerClock " +
-          this.props.color +
-          " shouldComponentUpdate clearing interval because upcoming state is not running",
-        { interval: this.interval, result: result }
-      );
+      Meteor.clearInterval(this.interval);
       this.interval = "none";
     }
     return true;
@@ -167,13 +132,10 @@ export default class BlackPlayerClock extends Component {
       return;
     }
 
-    log.trace("BlackPlayerClock " + this.props.color + " starting interval");
     const iod = this.props.game.clocks[this.props.color].inc_or_delay;
     const type = this.props.game.clocks[this.props.color].delaytype;
 
     if (type === "us" || type === "bronstein") {
-      log.trace("starting clock for delay for " + this.props.color, this.state);
-
       self.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
         self.setState({ mark: getMilliseconds() });
@@ -183,18 +145,14 @@ export default class BlackPlayerClock extends Component {
           const current = self.state.current - sub;
           self.setState({ current: current, mark: mark });
         }, 50);
-        log.trace(this.props.color + " delay/run interval is", self.interval);
       }, iod * 1000);
-      log.trace(this.props.color + " delay interval is", self.interval);
     } else {
-      log.trace("starting clock for countdown for " + this.props.color, this.state);
       self.interval = Meteor.setInterval(() => {
         const mark = getMilliseconds();
         const sub = mark - self.state.mark;
         const current = self.state.current - sub;
         self.setState({ current: current, mark: mark });
       }, 50);
-      log.trace(this.props.color + " interval is", self.interval);
     }
   }
 
