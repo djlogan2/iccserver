@@ -22,9 +22,6 @@ export default class PlayPage extends Component {
       this.setState({
         modalShow: data
       });
-      if (!data) {
-        props.removeGameHistory();
-      }
     };
     this.gameId = null;
     this.state = {
