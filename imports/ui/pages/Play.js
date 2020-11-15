@@ -54,7 +54,6 @@ class PlayNotifier extends Component {
     }
 
     const othercolor = Meteor.userId() === this.props.game.white.id ? "black" : "white";
-    //TODO: changed to takeback number 0
     if (this.props.game.pending[othercolor].takeback.number !== 0) {
       let moveCount =
         this.props.game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
@@ -385,7 +384,7 @@ class Play extends Component {
     // log.trace("Play render", this.props);
 
     if (!this.props.isready) {
-    //  log.error("Play LOADING");
+      //  log.error("Play LOADING");
       return <Loading />;
     }
 
@@ -543,7 +542,7 @@ export default withTracker(() => {
 const game_timestamps = {};
 Game.find({ status: "playing" }).observeChanges({
   added(id, game) {
-  //  log.debug("timstamp observer added, id=" + id);
+    //  log.debug("timstamp observer added, id=" + id);
     let color;
     if (game.white.id === Meteor.userId()) color = "white";
     else if (game.black.id === Meteor.userId()) color = "black";
