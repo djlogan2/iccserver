@@ -9,7 +9,6 @@ import { Logger } from "../../../../lib/client/Logger";
 const log = new Logger("client/MatchUserComponent");
 
 const legacyUsersC = new Mongo.Collection("legacyUsers");
-const DynamicRatingsCollection = new Mongo.Collection("ratings");
 
 export default class MatchUserComponent extends TrackerReact(React.Component) {
   constructor(props) {
@@ -17,8 +16,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     this.state = {
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        //legacyUsers: Meteor.subscribe("legacyUsers"),
-        DynamicRatings: Meteor.subscribe("DynamicRatings")
+        //legacyUsers: Meteor.subscribe("legacyUsers")
       },
       user: null,
       userId: null,

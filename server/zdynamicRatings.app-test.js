@@ -7,6 +7,7 @@ import { Meteor } from "meteor/meteor";
 import { Match } from "meteor/check";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { Random } from "meteor/random";
+import { findRatingObject, validateAndFillRatingObject } from "../lib/ratinghelpers";
 
 describe("Ratings", function() {
   const self = TestHelpers.setupDescribe.call(this, { dynamicratings: false });
@@ -1818,5 +1819,40 @@ describe("Ratings", function() {
     );
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "OVERLAPPING_RATING");
+  });
+
+  it("should give correct rating types for every initial and increment", function() {
+    const bullet_object = validateAndFillRatingObject({ etime: [0, 2], increment_type: ["inc"] });
+    const blitz_object = validateAndFillRatingObject({ etime: [3, 14], increment_type: ["inc"] });
+    const standard_object = validateAndFillRatingObject({
+      etime: [15, 600],
+      increment_type: ["inc"]
+    });
+
+    bullet_object.wild_type = 0;
+    blitz_object.wild_type = 0;
+    standard_object.wild_type = 0;
+    bullet_object.rating_type = "bullet";
+    blitz_object.rating_type = "blitz";
+    standard_object.rating_type = "standard";
+
+    for (let initial = 0; initial < 200; initial++) {
+      for (let increment = 0; increment < 600; increment++) {
+        if (!initial && !increment) continue;
+        const rating_object = findRatingObject(0, initial, increment, "inc", [
+          bullet_object,
+          blitz_object,
+          standard_object
+        ]);
+        chai.assert.isDefined(
+          rating_object,
+          "Unable to find rating object for initial=" + initial + ", increment=" + increment
+        );
+        const etime = Math.round(initial + (2.0 * increment) / 3.0);
+        if (etime < 3) chai.assert.equal("bullet", rating_object.rating_type);
+        else if (etime < 15) chai.assert.equal("blitz", rating_object.rating_type);
+        else chai.assert.equal("standard", rating_object.rating_type);
+      }
+    }
   });
 });

@@ -16,11 +16,7 @@ export default class RightBarToptabs extends Component {
       status: "others"
     };
   }
-  /*  componentWillReceiveProps(prevProps) {
-    if (prevProps.RightBarTopData1.status !== this.props.RightBarTopData1.status) {
-      if (this.props.RightBarTopData1.status === "playing") this.setState({ status: "playing" });
-    }
-  } */
+
   getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -35,17 +31,17 @@ export default class RightBarToptabs extends Component {
     let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
 
     return (
-      <Tabs  cssManager={this.props. cssManager}>
+      <Tabs cssManager={this.props.cssManager}>
         <div label={translator("quikpairing")}>
-          <QuickPairing  cssManager={this.props. cssManager} />
+          <QuickPairing cssManager={this.props.cssManager} />
         </div>
 
         <div label={translator("seekgame")}>
-          <SeekGame  cssManager={this.props. cssManager} />
+          <SeekGame cssManager={this.props.cssManager} />
         </div>
 
         <div label={translator("matchuser")}>
-          <MatchUser  cssManager={this.props. cssManager} gameRequest={this.props.gameRequest} />
+          <MatchUser cssManager={this.props.cssManager} gameRequest={this.props.gameRequest} />
         </div>
       </Tabs>
     );
