@@ -15,11 +15,15 @@ import {
   GameHistoryCollection,
   GameRequestCollection,
   ImportedGameCollection,
-  LegacyUsersCollection,
+  DynamicRatingsCollection,
   mongoCss,
   mongoUser
 } from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
+import RatingOverlaps, {
+  findRatingObject,
+  validateAndFillRatingObject
+} from "../../../lib/ratinghelpers";
 
 const log = new Logger("client/Play_js");
 
@@ -297,20 +301,23 @@ class Play extends Component {
 
     this.setState({ gameType: "addLocalMatchRequest", gameData: null, gameUserId: friendId });
 
-    //TEMP - BAD SOLUTION - BAD!
-    let stupidstupidstupid;
-    const sigh = initial + (2 * incrementOrDelay) / 3;
-    if (sigh >= 15) stupidstupidstupid = "standard";
-    else if (sigh >= 3) stupidstupidstupid = "blitz";
-    else stupidstupidstupid = "bullet";
-    //TEMP - BAD SOLUTION - BAD!
+    const rating_object = findRatingObject(
+      0,
+      "white",
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      DynamicRatingsCollection.find({ wild_number: 0 }.fetch())
+    );
+
+    if (!rating_object) throw new Meteor.Error("Unable to find a rating type");
 
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
       friendId,
       defaultData.wild_number,
-      stupidstupidstupid,
+      rating_object.rating_type,
       defaultData.rated,
       defaultData.is_adjourned,
       initial,
@@ -471,7 +478,8 @@ export default withTracker(() => {
     gameRequests: Meteor.subscribe("game_requests"),
     clientMessages: Meteor.subscribe("client_messages"),
     gameHistory: Meteor.subscribe("game_history"),
-    importedGame: Meteor.subscribe("imported_games")
+    importedGame: Meteor.subscribe("imported_games"),
+    dynamic_ratings: Meteor.subscribe("DynamicRatings")
   };
 
   function isready() {
@@ -523,6 +531,8 @@ export default withTracker(() => {
         sort: { create_date: -1 }
       }
     ),
+
+    ratings: DynamicRatingsCollection.find(),
 
     client_messages: ClientMessagesCollection.find().fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),

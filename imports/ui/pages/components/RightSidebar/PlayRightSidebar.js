@@ -9,6 +9,8 @@ import { GameControlBlock } from "./elements/GameControlBlock";
 import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../../../lib/client/Logger";
 import { PlayChooseBot } from "./PlayChooseBot";
+import { findRatingObject } from "../../../../../lib/ratinghelpers";
+import { DynamicRatingsCollection } from "../../../../api/client/collections";
 
 const log = new Logger("client/PlayRightSidebar");
 
@@ -96,25 +98,15 @@ class PlayFriendOptions extends Component {
   };
 
   updateRating = () => {
-    let { initial, incrementOrDelay } = this.state;
-    let index = initial + (2 / 3) * incrementOrDelay;
-
-    // TODO: Please fix this. Previous programmers did NOT know what they were doing!!
-    const ratingConfig = {
-      bullet: [0, 2],
-      blitz: [3, 14],
-      standard: [15, 600]
-    };
-    let ratingType = "none";
-    if (ratingConfig.bullet[0] <= index && index <= ratingConfig.bullet[1]) {
-      ratingType = "bullet";
-    } else if (ratingConfig.blitz[0] <= index && index <= ratingConfig.blitz[1]) {
-      ratingType = "blitz";
-    } else if (ratingConfig.standard[0] <= index && index <= ratingConfig.standard[1]) {
-      ratingType = "standard";
-    }
-    // TODO: Please fix this. Previous programmers did NOT know what they were doing!!
-    this.setState({ ratingType: ratingType });
+    const rating_object = findRatingObject(
+      0,
+      "white", // Right now white and black always match, so just hard code
+      this.state.initial,
+      this.state.incrementOrDelay,
+      this.state.incrementOrDelayType,
+      DynamicRatingsCollection.find().fetch()
+    );
+    this.setState({ ratingType: rating_object.rating_type });
   };
 
   handlePlay = () => {
