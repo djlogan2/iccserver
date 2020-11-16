@@ -1839,7 +1839,7 @@ describe("Ratings", function() {
     for (let initial = 0; initial < 200; initial++) {
       for (let increment = 0; increment < 600; increment++) {
         if (!initial && !increment) continue;
-        const rating_object = findRatingObject(0, initial, increment, "inc", [
+        const rating_object = findRatingObject(0, "white", initial, increment, "inc", [
           bullet_object,
           blitz_object,
           standard_object
