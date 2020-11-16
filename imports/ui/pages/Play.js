@@ -12,18 +12,13 @@ import { ActionPopup } from "./components/Popup/Popup";
 import {
   ClientMessagesCollection,
   Game,
-  GameHistoryCollection,
   GameRequestCollection,
-  ImportedGameCollection,
   DynamicRatingsCollection,
   mongoCss,
   mongoUser
 } from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
-import RatingOverlaps, {
-  findRatingObject,
-  validateAndFillRatingObject
-} from "../../../lib/ratinghelpers";
+import { findRatingObject } from "../../../lib/ratinghelpers";
 
 const log = new Logger("client/Play_js");
 
@@ -79,16 +74,12 @@ class Play extends Component {
     this._boardfallensolder = new Chess.Chess();
     this.userpending = null;
     this.state = {
-      gameUserId: null,
       gameType: null,
-      gameData: null,
-      GameHistory: null
+      gameData: null
     };
     this.logout = this.logout.bind(this);
     this.drawCircle = this.drawCircle.bind(this);
     this.removeCircle = this.removeCircle.bind(this);
-    this.gameHistoryload = this.gameHistoryload.bind(this);
-    this.removeGameHistory = this.removeGameHistory.bind(this);
   }
 
   userRecord() {
@@ -145,24 +136,6 @@ class Play extends Component {
     //log.debug("_pieceSquareDragStop", [this.props.in_game._id, raf.move]);
     Meteor.call("addGameMove", "gameMove", this.props.in_game._id, raf.move, handleError);
   };
-
-  gameHistoryload(data) {
-    if (data === "mygame") {
-      const GameHistory = GameHistoryCollection.find({
-        $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-      }).fetch();
-      GameHistory.is_imported = false;
-      this.setState({ GameHistory: GameHistory });
-    } else if (data === "uploadpgn") {
-      const importedGame = ImportedGameCollection.find({}).fetch();
-      importedGame.is_imported = true;
-      this.setState({ GameHistory: importedGame });
-    }
-  }
-
-  removeGameHistory() {
-    this.setState({ GameHistory: null });
-  }
 
   _boardFromMongoMessages(game) {
     //logger.debug("_boardFromMongoMessages", game);
@@ -298,15 +271,13 @@ class Play extends Component {
 
     let { color, initial, incrementOrDelayType, incrementOrDelay } = options;
 
-    this.setState({ gameType: "addLocalMatchRequest", gameData: null, gameUserId: friendId });
-
     const rating_object = findRatingObject(
       0,
       "white",
       initial,
       incrementOrDelay,
       incrementOrDelayType,
-      DynamicRatingsCollection.find({ wild_number: 0 }.fetch())
+      DynamicRatingsCollection.find({ wild_number: 0 }).fetch()
     );
 
     if (!rating_object) throw new Meteor.Error("Unable to find a rating type");
@@ -369,15 +340,9 @@ class Play extends Component {
       black_increment_or_delay,
       black_increment_or_delay_type,
       skill_level,
-      color,
-      err => {
-        if (err) {
-          debugger;
-        }
-        that.setState({ gameType: "startBotGame", gameData: data, gameUserId: null });
-      }
+      color
     );
-    // this.setState({ status: "playing" });
+    this.setState({ gameData: data });
   };
 
   render() {
@@ -452,10 +417,6 @@ class Play extends Component {
           onBotPlay={this.handleBotPlay}
           capture={capture}
           game={this.props.in_game}
-          gameHistoryload={this.gameHistoryload}
-          GameHistory={this.state.GameHistory}
-          removeGameHistory={this.removeGameHistory}
-          gameRequest={this.props.game_request}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
@@ -476,7 +437,6 @@ export default withTracker(() => {
     userData: Meteor.subscribe("userData"),
     gameRequests: Meteor.subscribe("game_requests"),
     clientMessages: Meteor.subscribe("client_messages"),
-    gameHistory: Meteor.subscribe("game_history"),
     importedGame: Meteor.subscribe("imported_games"),
     dynamic_ratings: Meteor.subscribe("DynamicRatings")
   };

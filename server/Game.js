@@ -3876,7 +3876,6 @@ class Game {
       delete move_timers[game_id];
       const game = this.GameCollection.findOne({ _id: game_id, status: "playing" });
       if (!game) {
-        //throw new ICCMeteorError("server", "Unable to find a game to expire time on");
         log.error("Unable to find a game to expire time on");
         return;
       }
