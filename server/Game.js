@@ -1376,7 +1376,8 @@ class Game {
             examiners: [{ id: self._id, username: self.username }],
             observers: [{ id: self._id, username: self.username }],
             analysis: [{ id: self._id, username: self.username }]
-          }
+          },
+          $unset: { pending: "" }
         }
       );
 
