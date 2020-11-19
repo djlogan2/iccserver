@@ -48,7 +48,7 @@ class Game {
     this.GameCollection.attachSchema(PlayedGameSchema, {
       selector: { status: "playing" }
     });
-
+    this.TournamentCollection = new Mongo.Collection("tournaments");
     // TODO: Need to adjourn these, not just delete them
     // Meteor.startup(() => _self.GameCollection.remove({}));
 
