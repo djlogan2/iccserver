@@ -4,7 +4,7 @@ import { Tourney } from "./Tournament";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Roles } from "meteor/alanning:roles";
 
-describe("Tournament Class", function() {
+describe.only("Tournament Class", function() {
   it("should have a tournament class", function() {
     let test = new Tourney("testTournament", ["admin"], []);
     chai.assert.typeOf(test, "Object", "failed to create object for tournament class");
@@ -56,18 +56,18 @@ describe("Tournament Class", function() {
     );
   });
   it("should not authorized a user without scope", function() {
-    const testscope = ["admin.a1.a2", "admin.b1.b2"];
+    const testscope = ["admin", "a1", "a2"];
     let test = new Tourney("testTournament", testscope, []);
     chai.assert.typeOf(test.isAuthorized, "function", "tourney object doesn't have save function");
     const testuser = TestHelpers.createUser();
     chai.assert(!!testuser, "failed to create user in testing");
     chai.assert(
-      !test.isAuthorized(testuser, "admin"),
+      !test.isAuthorized(testuser, "kibitz"),
       "authorized a user without roles, unlike specified"
     );
   });
   it("should authorized a user with admin scope in admin scope tournament", function() {
-    const testscope = ["admin.a1.a2", "admin.b1.b2"];
+    const testscope = ["admin", "a1", "a2"];
     let test = new Tourney("testTournament", testscope, []);
     chai.assert.typeOf(test.isAuthorized, "function", "tourney object doesn't have save function");
     const testuser = TestHelpers.createUser();
@@ -75,26 +75,26 @@ describe("Tournament Class", function() {
     const testuser2 = TestHelpers.createUser();
     chai.assert(!!testuser, "failed to create user in testing");
     chai.assert(
-      test.isAuthorized(testuser, "admin"),
+      test.isAuthorized(testuser, "kibitz"),
       "failed to authorize a user with admin roles"
     );
     chai.assert(
-      !test.isAuthorized(testuser2, "admin"),
+      !test.isAuthorized(testuser2, "kibitz"),
       "failed to deauthorize a user without roles, unlike specified"
     );
   });
   it("should authorized a user with a scope needed below itself in scopes", function() {
-    const testscope = ["admin.a1.a2", "admin.b1.b2"];
+    const testscope = ["admin", "a1", "a2"];
     let test = new Tourney("testTournament", testscope, []);
     chai.assert.typeOf(test.isAuthorized, "function", "tourney object doesn't have save function");
     const testuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(testuser, "kibitz", { scope: "b1" });
+    Roles.addUsersToRoles(testuser, "kibitz", { scope: "admin.a1" });
     const testuser2 = TestHelpers.createUser();
-    Roles.addUsersToRoles(testuser2, "kibitz", { scope: "a2" });
+    Roles.addUsersToRoles(testuser2, "kibitz", { scope: "admin.b1.a2" });
     chai.assert(!!testuser, "failed to create user in testing");
-    chai.assert(test.isAuthorized(testuser, "b2"), "failed to authorize b2 for b1 user");
+    chai.assert(test.isAuthorized(testuser, "kibitz"), "failed to authorize a2 for a1 user");
     chai.assert(
-      !test.isAuthorized(testuser2, "b2"),
+      !test.isAuthorized(testuser2, "kibitz"),
       "failed to deauthorize a user with wrong roles, unlike specified"
     );
   });
