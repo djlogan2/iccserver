@@ -29,17 +29,6 @@ export class Tourney {
   };
 
   validate = function() {
-    // So far recursively runs validate on nodes,
-    // assuming they are tournament objects, return true if hitting a leaf
-    if (this.nodes === []) {
-      return false;
-    }
-    if (!this.nodes) {
-      return true;
-    } else {
-      for (let node in this.nodes) {
-        node.validate();
-      }
-    }
+    //restubbed, logic was incorrect oops...
   };
 }
