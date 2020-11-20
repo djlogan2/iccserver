@@ -9,12 +9,13 @@ export class Tourney {
   }
 
   save = function() {
-    Game.TournamentCollection.upsert({ name: this.name, scope: this.scope, nodes: this.nodes });
+    Game.TournamentCollection.insert(
+      { name: this.name, scope: this.scope },
+      { $insert: { name: this.name, scope: this.scope, nodes: this.nodes } }
+    );
   };
 
   delete = function(message_identifier) {
-    // removes self from dummy collection for now,
-    // need to find schema and collection for tourneys
     // Searches by scope + name assumed unique, pulls all fields
     // Throws ICCMeteor error if cannot find record to remove
     const game = Game.TournamentCollection.findOne({ name: this.name, scope: this.scope });
@@ -25,10 +26,8 @@ export class Tourney {
         "tournament does not exist"
       );
     }
-    Game.TournamentCollection.update({ name: this.name, scope: this.scope }, { $pullAll: 1 });
+    Game.TournamentCollection.remove({ name: this.name, scope: this.scope });
   };
 
-  validate = function() {
-    //restubbed, logic was incorrect oops...
-  };
+  validate = function() {};
 }
