@@ -1,5 +1,6 @@
 import { Game } from "./Game";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { Roles } from "meteor/alanning:roles";
 
 export class Tourney {
   constructor(name, scope, nodes) {
@@ -30,4 +31,24 @@ export class Tourney {
   };
 
   validate = function() {};
+
+  modifyScope = function() {};
+
+  isAuthorized = function(user, role) {
+    const branches = this.scope;
+    const userscope = Roles.getScopesForUser(user);
+    for (let branchIndex in branches) {
+      let scopeInBranch = false;
+      let scopebranch = branches[branchIndex].split(".");
+      for (let scopeindex in scopebranch) {
+        let tourneyelement = scopebranch[scopeindex];
+        for (let userscopeindex in userscope) {
+          let userelement = userscope[userscopeindex];
+          if (userelement === tourneyelement) scopeInBranch = true;
+          if (scopeInBranch && tourneyelement === role) return true;
+        }
+      }
+    }
+    return false;
+  };
 }
