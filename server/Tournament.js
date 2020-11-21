@@ -34,19 +34,29 @@ export class Tourney {
 
   validate = function() {};
 
-  modifyScope = function() {};
+  modifyScope = function(message_identifier, scope) {};
 
-  isAuthorized = function(user, role) {
+  isAuthorized = function(user, role, scope) {
     check(user, Object);
     check(role, String);
-    if (!Roles.userIsInRole(user, role)) return false;
+    scope = scope || [];
+    check(scope, Array);
     let concat = "";
-    let userscopes = Roles.getScopesForUser(user);
     for (let index in this.scope) {
       if (index > 0) concat += ".";
       concat += this.scope[index];
-      for (let index2 in userscopes) {
-        if (concat === userscopes[index2]) return true;
+      if (Roles.userIsInRole(user, role, concat)) {
+        if (!(scope === [])) {
+          return true;
+        } else {
+          concat = "";
+          for (let index2 in scope) {
+            if (index2 > 0) concat += ".";
+            concat += scope[index2];
+            if (Roles.userIsInRole(user, role, concat)) return true;
+          }
+          return false;
+        }
       }
     }
     return false;
