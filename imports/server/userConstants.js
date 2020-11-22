@@ -30,7 +30,8 @@ export const all_roles = [
   "create_private_room",
   "room_chat",
   "join_room",
-  "personal_chat"
+  "personal_chat",
+  "create_tournament_template"
 ];
 
 export const standard_member_roles = [

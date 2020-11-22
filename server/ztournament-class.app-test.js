@@ -2,10 +2,10 @@ import chai from "chai";
 import { Game } from "./Game";
 import { Tourney } from "./Tournament";
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Roles } from "meteor/alanning:roles";
+import { Users } from "../imports/collections/users";
 
 describe.only("Tournament Class", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
+  TestHelpers.setupDescribe.apply(this);
   it("should have a tournament class", function() {
     let test = new Tourney("testTournament", ["admin"], []);
     chai.assert.typeOf(test, "Object", "failed to create object for tournament class");
@@ -20,7 +20,7 @@ describe.only("Tournament Class", function() {
   });
   it("should save a tourney record with save function", function() {
     let test = new Tourney("testTournament", ["admin"], []);
-    const testRecord = { name: test.name, scope: test.scope };
+    const testRecord = { name: test.name, scope: test.scope, nodes: [] };
     test.save();
     const record = Game.TournamentCollection.findOne({ name: test.name, scope: test.scope });
     chai.assert(!!record, "failed to find a record we inserted");
@@ -33,7 +33,7 @@ describe.only("Tournament Class", function() {
   });
   it("should delete a tourney record with delete function", function() {
     let test = new Tourney("testTournament", ["admin"], []);
-    const testRecord = { name: test.name, scope: test.scope };
+    const testRecord = { name: test.name, scope: test.scope, nodes: [] };
     test.save();
     const record = Game.TournamentCollection.findOne({ name: test.name, scope: test.scope });
     chai.assert(!!record, "failed to find a record we inserted");
@@ -56,49 +56,6 @@ describe.only("Tournament Class", function() {
       "tourney object doesn't have isauthorized function"
     );
   });
-  it("should not authorized a user without scope", function() {
-    const testscope = ["admin", "a1", "a2"];
-    let test = new Tourney("testTournament", testscope, []);
-    chai.assert.typeOf(test.isAuthorized, "function", "tourney object doesn't have save function");
-    const testuser = TestHelpers.createUser();
-    chai.assert(!!testuser, "failed to create user in testing");
-    chai.assert(
-      test.isAuthorized(testuser, "kibitz"),
-      "unauthorized a user without roles, unlike specified"
-    );
-  });
-  it("should authorized a user with no scope in any scope tournament", function() {
-    const testscope = ["a1", "a2"];
-    let test = new Tourney("testTournament", testscope, []);
-    chai.assert.typeOf(test.isAuthorized, "function", "tourney object doesn't have save function");
-    const testuser = TestHelpers.createUser();
-    const testuser2 = TestHelpers.createUser();
-    Roles.addUsersToRoles(testuser2, "kibitz", { scope: "admin.b1.a2" });
-    chai.assert(!!testuser, "failed to create user in testing");
-    chai.assert(
-      test.isAuthorized(testuser, "kibitz"),
-      "failed to authorize a user with admin roles"
-    );
-    chai.assert(
-      test.isAuthorized(testuser2, "kibitz"),
-      "failed to authorize a user without roles, unlike specified"
-    );
-  });
-  it("should authorized a user with a scope needed below itself in scopes", function() {
-    const testscope = ["admin", "a1", "a2"];
-    let test = new Tourney("testTournament", testscope, []);
-    chai.assert.typeOf(test.isAuthorized, "function", "tourney object doesn't have save function");
-    const testuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(testuser, "kibitz", { scope: "admin.a1" });
-    const testuser2 = TestHelpers.createUser();
-    Roles.addUsersToRoles(testuser2, "kibitz", { scope: "admin.b1.a2" });
-    chai.assert(!!testuser, "failed to create user in testing");
-    chai.assert(test.isAuthorized(testuser, "kibitz"), "failed to authorize a2 for a1 user");
-    chai.assert(
-      test.isAuthorized(testuser2, "kibitz"),
-      "failed to authorize a user with wrong roles, unlike specified"
-    );
-  });
   it("should have a modifyScope function", function() {
     let test = new Tourney("testTournament", ["admin"], []);
     chai.assert.typeOf(
@@ -107,30 +64,52 @@ describe.only("Tournament Class", function() {
       "tourney object doesn't have modifyScope function"
     );
   });
-  it("should modify the scope of a tourney authorized in from scope and to scope", function() {
-    let test = new Tourney("testTournament", ["admin"], []);
-    const testuser = TestHelpers.createUser();
-    Roles.addUsersToRoles(testuser, "kibitz", { scope: "admin" });
-    self.loggedonuser = testuser;
-    test.save();
-    test.modifyScope("server", ["admin", "a1"]);
-    const record = Game.TournamentCollection.findOne({
-      name: test.name,
-      scope: ["admin", "a1"]
-    });
-    const prevrecord = Game.TournamentCollection.findOne({
-      name: test.name,
-      scope: test.scope
-    });
-    chai.assert(!prevrecord, "previous record after modify still present");
-    chai.assert(!!record, "failed to change scope with authorized user");
+  it("should return true for an admin (global scope) with a top level scope", function() {
+    const tourn = new Tourney("test", ["top"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template");
+    chai.assert.isTrue(tourn.isAuthorized(user, "create_tournament_template"));
   });
-  it("should not modify scope of unauthorized tourney", function() {
-    //let test = new Tourney("testTournament", ["admin"], []);
-    chai.assert.fail("do me");
+  it("should return true for an admin (global scope) with a bottom level scope", function() {
+    const tourn = new Tourney("test", ["top", "mid", "bottom"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template");
+    chai.assert.isTrue(tourn.isAuthorized(user, "create_tournament_template"));
   });
-  it("should no allow to modify scope of authorized scope to unauthroized scope", function() {
-    //let test = new Tourney("testTournament", ["admin"], []);
-    chai.assert.fail("do me");
+  it("should return true for a top level user with a top level scope", function() {
+    const tourn = new Tourney("test", ["top"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top");
+    chai.assert.isTrue(tourn.isAuthorized(user, "create_tournament_template"));
+  });
+  it("should return true for a top level user with a bottom level scope", function() {
+    const tourn = new Tourney("test", ["top", "mid", "bottom"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top");
+    chai.assert.isTrue(tourn.isAuthorized(user, "create_tournament_template"));
+  });
+  it("should return false for a bottom level user with a top level scope", function() {
+    const tourn = new Tourney("test", ["top"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top.mid.bottom");
+    chai.assert.isFalse(tourn.isAuthorized(user, "create_tournament_template"));
+  });
+  it("should return true for a bottom level user with a bottom level scope", function() {
+    const tourn = new Tourney("test", ["top", "mid", "bottom"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top.mid.bottom");
+    chai.assert.isTrue(tourn.isAuthorized(user, "create_tournament_template"));
+  });
+  it("should return false for top level user with a different scope", function() {
+    const tourn = new Tourney("test", ["top", "mid", "bottom"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "mid.bottom");
+    chai.assert.isFalse(tourn.isAuthorized(user, "create_tournament_template"));
+  });
+  it("should return false for bottom level user with a different scope", function() {
+    const tourn = new Tourney("test", ["top", "mid", "left"]);
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top.mid.bottom");
+    chai.assert.isFalse(tourn.isAuthorized(user, "create_tournament_template"));
   });
 });

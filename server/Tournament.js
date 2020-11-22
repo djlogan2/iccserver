@@ -7,14 +7,11 @@ export class Tourney {
   constructor(name, scope, nodes) {
     this.name = name;
     this.scope = scope;
-    this.nodes = [] || nodes;
+    this.nodes = nodes || [];
   }
 
   save = function() {
-    Game.TournamentCollection.insert(
-      { name: this.name, scope: this.scope },
-      { $insert: { name: this.name, scope: this.scope, nodes: this.nodes } }
-    );
+    Game.TournamentCollection.insert({ name: this.name, scope: this.scope, nodes: this.nodes });
   };
 
   delete = function(message_identifier) {
@@ -34,29 +31,28 @@ export class Tourney {
 
   validate = function() {};
 
-  modifyScope = function(message_identifier, scope) {};
+  modifyScope = function(message_identifier, scope) {
+    // const user = Meteor.user();
+    // if (!this.isAuthorized(user, "tournament_write", scope)) {
+    //   throw new ICCMeteorError(
+    //     message_identifier,
+    //     "Unable to modify tournament",
+    //     "this tournament is not in your scope"
+    //   );
+    // }
+    // this.scope = scope;
+    // this.save();
+  };
 
-  isAuthorized = function(user, role, scope) {
+  isAuthorized = function(user, role) {
     check(user, Object);
     check(role, String);
-    scope = scope || [];
-    check(scope, Array);
     let concat = "";
     for (let index in this.scope) {
       if (index > 0) concat += ".";
       concat += this.scope[index];
       if (Roles.userIsInRole(user, role, concat)) {
-        if (!(scope === [])) {
-          return true;
-        } else {
-          concat = "";
-          for (let index2 in scope) {
-            if (index2 > 0) concat += ".";
-            concat += scope[index2];
-            if (Roles.userIsInRole(user, role, concat)) return true;
-          }
-          return false;
-        }
+        return true;
       }
     }
     return false;
