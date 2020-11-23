@@ -131,6 +131,14 @@ describe("Adding a tournament record", function() {
     chai.assert.equal(1, templatecollection.find().count());
   });
 
+  // TODO: MRD: I think this one might be better accomplished by creating a migration script
+  //       to create a unique index, and then having some named "key field" that has the
+  //       concatenation of the scopes plus the name. When we go multi-server, I do not see
+  //       how else to guarantee integrity.
+  //       I tested unique keys in Mongo and read about them. Since it appears there is no
+  //       choice but to create this key field, I am now thinking we should probably remove
+  //       "name" and "scope", and just save the dot-delimited scopes plus the name, and
+  //       split them up and use them when we read the record.
   it("should succeed if there is a duplicate name in a different level", function() {
     const user = TestHelpers.createUser();
     Users.addUserToRoles(user, "create_tournament_template", "top.mid.left");
