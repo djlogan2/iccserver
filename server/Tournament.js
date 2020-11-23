@@ -6,6 +6,12 @@ import { check } from "meteor/check";
 
 export class Tourney {
   constructor(name, scope, nodes) {
+    // TODO: MRD: I'm not opposed to splitting things into parameters like the above, but
+    //       I really think you want to save the tournament record as a single object.
+    //       How are you going to write it to the database otherwise?
+    //       What are you going to after you read it from the database? Split it up into
+    //       the 500 "this.x" variables? I think something like "this.record" is where
+    //       the object lives. Also, see 'modifyScope' below.
     this.name = name;
     this.scope = scope;
     this.nodes = nodes || [];
@@ -35,6 +41,8 @@ export class Tourney {
 
   validate = function() {};
 
+  // TODO: MRD: Look into "javascript getters and setters", and let's start using those.
+  //       Also, see above in the constructor
   modifyScope = function(message_identifier, scope) {
     // const user = Meteor.user();
     // if (!this.isAuthorized(user, "tournament_write", scope)) {
