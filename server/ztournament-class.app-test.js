@@ -4,7 +4,7 @@ import { Tourney } from "./Tournament";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Users } from "../imports/collections/users";
 
-describe.only("Tournament Class", function() {
+describe("Tournament Class", function() {
   TestHelpers.setupDescribe.apply(this);
   it("should have a tournament class", function() {
     let test = new Tourney("testTournament", ["admin"], []);
@@ -64,6 +64,9 @@ describe.only("Tournament Class", function() {
       "tourney object doesn't have modifyScope function"
     );
   });
+});
+
+describe.("Tourney.isAuthorized", function() {
   it("should return true for an admin (global scope) with a top level scope", function() {
     const tourn = new Tourney("test", ["top"]);
     const user = TestHelpers.createUser();
@@ -112,4 +115,41 @@ describe.only("Tournament Class", function() {
     Users.addUserToRoles(user, "create_tournament_template", "top.mid.bottom");
     chai.assert.isFalse(tourn.isAuthorized(user, "create_tournament_template"));
   });
+});
+
+describe("Adding a tournament record", function() {
+  TestHelpers.setupDescribe.apply(this);
+  it("should fail if there is a duplicate name in the same level", function() {
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top.mid.left");
+    const tourn = new Tourney("test", ["top", "mid", "left"]);
+    tourn.save();
+    chai.assert.equal(1, templatecollection.find().count());
+
+    const tourn2 = new Tourney("test", ["top", "mid", "left"]);
+    tourn2.save();
+    chai.assert.equal(1, templatecollection.find().count());
+  });
+
+  it("should succeed if there is a duplicate name in a different level", function() {
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top.mid.left");
+    const tourn = new Tourney("test", ["top", "mid", "left"]);
+    tourn.save();
+    chai.assert.equal(1, templatecollection.find().count());
+
+    const tourn2 = new Tourney("test", ["top", "mid", "right"]);
+    tourn2.save();
+    chai.assert.equal(2, templatecollection.find().count());
+  });
+
+  it("should fail if the user is not authorized", function() {
+    const user = TestHelpers.createUser();
+    Users.addUserToRoles(user, "create_tournament_template", "top.mid.left");
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.save();
+    chai.assert.equal(0, templatecollection.find().count());
+  });
+
+  //it("should succeed if the user is authorized", function(){alread handled with previous tests});
 });
