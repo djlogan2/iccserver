@@ -150,6 +150,38 @@ describe("PGN Import", function() {
     '[EventDate "1991.??.??"]\n' +
     "\n";
 
+  const pgn4 =
+    '[Event "Waldshut Sen\\Nes"]\n' +
+    '[Site "Waldshut Sen\\Nes"]\n' +
+    '[Date "1991.??.??"]\n' +
+    '[Round "1"]\n' +
+    '[White "Nadenau, Oskar"]\n' +
+    '[Black "Seiter, G"]\n' +
+    '[Result "1-0"]\n' +
+    '[ECO "A30d"]\n' +
+    '[EventDate "1991.??.??"]\n' +
+    "\n*\n" +
+    '[Event "Waldshut Sen\\Nes"]\n' +
+    '[Site "Waldshut Sen\\Nes"]\n' +
+    '[Date "1991.??.??"]\n' +
+    '[Round "1"]\n' +
+    '[White "Nadenau, Oskar"]\n' +
+    '[Black "Seiter, G"]\n' +
+    '[Result "1-0"]\n' +
+    '[ECO "A30d"]\n' +
+    '[EventDate "1991.??.??"]\n' +
+    "\n*\n" +
+    '[Event "Waldshut Sen\\Nes"]\n' +
+    '[Site "Waldshut Sen\\Nes"]\n' +
+    '[Date "1991.??.??"]\n' +
+    '[Round "1"]\n' +
+    '[White "Nadenau, Oskar"]\n' +
+    '[Black "Seiter, G"]\n' +
+    '[Result "1-0"]\n' +
+    '[ECO "A30d"]\n' +
+    '[EventDate "1991.??.??"]\n' +
+    "\n*";
+
   valid.forEach(v =>
     it(v.replace(/[\r\n]/g, "^") + " is valid", function() {
       const parser = new Parser();
@@ -180,6 +212,20 @@ describe("PGN Import", function() {
   it("should parse pgn3 correctly", function() {
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(pgn3));
+    //
+    // OK, so basically if you have an invalid PGN, and the last game has no
+    // result token, it is going to be left in the gameobject variable.
+    // It is your responsibility to handle "end of file", since the parser
+    // knows nothing about EOF. If it's EOF, and there is a gameobject,
+    // add it to the gamelist array.
+    //
+    chai.assert.equal(parser.gamelist.length, 2);
+    chai.assert.isDefined(parser.gameobject);
+  });
+
+  it("should parse pgn4 correctly", function() {
+    const parser = new Parser();
+    chai.assert.doesNotThrow(() => parser.feed(pgn4));
     chai.assert.equal(parser.gamelist.length, 3);
   });
 

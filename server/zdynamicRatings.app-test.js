@@ -1829,9 +1829,9 @@ describe("Ratings", function() {
       increment_type: ["inc"]
     });
 
-    bullet_object.wild_type = 0;
-    blitz_object.wild_type = 0;
-    standard_object.wild_type = 0;
+    bullet_object.wild_number = [0];
+    blitz_object.wild_number = [0];
+    standard_object.wild_number = [0];
     bullet_object.rating_type = "bullet";
     blitz_object.rating_type = "blitz";
     standard_object.rating_type = "standard";

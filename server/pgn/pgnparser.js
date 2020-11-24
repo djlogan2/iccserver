@@ -36,6 +36,7 @@ export class Parser {
     });
     this.info = null;
     this.line = 1;
+    this.nl = 0;
     this.state = this.game;
   }
 
@@ -54,10 +55,12 @@ export class Parser {
     while ((token = this.lexer.next()) !== undefined) {
       if (token.type === "NL") {
         this.line++;
+        this.nl++;
         continue;
       }
       if (token.type === "WS") continue;
       this.state.call(this, token);
+      this.nl = 0;
     }
   }
 
@@ -115,8 +118,14 @@ export class Parser {
 
   nexttag(token) {
     this.pushdebug("nexttag", token.type, token.text);
+
     switch (token.type) {
       case "LBRACKET":
+        // Special code to handle a game with  no moves, and no result
+        if (this.nl === 2) {
+          this.savegame("*");
+          this.game(token);
+        }
         this.state = this.tagname;
         break;
       case "INTEGER":
