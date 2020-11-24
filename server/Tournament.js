@@ -28,14 +28,11 @@ export class Tourney {
   set nodes(newnodes) {
     this.record["nodes"] = newnodes;
   }
-  domenow(theparam) {
-    console.log(this.record.name + ":" + theparam);
-  }
   save(message_identifier) {
-    const user = {fuck: "me"}; //Meteor.user();
+    const user = Meteor.user();
     check(message_identifier, String);
     check(user, Object);
-    if (this.isAuthorized(user, "create_tournament_template")) {
+    if (!this.isAuthorized(user, "create_tournament_template")) {
       throw new ICCMeteorError(
         message_identifier,
         "Unable to save tournament",

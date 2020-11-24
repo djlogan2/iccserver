@@ -34,7 +34,7 @@ describe("Tournament Class", function() {
     chai.assert.typeOf(test.delete, "function", "tourney object doesn't have save function");
   });
 
-  it.only("should delete a tourney record with delete function", function() {
+  it("should delete a tourney record with delete function", function() {
     const user = TestHelpers.createUser();
     Users.addUserToRoles(user, "create_tournament_template");
     self.loggedonuser = user;
@@ -47,10 +47,10 @@ describe("Tournament Class", function() {
     chai.assert.deepEqual(record, testRecord, "failed to insert tourney record properly");
     test.delete("server");
     const recordTest2 = templateCollection.findOne({
-       name: test.name,
-       scope: test.scope
-     });
-     chai.assert(!recordTest2, "failed to remove tourney record after delete call");
+      name: test.name,
+      scope: test.scope
+    });
+    chai.assert(!recordTest2, "failed to remove tourney record after delete call");
   });
   it("should have a validate function", function() {
     let test = new Tourney("testTournament", ["admin"], []);
@@ -152,7 +152,7 @@ describe("Adding a tournament record", function() {
   it("should succeed if there is a duplicate name in a different level", function() {
     const user = TestHelpers.createUser();
     self.loggedonuser = user;
-    Users.addUserToRoles(user, "create_tournament_template", "top.mid.left");
+    Users.addUserToRoles(user, "create_tournament_template", "top.mid");
     const tourn = new Tourney("test", ["top", "mid", "left"]);
     tourn.save("server");
     chai.assert.equal(1, templateCollection.find().count());
@@ -166,8 +166,10 @@ describe("Adding a tournament record", function() {
     self.loggedonuser = user;
     Users.addUserToRoles(user, "create_tournament_template", "top.mid.left");
     const tourn = new Tourney("test", ["top", "mid", "right"]);
-    tourn.save("server");
-    chai.assert.equal(0, templateCollection.find().count());
+    chai.assert.throws(() => {
+      tourn.save("server");
+    }, "Unable to save tournament");
+    //chai.assert.equal(0, templateCollection.find().count());
   });
 
   //it("should succeed if the user is authorized", function(){alread handled with previous tests});
