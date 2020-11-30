@@ -8,7 +8,8 @@ export const templateCollection = new Mongo.Collection("templates");
 
 export class Tourney {
   constructor(name, scope, nodes) {
-    this.record = { name: name, scope: scope, nodes: nodes || [] };
+    this.record = { name: name, nodes: nodes || [] };
+    this.scope = scope;
   }
   get name() {
     return this.record.name;
@@ -17,10 +18,12 @@ export class Tourney {
     this.record["name"] = newname;
   }
   get scope() {
-    return this.record.scope;
+    return this.record["scope"].toString().split(".");
   }
   set scope(newscope) {
-    this.record["scope"] = newscope;
+    const regex = /,/g;
+    const concat = newscope.toString().replace(regex, ".");
+    this.record.scope = concat;
   }
   get nodes() {
     return this.record.nodes;
@@ -88,9 +91,10 @@ export class Tourney {
     check(user, Object);
     check(role, String);
     let concat = "";
-    for (let index in this.scope) {
+    const ourscope = this.scope;
+    for (let index in ourscope) {
       if (index > 0) concat += ".";
-      concat += this.scope[index];
+      concat += ourscope[index];
       if (Users.isAuthorized(user, role, concat)) {
         return true;
       }
