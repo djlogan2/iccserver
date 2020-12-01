@@ -11,6 +11,28 @@ export class Tourney {
     this.record = { name: name, nodes: nodes || [] };
     this.scope = scope;
   }
+  //get time() {
+  //}
+  //set time() {
+  //}
+  // get inc(){
+  //
+  // }
+  // set inc(){
+  //
+  // }
+  // get type(){
+  //
+  // }
+  // set type(){
+  //
+  // }
+  // get pairing_type(){
+  //
+  // }
+  // set pairing_type(){
+  //
+  // }
   get name() {
     return this.record.name;
   }

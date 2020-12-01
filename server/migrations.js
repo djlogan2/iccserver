@@ -55,7 +55,7 @@ Meteor.startup(() => {
     version: "0.2.0_3",
     name: "Create index for Template collection",
     run: () => {
-      templateCollection.createIndex({ "record.name": 1, "record.scope": 1 });
+      templateCollection.rawCollection().createIndex({ "record.name": 1, "record.scope": 1 });
     }
   });
   Migrations.migrateTo("latest");

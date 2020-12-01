@@ -166,3 +166,11 @@ describe("Adding a tournament record", function() {
 
   //it("should succeed if the user is authorized", function(){alread handled with previous tests});
 });
+
+describe.only("Tourney time", function() {
+  //  const self = TestHelpers.setupDescribe.apply(this);
+  it("should have a getter for time", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    chai.assert.typeOf(tourn.time, "function", "can't find a getter function for time");
+  });
+});
