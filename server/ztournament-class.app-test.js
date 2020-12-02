@@ -167,10 +167,127 @@ describe("Adding a tournament record", function() {
   //it("should succeed if the user is authorized", function(){alread handled with previous tests});
 });
 
-describe.only("Tourney time", function() {
+describe("Tourney time", function() {
   //  const self = TestHelpers.setupDescribe.apply(this);
   it("should have a getter for time", function() {
     const tourn = new Tourney("test", ["top", "mid", "right"]);
-    chai.assert.typeOf(tourn.time, "function", "can't find a getter function for time");
+    tourn.record.time = "a";
+    chai.assert.typeOf(tourn.time, "String", "Time property getter failed to produce a string");
+    chai.assert(tourn.time, "a", "failed to get a string in time");
+  });
+  it("should have a setter for time", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.time = "a";
+    chai.assert.typeOf(tourn.time, "String", "Time property getter failed to produce a string");
+    chai.assert.equal(
+      tourn.time,
+      tourn.record.time,
+      "Time property getter failed to get a string in record"
+    );
+    chai.assert(tourn.time, "a", "failed to get a string in time");
+    tourn.time = "b";
+    chai.assert.typeOf(tourn.time, "String", "Time property getter failed to produce a string");
+    chai.assert.equal(
+      tourn.time,
+      tourn.record.time,
+      "Time property setter failed to set a string in record"
+    );
+    chai.assert(tourn.record.time, "b", "failed to set a string in time");
+  });
+});
+describe("Tourney increment", function() {
+  //  const self = TestHelpers.setupDescribe.apply(this);
+  it("should have a getter for increment", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.record.inc = "a";
+    chai.assert.typeOf(tourn.inc, "String", "inc property getter failed to produce a string");
+    chai.assert(tourn.inc, "a", "failed to get a string in inc");
+  });
+  it("should have a setter for increment", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.inc = "a";
+    chai.assert.typeOf(tourn.inc, "String", "inc property setter failed to produce a string");
+    chai.assert.equal(
+      tourn.inc,
+      tourn.record.inc,
+      "Inc property setter failed to set a string in record"
+    );
+    chai.assert(tourn.inc, "a", "failed to set a string in inc");
+    tourn.inc = "b";
+    chai.assert.typeOf(tourn.inc, "String", "inc property setter failed to produce a string");
+    chai.assert.equal(
+      tourn.inc,
+      tourn.record.inc,
+      "Inc property setter failed to set a string in record"
+    );
+    chai.assert(tourn.inc, "b", "failed to set a string in inc");
+  });
+});
+describe("Tourney type", function() {
+  //  const self = TestHelpers.setupDescribe.apply(this);
+  it("should have a getter for type", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.record.type = "a";
+    chai.assert.typeOf(tourn.type, "String", "type property getter failed to produce a string");
+    chai.assert(tourn.type, "a", "failed to get a string in type");
+  });
+  it("should have a setter for type", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.type = "a";
+    chai.assert.typeOf(tourn.type, "String", "type property setter failed to produce a string");
+    chai.assert.equal(
+      tourn.type,
+      tourn.record.type,
+      "type property setter failed to set a string in record"
+    );
+    chai.assert(tourn.type, "a", "failed to set a string in type");
+    tourn.type = "b";
+    chai.assert.typeOf(tourn.type, "String", "type property setter failed to produce a string");
+    chai.assert.equal(
+      tourn.type,
+      tourn.record.type,
+      "Type property setter failed to set a string in record"
+    );
+    chai.assert(tourn.type, "b", "failed to set a string in type");
+  });
+});
+describe("Tourney pairing type", function() {
+  //  const self = TestHelpers.setupDescribe.apply(this);
+  it("should have a getter for pairing type", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.record.pairing_type = "a";
+    chai.assert.typeOf(
+      tourn.pairing_type,
+      "String",
+      "pairing_type property getter failed to produce a string"
+    );
+    chai.assert(tourn.pairing_type, "a", "failed to get a string in pairing_type");
+  });
+  it("should have a setter for pairing_type", function() {
+    const tourn = new Tourney("test", ["top", "mid", "right"]);
+    tourn.pairing_type = "a";
+    chai.assert.typeOf(
+      tourn.pairing_type,
+      "String",
+      "pairing_type property setter failed to produce a string"
+    );
+    chai.assert.equal(
+      tourn.pairing_type,
+      tourn.record.pairing_type,
+      "Pairing_Type property setter failed to set a string in record"
+    );
+    chai.assert(tourn.pairing_type, "a", "failed to set a string in pairing_type");
+    tourn.pairing_type = "b";
+    chai.assert.typeOf(
+      tourn.pairing_type,
+      "String",
+      "pairing_type property setter failed to produce a string"
+    );
+    chai.assert.equal(
+      tourn.pairing_type,
+      tourn.record.pairing_type,
+      "pairing_type property setter failed to set a string in record"
+    );
+    chai.assert(tourn.pairing_type, "b", "failed to set a string in pairing_type");
   });
 });
