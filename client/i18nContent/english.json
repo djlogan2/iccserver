@@ -16,7 +16,9 @@
       "name": "Name",
       "email": "E-mail address",
       "password": "Password",
-      "submit": "Submit"
+      "submit": "Submit",
+      "haveAccount": "Already have an account? ",
+      "loginHere": "Login here"
     },
     "rightBarTop": {
       "game": "Game",

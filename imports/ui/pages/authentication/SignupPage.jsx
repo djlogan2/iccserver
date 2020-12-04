@@ -2,35 +2,43 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
 import i18n from "meteor/universe:i18n";
-import { Logger } from "../../../lib/client/Logger";
+import { Logger } from "../../../../lib/client/Logger";
+import { resourceLogin } from "../../../constants/resourceConstants";
+import { formSourceEmail, formSourcePassword, formSourceUsername } from "./authConstants";
+
 const log = new Logger("client/SignUpPage_js");
+
 export default class SignUpPage extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      error: ""
+      error: "",
+      email: null,
+      username: null,
+      password: null
     };
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-    let name = document.getElementById("signup-name").value;
-    let email = document.getElementById("signup-email").value;
-    let password = document.getElementById("signup-password").value;
+  onChangeFormValue = value => event => {
+    this.setState({ [value]: event.target.value });
+  };
 
-    // this.setState({error: ""});
-    Accounts.createUser({ email: email, username: name, password: password }, err => {
+  signUp = e => {
+    e.preventDefault();
+
+    const { history } = this.props;
+    const { email, username, password } = this.state;
+
+    Accounts.createUser({ email, username, password }, err => {
       if (err) {
         log.error("Error occurs on Sign up: " + err);
-        this.setState({
-          error: err.reason
-        });
+        this.setState({ error: err.reason });
       } else {
-        this.props.history.push("/login");
+        history.push(resourceLogin);
       }
     });
-  }
+  };
 
   getLang() {
     return (
@@ -43,8 +51,9 @@ export default class SignUpPage extends Component {
   }
 
   render() {
-    let translator = i18n.createTranslator("Common.signupForm", this.getLang());
-    const error = this.state.error;
+    const { error } = this.state;
+    const translator = i18n.createTranslator("Common.signupForm", this.getLang());
+
     return (
       <div className="modal show">
         <div className="modal-dialog">
@@ -53,11 +62,11 @@ export default class SignUpPage extends Component {
               <h1 className="text-center">{translator("signup")}</h1>
             </div>
             <div className="modal-body">
-              {(error && error.length > 0) ? <div className="alert alert-danger fade in">{error}</div> : ""}
+              {error && <div className="alert alert-danger fade in">{error}</div>}
               <form
-                id="login-form"
+                id="sign-up-form"
                 className="form col-md-12 center-block"
-                onSubmit={this.handleSubmit}
+                onSubmit={this.signUp}
               >
                 <div className="form-group">
                   <input
@@ -65,6 +74,7 @@ export default class SignUpPage extends Component {
                     id="signup-name"
                     className="form-control input-lg"
                     placeholder={translator("name")}
+                    onChange={this.onChangeFormValue(formSourceUsername)}
                   />
                 </div>
                 <div className="form-group">
@@ -73,6 +83,7 @@ export default class SignUpPage extends Component {
                     id="signup-email"
                     className="form-control input-lg"
                     placeholder={translator("email")}
+                    onChange={this.onChangeFormValue(formSourceEmail)}
                   />
                 </div>
                 <div className="form-group">
@@ -81,6 +92,7 @@ export default class SignUpPage extends Component {
                     id="signup-password"
                     className="form-control input-lg"
                     placeholder={translator("password")}
+                    onChange={this.onChangeFormValue(formSourcePassword)}
                   />
                 </div>
                 <div className="form-group">
@@ -93,7 +105,8 @@ export default class SignUpPage extends Component {
                 </div>
                 <div className="form-group">
                   <p className="text-center">
-                    Already have an account? Login <Link to="/login">here</Link>
+                    {translator("haveAccount")}
+                    <Link to={resourceLogin}>{translator("loginHere")}</Link>
                   </p>
                 </div>
               </form>

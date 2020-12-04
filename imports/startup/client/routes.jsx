@@ -7,8 +7,8 @@ import Editor from "../../ui/pages/Editor";
 import Examine from "../../ui/pages/Examine";
 import Community from "../../ui/pages/Community";
 // pages
-import SignUpPage from "../../ui/pages/SignupPage";
-import LoginPage from "../../ui/pages/LoginPage.jsx";
+import SignUpPage from "../../ui/pages/authentication/SignupPage";
+import LoginPage from "../../ui/pages/authentication/LoginPage.jsx";
 
 export const renderRoutes = () => (
   <Router>

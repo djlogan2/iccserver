@@ -2,13 +2,11 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
-import { Logger } from "../../../lib/client/Logger";
-import { resourceHome } from "../../constants/resourceConstants";
+import { Logger } from "../../../../lib/client/Logger";
+import { resourceHome, resourceSignUp } from "../../../constants/resourceConstants";
+import { formSourceEmail, formSourcePassword } from "./authConstants";
 
 const log = new Logger("client/LoginPage_js");
-
-const formSourceEmail = "email";
-const formSourcePassword = "password";
 
 export default class LoginPage extends Component {
   constructor(props) {
@@ -38,6 +36,7 @@ export default class LoginPage extends Component {
 
   login = e => {
     e.preventDefault();
+
     const { history } = this.props;
     const { email, password } = this.state;
 
@@ -66,7 +65,7 @@ export default class LoginPage extends Component {
 
   render() {
     const { error } = this.state;
-    let translator = i18n.createTranslator("Common.loginForm", this.getLang());
+    const translator = i18n.createTranslator("Common.loginForm", this.getLang());
 
     return (
       <div className="modal show">
@@ -109,12 +108,12 @@ export default class LoginPage extends Component {
                 <div className="form-group text-center">
                   <p className="text-center">
                     {translator("haveNoAccount")}
-                    <Link to="/sign-up">{translator("registerHere")}</Link>
+                    <Link to={resourceSignUp}>{translator("registerHere")}</Link>
                   </p>
                 </div>
               </form>
             </div>
-            <div className="modal-footer" style={{ borderTop: 0 }} />
+            <div className="modal-footer" style={{ borderTop: 0 }}/>
           </div>
         </div>
       </div>
