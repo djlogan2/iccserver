@@ -16,7 +16,9 @@
       "name": "Имя",
       "email": "E-mail",
       "password": "Пароль",
-      "submit": "Зарегистрироваться"
+      "submit": "Зарегистрироваться",
+      "haveAccount": "Уже есть аккаунт? ",
+      "loginHere": "Войти"
     },
     "MatchUserSubTab": {
       "friends": "пожвать",

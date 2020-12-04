@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../../lib/client/Logger";
 import { resourceHome, resourceSignUp } from "../../../constants/resourceConstants";
 import { formSourceEmail, formSourcePassword } from "./authConstants";
+import { translate } from "../../HOCs/translate";
 
 const log = new Logger("client/LoginPage_js");
 
-export default class LoginPage extends Component {
+class LoginPage extends Component {
   constructor(props) {
     super(props);
 
@@ -53,19 +53,9 @@ export default class LoginPage extends Component {
     });
   };
 
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   render() {
     const { error } = this.state;
-    const translator = i18n.createTranslator("Common.loginForm", this.getLang());
+    const { translate } = this.props;
 
     return (
       <div className="modal show">
@@ -73,7 +63,7 @@ export default class LoginPage extends Component {
           <div className="modal-content">
             <div className="modal-header">
               <h1 className="text-center">
-                <div>{translator("login")}</div>
+                <div>{translate("login")}</div>
               </h1>
             </div>
             <div className="modal-body">
@@ -84,7 +74,7 @@ export default class LoginPage extends Component {
                     type="email"
                     id="login-email"
                     className="form-control input-lg"
-                    placeholder={translator("email")}
+                    placeholder={translate("email")}
                     onChange={this.onChangeFormValue(formSourceEmail)}
                   />
                 </div>
@@ -93,7 +83,7 @@ export default class LoginPage extends Component {
                     type="password"
                     id="login-password"
                     className="form-control input-lg"
-                    placeholder={translator("password")}
+                    placeholder={translate("password")}
                     onChange={this.onChangeFormValue(formSourcePassword)}
                   />
                 </div>
@@ -102,21 +92,23 @@ export default class LoginPage extends Component {
                     type="submit"
                     id="login-button"
                     className="btn btn-primary btn-lg btn-block"
-                    value={translator("submit")}
+                    value={translate("submit")}
                   />
                 </div>
                 <div className="form-group text-center">
                   <p className="text-center">
-                    {translator("haveNoAccount")}
-                    <Link to={resourceSignUp}>{translator("registerHere")}</Link>
+                    {translate("haveNoAccount")}
+                    <Link to={resourceSignUp}>{translate("registerHere")}</Link>
                   </p>
                 </div>
               </form>
             </div>
-            <div className="modal-footer" style={{ borderTop: 0 }}/>
+            <div className="modal-footer" style={{ borderTop: 0 }} />
           </div>
         </div>
       </div>
     );
   }
 }
+
+export default translate("Common.loginForm")(LoginPage);

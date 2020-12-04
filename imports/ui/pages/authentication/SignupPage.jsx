@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
-import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../../lib/client/Logger";
 import { resourceLogin } from "../../../constants/resourceConstants";
 import { formSourceEmail, formSourcePassword, formSourceUsername } from "./authConstants";
+import { translate } from "../../HOCs/translate";
 
 const log = new Logger("client/SignUpPage_js");
 
-export default class SignUpPage extends Component {
+class SignUpPage extends Component {
   constructor(props) {
     super(props);
 
@@ -40,26 +40,16 @@ export default class SignUpPage extends Component {
     });
   };
 
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   render() {
+    const { translate } = this.props;
     const { error } = this.state;
-    const translator = i18n.createTranslator("Common.signupForm", this.getLang());
 
     return (
       <div className="modal show">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="text-center">{translator("signup")}</h1>
+              <h1 className="text-center">{translate("signup")}</h1>
             </div>
             <div className="modal-body">
               {error && <div className="alert alert-danger fade in">{error}</div>}
@@ -73,7 +63,7 @@ export default class SignUpPage extends Component {
                     type="text"
                     id="signup-name"
                     className="form-control input-lg"
-                    placeholder={translator("name")}
+                    placeholder={translate("name")}
                     onChange={this.onChangeFormValue(formSourceUsername)}
                   />
                 </div>
@@ -82,7 +72,7 @@ export default class SignUpPage extends Component {
                     type="email"
                     id="signup-email"
                     className="form-control input-lg"
-                    placeholder={translator("email")}
+                    placeholder={translate("email")}
                     onChange={this.onChangeFormValue(formSourceEmail)}
                   />
                 </div>
@@ -91,7 +81,7 @@ export default class SignUpPage extends Component {
                     type="password"
                     id="signup-password"
                     className="form-control input-lg"
-                    placeholder={translator("password")}
+                    placeholder={translate("password")}
                     onChange={this.onChangeFormValue(formSourcePassword)}
                   />
                 </div>
@@ -100,21 +90,23 @@ export default class SignUpPage extends Component {
                     type="submit"
                     id="login-button"
                     className="btn btn-lg btn-primary btn-block"
-                    value={translator("submit")}
+                    value={translate("submit")}
                   />
                 </div>
                 <div className="form-group">
                   <p className="text-center">
-                    {translator("haveAccount")}
-                    <Link to={resourceLogin}>{translator("loginHere")}</Link>
+                    {translate("haveAccount")}
+                    <Link to={resourceLogin}>{translate("loginHere")}</Link>
                   </p>
                 </div>
               </form>
             </div>
-            <div className="modal-footer" style={{ borderTop: 0 }} />
+            <div className="modal-footer" style={{ borderTop: 0 }}/>
           </div>
         </div>
       </div>
     );
   }
 }
+
+export default translate("Common.signupForm")(SignUpPage);

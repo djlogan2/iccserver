@@ -16,7 +16,9 @@
       "name": "ードをお忘",
       "email": "をお忘 ドをお忘",
       "password": "をお忘 ドを",
-      "submit": "忘 ドを"
+      "submit": "忘 ドを",
+      "haveAccount": "Already have an account? ",
+      "loginHere": "Login here"
     },
     "rightBarTop": {
       "game": "ドを",
