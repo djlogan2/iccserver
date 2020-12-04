@@ -5,14 +5,16 @@
     },
     "loginForm": {
       "login": "Login",
-      "email": "email",
-      "password": "password",
-      "submit": "submit"
+      "email": "E-mail address",
+      "password": "Password",
+      "submit": "Submit",
+      "haveNoAccount": "Don't have an account? ",
+      "registerHere": "Register here"
     },
     "signupForm": {
       "signup": "Sign Up",
       "name": "Name",
-      "email": "Email Address",
+      "email": "E-mail address",
       "password": "Password",
       "submit": "Submit"
     },
@@ -106,19 +108,18 @@
       "NEW_MESSAGE": "NEW MESSAGE"
     }
   },
-    "Play": {
-      "PlayWithFriend": {
-        "PLAY_WITH_FRIEND": "Play with friend",
-        "BACK": "Back",
-        "FRIENDS": "Friends",
-        "CHOOSE": "Choose"
-      },
-      "PlayFriendOptions": {
-        "PLAY_WITH_FRIEND": "Play with friend",
-        "BACK": "Back",
-        "FRIENDS": "Friends",
-        "CHOOSE": "Choose"
-      }
+  "Play": {
+    "PlayWithFriend": {
+      "PLAY_WITH_FRIEND": "Play with friend",
+      "BACK": "Back",
+      "FRIENDS": "Friends",
+      "CHOOSE": "Choose"
+    },
+    "PlayFriendOptions": {
+      "PLAY_WITH_FRIEND": "Play with friend",
+      "BACK": "Back",
+      "FRIENDS": "Friends",
+      "CHOOSE": "Choose"
     }
-    
+  }
 }

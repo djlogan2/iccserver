@@ -3,36 +3,56 @@ import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../lib/client/Logger";
+import { resourceHome } from "../../constants/resourceConstants";
+
 const log = new Logger("client/LoginPage_js");
+
+const formSourceEmail = "email";
+const formSourcePassword = "password";
+
 export default class LoginPage extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       error: "",
-      isAuthenticated: Meteor.userId() !== null
+      isAuthenticated: Meteor.userId() !== null,
+      email: null,
+      password: null
     };
-    this.DoLogin = this.DoLogin.bind(this);
   }
+
   componentDidMount() {
-    if (this.state.isAuthenticated) {
-      this.props.history.push("/home");
+    const { isAuthenticated } = this.state;
+
+    if (isAuthenticated) {
+      const { history } = this.props;
+
+      history.push(resourceHome);
     }
   }
-  DoLogin(e) {
+
+  onChangeFormValue = value => event => {
+    this.setState({ [value]: event.target.value });
+  };
+
+  login = e => {
     e.preventDefault();
-    let email = document.getElementById("login-email").value;
-    let password = document.getElementById("login-password").value;
+    const { history } = this.props;
+    const { email, password } = this.state;
+
     Meteor.loginWithPassword(email, password, err => {
       if (err) {
         log.error("Error occurs on Login: " + err);
+
         this.setState({
           error: err.reason //"Email and Password not match"
         });
       } else {
-        this.props.history.push("/home");
+        history.push(resourceHome);
       }
     });
-  }
+  };
 
   getLang() {
     return (
@@ -43,9 +63,11 @@ export default class LoginPage extends Component {
       "en-US"
     );
   }
+
   render() {
+    const { error } = this.state;
     let translator = i18n.createTranslator("Common.loginForm", this.getLang());
-    const error = this.state.error;
+
     return (
       <div className="modal show">
         <div className="modal-dialog">
@@ -56,14 +78,15 @@ export default class LoginPage extends Component {
               </h1>
             </div>
             <div className="modal-body">
-              {error.length > 0 ? <div className="alert alert-danger fade in">{error}</div> : ""}
-              <form id="login-form" className="form col-md-12 center-block" onSubmit={this.DoLogin}>
+              {error && <div className="alert alert-danger fade in">{error}</div>}
+              <form id="login-form" className="form col-md-12 center-block" onSubmit={this.login}>
                 <div className="form-group">
                   <input
                     type="email"
                     id="login-email"
                     className="form-control input-lg"
                     placeholder={translator("email")}
+                    onChange={this.onChangeFormValue(formSourceEmail)}
                   />
                 </div>
                 <div className="form-group">
@@ -72,6 +95,7 @@ export default class LoginPage extends Component {
                     id="login-password"
                     className="form-control input-lg"
                     placeholder={translator("password")}
+                    onChange={this.onChangeFormValue(formSourcePassword)}
                   />
                 </div>
                 <div className="form-group text-center">
@@ -84,7 +108,8 @@ export default class LoginPage extends Component {
                 </div>
                 <div className="form-group text-center">
                   <p className="text-center">
-                    Don't have an account? Register <Link to="/sign-up">here</Link>
+                    {translator("haveNoAccount")}
+                    <Link to="/sign-up">{translator("registerHere")}</Link>
                   </p>
                 </div>
               </form>
