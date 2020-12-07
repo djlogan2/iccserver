@@ -2,12 +2,23 @@ import React from "react";
 import { Modal } from "antd";
 import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
+import i18n from "meteor/universe:i18n";
 
 const GameListModal = ({ gameList, isImported, history, ...rest }) => {
+  const getLang = () => {
+    return (
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US"
+    );
+  };
+
+  const translate = i18n.createTranslator("Common.gameListModal", getLang());
+
   const handleSetExaminMode = id => {
-    Meteor.call("examineGame", "ExaminedGame", id, isImported, () => {
-      //history.push("/examine");
-    });
+    Meteor.call("examineGame", "ExaminedGame", id, isImported);
   };
 
   const formatGameList = games => {
@@ -19,16 +30,16 @@ const GameListModal = ({ gameList, isImported, history, ...rest }) => {
 
       switch (gameItem.result) {
         case "0-1":
-          result = isUserBlack ? "Won" : "Lost";
+          result = isUserBlack ? translate("resultWon") : translate("resultLost");
           break;
         case "1-0":
-          result = isUserWhite ? "Won" : "Lost";
+          result = isUserWhite ? translate("resultWon") : translate("resultLost");
           break;
         case "1/2-1/2":
-          result = "Drawn";
+          result = translate("resultDrawn");
           break;
         default:
-          result = "Unknown";
+          result = translate("resultUnknown");
           break;
       }
 
@@ -49,14 +60,20 @@ const GameListModal = ({ gameList, isImported, history, ...rest }) => {
     return new Date(b.date) - new Date(a.date);
   });
 
-  let style = {
+  const style = {
     background: "#ffffff"
   };
 
   return (
-    <Modal title="My Games" visable={true} onCancel={rest.onClose} footer={null} {...rest}>
+    <Modal
+      title={translate("myGames")}
+      visable={true}
+      onCancel={rest.onClose}
+      footer={null}
+      {...rest}
+    >
       <div style={style}>
-        {formattedGameList.length > 0 ? (
+        {formattedGameList.length ? (
           <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
             <table
               className="gamehistory"
@@ -65,16 +82,16 @@ const GameListModal = ({ gameList, isImported, history, ...rest }) => {
               <thead>
                 <tr>
                   <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Players
+                    {translate("players")}
                   </th>
                   <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Result
+                    {translate("result")}
                   </th>
                   <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Date
+                    {translate("date")}
                   </th>
                   <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    PGN
+                    {translate("pgn")}
                   </th>
                 </tr>
               </thead>
@@ -108,7 +125,9 @@ const GameListModal = ({ gameList, isImported, history, ...rest }) => {
             </table>
           </div>
         ) : (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>No Data Found</div>
+          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
+            {translate("noDataFound")}
+          </div>
         )}
       </div>
     </Modal>

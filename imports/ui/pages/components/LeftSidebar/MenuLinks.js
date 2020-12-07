@@ -1,109 +1,84 @@
 import React, { Component } from "react";
-import i18n from "meteor/universe:i18n";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router";
 import ModalContext from "./../../ModalContext";
 import { links, sidebarBottom } from "./../../hardcode.json";
+import { resourceLogin } from "../../../../constants/resourceConstants";
+import { translate } from "../../../HOCs/translate";
+import _ from "lodash";
 
 class MenuLinks extends Component {
-  static contextType = ModalContext;
   constructor(props) {
     super(props);
+
     this.state = {
       isAuthenticated: Meteor.userId() !== null
     };
-    this.logout = this.logout.bind(this);
   }
 
-  logout() {
+  logout = () => {
+    const { history } = this.props;
+
     Meteor.logout(err => {
       if (err) {
       } else {
-        this.props.history.push("/login");
+        history.push(resourceLogin);
       }
     });
-  }
+  };
 
-  handleClick = (e, label) => {
-    e.preventDefault();
+  handleClick = label => {
+    const { onCommunity, onUploadpgn, onPlay, onExamine, onMyGames, onLogout } = this.props;
+
     if (label === "community") {
-      this.props.onCommunity();
+      onCommunity();
     } else if (label === "uploadpgn") {
-      this.props.onUploadpgn();
+      onUploadpgn();
     } else if (label === "play") {
-      this.props.onPlay();
+      onPlay();
     } else if (label === "examine") {
-      this.props.onExamine();
+      onExamine();
+    } else if (label === "mygame") {
+      onMyGames();
     } else if (label === "logout") {
-      this.props.onLogout();
+      onLogout();
     }
   };
 
-  handleMyGames = () => {};
+  getSidebar = linksArray => {
+    const { history, visible, translate } = this.props;
 
-  static getLang() {
     return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
+      <ul className="list-sidebar bg-defoult list-unstyled components desktop">
+        {linksArray.map(link => {
+          const isActive = _.get(history, "location.pathname") === `/${link.link}`;
+
+          return (
+            <li className="menu-link__item" key={link.label}>
+              <a
+                className={!!isActive ? "active" : ""}
+                onClick={() => this.handleClick(link.label)}
+              >
+                <img src={link.src} alt={link.label}/>
+                {!visible && <span>{translate(link.label)}</span>}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     );
-  }
+  };
 
   render() {
-    let translator = i18n.createTranslator("Common.menuLinkLabel", MenuLinks.getLang());
-
-    let linksMarkup = links.map((link, index) => {
-      let isActive = this.props.history.location.pathname === `/${link.link}`;
-
-      // let linkMarkup = link.active ? (
-      //   <a href="#" className="active" onClick={e => this.handleClick(e, link.label)}>
-      //     <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
-      //   </a>
-      // ) : (
-      //   <a href="#" className="active" onClick={e => this.handleClick(e, link.label)}>
-      //     <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
-      //   </a>
-      // );
-
-      return (
-        <li className="menu-link__item" key={index}>
-          <a
-            href="#"
-            className={isActive ? "active" : ""}
-            onClick={e => this.handleClick(e, link.label)}
-          >
-            <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
-          </a>
-        </li>
-      );
-    });
-
     return (
       <div className="menu-links">
         <ul className="list-sidebar bg-defoult list-unstyled components desktop">
-          {linksMarkup}
-          <li className="menu-link__item">
-            <a href="#" onClick={this.props.onMyGames}>
-              <img src={"../../../images/learning-icon-white.png"} alt="" /> <span>My games</span>
-            </a>
-          </li>
+          {this.getSidebar(links)}
         </ul>
-        <div className="menu-links__bottom">
-          {sidebarBottom.map((link, index) => {
-            return (
-              <li key={index} className="menu-link__item">
-                <a href="#" onClick={e => this.handleClick(e, link.label)}>
-                  <img src={link.src} alt="" /> <span>{translator(link.label)}</span>
-                </a>
-              </li>
-            );
-          })}
-        </div>
+        <div className="menu-links__bottom">{this.getSidebar(sidebarBottom)}</div>
       </div>
     );
   }
 }
 
-export default withRouter(MenuLinks);
+export default withRouter(translate("Common.menuLinkLabel")(MenuLinks));

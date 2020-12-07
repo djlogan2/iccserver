@@ -20,6 +20,21 @@
       "haveAccount": "Already have an account? ",
       "loginHere": "Login here"
     },
+    "leftSideBar": {
+      "noLogin": "Please login"
+    },
+    "gameListModal": {
+      "myGames": "My Games",
+      "players": "Players",
+      "result": "Result",
+      "date": "Date",
+      "pgn": "PGN",
+      "noDataFound": "No data found",
+      "resultWon": "Won",
+      "resultLost": "Lost",
+      "resultDrawn": "Drawn",
+      "resultUnknown": "Unknown"
+    },
     "rightBarTop": {
       "game": "Game",
       "play": "Play",

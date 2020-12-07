@@ -20,6 +20,35 @@
       "haveAccount": "Уже есть аккаунт? ",
       "loginHere": "Войти"
     },
+    "leftSideBar": {
+      "noLogin": "Пожалуйста, войдите в систему"
+    },
+    "gameListModal": {
+      "myGames": "My Games",
+      "players": "Players",
+      "result": "Result",
+      "date": "Date",
+      "pgn": "PGN",
+      "noDataFound": "No data found",
+      "resultWon": "Won",
+      "resultLost": "Lost",
+      "resultDrawn": "Drawn",
+      "resultUnknown": "Unknown"
+    },
+    "menuLinkLabel": {
+      "play": "Play",
+      "learn": "Learn",
+      "connect": "Connect",
+      "examine": "Examine",
+      "topPlayers": "Top Players",
+      "logIn": "Log in",
+      "singUp": "Sign up",
+      "help": "Help",
+      "logout": "Logout",
+      "community": "Community",
+      "mygame": "My Games",
+      "uploadpgn": "Imported PGNs"
+    },
     "MatchUserSubTab": {
       "friends": "пожвать",
       "recentOpponent": "ватьпожвать"

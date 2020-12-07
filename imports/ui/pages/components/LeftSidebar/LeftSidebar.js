@@ -6,6 +6,14 @@ import { Meteor } from "meteor/meteor";
 
 import { GameHistoryCollection } from "../../../../api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
+import {
+  resourceCommunity,
+  resourceExamine,
+  resourceLogin,
+  resourcePlay,
+  resourceUploadPgn
+} from "../../../../constants/resourceConstants";
+import { translate } from "../../../HOCs/translate";
 
 const log = new Logger("client/LeftSidebar_js");
 
@@ -13,54 +21,48 @@ class LeftSidebar extends Component {
   constructor(props) {
     log.trace("LeftSidebar constructor", props);
     super(props);
+
     this.state = {
       visible: false,
       gameList: [],
       isMyGamesModal: false
     };
-    this.toggleMenu = this.toggleMenu.bind(this);
   }
 
-  toggleMenu() {
-    this.setState({ visible: !this.state.visible });
-  }
-
-  handleCommunity = () => {
-    this.props.history.push("/community");
-  };
-
-  handleUploadpgn = () => {
-    this.props.history.push("/upload-pgn");
-  };
-
-  handlePlay = () => {
-    this.props.history.push("/play");
+  toggleMenu = () => {
+    this.setState(prevState => {
+      return { visible: !prevState.visible };
+    });
   };
 
   handleMyGames = () => {
-    let gameList = this.loadGameList();
+    const gameList = this.loadGameList();
 
     this.setState({
-      isMyGamesModal: true,
-      gameList: gameList
+      gameList,
+      isMyGamesModal: true
     });
   };
 
-  loadGameList(data) {
+  loadGameList = () => {
     return GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     });
-  }
+  };
 
-  handleExamine = () => {
-    this.props.history.push("/examine");
+  handleRedirect = resource => {
+    const { history } = this.props;
+    history.push(resource);
   };
 
   handleLogout = () => {
+    const { history } = this.props;
+
     Meteor.logout(err => {
       if (err) {
+        log.error(`Error while logging out: ${err}`);
       } else {
-        window.location.href = "/login";
+        history.push(resourceLogin);
       }
     });
   };
@@ -70,39 +72,41 @@ class LeftSidebar extends Component {
   };
 
   render() {
+    const { gameHistory, examineAction, translate } = this.props;
+    const { visible, isMyGamesModal, gameList } = this.state;
+
+    const username = !!Meteor.user() ? Meteor.user().username : translate("noLogin");
+
     log.trace("LeftSidebar render", this.props);
-    const username = !!Meteor.user() ? Meteor.user().username : "Please login";
+
     return (
-      <div
-        className={
-          this.state.visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"
-        }
-      >
+      <div className={visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"}>
         <GameListModal
           isImported={false}
-          visible={this.state.isMyGamesModal}
-          gameList={this.state.gameList}
+          visible={isMyGamesModal}
+          gameList={gameList}
           onClose={this.handleMyGamesClose}
         />
-        <div className="sidebar__logo" />
-        <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
+        <div className="sidebar__logo"/>
+        <button className="sidebar__burger-btn" onClick={this.toggleMenu}/>
         <div className="sidebar__user">
-          <img src={"../../../images/avatar.png"} alt="" className="sidebar__user-img" />
+          <img src={"../../../images/avatar.png"} alt="" className="sidebar__user-img"/>
           <span className="sidebar__user-name">{username}</span>
         </div>
         <MenuLinks
-          onCommunity={this.handleCommunity}
-          onUploadpgn={this.handleUploadpgn}
-          onPlay={this.handlePlay}
-          onExamine={this.handleExamine}
+          visible={visible}
+          gameHistory={gameHistory}
+          examineAction={examineAction}
+          onCommunity={() => this.handleRedirect(resourceCommunity)}
+          onUploadpgn={() => this.handleRedirect(resourceUploadPgn)}
+          onPlay={() => this.handleRedirect(resourcePlay)}
+          onExamine={() => this.handleRedirect(resourceExamine)}
           onLogout={this.handleLogout}
           onMyGames={this.handleMyGames}
-          history={this.props.history}
-          gameHistory={this.props.gameHistory}
-          examineAction={this.props.examineAction}
         />
       </div>
     );
   }
 }
-export default withRouter(LeftSidebar);
+
+export default withRouter(translate("Common.leftSideBar")(LeftSidebar));
