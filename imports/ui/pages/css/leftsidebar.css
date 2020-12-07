@@ -59,6 +59,8 @@
 	color: #fff;
 	text-align: left !important;
 	padding-left: 1rem;
+	max-width: 100%;
+	overflow: hidden;
 }
 .fliph .sidebar__logo {
 	height: 3rem;

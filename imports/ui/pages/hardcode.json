@@ -1,4 +1,5 @@
-{"links": [
+{
+  "links": [
     {
       "label": "play",
       "link": "play",
@@ -19,19 +20,24 @@
       "label": "topPlayers",
       "link": "top-players",
       "src": "../../../images/top-player-icon-white.png"
+    },
+    {
+      "label": "mygame",
+      "link": "",
+      "src": "../../../images/learning-icon-white.png"
     }
   ],
   "sidebarBottom": [
     {
-        "label": "logout",
-        "link": "#",
-        "src": "../../../images/login-icon-white.png"
-      },
-      {
-        "label": "help",
-        "link": "#help",
-        "src": "../../../images/help-icon-white.png"
-      }
+      "label": "logout",
+      "link": "#",
+      "src": "../../../images/login-icon-white.png"
+    },
+    {
+      "label": "help",
+      "link": "#help",
+      "src": "../../../images/help-icon-white.png"
+    }
   ],
   "tournament": [
     {
