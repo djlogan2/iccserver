@@ -1,7 +1,6 @@
 import chai from "chai";
 import { i18n } from "../../imports/collections/i18n";
 import i18nCollection from "../../imports/collections/i18n";
-import { Meteor } from "meteor/meteor";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 
 describe("Server side i18n", function() {

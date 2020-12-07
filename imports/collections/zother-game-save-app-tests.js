@@ -1,8 +1,6 @@
-import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
 
 describe("stripGameForSave", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
   it("should remove useless fields from a played game", function() {
     chai.assert.fail("do me");
   });
@@ -12,38 +10,6 @@ describe("stripGameForSave", function() {
 });
 
 describe("startGameFromGameRecord", function() {
-  const self = TestHelpers.setupDescribe.apply(this);
-  const game_record = {
-    white: {
-      id: white._id,
-      name: white.username,
-      rating: white.ratings[rating_type].rating
-    },
-    black: {
-      id: black._id,
-      name: black.username,
-      rating: black.ratings[rating_type].rating
-    },
-    wild: wild_number,
-    rating_type: rating_type,
-    rated: rated,
-    clocks: {
-      white: {
-        initial: white_initial,
-        inc_or_delay: white_increment_or_delay,
-        delaytype: white_increment_or_delay_type,
-        current: white_initial * 60 * 1000 // milliseconds
-      },
-      black: {
-        initial: black_initial,
-        inc_or_delay: black_increment_or_delay,
-        delaytype: black_increment_or_delay_type,
-        current: black_initial * 60 * 1000 //milliseconds
-      }
-    },
-    actions: [],
-    variations: { movelist: [{}] }
-  };
   it("should fail if black or white isn't logged on", function() {
     chai.assert.fail("do me");
   });

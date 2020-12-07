@@ -10,7 +10,7 @@ export default ({ value, onChange, onMessage }) => {
   const handleChange = e => {
     e.preventDefault();
     onChange(e.target.value);
-  }
+  };
 
   return (
     <Fragment>

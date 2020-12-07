@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Meteor } from "meteor/meteor";
 import { GameHistoryCollection } from "../../../api/client/collections";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
@@ -17,11 +17,9 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
     this.state.subscription.gameHistory.stop();
   }
   getGameHistory() {
-    const GameHistory = GameHistoryCollection.find({
+    return GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     }).fetch();
-
-    return GameHistory;
   }
   setGameExaminMode(id) {
     Meteor.call("examineGame", "ExaminedGame", id);
@@ -31,7 +29,7 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
     let gamelist = [];
     let games = [];
     let result = null;
-    let title;
+
     games = this.getGameHistory();
     for (let i = 0; i < games.length; i++) {
       if (
@@ -90,7 +88,7 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
                   <td style={{ padding: "5px 5px" }}>
                     <a href={"export/pgn/history/" + game.id} className="pgnbtn">
                       <img
-                        src={this.props. cssManager.buttonBackgroundImage("pgnIcon")}
+                        src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
                         style={{ width: "25px", height: "25px" }}
                         alt="PgnDownload"
                       />

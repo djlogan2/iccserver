@@ -1,7 +1,6 @@
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import chai from "chai";
 import { resetDatabase } from "meteor/xolvio:cleaner";
-import { Accounts } from "meteor/accounts-base";
 import { Meteor } from "meteor/meteor";
 import { TestHelpers, compare } from "../server/TestHelpers";
 import tunnel from "tunnel-ssh";
@@ -90,7 +89,7 @@ const all_fields = {
       validated: 1,
       autologin: 1,
       password: 1
-    },
+    }
   },
   // For documentation purposes to show programmers what is in the
   // user record -- please don't publish these :)

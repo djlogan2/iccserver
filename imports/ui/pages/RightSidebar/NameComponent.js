@@ -13,7 +13,7 @@ export default class NameComponent extends Component {
 
   render() {
     return (
-      <div style={this.props. cssManager.gameTopHeader()}>
+      <div style={this.props.cssManager.gameTopHeader()}>
         {/* <button style={this.props. cssManager.buttonStyle()}>
           <img
             src={this.props. cssManager.buttonBackgroundImage("circleCompass")}
@@ -21,24 +21,24 @@ export default class NameComponent extends Component {
           />
         </button> */}
         {/* <span>1/2 - 1/2 US-ch Open 2019</span> */}
-        <div style={this.props. cssManager.pullRight()}>
+        <div style={this.props.cssManager.pullRight()}>
           {/*
 					 Game Share Component
 					 Player can share the game to invite new players.
 					*/}
 
-          <GameShareComponent  cssManager={this.props. cssManager} />
+          <GameShareComponent cssManager={this.props.cssManager} />
           {/*
 					 Game sheet download document Component
 					 Player can download PGN and FEN string for further uses . */}
 
-          <GameSheetDownloadComponent  cssManager={this.props. cssManager} game={this.props.game} />
+          <GameSheetDownloadComponent cssManager={this.props.cssManager} game={this.props.game} />
 
           {/*
 				    Game Analysis Component
 					Player can analysis there game. */}
 
-          <GameAnalysisComponent  cssManager={this.props. cssManager} />
+          <GameAnalysisComponent cssManager={this.props.cssManager} />
         </div>
       </div>
     );

@@ -12,7 +12,6 @@ class PGN extends Component {
   changeFilehandler(event) {
     let file = event.target.files[0];
 
-    let upload = false;
     if (!!file) {
       var msFile = new FS.File(file);
       msFile.creatorId = Meteor.userId();
@@ -42,15 +41,14 @@ class PGN extends Component {
         <div>
           <a className="btn btn-primary pgn-btn" href={"export/pgn/game/" + id}>
             <i>
-              <img src="images/pgn-export-icon.png" />
-            </i>{" "}
+              <img src="images/pgn-export-icon.png" alt="pgn-export-icon" />
+            </i>
             PGN Export
-          </a>{" "}
+          </a>
           <label htmlFor="files" className="btn btn-primary pgn-btn">
-            {" "}
             <i>
-              <img src="images/pgn-import-icon.png" />
-            </i>{" "}
+              <img src="images/pgn-import-icon.png" alt="pgn-import-icon" />
+            </i>
             PGN Import
           </label>
           <input

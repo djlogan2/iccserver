@@ -3,7 +3,6 @@ import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("client/Spare_js");
 
-
 const Spare = props => {
   log.trace("Spare render?", props);
   const mouseDown = e => {

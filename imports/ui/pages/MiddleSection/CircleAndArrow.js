@@ -66,7 +66,7 @@ export default class CircleAndArrow extends Component {
     var color = "#15781B";
     //below is the code for showing and hiding arrows
     $("#" + currentObject.props.chardBoardName).mousedown(function(ev) {
-      if (ev.which == 3) {
+      if (ev.which === 3) {
         if (handledRightClick) {
           return;
         }
@@ -129,15 +129,15 @@ export default class CircleAndArrow extends Component {
     });
 
     $("#" + currentObject.props.chardBoardName).mousemove(function(event) {
-      if (handleMouseMove == true) {
+      if (handleMouseMove) {
         var target = event.target;
         if (!$(event.target).attr(currentObject.props.squareId)) {
           target = $(event.target).closest("[" + currentObject.props.squareId + "]");
         }
-        if ($(target).attr(currentObject.props.squareId) != currentElementId) {
+        if ($(target).attr(currentObject.props.squareId) !== currentElementId) {
           $("#lineItem-" + currentClick).show();
-          var msg = "Handler for .mousemove() called at ";
-          msg += event.pageX + ", " + event.pageY;
+          // var msg = "Handler for .mousemove() called at ";
+          // msg += event.pageX + ", " + event.pageY;
           $("#lineItem-" + currentClick).attr(
             "x2",
             $(target).position().left + $(target).width() / 2 - errorXAdjustment

@@ -20,7 +20,7 @@ function lookup(item, defaultValue) {
 
 SystemConfiguration.logoutTimeout = function() {
   return lookup("logout_timeout", 120000);
-}
+};
 
 SystemConfiguration.minimumMoveTime = function() {
   return lookup("minimum_move_time", 10);

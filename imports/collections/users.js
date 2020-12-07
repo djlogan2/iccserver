@@ -4,8 +4,7 @@ import { check, Match } from "meteor/check";
 import {
   all_roles,
   fields_viewable_by_account_owner,
-  standard_member_roles,
-  viewable_logged_on_user_fields
+  standard_member_roles
 } from "../server/userConstants";
 import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";

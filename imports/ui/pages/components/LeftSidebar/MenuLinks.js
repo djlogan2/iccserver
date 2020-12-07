@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router";
-import ModalContext from "./../../ModalContext";
 import { links, sidebarBottom } from "./../../hardcode.json";
 import { resourceLogin } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
@@ -56,10 +55,11 @@ class MenuLinks extends Component {
           return (
             <li className="menu-link__item" key={link.label}>
               <a
+                href="#"
                 className={!!isActive ? "active" : ""}
                 onClick={() => this.handleClick(link.label)}
               >
-                <img src={link.src} alt={link.label}/>
+                <img src={link.src} alt={link.label} />
                 {!visible && <span>{translate(link.label)}</span>}
               </a>
             </li>

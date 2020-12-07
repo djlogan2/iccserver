@@ -1,11 +1,8 @@
-import { Logger } from "../../../../../lib/client/Logger";
-const log = new Logger("client/TestContainerCssManager_js");
 /**
  * CssManager
  */
 export default class CssManager {
   constructor(css) {
-    const us = this;
     //this._styleObject = developmentcss; // Default when nothing is loaded
     this._boardStyle = this.search("board", developmentcss);
     this._systemStyle = this.search("system", developmentcss);
@@ -32,7 +29,7 @@ export default class CssManager {
   }
   imagePeice(piece, color) {
     var style;
-    if (piece != undefined && color != undefined) {
+    if (piece && color) {
       style = this._boardStyle.pieces[color][piece];
     }
     return style;

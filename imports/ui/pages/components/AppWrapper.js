@@ -29,9 +29,6 @@ import "./../css/GameControlBlock.css";
 
 import "./../css/Community.css";
 import "./../css/Messenger.css";
-import { Logger } from "../../../../lib/client/Logger";
-
-const log = new Logger("client/AppWrapper_js");
 
 class AppWrapper extends Component {
   componentWillMount() {

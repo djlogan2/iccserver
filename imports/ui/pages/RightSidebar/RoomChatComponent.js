@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import i18n from "meteor/universe:i18n";
 
 export default class RoomChatComponent extends Component {
   constructor(props) {
@@ -41,7 +40,7 @@ export default class RoomChatComponent extends Component {
     let content = [];
     this.chatRooms.forEach((room, index) => {
       content.push(
-        <button key={index} style={this.props. cssManager.matchUserButton()}>
+        <button key={index} style={this.props.cssManager.matchUserButton()}>
           <label
             style={{
               fontWeight: "300",
@@ -67,7 +66,7 @@ export default class RoomChatComponent extends Component {
     });
     return (
       <div>
-        <div style={this.props. cssManager.subTabHeader()}>{content}</div>
+        <div style={this.props.cssManager.subTabHeader()}>{content}</div>
       </div>
     );
   }

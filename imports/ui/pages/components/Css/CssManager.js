@@ -1,5 +1,3 @@
-import { Logger } from "../../../../../lib/client/Logger";
-const log = new Logger("client/CssManager_js");
 /**
  * CssManager
  */
@@ -270,11 +268,11 @@ export default class CssManager {
         tabActive === "Seek a Game" ||
         tabActive === "Match User")
     ) {
-      var style = { cursor: "pointer" };
+      const style = { cursor: "pointer" };
       Object.assign(style, this._systemStyle.tabListItem1.all);
       return style;
     } else {
-      var style = { cursor: "pointer" };
+      const style = { cursor: "pointer" };
       if (!!tabActive) {
         if (tabActive === "FEN/PGN") tabActive = "PGN";
         if (tabActive === "Room Chat") tabActive = "RoomChat";

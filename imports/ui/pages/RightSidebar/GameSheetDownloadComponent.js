@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Meteor } from "meteor/meteor";
+
 export default class GameSheetDownloadComponent extends Component {
   render() {
     let id;
@@ -7,10 +7,10 @@ export default class GameSheetDownloadComponent extends Component {
     if (!!game) id = game._id;
 
     return (
-      <button style={this.props. cssManager.buttonStyle()}>
+      <button style={this.props.cssManager.buttonStyle()}>
         <a href={"export/pgn/game/" + id}>
           <img
-            src={this.props. cssManager.buttonBackgroundImage("gameDownload")}
+            src={this.props.cssManager.buttonBackgroundImage("gameDownload")}
             alt="Game Download"
           />
         </a>

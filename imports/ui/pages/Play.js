@@ -326,8 +326,6 @@ class Play extends Component {
       color
     };
 
-    let that = this;
-
     Meteor.call(
       "startBotGame",
       "play_computer",

@@ -11,10 +11,6 @@ import "./Tabs/BottomStyles";
 import i18n from "meteor/universe:i18n";
 
 class RightBarBottom extends Component {
-  constructor(props) {
-    super(props);
-    //  this.uploadPgn=this.uploadPgn.bind(this);
-  }
   getLang() {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -28,10 +24,10 @@ class RightBarBottom extends Component {
     let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
     let tabNumber = this.props.activeTabnumber ? this.props.activeTabnumber : 0;
     return (
-      <Tabs  cssManager={this.props. cssManager} tabName="bottom" defultactive={tabNumber}>
+      <Tabs cssManager={this.props.cssManager} tabName="bottom" defultactive={tabNumber}>
         <div label="Examiner" imgsrc="images/examiner.png" hoverSrc="images/examiner-active.png">
           <Examiner
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             gameRequest={this.props.gameRequest}
             clientMessage={this.props.clientMessage}
           />
@@ -42,7 +38,7 @@ class RightBarBottom extends Component {
           hoverSrc="images/follow-coach-active.png"
         >
           <FollowCoach
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             clientMessage={this.props.clientMessage}
           />
         </div>
@@ -52,7 +48,7 @@ class RightBarBottom extends Component {
           hoverSrc="images/game-library-active.png"
         >
           <GameLibrary
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             clientMessage={this.props.clientMessage}
           />
         </div>
@@ -62,7 +58,7 @@ class RightBarBottom extends Component {
           imgsrc="images/history-icon-white.png"
           hoverSrc="images/history-icon-blue.png"
         >
-          <GameHistory  cssManager={this.props. cssManager} />
+          <GameHistory cssManager={this.props.cssManager} />
         </div>
         <div
           label="Adjourned Game"
@@ -78,7 +74,7 @@ class RightBarBottom extends Component {
           hoverSrc="images/fen-pgn-blue-icon.png"
         >
           <PGN
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             Gamedata={this.props.Gamedata}
             uploadPgn={this.props.uploadPgn}
           />

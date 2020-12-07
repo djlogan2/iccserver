@@ -5,8 +5,7 @@ import i18n from "meteor/universe:i18n";
 import PropTypes from "prop-types";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
 import GameForm from "./GameForm";
-import { Logger } from "../../../../lib/client/Logger";
-const log = new Logger("client/MatchUserComponent");
+import { DynamicRatingsCollection } from "../../../api/client/collections";
 
 const legacyUsersC = new Mongo.Collection("legacyUsers");
 
@@ -15,7 +14,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
     super(props);
     this.state = {
       subscription: {
-        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
+        loggedOnUsers: Meteor.subscribe("loggedOnUsers")
         //legacyUsers: Meteor.subscribe("legacyUsers")
       },
       user: null,
@@ -50,6 +49,7 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       color: "random"
     });
   }
+
   handelUserClick = (user, Id) => {
     this.setState({ user: user, userId: Id });
   };
@@ -113,9 +113,11 @@ export default class MatchUserComponent extends TrackerReact(React.Component) {
       "en-US"
     );
   }
+
   toggleHover() {
     this.setState({ hover: !this.state.hover });
   }
+
   getDynamicRatings() {
     return DynamicRatingsCollection.find({}).fetch();
   }

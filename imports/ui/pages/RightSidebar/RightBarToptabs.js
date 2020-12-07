@@ -5,9 +5,6 @@ import QuickPairing from "./QuickPairingGameComponent";
 import MatchUser from "./MatchUserComponent";
 import i18n from "meteor/universe:i18n";
 import "./Tabs/styles";
-import { Logger } from "../../../../lib/client/Logger";
-
-const log = new Logger("client/RightBarToptabs");
 
 export default class RightBarToptabs extends Component {
   constructor(props) {
