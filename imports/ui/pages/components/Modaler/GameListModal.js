@@ -3,6 +3,7 @@ import { Modal } from "antd";
 import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
+import { Table } from "antd";
 
 const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
   const getLang = () => {
@@ -59,58 +60,53 @@ const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
   };
 
   return (
-    <Modal title={translate("myGames")} onCancel={onClose} footer={null} {...rest}>
+    <Modal title={translate("myGames")} width={1000} onCancel={onClose} footer={null} {...rest}>
       <div style={style}>
         {formattedGameList.length ? (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
-            <table
+          <div style={{ overflowY: "auto", width: "100%", display: "block" }}>
+            <Table
               className="gamehistory"
-              style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
+              style={{
+                width: "100%",
+                textAlign: "center",
+                border: "1px solid #f1f1f1"
+              }}
+              dataSource={formattedGameList}
+              pagination={{ position: ["none", "bottomRight"] }}
+              onRow={row => ({
+                onClick: () => {
+                  handleSetExaminMode(row.id);
+                  onClose();
+                }
+              })}
             >
-              <thead>
-                <tr>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("players")}
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("result")}
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("date")}
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("pgn")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {formattedGameList.map((game, index) => (
-                  <tr key={index} style={{ cursor: "pointer" }}>
-                    <td
-                      style={{ padding: "5px 5px" }}
-                      onClick={() => {
-                        handleSetExaminMode(game.id);
-                        onClose();
-                      }}
-                    >
-                      {game.white}-vs-{game.black}
-                    </td>
-                    <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                    <td style={{ padding: "5px 5px" }}>{game.time}</td>
-
-                    <td style={{ padding: "5px 5px" }}>
-                      <a href={"export/pgn/history/" + game.id} className="pgnbtn">
-                        <img
-                          src="images/pgnicon.png"
-                          style={{ width: "25px", height: "25px" }}
-                          alt="PgnDownload"
-                        />
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              <Table.Column
+                title={translate("players")}
+                key="players"
+                render={(text, record) =>
+                  translate("playersColumn", {
+                    white: record.white,
+                    black: record.black
+                  })
+                }
+              />
+              <Table.Column title={translate("result")} dataIndex="result" key="result" />
+              <Table.Column title={translate("date")} dataIndex="time" key="time" />
+              <Table.Column
+                title={translate("pgn")}
+                dataIndex="pgn"
+                key="pgn"
+                render={(text, record) => (
+                  <a href={"export/pgn/history/" + record.id} className="pgnbtn">
+                    <img
+                      src="images/pgnicon.png"
+                      style={{ width: "25px", height: "25px" }}
+                      alt="PgnDownload"
+                    />
+                  </a>
+                )}
+              />
+            </Table>
           </div>
         ) : (
           <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
