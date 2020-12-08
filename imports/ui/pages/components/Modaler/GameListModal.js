@@ -4,7 +4,7 @@ import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 
-const GameListModal = ({ gameList, isImported, history, ...rest }) => {
+const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
   const getLang = () => {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -21,39 +21,33 @@ const GameListModal = ({ gameList, isImported, history, ...rest }) => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported);
   };
 
+  const getResultOfGameItem = gameItem => {
+    const isUserWhite = gameItem.white.id === Meteor.userId();
+    const isUserBlack = gameItem.black.id === Meteor.userId();
+
+    switch (gameItem.result) {
+      case "0-1":
+        return isUserBlack ? translate("resultWon") : translate("resultLost");
+      case "1-0":
+        return isUserWhite ? translate("resultWon") : translate("resultLost");
+      case "1/2-1/2":
+        return translate("resultDrawn");
+      default:
+        return translate("resultUnknown");
+    }
+  };
+
   const formatGameList = games => {
-    return games.map(gameItem => {
-      let result;
-
-      let isUserWhite = gameItem.white.id === Meteor.userId();
-      let isUserBlack = gameItem.black.id === Meteor.userId();
-
-      switch (gameItem.result) {
-        case "0-1":
-          result = isUserBlack ? translate("resultWon") : translate("resultLost");
-          break;
-        case "1-0":
-          result = isUserWhite ? translate("resultWon") : translate("resultLost");
-          break;
-        case "1/2-1/2":
-          result = translate("resultDrawn");
-          break;
-        default:
-          result = translate("resultUnknown");
-          break;
-      }
-
-      return {
-        id: gameItem._id,
-        name: "3 minut arina",
-        white: gameItem.white.name.replace(/"/g, ""),
-        black: gameItem.black.name.replace(/"/g, ""),
-        result: result,
-        time: null, //time,
-        date: gameItem.startTime,
-        is_imported: games.is_imported
-      };
-    });
+    return games.map(gameItem => ({
+      id: gameItem._id,
+      name: "3 minut arina",
+      white: gameItem.white.name.replace(/"/g, ""),
+      black: gameItem.black.name.replace(/"/g, ""),
+      time: null, //time,
+      date: gameItem.startTime,
+      is_imported: games.is_imported,
+      result: getResultOfGameItem(gameItem)
+    }));
   };
 
   const formattedGameList = formatGameList(gameList).sort((a, b) => {
@@ -65,13 +59,7 @@ const GameListModal = ({ gameList, isImported, history, ...rest }) => {
   };
 
   return (
-    <Modal
-      title={translate("myGames")}
-      visable={true}
-      onCancel={rest.onClose}
-      footer={null}
-      {...rest}
-    >
+    <Modal title={translate("myGames")} onCancel={onClose} footer={null} {...rest}>
       <div style={style}>
         {formattedGameList.length ? (
           <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
@@ -102,7 +90,7 @@ const GameListModal = ({ gameList, isImported, history, ...rest }) => {
                       style={{ padding: "5px 5px" }}
                       onClick={() => {
                         handleSetExaminMode(game.id);
-                        rest.onClose();
+                        onClose();
                       }}
                     >
                       {game.white}-vs-{game.black}

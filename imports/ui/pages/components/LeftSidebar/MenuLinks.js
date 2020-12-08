@@ -2,7 +2,12 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router";
 import { links, sidebarBottom } from "./../../hardcode.json";
-import { resourceLogin } from "../../../../constants/resourceConstants";
+import {
+  labelLogout,
+  labelMyGame,
+  labelsToResources,
+  resourceLogin,
+} from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import _ from "lodash";
 
@@ -27,19 +32,13 @@ class MenuLinks extends Component {
   };
 
   handleClick = label => {
-    const { onCommunity, onUploadpgn, onPlay, onExamine, onMyGames, onLogout } = this.props;
+    const { handleRedirect, onMyGames, onLogout } = this.props;
 
-    if (label === "community") {
-      onCommunity();
-    } else if (label === "uploadpgn") {
-      onUploadpgn();
-    } else if (label === "play") {
-      onPlay();
-    } else if (label === "examine") {
-      onExamine();
-    } else if (label === "mygame") {
+    if (labelsToResources.hasOwnProperty(label)) {
+      handleRedirect(labelsToResources[label]);
+    } else if (label === labelMyGame) {
       onMyGames();
-    } else if (label === "logout") {
+    } else if (label === labelLogout) {
       onLogout();
     }
   };

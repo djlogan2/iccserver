@@ -6,13 +6,7 @@ import { Meteor } from "meteor/meteor";
 
 import { GameHistoryCollection } from "../../../../api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
-import {
-  resourceCommunity,
-  resourceExamine,
-  resourceLogin,
-  resourcePlay,
-  resourceUploadPgn
-} from "../../../../constants/resourceConstants";
+import { resourceLogin } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 
 const log = new Logger("client/LeftSidebar_js");
@@ -90,17 +84,14 @@ class LeftSidebar extends Component {
         <div className="sidebar__logo" />
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
         <div className="sidebar__user">
-          <img src={"../../../images/avatar.png"} alt="" className="sidebar__user-img" />
+          <img src={"../../../images/avatar.png"} alt="user avatar" className="sidebar__user-img" />
           <span className="sidebar__user-name">{username}</span>
         </div>
         <MenuLinks
           visible={visible}
           gameHistory={gameHistory}
           examineAction={examineAction}
-          onCommunity={() => this.handleRedirect(resourceCommunity)}
-          onUploadpgn={() => this.handleRedirect(resourceUploadPgn)}
-          onPlay={() => this.handleRedirect(resourcePlay)}
-          onExamine={() => this.handleRedirect(resourceExamine)}
+          handleRedirect={this.handleRedirect}
           onLogout={this.handleLogout}
           onMyGames={this.handleMyGames}
         />
