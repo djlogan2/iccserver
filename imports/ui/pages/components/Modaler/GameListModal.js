@@ -55,13 +55,9 @@ const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
     return new Date(b.date) - new Date(a.date);
   });
 
-  const style = {
-    background: "#ffffff"
-  };
-
   return (
     <Modal title={translate("myGames")} width={1000} onCancel={onClose} footer={null} {...rest}>
-      <div style={style}>
+      <div style={{ background: "#ffffff" }}>
         {formattedGameList.length ? (
           <div style={{ overflowY: "auto", width: "100%", display: "block" }}>
             <Table
