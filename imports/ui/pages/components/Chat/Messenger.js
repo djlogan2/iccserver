@@ -6,6 +6,7 @@ export default ({ roomData, inputValue, messageList, onChange, onMessage }) => {
   const handleMessage = () => {
     onMessage(roomData._id);
   };
+
   return (
     <div className="messenger">
       <div className="messenger__head">
@@ -18,8 +19,6 @@ export default ({ roomData, inputValue, messageList, onChange, onMessage }) => {
               key={`message-${i}`}
               name={chatItem.issuer.username}
               text={chatItem.what}
-              // name={chatItem.name}
-              // text={chatItem.text}
             />
           ))}
         </div>

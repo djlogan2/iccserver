@@ -1,15 +1,11 @@
 import React, { Component, useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Logger } from "../../../lib/client/Logger";
 import AppWrapper from "../pages/components/AppWrapper";
 
 import Messenger from "./components/Chat/Messenger";
 import { Button, Input, Modal } from "antd";
 import { Chat, Rooms, mongoCss } from "../../api/client/collections";
-
-// eslint-disable-next-line no-unused-vars
-const log = new Logger("client/Community");
 
 const MessengerWithData = withTracker(props => {
   return {
@@ -38,7 +34,7 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
       <div className="room-block__head">
         <h2 className="room-block__title">Rooms</h2>
         <Modal title="Create Room" visible={!!isModal} onOk={onOk} onCancel={onCancel}>
-          <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
+          <Input value={roomName} onChange={e => setRoomName(e.target.value)}/>
         </Modal>
         {/* <Button onClick={onOpen} className="room-block__add">
           Add
@@ -124,8 +120,10 @@ class Community extends Component {
   }
 
   componentDidUpdate = prevProps => {
-    if (prevProps.allRooms.length === 0 && this.props.allRooms.length > 0) {
-      this.setState({ activeRoom: this.props.allRooms[0]._id });
+    const { allRooms } = this.props;
+
+    if (!prevProps.allRooms.length && allRooms.length) {
+      this.setState({ activeRoom: allRooms[0]._id });
     }
   };
 
@@ -160,10 +158,12 @@ class Community extends Component {
   };
 
   handleMessage = roomId => {
-    let newMessage = { text: this.state.inputValue, name: "you" };
+    const { inputValue, messageList } = this.state;
+    const newMessage = { text: inputValue, name: "you" };
+
     this.setState({
       inputValue: "",
-      messageList: [...this.state.messageList, newMessage]
+      messageList: [...messageList, newMessage]
     });
 
     Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, err => {
@@ -174,16 +174,19 @@ class Community extends Component {
   };
 
   renderMessenger = () => {
-    let roomList = this.props.allRooms;
-    let activeRoom = this.state.activeRoom;
-    if (roomList.length === 0 || activeRoom === null) {
-      return null;
+    const { allRooms: roomList } = this.props;
+    const { activeRoom, inputValue } = this.state;
+
+    if (!roomList.length || !activeRoom) {
+      return;
     }
-    let roomData = roomList.find(item => item._id === activeRoom);
+
+    const roomData = roomList.find(item => item._id === activeRoom);
+
     return (
       <MessengerWithData
         roomData={roomData}
-        inputValue={this.state.inputValue}
+        inputValue={inputValue}
         onChange={this.handleChange}
         onMessage={this.handleMessage}
       />
@@ -191,14 +194,17 @@ class Community extends Component {
   };
 
   render() {
-    const rightBlockWidth = this.state.isRightMenu ? "214px" : 0;
+    const { allRooms, notMyRooms } = this.props;
+    const { isRightMenu, activeRoom } = this.state;
+
+    const rightBlockWidth = isRightMenu ? "214px" : 0;
 
     return (
       <AppWrapper>
         <div className="community__sidebar">
           <RoomBlock
-            activeRoom={this.state.activeRoom}
-            list={this.props.allRooms}
+            activeRoom={activeRoom}
+            list={allRooms}
             onAdd={this.handleAdd}
             openRightBlock={this.handleOpenRightBlock}
             onChange={this.handleChangeRoom}
@@ -207,8 +213,8 @@ class Community extends Component {
         <div className="community__messenger">{this.renderMessenger()}</div>
         <div className="community__right-block" style={{ maxWidth: rightBlockWidth }}>
           <CommunityRightBlock
-            activeRoom={this.state.activeRoom}
-            roomList={this.props.notMyRooms}
+            activeRoom={activeRoom}
+            roomList={notMyRooms}
             onAdd={this.handleAdd}
             onClose={this.handleCloseRightBlock}
             onChange={this.handleChangeRoom}
@@ -216,7 +222,6 @@ class Community extends Component {
         </div>
       </AppWrapper>
     );
-    // return <div className="examine">Community</div>;
   }
 }
 
