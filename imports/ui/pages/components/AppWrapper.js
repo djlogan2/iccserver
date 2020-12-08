@@ -29,56 +29,66 @@ import "./../css/GameControlBlock.css";
 
 import "./../css/Community.css";
 import "./../css/Messenger.css";
+import { resourceLogin, resourcePlay } from "../../../constants/resourceConstants";
+import { translate } from "../../HOCs/translate";
 
 class AppWrapper extends Component {
-  componentWillMount() {
-    if (!Meteor.userId()) {
-      this.props.history.push("/login");
-    }
-  }
-
   componentDidMount() {
     if (!Meteor.userId()) {
-      this.props.history.push("/login");
+      const { history } = this.props;
+
+      history.push(resourceLogin);
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (!Meteor.userId()) {
-      this.props.history.push("/login");
+      const { history } = this.props;
+
+      history.push(resourceLogin);
     }
   }
 
   render() {
-    //log.trace("AppWrapper render", this.props);
+    const {
+      history,
+      cssManager,
+      className,
+      children,
+      translate,
+      game_request: gameRequest
+    } = this.props;
 
     return (
       <div className={`app-wrapper`}>
-        {this.props.game_request && (
+        {gameRequest && (
           <Modal
-            title="Game request"
-            visible={!!this.props.game_request}
+            title={translate("gameRequestModal.gameRequest")}
+            visible={!!gameRequest}
             onOk={() => {
-              Meteor.call("gameRequestAccept", "gameAccept", this.props.game_request._id, () => {
-                this.props.history.push("/play");
+              Meteor.call("gameRequestAccept", "gameAccept", gameRequest._id, () => {
+                history.push(resourcePlay);
               });
             }}
             onCancel={() => {
-              Meteor.call("gameRequestDecline", "gameDecline", this.props.game_request._id);
+              Meteor.call("gameRequestDecline", "gameDecline", gameRequest._id);
             }}
           >
-            <p>{this.props.game_request.challenger} would like to play with you</p>
+            <p>
+              {translate("gameRequestModal.challangerWantsToPlay", {
+                challenger: gameRequest.challenger
+              })}
+            </p>
           </Modal>
         )}
-
-        <LeftSidebar cssManager={this.props.cssManager} />
-        <Row className={`app-wrapper__row ${this.props.className}`}>{this.props.children}</Row>
+        <LeftSidebar cssManager={cssManager} />
+        <Row className={`app-wrapper__row ${className}`}>{children}</Row>
       </div>
     );
   }
 }
 
-export default withTracker(props => {
+export default withTracker(() => {
   Meteor.subscribe("game_requests");
   return {
     game_request: GameRequestCollection.findOne(
@@ -95,4 +105,4 @@ export default withTracker(props => {
       }
     )
   };
-})(withRouter(AppWrapper));
+})(withRouter(translate("Common.appWrapper")(AppWrapper)));

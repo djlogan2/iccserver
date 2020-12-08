@@ -1,5 +1,11 @@
 {
   "Common": {
+    "appWrapper": {
+      "gameRequestModal": {
+        "gameRequest": "Game request",
+        "challangerWantsToPlay": "{$challenger} would like to play with you"
+      }
+    },
     "HomeContainer": {
       "mainContent": "お忘れ"
     },
