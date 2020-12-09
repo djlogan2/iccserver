@@ -39,7 +39,9 @@
       "resultWon": "Won",
       "resultLost": "Lost",
       "resultDrawn": "Drawn",
-      "resultUnknown": "Unknown"
+      "resultUnknown": "Unknown",
+      "playersColumn": "{$white}-vs-{$black}",
+      "pgnIconAlt": "PgnDownload"
     },
     "rightBarTop": {
       "game": "Game",

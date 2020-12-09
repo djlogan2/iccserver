@@ -2,21 +2,34 @@ import React from "react";
 import { Modal } from "antd";
 import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
+import { Table } from "antd";
+import injectSheet from "react-jss";
+import { compose } from "redux";
+import { translate } from "../../../HOCs/translate";
+import ExportPgnButton from "../Button/ExportPgnButton";
 
-const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
-  const getLang = () => {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  };
+const styles = {
+  table: {
+    width: "100%",
+    textAlign: "center",
+    border: "1px solid #f1f1f1"
+  },
+  backgroundDiv: {
+    background: "#ffffff"
+  },
+  tableDiv: {
+    overflowY: "auto",
+    width: "100%",
+    display: "block"
+  },
+  noDataDiv: {
+    maxHeight: "350px",
+    overflowY: "auto",
+    width: "350px"
+  }
+};
 
-  const translate = i18n.createTranslator("Common.gameListModal", getLang());
-
+const GameListModal = ({ gameList, isImported, history, onClose, classes, translate, ...rest }) => {
   const handleSetExaminMode = id => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported);
   };
@@ -54,72 +67,54 @@ const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
     return new Date(b.date) - new Date(a.date);
   });
 
-  const style = {
-    background: "#ffffff"
-  };
-
   return (
-    <Modal title={translate("myGames")} onCancel={onClose} footer={null} {...rest}>
-      <div style={style}>
+    <Modal title={translate("myGames")} width={1000} onCancel={onClose} footer={null} {...rest}>
+      <div className={classes.backgroundDiv}>
         {formattedGameList.length ? (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
-            <table
-              className="gamehistory"
-              style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
+          <div className={classes.tableDiv}>
+            <Table
+              className={classes.table}
+              dataSource={formattedGameList}
+              pagination={{ position: ["none", "bottomRight"] }}
+              onRow={row => ({
+                onClick: () => {
+                  handleSetExaminMode(row.id);
+                  onClose();
+                }
+              })}
             >
-              <thead>
-                <tr>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("players")}
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("result")}
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("date")}
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    {translate("pgn")}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {formattedGameList.map((game, index) => (
-                  <tr key={index} style={{ cursor: "pointer" }}>
-                    <td
-                      style={{ padding: "5px 5px" }}
-                      onClick={() => {
-                        handleSetExaminMode(game.id);
-                        onClose();
-                      }}
-                    >
-                      {game.white}-vs-{game.black}
-                    </td>
-                    <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                    <td style={{ padding: "5px 5px" }}>{game.time}</td>
-
-                    <td style={{ padding: "5px 5px" }}>
-                      <a href={"export/pgn/history/" + game.id} className="pgnbtn">
-                        <img
-                          src="images/pgnicon.png"
-                          style={{ width: "25px", height: "25px" }}
-                          alt="PgnDownload"
-                        />
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              <Table.Column
+                title={translate("players")}
+                key="players"
+                render={(text, record) =>
+                  translate("playersColumn", {
+                    white: record.white,
+                    black: record.black
+                  })
+                }
+              />
+              <Table.Column title={translate("result")} dataIndex="result" key="result" />
+              <Table.Column title={translate("date")} dataIndex="time" key="time" />
+              <Table.Column
+                title={translate("pgn")}
+                dataIndex="pgn"
+                key="pgn"
+                render={(text, record) => (
+                  <ExportPgnButton id={record.id} src={"images/pgnicon.png"} />
+                )}
+              />
+            </Table>
           </div>
         ) : (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
-            {translate("noDataFound")}
-          </div>
+          <div className={classes.noDataDiv}>{translate("noDataFound")}</div>
         )}
       </div>
     </Modal>
   );
 };
 
-export default withRouter(GameListModal);
+export default compose(
+  withRouter,
+  injectSheet(styles),
+  translate("Common.gameListModal")
+)(GameListModal);
