@@ -2,10 +2,11 @@ import React from "react";
 import { Modal } from "antd";
 import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 import { Table } from "antd";
 import injectSheet from "react-jss";
 import { compose } from "redux";
+import { translate } from "../../../HOCs/translate";
+import ExportPgnButton from "../Button/ExportPgnButton";
 
 const styles = {
   table: {
@@ -25,26 +26,10 @@ const styles = {
     maxHeight: "350px",
     overflowY: "auto",
     width: "350px"
-  },
-  pgnIcon: {
-    width: "25px",
-    height: "25px"
   }
 };
 
-const GameListModal = ({ gameList, isImported, history, onClose, classes, ...rest }) => {
-  const getLang = () => {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  };
-
-  const translate = i18n.createTranslator("Common.gameListModal", getLang());
-
+const GameListModal = ({ gameList, isImported, history, onClose, classes, translate, ...rest }) => {
   const handleSetExaminMode = id => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported);
   };
@@ -114,11 +99,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, ...res
                 title={translate("pgn")}
                 dataIndex="pgn"
                 key="pgn"
-                render={(text, record) => (
-                  <a href={"export/pgn/history/" + record.id} className="pgnbtn">
-                    <img src="images/pgnicon.png" className={classes.pgnIcon} alt="PgnDownload" />
-                  </a>
-                )}
+                render={(text, record) => <ExportPgnButton id={record.id} />}
               />
             </Table>
           </div>
@@ -132,5 +113,6 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, ...res
 
 export default compose(
   withRouter,
-  injectSheet(styles)
+  injectSheet(styles),
+  translate("Common.gameListModal")
 )(GameListModal);
