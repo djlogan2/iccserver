@@ -99,7 +99,9 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
                 title={translate("pgn")}
                 dataIndex="pgn"
                 key="pgn"
-                render={(text, record) => <ExportPgnButton id={record.id} />}
+                render={(text, record) => (
+                  <ExportPgnButton id={record.id} src={"images/pgnicon.png"} />
+                )}
               />
             </Table>
           </div>

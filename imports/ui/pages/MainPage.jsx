@@ -18,6 +18,7 @@ import {
   ActionPopup
 } from "./components/Popup/Popup";
 import i18n from "meteor/universe:i18n";
+import ExportPgnButton from "./components/Button/ExportPgnButton";
 const log = new Logger("client/MainPage");
 
 export default class MainPage extends Component {
@@ -281,13 +282,10 @@ export default class MainPage extends Component {
                       <td style={{ padding: "5px 5px" }}>{game.result}</td>
                       <td style={{ padding: "5px 5px" }}>{game.time}</td>
                       <td style={{ padding: "5px 5px" }}>
-                        <a href={"export/pgn/history/" + game.id} className="pgnbtn">
-                          <img
-                            src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
-                            style={{ width: "25px", height: "25px" }}
-                            alt="PgnDownload"
-                          />
-                        </a>
+                        <ExportPgnButton
+                          id={game.id}
+                          src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
+                        />
                       </td>
                     </tr>
                   ))}

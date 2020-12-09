@@ -7,12 +7,20 @@ const styles = {
   pgnIcon: {
     width: "25px",
     height: "25px"
+  },
+  pgnButton: {
+    display: "block",
+    padding: "3px 2px",
+    "&:hover": {
+      backgroundColor: "#2a9bdc",
+      borderRadius: "3px"
+    }
   }
 };
 
-const ExportPgnButton = ({ id, translate, classes }) => (
-  <a href={"export/pgn/history/" + id} className="pgnbtn">
-    <img src="images/pgnicon.png" className={classes.pgnIcon} alt={translate("pgnIconAlt")} />
+const ExportPgnButton = ({ id, translate, classes, src }) => (
+  <a href={"export/pgn/history/" + id} className={classes.pgnButton}>
+    <img src={src} className={classes.pgnIcon} alt={translate("pgnIconAlt")} />
   </a>
 );
 
