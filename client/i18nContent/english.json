@@ -40,7 +40,7 @@
       "resultLost": "Lost",
       "resultDrawn": "Drawn",
       "resultUnknown": "Unknown",
-      "playersColumn": "{$white}-vs{$black}"
+      "playersColumn": "{$white}-vs-{$black}"
     },
     "rightBarTop": {
       "game": "Game",

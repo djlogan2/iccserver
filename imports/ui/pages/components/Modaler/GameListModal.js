@@ -4,8 +4,35 @@ import { withRouter } from "react-router";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import { Table } from "antd";
+import injectSheet from "react-jss";
+import { compose } from "redux";
 
-const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
+const styles = {
+  table: {
+    width: "100%",
+    textAlign: "center",
+    border: "1px solid #f1f1f1"
+  },
+  backgroundDiv: {
+    background: "#ffffff"
+  },
+  tableDiv: {
+    overflowY: "auto",
+    width: "100%",
+    display: "block"
+  },
+  noDataDiv: {
+    maxHeight: "350px",
+    overflowY: "auto",
+    width: "350px"
+  },
+  pgnIcon: {
+    width: "25px",
+    height: "25px"
+  }
+};
+
+const GameListModal = ({ gameList, isImported, history, onClose, classes, ...rest }) => {
   const getLang = () => {
     return (
       (navigator.languages && navigator.languages[0]) ||
@@ -57,16 +84,11 @@ const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
 
   return (
     <Modal title={translate("myGames")} width={1000} onCancel={onClose} footer={null} {...rest}>
-      <div style={{ background: "#ffffff" }}>
+      <div className={classes.backgroundDiv}>
         {formattedGameList.length ? (
-          <div style={{ overflowY: "auto", width: "100%", display: "block" }}>
+          <div className={classes.tableDiv}>
             <Table
-              className="gamehistory"
-              style={{
-                width: "100%",
-                textAlign: "center",
-                border: "1px solid #f1f1f1"
-              }}
+              className={classes.table}
               dataSource={formattedGameList}
               pagination={{ position: ["none", "bottomRight"] }}
               onRow={row => ({
@@ -94,24 +116,21 @@ const GameListModal = ({ gameList, isImported, history, onClose, ...rest }) => {
                 key="pgn"
                 render={(text, record) => (
                   <a href={"export/pgn/history/" + record.id} className="pgnbtn">
-                    <img
-                      src="images/pgnicon.png"
-                      style={{ width: "25px", height: "25px" }}
-                      alt="PgnDownload"
-                    />
+                    <img src="images/pgnicon.png" className={classes.pgnIcon} alt="PgnDownload" />
                   </a>
                 )}
               />
             </Table>
           </div>
         ) : (
-          <div style={{ maxHeight: "350px", overflowY: "auto", width: "350px" }}>
-            {translate("noDataFound")}
-          </div>
+          <div className={classes.noDataDiv}>{translate("noDataFound")}</div>
         )}
       </div>
     </Modal>
   );
 };
 
-export default withRouter(GameListModal);
+export default compose(
+  withRouter,
+  injectSheet(styles)
+)(GameListModal);
