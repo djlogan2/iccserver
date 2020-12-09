@@ -17,18 +17,19 @@
       "haveNoAccount": "Don't have an account? ",
       "registerHere": "Register here"
     },
-    "signupForm": {"gameListModal": {
-      "myGames": "My Games",
-      "players": "Players",
-      "result": "Result",
-      "date": "Date",
-      "pgn": "PGN",
-      "noDataFound": "No data found",
-      "resultWon": "Won",
-      "resultLost": "Lost",
-      "resultDrawn": "Drawn",
-      "resultUnknown": "Unknown"
-    },
+    "signupForm": {
+      "gameListModal": {
+        "myGames": "My Games",
+        "players": "Players",
+        "result": "Result",
+        "date": "Date",
+        "pgn": "PGN",
+        "noDataFound": "No data found",
+        "resultWon": "Won",
+        "resultLost": "Lost",
+        "resultDrawn": "Drawn",
+        "resultUnknown": "Unknown"
+      },
       "signup": "お忘れでですか",
       "name": "ードをお忘",
       "email": "をお忘 ドをお忘",
@@ -86,6 +87,17 @@
       "Gamestatus": "とあ片そ",
       "examining": "Exaとあ片そmining",
       "playing": "とあ片"
+    },
+    "Community": {
+      "RoomBlock": {
+        "rooms": "Rooms",
+        "title": "Create room",
+        "plus": "+"
+      },
+      "CommunityRightBlock": {
+        "allRooms": "All rooms {$rooms}",
+        "close": "Close"
+      }
     }
   }
 }

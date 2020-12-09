@@ -6,6 +6,7 @@ import AppWrapper from "../pages/components/AppWrapper";
 import Messenger from "./components/Chat/Messenger";
 import { Button, Input, Modal } from "antd";
 import { Chat, Rooms, mongoCss } from "../../api/client/collections";
+import { translate } from "../HOCs/translate";
 
 const MessengerWithData = withTracker(props => {
   return {
@@ -16,7 +17,7 @@ const MessengerWithData = withTracker(props => {
   };
 })(Messenger);
 
-const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
+const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock, translate }) => {
   const [roomName, setRoomName] = useState("");
   const [isModal, setModal] = useState(0);
 
@@ -24,23 +25,27 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
     setRoomName("");
     setModal(false);
   };
+
   const onOk = () => {
     setRoomName("");
     setModal(false);
     onAdd(roomName);
   };
+
   return (
     <div className="room-block">
       <div className="room-block__head">
-        <h2 className="room-block__title">Rooms</h2>
-        <Modal title="Create Room" visible={!!isModal} onOk={onOk} onCancel={onCancel}>
-          <Input value={roomName} onChange={e => setRoomName(e.target.value)}/>
+        <h2 className="room-block__title">{translate("RoomBlock.rooms")}</h2>
+        <Modal
+          title={translate("RoomBlock.title")}
+          visible={!!isModal}
+          onOk={onOk}
+          onCancel={onCancel}
+        >
+          <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
         </Modal>
-        {/* <Button onClick={onOpen} className="room-block__add">
-          Add
-        </Button> */}
         <Button onClick={openRightBlock} className="room-block__plus">
-          +
+          {translate("RoomBlock.plus")}
         </Button>
       </div>
 
@@ -67,13 +72,15 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
   );
 };
 
-const CommunityRightBlock = ({ activeRoom, roomList, onChange, onClose }) => {
+const CommunityRightBlock = ({ activeRoom, roomList, onChange, onClose, translate }) => {
   return (
     <div className="room-block">
       <div className="room-block__head">
-        <h2 className="room-block__title">All rooms ({roomList.length})</h2>
+        <h2 className="room-block__title">
+          {translate("CommunityRightBlock.allRooms", { rooms: roomList.length })}
+        </h2>
         <Button onClick={onClose} className="room-block__add">
-          Close
+          {translate("CommunityRightBlock.close")}
         </Button>
       </div>
 
@@ -111,14 +118,6 @@ class Community extends Component {
     };
   }
 
-  componentWillUnmount() {
-    this.state.chat && this.state.chat.stop();
-    this.state.rooms && this.state.rooms.stop();
-    this.state.game && this.state.game.stop();
-    this.state.gameHistory && this.state.gameHistory.stop();
-    this.state.importedGame && this.state.importedGame.stop();
-  }
-
   componentDidUpdate = prevProps => {
     const { allRooms } = this.props;
 
@@ -146,7 +145,11 @@ class Community extends Component {
   };
 
   handleChangeRoom = roomId => {
-    if (this.state.activeRoom) Meteor.call("leaveRoom", "leaveRoom", this.state.activeRoom);
+    const { activeRoom } = this.state;
+
+    if (activeRoom) {
+      Meteor.call("leaveRoom", "leaveRoom", activeRoom);
+    }
     Meteor.call("joinRoom", "joinRoom", roomId);
     this.setState({ activeRoom: roomId });
   };
@@ -194,7 +197,7 @@ class Community extends Component {
   };
 
   render() {
-    const { allRooms, notMyRooms } = this.props;
+    const { allRooms, notMyRooms, translate } = this.props;
     const { isRightMenu, activeRoom } = this.state;
 
     const rightBlockWidth = isRightMenu ? "214px" : 0;
@@ -205,6 +208,7 @@ class Community extends Component {
           <RoomBlock
             activeRoom={activeRoom}
             list={allRooms}
+            translate={translate}
             onAdd={this.handleAdd}
             openRightBlock={this.handleOpenRightBlock}
             onChange={this.handleChangeRoom}
@@ -215,6 +219,7 @@ class Community extends Component {
           <CommunityRightBlock
             activeRoom={activeRoom}
             roomList={notMyRooms}
+            translate={translate}
             onAdd={this.handleAdd}
             onClose={this.handleCloseRightBlock}
             onChange={this.handleChangeRoom}
@@ -225,7 +230,7 @@ class Community extends Component {
   }
 }
 
-export default withTracker(() => {
+const CommunityWithTracker = withTracker(() => {
   const subscriptions = {
     chat: Meteor.subscribe("chat")
   };
@@ -243,3 +248,5 @@ export default withTracker(() => {
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };
 })(Community);
+
+export default translate("Common.Community")(CommunityWithTracker);
