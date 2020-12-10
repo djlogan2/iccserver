@@ -1,8 +1,10 @@
 import React from "react";
 import ChatInput from "./ChatInput";
 import MessageItem from "./MessageItem";
+import { withTracker } from "meteor/react-meteor-data";
+import { Chat } from "../../../../api/client/collections";
 
-export default ({ roomData, inputValue, messageList, onChange, onMessage }) => {
+const Messenger = ({ roomData, inputValue, messageList, onChange, onMessage }) => {
   const handleMessage = () => {
     onMessage(roomData._id);
   };
@@ -29,3 +31,14 @@ export default ({ roomData, inputValue, messageList, onChange, onMessage }) => {
     </div>
   );
 };
+
+const MessengerWithData = withTracker(props => {
+  return {
+    messageList: Chat.find({
+      type: "room",
+      id: props.roomData._id
+    }).fetch()
+  };
+})(Messenger);
+
+export default MessengerWithData;

@@ -3,32 +3,24 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import AppWrapper from "../pages/components/AppWrapper";
 
-import Messenger from "./components/Chat/Messenger";
+import MessengerWithData from "./components/Chat/Messenger";
 import { Button, Input, Modal } from "antd";
-import { Chat, Rooms, mongoCss } from "../../api/client/collections";
+import { Rooms, mongoCss } from "../../api/client/collections";
 import { translate } from "../HOCs/translate";
-
-const MessengerWithData = withTracker(props => {
-  return {
-    messageList: Chat.find({
-      type: "room",
-      id: props.roomData._id
-    }).fetch()
-  };
-})(Messenger);
 
 const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock, translate }) => {
   const [roomName, setRoomName] = useState("");
-  const [isModal, setModal] = useState(0);
+  const [isModal, setModal] = useState(false);
 
-  const onCancel = () => {
+  const handleCancel = () => {
     setRoomName("");
     setModal(false);
   };
 
-  const onOk = () => {
+  const handleOk = () => {
     setRoomName("");
     setModal(false);
+
     onAdd(roomName);
   };
 
@@ -39,8 +31,8 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock, translat
         <Modal
           title={translate("RoomBlock.title")}
           visible={!!isModal}
-          onOk={onOk}
-          onCancel={onCancel}
+          onOk={handleOk}
+          onCancel={handleCancel}
         >
           <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
         </Modal>
