@@ -6,10 +6,15 @@ import {
   labelLogout,
   labelMyGame,
   labelsToResources,
-  resourceLogin,
+  resourceLogin
 } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import _ from "lodash";
+import { compose } from "redux";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
 
 class MenuLinks extends Component {
   constructor(props) {
@@ -58,7 +63,7 @@ class MenuLinks extends Component {
                 className={!!isActive ? "active" : ""}
                 onClick={() => this.handleClick(link.label)}
               >
-                <img src={link.src} alt={link.label} />
+                <img src={link.src} alt={link.label}/>
                 {!visible && <span>{translate(link.label)}</span>}
               </a>
             </li>
@@ -69,8 +74,10 @@ class MenuLinks extends Component {
   };
 
   render() {
+    const { classes } = this.props;
+
     return (
-      <div className="menu-links">
+      <div className={classes.menuLinks}>
         <ul className="list-sidebar bg-defoult list-unstyled components desktop">
           {this.getSidebar(links)}
         </ul>
@@ -80,4 +87,13 @@ class MenuLinks extends Component {
   }
 }
 
-export default withRouter(translate("Common.menuLinkLabel")(MenuLinks));
+export default compose(
+  withRouter,
+  translate("Common.menuLinkLabel"),
+  withTracker(() => {
+    return {
+      menuLinksCss: mongoCss.findOne({ type: "menuLinks" })
+    };
+  }),
+  injectSheet(dynamicMenuLinksStyles)
+)(MenuLinks);
