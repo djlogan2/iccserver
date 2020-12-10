@@ -1,6 +1,5 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { compose } from "redux";
 
 import Home from "../../ui/pages/Home";
 import Play from "../../ui/pages/Play";
@@ -20,7 +19,7 @@ import {
   resourceCommunity
 } from "../../constants/resourceConstants";
 
-export const renderRoutes = () => (
+export const Routes = () => (
   <Router>
     <div>
       <Route path={resourceSignUp} component={SignUpPage} />

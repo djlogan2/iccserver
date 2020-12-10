@@ -22,19 +22,6 @@ export default class CssManager {
    * @param piece null, or the piece that's on the square
    * @param color null, or the color of the piece that's on the square
    */
-  sideBarLeftDeviceMenu(visible) {
-    const style = {};
-
-    console.log(1, this._systemStyle);
-    console.log(2, this._leftSideBarStyle);
-    // if (visible) {
-    //   Object.assign(style, this._leftSideBarStyle.sideBarLeftDeviceMenu);
-    // } else {
-    //   Object.assign(style, this._leftSideBarStyle.sideBarLeftDeviceMenuFliph);
-    // }
-    //
-    // return style;
-  }
 
   squareStyle(squareColor, side) {
     var style = { width: side, height: side };

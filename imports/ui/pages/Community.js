@@ -1,15 +1,11 @@
 import React, { Component, useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Logger } from "../../../lib/client/Logger";
 import AppWrapper from "../pages/components/AppWrapper";
 
 import Messenger from "./components/Chat/Messenger";
 import { Button, Input, Modal } from "antd";
 import { Chat, Rooms, mongoCss } from "../../api/client/collections";
-
-// eslint-disable-next-line no-unused-vars
-const log = new Logger("client/Community");
 
 const MessengerWithData = withTracker(props => {
   return {
@@ -38,7 +34,7 @@ const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
       <div className="room-block__head">
         <h2 className="room-block__title">Rooms</h2>
         <Modal title="Create Room" visible={!!isModal} onOk={onOk} onCancel={onCancel}>
-          <Input value={roomName} onChange={e => setRoomName(e.target.value)}/>
+          <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
         </Modal>
         {/* <Button onClick={onOpen} className="room-block__add">
           Add
@@ -191,8 +187,6 @@ class Community extends Component {
   };
 
   render() {
-    const { leftSideBarCss } = this.props;
-    console.log(leftSideBarCss);
     const rightBlockWidth = this.state.isRightMenu ? "214px" : 0;
 
     return (

@@ -3,7 +3,7 @@ import { compose } from "redux";
 import { Spin, Space, Col } from "antd";
 import injectSheet from "react-jss";
 
-import { renderRoutes } from "../imports/startup/client/routes.jsx";
+import { Routes } from "../imports/startup/client/routes.jsx";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { defaultAppStyles } from "./defaultAppStyles";
@@ -13,7 +13,7 @@ class App extends React.Component {
     const { isReady, classes } = this.props;
 
     return isReady ? (
-      <React.Fragment>{renderRoutes()}</React.Fragment>
+      <Routes />
     ) : (
       <Col span={24} className={classes.loadingSidebar}>
         <Space size="middle">

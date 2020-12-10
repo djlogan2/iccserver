@@ -3,16 +3,20 @@ import mongoCss from "../../collections/css";
 import { Meteor } from "meteor/meteor";
 
 export default function firstRunCSS() {
-  if (!Meteor.isTest && !Meteor.isAppTest && mongoCss.find().count() === 0) {
+  if (Meteor.isTest || Meteor.isAppTest) {
+    return;
+  }
+
+  if (!mongoCss.find().count()) {
     mongoCss.insert(systemcss);
     mongoCss.insert(usercss);
   }
 
-  if (!Meteor.isTest && !Meteor.isAppTest && mongoCss.find({ type: "leftSideBar" }).count() === 0) {
+  if (!mongoCss.find({ type: "leftSideBar" }).count()) {
     mongoCss.insert(leftSideBarCss);
   }
 
-  if (!Meteor.isTest && !Meteor.isAppTest && mongoCss.find({ type: "menuLinks" }).count() === 0) {
+  if (!mongoCss.find({ type: "menuLinks" }).count()) {
     mongoCss.insert(menuLinksCss);
   }
 }
