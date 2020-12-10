@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
+import { compose } from "redux";
 
 import Home from "../../ui/pages/Home";
 import Play from "../../ui/pages/Play";

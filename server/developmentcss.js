@@ -696,7 +696,11 @@ const menuLinksCss = {
   },
   menuLinkItem: {
     display: "flex",
-    marginBottom: "14px"
+    marginBottom: "14px",
+    width: "100%"
+  },
+  menuItemText: {
+    width: "100%"
   },
   acitve: {
     backgroundColor: "#2a9bdc"

@@ -14,6 +14,7 @@ import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../api/client/collections";
 import injectSheet from "react-jss";
+import classNames from "classnames";
 import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
 
 class MenuLinks extends Component {
@@ -60,7 +61,7 @@ class MenuLinks extends Component {
             <li className={classes.menuLinkItem} key={link.label}>
               <a
                 href="#"
-                className={!!isActive ? classes.active : ""}
+                className={classNames(classes.menuItemText, !!isActive ? classes.active : "")}
                 onClick={() => this.handleClick(link.label)}
               >
                 <img src={link.src} alt={link.label} />
@@ -90,7 +91,7 @@ export default compose(
   translate("Common.menuLinkLabel"),
   withTracker(() => {
     return {
-      menuLinksCss: mongoCss.findOne({ type: "menuLinks" }),
+      menuLinksCss: mongoCss.findOne({ type: "menuLinks" })
     };
   }),
   injectSheet(dynamicMenuLinksStyles)
