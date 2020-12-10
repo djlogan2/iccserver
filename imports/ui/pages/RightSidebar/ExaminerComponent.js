@@ -1,7 +1,4 @@
 import React, { Component } from "react";
-import { Meteor } from "meteor/meteor";
-
-import i18n from "meteor/universe:i18n";
 import PropTypes from "prop-types";
 
 export default class ExamineComponent extends React.Component {
@@ -57,7 +54,6 @@ export default class ExamineComponent extends React.Component {
   };
 
   handleMatchSubmit() {
-    let color = this.state.color === "random" ? null : this.state.color;
     this.setState({
       userId: null,
       user: null,
@@ -90,16 +86,16 @@ export default class ExamineComponent extends React.Component {
     const userdata = ["Joi", "Mac", "Smith", "Mannu"];
     return (
       <div>
-        <div style={this.props. cssManager.tabSeparator()} />
-        <div style={this.props. cssManager.matchUserScroll()}>
-          <SubTabs  cssManager={this.props. cssManager}>
+        <div style={this.props.cssManager.tabSeparator()} />
+        <div style={this.props.cssManager.matchUserScroll()}>
+          <SubTabs cssManager={this.props.cssManager}>
             <div label="Observer">
-              <div style={this.props. cssManager.subTabHeader()}>
+              <div style={this.props.cssManager.subTabHeader()}>
                 {userdata2.map((user, index) => (
                   <div key={index} className="userlist">
                     <button
                       onClick={this.handelUserClick.bind(this, user)}
-                      style={this.props. cssManager.matchUserButton()}
+                      style={this.props.cssManager.matchUserButton()}
                     >
                       {user}
                     </button>
@@ -109,12 +105,12 @@ export default class ExamineComponent extends React.Component {
             </div>
 
             <div label="Examiner">
-              <div style={this.props. cssManager.subTabHeader()}>
+              <div style={this.props.cssManager.subTabHeader()}>
                 {userdata.map((user, index) => (
                   <div key={index} className="userlist">
                     <button
                       onClick={this.handelUserClick.bind(this, user)}
-                      style={this.props. cssManager.matchUserButton()}
+                      style={this.props.cssManager.matchUserButton()}
                     >
                       {user}
                     </button>
@@ -132,7 +128,7 @@ export default class ExamineComponent extends React.Component {
 class SubTabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-     cssManager: PropTypes.object.isRequired
+    cssManager: PropTypes.object.isRequired
   };
 
   constructor(props) {
@@ -166,7 +162,7 @@ class SubTabs extends Component {
                 key={label}
                 label={label}
                 onClick={onClickTabItem}
-                 cssManager={this.props. cssManager}
+                cssManager={this.props.cssManager}
               />
             );
           })}

@@ -41,7 +41,11 @@ class RightBarBottomActiveTabs extends Component {
           hoverSrc="images/observers-active.png"
           default="false"
         >
-          <Observers cssManager={this.props.cssManager} clientMessage={this.props.clientMessage} game={this.props.game} />
+          <Observers
+            cssManager={this.props.cssManager}
+            clientMessage={this.props.clientMessage}
+            game={this.props.game}
+          />
         </div>
         <div
           label="Room Chat"

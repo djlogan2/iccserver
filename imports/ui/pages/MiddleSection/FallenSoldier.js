@@ -11,7 +11,7 @@ export default class FallenSoldier extends React.Component {
             key={k}
             piece={k}
             color={this.props.color}
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             side={this.props.side}
             count={soldiers[k]}
           />
@@ -34,8 +34,8 @@ class FallenSoldierSquare extends React.Component {
     } else {
       count = null;
     }
-    const side = Math.min(h, w);
-    const peiceImage = this.props. cssManager.fSquareStyle(this.props.color, this.props.piece);
+
+    const peiceImage = this.props.cssManager.fSquareStyle(this.props.color, this.props.piece);
     let imageSide = {
       width: h,
       height: w

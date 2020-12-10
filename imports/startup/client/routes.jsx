@@ -7,20 +7,29 @@ import Editor from "../../ui/pages/Editor";
 import Examine from "../../ui/pages/Examine";
 import Community from "../../ui/pages/Community";
 // pages
-import SignUpPage from "../../ui/pages/SignupPage";
-import LoginPage from "../../ui/pages/LoginPage.jsx";
+import SignUpPage from "../../ui/pages/authentication/SignupPage";
+import LoginPage from "../../ui/pages/authentication/LoginPage.jsx";
+import {
+  resourceSignUp,
+  resourceLogin,
+  resourceHome,
+  resourcePlay,
+  resourceEditor,
+  resourceExamine,
+  resourceCommunity
+} from "../../constants/resourceConstants";
 
 export const renderRoutes = () => (
   <Router>
     <div>
-      <Route path="/sign-up" component={SignUpPage} />
-      <Route path="/login" component={LoginPage} />
+      <Route path={resourceSignUp} component={SignUpPage} />
+      <Route path={resourceLogin} component={LoginPage} />
       <Route exact={true} path="/" component={Home} />
-      <Route exact={true} path="/home" component={Home} />
-      <Route exact={true} path="/play" component={Play} />
-      <Route exact={true} path="/editor" component={Editor} />
-      <Route exact={true} path="/examine" component={Examine} />
-      <Route exact={true} path="/community" component={Community} />
+      <Route exact={true} path={resourceHome} component={Home} />
+      <Route exact={true} path={resourcePlay} component={Play} />
+      <Route exact={true} path={resourceEditor} component={Editor} />
+      <Route exact={true} path={resourceExamine} component={Examine} />
+      <Route exact={true} path={resourceCommunity} component={Community} />
     </div>
   </Router>
 );

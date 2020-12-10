@@ -81,10 +81,10 @@ export default class BoardArrow extends React.Component {
   }
 
   render() {
-    const fromx = Math.min(this.props.from.x, this.props.to.x);
-    const fromy = Math.min(this.props.from.y, this.props.to.y);
-    const width = Math.abs(this.props.to.x - this.props.from.x);
-    const height = Math.abs(this.props.to.y - this.props.from.y);
+    // const fromx = Math.min(this.props.from.x, this.props.to.x);
+    // const fromy = Math.min(this.props.from.y, this.props.to.y);
+    // const width = Math.abs(this.props.to.x - this.props.from.x);
+    // const height = Math.abs(this.props.to.y - this.props.from.y);
     return (
       <canvas
         id={this._canvasId}

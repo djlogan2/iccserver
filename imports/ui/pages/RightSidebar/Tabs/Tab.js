@@ -28,11 +28,11 @@ class Tab extends Component {
       onClick,
       /*  onMouseEnter,
       onMouseLeave, */
-      props: { activeTab, label, onHover, hoverOut, src, tabListName }
+      props: { activeTab, label, src, tabListName }
     } = this;
 
     let activeTabName;
-    let hover;
+
     if (activeTab === label) {
       activeTabName = label;
     }
@@ -40,12 +40,12 @@ class Tab extends Component {
     return (
       <li
         // style={{cursor: 'pointer', display: 'block'}}
-        style={this.props. cssManager.tabListItem(activeTabName, label)}
+        style={this.props.cssManager.tabListItem(activeTabName, label)}
         onClick={onClick}
         /*    onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave} */
       >
-        <img src={src} alt="" style={this.props. cssManager.TabIcon(tabListName)} />
+        <img src={src} alt="" style={this.props.cssManager.TabIcon(tabListName)} />
         {label}
       </li>
     );

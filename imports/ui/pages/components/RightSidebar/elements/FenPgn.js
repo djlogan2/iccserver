@@ -111,7 +111,7 @@ class FenPgn extends Component {
           <label htmlFor="files" className="ant-btn fen-pgn__button ant-btn-primary">
             {" "}
             <i>
-              <img src="images/pgn-import-icon.png" />
+              <img src="images/pgn-import-icon.png" alt="pgn-import-icon" />
             </i>{" "}
             PGN Import
           </label>

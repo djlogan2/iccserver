@@ -5,14 +5,6 @@
   }
   */
   .gamehistory tr:hover {background-color:#e6e5e5;}
-  .gamehistory .pgnbtn{
-    display: block;
-    padding: 3px 2px;
-  }
-  .gamehistory .pgnbtn:hover{
-   background-color:  #2a9bdc;
-   border-radius: 3px;
-  }
   .tab-list-item {
     display: inline-block;
     list-style: none;

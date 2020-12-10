@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 /**
  * 
  * 
@@ -15,7 +15,7 @@ const FollowCoachComponent = () => (
           float: "left"
         }}
       >
-        <img src="images/user.png" style={{ width: "60px" }} />
+        <img src="images/user.png" style={{ width: "60px" }} alt="user" />
       </div>
       <div
         style={{
@@ -68,11 +68,19 @@ const FollowCoachComponent = () => (
             }}
           >
             <div style={{ width: "50%", float: "left" }}>
-              <img src="images/mail.png" style={{ width: "25px", marginRight: "10px" }} />
+              <img
+                src="images/mail.png"
+                style={{ width: "25px", marginRight: "10px" }}
+                alt="mail"
+              />
               Send Message
             </div>
             <div style={{ width: "40%", float: "left", marginLeft: "20px" }}>
-              <img src="images/followers.png" style={{ width: "25px", marginRight: "10px" }} />
+              <img
+                src="images/followers.png"
+                style={{ width: "25px", marginRight: "10px" }}
+                alt="followers"
+              />
               Follow
             </div>
           </div>

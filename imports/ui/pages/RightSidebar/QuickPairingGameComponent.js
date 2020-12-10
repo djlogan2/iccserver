@@ -57,8 +57,8 @@ export default class QuickPairingGameComponent extends React.Component {
 
     return (
       <div>
-        <div style={this.props. cssManager.tabSeparator()} />
-        <div style={this.props. cssManager.matchUserScroll()}>
+        <div style={this.props.cssManager.tabSeparator()} />
+        <div style={this.props.cssManager.matchUserScroll()}>
           <div style={{ width: "100%", float: "left", marginBottom: "20px" }}>
             <button
               style={{

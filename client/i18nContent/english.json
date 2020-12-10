@@ -1,20 +1,47 @@
 {
   "Common": {
+    "appWrapper": {
+      "gameRequestModal": {
+        "gameRequest": "Game request",
+        "challangerWantsToPlay": "{$challenger} would like to play with you"
+      }
+    },
     "HomeContainer": {
       "mainContent": "xxxx"
     },
     "loginForm": {
       "login": "Login",
-      "email": "email",
-      "password": "password",
-      "submit": "submit"
+      "email": "E-mail address",
+      "password": "Password",
+      "submit": "Submit",
+      "haveNoAccount": "Don't have an account? ",
+      "registerHere": "Register here"
     },
     "signupForm": {
       "signup": "Sign Up",
       "name": "Name",
-      "email": "Email Address",
+      "email": "E-mail address",
       "password": "Password",
-      "submit": "Submit"
+      "submit": "Submit",
+      "haveAccount": "Already have an account? ",
+      "loginHere": "Login here"
+    },
+    "leftSideBar": {
+      "noLogin": "Please login"
+    },
+    "gameListModal": {
+      "myGames": "My Games",
+      "players": "Players",
+      "result": "Result",
+      "date": "Date",
+      "pgn": "PGN",
+      "noDataFound": "No data found",
+      "resultWon": "Won",
+      "resultLost": "Lost",
+      "resultDrawn": "Drawn",
+      "resultUnknown": "Unknown",
+      "playersColumn": "{$white}-vs-{$black}",
+      "pgnIconAlt": "PgnDownload"
     },
     "rightBarTop": {
       "game": "Game",
@@ -106,19 +133,18 @@
       "NEW_MESSAGE": "NEW MESSAGE"
     }
   },
-    "Play": {
-      "PlayWithFriend": {
-        "PLAY_WITH_FRIEND": "Play with friend",
-        "BACK": "Back",
-        "FRIENDS": "Friends",
-        "CHOOSE": "Choose"
-      },
-      "PlayFriendOptions": {
-        "PLAY_WITH_FRIEND": "Play with friend",
-        "BACK": "Back",
-        "FRIENDS": "Friends",
-        "CHOOSE": "Choose"
-      }
+  "Play": {
+    "PlayWithFriend": {
+      "PLAY_WITH_FRIEND": "Play with friend",
+      "BACK": "Back",
+      "FRIENDS": "Friends",
+      "CHOOSE": "Choose"
+    },
+    "PlayFriendOptions": {
+      "PLAY_WITH_FRIEND": "Play with friend",
+      "BACK": "Back",
+      "FRIENDS": "Friends",
+      "CHOOSE": "Choose"
     }
-    
+  }
 }

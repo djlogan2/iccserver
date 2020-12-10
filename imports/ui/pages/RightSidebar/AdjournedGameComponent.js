@@ -1,6 +1,4 @@
-import React, { Component } from "react";
-import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
+import React from "react";
 
 export default class AdjournedGameComponent extends React.Component {
   getLang() {

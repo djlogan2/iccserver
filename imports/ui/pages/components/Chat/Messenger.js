@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import ChatInput from "./ChatInput";
 import MessageItem from "./MessageItem";
 
@@ -30,6 +30,3 @@ export default ({ roomData, inputValue, messageList, onChange, onMessage }) => {
     </div>
   );
 };
-
-
-

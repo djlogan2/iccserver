@@ -1,6 +1,5 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 import GameForm from "./GameForm";
 
 export default class SeekGameComponent extends React.Component {
@@ -86,10 +85,10 @@ export default class SeekGameComponent extends React.Component {
   render() {
     return (
       <div>
-        <div style={this.props. cssManager.tabSeparator()} />
-        <div style={this.props. cssManager.matchUserScroll()}>
+        <div style={this.props.cssManager.tabSeparator()} />
+        <div style={this.props.cssManager.matchUserScroll()}>
           <GameForm
-             cssManager={this.props. cssManager}
+            cssManager={this.props.cssManager}
             handleChangeMinute={this.handleChangeMinute}
             handleChangeSecond={this.handleChangeSecond}
             handleChangeGameType={this.handleChangeGameType}

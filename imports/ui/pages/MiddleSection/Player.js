@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import FallenSoldier from "./FallenSoldier";
 export default class Player extends Component {
-
   render() {
     let userpic = "player-img-top.png";
 

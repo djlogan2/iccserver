@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { Spin, Space, Col } from "antd";
 
 import AppWrapper from "./AppWrapper";

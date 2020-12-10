@@ -68,18 +68,18 @@ export default class ChatComponent extends Component {
     return (
       <div>
         {gameSeekPopup}
-        <div style={this.props. cssManager.chatContent()}>
+        <div style={this.props.cssManager.chatContent()}>
           {message ? (
             <div className="user-1">
               <h6>{translator("NEW_MESSAGE")}</h6>
               <p>
                 {message.message}
                 <button
-                  style={this.props. cssManager.buttonStyle()}
+                  style={this.props.cssManager.buttonStyle()}
                   onClick={this.removeAcknowledgeMessage.bind(this, message._id)}
                 >
                   <img
-                    src={this.props. cssManager.buttonBackgroundImage("deleteSign")}
+                    src={this.props.cssManager.buttonBackgroundImage("deleteSign")}
                     alt="deleteSign"
                   />
                 </button>
@@ -110,10 +110,10 @@ export default class ChatComponent extends Component {
             </p>
           </div>
         </div>
-        <div style={this.props. cssManager.inputBoxStyle("chat")}>
+        <div style={this.props.cssManager.inputBoxStyle("chat")}>
           <input type="text" placeholder="Message..." />
-          <button style={this.props. cssManager.buttonStyle()} type="send">
-            <img src={this.props. cssManager.buttonBackgroundImage("chatSendButton")} alt="Send" />
+          <button style={this.props.cssManager.buttonStyle()} type="send">
+            <img src={this.props.cssManager.buttonBackgroundImage("chatSendButton")} alt="Send" />
           </button>
         </div>
       </div>

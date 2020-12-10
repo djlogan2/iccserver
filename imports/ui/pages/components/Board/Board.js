@@ -50,10 +50,9 @@ export default class Board extends React.Component {
    * @param file The file of the circle to remove
    */
   removeCircle(rank, file) {
-    let newarray = this.state.circles.splice(0).filter(raf => {
-      return raf.rank !== rank || raf.file !== file;
-    });
-
+    // let newarray = this.state.circles.splice(0).filter(raf => {
+    //   return raf.rank !== rank || raf.file !== file;
+    // });
     //TODO :This code comment becouse each time state update from incomming props so not longer nessary when game examin mode.
     //If check circle in local then remove comment
     /*   this.setState({ circles: newarray }); */
@@ -303,7 +302,7 @@ export default class Board extends React.Component {
   _renderFileSquare(file) {
     return (
       <FileSquare
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         file={file}
         side={this._square_side}
         key={"filesquare-" + file}
@@ -346,7 +345,7 @@ export default class Board extends React.Component {
 
     return (
       <RankSquare
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         rank={rank}
         side={this._square_side}
         key={"ranksquare-" + rank}
@@ -384,7 +383,7 @@ export default class Board extends React.Component {
 
     return (
       <PieceSquare
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         rank={rank}
         file={file}
         key={"piece-" + file + rank}
@@ -411,7 +410,7 @@ export default class Board extends React.Component {
 
     return (
       <BoardArrow
-         cssManager={this.props. cssManager}
+        cssManager={this.props.cssManager}
         size={this.props.side}
         from={{ x: from.x, y: from.y }}
         to={{ x: to.x, y: to.y }}
