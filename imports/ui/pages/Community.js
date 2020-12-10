@@ -1,103 +1,12 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import AppWrapper from "../pages/components/AppWrapper";
 
 import MessengerWithData from "./components/Chat/Messenger";
-import { Button, Input, Modal } from "antd";
 import { Rooms, mongoCss } from "../../api/client/collections";
-import { translate } from "../HOCs/translate";
-
-const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock, translate }) => {
-  const [roomName, setRoomName] = useState("");
-  const [isModal, setModal] = useState(false);
-
-  const handleCancel = () => {
-    setRoomName("");
-    setModal(false);
-  };
-
-  const handleOk = () => {
-    setRoomName("");
-    setModal(false);
-
-    onAdd(roomName);
-  };
-
-  return (
-    <div className="room-block">
-      <div className="room-block__head">
-        <h2 className="room-block__title">{translate("RoomBlock.rooms")}</h2>
-        <Modal
-          title={translate("RoomBlock.title")}
-          visible={!!isModal}
-          onOk={handleOk}
-          onCancel={handleCancel}
-        >
-          <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
-        </Modal>
-        <Button onClick={openRightBlock} className="room-block__plus">
-          {translate("RoomBlock.plus")}
-        </Button>
-      </div>
-
-      <ul className="room-block__list">
-        {list.map(item => {
-          let itemClasses =
-            activeRoom === item._id
-              ? "room-block__list-item room-block__list-item--active"
-              : "room-block__list-item";
-          return (
-            <li
-              onClick={() => {
-                onChange(item._id);
-              }}
-              key={item._id}
-              className={itemClasses}
-            >
-              {item.name}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
-
-const CommunityRightBlock = ({ activeRoom, roomList, onChange, onClose, translate }) => {
-  return (
-    <div className="room-block">
-      <div className="room-block__head">
-        <h2 className="room-block__title">
-          {translate("CommunityRightBlock.allRooms", { rooms: roomList.length })}
-        </h2>
-        <Button onClick={onClose} className="room-block__add">
-          {translate("CommunityRightBlock.close")}
-        </Button>
-      </div>
-
-      <ul className="room-block__list">
-        {roomList.map(item => {
-          let itemClasses =
-            activeRoom === item._id
-              ? "room-block__list-item room-block__list-item--active"
-              : "room-block__list-item";
-          return (
-            <li
-              onClick={() => {
-                onChange(item._id);
-              }}
-              key={item._id}
-              className={itemClasses}
-            >
-              {item.name}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
+import RoomBlock from "./components/CommunityBlocks/RoomBlock";
+import CommunityRightBlock from "./components/CommunityBlocks/CommunityRightBlock";
 
 class Community extends Component {
   constructor(props) {
@@ -189,7 +98,7 @@ class Community extends Component {
   };
 
   render() {
-    const { allRooms, notMyRooms, translate } = this.props;
+    const { allRooms, notMyRooms } = this.props;
     const { isRightMenu, activeRoom } = this.state;
 
     const rightBlockWidth = isRightMenu ? "214px" : 0;
@@ -200,7 +109,6 @@ class Community extends Component {
           <RoomBlock
             activeRoom={activeRoom}
             list={allRooms}
-            translate={translate}
             onAdd={this.handleAdd}
             openRightBlock={this.handleOpenRightBlock}
             onChange={this.handleChangeRoom}
@@ -211,7 +119,6 @@ class Community extends Component {
           <CommunityRightBlock
             activeRoom={activeRoom}
             roomList={notMyRooms}
-            translate={translate}
             onAdd={this.handleAdd}
             onClose={this.handleCloseRightBlock}
             onChange={this.handleChangeRoom}
@@ -241,4 +148,4 @@ const CommunityWithTracker = withTracker(() => {
   };
 })(Community);
 
-export default translate("Common.Community")(CommunityWithTracker);
+export default CommunityWithTracker;
