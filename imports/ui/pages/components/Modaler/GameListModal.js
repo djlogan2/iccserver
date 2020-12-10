@@ -93,14 +93,14 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
                   })
                 }
               />
-              <Table.Column title={translate("result")} dataIndex="result" key="result" />
-              <Table.Column title={translate("date")} dataIndex="time" key="time" />
+              <Table.Column title={translate("result")} dataIndex="result" key="result"/>
+              <Table.Column title={translate("date")} dataIndex="time" key="time"/>
               <Table.Column
                 title={translate("pgn")}
                 dataIndex="pgn"
                 key="pgn"
                 render={(text, record) => (
-                  <ExportPgnButton id={record.id} src={"images/pgnicon.png"} />
+                  <ExportPgnButton id={record.id} src={"images/pgnicon.png"}/>
                 )}
               />
             </Table>

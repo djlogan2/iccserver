@@ -3,11 +3,16 @@ import { withRouter } from "react-router";
 import MenuLinks from "./MenuLinks";
 import GameListModal from "./../Modaler/GameListModal";
 import { Meteor } from "meteor/meteor";
+import { compose } from "redux";
+import injectSheet from "react-jss";
+import classNames from "classnames";
 
-import { GameHistoryCollection } from "../../../../api/client/collections";
+import { GameHistoryCollection, mongoCss } from "../../../../api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
 import { resourceLogin } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { dynamicLeftSideBarStyles } from "./dynamicLeftSidebarStyles";
 
 const log = new Logger("client/LeftSidebar_js");
 
@@ -66,7 +71,7 @@ class LeftSidebar extends Component {
   };
 
   render() {
-    const { gameHistory, examineAction, translate } = this.props;
+    const { gameHistory, examineAction, translate, classes } = this.props;
     const { visible, isMyGamesModal, gameList } = this.state;
 
     const username = !!Meteor.user() ? Meteor.user().username : translate("noLogin");
@@ -84,13 +89,18 @@ class LeftSidebar extends Component {
         <div className="sidebar__logo" />
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
         <div className="sidebar__user">
-          <img src={"../../../images/avatar.png"} alt="user avatar" className="sidebar__user-img" />
-          <span className="sidebar__user-name">{username}</span>
+          <img
+            src={"../../../images/avatar.png"}
+            alt="user avatar"
+            className={classNames(classes.sidebarUserImg)}
+          />
+          <span className={classes.sidebarUsername}>{username}</span>
         </div>
         <MenuLinks
           visible={visible}
           gameHistory={gameHistory}
           examineAction={examineAction}
+          classes={classes}
           handleRedirect={this.handleRedirect}
           onLogout={this.handleLogout}
           onMyGames={this.handleMyGames}
@@ -100,4 +110,13 @@ class LeftSidebar extends Component {
   }
 }
 
-export default withRouter(translate("Common.leftSideBar")(LeftSidebar));
+export default compose(
+  withRouter,
+  translate("Common.leftSideBar"),
+  withTracker(() => {
+    return {
+      leftSideBarCss: mongoCss.findOne({ type: "leftSideBar" })
+    };
+  }),
+  injectSheet(dynamicLeftSideBarStyles)
+)(LeftSidebar);

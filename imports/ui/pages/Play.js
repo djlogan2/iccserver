@@ -427,7 +427,6 @@ class Play extends Component {
 
 export default withTracker(() => {
   const subscriptions = {
-    css: Meteor.subscribe("css"),
     game: Meteor.subscribe("games"),
     chats: Meteor.subscribe("chat"),
     child_chat_texts: Meteor.subscribe("child_chat_texts"),

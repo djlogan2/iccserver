@@ -14,7 +14,6 @@ export default class HomeContainer extends TrackerReact(React.Component) {
     this.state = {
       isAuthenticated: Meteor.userId() !== null,
       subscription: {
-        css: Meteor.subscribe("css"),
         gameRequests: Meteor.subscribe("game_requests")
       }
     };

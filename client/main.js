@@ -1,6 +1,6 @@
 import { Meteor } from "meteor/meteor";
 import { render } from "react-dom";
-import { renderRoutes } from "../imports/startup/client/routes.jsx";
+import React from "react";
 import i18n from "meteor/universe:i18n";
 import "../lib/client/timestamp";
 import { Logger } from "../lib/client/Logger";
@@ -8,6 +8,7 @@ import { Logger } from "../lib/client/Logger";
 import english from "./i18nContent/english.json";
 import russian from "./i18nContent/russian.json";
 import japanese from "./i18nContent/japanese.json";
+import App from "./App";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("client/main_js");
@@ -87,7 +88,7 @@ Meteor.startup(() => {
   i18n.setOptions({
     defaultLocale: "en-US"
   });
-  render(renderRoutes(), document.getElementById("target"));
+  render(<App/>, document.getElementById("target"));
 
   // log sent messages
   var _send = Meteor.connection._send;

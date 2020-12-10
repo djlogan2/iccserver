@@ -19,7 +19,7 @@ import {
   resourceCommunity
 } from "../../constants/resourceConstants";
 
-export const renderRoutes = () => (
+export const Routes = () => (
   <Router>
     <div>
       <Route path={resourceSignUp} component={SignUpPage} />

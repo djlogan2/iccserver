@@ -1,15 +1,11 @@
 import React, { Component, useState } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Logger } from "../../../lib/client/Logger";
 import AppWrapper from "../pages/components/AppWrapper";
 
 import Messenger from "./components/Chat/Messenger";
 import { Button, Input, Modal } from "antd";
 import { Chat, Rooms, mongoCss } from "../../api/client/collections";
-
-// eslint-disable-next-line no-unused-vars
-const log = new Logger("client/Community");
 
 const MessengerWithData = withTracker(props => {
   return {

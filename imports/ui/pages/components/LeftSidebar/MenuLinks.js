@@ -6,10 +6,16 @@ import {
   labelLogout,
   labelMyGame,
   labelsToResources,
-  resourceLogin,
+  resourceLogin
 } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import _ from "lodash";
+import { compose } from "redux";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
+import injectSheet from "react-jss";
+import classNames from "classnames";
+import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
 
 class MenuLinks extends Component {
   constructor(props) {
@@ -44,18 +50,18 @@ class MenuLinks extends Component {
   };
 
   getSidebar = linksArray => {
-    const { history, visible, translate } = this.props;
+    const { history, visible, translate, classes } = this.props;
 
     return (
-      <ul className="list-sidebar bg-defoult list-unstyled components desktop">
+      <ul className={classes.rowStyle}>
         {linksArray.map(link => {
           const isActive = _.get(history, "location.pathname") === `/${link.link}`;
 
           return (
-            <li className="menu-link__item" key={link.label}>
+            <li className={classes.menuLinkItem} key={link.label}>
               <a
                 href="#"
-                className={!!isActive ? "active" : ""}
+                className={classNames(classes.menuItemText, !!isActive ? classes.active : "")}
                 onClick={() => this.handleClick(link.label)}
               >
                 <img src={link.src} alt={link.label} />
@@ -69,15 +75,24 @@ class MenuLinks extends Component {
   };
 
   render() {
+    const { classes } = this.props;
+
     return (
-      <div className="menu-links">
-        <ul className="list-sidebar bg-defoult list-unstyled components desktop">
-          {this.getSidebar(links)}
-        </ul>
-        <div className="menu-links__bottom">{this.getSidebar(sidebarBottom)}</div>
+      <div className={classes.menuLinks}>
+        {this.getSidebar(links)}
+        {this.getSidebar(sidebarBottom)}
       </div>
     );
   }
 }
 
-export default withRouter(translate("Common.menuLinkLabel")(MenuLinks));
+export default compose(
+  withRouter,
+  translate("Common.menuLinkLabel"),
+  withTracker(() => {
+    return {
+      menuLinksCss: mongoCss.findOne({ type: "menuLinks" })
+    };
+  }),
+  injectSheet(dynamicMenuLinksStyles)
+)(MenuLinks);
