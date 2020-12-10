@@ -2,6 +2,7 @@ import React from "react";
 import { Meteor } from "meteor/meteor";
 import { GameHistoryCollection } from "../../../api/client/collections";
 import TrackerReact from "meteor/ultimatejs:tracker-react";
+import ExportPgnButton from "../components/Button/ExportPgnButton";
 
 export default class GameHistroyComponent extends TrackerReact(React.Component) {
   constructor(props) {
@@ -86,13 +87,10 @@ export default class GameHistroyComponent extends TrackerReact(React.Component) 
                   <td style={{ padding: "5px 5px" }}>{game.result}</td>
                   <td style={{ padding: "5px 5px" }}>{game.time}</td>
                   <td style={{ padding: "5px 5px" }}>
-                    <a href={"export/pgn/history/" + game.id} className="pgnbtn">
-                      <img
-                        src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
-                        style={{ width: "25px", height: "25px" }}
-                        alt="PgnDownload"
-                      />
-                    </a>
+                    <ExportPgnButton
+                      id={game.id}
+                      src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
+                    />
                   </td>
                 </tr>
               ))}

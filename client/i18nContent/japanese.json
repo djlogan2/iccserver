@@ -18,18 +18,6 @@
       "registerHere": "Register here"
     },
     "signupForm": {
-      "gameListModal": {
-        "myGames": "My Games",
-        "players": "Players",
-        "result": "Result",
-        "date": "Date",
-        "pgn": "PGN",
-        "noDataFound": "No data found",
-        "resultWon": "Won",
-        "resultLost": "Lost",
-        "resultDrawn": "Drawn",
-        "resultUnknown": "Unknown"
-      },
       "signup": "お忘れでですか",
       "name": "ードをお忘",
       "email": "をお忘 ドをお忘",
@@ -51,7 +39,9 @@
       "resultWon": "Won",
       "resultLost": "Lost",
       "resultDrawn": "Drawn",
-      "resultUnknown": "Unknown"
+      "resultUnknown": "Unknown",
+      "playersColumn": "{$white}-vs-{$black}",
+      "pgnIconAlt": "PgnDownload"
     },
     "rightBarTop": {
       "game": "ドを",
