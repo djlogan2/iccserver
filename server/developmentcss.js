@@ -693,6 +693,19 @@ const menuLinksCss = {
     justifyContent: "space-between",
     flexGrow: 1,
     marginTop: "46px"
+  },
+  menuLinkItem: {
+    display: "flex",
+    marginBottom: "14px"
+  },
+  acitve: {
+    backgroundColor: "#2a9bdc"
+  },
+  rowStyle: {
+    paddingLeft: 0,
+    listStyle: "none",
+    marginTop: 0,
+    marginBottom: "1em"
   }
 };
 

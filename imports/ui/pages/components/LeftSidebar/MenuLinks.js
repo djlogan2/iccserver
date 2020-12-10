@@ -49,21 +49,21 @@ class MenuLinks extends Component {
   };
 
   getSidebar = linksArray => {
-    const { history, visible, translate } = this.props;
+    const { history, visible, translate, classes } = this.props;
 
     return (
-      <ul className="list-sidebar bg-defoult list-unstyled components desktop">
+      <ul className={classes.rowStyle}>
         {linksArray.map(link => {
           const isActive = _.get(history, "location.pathname") === `/${link.link}`;
 
           return (
-            <li className="menu-link__item" key={link.label}>
+            <li className={classes.menuLinkItem} key={link.label}>
               <a
                 href="#"
-                className={!!isActive ? "active" : ""}
+                className={!!isActive ? classes.active : ""}
                 onClick={() => this.handleClick(link.label)}
               >
-                <img src={link.src} alt={link.label}/>
+                <img src={link.src} alt={link.label} />
                 {!visible && <span>{translate(link.label)}</span>}
               </a>
             </li>
@@ -78,10 +78,8 @@ class MenuLinks extends Component {
 
     return (
       <div className={classes.menuLinks}>
-        <ul className="list-sidebar bg-defoult list-unstyled components desktop">
-          {this.getSidebar(links)}
-        </ul>
-        <div className="menu-links__bottom">{this.getSidebar(sidebarBottom)}</div>
+        {this.getSidebar(links)}
+        {this.getSidebar(sidebarBottom)}
       </div>
     );
   }
@@ -92,7 +90,7 @@ export default compose(
   translate("Common.menuLinkLabel"),
   withTracker(() => {
     return {
-      menuLinksCss: mongoCss.findOne({ type: "menuLinks" })
+      menuLinksCss: mongoCss.findOne({ type: "menuLinks" }),
     };
   }),
   injectSheet(dynamicMenuLinksStyles)
