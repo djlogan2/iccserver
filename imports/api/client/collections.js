@@ -12,3 +12,4 @@ export const GameHistoryCollection = new Mongo.Collection("game_history");
 export const ImportedGameCollection = new Mongo.Collection("imported_games");
 export const LegacyUsersCollection = new Mongo.Collection("legacyUsers");
 export const DynamicRatingsCollection = new Mongo.Collection("ratings");
+export const mongoClientInternationalization = new Mongo.Collection("client_internationalization");

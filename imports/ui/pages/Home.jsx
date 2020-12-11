@@ -45,7 +45,6 @@ export default class HomeContainer extends TrackerReact(React.Component) {
   componentWillUnmount() {
     const { subscription } = this.state;
 
-    subscription.css.stop();
     subscription.gameRequests.stop();
   }
 

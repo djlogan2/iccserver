@@ -79,16 +79,16 @@ Meteor.startup(() => {
   //       You can make your own collection, I suppose, but it seems to me it would make sense
   //       to put it in ClientMessages, and maybe even just use a meteor method? I'm not sure
   //       whata this package does, but you can't leave this like this.
-  flatten(english);
-  unflatten(english);
-  i18n.addTranslations("en-US", english);
-  i18n.addTranslations("ru-RU", russian);
-  i18n.addTranslations("ja", japanese);
-
-  i18n.setOptions({
-    defaultLocale: "en-US"
-  });
-  render(<App/>, document.getElementById("target"));
+  // flatten(english);
+  // unflatten(english);
+  // i18n.addTranslations("en-US", english);
+  // i18n.addTranslations("ru-RU", russian);
+  // i18n.addTranslations("ja", japanese);
+  //
+  // i18n.setOptions({
+  //   defaultLocale: "en-US"
+  // });
+  render(<App />, document.getElementById("target"));
 
   // log sent messages
   var _send = Meteor.connection._send;
