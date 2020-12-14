@@ -332,7 +332,6 @@ export default withTracker(() => {
     child_chat_texts: Meteor.subscribe("child_chat_texts"),
     clientMessages: Meteor.subscribe("client_messages"),
     game: Meteor.subscribe("games"),
-    gameHistory: Meteor.subscribe("game_history"),
     importedGame: Meteor.subscribe("imported_games"),
     users: Meteor.subscribe("loggedOnUsers"),
     userData: Meteor.subscribe("userData")
