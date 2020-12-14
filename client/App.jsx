@@ -8,7 +8,7 @@ import { Routes } from "../imports/startup/client/routes.jsx";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { defaultAppStyles } from "./defaultAppStyles";
-import { mongoClientInternationalization } from "../imports/api/client/collections";
+import { ClientInternationalizationCollection } from "../imports/api/client/collections";
 import { updateLocale } from "../imports/utils/utils";
 
 class App extends React.Component {
@@ -56,7 +56,7 @@ export default compose(
 
     return {
       isReady: isReady(),
-      i18nTranslate: mongoClientInternationalization.findOne({
+      i18nTranslate: ClientInternationalizationCollection.findOne({
         locale: lang
           .split(/[,;]/)[0]
           .toLocaleLowerCase()
