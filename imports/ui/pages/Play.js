@@ -7,8 +7,6 @@ import CssManager from "../pages/components/Css/CssManager";
 import Loading from "../pages/components/Loading";
 import PlayModaler from "../pages/components/Modaler/PlayModaler";
 import Chess from "chess.js";
-import i18n from "meteor/universe:i18n";
-import { ActionPopup } from "./components/Popup/Popup";
 import {
   ClientMessagesCollection,
   Game,
@@ -20,6 +18,7 @@ import {
 import { TimestampClient } from "../../../lib/Timestamp";
 import { findRatingObject } from "../../../lib/ratinghelpers";
 import { isReadySubscriptions } from "../../utils/utils";
+import PlayNotifier from "./components/PlayNotifier";
 
 const log = new Logger("client/Play_js");
 
@@ -28,42 +27,6 @@ let handleError = error => {
     log.error("handleError", error);
   }
 };
-
-class PlayNotifier extends Component {
-  renderActionPopup = (title, action) => {
-    return (
-      <ActionPopup
-        gameID={this.props.game._id}
-        title={title}
-        action={action}
-        cssManager={this.props.cssManager}
-      />
-    );
-  };
-
-  render() {
-    // log.trace("PlayNotifier render", this.props);
-    const translator = i18n.createTranslator("Common.MainPage", "en-US");
-
-    if (!this.props.game || !this.props.game.pending) {
-      return null;
-    }
-
-    const othercolor = Meteor.userId() === this.props.game.white.id ? "black" : "white";
-    if (this.props.game.pending[othercolor].takeback.number !== 0) {
-      let moveCount =
-        this.props.game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
-      return this.renderActionPopup(translator(moveCount), "takeBack");
-    } else if (this.props.game.pending[othercolor].draw !== "0") {
-      return this.renderActionPopup(translator("draw"), "draw");
-    } else if (this.props.game.pending[othercolor].adjourn !== "0") {
-      return this.renderActionPopup("Adjourn", "adjourn");
-    } else if (this.props.game.pending[othercolor].abort !== "0") {
-      return this.renderActionPopup(translator("abort"), "abort");
-    }
-    return null;
-  }
-}
 
 class Play extends Component {
   constructor(props) {
@@ -407,7 +370,7 @@ class Play extends Component {
           onExamine={this.handleExamine}
         />
 
-        <PlayNotifier game={this.props.in_game} userId={Meteor.userId()} cssManager={css} />
+        <PlayNotifier game={this.props.in_game} cssManager={css} />
         <PlayPage
           cssManager={css}
           board={this._board}

@@ -5,12 +5,6 @@ import { Tabs } from "antd";
 const { TabPane } = Tabs;
 
 export default class ExamineRightSidebarBottom extends Component {
-  constructor(props) {
-    super();
-  }
-
-  componentWillReceiveProps(nextProps) {}
-
   render() {
     return (
       <Tabs className="examine-right-sidebar-bottom" defaultActiveKey="1" size="small" type="card">
