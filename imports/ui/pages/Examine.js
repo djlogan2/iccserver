@@ -15,6 +15,7 @@ import {
   mongoCss,
   mongoUser
 } from "../../api/client/collections";
+import { isReadySubscriptions } from "../../utils/utils";
 
 const log = new Logger("client/Examine_js");
 
@@ -325,7 +326,6 @@ class Examine extends Component {
   }
 }
 
-//xxx
 export default withTracker(() => {
   const subscriptions = {
     chats: Meteor.subscribe("chat"),
@@ -338,13 +338,8 @@ export default withTracker(() => {
     userData: Meteor.subscribe("userData")
   };
 
-  function isready() {
-    for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
-    return true;
-  }
-
   return {
-    isready: isready(),
+    isready: isReadySubscriptions(subscriptions),
     game: Game.findOne({ "observers.id": Meteor.userId() }),
     game_request: GameRequestCollection.findOne(
       {
