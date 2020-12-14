@@ -4,8 +4,9 @@ import ChildChatInput from "./ChildChatInput";
 import MessageItem from "./MessageItem";
 
 export default class ChatApp extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
     this.state = {
       inputValue: "",
       messageList: []
@@ -19,21 +20,28 @@ export default class ChatApp extends Component {
   };
 
   handleMessage = () => {
-    let newMessage = { text: this.state.inputValue, name: "you" };
+    const { onMessage } = this.props;
+    const { inputValue, messageList } = this.state;
+
+    const newMessage = { text: inputValue, name: "you" };
+
     this.setState({
       inputValue: "",
-      messageList: [...this.state.messageList, newMessage]
+      messageList: [...messageList, newMessage]
     });
 
-    this.props.onMessage(newMessage.text);
+    onMessage(newMessage.text);
   };
 
   render() {
+    const { chats, child_chat, child_chat_texts, user } = this.props;
+    const { inputValue } = this.state;
+
     return (
       <div className="chat-app">
         <div className="chat-app__list-wrap">
           <div className="chat-app__message-list">
-            {this.props.chats.map((chatItem, i) => (
+            {chats.map((chatItem, i) => (
               <MessageItem
                 key={`message-${i}`}
                 name={chatItem.issuer.username}
@@ -43,18 +51,17 @@ export default class ChatApp extends Component {
           </div>
         </div>
         <div className="chat-app__input-bar">
-          {this.props.child_chat && (
+          {child_chat ? (
             <ChildChatInput
-              child_chat_texts={this.props.child_chat_texts}
-              user={this.props.user}
-              selected={this.state.inputValue}
+              child_chat_texts={child_chat_texts}
+              user={user}
+              selected={inputValue}
               onChange={this.handleChange}
               onMessage={this.handleMessage}
             />
-          )}
-          {!this.props.child_chat && (
+          ) : (
             <ChatInput
-              value={this.state.inputValue}
+              value={inputValue}
               onChange={this.handleChange}
               onMessage={this.handleMessage}
             />
