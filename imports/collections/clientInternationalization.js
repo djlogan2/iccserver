@@ -10,7 +10,7 @@ Meteor.publish("clientInternationalization", function(locale) {
   }).validate({ locale });
 
   const options = {
-    locale: { $in: ["en-US", "ru-RU"] }
+    locale: null
   };
 
   const acceptLanguage = locale
@@ -19,15 +19,19 @@ Meteor.publish("clientInternationalization", function(locale) {
     .replace("_", "-");
 
   if (!this.userId) {
-    options.locale.$in.push(acceptLanguage);
-
-    return mongoClientInternationalization.find(options);
+    options.locale = acceptLanguage;
   } else {
     const userIntance = Meteor.users.findOne({ _id: this.userId });
-    options.locale.$in.push(userIntance.locale);
+    options.locale = userIntance.locale;
+  }
 
+  const localeInstance = mongoClientInternationalization.findOne(options);
+
+  if (localeInstance) {
     return mongoClientInternationalization.find(options);
   }
+
+  return mongoClientInternationalization.find({ type: "en-us" });
 });
 
 export default mongoClientInternationalization;
