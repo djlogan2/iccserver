@@ -77,6 +77,17 @@
       "Gamestatus": "とあ片そ",
       "examining": "Exaとあ片そmining",
       "playing": "とあ片"
+    },
+    "Community": {
+      "RoomBlock": {
+        "rooms": "Rooms",
+        "title": "Create room",
+        "plus": "+"
+      },
+      "CommunityRightBlock": {
+        "allRooms": "All rooms {$rooms}",
+        "close": "Close"
+      }
     }
   }
 }

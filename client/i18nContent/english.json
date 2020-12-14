@@ -146,5 +146,16 @@
       "FRIENDS": "Friends",
       "CHOOSE": "Choose"
     }
+  },
+  "Community": {
+    "RoomBlock": {
+      "rooms": "Rooms",
+      "title": "Create room",
+      "plus": "+"
+    },
+    "CommunityRightBlock": {
+      "allRooms": "All rooms {$rooms}",
+      "close": "Close"
+    }
   }
 }

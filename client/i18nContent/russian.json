@@ -75,6 +75,17 @@
     },
     "chatBoxMessage": {
       "NEW_MESSAGE": "пожа ловать"
+    },
+    "Community": {
+      "RoomBlock": {
+        "rooms": "Rooms",
+        "title": "Create room",
+        "plus": "+"
+      },
+      "CommunityRightBlock": {
+        "allRooms": "All rooms {$rooms}",
+        "close": "Close"
+      }
     }
   }
 }
