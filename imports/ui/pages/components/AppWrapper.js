@@ -82,7 +82,6 @@ class AppWrapper extends Component {
 }
 
 export default withTracker(() => {
-  Meteor.subscribe("game_requests");
   return {
     game_request: GameRequestCollection.findOne(
       {

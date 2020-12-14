@@ -47,6 +47,7 @@ export default compose(
     const subscriptions = {
       css: Meteor.subscribe("css"),
       gameRequests: Meteor.subscribe("game_requests"),
+      gameHistory: Meteor.subscribe("game_history"),
       clientInternationalization: Meteor.subscribe("clientInternationalization", lang)
     };
 

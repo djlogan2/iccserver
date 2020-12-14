@@ -6,6 +6,7 @@ import AppWrapper from "../pages/components/AppWrapper";
 import Messenger from "./components/Chat/Messenger";
 import { Button, Input, Modal } from "antd";
 import { Chat, Rooms, mongoCss } from "../../api/client/collections";
+import { isReadySubscriptions } from "../../utils/utils";
 
 const MessengerWithData = withTracker(props => {
   return {
@@ -221,13 +222,8 @@ export default withTracker(() => {
     chat: Meteor.subscribe("chat")
   };
 
-  function isready() {
-    for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
-    return true;
-  }
-
   return {
-    isready: isready(),
+    isready: isReadySubscriptions(subscriptions),
     allRooms: Rooms.find().fetch(),
     notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),
