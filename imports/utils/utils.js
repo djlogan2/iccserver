@@ -7,3 +7,13 @@ export const updateLocale = locale => {
 
   return localeArray.join("-");
 };
+
+export const isReadySubscriptions = subscriptions => {
+  for (const k in subscriptions) {
+    if (!subscriptions[k].ready()) {
+      return false;
+    }
+  }
+
+  return true;
+};

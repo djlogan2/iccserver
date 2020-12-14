@@ -9,7 +9,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { defaultAppStyles } from "./defaultAppStyles";
 import { ClientInternationalizationCollection } from "../imports/api/client/collections";
-import { updateLocale } from "../imports/utils/utils";
+import { isReadySubscriptions, updateLocale } from "../imports/utils/utils";
 
 class App extends React.Component {
   render() {
@@ -46,16 +46,12 @@ export default compose(
 
     const subscriptions = {
       css: Meteor.subscribe("css"),
+      gameRequests: Meteor.subscribe("game_requests"),
       clientInternationalization: Meteor.subscribe("clientInternationalization", lang)
     };
 
-    function isReady() {
-      for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
-      return true;
-    }
-
     return {
-      isReady: isReady(),
+      isReady: isReadySubscriptions(subscriptions),
       i18nTranslate: ClientInternationalizationCollection.findOne({
         locale: lang
           .split(/[,;]/)[0]
