@@ -31,7 +31,7 @@ Meteor.publish("clientInternationalization", function(locale) {
     return mongoClientInternationalization.find(options);
   }
 
-  return mongoClientInternationalization.find({ type: "en-us" });
+  return mongoClientInternationalization.find({ locale: "en-us" });
 });
 
 export default mongoClientInternationalization;
