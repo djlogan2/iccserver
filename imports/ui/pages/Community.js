@@ -7,6 +7,7 @@ import MessengerWithData from "./components/Chat/Messenger";
 import { Rooms, mongoCss } from "../../api/client/collections";
 import RoomBlock from "./components/CommunityBlocks/RoomBlock";
 import CommunityRightBlock from "./components/CommunityBlocks/CommunityRightBlock";
+import { isReadySubscriptions } from "../../utils/utils";
 
 class Community extends Component {
   constructor(props) {
