@@ -134,13 +134,8 @@ const CommunityWithTracker = withTracker(() => {
     chat: Meteor.subscribe("chat")
   };
 
-  function isready() {
-    for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
-    return true;
-  }
-
   return {
-    isready: isready(),
+    isready: isReadySubscriptions(subscriptions),
     allRooms: Rooms.find().fetch(),
     notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),

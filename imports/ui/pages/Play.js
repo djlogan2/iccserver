@@ -19,6 +19,7 @@ import {
 } from "../../api/client/collections";
 import { TimestampClient } from "../../../lib/Timestamp";
 import { findRatingObject } from "../../../lib/ratinghelpers";
+import { isReadySubscriptions } from "../../utils/utils";
 
 const log = new Logger("client/Play_js");
 
@@ -427,29 +428,18 @@ class Play extends Component {
 
 export default withTracker(() => {
   const subscriptions = {
-    css: Meteor.subscribe("css"),
     game: Meteor.subscribe("games"),
     chats: Meteor.subscribe("chat"),
     child_chat_texts: Meteor.subscribe("child_chat_texts"),
     users: Meteor.subscribe("loggedOnUsers"),
     userData: Meteor.subscribe("userData"),
-    gameRequests: Meteor.subscribe("game_requests"),
     clientMessages: Meteor.subscribe("client_messages"),
     importedGame: Meteor.subscribe("imported_games"),
     dynamic_ratings: Meteor.subscribe("DynamicRatings")
   };
 
-  function isready() {
-    for (const k in subscriptions)
-      if (!subscriptions[k].ready()) {
-        log.error("Play render, " + k + " subscription is not ready");
-        return false;
-      }
-    return true;
-  }
-
   return {
-    isready: isready(),
+    isready: isReadySubscriptions(subscriptions),
 
     usersToPlayWith: Meteor.users
       .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })

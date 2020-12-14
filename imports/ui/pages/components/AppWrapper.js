@@ -50,14 +50,7 @@ class AppWrapper extends Component {
   }
 
   render() {
-    const {
-      history,
-      cssManager,
-      className,
-      children,
-      translate,
-      game_request: gameRequest
-    } = this.props;
+    const { history, className, children, translate, game_request: gameRequest } = this.props;
 
     return (
       <div className={`app-wrapper`}>
@@ -81,7 +74,7 @@ class AppWrapper extends Component {
             </p>
           </Modal>
         )}
-        <LeftSidebar cssManager={cssManager} />
+        <LeftSidebar />
         <Row className={`app-wrapper__row ${className}`}>{children}</Row>
       </div>
     );
@@ -89,7 +82,6 @@ class AppWrapper extends Component {
 }
 
 export default withTracker(() => {
-  Meteor.subscribe("game_requests");
   return {
     game_request: GameRequestCollection.findOne(
       {

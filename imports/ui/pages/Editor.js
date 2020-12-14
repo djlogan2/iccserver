@@ -15,6 +15,7 @@ import BoardWrapper from "./components/BoardWrapper";
 import { Logger } from "../../../lib/client/Logger";
 
 import AppWrapper from "./components/AppWrapper";
+import { isReadySubscriptions } from "../../utils/utils";
 
 const log = new Logger("client/Editor_js");
 
@@ -246,22 +247,14 @@ export default withTracker(() => {
   const subscriptions = {
     chats: Meteor.subscribe("chat"),
     clientMessages: Meteor.subscribe("client_messages"),
-    css: Meteor.subscribe("css"),
     game: Meteor.subscribe("games"),
-    gameHistory: Meteor.subscribe("game_history"),
-    gameRequests: Meteor.subscribe("game_requests"),
     importedGame: Meteor.subscribe("imported_games"),
     users: Meteor.subscribe("loggedOnUsers"),
     userData: Meteor.subscribe("userData")
   };
 
-  function isready() {
-    for (const k in subscriptions) if (!subscriptions[k].ready()) return false;
-    return true;
-  }
-
   return {
-    isready: isready(),
+    isready: isReadySubscriptions(subscriptions),
     examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
     gameHistory: GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]

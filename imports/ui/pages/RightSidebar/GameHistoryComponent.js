@@ -1,22 +1,9 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
 import { GameHistoryCollection } from "../../../api/client/collections";
-import TrackerReact from "meteor/ultimatejs:tracker-react";
 import ExportPgnButton from "../components/Button/ExportPgnButton";
 
-export default class GameHistroyComponent extends TrackerReact(React.Component) {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      subscription: {
-        gameHistory: Meteor.subscribe("game_history")
-      }
-    };
-  }
-  componentWillUnmount() {
-    this.state.subscription.gameHistory.stop();
-  }
+export default class GameHistroyComponent extends React.Component {
   getGameHistory() {
     return GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
