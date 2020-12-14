@@ -50,13 +50,7 @@ class AppWrapper extends Component {
   }
 
   render() {
-    const {
-      history,
-      className,
-      children,
-      translate,
-      game_request: gameRequest
-    } = this.props;
+    const { history, className, children, translate, game_request: gameRequest } = this.props;
 
     return (
       <div className={`app-wrapper`}>

@@ -12,6 +12,7 @@ import "../server/Chat";
 import "../server/Game";
 import "../server/GameRequest";
 import "../imports/collections/css";
+import "../imports/collections/clientInternationalization";
 import "../imports/collections/users";
 import "../lib/server/timestamp";
 import "../server/Chat";
@@ -20,6 +21,7 @@ import "../server/migrations";
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
+import firstRunClientInternationalization from "../imports/startup/server/firstRunClientInternationalization";
 
 const log = new Logger("server/main_js");
 
@@ -40,4 +42,5 @@ process.on("uncaughtException", (err, origin) => {
 Meteor.startup(() => {
   firstRunCSS();
   firstRunUsers();
+  firstRunClientInternationalization();
 });

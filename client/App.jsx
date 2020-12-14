@@ -2,15 +2,26 @@ import React from "react";
 import { compose } from "redux";
 import { Spin, Space, Col } from "antd";
 import injectSheet from "react-jss";
+import i18n from "meteor/universe:i18n";
 
 import { Routes } from "../imports/startup/client/routes.jsx";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { defaultAppStyles } from "./defaultAppStyles";
+import { ClientInternationalizationCollection } from "../imports/api/client/collections";
+import { updateLocale } from "../imports/utils/utils";
 
 class App extends React.Component {
   render() {
-    const { isReady, classes } = this.props;
+    const { isReady, classes, i18nTranslate } = this.props;
+
+    if (i18nTranslate) {
+      i18n.addTranslations(updateLocale(i18nTranslate.locale), i18nTranslate.i18n);
+
+      i18n.setOptions({
+        defaultLocale: i18nTranslate.locale
+      });
+    }
 
     return isReady ? (
       <Routes />
@@ -26,8 +37,16 @@ class App extends React.Component {
 
 export default compose(
   withTracker(() => {
+    const lang =
+      (navigator.languages && navigator.languages[0]) ||
+      navigator.language ||
+      navigator.browserLanguage ||
+      navigator.userLanguage ||
+      "en-US";
+
     const subscriptions = {
-      css: Meteor.subscribe("css")
+      css: Meteor.subscribe("css"),
+      clientInternationalization: Meteor.subscribe("clientInternationalization", lang)
     };
 
     function isReady() {
@@ -36,7 +55,13 @@ export default compose(
     }
 
     return {
-      isReady: isReady()
+      isReady: isReady(),
+      i18nTranslate: ClientInternationalizationCollection.findOne({
+        locale: lang
+          .split(/[,;]/)[0]
+          .toLocaleLowerCase()
+          .replace("_", "-")
+      })
     };
   }),
   injectSheet(defaultAppStyles)
