@@ -7,6 +7,7 @@ export default class CssManager {
     this._boardStyle = this.search("board", developmentcss);
     this._systemStyle = this.search("system", developmentcss);
   }
+
   search(typeKey, myArray) {
     for (var i = 0; i < myArray.length; i++) {
       if (myArray[i].type === typeKey) {
@@ -14,12 +15,14 @@ export default class CssManager {
       }
     }
   }
+
   /**
    *
    * @param squareColor 'b' or 'w' for the color of the square
    * @param piece null, or the piece that's on the square
    * @param color null, or the color of the piece that's on the square
    */
+
   squareStyle(squareColor, side) {
     var style = { width: side, height: side };
     if (this._boardStyle.square.all) Object.assign(style, this._boardStyle.square.all);
@@ -27,6 +30,7 @@ export default class CssManager {
 
     return style;
   }
+
   imagePeice(piece, color) {
     var style;
     if (piece && color) {
@@ -34,10 +38,12 @@ export default class CssManager {
     }
     return style;
   }
+
   imagePiecesize(side) {
     var style = { width: side, height: side };
     return style;
   }
+
   fSquareStyle(squareColor, piece, side) {
     var style = { width: side, height: side };
     if (this._boardStyle.square.all) Object.assign(style, this._boardStyle.fsquare.all);
@@ -49,6 +55,7 @@ export default class CssManager {
 
     return style;
   }
+
   flags(country) {
     var style = {};
     if (this._boardStyle.flags.all) Object.assign(style, this._boardStyle.flags.all);
@@ -62,6 +69,7 @@ export default class CssManager {
     Object.assign(style, this._boardStyle.tagLine.all);
     return style;
   }
+
   userName() {
     var style = {};
     Object.assign(style, this._boardStyle.userName.all);
@@ -73,22 +81,26 @@ export default class CssManager {
     Object.assign(style, this._boardStyle.clock.all);
     return style;
   }
+
   //This css code for Right sidebar
   settingIcon() {
     var style = {};
     Object.assign(style, this._systemStyle.settingIcon.all);
     return style;
   }
+
   rightTopContent() {
     var style = {};
     Object.assign(style, this._systemStyle.rightTopContent.all);
     return style;
   }
+
   rightBottomContent() {
     var style = {};
     Object.assign(style, this._systemStyle.rightBottomContent.all);
     return style;
   }
+
   actionButtonImage(imageName) {
     var style = {};
     /*	if (this._rightBarStyle.actionButtonImage.all)
@@ -97,67 +109,80 @@ export default class CssManager {
     Object.assign(style, this._systemStyle.actionButtonImage[imageName]);
     return style;
   }
+
   gameAnalysisIcon() {
     var style = {};
     Object.assign(style, this._systemStyle.gameAnalysisIcon.all);
     return style;
   }
+
   gameSheetDownloadIcon() {
     var style = {};
     Object.assign(style, this._systemStyle.gameSheetDownloadIcon.all);
     return style;
   }
+
   gameShareIcon() {
     var style = {};
     Object.assign(style, this._systemStyle.gameShareIcon.all);
     return style;
   }
+
   chatContent() {
     var style = {};
     Object.assign(style, this._systemStyle.chatContent.all);
     return style;
   }
+
   chatInputBox() {
     var style = {};
     Object.assign(style, this._systemStyle.chatInputBox.all);
     return style;
   }
+
   chatSendButton() {
     var style = {};
     Object.assign(style, this._systemStyle.chatSendButton.all);
     return style;
   }
+
   gameMoveList() {
     var style = {};
     Object.assign(style, this._systemStyle.gameMoveList.all);
     return style;
   }
+
   gameButtonMove() {
     var style = {};
     Object.assign(style, this._systemStyle.gameButtonMove.all);
     return style;
   }
+
   gameTopHeader() {
     var style = {};
     Object.assign(style, this._systemStyle.gameTopHeader.all);
     return style;
   }
+
   //LeftSideBarComponent MenuLink li
   showLg() {
     var style = {};
     Object.assign(style, this._systemStyle.showLg.all);
     return style;
   }
+
   tab() {
     var style = {};
     Object.assign(style, this._systemStyle.tab.all);
     return style;
   }
+
   tabList() {
     var style = {};
     Object.assign(style, this._systemStyle.tabList.all);
     return style;
   }
+
   tabContent() {
     var style = {};
     Object.assign(style, this._systemStyle.tabContent.all);
@@ -176,6 +201,7 @@ export default class CssManager {
   ribbonMoveList() {
     return {};
   }
+
   /**
    *
    * @param which Position of the text
@@ -206,6 +232,7 @@ export default class CssManager {
 
     return style;
   }
+
   externalRankStyle(side) {
     const style = { width: side / 5, height: side };
 
