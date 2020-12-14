@@ -1,105 +1,13 @@
-import React, { Component, useState } from "react";
+import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import AppWrapper from "../pages/components/AppWrapper";
 
-import Messenger from "./components/Chat/Messenger";
-import { Button, Input, Modal } from "antd";
-import { Chat, Rooms, mongoCss } from "../../api/client/collections";
+import MessengerWithData from "./components/Chat/Messenger";
+import { Rooms, mongoCss } from "../../api/client/collections";
+import RoomBlock from "./components/CommunityBlocks/RoomBlock";
+import CommunityRightBlock from "./components/CommunityBlocks/CommunityRightBlock";
 import { isReadySubscriptions } from "../../utils/utils";
-
-const MessengerWithData = withTracker(props => {
-  return {
-    messageList: Chat.find({
-      type: "room",
-      id: props.roomData._id
-    }).fetch()
-  };
-})(Messenger);
-
-const RoomBlock = ({ activeRoom, list, onChange, onAdd, openRightBlock }) => {
-  const [roomName, setRoomName] = useState("");
-  const [isModal, setModal] = useState(0);
-
-  const onCancel = () => {
-    setRoomName("");
-    setModal(false);
-  };
-  const onOk = () => {
-    setRoomName("");
-    setModal(false);
-    onAdd(roomName);
-  };
-  return (
-    <div className="room-block">
-      <div className="room-block__head">
-        <h2 className="room-block__title">Rooms</h2>
-        <Modal title="Create Room" visible={!!isModal} onOk={onOk} onCancel={onCancel}>
-          <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
-        </Modal>
-        {/* <Button onClick={onOpen} className="room-block__add">
-          Add
-        </Button> */}
-        <Button onClick={openRightBlock} className="room-block__plus">
-          +
-        </Button>
-      </div>
-
-      <ul className="room-block__list">
-        {list.map(item => {
-          let itemClasses =
-            activeRoom === item._id
-              ? "room-block__list-item room-block__list-item--active"
-              : "room-block__list-item";
-          return (
-            <li
-              onClick={() => {
-                onChange(item._id);
-              }}
-              key={item._id}
-              className={itemClasses}
-            >
-              {item.name}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
-
-const CommunityRightBlock = ({ activeRoom, roomList, onChange, onClose }) => {
-  return (
-    <div className="room-block">
-      <div className="room-block__head">
-        <h2 className="room-block__title">All rooms ({roomList.length})</h2>
-        <Button onClick={onClose} className="room-block__add">
-          Close
-        </Button>
-      </div>
-
-      <ul className="room-block__list">
-        {roomList.map(item => {
-          let itemClasses =
-            activeRoom === item._id
-              ? "room-block__list-item room-block__list-item--active"
-              : "room-block__list-item";
-          return (
-            <li
-              onClick={() => {
-                onChange(item._id);
-              }}
-              key={item._id}
-              className={itemClasses}
-            >
-              {item.name}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
 
 class Community extends Component {
   constructor(props) {
@@ -112,17 +20,11 @@ class Community extends Component {
     };
   }
 
-  componentWillUnmount() {
-    this.state.chat && this.state.chat.stop();
-    this.state.rooms && this.state.rooms.stop();
-    this.state.game && this.state.game.stop();
-    this.state.gameHistory && this.state.gameHistory.stop();
-    this.state.importedGame && this.state.importedGame.stop();
-  }
-
   componentDidUpdate = prevProps => {
-    if (prevProps.allRooms.length === 0 && this.props.allRooms.length > 0) {
-      this.setState({ activeRoom: this.props.allRooms[0]._id });
+    const { allRooms } = this.props;
+
+    if (!prevProps.allRooms.length && allRooms.length) {
+      this.setState({ activeRoom: allRooms[0]._id });
     }
   };
 
@@ -145,7 +47,11 @@ class Community extends Component {
   };
 
   handleChangeRoom = roomId => {
-    if (this.state.activeRoom) Meteor.call("leaveRoom", "leaveRoom", this.state.activeRoom);
+    const { activeRoom } = this.state;
+
+    if (activeRoom) {
+      Meteor.call("leaveRoom", "leaveRoom", activeRoom);
+    }
     Meteor.call("joinRoom", "joinRoom", roomId);
     this.setState({ activeRoom: roomId });
   };
@@ -157,10 +63,12 @@ class Community extends Component {
   };
 
   handleMessage = roomId => {
-    let newMessage = { text: this.state.inputValue, name: "you" };
+    const { inputValue, messageList } = this.state;
+    const newMessage = { text: inputValue, name: "you" };
+
     this.setState({
       inputValue: "",
-      messageList: [...this.state.messageList, newMessage]
+      messageList: [...messageList, newMessage]
     });
 
     Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, err => {
@@ -171,16 +79,19 @@ class Community extends Component {
   };
 
   renderMessenger = () => {
-    let roomList = this.props.allRooms;
-    let activeRoom = this.state.activeRoom;
-    if (roomList.length === 0 || activeRoom === null) {
-      return null;
+    const { allRooms: roomList } = this.props;
+    const { activeRoom, inputValue } = this.state;
+
+    if (!roomList.length || !activeRoom) {
+      return;
     }
-    let roomData = roomList.find(item => item._id === activeRoom);
+
+    const roomData = roomList.find(item => item._id === activeRoom);
+
     return (
       <MessengerWithData
         roomData={roomData}
-        inputValue={this.state.inputValue}
+        inputValue={inputValue}
         onChange={this.handleChange}
         onMessage={this.handleMessage}
       />
@@ -188,14 +99,17 @@ class Community extends Component {
   };
 
   render() {
-    const rightBlockWidth = this.state.isRightMenu ? "214px" : 0;
+    const { allRooms, notMyRooms } = this.props;
+    const { isRightMenu, activeRoom } = this.state;
+
+    const rightBlockWidth = isRightMenu ? "214px" : 0;
 
     return (
       <AppWrapper>
         <div className="community__sidebar">
           <RoomBlock
-            activeRoom={this.state.activeRoom}
-            list={this.props.allRooms}
+            activeRoom={activeRoom}
+            list={allRooms}
             onAdd={this.handleAdd}
             openRightBlock={this.handleOpenRightBlock}
             onChange={this.handleChangeRoom}
@@ -204,8 +118,8 @@ class Community extends Component {
         <div className="community__messenger">{this.renderMessenger()}</div>
         <div className="community__right-block" style={{ maxWidth: rightBlockWidth }}>
           <CommunityRightBlock
-            activeRoom={this.state.activeRoom}
-            roomList={this.props.notMyRooms}
+            activeRoom={activeRoom}
+            roomList={notMyRooms}
             onAdd={this.handleAdd}
             onClose={this.handleCloseRightBlock}
             onChange={this.handleChangeRoom}
@@ -213,11 +127,10 @@ class Community extends Component {
         </div>
       </AppWrapper>
     );
-    // return <div className="examine">Community</div>;
   }
 }
 
-export default withTracker(() => {
+const CommunityWithTracker = withTracker(() => {
   const subscriptions = {
     chat: Meteor.subscribe("chat")
   };
@@ -230,3 +143,5 @@ export default withTracker(() => {
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };
 })(Community);
+
+export default CommunityWithTracker;
