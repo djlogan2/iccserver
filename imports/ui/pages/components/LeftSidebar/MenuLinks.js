@@ -18,14 +18,6 @@ import classNames from "classnames";
 import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
 
 class MenuLinks extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      isAuthenticated: Meteor.userId() !== null
-    };
-  }
-
   logout = () => {
     const { history } = this.props;
 
