@@ -19,7 +19,7 @@ class App extends React.Component {
       i18n.addTranslations(updateLocale(i18nTranslate.locale), i18nTranslate.i18n);
 
       i18n.setOptions({
-        defaultLocale: i18nTranslate.locale
+        defaultLocale: updateLocale(i18nTranslate.locale)
       });
     }
 
@@ -53,12 +53,7 @@ export default compose(
 
     return {
       isReady: isReadySubscriptions(subscriptions),
-      i18nTranslate: ClientInternationalizationCollection.findOne({
-        locale: lang
-          .split(/[,;]/)[0]
-          .toLocaleLowerCase()
-          .replace("_", "-")
-      })
+      i18nTranslate: ClientInternationalizationCollection.findOne()
     };
   }),
   injectSheet(defaultAppStyles)
