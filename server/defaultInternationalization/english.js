@@ -145,6 +145,14 @@ export const english = {
       BACK: "Back",
       FRIENDS: "Friends",
       CHOOSE: "Choose"
+    },
+    PlayModaler: {
+      rematch: "Rematch",
+      examine: "Examine",
+      whiteWon: "White won!",
+      blackWon: "Black won!",
+      gameDrawn: "Game drawn!",
+      unknownResult: "Unknown result "
     }
   }
 };
