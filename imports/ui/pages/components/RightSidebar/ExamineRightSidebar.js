@@ -5,6 +5,7 @@ import ExamineRightSidebarBottom from "./elements/ExamineRightSidebarBottom";
 class ExamineRightSidebar extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       status: true,
       gameRequest: props.gameRequest
@@ -12,29 +13,43 @@ class ExamineRightSidebar extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!!this.props.gameRequest) {
-      if (nextProps.gameRequest !== this.props.gameRequest) {
-        this.setState({ gameRequest: this.props.gameRequest });
+    const { gameRequest } = this.props;
+
+    if (!!gameRequest) {
+      if (nextProps.gameRequest !== gameRequest) {
+        this.setState({ gameRequest });
       }
     }
   }
 
   render() {
+    const {
+      game,
+      allUsers,
+      observeUser,
+      unObserveUser,
+      RightSidebarData,
+      cssManager,
+      flip,
+      onPgnUpload
+    } = this.props;
+
+    const { gameRequest } = this.state;
+
     return (
       <div className="examine-right-sidebar">
         <ExamineSidebarTop
-          game={this.props.game}
-          allUsers={this.props.allUsers}
-          observeUser={this.props.observeUser}
-          unObserveUser={this.props.unObserveUser}
-          RightBarTopData={this.props.RightSidebarData}
-          cssManager={this.props.cssManager}
-          flip={this.props.flip}
-          gameRequest={this.state.gameRequest}
-          history={this.props.history}
+          game={game}
+          allUsers={allUsers}
+          observeUser={observeUser}
+          unObserveUser={unObserveUser}
+          RightBarTopData={RightSidebarData}
+          cssManager={cssManager}
+          flip={flip}
+          gameRequest={gameRequest}
           ref="right_bar_top"
         />
-        <ExamineRightSidebarBottom game={this.props.game} onPgnUpload={this.props.onPgnUpload} />
+        <ExamineRightSidebarBottom game={game} onPgnUpload={onPgnUpload} />
       </div>
     );
   }
