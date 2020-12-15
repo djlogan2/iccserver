@@ -13,7 +13,7 @@ import { ModalProvider } from "./ModalContext";
 import {
   EnhancedGameRequestPopup,
   EnhancedGameNotificationPopup,
-  GameResignedPopup,
+  EnhancedGameResignedPopup,
   EnhancedExaminActionPopup,
   ActionPopup
 } from "./components/Popup/Popup";
@@ -181,7 +181,7 @@ export default class MainPage extends Component {
   };
   GameResignedPopup = (title, mid) => {
     return (
-      <GameResignedPopup
+      <EnhancedGameResignedPopup
         mid={mid}
         title={title}
         cssManager={this.props.cssManager}

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 import { translate } from "../../../HOCs/translate";
 
 class GameRequestPopup extends Component {
@@ -286,19 +285,9 @@ class ExaminActionPopup extends Component {
 const EnhancedExaminActionPopup = translate("Common.ExaminActionPopup")(ExaminActionPopup);
 
 class GameResignedPopup extends Component {
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   render() {
-    const title = this.props.title;
-    let translator = i18n.createTranslator("Common.GameResignedPopup", this.getLang());
+    const { title, resignNotificationCloseHandler, cssManager, translate } = this.props;
+
     return (
       <div
         style={{
@@ -329,10 +318,10 @@ class GameResignedPopup extends Component {
             {title}
           </h3>
           <button
-            onClick={() => this.props.resignNotificationCloseHandler()}
-            style={this.props.cssManager.innerPopupMain()}
+            onClick={() => resignNotificationCloseHandler()}
+            style={cssManager.innerPopupMain()}
           >
-            {translator("close")}
+            {translate("close")}
           </button>
         </div>
       </div>
@@ -340,8 +329,10 @@ class GameResignedPopup extends Component {
   }
 }
 
+const EnhancedGameResignedPopup = translate("Common.GameResignedPopup")(GameResignedPopup);
+
 export {
-  GameResignedPopup,
+  EnhancedGameResignedPopup,
   EnhancedExaminActionPopup,
   EnhancedGameRequestPopup,
   ActionPopup,

@@ -14,7 +14,7 @@ import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import {
   EnhancedGameRequestPopup,
-  GameResignedPopup,
+  EnhancedGameResignedPopup,
   EnhancedExaminActionPopup,
   ActionPopup,
   EnhancedGameNotificationPopup
@@ -174,7 +174,7 @@ export default class ExaminePage extends Component {
 
   GameResignedPopup = (title, mid) => {
     return (
-      <GameResignedPopup
+      <EnhancedGameResignedPopup
         mid={mid}
         title={title}
         cssManager={this.props.cssManager}
