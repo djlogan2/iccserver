@@ -12,17 +12,13 @@ import { Col } from "antd";
 import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
-import { Logger } from "../../../../lib/client/Logger";
 import {
-  GameRequestPopup,
+  EnhancedGameRequestPopup,
   GamenotificationPopup,
   GameResignedPopup,
   ExaminActionPopup,
   ActionPopup
 } from "./Popup/Popup";
-
-// eslint-disable-next-line no-unused-vars
-const log = new Logger("client/ExaminePage");
 
 export default class ExaminePage extends Component {
   constructor(props) {
@@ -152,10 +148,11 @@ export default class ExaminePage extends Component {
   };
 
   gameRequest = (title, requestId) => {
-    return (
-      <GameRequestPopup requestId={requestId} title={title} cssManager={this.props.cssManager} />
-    );
+    const { cssManager } = this.props;
+
+    return <EnhancedGameRequestPopup requestId={requestId} title={title} cssManager={cssManager} />;
   };
+
   actionPopup = (title, action) => {
     return (
       <ActionPopup

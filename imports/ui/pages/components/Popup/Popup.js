@@ -1,25 +1,21 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
+import { translate } from "../../../HOCs/translate";
+
 class GameRequestPopup extends Component {
   gameRequestHandler = (isAccept, requestId) => {
-    if (isAccept === "gameAccept") Meteor.call("gameRequestAccept", "gameAccept", requestId);
-    else Meteor.call("gameRequestDecline", "gameDecline", requestId);
+    if (isAccept === "gameAccept") {
+      Meteor.call("gameRequestAccept", "gameAccept", requestId);
+    } else {
+      Meteor.call("gameRequestDecline", "gameDecline", requestId);
+    }
   };
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   render() {
-    const title = this.props.title;
-    const requestId = this.props.requestId;
-    let translator = i18n.createTranslator("Common.GameRequestPopup", this.getLang());
-    let style = {
+    const { title, requestId, translate, cssManager } = this.props;
+
+    const style = {
       width: "385px",
       height: "auto",
       borderRadius: "15px",
@@ -35,6 +31,7 @@ class GameRequestPopup extends Component {
       border: "1px solid #ccc",
       boxShadow: "#0000004d"
     };
+
     return (
       <div style={style}>
         <div className="popup_inner">
@@ -48,22 +45,24 @@ class GameRequestPopup extends Component {
             {title}
           </h3>
           <button
-            onClick={this.gameRequestHandler.bind(this, "gameAccept", requestId)}
-            style={this.props.cssManager.innerPopupMain()}
+            onClick={() => this.gameRequestHandler("gameAccept", requestId)}
+            style={cssManager.innerPopupMain()}
           >
-            {translator("accept")}
+            {translate("accept")}
           </button>
           <button
-            onClick={this.gameRequestHandler.bind(this, "gameDecline", requestId)}
-            style={this.props.cssManager.innerPopupMain()}
+            onClick={() => this.gameRequestHandler("gameDecline", requestId)}
+            style={cssManager.innerPopupMain()}
           >
-            {translator("decline")}
+            {translate("decline")}
           </button>
         </div>
       </div>
     );
   }
 }
+
+const EnhancedGameRequestPopup = translate("Common.GameRequestPopup")(GameRequestPopup);
 
 class ActionPopup extends Component {
   getLang() {
@@ -75,6 +74,7 @@ class ActionPopup extends Component {
       "en-US"
     );
   }
+
   responseHandler = (actionType, action, gameId) => {
     switch (action) {
       case "takeBack":
@@ -182,9 +182,11 @@ class GamenotificationPopup extends Component {
       "en-US"
     );
   }
+
   removeAcknowledgeMessage(messageId) {
     Meteor.call("acknowledge.client.message", messageId);
   }
+
   render() {
     const title = this.props.title;
     const mid = this.props.mid;
@@ -240,6 +242,7 @@ class ExaminActionPopup extends Component {
       "en-US"
     );
   }
+
   render() {
     const action = this.props.action;
     let translator = i18n.createTranslator("Common.ExaminActionPopup", this.getLang());
@@ -316,6 +319,7 @@ class GameResignedPopup extends Component {
       "en-US"
     );
   }
+
   render() {
     const title = this.props.title;
     let translator = i18n.createTranslator("Common.GameResignedPopup", this.getLang());
@@ -359,10 +363,11 @@ class GameResignedPopup extends Component {
     );
   }
 }
+
 export {
   GameResignedPopup,
   ExaminActionPopup,
-  GameRequestPopup,
+  EnhancedGameRequestPopup,
   ActionPopup,
   GamenotificationPopup
 };
