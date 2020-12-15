@@ -144,7 +144,25 @@ export const english = {
       PLAY_WITH_FRIEND: "Play with friend",
       BACK: "Back",
       FRIENDS: "Friends",
-      CHOOSE: "Choose"
+      CHOOSE: "Choose",
+      createGame: "Create game",
+      timeControl: "Time control",
+      control: {
+        inc: "Inc",
+        none: "None",
+        us: "Us",
+        bronstein: "Bronstein"
+      },
+      initial: "Initial",
+      incrementOrDelay: "Increment or delay",
+      ratingType: "Rating type",
+      color: "Color",
+      colors: {
+        random: "Random",
+        white: "White",
+        black: "Black"
+      },
+      selectOpponent: "Select opponent"
     },
     PlayModaler: {
       rematch: "Rematch",

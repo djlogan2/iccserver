@@ -11,6 +11,7 @@ import { Logger } from "../../../../../lib/client/Logger";
 import { PlayChooseBot } from "./PlayChooseBot";
 import { findRatingObject } from "../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection } from "../../../../api/client/collections";
+import { translate } from "../../../HOCs/translate";
 
 const log = new Logger("client/PlayRightSidebar");
 
@@ -58,7 +59,7 @@ const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
 class PlayFriendOptions extends Component {
   constructor(props) {
     super(props);
-    log.trace("PlayFriendOptions constructor", props);
+
     this.state = {
       color: "random",
       incrementOrDelayType: "inc",
@@ -67,19 +68,17 @@ class PlayFriendOptions extends Component {
       ratingType: "none"
     };
   }
+
   componentDidMount() {
     this.updateRating();
   }
-  handleChangeDifficulty = e => {
-    this.setState({
-      difficulty: e.target.value
-    });
-  };
+
   handleChangeColor = e => {
     this.setState({
       color: e.target.value
     });
   };
+
   handleChangeIncrementOrDelayType = e => {
     this.setState({
       incrementOrDelayType: e.target.value
@@ -88,110 +87,117 @@ class PlayFriendOptions extends Component {
 
   handleChange = inputName => {
     return number => {
-      let newState = {};
-      let that = this;
+      const newState = {};
+
       newState[inputName] = number;
+
       this.setState(newState, () => {
-        that.updateRating();
+        this.updateRating();
       });
     };
   };
 
   updateRating = () => {
-    const rating_object = findRatingObject(
+    const { initial, incrementOrDelay, incrementOrDelayType } = this.state;
+
+    const ratingObject = findRatingObject(
       0,
       "white", // Right now white and black always match, so just hard code
-      this.state.initial,
-      this.state.incrementOrDelay,
-      this.state.incrementOrDelayType,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
       DynamicRatingsCollection.find().fetch()
     );
-    this.setState({ ratingType: rating_object.rating_type });
+
+    this.setState({ ratingType: ratingObject.rating_type });
   };
 
   handlePlay = () => {
-    let color = this.state.color;
-    let ratingType = this.state.ratingType;
+    const { onPlay } = this.props;
+
+    let { color } = this.state;
+    const { ratingType, incrementOrDelayType, initial, incrementOrDelay } = this.state;
 
     if (color === "random") {
       color = Math.random() < 0.5 ? "white" : "black";
     }
-    this.props.onPlay({
-      ratingType: ratingType,
-      // skillLevel: this.state.difficulty,
-      color: color,
-      incrementOrDelayType: this.state.incrementOrDelayType,
-      initial: this.state.initial,
-      incrementOrDelay: this.state.incrementOrDelay
+    onPlay({
+      ratingType,
+      color,
+      incrementOrDelayType,
+      initial,
+      incrementOrDelay
     });
   };
 
   render() {
-    log.trace("PlayFriendOptions render", this.props);
-    let { onClose } = this.props;
+    const { onClose, translate } = this.props;
+    const { initial, incrementOrDelay, incrementOrDelayType, ratingType, color } = this.state;
+
     return (
       <div className="play-friend">
         <div className="play-friend__head">
-          <h2 className="play-friend__name-title">Create game</h2>
-          <Button onClick={onClose}>Back</Button>
+          <h2 className="play-friend__name-title">{translate("createGame")}</h2>
+          <Button onClick={onClose}>{translate("BACK")}</Button>
         </div>
         <Form
           className="play-bot__form"
           layout="vertical"
           initialValues={{
-            initial: this.state.initial,
-            incrementOrDelay: this.state.incrementOrDelay,
+            initial,
+            incrementOrDelay,
             color: "random"
           }}
         >
-          <Form.Item label="Time control" name="time-control">
+          <Form.Item label={translate("timeControl")} name="time-control">
             <Radio.Group
               onChange={this.handleChangeIncrementOrDelayType}
-              // defaultValue={this.state.incrementOrDelayType}
-              value={this.state.incrementOrDelayType}
+              value={incrementOrDelayType}
             >
-              <Radio.Button value={"inc"}>inc</Radio.Button>
-              <Radio.Button value={"none"}>none</Radio.Button>
-              <Radio.Button value={"us"}>us</Radio.Button>
-              <Radio.Button value={"bronstein"}>bronstein</Radio.Button>
+              <Radio.Button value="inc">{translate("control.inc")}</Radio.Button>
+              <Radio.Button value="none">{translate("control.none")}</Radio.Button>
+              <Radio.Button value="us">{translate("control.us")}</Radio.Button>
+              <Radio.Button value="bronstein">{translate("control.bronstein")}</Radio.Button>
             </Radio.Group>
             <div className="play-right-sidebar__inc-deley-wrap">
-              <Form.Item label="Initial" name="initial">
+              <Form.Item label={translate("initial")} name="initial">
                 <InputNumber
                   min={0}
-                  disabled={this.state.incrementOrDelayType === "none"}
-                  value={this.state.initial}
+                  disabled={incrementOrDelayType === "none"}
+                  value={initial}
                   onChange={this.handleChange("initial")}
                 />
               </Form.Item>
-              <Form.Item label="increment or delay" name="incrementOrDelay">
+              <Form.Item label={translate("incrementOrDelay")} name="incrementOrDelay">
                 <InputNumber
                   min={0}
-                  disabled={this.state.incrementOrDelayType === "none"}
-                  value={this.state.incrementOrDelay}
+                  disabled={incrementOrDelayType === "none"}
+                  value={incrementOrDelay}
                   onChange={this.handleChange("incrementOrDelay")}
                 />
               </Form.Item>
             </div>
           </Form.Item>
-          <Form.Item label="rating type" name="ratingType">
-            <p>{this.state.ratingType}</p>
+          <Form.Item label={translate("ratingType")} name="ratingType">
+            <p>{ratingType}</p>
           </Form.Item>
-          <Form.Item label="Color" name="color">
-            <Radio.Group onChange={this.handleChangeColor} value={this.state.color}>
-              <Radio.Button value={"random"}>Random</Radio.Button>
-              <Radio.Button value={"white"}>White</Radio.Button>
-              <Radio.Button value={"black"}>Black</Radio.Button>
+          <Form.Item label={translate("color")} name="color">
+            <Radio.Group onChange={this.handleChangeColor} value={color}>
+              <Radio.Button value="random">{translate("colors.random")}</Radio.Button>
+              <Radio.Button value="white">{translate("colors.white")}</Radio.Button>
+              <Radio.Button value="black">{translate("colors.black")}</Radio.Button>
             </Radio.Group>
           </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
-            Select opponent
+            {translate("selectOpponent")}
           </Button>
         </Form>
       </div>
     );
   }
 }
+
+const EnhancedPlayFriendOptions = translate("Play.PlayFriendOptions")(PlayFriendOptions);
 
 class PlayBlock extends Component {
   constructor(props) {
@@ -269,7 +275,7 @@ class PlayBlock extends Component {
     }
     if (!isPlaying && this.state.status === "play-friend-options") {
       return (
-        <PlayFriendOptions
+        <EnhancedPlayFriendOptions
           onClose={() => {
             this.setState({ status: "none" });
           }}
