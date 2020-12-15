@@ -14,10 +14,10 @@ import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import {
   EnhancedGameRequestPopup,
-  GamenotificationPopup,
   GameResignedPopup,
   ExaminActionPopup,
-  ActionPopup
+  ActionPopup,
+  EnhancedGameNotificationPopup
 } from "./Popup/Popup";
 
 export default class ExaminePage extends Component {
@@ -115,12 +115,14 @@ export default class ExaminePage extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.delayedUpdateDimensions);
   }
+
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
     });
   };
+
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
       tomove: "white",
@@ -165,8 +167,11 @@ export default class ExaminePage extends Component {
   };
 
   GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
+    return (
+      <EnhancedGameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />
+    );
   };
+
   GameResignedPopup = (title, mid) => {
     return (
       <GameResignedPopup
@@ -177,6 +182,7 @@ export default class ExaminePage extends Component {
       />
     );
   };
+
   examinActionPopup = action => {
     return (
       <ExaminActionPopup

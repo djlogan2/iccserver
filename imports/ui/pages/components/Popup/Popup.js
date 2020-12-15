@@ -163,26 +163,15 @@ class ActionPopup extends Component {
   }
 }
 
-class GamenotificationPopup extends Component {
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
+class GameNotificationPopup extends Component {
   removeAcknowledgeMessage(messageId) {
     Meteor.call("acknowledge.client.message", messageId);
   }
 
   render() {
-    const title = this.props.title;
-    const mid = this.props.mid;
-    let translator = i18n.createTranslator("Common.GamenotificationPopup", this.getLang());
-    let style = {
+    const { title, mid, translate, cssManager } = this.props;
+
+    const style = {
       width: "385px",
       height: "auto",
       borderRadius: "15px",
@@ -213,15 +202,19 @@ class GamenotificationPopup extends Component {
           </h3>
           <button
             onClick={() => this.removeAcknowledgeMessage(mid)}
-            style={this.props.cssManager.innerPopupMain()}
+            style={cssManager.innerPopupMain()}
           >
-            {translator("close")}
+            {translate("close")}
           </button>
         </div>
       </div>
     );
   }
 }
+
+const EnhancedGameNotificationPopup = translate("Common.GamenotificationPopup")(
+  GameNotificationPopup
+);
 
 class ExaminActionPopup extends Component {
   getLang() {
@@ -360,5 +353,5 @@ export {
   ExaminActionPopup,
   EnhancedGameRequestPopup,
   ActionPopup,
-  GamenotificationPopup
+  EnhancedGameNotificationPopup
 };
