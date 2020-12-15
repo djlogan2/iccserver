@@ -154,5 +154,21 @@ export const english = {
       gameDrawn: "Game drawn!",
       unknownResult: "Unknown result "
     }
+  },
+  Editor: {
+    EditorRightSidebar: {
+      backToPlay: "Back to Play",
+      boardSetUp: "Board set up",
+      whiteToPlay: "White to play",
+      blackToPlay: "Black to play",
+      castling: "Castling",
+      white: "White",
+      black: "Black",
+      startingPosition: "Starting position",
+      clearBoard: "Clear board",
+      flipBoard: "Flip board",
+      fen: "FEN",
+      insertFen: "Insert FEN here"
+    }
   }
 };
