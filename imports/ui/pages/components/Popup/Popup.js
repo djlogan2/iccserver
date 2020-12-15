@@ -65,16 +65,6 @@ class GameRequestPopup extends Component {
 const EnhancedGameRequestPopup = translate("Common.GameRequestPopup")(GameRequestPopup);
 
 class ActionPopup extends Component {
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   responseHandler = (actionType, action, gameId) => {
     switch (action) {
       case "takeBack":
@@ -100,23 +90,24 @@ class ActionPopup extends Component {
     if (isAccept === "accepted") Meteor.call("acceptTakeBack", "takeBackAccept", gameId);
     else Meteor.call("declineTakeback", "takeBackDecline", gameId);
   };
+
   draw = (isAccept, gameId) => {
     if (isAccept === "accepted") Meteor.call("acceptDraw", "drawAccept", gameId);
     else Meteor.call("declineDraw", "drawDecline", gameId);
   };
+
   abort = (isAccept, gameId) => {
     if (isAccept === "accepted") Meteor.call("acceptAbort", "abortAccept", gameId);
     else Meteor.call("declineAbort", "abortDecline", gameId);
   };
+
   adjourn = (isAccept, gameId) => {
     if (isAccept === "accepted") Meteor.call("acceptAdjourn", "adjournAccept", gameId);
     else Meteor.call("declineAdjourn", "adjournDecline", gameId);
   };
 
   render() {
-    const title = this.props.title;
-    const action = this.props.action;
-    const gameId = this.props.gameID;
+    const { title, action, cssManager, gameID: gameId } = this.props;
 
     return (
       <div style={{ position: "relative" }}>
@@ -141,27 +132,27 @@ class ActionPopup extends Component {
           }}
         >
           <img
-            src={this.props.cssManager.buttonBackgroundImage("infoIcon")}
+            src={cssManager.buttonBackgroundImage("infoIcon")}
             style={{ width: "18px", marginRight: "10px" }}
             alt="info"
           />
           <strong style={{ width: "auto", marginRight: "6px", fontSize: "14px" }}>{title}</strong>
           <button
-            onClick={this.responseHandler.bind(this, "accepted", action, gameId)}
+            onClick={() => this.responseHandler("accepted", action, gameId)}
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
             <img
-              src={this.props.cssManager.buttonBackgroundImage("checkedIcon")}
+              src={cssManager.buttonBackgroundImage("checkedIcon")}
               style={{ width: "18px" }}
               alt="accept"
             />
           </button>
           <button
-            onClick={this.responseHandler.bind(this, "rejected", action, gameId)}
+            onClick={() => this.responseHandler("rejected", action, gameId)}
             style={{ backgroundColor: "transparent", border: "0px" }}
           >
             <img
-              src={this.props.cssManager.buttonBackgroundImage("closeIcon")}
+              src={cssManager.buttonBackgroundImage("closeIcon")}
               style={{ width: "15px" }}
               alt="close"
             />
