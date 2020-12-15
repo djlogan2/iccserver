@@ -11,10 +11,10 @@ import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
 import { ModalProvider } from "./ModalContext";
 import {
-  GameRequestPopup,
-  GamenotificationPopup,
+  EnhancedGameRequestPopup,
+  EnhancedGameNotificationPopup,
   GameResignedPopup,
-  ExaminActionPopup,
+  EnhancedExaminActionPopup,
   ActionPopup
 } from "./components/Popup/Popup";
 import i18n from "meteor/universe:i18n";
@@ -156,7 +156,11 @@ export default class MainPage extends Component {
 
   gameRequest = (title, requestId) => {
     return (
-      <GameRequestPopup requestId={requestId} title={title} cssManager={this.props.cssManager} />
+      <EnhancedGameRequestPopup
+        requestId={requestId}
+        title={title}
+        cssManager={this.props.cssManager}
+      />
     );
   };
   actionPopup = (title, action) => {
@@ -170,8 +174,10 @@ export default class MainPage extends Component {
     );
   };
 
-  GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
+  EnhancedGameNotificationPopup = (title, mid) => {
+    return (
+      <EnhancedGameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />
+    );
   };
   GameResignedPopup = (title, mid) => {
     return (
@@ -185,7 +191,7 @@ export default class MainPage extends Component {
   };
   examinActionPopup = action => {
     return (
-      <ExaminActionPopup
+      <EnhancedExaminActionPopup
         action={action}
         cssManager={this.props.cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
@@ -442,14 +448,13 @@ export default class MainPage extends Component {
           }
         }
       }
-    } else {
-      status = "idlemode";
     }
+
     if (!!this.props.GameHistory) {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
     }
     if (!!this.props.clientMessage) {
-      informativePopup = this.GamenotificationPopup(
+      informativePopup = this.EnhancedGameNotificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id
       );

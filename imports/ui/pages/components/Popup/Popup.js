@@ -217,20 +217,10 @@ const EnhancedGameNotificationPopup = translate("Common.GamenotificationPopup")(
 );
 
 class ExaminActionPopup extends Component {
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   render() {
-    const action = this.props.action;
-    let translator = i18n.createTranslator("Common.ExaminActionPopup", this.getLang());
-    let style = {
+    const { action, translate, examinActionCloseHandler, cssManager } = this.props;
+
+    const style = {
       width: "385px",
       height: "auto",
       borderRadius: "15px",
@@ -251,19 +241,19 @@ class ExaminActionPopup extends Component {
         <div style={style}>
           <div className="popup_inner">
             <div>
-              <label>{translator("email")}</label>
+              <label>{translate("email")}</label>
               <input type="text" name="email" />
             </div>
             <div>
-              <label>{translator("complaint")}</label>
+              <label>{translate("complaint")}</label>
               <textarea name="complaint" rows="4" cols="35" />
             </div>
             <div>
               <button
-                onClick={() => this.props.examinActionCloseHandler()}
-                style={this.props.cssManager.innerPopupMain()}
+                onClick={() => examinActionCloseHandler()}
+                style={cssManager.innerPopupMain()}
               >
-                {translator("submit")}
+                {translate("submit")}
               </button>
             </div>
           </div>
@@ -274,16 +264,16 @@ class ExaminActionPopup extends Component {
         <div style={style}>
           <div className="popup_inner">
             <div>
-              <label>{translator("email")}</label>
+              <label>{translate("email")}</label>
               <input type="text" name="email" />
             </div>
 
             <div>
               <button
-                onClick={() => this.props.examinActionCloseHandler()}
-                style={this.props.cssManager.innerPopupMain()}
+                onClick={() => examinActionCloseHandler()}
+                style={cssManager.innerPopupMain()}
               >
-                {translator("submit")}
+                {translate("submit")}
               </button>
             </div>
           </div>
@@ -292,6 +282,8 @@ class ExaminActionPopup extends Component {
     }
   }
 }
+
+const EnhancedExaminActionPopup = translate("Common.ExaminActionPopup")(ExaminActionPopup);
 
 class GameResignedPopup extends Component {
   getLang() {
@@ -350,7 +342,7 @@ class GameResignedPopup extends Component {
 
 export {
   GameResignedPopup,
-  ExaminActionPopup,
+  EnhancedExaminActionPopup,
   EnhancedGameRequestPopup,
   ActionPopup,
   EnhancedGameNotificationPopup

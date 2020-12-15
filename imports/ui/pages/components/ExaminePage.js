@@ -15,7 +15,7 @@ import BoardWrapper from "./BoardWrapper";
 import {
   EnhancedGameRequestPopup,
   GameResignedPopup,
-  ExaminActionPopup,
+  EnhancedExaminActionPopup,
   ActionPopup,
   EnhancedGameNotificationPopup
 } from "./Popup/Popup";
@@ -185,7 +185,7 @@ export default class ExaminePage extends Component {
 
   examinActionPopup = action => {
     return (
-      <ExaminActionPopup
+      <EnhancedExaminActionPopup
         action={action}
         cssManager={this.props.cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
