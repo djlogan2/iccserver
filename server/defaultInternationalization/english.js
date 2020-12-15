@@ -156,6 +156,12 @@ export const english = {
       initial: "Initial",
       incrementOrDelay: "Increment or delay",
       ratingType: "Rating type",
+      ratings: {
+        none: "None",
+        bullet: "Bullet",
+        blitz: "Blitz",
+        standard: "Standard"
+      },
       color: "Color",
       colors: {
         random: "Random",
@@ -163,6 +169,34 @@ export const english = {
         black: "Black"
       },
       selectOpponent: "Select opponent"
+    },
+    PlayChooseBot: {
+      colors: {
+        random: "Random",
+        white: "White",
+        black: "Black"
+      },
+      ratings: {
+        none: "None",
+        bullet: "Bullet",
+        blitz: "Blitz",
+        standard: "Standard"
+      },
+      playWithComputer: "Play with computer",
+      back: "Back",
+      difficulty: "Difficulty",
+      color: "Color",
+      timeControl: "Time control",
+      control: {
+        inc: "Inc",
+        none: "None",
+        us: "Us",
+        bronstein: "Bronstein"
+      },
+      initial: "Initial",
+      incrementOrDelay: "Increment or delay",
+      ratingType: "Rating type",
+      startTheGame: "Start the game"
     },
     PlayModaler: {
       rematch: "Rematch",

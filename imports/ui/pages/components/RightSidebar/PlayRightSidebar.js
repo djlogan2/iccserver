@@ -8,7 +8,7 @@ import { GameControlBlock } from "./elements/GameControlBlock";
 
 import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../../../lib/client/Logger";
-import { PlayChooseBot } from "./PlayChooseBot";
+import PlayChooseBot from "./PlayChooseBot";
 import { findRatingObject } from "../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection } from "../../../../api/client/collections";
 import { translate } from "../../../HOCs/translate";
@@ -179,7 +179,7 @@ class PlayFriendOptions extends Component {
             </div>
           </Form.Item>
           <Form.Item label={translate("ratingType")} name="ratingType">
-            <p>{ratingType}</p>
+            <p>{translate(`ratings.${ratingType}`)}</p>
           </Form.Item>
           <Form.Item label={translate("color")} name="color">
             <Radio.Group onChange={this.handleChangeColor} value={color}>
