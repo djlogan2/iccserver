@@ -6,55 +6,16 @@ import PersonalChatApp from "./../Chat/PersonalChatApp";
 import GameHistory from "./elements/GameHistory";
 import { GameControlBlock } from "./elements/GameControlBlock";
 
-import i18n from "meteor/universe:i18n";
 import { Logger } from "../../../../../lib/client/Logger";
 import PlayChooseBot from "./PlayChooseBot";
 import { findRatingObject } from "../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection } from "../../../../api/client/collections";
 import { translate } from "../../../HOCs/translate";
+import PlayWithFriend from "./PlayWithFriend";
 
 const log = new Logger("client/PlayRightSidebar");
 
-const getLang = () => {
-  return (
-    (navigator.languages && navigator.languages[0]) ||
-    navigator.language ||
-    navigator.browserLanguage ||
-    navigator.userLanguage ||
-    "en-US"
-  );
-};
-
 const { TabPane } = Tabs;
-
-const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith }) => {
-  let translator = i18n.createTranslator("Play.PlayWithFriend", getLang());
-  return (
-    <div className="play-friend">
-      <div className="play-friend__head">
-        <h2 className="play-friend__name-title">{translator("PLAY_WITH_FRIEND")}</h2>
-        <Button onClick={onClose}>{translator("BACK")}</Button>
-      </div>
-      <h3 className="play-friend__header">{translator("FRIENDS")}</h3>
-      <ul className="play-friend__list">
-        {usersToPlayWith.map(userItem => {
-          return (
-            <li key={userItem.username} className="play-friend__list-item">
-              {userItem.username}{" "}
-              <Button
-                onClick={() => {
-                  onChoose(userItem._id);
-                }}
-              >
-                {translator("CHOOSE")}
-              </Button>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-};
 
 class PlayFriendOptions extends Component {
   constructor(props) {
