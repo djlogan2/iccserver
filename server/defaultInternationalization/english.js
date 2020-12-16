@@ -240,5 +240,18 @@ export const english = {
       fen: "FEN",
       insertFen: "Insert FEN here"
     }
+  },
+  Examine: {
+    ExamineObserveTab: {
+      findUsers: "Find user to observe",
+      observe: "Observe"
+    },
+    ExamineObserverTabBlock: {
+      observing: "{$quantity} people are observing {$username}'s board",
+      unobserve: "Unobserver"
+    },
+    ExamineOwnerTabBlock: {
+      observing: "{$quantity} people are observing this board"
+    }
   }
 };
