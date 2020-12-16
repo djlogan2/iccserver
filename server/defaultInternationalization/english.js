@@ -252,6 +252,14 @@ export const english = {
     },
     ExamineOwnerTabBlock: {
       observing: "{$quantity} people are observing this board"
+    },
+    ExamineRightSidebarBottom: {
+      tabs: {
+        chat: "Chat",
+        fenPgn: "FEN/PGN",
+        games: "Games"
+      },
+      workInProgress: "Work in progress..."
     }
   },
   Community: {

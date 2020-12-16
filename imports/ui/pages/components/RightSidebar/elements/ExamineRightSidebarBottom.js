@@ -2,22 +2,28 @@ import React, { Component } from "react";
 import KibitzChatApp from "./../../Chat/KibitzChatApp";
 import FenPgn from "./FenPgn";
 import { Tabs } from "antd";
+import { translate } from "../../../../HOCs/translate";
+
 const { TabPane } = Tabs;
 
-export default class ExamineRightSidebarBottom extends Component {
+class ExamineRightSidebarBottom extends Component {
   render() {
+    const { game, onPgnUpload, translate } = this.props;
+
     return (
       <Tabs className="examine-right-sidebar-bottom" defaultActiveKey="1" size="small" type="card">
-        <TabPane tab={"Chat"} key="chat">
-          <KibitzChatApp isKibitz={true} gameId={this.props.game._id} />
+        <TabPane tab={translate("tabs.chat")} key="chat">
+          <KibitzChatApp isKibitz={true} gameId={game._id} />
         </TabPane>
-        <TabPane tab="FEN/PGN" key="fen-png">
-          <FenPgn game={this.props.game} onPgnUpload={this.props.onPgnUpload} />
+        <TabPane tab={translate("tabs.fenPgn")} key="fen-png">
+          <FenPgn game={game} onPgnUpload={onPgnUpload} />
         </TabPane>
-        <TabPane tab="Games" key="games">
-          <div className="examine-sidebar-game">work in progress</div>
+        <TabPane tab={translate("tabs.games")} key="games">
+          <div className="examine-sidebar-game">{translate("workInProgress")}</div>
         </TabPane>
       </Tabs>
     );
   }
 }
+
+export default translate("Examine.ExamineRightSidebarBottom")(ExamineRightSidebarBottom);
