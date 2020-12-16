@@ -45,6 +45,9 @@ export const english = {
     },
     rightBarTop: {
       game: "Game",
+      observe: "Observe",
+      editor: "Editor",
+      playComputer: "Play computer from here",
       play: "Play",
       tournaments: "Tournaments",
       quikpairing: "Quick Pairing",
