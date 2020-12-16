@@ -94,27 +94,31 @@ class LocationControls extends Component {
 }
 
 class ActionControls extends Component {
-  constructor() {
-    super();
-    this.state = {};
-  }
-
   handleTakeback = () => {
-    Meteor.call("requestTakeback", "requestTakeback", this.props.game._id, 1, handleError);
+    const { game } = this.props;
+
+    Meteor.call("requestTakeback", "requestTakeback", game._id, 1, handleError);
   };
 
   handleResign = () => {
+    const { game } = this.props;
     // resignGame
-    Meteor.call("resignGame", "resignGame", this.props.game._id, handleError);
+    Meteor.call("resignGame", "resignGame", game._id, handleError);
   };
   handleDraw = () => {
-    Meteor.call("requestToDraw", "requestToDraw", this.props.game._id, handleError);
+    const { game } = this.props;
+
+    Meteor.call("requestToDraw", "requestToDraw", game._id, handleError);
   };
   handleAdjorn = () => {
-    Meteor.call("requestToAdjourn", "requestToAdjourn", this.props.game._id, handleError);
+    const { game } = this.props;
+
+    Meteor.call("requestToAdjourn", "requestToAdjourn", game._id, handleError);
   };
   handleAbort = () => {
-    Meteor.call("requestToAbort", "requestToAbort", this.props.game._id, handleError);
+    const { game } = this.props;
+
+    Meteor.call("requestToAbort", "requestToAbort", game._id, handleError);
   };
 
   render() {
