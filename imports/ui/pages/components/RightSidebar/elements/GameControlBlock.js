@@ -11,25 +11,32 @@ let handleError = error => {
 };
 
 class LocationControls extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
     this.state = {
       cmi: 0
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.game.variations.cmi !== this.props.game.variations.cmi) {
+    const { game } = this.props;
+
+    if (nextProps.game.variations.cmi !== game.variations.cmi) {
       this.setState({ cmi: nextProps.game.variations.cmi });
     }
   }
 
   moveBackwordBeginning = () => {
-    Meteor.call("moveToCMI", "moveToCMI", this.props.game._id, 0);
+    const { game } = this.props;
+
+    Meteor.call("moveToCMI", "moveToCMI", game._id, 0);
   };
 
   moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.props.game._id, 1, handleError);
+    const { game } = this.props;
+
+    Meteor.call("moveBackward", "MoveBackward", game._id, 1, handleError);
   };
 
   moveForward = () => {
@@ -60,6 +67,8 @@ class LocationControls extends Component {
   };
 
   render() {
+    const { flip } = this.props;
+
     return (
       <div className="location-controls">
         <button
@@ -78,10 +87,7 @@ class LocationControls extends Component {
           onClick={this.moveForwardEnd}
           className="location-controls__item location-controls__item--end"
         />
-        <button
-          onClick={this.props.flip}
-          className="location-controls__item location-controls__item--flip"
-        />
+        <button onClick={flip} className="location-controls__item location-controls__item--flip" />
       </div>
     );
   }
