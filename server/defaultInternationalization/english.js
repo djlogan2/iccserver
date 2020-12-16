@@ -210,6 +210,19 @@ export const english = {
       createGame: "Create a game",
       playWithFriend: "Play with a friend",
       playWithComputer: "Play with the computer"
+    },
+    ObserveBlock: {
+      inProgress: "Work in progress"
+    },
+    PlayRightSidebar: {
+      tabs: {
+        playTab: "Play",
+        observeTab: "Observe"
+      },
+      bottomTabs: {
+        chatTab: "Chat",
+        kibitzTab: "Kibitz"
+      }
     }
   },
   Editor: {
