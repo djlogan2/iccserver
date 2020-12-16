@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { Input, Button, notification } from "antd";
 import { Meteor } from "meteor/meteor";
+import { get } from "lodash";
+
+import { translate } from "../../../../HOCs/translate";
 
 import { Logger } from "../../../../../../lib/client/Logger";
 import { ImportedPgnFiles } from "../../../../../../lib/client/importpgnfiles";
@@ -13,21 +16,20 @@ const { TextArea } = Input;
 class FenPgn extends Component {
   constructor(props) {
     super(props);
-    this.state = { pgn: "" };
+
+    this.state = {
+      pgn: ""
+    };
   }
 
   componentDidMount() {
     this.loadPgn();
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   if (nextProps.game.variations.movelist.length !== this.props.game.variations.movelist.length) {
-  //     this.loadPgn();
-  //   }
-  // }
-
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.game.variations.movelist.length !== this.props.game.variations.movelist.length) {
+    const { game } = this.props;
+
+    if (prevProps.game.variations.movelist.length !== game.variations.movelist.length) {
       this.loadPgn();
     }
   }
@@ -39,14 +41,17 @@ class FenPgn extends Component {
   };
 
   loadPgn = () => {
-    const pgn = exportGameObjectToPGN(this.props.game);
+    const { game } = this.props;
+
+    const pgn = exportGameObjectToPGN(game);
     this.setState({ pgn: pgn.pgn });
   };
 
   handleFenChange = e => {
-    let newFen = e.target.value;
+    const { game } = this.props;
+    const newFen = get(e, "target.value");
 
-    Meteor.call("loadFen", "loadFen", this.props.game._id, newFen, err => {
+    Meteor.call("loadFen", "loadFen", game._id, newFen, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -54,29 +59,33 @@ class FenPgn extends Component {
   };
 
   handlePgnChange = e => {
-    if (!e.target.value || !e.target.value.length) return;
-    Meteor.call("importPGNIntoExaminedGame", "ipieg", this.props.game._id, e.target.value, err => {
-      if (err) {
-        log.error(err.reason);
-      }
-    });
+    const { game } = this.props;
+    const pgn = get(e, "target.value");
+
+    if (pgn && pgn.length) {
+      Meteor.call("importPGNIntoExaminedGame", "ipieg", game._id, pgn, err => {
+        if (err) {
+          log.error(err.reason);
+        }
+      });
+    }
   };
 
   changeFilehandler = event => {
-    let file = event.target.files[0];
-    let self = this;
+    const { onPgnUpload } = this.props;
+    const file = get(event, "target.files[0]");
 
     if (!!file) {
       ImportedPgnFiles.insert({
-        file: file,
+        file,
         meta: {
           creatorId: Meteor.userId()
         },
         transport: "http",
         onUploaded: (err, fileRef) => {
           debugger;
-          self.props.onPgnUpload(fileRef);
-          self.handlePgnLoaded();
+          onPgnUpload(fileRef);
+          this.handlePgnLoaded();
         },
         streams: "dynamic",
         chunkSize: "dynamic"
@@ -85,35 +94,37 @@ class FenPgn extends Component {
   };
 
   render() {
+    const { translate, game } = this.props;
+    const { pgn } = this.state;
+
     return (
       <div className="fen-png">
         <div className="fen-png__content">
-          <label>FEN</label>
+          <label>{translate("fen")}</label>
           <Input
-            value={this.props.game.fen}
+            value={game.fen}
             onChange={this.handleFenChange}
-            placeholder="Your message"
+            placeholder={translate("yourMessage")}
           />
-          <label>PGN</label>
+          <label>{translate("pgn")}</label>
           <TextArea
             row={4}
-            value={this.state.pgn}
+            value={pgn}
             onChange={this.handlePgnChange}
             placeholder="1. f3 d6 2. e4 Nf6 3. Nh3 Nxe4"
           />
         </div>
         <div className="fen-pgn__bottom">
-          <a href={"export/pgn/game/" + this.props.game._id}>
+          <a href={"export/pgn/game/" + game._id}>
             <Button className="fen-pgn__button" type="primary">
-              PGN Export
+              {translate("pgnExport")}
             </Button>
           </a>
           <label htmlFor="files" className="ant-btn fen-pgn__button ant-btn-primary">
-            {" "}
             <i>
               <img src="images/pgn-import-icon.png" alt="pgn-import-icon" />
-            </i>{" "}
-            PGN Import
+            </i>
+            {translate("pgnImport")}
           </label>
           <input
             id="files"
@@ -127,4 +138,4 @@ class FenPgn extends Component {
   }
 }
 
-export default FenPgn;
+export default translate("Examine.FenPgn")(FenPgn);

@@ -263,6 +263,13 @@ export const english = {
         games: "Games"
       },
       workInProgress: "Work in progress..."
+    },
+    FenPgn: {
+      fen: "FEN",
+      yourMessage: "Your message",
+      pgn: "PGN",
+      pgnImport: "PGN Import",
+      pgnExport: "PGN Export"
     }
   },
   Community: {
