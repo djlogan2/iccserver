@@ -205,6 +205,11 @@ export const english = {
       blackWon: "Black won!",
       gameDrawn: "Game drawn!",
       unknownResult: "Unknown result "
+    },
+    PlayBlock: {
+      createGame: "Create a game",
+      playWithFriend: "Play with a friend",
+      playWithComputer: "Play with the computer"
     }
   },
   Editor: {
