@@ -2,7 +2,7 @@ import React from "react";
 import { Button } from "antd";
 import { translate } from "../../../HOCs/translate";
 
-const CommunityRightBlock = translate("Common.Community")(
+const CommunityRightBlock = translate("Community")(
   ({ activeRoom, roomList, onChange, onClose, translate }) => {
     return (
       <div className="room-block">

@@ -253,5 +253,16 @@ export const english = {
     ExamineOwnerTabBlock: {
       observing: "{$quantity} people are observing this board"
     }
+  },
+  Community: {
+    RoomBlock: {
+      rooms: "Rooms {$rooms}",
+      plus: "+",
+      title: "Create room"
+    },
+    CommunityRightBlock: {
+      allRooms: "All rooms",
+      close: "Close"
+    }
   }
 };

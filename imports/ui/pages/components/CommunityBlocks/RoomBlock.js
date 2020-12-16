@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Input, Modal } from "antd";
 import { translate } from "../../../HOCs/translate";
 
-const RoomBlock = translate("Common.Community")(
+const RoomBlock = translate("Community")(
   ({ activeRoom, list, onChange, onAdd, openRightBlock, translate }) => {
     const [roomName, setRoomName] = useState("");
     const [isModal, setModal] = useState(false);
