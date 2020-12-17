@@ -34,7 +34,7 @@ export default class ChatApp extends Component {
   };
 
   render() {
-    const { chats, child_chat, child_chat_texts, user } = this.props;
+    const { chats, childChat, childChatTexts } = this.props;
     const { inputValue } = this.state;
 
     return (
@@ -51,10 +51,9 @@ export default class ChatApp extends Component {
           </div>
         </div>
         <div className="chat-app__input-bar">
-          {child_chat ? (
+          {childChat ? (
             <ChildChatInput
-              child_chat_texts={child_chat_texts}
-              user={user}
+              childChatTexts={childChatTexts}
               selected={inputValue}
               onChange={this.handleChange}
               onMessage={this.handleMessage}

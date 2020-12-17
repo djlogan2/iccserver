@@ -1,7 +1,8 @@
 import React, { Fragment } from "react";
 import { Input, Button } from "antd";
+import { translate } from "../../../HOCs/translate";
 
-export default ({ value, onChange, onMessage }) => {
+export default translate("Community.ChatInput")(({ value, onChange, onMessage, translate }) => {
   const handleSubmit = e => {
     e.preventDefault();
     this.input.focus();
@@ -21,8 +22,8 @@ export default ({ value, onChange, onMessage }) => {
           onChange={handleChange}
           placeholder="Your message"
         />
-        <Button htmlType="submit">Send</Button>
+        <Button htmlType="submit">{translate("Send")}</Button>
       </form>
     </Fragment>
   );
-};
+});

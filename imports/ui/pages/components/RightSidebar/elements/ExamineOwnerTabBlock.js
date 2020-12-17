@@ -12,7 +12,7 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
 
       Meteor.call(call, call, game_id, id_to_add, error => {
         if (error) {
-          debugger;
+          console.error(error);
         }
       });
     };
@@ -28,7 +28,7 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
     return () => {
       Meteor.call(call, call, game_id, id_to_remove, error => {
         if (error) {
-          debugger;
+          console.error(error);
         }
       });
     };

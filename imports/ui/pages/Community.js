@@ -24,7 +24,7 @@ class Community extends Component {
   componentDidUpdate = prevProps => {
     const { allRooms } = this.props;
 
-    if (!areArraysOfObectsEqual(prevProps.allRooms, allRooms)) {
+    if (allRooms && allRooms.length && !areArraysOfObectsEqual(prevProps.allRooms, allRooms)) {
       this.setState({ activeRoom: allRooms[0]._id });
     }
   };
@@ -79,7 +79,7 @@ class Community extends Component {
 
     Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, err => {
       if (err) {
-        debugger;
+        console.error(err);
       }
     });
   };

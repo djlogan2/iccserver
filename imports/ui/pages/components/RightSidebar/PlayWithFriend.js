@@ -10,20 +10,18 @@ const PlayWithFriend = ({ onClose, onChoose, usersToPlayWith, translate }) => (
     </div>
     <h3 className="play-friend__header">{translate("FRIENDS")}</h3>
     <ul className="play-friend__list">
-      {usersToPlayWith.map(userItem => {
-        return (
-          <li key={userItem.username} className="play-friend__list-item">
-            {userItem.username}
-            <Button
-              onClick={() => {
-                onChoose(userItem._id);
-              }}
-            >
-              {translate("CHOOSE")}
-            </Button>
-          </li>
-        );
-      })}
+      {usersToPlayWith.map(userItem => (
+        <li key={userItem.username} className="play-friend__list-item">
+          {userItem.username}
+          <Button
+            onClick={() => {
+              onChoose(userItem._id);
+            }}
+          >
+            {translate("CHOOSE")}
+          </Button>
+        </li>
+      ))}
     </ul>
   </div>
 );

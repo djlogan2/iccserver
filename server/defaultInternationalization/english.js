@@ -283,6 +283,12 @@ export const english = {
       allRooms: "All rooms",
       close: "Close",
       createRoom: "Create room"
+    },
+    ChildChatInput: {
+      send: "Send"
+    },
+    ChatInput: {
+      send: "Send"
     }
   }
 };

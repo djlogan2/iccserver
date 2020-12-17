@@ -7,22 +7,28 @@ import PlayChooseBot from "./PlayChooseBot";
 import GameHistory from "./elements/GameHistory";
 import { GameControlBlock } from "./elements/GameControlBlock";
 import { translate } from "../../../HOCs/translate";
+import {
+  PLAY_STATUS_NONE,
+  PLAY_STATUS_FRIEND_OPTIONS,
+  PLAY_STATUS_WITH_FRIEND,
+  PLAY_STATUS_CHOOSE_BOT
+} from "../../../../constants/playStatusConstants";
 
 class PlayBlock extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      status: "none"
+      status: PLAY_STATUS_NONE
     };
   }
 
   handlePlayWithFriend = () => {
-    this.setState({ status: "play-friend-options" });
+    this.setState({ status: PLAY_STATUS_FRIEND_OPTIONS });
   };
 
   handlePlayFriendOptions = data => {
-    this.setState({ status: "play-with-friend", options: data });
+    this.setState({ status: PLAY_STATUS_WITH_FRIEND, options: data });
   };
 
   handleChooseFriend = friendId => {
@@ -33,7 +39,7 @@ class PlayBlock extends Component {
   };
 
   handlePlayComputer = () => {
-    this.setState({ status: "choose-bot" });
+    this.setState({ status: PLAY_STATUS_CHOOSE_BOT });
   };
 
   hanldePlayWithBot = data => {
@@ -75,7 +81,7 @@ class PlayBlock extends Component {
       game.status === "playing" &&
       (Meteor.userId() === game.white.id || Meteor.userId() === game.black.id);
 
-    if (!isPlaying && status === "none") {
+    if (!isPlaying && status === PLAY_STATUS_NONE) {
       return (
         <div className="play-block">
           <div className="play-block__bottom">
@@ -93,7 +99,7 @@ class PlayBlock extends Component {
       );
     }
 
-    if (!isPlaying && status === "play-friend-options") {
+    if (!isPlaying && status === PLAY_STATUS_FRIEND_OPTIONS) {
       return (
         <PlayFriendOptions
           onClose={() => {
@@ -104,11 +110,11 @@ class PlayBlock extends Component {
       );
     }
 
-    if (!isPlaying && status === "play-with-friend") {
+    if (!isPlaying && status === PLAY_STATUS_WITH_FRIEND) {
       return (
         <PlayWithFriend
           onClose={() => {
-            this.setState({ status: "none" });
+            this.setState({ status: PLAY_STATUS_NONE });
           }}
           usersToPlayWith={usersToPlayWith}
           onChoose={this.handleChooseFriend}
@@ -116,11 +122,11 @@ class PlayBlock extends Component {
       );
     }
 
-    if (!isPlaying && status === "choose-bot") {
+    if (!isPlaying && status === PLAY_STATUS_CHOOSE_BOT) {
       return (
         <PlayChooseBot
           onClose={() => {
-            this.setState({ status: "none" });
+            this.setState({ status: PLAY_STATUS_NONE });
           }}
           onPlay={this.hanldePlayWithBot}
         />
