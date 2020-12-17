@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import GameShareComponent from "./GameShareComponent";
+import GameShare from "./GameShare";
 import GameSheetDownloadComponent from "./GameSheetDownloadComponent";
 import GameAnalysisComponent from "./GameAnalysisComponent";
 
@@ -27,7 +27,7 @@ export default class NameComponent extends Component {
 					 Player can share the game to invite new players.
 					*/}
 
-          <GameShareComponent cssManager={this.props.cssManager} />
+          <GameShare cssManager={this.props.cssManager} />
           {/*
 					 Game sheet download document Component
 					 Player can download PGN and FEN string for further uses . */}

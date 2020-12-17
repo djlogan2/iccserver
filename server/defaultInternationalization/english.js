@@ -53,7 +53,8 @@ export const english = {
       tournaments: "Tournaments",
       quikpairing: "Quick Pairing",
       seekgame: "Seek a Game",
-      matchuser: "Match User"
+      matchuser: "Match User",
+      gameShare: "Game share"
     },
     menuLinkLabel: {
       play: "Play",
