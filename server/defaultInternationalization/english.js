@@ -83,7 +83,12 @@ export const english = {
       events: "Events",
       friends: "Friends",
       fen_pgn: "FEN/PGN",
-      history: "History"
+      history: "History",
+      adjournedGame: "Adjourned Game",
+      gameHistory: "Game History",
+      gameLibrary: "Game Library",
+      followCoach: "Follow Coach",
+      examiner: "Examiner"
     },
     MatchUserSubTab: {
       friends: "Friends",

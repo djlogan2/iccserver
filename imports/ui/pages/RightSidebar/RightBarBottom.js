@@ -7,80 +7,71 @@ import GameHistory from "./GameHistoryComponent";
 import AdjournedGame from "./AdjournedGameComponent";
 import PGN from "./PGNComponent";
 
+import { translate } from "../../HOCs/translate";
+
 import "./Tabs/BottomStyles";
-import i18n from "meteor/universe:i18n";
 
 class RightBarBottom extends Component {
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
   render() {
-    let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
-    let tabNumber = this.props.activeTabnumber ? this.props.activeTabnumber : 0;
+    const {
+      translate,
+      activeTabnumber,
+      cssManager,
+      clientMessage,
+      Gamedata,
+      uploadPgn
+    } = this.props;
     return (
-      <Tabs cssManager={this.props.cssManager} tabName="bottom" defultactive={tabNumber}>
-        <div label="Examiner" imgsrc="images/examiner.png" hoverSrc="images/examiner-active.png">
-          <Examiner
-            cssManager={this.props.cssManager}
-            gameRequest={this.props.gameRequest}
-            clientMessage={this.props.clientMessage}
-          />
+      <Tabs
+        cssManager={cssManager}
+        tabName="bottom"
+        defultactive={activeTabnumber ? activeTabnumber : 0}
+      >
+        <div
+          label={translate("examiner")}
+          imgsrc="images/examiner.png"
+          hoverSrc="images/examiner-active.png"
+        >
+          <Examiner cssManager={cssManager} clientMessage={clientMessage} />
         </div>
         <div
-          label="Follow Coach"
+          label={translate("followCoach")}
           imgsrc="images/follow-coach.png"
           hoverSrc="images/follow-coach-active.png"
         >
-          <FollowCoach
-            cssManager={this.props.cssManager}
-            clientMessage={this.props.clientMessage}
-          />
+          <FollowCoach cssManager={cssManager} clientMessage={clientMessage} />
         </div>
         <div
-          label="Game Library"
+          label={translate("gameLibrary")}
           imgsrc="images/game-library.png"
           hoverSrc="images/game-library-active.png"
         >
-          <GameLibrary
-            cssManager={this.props.cssManager}
-            clientMessage={this.props.clientMessage}
-          />
+          <GameLibrary cssManager={cssManager} clientMessage={clientMessage} />
         </div>
-
         <div
-          label="Game History"
+          label={translate("gameHistory")}
           imgsrc="images/history-icon-white.png"
           hoverSrc="images/history-icon-blue.png"
         >
-          <GameHistory cssManager={this.props.cssManager} />
+          <GameHistory cssManager={cssManager} />
         </div>
         <div
-          label="Adjourned Game"
+          label={translate("adjournedGame")}
           imgsrc="images/adjourned-game.png"
           hoverSrc="images/adjourned-game-active.png"
         >
           <AdjournedGame />
         </div>
-
         <div
-          label={translator("fen_pgn")}
+          label={translate("fen_pgn")}
           imgsrc="images/fen-pgn-white-icon.png"
           hoverSrc="images/fen-pgn-blue-icon.png"
         >
-          <PGN
-            cssManager={this.props.cssManager}
-            Gamedata={this.props.Gamedata}
-            uploadPgn={this.props.uploadPgn}
-          />
+          <PGN cssManager={cssManager} Gamedata={Gamedata} uploadPgn={uploadPgn} />
         </div>
       </Tabs>
     );
   }
 }
-export default RightBarBottom;
+
+export default translate("Common.rightBarBottom")(RightBarBottom);
