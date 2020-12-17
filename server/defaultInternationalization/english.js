@@ -46,6 +46,7 @@ export const english = {
     rightBarTop: {
       game: "Game",
       observe: "Observe",
+      test: "Test",
       editor: "Editor",
       playComputer: "Play computer from here",
       play: "Play",
