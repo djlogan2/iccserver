@@ -16,3 +16,5 @@ export const labelsToResources = {
 
 export const labelMyGame = "mygame";
 export const labelLogout = "logout";
+
+export const resourceExportPgnGame = "export/pgn/game/";

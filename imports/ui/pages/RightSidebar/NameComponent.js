@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import GameShare from "./GameShare";
-import GameSheetDownloadComponent from "./GameSheetDownloadComponent";
+import GameSheetDownload from "./GameSheetDownload";
 import GameAnalysisComponent from "./GameAnalysisComponent";
 
 export default class NameComponent extends Component {
@@ -32,7 +32,7 @@ export default class NameComponent extends Component {
 					 Game sheet download document Component
 					 Player can download PGN and FEN string for further uses . */}
 
-          <GameSheetDownloadComponent cssManager={this.props.cssManager} game={this.props.game} />
+          <GameSheetDownload cssManager={this.props.cssManager} game={this.props.game} />
 
           {/*
 				    Game Analysis Component
