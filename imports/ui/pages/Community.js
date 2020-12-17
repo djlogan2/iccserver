@@ -7,7 +7,7 @@ import MessengerWithData from "./components/Chat/Messenger";
 import { Rooms, mongoCss } from "../../api/client/collections";
 import RoomBlock from "./components/CommunityBlocks/RoomBlock";
 import CommunityRightBlock from "./components/CommunityBlocks/CommunityRightBlock";
-import { isReadySubscriptions } from "../../utils/utils";
+import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
 
 class Community extends Component {
   constructor(props) {
@@ -16,26 +16,33 @@ class Community extends Component {
       activeRoom: null,
       inputValue: "",
       messageList: [],
-      isRightMenu: false
+      isRightMenu: false,
+      isModal: false
     };
   }
 
   componentDidUpdate = prevProps => {
     const { allRooms } = this.props;
 
-    if (!prevProps.allRooms.length && allRooms.length) {
+    if (!areArraysOfObectsEqual(prevProps.allRooms, allRooms)) {
       this.setState({ activeRoom: allRooms[0]._id });
     }
   };
 
-  handleAdd = roomName => {
-    // createRoom
-    Meteor.call("createRoom", "createRoom", roomName, true, error => {
+  handleAdd = (roomName, isPrivate) => {
+    Meteor.call("createRoom", "createRoom", roomName, isPrivate, error => {
       if (error) {
-        // add
-        debugger;
+        console.log(error);
       }
     });
+  };
+
+  handleOpenModal = () => {
+    this.setState({ isModal: true });
+  };
+
+  handleCloseModal = () => {
+    this.setState({ isModal: false });
   };
 
   handleOpenRightBlock = () => {
@@ -52,14 +59,13 @@ class Community extends Component {
     if (activeRoom) {
       Meteor.call("leaveRoom", "leaveRoom", activeRoom);
     }
+
     Meteor.call("joinRoom", "joinRoom", roomId);
     this.setState({ activeRoom: roomId });
   };
 
-  handleChange = text => {
-    this.setState({
-      inputValue: text
-    });
+  handleChange = inputValue => {
+    this.setState({ inputValue });
   };
 
   handleMessage = roomId => {
@@ -100,7 +106,7 @@ class Community extends Component {
 
   render() {
     const { allRooms, notMyRooms } = this.props;
-    const { isRightMenu, activeRoom } = this.state;
+    const { isRightMenu, activeRoom, isModal } = this.state;
 
     const rightBlockWidth = isRightMenu ? "214px" : 0;
 
@@ -108,9 +114,11 @@ class Community extends Component {
       <AppWrapper>
         <div className="community__sidebar">
           <RoomBlock
+            isModal={isModal}
             activeRoom={activeRoom}
             list={allRooms}
             onAdd={this.handleAdd}
+            handleCloseModal={this.handleCloseModal}
             openRightBlock={this.handleOpenRightBlock}
             onChange={this.handleChangeRoom}
           />
@@ -120,6 +128,7 @@ class Community extends Component {
           <CommunityRightBlock
             activeRoom={activeRoom}
             roomList={notMyRooms}
+            handleOpenModal={this.handleOpenModal}
             onAdd={this.handleAdd}
             onClose={this.handleCloseRightBlock}
             onChange={this.handleChangeRoom}

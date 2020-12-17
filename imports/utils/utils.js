@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 export const updateLocale = locale => {
   const localeArray = locale.split("-");
 
@@ -16,4 +18,10 @@ export const isReadySubscriptions = subscriptions => {
   }
 
   return true;
+};
+
+export const areArraysOfObectsEqual = (firstArray, secondArray) => {
+  return _(firstArray)
+    .differenceWith(secondArray, _.isEqual)
+    .isEmpty();
 };

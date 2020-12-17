@@ -275,13 +275,14 @@ export const english = {
   },
   Community: {
     RoomBlock: {
-      rooms: "Rooms {$rooms}",
+      rooms: "Your rooms: {$rooms}",
       plus: "+",
       title: "Create room"
     },
     CommunityRightBlock: {
       allRooms: "All rooms",
-      close: "Close"
+      close: "Close",
+      createRoom: "Create room"
     }
   }
 };

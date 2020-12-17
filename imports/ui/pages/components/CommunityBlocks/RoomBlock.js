@@ -1,28 +1,30 @@
 import React, { useState } from "react";
-import { Button, Input, Modal } from "antd";
+import { Button, Input, Modal, Select } from "antd";
 import { translate } from "../../../HOCs/translate";
 
 const RoomBlock = translate("Community")(
-  ({ activeRoom, list, onChange, onAdd, openRightBlock, translate }) => {
+  ({ activeRoom, list, onChange, onAdd, openRightBlock, translate, isModal, handleCloseModal }) => {
     const [roomName, setRoomName] = useState("");
-    const [isModal, setModal] = useState(false);
+    const [isPrivate, setIsPrivate] = useState(true);
 
     const handleCancel = () => {
       setRoomName("");
-      setModal(false);
+      handleCloseModal();
     };
 
     const handleOk = () => {
       setRoomName("");
-      setModal(false);
+      handleCloseModal();
 
-      onAdd(roomName);
+      onAdd(roomName, isPrivate);
     };
 
     return (
       <div className="room-block">
         <div className="room-block__head">
-          <h2 className="room-block__title">{translate("RoomBlock.rooms")}</h2>
+          <h2 className="room-block__title">
+            {translate("RoomBlock.rooms", { rooms: list.length })}
+          </h2>
           <Modal
             title={translate("RoomBlock.title")}
             visible={!!isModal}
@@ -30,6 +32,10 @@ const RoomBlock = translate("Community")(
             onCancel={handleCancel}
           >
             <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
+            <Select defaultValue={isPrivate} onChange={setIsPrivate}>
+              <Select.Option value={false}>Public</Select.Option>
+              <Select.Option value={true}>Private</Select.Option>
+            </Select>
           </Modal>
           <Button onClick={openRightBlock} className="room-block__plus">
             {translate("RoomBlock.plus")}
