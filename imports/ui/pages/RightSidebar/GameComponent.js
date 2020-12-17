@@ -5,16 +5,18 @@ import "./Tabs/styles";
 
 export default class GameComponent extends Component {
   render() {
+    const { cssManager, game, flip, gameRequest, startGameExamine, examineAction } = this.props;
+
     return (
       <div>
-        <Name cssManager={this.props.cssManager} game={this.props.game} />
+        <Name cssManager={cssManager} game={game} />
         <MoveList
-          cssManager={this.props.cssManager}
-          game={this.props.game}
-          flip={this.props.flip}
-          gameRequest={this.props.gameRequest}
-          startGameExamine={this.props.startGameExamine}
-          examineAction={this.props.examineAction}
+          cssManager={cssManager}
+          game={game}
+          flip={flip}
+          gameRequest={gameRequest}
+          startGameExamine={startGameExamine}
+          examineAction={examineAction}
         />
       </div>
     );
