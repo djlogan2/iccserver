@@ -46,18 +46,18 @@ class PlayBlock extends Component {
     const { onBotPlay } = this.props;
     const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
 
-    onBotPlay(
-      0,
+    onBotPlay({
+      color,
       ratingType,
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
       skillLevel,
-      color
-    );
+      wildNumber: 0,
+      whiteInitial: initial,
+      whiteIncrementOrDelay: incrementOrDelay,
+      whiteIncrementOrDelayType: incrementOrDelayType,
+      blackInitial: initial,
+      blackIncrementOrDelay: incrementOrDelay,
+      blackIncrementOrDelayType: incrementOrDelayType
+    });
   };
 
   render() {
@@ -145,7 +145,7 @@ class PlayBlock extends Component {
             examineAction={examineAction}
             currentGame={currentGame}
           />
-          <GameControlBlock game={game} flip={flip} />
+          <GameControlBlock game={game} flip={flip}/>
         </div>
       );
     }

@@ -265,46 +265,35 @@ class Play extends Component {
     );
   };
 
-  handleBotPlay = (
-    wild_number,
-    rating_type,
-    white_initial,
-    white_increment_or_delay,
-    white_increment_or_delay_type,
-    black_initial,
-    black_increment_or_delay,
-    black_increment_or_delay_type,
-    skill_level,
-    color
-  ) => {
-    let data = {
-      wild_number,
-      rating_type,
-      white_initial,
-      white_increment_or_delay,
-      white_increment_or_delay_type,
-      black_initial,
-      black_increment_or_delay,
-      black_increment_or_delay_type,
-      skill_level,
+  handleBotPlay = gameData => {
+    const {
+      wildNumber,
+      ratingType,
+      whiteInitial,
+      whiteIncrementOrDelay,
+      whiteIncrementOrDelayType,
+      blackInitial,
+      blackIncrementOrDelay,
+      blackIncrementOrDelayType,
+      skillLevel,
       color
-    };
+    } = gameData;
 
     Meteor.call(
       "startBotGame",
       "play_computer",
-      wild_number,
-      rating_type,
-      white_initial,
-      white_increment_or_delay,
-      white_increment_or_delay_type,
-      black_initial,
-      black_increment_or_delay,
-      black_increment_or_delay_type,
-      skill_level,
+      wildNumber,
+      ratingType,
+      whiteInitial,
+      whiteIncrementOrDelay,
+      whiteIncrementOrDelayType,
+      blackInitial,
+      blackIncrementOrDelay,
+      blackIncrementOrDelayType,
+      skillLevel,
       color
     );
-    this.setState({ gameData: data });
+    this.setState({ gameData });
   };
 
   render() {
@@ -370,7 +359,7 @@ class Play extends Component {
           onExamine={this.handleExamine}
         />
 
-        <PlayNotifier game={this.props.in_game} cssManager={css} />
+        <PlayNotifier game={this.props.in_game} cssManager={css}/>
         <PlayPage
           cssManager={css}
           board={this._board}
