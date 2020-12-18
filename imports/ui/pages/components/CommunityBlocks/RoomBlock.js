@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, Modal, Select } from "antd";
+import { Button, Input, Modal } from "antd";
 import { translate } from "../../../HOCs/translate";
 
 const RoomBlock = translate("Community")(
@@ -32,10 +32,6 @@ const RoomBlock = translate("Community")(
             onCancel={handleCancel}
           >
             <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
-            <Select defaultValue={isPrivate} onChange={setIsPrivate}>
-              <Select.Option value={false}>Public</Select.Option>
-              <Select.Option value={true}>Private</Select.Option>
-            </Select>
           </Modal>
           <Button onClick={openRightBlock} className="room-block__plus">
             {translate("RoomBlock.plus")}

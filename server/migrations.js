@@ -3,6 +3,8 @@ import { Migrations } from "meteor/patelutsav:meteor-migrations";
 import { Logger } from "../lib/server/Logger";
 import { Game, GameHistory } from "./Game";
 import { templateCollection } from "./Tournament";
+import { english } from "./defaultInternationalization/english";
+import mongoClientInternationalization from "../imports/collections/clientInternationalization";
 
 const log = new Logger("server/migrations");
 
@@ -58,5 +60,15 @@ Meteor.startup(() => {
       templateCollection.rawCollection().createIndex({ "record.name": 1, "record.scope": 1 });
     }
   });
+  Migrations.add({
+    version: "0.2.0_4",
+    name: "Update client i18n for en locales",
+    run: () => {
+      mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
+    }
+  });
+
+  Migrations.unlock();
+
   Migrations.migrateTo("latest");
 });
