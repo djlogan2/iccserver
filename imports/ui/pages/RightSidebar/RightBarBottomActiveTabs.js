@@ -3,37 +3,23 @@ import Tabs from "./Tabs/Tabs";
 import Chat from "./ChatComponent";
 import Observers from "./ObserversComponent";
 import RoomChat from "./RoomChatComponent";
+import { translate } from "../../HOCs/translate";
 
 import "./Tabs/BottomStyles";
-import i18n from "meteor/universe:i18n";
 
 class RightBarBottomActiveTabs extends Component {
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   render() {
-    let translator = i18n.createTranslator("Common.rightBarBottom", this.getLang());
+    const { translate, clientMessage, cssManager, gameRequest, game } = this.props;
 
     return (
-      <Tabs cssManager={this.props.cssManager} tabName="bottom">
+      <Tabs cssManager={cssManager} tabName="bottom">
         <div
-          label={translator("chat")}
+          label={translate("chat")}
           imgsrc="images/chat-icon-white.png"
           hoverSrc="images/chat-icon-blue.png"
           default="false"
         >
-          <Chat
-            cssManager={this.props.cssManager}
-            gameRequest={this.props.gameRequest}
-            clientMessage={this.props.clientMessage}
-          />
+          <Chat cssManager={cssManager} gameRequest={gameRequest} clientMessage={clientMessage} />
         </div>
         <div
           label="Observers"
@@ -41,11 +27,7 @@ class RightBarBottomActiveTabs extends Component {
           hoverSrc="images/observers-active.png"
           default="false"
         >
-          <Observers
-            cssManager={this.props.cssManager}
-            clientMessage={this.props.clientMessage}
-            game={this.props.game}
-          />
+          <Observers game={game} />
         </div>
         <div
           label="Room Chat"
@@ -53,10 +35,11 @@ class RightBarBottomActiveTabs extends Component {
           hoverSrc="images/room-chat-active.png"
           default="roomchat"
         >
-          <RoomChat cssManager={this.props.cssManager} clientMessage={this.props.clientMessage} />
+          <RoomChat cssManager={cssManager} />
         </div>
       </Tabs>
     );
   }
 }
-export default RightBarBottomActiveTabs;
+
+export default translate("Common.rightBarBottom")(RightBarBottomActiveTabs);
