@@ -144,6 +144,12 @@ export const english = {
     },
     chatBoxMessage: {
       NEW_MESSAGE: "NEW MESSAGE"
+    },
+    pgnActions: {
+      fen: "FEN",
+      pgn: "PGN",
+      pgnExport: "PGN Export",
+      pgnImport: "PGN Import"
     }
   },
   Play: {
