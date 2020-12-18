@@ -19,6 +19,13 @@ class PlayNotifier extends Component {
 
     const othercolor = Meteor.userId() === game.white.id ? "black" : "white";
 
+    //
+    // TODO: As I said before, I do not think:
+    //    (1) These should not be "popups."
+    //    (2) There can be virtually every single type of request active all at the same time. How are you going to handle this? (and this goes back to #1)
+    //    Other than "renderActionPopup", the if/else/else bothers me. It seems to me that you will never show more than one of these requests at a time,
+    //    in some "order of importance" that you defined, yes?  Like if a takeback is pending, user won't see a draw request?
+    //
     if (game.pending[othercolor].takeback.number !== 0) {
       const moveCount = game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
       return this.renderActionPopup(translate(moveCount), "takeBack");
