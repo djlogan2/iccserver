@@ -56,7 +56,8 @@ export const english = {
       matchuser: "Match User",
       gameShare: "Game share",
       gameDownload: "Game download",
-      gameAnalysis: "Game Analysis"
+      gameAnalysis: "Game Analysis",
+      friends: "Friends"
     },
     menuLinkLabel: {
       play: "Play",
