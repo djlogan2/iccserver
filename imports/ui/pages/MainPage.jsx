@@ -11,12 +11,12 @@ import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
 import { ModalProvider } from "./ModalContext";
 import {
-  EnhancedGameRequestPopup,
-  EnhancedGameNotificationPopup,
-  EnhancedGameResignedPopup,
-  EnhancedExaminActionPopup,
+  GameRequestPopup,
+  GameNotificationPopup,
+  GameResignedPopup,
+  ExaminActionPopup,
   ActionPopup
-} from "./components/Popup/Popup";
+} from "./components/Popup";
 import i18n from "meteor/universe:i18n";
 import ExportPgnButton from "./components/Button/ExportPgnButton";
 const log = new Logger("client/MainPage");
@@ -156,11 +156,7 @@ export default class MainPage extends Component {
 
   gameRequest = (title, requestId) => {
     return (
-      <EnhancedGameRequestPopup
-        requestId={requestId}
-        title={title}
-        cssManager={this.props.cssManager}
-      />
+      <GameRequestPopup requestId={requestId} title={title} cssManager={this.props.cssManager} />
     );
   };
   actionPopup = (title, action) => {
@@ -175,13 +171,11 @@ export default class MainPage extends Component {
   };
 
   EnhancedGameNotificationPopup = (title, mid) => {
-    return (
-      <EnhancedGameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />
-    );
+    return <GameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
   };
   GameResignedPopup = (title, mid) => {
     return (
-      <EnhancedGameResignedPopup
+      <GameResignedPopup
         mid={mid}
         title={title}
         cssManager={this.props.cssManager}
@@ -191,7 +185,7 @@ export default class MainPage extends Component {
   };
   examinActionPopup = action => {
     return (
-      <EnhancedExaminActionPopup
+      <ExaminActionPopup
         action={action}
         cssManager={this.props.cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}

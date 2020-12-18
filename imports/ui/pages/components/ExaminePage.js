@@ -13,12 +13,12 @@ import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import {
-  EnhancedGameRequestPopup,
-  EnhancedGameResignedPopup,
-  EnhancedExaminActionPopup,
+  GameRequestPopup,
+  GameResignedPopup,
+  ExaminActionPopup,
   ActionPopup,
-  EnhancedGameNotificationPopup
-} from "./Popup/Popup";
+  GameNotificationPopup
+} from "./Popup";
 
 export default class ExaminePage extends Component {
   constructor(props) {
@@ -152,7 +152,7 @@ export default class ExaminePage extends Component {
   gameRequest = (title, requestId) => {
     const { cssManager } = this.props;
 
-    return <EnhancedGameRequestPopup requestId={requestId} title={title} cssManager={cssManager} />;
+    return <GameRequestPopup requestId={requestId} title={title} cssManager={cssManager} />;
   };
 
   actionPopup = (title, action) => {
@@ -168,13 +168,13 @@ export default class ExaminePage extends Component {
 
   GamenotificationPopup = (title, mid) => {
     return (
-      <EnhancedGameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />
+      <GameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />
     );
   };
 
   GameResignedPopup = (title, mid) => {
     return (
-      <EnhancedGameResignedPopup
+      <GameResignedPopup
         mid={mid}
         title={title}
         cssManager={this.props.cssManager}
@@ -185,7 +185,7 @@ export default class ExaminePage extends Component {
 
   examinActionPopup = action => {
     return (
-      <EnhancedExaminActionPopup
+      <ExaminActionPopup
         action={action}
         cssManager={this.props.cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}

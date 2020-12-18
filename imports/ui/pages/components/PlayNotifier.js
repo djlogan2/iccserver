@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ActionPopup } from "./Popup/Popup";
+import { ActionPopup } from "./Popup";
 import { Meteor } from "meteor/meteor";
 import { translate } from "../../HOCs/translate";
 
