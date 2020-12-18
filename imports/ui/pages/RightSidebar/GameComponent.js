@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Name from "./NameComponent";
+import Name from "./Name";
 import MoveList from "./MoveListComponent";
 import "./Tabs/styles";
 
