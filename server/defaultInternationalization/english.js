@@ -92,7 +92,8 @@ export const english = {
       gameHistory: "Game History",
       gameLibrary: "Game Library",
       followCoach: "Follow Coach",
-      examiner: "Examiner"
+      examiner: "Examiner",
+      observers: "Observers"
     },
     MatchUserSubTab: {
       friends: "Friends",
