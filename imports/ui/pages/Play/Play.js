@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import PlayPage from "./components/PlayPage";
+import PlayPage from "../components/PlayPage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Logger } from "../../../lib/client/Logger";
-import CssManager from "../pages/components/Css/CssManager";
-import Loading from "../pages/components/Loading";
-import PlayModaler from "../pages/components/Modaler/PlayModaler";
-import Chess from "chess.js";
+import { Logger } from "../../../../lib/client/Logger";
+import CssManager from "../components/Css/CssManager";
+import Loading from "../components/Loading";
+import PlayModaler from "../components/Modaler/PlayModaler";
+import Chess from "../../../../node_modules/chess.js/chess";
 import {
   ClientMessagesCollection,
   DynamicRatingsCollection,
@@ -14,12 +14,14 @@ import {
   GameRequestCollection,
   mongoCss,
   mongoUser
-} from "../../api/client/collections";
-import { TimestampClient } from "../../../lib/Timestamp";
-import { findRatingObject } from "../../../lib/ratinghelpers";
-import { isReadySubscriptions } from "../../utils/utils";
+} from "../../../api/client/collections";
+import { TimestampClient } from "../../../../lib/Timestamp";
+import { findRatingObject } from "../../../../lib/ratinghelpers";
+import { isReadySubscriptions } from "../../../utils/utils";
 import { compose } from "redux";
-import { withPlayNotifier } from "../HOCs/withPlayNotifier";
+import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
+import injectSheet from "react-jss";
+import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
 
 const log = new Logger("client/Play_js");
 
@@ -302,7 +304,7 @@ class Play extends Component {
 
     if (!this.props.isready) {
       //  log.error("Play LOADING");
-      return <Loading />;
+      return <Loading/>;
     }
 
     const { systemCss, boardCss } = this.props;
@@ -435,9 +437,11 @@ export default compose(
 
       client_messages: ClientMessagesCollection.find().fetch(),
       systemCss: mongoCss.findOne({ type: "system" }),
-      boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
+      boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] }),
+      playNotificationsCss: mongoCss.findOne({ type: "playNotifications" })
     };
   }),
+  injectSheet(dynamicPlayNotifierStyles),
   withPlayNotifier
 )(Play);
 

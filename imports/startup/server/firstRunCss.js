@@ -4,6 +4,7 @@ import systemCss from "../../../server/defaultStyles/systemCss";
 import userCss from "../../../server/defaultStyles/userCss";
 import mongoCss from "../../collections/css";
 import { Meteor } from "meteor/meteor";
+import playNotificationsCss from "../../../server/defaultStyles/playNotificationsCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -24,5 +25,9 @@ export default function firstRunCSS() {
 
   if (!mongoCss.find({ type: "menuLinks" }).count()) {
     mongoCss.insert(menuLinksCss);
+  }
+
+  if (!mongoCss.find({ type: "playNotifications" }).count()) {
+    mongoCss.insert(playNotificationsCss);
   }
 }

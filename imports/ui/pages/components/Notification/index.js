@@ -2,7 +2,7 @@ import React from "react";
 import { notification } from "antd";
 import { Meteor } from "meteor/meteor";
 
-const renderNotification = ({ title, action, cssManager, gameId }) => {
+const renderNotification = ({ title, action, cssManager, gameId, classes }) => {
   const key = `notification-${action}-${gameId}`;
 
   const responseHandler = actionType => {
@@ -52,23 +52,17 @@ const renderNotification = ({ title, action, cssManager, gameId }) => {
   const renderDescription = () => {
     return (
       <div style={{ position: "relative" }}>
-        <button
-          onClick={() => responseHandler("accepted")}
-          style={{ backgroundColor: "transparent", width: "50%", border: "0px" }}
-        >
+        <button onClick={() => responseHandler("accepted")} className={classes.descriptionButton}>
           <img
             src={cssManager.buttonBackgroundImage("checkedIcon")}
-            style={{ width: "18px" }}
+            className={classes.checkedIcon}
             alt="accept"
           />
         </button>
-        <button
-          onClick={() => responseHandler("rejected")}
-          style={{ backgroundColor: "transparent", width: "50%", border: "0px" }}
-        >
+        <button onClick={() => responseHandler("rejected")} className={classes.descriptionButton}>
           <img
             src={cssManager.buttonBackgroundImage("closeIcon")}
-            style={{ width: "15px" }}
+            className={classes.closeIcon}
             alt="close"
           />
         </button>
@@ -78,15 +72,13 @@ const renderNotification = ({ title, action, cssManager, gameId }) => {
 
   const renderTitle = () => {
     return (
-      <div style={{ width: "100%" }}>
+      <div className={classes.titleDiv}>
         <img
           src={cssManager.buttonBackgroundImage("infoIcon")}
-          style={{ width: "18px", marginRight: "10px", marginBottom: "5px" }}
+          className={classes.titleIcon}
           alt="info"
         />
-        <strong style={{ width: "auto", marginRight: "6px", fontSize: "18px", color: "#fff" }}>
-          {title}
-        </strong>
+        <strong className={classes.titleText}>{title}</strong>
       </div>
     );
   };

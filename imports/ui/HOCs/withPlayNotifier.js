@@ -7,11 +7,12 @@ import CssManager from "../pages/components/Css/CssManager";
 export const withPlayNotifier = WrappedComponent => {
   return class extends React.Component {
     renderActionPopup = (title, action) => {
-      const { systemCss, boardCss, in_game: game } = this.props;
+      const { systemCss, boardCss, classes, in_game: game } = this.props;
 
       renderNotification({
         title,
         action,
+        classes,
         cssManager: new CssManager(systemCss, boardCss),
         gameId: game._id
       });

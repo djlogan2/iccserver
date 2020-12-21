@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import Home from "../../ui/pages/Home";
-import Play from "../../ui/pages/Play";
+import Play from "../../ui/pages/Play/Play";
 import Editor from "../../ui/pages/Editor";
 import Examine from "../../ui/pages/Examine";
 import Community from "../../ui/pages/Community";
@@ -10,13 +10,13 @@ import Community from "../../ui/pages/Community";
 import SignUpPage from "../../ui/pages/authentication/SignupPage";
 import LoginPage from "../../ui/pages/authentication/LoginPage.jsx";
 import {
-  resourceSignUp,
-  resourceLogin,
-  resourceHome,
-  resourcePlay,
+  resourceCommunity,
   resourceEditor,
   resourceExamine,
-  resourceCommunity
+  resourceHome,
+  resourceLogin,
+  resourcePlay,
+  resourceSignUp
 } from "../../constants/resourceConstants";
 
 export const Routes = () => (
