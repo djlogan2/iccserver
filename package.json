@@ -1,6 +1,6 @@
 {
   "name": "icc",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "chessclub.com Internet Chess Club server and browser client",
   "private": true,
   "babel": {
