@@ -28,5 +28,9 @@ export const dynamicPlayNotifierStyles = {
   closeIcon: props => {
     const css = get(props, "playNotificationsCss", {});
     return css.closeIcon;
+  },
+  mainDiv: props => {
+    const css = get(props, "playNotificationsCss", {});
+    return css.mainDiv;
   }
 };

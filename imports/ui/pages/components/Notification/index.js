@@ -49,36 +49,29 @@ const renderNotification = ({ title, action, cssManager, gameId, classes }) => {
     else Meteor.call("declineAdjourn", "adjournDecline", gameId);
   };
 
-  const renderDescription = () => {
-    return (
-      <div style={{ position: "relative" }}>
-        <button onClick={() => responseHandler("accepted")} className={classes.descriptionButton}>
-          <img
-            src={cssManager.buttonBackgroundImage("checkedIcon")}
-            className={classes.checkedIcon}
-            alt="accept"
-          />
-        </button>
-        <button onClick={() => responseHandler("rejected")} className={classes.descriptionButton}>
-          <img
-            src={cssManager.buttonBackgroundImage("closeIcon")}
-            className={classes.closeIcon}
-            alt="close"
-          />
-        </button>
-      </div>
-    );
-  };
-
   const renderTitle = () => {
     return (
-      <div className={classes.titleDiv}>
-        <img
-          src={cssManager.buttonBackgroundImage("infoIcon")}
-          className={classes.titleIcon}
-          alt="info"
-        />
-        <strong className={classes.titleText}>{title}</strong>
+      <div className={classes.mainDiv}>
+        <div>
+          <img
+            src={cssManager.buttonBackgroundImage("infoIcon")}
+            className={classes.titleIcon}
+            alt="info"
+          />
+          <strong className={classes.titleText}>{title}</strong>
+        </div>
+        <div>
+          <button onClick={() => responseHandler("accepted")} className={classes.descriptionButton}>
+            <strong className={classes.titleText}>Accept</strong>
+          </button>
+          <button onClick={() => responseHandler("rejected")} className={classes.descriptionButton}>
+            <img
+              src={cssManager.buttonBackgroundImage("closeIcon")}
+              className={classes.closeIcon}
+              alt="close"
+            />
+          </button>
+        </div>
       </div>
     );
   };
@@ -87,9 +80,9 @@ const renderNotification = ({ title, action, cssManager, gameId, classes }) => {
     key,
     duration: 0,
     closeIcon: () => null,
-    style: { height: "85px", backgroundColor: "#FF9806", color: "#fff" },
+    style: { height: "55px", backgroundColor: "#FF9806", color: "#fff" },
     message: renderTitle(),
-    description: renderDescription()
+    description: null
   });
 };
 

@@ -16,19 +16,23 @@ const playNotificationsCss = {
     marginRight: "10px",
     marginBottom: "5px"
   },
-  titleDiv: {
-    width: "100%"
-  },
   descriptionButton: {
     backgroundColor: "transparent",
-    width: "50%",
     border: "0px"
   },
   checkedIcon: {
     width: "18px"
   },
   closeIcon: {
-    width: "15px"
+    width: "15px",
+    marginBottom: "5px"
+  },
+  mainDiv: {
+    display: "flex",
+    width: "100%",
+    flexDirection: "row",
+    color: "#fff",
+    justifyContent: "space-between"
   }
 };
 
