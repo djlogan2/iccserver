@@ -101,7 +101,7 @@ class SignUpPage extends Component {
                 </div>
               </form>
             </div>
-            <div className="modal-footer" style={{ borderTop: 0 }}/>
+            <div className="modal-footer" style={{ borderTop: 0 }} />
           </div>
         </div>
       </div>

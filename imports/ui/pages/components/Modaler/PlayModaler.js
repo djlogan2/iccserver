@@ -1,38 +1,39 @@
 import React, { Component } from "react";
 import { Modal, Button } from "antd";
-import { Logger } from "../../../../../lib/client/Logger";
+import { translate } from "../../../HOCs/translate";
 
-const log = new Logger("client/PlayModaler_js");
-
-export default class PlayModaler extends Component {
+class PlayModaler extends Component {
   handleCancel = () => {
-    Meteor.call("acknowledge.client.message", this.props.clientMessage._id);
+    const { clientMessage } = this.props;
+
+    Meteor.call("acknowledge.client.message", clientMessage._id);
+  };
+
+  getTitleText = gameResult => {
+    const { translate } = this.props;
+
+    switch (gameResult) {
+      case "1-0":
+        return translate("whiteWon");
+      case "0-1":
+        return translate("blackWon");
+      case "1/2-1/2":
+        return translate("gameDrawn");
+      default:
+        return translate("unknownResult") + gameResult;
+    }
   };
 
   render() {
-    log.trace("PlayModaler render", this.props);
-    let titleText;
-    let message = !this.props.clientMessage ? "" : this.props.clientMessage.message;
+    const { clientMessage, gameResult, userName, opponentName, translate, visible } = this.props;
 
-    switch (this.props.gameResult) {
-      case "1-0":
-        titleText = "White won!";
-        break;
-      case "0-1":
-        titleText = "Black won!";
-        break;
-      case "1/2-1/2":
-        titleText = "Game drawn!";
-        break;
-      default:
-        titleText = "Unknown result " + this.props.gameResult;
-        break;
-    }
+    const titleText = this.getTitleText(gameResult);
+    const message = clientMessage ? clientMessage.message : "";
 
     return (
       <Modal
         title={titleText}
-        visible={this.props.visible}
+        visible={visible}
         onOk={this.handleCancel}
         onCancel={this.handleCancel}
         footer={null}
@@ -41,15 +42,15 @@ export default class PlayModaler extends Component {
           <div className="play-modal__main">
             <div className="play-modal__user-one">
               <img className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
-              <p className="play-modal__user-name">{this.props.userName}</p>
+              <p className="play-modal__user-name">{userName}</p>
             </div>
             <div className="play-modal__main-center">
-              <span className="play-modal__game-short-status">{this.props.gameResult}</span>
+              <span className="play-modal__game-short-status">{gameResult}</span>
               <p className="play-modal__game-status">{message}</p>
             </div>
             <div className="play-modal__user-two">
               <img className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
-              <p className="play-modal__user-name">{this.props.opponentName}</p>
+              <p className="play-modal__user-name">{opponentName}</p>
             </div>
           </div>
           <div className="play-modal__btn-block">
@@ -61,7 +62,7 @@ export default class PlayModaler extends Component {
               }}
               className="play-modal__btn play-modal__btn--primary"
             >
-              Rematch
+              {translate("rematch")}
             </Button>
             <Button
               onClick={() => {
@@ -70,7 +71,7 @@ export default class PlayModaler extends Component {
               }}
               className="play-modal__btn"
             >
-              Examine
+              {translate("examine")}
             </Button>
           </div>
         </div>
@@ -78,3 +79,5 @@ export default class PlayModaler extends Component {
     );
   }
 }
+
+export default translate("Play.PlayModaler")(PlayModaler);

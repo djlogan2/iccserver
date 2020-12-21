@@ -1,55 +1,54 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import { get } from "lodash";
+
+import { translate } from "../../HOCs/translate";
+import { resourceExportPgnGame } from "../../../constants/resourceConstants";
+import { ImportedGameCollection } from "../../../api/client/collections";
 
 class PGN extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      msg: null
-    };
-    this.changeFilehandler = this.changeFilehandler.bind(this);
-  }
-  changeFilehandler(event) {
-    let file = event.target.files[0];
+  changeFilehandler = event => {
+    const { uploadPgn } = this.props;
+    const file = event.target.files[0];
 
     if (!!file) {
-      var msFile = new FS.File(file);
+      const msFile = new FS.File(file);
       msFile.creatorId = Meteor.userId();
 
-      let confirm = PgnImports.insert(msFile, function(err, fileObj) {
+      const confirm = ImportedGameCollection.insert(msFile, err => {
         if (err) {
-          alert("Upload PGN error: " + err);
+          console.error("Upload PGN error: " + err);
         }
       });
+
       if (confirm) {
-        this.props.uploadPgn();
+        uploadPgn();
       }
     }
-  }
+  };
 
   render() {
-    let id;
+    const { Gamedata, translate } = this.props;
 
-    let game = this.props.Gamedata.MoveList;
-    if (!!game) id = game._id;
+    const id = get(Gamedata, "MoveList._id");
+
     return (
       <div style={{ padding: "20px" }}>
-        <p>{this.state.msg}</p>
-        <label className="fen-label">FEN</label>
+        <label className="fen-label">{translate("fen")}</label>
         <input className="form-control fen-input" />
-        <label className="fen-label">PGN</label>
+        <label className="fen-label">{translate("pgn")}</label>
         <div>
-          <a className="btn btn-primary pgn-btn" href={"export/pgn/game/" + id}>
+          <a className="btn btn-primary pgn-btn" href={resourceExportPgnGame + id}>
             <i>
               <img src="images/pgn-export-icon.png" alt="pgn-export-icon" />
             </i>
-            PGN Export
+            {translate("pgnExport")}
           </a>
           <label htmlFor="files" className="btn btn-primary pgn-btn">
             <i>
               <img src="images/pgn-import-icon.png" alt="pgn-import-icon" />
             </i>
-            PGN Import
+            {translate("pgnImport")}
           </label>
           <input
             id="files"
@@ -63,4 +62,4 @@ class PGN extends Component {
   }
 }
 
-export default PGN;
+export default translate("Common.pgnActions")(PGN);

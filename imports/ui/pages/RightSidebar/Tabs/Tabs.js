@@ -1,22 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Tab from "./Tab";
-import { Logger } from "../../../../../lib/client/Logger";
-
-// eslint-disable-next-line no-unused-vars
-const log = new Logger("client/Tabs_js");
 
 class Tabs extends Component {
-  static propTypes = {
-    children: PropTypes.instanceOf(Array).isRequired,
-    cssManager: PropTypes.object.isRequired,
-    defultactive: PropTypes.number
-  };
-
   constructor(props) {
     super(props);
-    let df = 0;
-    df = this.props.defultactive || 0;
+
+    const df = props.defultactive || 0;
 
     this.state = {
       activeTab: this.props.children[df].props.label,
@@ -25,21 +15,22 @@ class Tabs extends Component {
     };
   }
 
-  onClickTabItem = tab => {
-    this.setState({ activeTab: tab });
+  onClickTabItem = activeTab => {
+    this.setState({ activeTab });
   };
 
   render() {
     const {
       onClickTabItem,
-      props: { children },
+      props: { children, cssManager },
       state: { activeTab, onHover, hoverOut }
     } = this;
-    let tabName = this.props.tabName;
+
+    let { tabName } = this.props;
 
     return (
-      <div style={this.props.cssManager.tab()}>
-        <ol style={this.props.cssManager.tabList(tabName)}>
+      <div style={cssManager.tab()}>
+        <ol style={cssManager.tabList(tabName)}>
           {children.map(child => {
             let { label, imgsrc, hoverSrc } = child.props;
             if (
@@ -50,7 +41,7 @@ class Tabs extends Component {
             }
             return (
               <Tab
-                cssManager={this.props.cssManager}
+                cssManager={cssManager}
                 tabListName={tabName}
                 activeTab={activeTab}
                 onHover={onHover}
@@ -63,7 +54,7 @@ class Tabs extends Component {
             );
           })}
         </ol>
-        <div style={this.props.cssManager.tabContent()}>
+        <div style={cssManager.tabContent()}>
           {children.map(child => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;
@@ -73,5 +64,11 @@ class Tabs extends Component {
     );
   }
 }
+
+Tabs.propTypes = {
+  children: PropTypes.instanceOf(Array).isRequired,
+  cssManager: PropTypes.object.isRequired,
+  defultactive: PropTypes.number
+};
 
 export default Tabs;

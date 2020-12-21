@@ -4,41 +4,31 @@ import { Button } from "antd";
 import GameHistory from "./GameHistory";
 import ExamineObserveTab from "./ExamineObserveTab";
 import { ExamineGameControlBlock } from "./GameControlBlock";
-import i18n from "meteor/universe:i18n";
-
+import { translate } from "../../../../HOCs/translate";
 import { Tabs } from "antd";
 import { PlayChooseBot } from "../PlayChooseBot";
-import { Logger } from "../../../../../../lib/client/Logger";
 import { Meteor } from "meteor/meteor";
+import { resourceEditor, resourcePlay } from "../../../../../constants/resourceConstants";
+
 const { TabPane } = Tabs;
 
-const log = new Logger("client/ExamineSidebarTop_js");
-
-export default class ExamineSidebarTop extends Component {
+class ExamineSidebarTop extends Component {
   constructor(props) {
     super(props);
-    log.trace("ExamineSidebarTop constructor", props);
+
     this.state = {
       status: "others",
-      move_or_play: "move"
+      moveOrPlay: "move"
     };
   }
 
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   playComputer() {
-    this.setState({ move_or_play: "play", cmi: "none" });
+    this.setState({ moveOrPlay: "play", cmi: "none" });
   }
 
   playBotFromHere(data) {
+    const { history, game } = this.props;
+
     Meteor.call(
       "startBotGame",
       "play_computer",
@@ -52,55 +42,70 @@ export default class ExamineSidebarTop extends Component {
       data.incrementOrDelayType,
       data.skillLevel,
       data.color,
-      this.props.game._id
+      game._id
     );
-    this.props.history.push("/play");
+
+    history.push(resourcePlay);
   }
 
   componentDidUpdate(prevProps) {
-    if (this.state.move_or_play === "move") return;
+    const { game } = this.props;
+    const { moveOrPlay } = this.state;
+
+    if (moveOrPlay === "move") return;
+
     const cmi1 = prevProps.game && prevProps.game.variations ? prevProps.game.variations.cmi : -1;
-    const cmi2 =
-      this.props.game && this.props.game.variations ? this.props.game.variations.cmi : -1;
+    const cmi2 = game && game.variations ? game.variations.cmi : -1;
+
     if (cmi1 === cmi2) return;
-    this.setState({ move_or_play: "move" });
+    this.setState({ moveOrPlay: "move" });
   }
 
   renderPlay() {
-    log.trace("ExamineSidebarTop::renderPlay", this.props);
     return (
       <PlayChooseBot
-        onClose={() => this.setState({ move_or_play: "move" })}
+        onClose={() => this.setState({ moveOrPlay: "move" })}
         onPlay={data => this.playBotFromHere(data)}
       />
     );
   }
 
   renderMove() {
-    log.trace("ExamineSidebarTop::renderMove", this.props);
+    const {
+      translate,
+      cssManager,
+      RightBarTopData,
+      flip,
+      actionData,
+      startGameExamine,
+      gameRequest,
+      examineAction,
+      game
+    } = this.props;
+
     return (
       <div>
-        <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to="/editor">
-          <Button>Editor</Button>
+        <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to={resourceEditor}>
+          <Button>{translate("editor")}</Button>
         </Link>
-        <Button onClick={() => this.playComputer()}>Play computer from here</Button>
+        <Button onClick={() => this.playComputer()}>{translate("playComputer")}</Button>
         <GameHistory
-          cssManager={this.props.cssManager}
-          game={this.props.RightBarTopData.MoveList}
-          flip={this.props.flip}
-          actionData={this.props.actionData}
-          startGameExamine={this.props.startGameExamine}
-          gameRequest={this.props.gameRequest}
-          examineAction={this.props.examineAction}
+          cssManager={cssManager}
+          game={RightBarTopData.MoveList}
+          flip={flip}
+          actionData={actionData}
+          startGameExamine={startGameExamine}
+          gameRequest={gameRequest}
+          examineAction={examineAction}
         />
-        <ExamineGameControlBlock game={this.props.game} flip={this.props.flip} />
+        <ExamineGameControlBlock game={game} flip={flip} />
       </div>
     );
   }
 
   render() {
-    log.trace("ExamineSidebarTop render", this.props);
-    let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
+    const { translate, game, allUsers, observeUser, unObserveUser } = this.props;
+    const { moveOrPlay } = this.state;
 
     return (
       <Tabs
@@ -110,19 +115,21 @@ export default class ExamineSidebarTop extends Component {
         type="card"
         style={{ marginBottom: 32 }}
       >
-        <TabPane tab={translator("game")} key="1">
-          {this.state.move_or_play === "play" && this.renderPlay()}
-          {this.state.move_or_play === "move" && this.renderMove()}
+        <TabPane tab={translate("game")} key="1">
+          {moveOrPlay === "play" && this.renderPlay()}
+          {moveOrPlay === "move" && this.renderMove()}
         </TabPane>
-        <TabPane tab="Observe" key="2">
+        <TabPane tab={translate("observe")} key="2">
           <ExamineObserveTab
-            game={this.props.game}
-            allUsers={this.props.allUsers}
-            observeUser={this.props.observeUser}
-            unObserveUser={this.props.unObserveUser}
+            game={game}
+            allUsers={allUsers}
+            observeUser={observeUser}
+            unObserveUser={unObserveUser}
           />
         </TabPane>
       </Tabs>
     );
   }
 }
+
+export default translate("Common.rightBarTop")(ExamineSidebarTop);

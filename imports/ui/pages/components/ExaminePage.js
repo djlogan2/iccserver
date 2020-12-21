@@ -12,17 +12,13 @@ import { Col } from "antd";
 import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
-import { Logger } from "../../../../lib/client/Logger";
 import {
   GameRequestPopup,
-  GamenotificationPopup,
   GameResignedPopup,
   ExaminActionPopup,
-  ActionPopup
-} from "./Popup/Popup";
-
-// eslint-disable-next-line no-unused-vars
-const log = new Logger("client/ExaminePage");
+  ActionPopup,
+  GameNotificationPopup
+} from "./Popup";
 
 export default class ExaminePage extends Component {
   constructor(props) {
@@ -119,12 +115,14 @@ export default class ExaminePage extends Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.delayedUpdateDimensions);
   }
+
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
     });
   };
+
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
       tomove: "white",
@@ -152,10 +150,11 @@ export default class ExaminePage extends Component {
   };
 
   gameRequest = (title, requestId) => {
-    return (
-      <GameRequestPopup requestId={requestId} title={title} cssManager={this.props.cssManager} />
-    );
+    const { cssManager } = this.props;
+
+    return <GameRequestPopup requestId={requestId} title={title} cssManager={cssManager} />;
   };
+
   actionPopup = (title, action) => {
     return (
       <ActionPopup
@@ -168,8 +167,11 @@ export default class ExaminePage extends Component {
   };
 
   GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
+    return (
+      <GameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />
+    );
   };
+
   GameResignedPopup = (title, mid) => {
     return (
       <GameResignedPopup
@@ -180,6 +182,7 @@ export default class ExaminePage extends Component {
       />
     );
   };
+
   examinActionPopup = action => {
     return (
       <ExaminActionPopup

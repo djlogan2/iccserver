@@ -1,13 +1,14 @@
 import React, { Component } from "react";
+import { findRatingObject } from "../../../../../lib/ratinghelpers";
+import { DynamicRatingsCollection } from "../../../../api/client/collections";
 import { Button, Form, InputNumber, Radio } from "antd";
 import { translate } from "../../../HOCs/translate";
 
-class PlayChooseBot extends Component {
+class PlayFriendOptions extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      difficulty: 5,
       color: "random",
       incrementOrDelayType: "inc",
       initial: 7,
@@ -19,12 +20,6 @@ class PlayChooseBot extends Component {
   componentDidMount() {
     this.updateRating();
   }
-
-  handleChangeDifficulty = e => {
-    this.setState({
-      difficulty: e.target.value
-    });
-  };
 
   handleChangeColor = e => {
     this.setState({
@@ -41,6 +36,7 @@ class PlayChooseBot extends Component {
   handleChange = inputName => {
     return number => {
       const newState = {};
+
       newState[inputName] = number;
 
       this.setState(newState, () => {
@@ -50,33 +46,25 @@ class PlayChooseBot extends Component {
   };
 
   updateRating = () => {
-    let { initial, incrementOrDelay } = this.state;
-    let index = initial + (2 / 3) * incrementOrDelay;
+    const { initial, incrementOrDelay, incrementOrDelayType } = this.state;
 
-    const ratingConfig = {
-      bullet: [0, 2],
-      blitz: [3, 14],
-      standard: [15, 600]
-    };
+    const ratingObject = findRatingObject(
+      0,
+      "white", // Right now white and black always match, so just hard code
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      DynamicRatingsCollection.find().fetch()
+    );
 
-    let ratingType = "none";
-
-    if (ratingConfig.bullet[0] <= index && index <= ratingConfig.bullet[1]) {
-      ratingType = "bullet";
-    } else if (ratingConfig.blitz[0] <= index && index <= ratingConfig.blitz[1]) {
-      ratingType = "blitz";
-    } else if (ratingConfig.standard[0] <= index && index <= ratingConfig.standard[1]) {
-      ratingType = "standard";
-    }
-
-    this.setState({ ratingType });
+    this.setState({ ratingType: ratingObject.rating_type });
   };
 
   handlePlay = () => {
     const { onPlay } = this.props;
 
     let { color } = this.state;
-    const { ratingType, difficulty, incrementOrDelayType, initial, incrementOrDelay } = this.state;
+    const { ratingType, incrementOrDelayType, initial, incrementOrDelay } = this.state;
 
     if (color === "random") {
       color = Math.random() < 0.5 ? "white" : "black";
@@ -86,66 +74,32 @@ class PlayChooseBot extends Component {
       color,
       incrementOrDelayType,
       initial,
-      incrementOrDelay,
-      skillLevel: difficulty
+      incrementOrDelay
     });
   };
 
   render() {
     const { onClose, translate } = this.props;
-    const {
-      initial,
-      incrementOrDelay,
-      difficulty,
-      incrementOrDelayType,
-      color,
-      ratingType
-    } = this.state;
+    const { initial, incrementOrDelay, incrementOrDelayType, ratingType, color } = this.state;
 
     return (
       <div className="play-friend">
         <div className="play-friend__head">
-          <h2 className="play-friend__name-title">{translate("playWithComputer")}</h2>
-          <Button onClick={onClose}>{translate("back")}</Button>
+          <h2 className="play-friend__name-title">{translate("createGame")}</h2>
+          <Button onClick={onClose}>{translate("BACK")}</Button>
         </div>
         <Form
           className="play-bot__form"
           layout="vertical"
           initialValues={{
             initial,
-            incrementOrDelay
+            incrementOrDelay,
+            color: "random"
           }}
         >
-          <Form.Item label={translate("difficulty")} name="difficulty">
-            <Radio.Group
-              value={difficulty}
-              defaultValue={difficulty}
-              onChange={this.handleChangeDifficulty}
-            >
-              <Radio.Button value={0}>0</Radio.Button>
-              <Radio.Button value={1}>1</Radio.Button>
-              <Radio.Button value={2}>2</Radio.Button>
-              <Radio.Button value={3}>3</Radio.Button>
-              <Radio.Button value={4}>4</Radio.Button>
-              <Radio.Button value={5}>5</Radio.Button>
-              <Radio.Button value={6}>6</Radio.Button>
-              <Radio.Button value={7}>7</Radio.Button>
-              <Radio.Button value={8}>8</Radio.Button>
-              <Radio.Button value={9}>9</Radio.Button>
-              <Radio.Button value={10}>10</Radio.Button>
-            </Radio.Group>
-          </Form.Item>
-          <Form.Item label={translate("color")} name="color">
-            <Radio.Group value={color} defaultValue={color} onChange={this.handleChangeColor}>
-              <Radio.Button value="random">{translate("colors.random")}</Radio.Button>
-              <Radio.Button value="white">{translate("colors.white")}</Radio.Button>
-              <Radio.Button value="black">{translate("colors.black")}</Radio.Button>
-            </Radio.Group>
-          </Form.Item>
           <Form.Item label={translate("timeControl")} name="time-control">
             <Radio.Group
               onChange={this.handleChangeIncrementOrDelayType}
-              defaultValue={incrementOrDelayType}
               value={incrementOrDelayType}
             >
               <Radio.Button value="inc">{translate("control.inc")}</Radio.Button>
@@ -175,8 +129,15 @@ class PlayChooseBot extends Component {
           <Form.Item label={translate("ratingType")} name="ratingType">
             <p>{translate(`ratings.${ratingType}`)}</p>
           </Form.Item>
+          <Form.Item label={translate("color")} name="color">
+            <Radio.Group onChange={this.handleChangeColor} value={color}>
+              <Radio.Button value="random">{translate("colors.random")}</Radio.Button>
+              <Radio.Button value="white">{translate("colors.white")}</Radio.Button>
+              <Radio.Button value="black">{translate("colors.black")}</Radio.Button>
+            </Radio.Group>
+          </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
-            {translate("startTheGame")}
+            {translate("selectOpponent")}
           </Button>
         </Form>
       </div>
@@ -184,4 +145,4 @@ class PlayChooseBot extends Component {
   }
 }
 
-export default translate("Play.PlayChooseBot")(PlayChooseBot);
+export default translate("Play.PlayFriendOptions")(PlayFriendOptions);

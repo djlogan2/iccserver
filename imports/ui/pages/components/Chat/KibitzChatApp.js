@@ -9,17 +9,20 @@ class KibitzChatApp extends Component {
   handleMessage(text) {
     Meteor.call("kibitz", "kibitz", this.props.gameId, this.props.isKibitz, text, err => {
       if (err) {
+        console.error(err);
       }
     });
   }
 
   render() {
+    const { childChatTexts, chats } = this.props;
+
     return (
       <ChatApp
-        child_chat={Meteor.user().cf === "c"}
-        child_chat_texts={this.props.child_chat_texts}
+        childChat={Meteor.user().cf === "c"}
+        childChatTexts={childChatTexts}
         user={Meteor.user()}
-        chats={this.props.chats}
+        chats={chats}
         onMessage={text => this.handleMessage(text)}
       />
     );
@@ -29,6 +32,6 @@ class KibitzChatApp extends Component {
 export default withTracker(props => {
   return {
     chats: Chat.find({ id: props.gameId }).fetch(),
-    child_chat_texts: ChildChatTexts.find().fetch()
+    childChatTexts: ChildChatTexts.find().fetch()
   };
 })(KibitzChatApp);

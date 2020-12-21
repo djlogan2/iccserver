@@ -2,27 +2,29 @@ import React, { useState } from "react";
 import { Button, Input, Modal } from "antd";
 import { translate } from "../../../HOCs/translate";
 
-const RoomBlock = translate("Common.Community")(
-  ({ activeRoom, list, onChange, onAdd, openRightBlock, translate }) => {
+const RoomBlock = translate("Community")(
+  ({ activeRoom, list, onChange, onAdd, openRightBlock, translate, isModal, handleCloseModal }) => {
     const [roomName, setRoomName] = useState("");
-    const [isModal, setModal] = useState(false);
+    const [isPrivate, setIsPrivate] = useState(true);
 
     const handleCancel = () => {
       setRoomName("");
-      setModal(false);
+      handleCloseModal();
     };
 
     const handleOk = () => {
       setRoomName("");
-      setModal(false);
+      handleCloseModal();
 
-      onAdd(roomName);
+      onAdd(roomName, isPrivate);
     };
 
     return (
       <div className="room-block">
         <div className="room-block__head">
-          <h2 className="room-block__title">{translate("RoomBlock.rooms")}</h2>
+          <h2 className="room-block__title">
+            {translate("RoomBlock.rooms", { rooms: list.length })}
+          </h2>
           <Modal
             title={translate("RoomBlock.title")}
             visible={!!isModal}

@@ -3,44 +3,29 @@ import Tabs from "./Tabs/Tabs";
 import SeekGame from "./SeekGameComponent";
 import QuickPairing from "./QuickPairingGameComponent";
 import MatchUser from "./MatchUserComponent";
-import i18n from "meteor/universe:i18n";
+import { translate } from "../../HOCs/translate";
 import "./Tabs/styles";
 
-export default class RightBarToptabs extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      status: "others"
-    };
-  }
-
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
+class RightBarToptabs extends Component {
   render() {
-    let translator = i18n.createTranslator("Common.rightBarTop", this.getLang());
+    const { translate, cssManager, gameRequest } = this.props;
 
     return (
-      <Tabs cssManager={this.props.cssManager}>
-        <div label={translator("quikpairing")}>
-          <QuickPairing cssManager={this.props.cssManager} />
+      <Tabs cssManager={cssManager}>
+        <div label={translate("quikpairing")}>
+          <QuickPairing cssManager={cssManager} />
         </div>
 
-        <div label={translator("seekgame")}>
-          <SeekGame cssManager={this.props.cssManager} />
+        <div label={translate("seekgame")}>
+          <SeekGame cssManager={cssManager} />
         </div>
 
-        <div label={translator("matchuser")}>
-          <MatchUser cssManager={this.props.cssManager} gameRequest={this.props.gameRequest} />
+        <div label={translate("matchuser")}>
+          <MatchUser cssManager={cssManager} gameRequest={gameRequest} />
         </div>
       </Tabs>
     );
   }
 }
+
+export default translate("Common.rightBarTop")(RightBarToptabs);

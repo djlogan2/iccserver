@@ -12,11 +12,11 @@ import { Logger } from "../../../lib/client/Logger";
 import { ModalProvider } from "./ModalContext";
 import {
   GameRequestPopup,
-  GamenotificationPopup,
+  GameNotificationPopup,
   GameResignedPopup,
   ExaminActionPopup,
   ActionPopup
-} from "./components/Popup/Popup";
+} from "./components/Popup";
 import i18n from "meteor/universe:i18n";
 import ExportPgnButton from "./components/Button/ExportPgnButton";
 const log = new Logger("client/MainPage");
@@ -170,8 +170,8 @@ export default class MainPage extends Component {
     );
   };
 
-  GamenotificationPopup = (title, mid) => {
-    return <GamenotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
+  EnhancedGameNotificationPopup = (title, mid) => {
+    return <GameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
   };
   GameResignedPopup = (title, mid) => {
     return (
@@ -442,14 +442,13 @@ export default class MainPage extends Component {
           }
         }
       }
-    } else {
-      status = "idlemode";
     }
+
     if (!!this.props.GameHistory) {
       informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
     }
     if (!!this.props.clientMessage) {
-      informativePopup = this.GamenotificationPopup(
+      informativePopup = this.EnhancedGameNotificationPopup(
         this.props.clientMessage.message,
         this.props.clientMessage._id
       );

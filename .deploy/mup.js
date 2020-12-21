@@ -2,8 +2,8 @@ module.exports = {
   servers: {
     one: {
       host: "18.204.10.150",
-      username: "david",
-      pem: "~/.ssh/id_rsa"
+      username: "oleshkoo",
+      pem: "~/.ssh/prod-icc"
     }
   },
 

@@ -45,11 +45,19 @@ export const english = {
     },
     rightBarTop: {
       game: "Game",
+      observe: "Observe",
+      test: "Test",
+      editor: "Editor",
+      playComputer: "Play computer from here",
       play: "Play",
       tournaments: "Tournaments",
       quikpairing: "Quick Pairing",
       seekgame: "Seek a Game",
-      matchuser: "Match User"
+      matchuser: "Match User",
+      gameShare: "Game share",
+      gameDownload: "Game download",
+      gameAnalysis: "Game Analysis",
+      friends: "Friends"
     },
     menuLinkLabel: {
       play: "Play",
@@ -79,7 +87,13 @@ export const english = {
       events: "Events",
       friends: "Friends",
       fen_pgn: "FEN/PGN",
-      history: "History"
+      history: "History",
+      adjournedGame: "Adjourned Game",
+      gameHistory: "Game History",
+      gameLibrary: "Game Library",
+      followCoach: "Follow Coach",
+      examiner: "Examiner",
+      observers: "Observers"
     },
     MatchUserSubTab: {
       friends: "Friends",
@@ -131,6 +145,12 @@ export const english = {
     },
     chatBoxMessage: {
       NEW_MESSAGE: "NEW MESSAGE"
+    },
+    pgnActions: {
+      fen: "FEN",
+      pgn: "PGN",
+      pgnExport: "PGN Export",
+      pgnImport: "PGN Import"
     }
   },
   Play: {
@@ -144,7 +164,147 @@ export const english = {
       PLAY_WITH_FRIEND: "Play with friend",
       BACK: "Back",
       FRIENDS: "Friends",
-      CHOOSE: "Choose"
+      CHOOSE: "Choose",
+      createGame: "Create game",
+      timeControl: "Time control",
+      control: {
+        inc: "Inc",
+        none: "None",
+        us: "Us",
+        bronstein: "Bronstein"
+      },
+      initial: "Initial",
+      incrementOrDelay: "Increment or delay",
+      ratingType: "Rating type",
+      ratings: {
+        none: "None",
+        bullet: "Bullet",
+        blitz: "Blitz",
+        standard: "Standard"
+      },
+      color: "Color",
+      colors: {
+        random: "Random",
+        white: "White",
+        black: "Black"
+      },
+      selectOpponent: "Select opponent"
+    },
+    PlayChooseBot: {
+      colors: {
+        random: "Random",
+        white: "White",
+        black: "Black"
+      },
+      ratings: {
+        none: "None",
+        bullet: "Bullet",
+        blitz: "Blitz",
+        standard: "Standard"
+      },
+      playWithComputer: "Play with computer",
+      back: "Back",
+      difficulty: "Difficulty",
+      color: "Color",
+      timeControl: "Time control",
+      control: {
+        inc: "Inc",
+        none: "None",
+        us: "Us",
+        bronstein: "Bronstein"
+      },
+      initial: "Initial",
+      incrementOrDelay: "Increment or delay",
+      ratingType: "Rating type",
+      startTheGame: "Start the game"
+    },
+    PlayModaler: {
+      rematch: "Rematch",
+      examine: "Examine",
+      whiteWon: "White won!",
+      blackWon: "Black won!",
+      gameDrawn: "Game drawn!",
+      unknownResult: "Unknown result "
+    },
+    PlayBlock: {
+      createGame: "Create a game",
+      playWithFriend: "Play with a friend",
+      playWithComputer: "Play with the computer"
+    },
+    ObserveBlock: {
+      inProgress: "Work in progress"
+    },
+    PlayRightSidebar: {
+      tabs: {
+        playTab: "Play",
+        observeTab: "Observe"
+      },
+      bottomTabs: {
+        chatTab: "Chat",
+        kibitzTab: "Kibitz"
+      }
+    }
+  },
+  Editor: {
+    EditorRightSidebar: {
+      backToPlay: "Back to Play",
+      boardSetUp: "Board set up",
+      whiteToPlay: "White to play",
+      blackToPlay: "Black to play",
+      castling: "Castling",
+      white: "White",
+      black: "Black",
+      startingPosition: "Starting position",
+      clearBoard: "Clear board",
+      flipBoard: "Flip board",
+      fen: "FEN",
+      insertFen: "Insert FEN here"
+    }
+  },
+  Examine: {
+    ExamineObserveTab: {
+      findUsers: "Find user to observe",
+      observe: "Observe"
+    },
+    ExamineObserverTabBlock: {
+      observing: "{$quantity} people are observing {$username}'s board",
+      unobserve: "Unobserver"
+    },
+    ExamineOwnerTabBlock: {
+      observing: "{$quantity} people are observing this board"
+    },
+    ExamineRightSidebarBottom: {
+      tabs: {
+        chat: "Chat",
+        fenPgn: "FEN/PGN",
+        games: "Games"
+      },
+      workInProgress: "Work in progress..."
+    },
+    FenPgn: {
+      fen: "FEN",
+      yourMessage: "Your message",
+      pgn: "PGN",
+      pgnImport: "PGN Import",
+      pgnExport: "PGN Export"
+    }
+  },
+  Community: {
+    RoomBlock: {
+      rooms: "Your rooms: {$rooms}",
+      plus: "+",
+      title: "Create room"
+    },
+    CommunityRightBlock: {
+      allRooms: "All rooms",
+      close: "Close",
+      createRoom: "Create room"
+    },
+    ChildChatInput: {
+      send: "Send"
+    },
+    ChatInput: {
+      send: "Send"
     }
   }
 };
