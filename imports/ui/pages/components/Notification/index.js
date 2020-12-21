@@ -5,7 +5,7 @@ import { Meteor } from "meteor/meteor";
 const renderNotification = ({ title, action, cssManager, gameId }) => {
   const key = `notification-${action}-${gameId}`;
 
-  const responseHandler = (actionType) => {
+  const responseHandler = actionType => {
     switch (action) {
       case "takeBack":
         takeBack(actionType, gameId);
@@ -23,6 +23,7 @@ const renderNotification = ({ title, action, cssManager, gameId }) => {
         adjourn(actionType, gameId);
         break;
       default:
+        break;
     }
 
     notification.close(key);
@@ -51,65 +52,53 @@ const renderNotification = ({ title, action, cssManager, gameId }) => {
   const renderDescription = () => {
     return (
       <div style={{ position: "relative" }}>
-        <div
-          style={{
-            display: "flex",
-            marginTop: "0px",
-            alignItems: "center",
-            color: "#fff",
-            border: "1px solid #f88117",
-            position: "absolute",
-            right: "8px",
-            background: "#f88117e0",
-            width: "auto",
-            top: "15px",
-            zIndex: "9",
-            webkitBoxShadow: "#949392 3px 2px 4px 0px",
-            mozBoxShadow: "#949392 3px 2px 4px 0px",
-            boxShadow: "#949392 3px 2px 4px 0px",
-            borderRadius: "4px",
-            padding: "10px 15px"
-          }}
+        <button
+          onClick={() => responseHandler("accepted")}
+          style={{ backgroundColor: "transparent", width: "50%", border: "0px" }}
         >
           <img
-            src={cssManager.buttonBackgroundImage("infoIcon")}
-            style={{ width: "18px", marginRight: "10px" }}
-            alt="info"
+            src={cssManager.buttonBackgroundImage("checkedIcon")}
+            style={{ width: "18px" }}
+            alt="accept"
           />
-          <strong style={{ width: "auto", marginRight: "6px", fontSize: "14px" }}>{title}</strong>
-          <button
-            onClick={() => responseHandler("accepted")}
-            style={{ backgroundColor: "transparent", border: "0px" }}
-          >
-            <img
-              src={cssManager.buttonBackgroundImage("checkedIcon")}
-              style={{ width: "18px" }}
-              alt="accept"
-            />
-          </button>
-          <button
-            onClick={() => responseHandler("rejected")}
-            style={{ backgroundColor: "transparent", border: "0px" }}
-          >
-            <img
-              src={cssManager.buttonBackgroundImage("closeIcon")}
-              style={{ width: "15px" }}
-              alt="close"
-            />
-          </button>
-        </div>
+        </button>
+        <button
+          onClick={() => responseHandler("rejected")}
+          style={{ backgroundColor: "transparent", width: "50%", border: "0px" }}
+        >
+          <img
+            src={cssManager.buttonBackgroundImage("closeIcon")}
+            style={{ width: "15px" }}
+            alt="close"
+          />
+        </button>
+      </div>
+    );
+  };
+
+  const renderTitle = () => {
+    return (
+      <div style={{ width: "100%" }}>
+        <img
+          src={cssManager.buttonBackgroundImage("infoIcon")}
+          style={{ width: "18px", marginRight: "10px", marginBottom: "5px" }}
+          alt="info"
+        />
+        <strong style={{ width: "auto", marginRight: "6px", fontSize: "18px", color: "#fff" }}>
+          {title}
+        </strong>
       </div>
     );
   };
 
   notification.open({
     key,
-    message: title,
-    description: renderDescription(),
-    duration: 10
+    duration: 0,
+    closeIcon: () => null,
+    style: { height: "85px", backgroundColor: "#FF9806", color: "#fff" },
+    message: renderTitle(),
+    description: renderDescription()
   });
-
-  return null;
 };
 
 export default renderNotification;
