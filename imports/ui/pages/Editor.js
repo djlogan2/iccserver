@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss, GameHistoryCollection, Game } from "../../api/client/collections.js";
+import { Game, GameHistoryCollection, mongoCss } from "../../api/client/collections.js";
 import Chess from "chess.js";
 import Chessground from "react-chessground";
 import FenParser from "@chess-fu/fen-parser";
@@ -22,7 +22,6 @@ const log = new Logger("client/Editor_js");
 class Editor extends Component {
   constructor(props) {
     super(props);
-    log.debug("Editor constructor", props);
 
     this.state = {
       whiteCastling: [],
@@ -30,7 +29,7 @@ class Editor extends Component {
       orientation: "white"
     };
 
-    if (this.props.isready && this.props.examine_game) {
+    if (props.isReady && props.examineGame) {
       this.setInitial();
     }
 
@@ -46,53 +45,60 @@ class Editor extends Component {
   }
 
   handleResize = () => {
-    if (!!this.chessground) this.chessground.cg.redrawAll();
+    if (!!this.chessground) {
+      this.chessground.cg.redrawAll();
+    }
   };
 
   setInitial = () => {
-    log.debug("Editor::setInitial");
-    const fenParser = new FenParser(this.props.examine_game.fen);
-    let { whiteCastling, blackCastling } = this.getCastling(fenParser.castles);
+    const { examineGame } = this.props;
+
+    const fenParser = new FenParser(examineGame.fen);
+    const { whiteCastling, blackCastling } = this.getCastling(fenParser.castles);
+
     this.setState({ whiteCastling, blackCastling });
   };
 
-  getCastling(castling) {
-    log.debug("Editor::getCastling", castling);
+  getCastling = castling => {
     let result = { whiteCastling: [], blackCastling: [] };
+
     castling.split("").forEach(letter => {
       if (letter === letter.toUpperCase()) {
         result.whiteCastling.push(letter);
-        return;
+      } else {
+        result.blackCastling.push(letter);
       }
-      result.blackCastling.push(letter);
     });
+
     return result;
-  }
+  };
 
   generateFen = () => {
-    log.debug("Editor::generateFen");
-    let miniFen = !!this.chessground
+    const { examineGame } = this.props;
+
+    const miniFen = !!this.chessground
       ? this.chessground.cg.getFen()
       : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-    let serverFen = !!this.props.examine_game
-      ? this.props.examine_game.fen
+    const serverFen = !!examineGame
+      ? examineGame.fen
       : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+
     const chess = new Chess.Chess();
-    log.debug("serverFen=" + serverFen);
-    log.debug("miniFen  =" + miniFen);
     let flags = serverFen
       .split(" ")
       .slice(1)
       .join(" ");
+
     const sigh = `${miniFen} ${flags}`;
     log.debug("sigh     =" + sigh + ", validate=", chess.validate_fen(sigh));
     return sigh;
   };
 
   handleChange = () => {
-    log.debug("Editor::handleChange");
-    let newFen = this.generateFen();
-    Meteor.call("loadFen", "loadFen", this.props.examine_game._id, newFen, err => {
+    const { examineGame } = this.props;
+
+    const newFen = this.generateFen();
+    Meteor.call("loadFen", "loadFen", examineGame._id, newFen, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -101,29 +107,29 @@ class Editor extends Component {
 
   handleDropStart = (piece, e) => {
     log.debug("Editor::handleDropStart", piece);
-    if (!!this.chessground) this.chessground.cg.dragNewPiece(piece, e, true);
+
+    if (!!this.chessground) {
+      this.chessground.cg.dragNewPiece(piece, e, true);
+    }
   };
 
   handleCastling = (white, black) => {
+    const { examineGame } = this.props;
+
     log.debug("Editor::handleCastling", [white, black]);
     // 'k', 'q', 'kq'
-    Meteor.call(
-      "setCastling",
-      "setCastling",
-      this.props.examine_game._id,
-      white.toLowerCase(),
-      black,
-      err => {
-        if (err) {
-          log.error(err.reason);
-        }
+    Meteor.call("setCastling", "setCastling", examineGame._id, white.toLowerCase(), black, err => {
+      if (err) {
+        log.error(err.reason);
       }
-    );
+    });
   };
 
   handleStartPosition = () => {
+    const { examineGame } = this.props;
+
     log.debug("Editor::handleStartPosition");
-    Meteor.call("setStartingPosition", "setStartingPosition", this.props.examine_game._id, err => {
+    Meteor.call("setStartingPosition", "setStartingPosition", examineGame._id, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -131,8 +137,10 @@ class Editor extends Component {
   };
 
   handleClear = () => {
+    const { examineGame } = this.props;
+
     log.debug("Editor::handleClear");
-    Meteor.call("clearBoard", "clearBoard", this.props.examine_game._id, err => {
+    Meteor.call("clearBoard", "clearBoard", examineGame._id, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -141,15 +149,20 @@ class Editor extends Component {
 
   handleFlip = () => {
     log.debug("Editor::handleFlip");
-    this.setState({
-      orientation: this.state.orientation === "white" ? "black" : "white"
+
+    this.setState(prevState => {
+      return {
+        orientation: prevState.orientation === "white" ? "black" : "white"
+      };
     });
   };
 
   handleColorChange = color => {
+    const { examineGame } = this.props;
+
     log.debug("Editor::handleColorChange", color);
     this.setState({ color });
-    Meteor.call("setToMove", "setToMove", this.props.examine_game._id, color, err => {
+    Meteor.call("setToMove", "setToMove", examineGame._id, color, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -157,8 +170,10 @@ class Editor extends Component {
   };
 
   handleNewFen = newFen => {
+    const { examineGame } = this.props;
+
     log.debug("Editor::handleNewFen", newFen);
-    Meteor.call("loadFen", "loadFen", this.props.examine_game._id, newFen, err => {
+    Meteor.call("loadFen", "loadFen", examineGame._id, newFen, err => {
       if (err) {
         log.error(err.reason);
       }
@@ -167,22 +182,20 @@ class Editor extends Component {
 
   calcBoardSize = () => {
     log.debug("Editor::calcBoardSize");
-    let w = window.innerWidth;
-    let h = window.innerHeight;
 
-    return Math.min(h / 1.3, w / 2.5);
+    return Math.min(window.innerHeight / 1.3, window.innerWidth / 2.5);
   };
 
   render() {
-    log.trace("Editor render", this.props);
-
-    if (!this.props.isready) return <Loading />;
-
+    const { isReady, systemCss, boardCss, examineGame } = this.props;
     const { whiteCastling, blackCastling, orientation } = this.state;
 
+    if (!isReady) {
+      return <Loading />;
+    }
+
     let css;
-    let { systemCss, boardCss } = this.props;
-    if (systemCss !== undefined && boardCss !== undefined) {
+    if (systemCss && boardCss) {
       css = new CssManager(systemCss, boardCss);
     }
 
@@ -190,9 +203,10 @@ class Editor extends Component {
       this.chessground.cg.state.viewOnly = false;
     }
 
-    if (!this.props.examine_game) {
+    if (!examineGame) {
       log.error("Editor_js LOADING");
     }
+
     const baordSize = this.calcBoardSize();
 
     return (
@@ -201,7 +215,7 @@ class Editor extends Component {
           <BoardWrapper>
             <div className="merida">
               <Chessground
-                fen={this.props.examine_game.fen}
+                fen={examineGame.fen}
                 width={baordSize}
                 height={baordSize}
                 orientation={orientation}
@@ -225,17 +239,17 @@ class Editor extends Component {
         <Col span={10} className="editor-right-sidebar-wrapper">
           <Spare onDropStart={this.handleDropStart} />
           <EditorRightSidebar
+            fen={examineGame.fen}
+            orientation={orientation}
+            color={examineGame.tomove}
+            whiteCastling={whiteCastling}
+            blackCastling={blackCastling}
             onStartPosition={this.handleStartPosition}
             onCastling={this.handleCastling}
             onClear={this.handleClear}
             onFlip={this.handleFlip}
             onFen={this.handleNewFen}
             onColorChange={this.handleColorChange}
-            fen={this.props.examine_game.fen}
-            orientation={orientation}
-            color={this.props.examine_game.tomove}
-            whiteCastling={whiteCastling}
-            blackCastling={blackCastling}
           />
         </Col>
       </AppWrapper>
@@ -254,8 +268,8 @@ export default withTracker(() => {
   };
 
   return {
-    isready: isReadySubscriptions(subscriptions),
-    examine_game: Game.findOne({ "examiners.id": Meteor.userId() }),
+    isReady: isReadySubscriptions(subscriptions),
+    examineGame: Game.findOne({ "examiners.id": Meteor.userId() }),
     gameHistory: GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     }).fetch(),
