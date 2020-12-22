@@ -152,7 +152,8 @@ export const english = {
       waitingforopponent: "( waiting for opponent )"
     },
     chatBoxMessage: {
-      NEW_MESSAGE: "NEW MESSAGE"
+      NEW_MESSAGE: "NEW MESSAGE",
+      newGame: "NEW GAME"
     },
     pgnActions: {
       fen: "FEN",
