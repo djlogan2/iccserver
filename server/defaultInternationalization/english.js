@@ -104,7 +104,11 @@ export const english = {
     },
     MatchUserSubTab: {
       friends: "Friends",
-      recentOpponent: "Recent Opponent"
+      recentOpponent: "Recent Opponent",
+      createChallangeLink: "Create challenge Link",
+      chooseMember: "Option 1 - Choose a Member",
+      sendLinkToAnyone: "Option 2 - Send a link for anyone to play",
+      tenMin: "10 min"
     },
     GameForm: {
       timeControl: "Time Control",
