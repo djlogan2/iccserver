@@ -159,6 +159,12 @@ export const english = {
       pgn: "PGN",
       pgnExport: "PGN Export",
       pgnImport: "PGN Import"
+    },
+    Events: {
+      fen: "FEN",
+      pgn: "PGN",
+      pgnExport: "PGN Export",
+      pgnImport: "PGN Import"
     }
   },
   Play: {
