@@ -137,7 +137,8 @@ export const english = {
       halfmove: "Take Back 1 Move",
       fullmove: "Take Back 2 Moves",
       abort: "Abort",
-      draw: "Draw"
+      draw: "Draw",
+      adjourn: "Adjourn"
     },
     MiddleBoard: {
       yourturn: "( Your Turn )",

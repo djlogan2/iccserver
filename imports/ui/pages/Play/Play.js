@@ -1,24 +1,27 @@
 import React, { Component } from "react";
-import PlayPage from "./components/PlayPage";
+import PlayPage from "../components/PlayPage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Logger } from "../../../lib/client/Logger";
-import CssManager from "../pages/components/Css/CssManager";
-import Loading from "../pages/components/Loading";
-import PlayModaler from "../pages/components/Modaler/PlayModaler";
-import Chess from "chess.js";
+import { Logger } from "../../../../lib/client/Logger";
+import CssManager from "../components/Css/CssManager";
+import Loading from "../components/Loading";
+import PlayModaler from "../components/Modaler/PlayModaler";
+import Chess from "../../../../node_modules/chess.js/chess";
 import {
   ClientMessagesCollection,
+  DynamicRatingsCollection,
   Game,
   GameRequestCollection,
-  DynamicRatingsCollection,
   mongoCss,
   mongoUser
-} from "../../api/client/collections";
-import { TimestampClient } from "../../../lib/Timestamp";
-import { findRatingObject } from "../../../lib/ratinghelpers";
-import { isReadySubscriptions } from "../../utils/utils";
-import PlayNotifier from "./components/PlayNotifier";
+} from "../../../api/client/collections";
+import { TimestampClient } from "../../../../lib/Timestamp";
+import { findRatingObject } from "../../../../lib/ratinghelpers";
+import { isReadySubscriptions } from "../../../utils/utils";
+import { compose } from "redux";
+import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
+import injectSheet from "react-jss";
+import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
 
 const log = new Logger("client/Play_js");
 
@@ -301,7 +304,7 @@ class Play extends Component {
 
     if (!this.props.isready) {
       //  log.error("Play LOADING");
-      return <Loading />;
+      return <Loading/>;
     }
 
     const { systemCss, boardCss } = this.props;
@@ -358,8 +361,6 @@ class Play extends Component {
           onRematch={this.handleRematch}
           onExamine={this.handleExamine}
         />
-
-        <PlayNotifier game={this.props.in_game} cssManager={css}/>
         <PlayPage
           cssManager={css}
           board={this._board}
@@ -378,66 +379,71 @@ class Play extends Component {
   }
 }
 
-export default withTracker(() => {
-  const subscriptions = {
-    game: Meteor.subscribe("games"),
-    chats: Meteor.subscribe("chat"),
-    child_chat_texts: Meteor.subscribe("child_chat_texts"),
-    users: Meteor.subscribe("loggedOnUsers"),
-    userData: Meteor.subscribe("userData"),
-    clientMessages: Meteor.subscribe("client_messages"),
-    importedGame: Meteor.subscribe("imported_games"),
-    dynamic_ratings: Meteor.subscribe("DynamicRatings")
-  };
+export default compose(
+  withTracker(() => {
+    const subscriptions = {
+      game: Meteor.subscribe("games"),
+      chats: Meteor.subscribe("chat"),
+      child_chat_texts: Meteor.subscribe("child_chat_texts"),
+      users: Meteor.subscribe("loggedOnUsers"),
+      userData: Meteor.subscribe("userData"),
+      clientMessages: Meteor.subscribe("client_messages"),
+      importedGame: Meteor.subscribe("imported_games"),
+      dynamic_ratings: Meteor.subscribe("DynamicRatings")
+    };
 
-  return {
-    isready: isReadySubscriptions(subscriptions),
+    return {
+      isready: isReadySubscriptions(subscriptions),
 
-    usersToPlayWith: Meteor.users
-      .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
-      .fetch(),
+      usersToPlayWith: Meteor.users
+        .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
+        .fetch(),
 
-    in_game: Game.findOne({
-      $or: [
+      in_game: Game.findOne({
+        $or: [
+          {
+            $and: [
+              { status: "playing" },
+              { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
+            ]
+          },
+          {
+            $and: [
+              { status: "examining" },
+              { $or: [{ "observers.id": Meteor.userId() }, { owner: Meteor.userId() }] }
+            ]
+          }
+        ]
+      }),
+
+      game_request: GameRequestCollection.findOne(
         {
-          $and: [
-            { status: "playing" },
-            { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
+          $or: [
+            {
+              challenger_id: Meteor.userId()
+            },
+            {
+              receiver_id: Meteor.userId()
+            },
+            { type: "seek" }
           ]
         },
         {
-          $and: [
-            { status: "examining" },
-            { $or: [{ "observers.id": Meteor.userId() }, { owner: Meteor.userId() }] }
-          ]
+          sort: { create_date: -1 }
         }
-      ]
-    }),
+      ),
 
-    game_request: GameRequestCollection.findOne(
-      {
-        $or: [
-          {
-            challenger_id: Meteor.userId()
-          },
-          {
-            receiver_id: Meteor.userId()
-          },
-          { type: "seek" }
-        ]
-      },
-      {
-        sort: { create_date: -1 }
-      }
-    ),
+      ratings: DynamicRatingsCollection.find(),
 
-    ratings: DynamicRatingsCollection.find(),
-
-    client_messages: ClientMessagesCollection.find().fetch(),
-    systemCss: mongoCss.findOne({ type: "system" }),
-    boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
-  };
-})(Play);
+      client_messages: ClientMessagesCollection.find().fetch(),
+      systemCss: mongoCss.findOne({ type: "system" }),
+      boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] }),
+      playNotificationsCss: mongoCss.findOne({ type: "playNotifications" })
+    };
+  }),
+  injectSheet(dynamicPlayNotifierStyles),
+  withPlayNotifier
+)(Play);
 
 const game_timestamps = {};
 Game.find({ status: "playing" }).observeChanges({

@@ -11,3 +11,7 @@
     overflow: auto;
     flex-grow: 1;
 }
+
+.ant-notification-notice-message {
+    width: 100%;
+}
