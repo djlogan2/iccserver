@@ -7,20 +7,22 @@ export default class FallenSoldier extends React.Component {
 
     const items = [];
 
-    soldiers.forEach((soldier, index) => {
-      if (soldier) {
-        items.push(
-          <FallenSoldierSquare
-            key={index}
-            piece={index}
-            color={color}
-            cssManager={cssManager}
-            side={side}
-            count={soldier}
-          />
-        );
-      }
-    });
+    if (soldiers && soldiers.length) {
+      soldiers.forEach((soldier, index) => {
+        if (soldier) {
+          items.push(
+            <FallenSoldierSquare
+              key={index}
+              piece={index}
+              color={color}
+              cssManager={cssManager}
+              side={side}
+              count={soldier}
+            />
+          );
+        }
+      });
+    }
 
     return items;
   }
