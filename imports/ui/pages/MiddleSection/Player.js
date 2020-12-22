@@ -1,15 +1,26 @@
 import React, { Component } from "react";
 import FallenSoldier from "./FallenSoldier";
+
 export default class Player extends Component {
   render() {
-    let userpic = "player-img-top.png";
+    const {
+      cssManager,
+      side,
+      playerData,
+      turnColor,
+      Playermsg,
+      color,
+      FallenSoldiers
+    } = this.props;
 
-    let userPicture = this.props.cssManager.userPicture(this.props.side * 0.08);
+    const userPicture = cssManager.userPicture(side * 0.08);
     Object.assign(userPicture, { display: "inline-block", float: "left" });
-    let tagline = this.props.cssManager.tagLine();
-    Object.assign(tagline, { marginTop: "5px", float: "left" });
-    let userflag = this.props.cssManager.userFlag(this.props.side * 0.07);
-    Object.assign(userflag, {
+
+    const tagLine = cssManager.tagLine();
+    Object.assign(tagLine, { marginTop: "5px", float: "left" });
+
+    const userFlag = cssManager.userFlag(side * 0.07);
+    Object.assign(userFlag, {
       float: "left",
       position: "absolute",
       top: "50%",
@@ -20,27 +31,20 @@ export default class Player extends Component {
     return (
       <div
         style={{
-          width: this.props.side * 0.8,
+          width: side * 0.8,
           display: "inline-block",
           marginTop: "5px",
           marginBottom: "5px",
           position: "relative"
         }}
       >
-        <div
-          style={{ width: this.props.side * 0.45, display: "inline-block", position: "relative" }}
-        >
-          <img
-            style={userPicture}
-            src={`images/${userpic}`}
-            //src="images/player-img-top.png"
-            alt="user"
-          />
-          <div style={tagline}>
+        <div style={{ width: side * 0.45, display: "inline-block", position: "relative" }}>
+          <img style={userPicture} src="images/player-img-top.png" alt="user" />
+          <div style={tagLine}>
             <div
               style={{
                 display: "inline-block",
-                maxWidth: this.props.side * 0.25,
+                maxWidth: side * 0.25,
                 wordBreak: "break-word",
                 verticalAlign: "middle",
                 marginTop: "5px"
@@ -51,43 +55,42 @@ export default class Player extends Component {
                 target="_blank"
                 style={{
                   color: "#fff",
-                  fontSize: this.props.side * 0.022,
+                  fontSize: side * 0.022,
                   fontWeight: "600",
                   marginRight: "15px",
                   display: "block",
                   width: "100%"
                 }}
               >
-                {this.props.playerData.name}({this.props.playerData.rating})
+                {playerData.name}({playerData.rating})
               </a>
             </div>
 
             <div style={{ position: "absolute", bottom: "0", paddingRight: "40px" }}>
               <span
                 style={{
-                  color: this.props.turnColor,
-                  fontSize: this.props.side * 0.019
+                  color: turnColor,
+                  fontSize: side * 0.019
                 }}
               >
-                {this.props.Playermsg}
+                {Playermsg}
               </span>
             </div>
           </div>
         </div>
-
         <div
           style={{
-            width: this.props.side * 0.35,
+            width: side * 0.35,
             display: "inline-block",
             verticalAlign: "top",
             marginTop: "5px"
           }}
         >
           <FallenSoldier
-            cssManager={this.props.cssManager}
-            side={this.props.side * 0.35}
-            color={this.props.color}
-            FallenSoldiers={this.props.FallenSoldiers}
+            cssManager={cssManager}
+            side={side * 0.35}
+            color={color}
+            FallenSoldiers={FallenSoldiers}
           />
         </div>
       </div>
