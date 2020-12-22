@@ -10,12 +10,12 @@ import Chess from "chess.js";
 import {
   ClientMessagesCollection,
   Game,
-  GameRequestCollection,
   ImportedGameCollection,
   mongoCss,
   mongoUser
 } from "../../api/client/collections";
 import { isReadySubscriptions } from "../../utils/utils";
+import { resourceLogin } from "../../constants/resourceConstants";
 
 const log = new Logger("client/Examine_js");
 
@@ -28,35 +28,32 @@ let handleError = error => {
 class Examine extends Component {
   constructor(props) {
     super(props);
-    log.trace("Examine constructor", props);
+
     this.userId = null;
     // TODO: You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
     this.userpending = null;
+
     this.state = {
       isImportedGamesModal: false,
       importedGames: []
     };
-    this.logout = this.logout.bind(this);
-  }
-
-  componentWillMount() {
-    if (!Meteor.userId()) {
-      this.props.history.push("/login");
-    }
   }
 
   componentDidMount() {
     if (!Meteor.userId()) {
-      this.props.history.push("/login");
+      const { history } = this.props;
+
+      history.push(resourceLogin);
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (!Meteor.userId()) {
-      this.props.history.push("/login");
-      //if (!!this.props.played_game) this.props.history.push("/play");
+      const { history } = this.props;
+
+      history.push(resourceLogin);
     }
   }
 
@@ -68,57 +65,51 @@ class Examine extends Component {
     return mongoUser.find().fetch();
   }
 
-  logout(e) {
-    e.preventDefault();
-    Meteor.logout(err => {
-      if (err) {
-        log.error(err.reason);
-      } else {
-        this.props.history.push("/login");
-      }
-    });
-    this.props.history.push("/login");
-  }
-
   handleDraw = objectList => {
-    if (!this.props.game) return;
+    const { game } = this.props;
 
-    const { circles, arrows, _id } = this.props.game;
-    let circleList = objectList.filter(({ orig, mouseSq }) => orig === mouseSq);
-    let arrowList = objectList.filter(({ orig, mouseSq }) => orig !== mouseSq);
+    if (!game) return;
 
-    let circlesToAdd = circleList.filter(circle => {
+    const { circles, arrows, _id } = game;
+
+    const circleList = objectList.filter(({ orig, mouseSq }) => orig === mouseSq);
+    const arrowList = objectList.filter(({ orig, mouseSq }) => orig !== mouseSq);
+
+    const circlesToAdd = circleList.filter(circle => {
       let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
       return index === -1;
     });
-    let circlesToRemove = circleList.filter(circle => {
+    const circlesToRemove = circleList.filter(circle => {
       let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
       return index !== -1;
     });
 
-    let arrowsToAdd = arrowList.filter(arrow => {
-      let index = arrows.findIndex(arrowItem => {
+    const arrowsToAdd = arrowList.filter(arrow => {
+      const index = arrows.findIndex(arrowItem => {
         return arrowItem.from === arrow.orig && arrowItem.to === arrow.dest;
       });
       return index === -1;
     });
-    let arrowsToRemove = arrowList.filter(arrow => {
-      let index = arrows.findIndex(arrowItem => {
+    const arrowsToRemove = arrowList.filter(arrow => {
+      const index = arrows.findIndex(arrowItem => {
         return arrowItem.from === arrow.orig && arrowItem.to === arrow.dest;
       });
       return index !== -1;
     });
 
-    if (circlesToAdd.length > 0) {
+    if (circlesToAdd.length) {
       this.drawCircles(_id, circlesToAdd);
     }
-    if (arrowsToAdd.length > 0) {
+
+    if (arrowsToAdd.length) {
       this.drawArrows(_id, arrowsToAdd);
     }
-    if (circlesToRemove.length > 0) {
+
+    if (circlesToRemove.length) {
       this.removeCircles(_id, circlesToRemove);
     }
-    if (arrowsToRemove.length > 0) {
+
+    if (arrowsToRemove.length) {
       this.removeArrows(_id, arrowsToRemove);
     }
   };
@@ -127,6 +118,7 @@ class Examine extends Component {
     list.forEach(item => {
       const { brush, orig } = item;
       const size = 1; // hardcode
+
       Meteor.call("drawCircle", "DrawCircle", gameId, orig, brush, size, handleError);
     });
   };
@@ -134,6 +126,7 @@ class Examine extends Component {
   removeCircles = (gameId, list) => {
     list.forEach(item => {
       const { orig } = item;
+
       Meteor.call("removeCircle", "RemoveCircle", gameId, orig, handleError);
     });
   };
@@ -142,6 +135,7 @@ class Examine extends Component {
     list.forEach(item => {
       const { brush, mouseSq, orig } = item;
       const size = 1; // hardcode
+
       Meteor.call("drawArrow", "DrawArrow", gameId, orig, mouseSq, brush, size, handleError);
     });
   };
@@ -149,24 +143,31 @@ class Examine extends Component {
   removeArrows = (gameId, list) => {
     list.forEach(item => {
       const { mouseSq, orig } = item;
+
       Meteor.call("removeArrow", "RemoveArrow", gameId, orig, mouseSq, handleError);
     });
   };
 
   _pieceSquareDragStop = raf => {
-    if (!this.props.game) {
+    const { game } = this.props;
+
+    if (!game) {
       log.error("How are we dropping pieces on a non-examined game?");
       return;
     }
-    Meteor.call("addGameMove", "gameMove", this.props.game._id, raf.move);
+
+    Meteor.call("addGameMove", "gameMove", game._id, raf.move);
   };
 
   handleObserveUser = userId => {
-    log.debug("handleObserveUser", userId);
-    if (this.props.game) this.setState({ leaving_game: this.props.game._id });
+    const { game } = this.props;
+
+    if (game) {
+      this.setState({ leaving_game: game._id });
+    }
     Meteor.call("observeUser", "observeUser", userId, err => {
       if (err) {
-        debugger;
+        log.error(err);
       }
     });
   };
@@ -191,10 +192,11 @@ class Examine extends Component {
   }
 
   getCoordinatesToRank(square) {
-    let file = square.square.charAt(0);
-    let rank = parseInt(square.square.charAt(1));
+    const file = square.square.charAt(0);
+    const rank = parseInt(square.square.charAt(1));
     const fileNumber = ["a", "b", "c", "d", "e", "f", "g", "h"];
-    let fileNo = fileNumber.indexOf(file);
+    const fileNo = fileNumber.indexOf(file);
+
     return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
   }
 
@@ -212,18 +214,18 @@ class Examine extends Component {
   //       shouldn't you just be using a Tracker like you are already doing for all of
   //       your other collections? Why is this one different?
   handlePgnUpload = fileData => {
-    let that = this;
     let count = 0;
+
     ImportedGameCollection.find({ fileRef: fileData._id }).observeChanges({
       added: () => {
-        if (count === 0) {
+        if (!count) {
           count = count + 1;
           setTimeout(() => {
             let importedGames = ImportedGameCollection.find({ fileRef: fileData._id }).fetch();
-            debugger;
-            that.setState({
-              isImportedGamesModal: true,
-              importedGames: importedGames
+
+            this.setState({
+              importedGames,
+              isImportedGamesModal: true
             });
           }, 10);
         }
@@ -232,14 +234,15 @@ class Examine extends Component {
   };
 
   renderObserver() {
-    const game = this.props.game || {
+    const { systemCss, boardCss, allUsers, game: gameFromProps } = this.props;
+    const { isImportedGamesModal, importedGames } = this.state;
+
+    const game = gameFromProps || {
       _id: "bogus",
       fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
       white: { id: "bogus", name: "White", rating: 1600 },
       black: { id: "bogus", name: "White", rating: 1600 }
     };
-    log.trace("Examine renderObserver", this.props);
-    const { systemCss, boardCss } = this.props;
 
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
@@ -252,22 +255,21 @@ class Examine extends Component {
       <div className="examine">
         <GameListModal
           isImported={true}
-          visible={this.state.isImportedGamesModal}
-          gameList={this.state.importedGames}
+          visible={isImportedGamesModal}
+          gameList={importedGames}
           onClose={() => {
             this.setState({ isImportedGamesModal: false });
           }}
         />
         <ExaminePage
           cssManager={css}
-          allUsers={this.props.all_users}
+          allUsers={allUsers}
           board={this._board}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
           capture={capture}
           game={game}
           onDrop={this._pieceSquareDragStop}
-          history={this.props.history}
           ref="main_page"
         />
       </div>
@@ -275,21 +277,28 @@ class Examine extends Component {
   }
 
   render() {
-    log.trace("Examine render", [this.props, this.state]);
-    if (!this.props.isready) return <Loading />;
+    const { allUsers, isReady, game, systemCss, boardCss } = this.props;
+    const { isImportedGamesModal, importedGames, leaving_game } = this.state;
 
-    if (!this.props.game) {
-      if (!this.state.leaving_game) this.initExamine();
+    if (!isReady) {
       return <Loading />;
-    } else if (this.props.game._id === this.state.leaving_game) return <Loading />;
+    }
 
-    const game = this.props.game;
-    if (!game.examiners || !game.examiners.some(user => user.id === Meteor.userId()))
+    if (!game) {
+      if (!leaving_game) {
+        this.initExamine();
+      }
+
+      return <Loading />;
+    } else if (game._id === leaving_game) {
+      return <Loading />;
+    }
+
+    if (!game.examiners || !game.examiners.some(user => user.id === Meteor.userId())) {
       return this.renderObserver();
+    }
 
-    const { systemCss, boardCss } = this.props;
-    let clientMessage = null;
-    let capture = {
+    const capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
@@ -301,24 +310,22 @@ class Examine extends Component {
       <div className="examine">
         <GameListModal
           isImported={true}
-          visible={this.state.isImportedGamesModal}
-          gameList={this.state.importedGames}
+          visible={isImportedGamesModal}
+          gameList={importedGames}
           onClose={() => {
             this.setState({ isImportedGamesModal: false });
           }}
         />
         <ExaminePage
           cssManager={css}
-          allUsers={this.props.all_users}
+          allUsers={allUsers}
           board={this._board}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
           capture={capture}
           game={game}
-          clientMessage={clientMessage}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
-          history={this.props.history}
           ref="main_page"
         />
       </div>
@@ -338,33 +345,9 @@ export default withTracker(() => {
   };
 
   return {
-    isready: isReadySubscriptions(subscriptions),
+    isReady: isReadySubscriptions(subscriptions),
     game: Game.findOne({ "observers.id": Meteor.userId() }),
-    game_request: GameRequestCollection.findOne(
-      {
-        $or: [
-          {
-            challenger_id: Meteor.userId()
-          },
-          {
-            receiver_id: Meteor.userId()
-          },
-          { type: "seek" }
-        ]
-      },
-      {
-        sort: { create_date: -1 }
-      }
-    ),
-    all_users: Meteor.users.find().fetch(),
-    played_game: Game.findOne({
-      $and: [
-        { status: "playing" },
-        {
-          $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
-        }
-      ]
-    }),
+    allUsers: Meteor.users.find().fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };
