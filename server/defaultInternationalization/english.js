@@ -93,7 +93,14 @@ export const english = {
       gameLibrary: "Game Library",
       followCoach: "Follow Coach",
       examiner: "Examiner",
-      observers: "Observers"
+      observers: "Observers",
+      Observers: {
+        players: "Players",
+        result: "Result",
+        date: "Date",
+        status: "Status",
+        playersColumn: "{$white}-vs-{$black}"
+      }
     },
     MatchUserSubTab: {
       friends: "Friends",

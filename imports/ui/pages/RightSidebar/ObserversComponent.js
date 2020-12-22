@@ -1,68 +1,65 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
 
-export default class ObserversComponent extends React.Component {
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+import { translate } from "../../HOCs/translate";
+
+class ObserversComponent extends React.Component {
   setGameExaminMode(id) {
     Meteor.call("examineGame", "ExaminedGame", id);
   }
 
   render() {
-    let gamelist = [];
+    const { translate, game } = this.props;
+
+    const gamelist = [];
 
     let whitename;
     let blackname;
-    let observers = this.props.game.observers;
-    for (let j = 0; j < observers.length; j++) {
-      if (observers[j].id === this.props.game.white.id) {
-        whitename = observers[j].username;
+    const { observers } = game;
+
+    observers.forEach(observer => {
+      if (observer.id === game.white.id) {
+        whitename = observer.username;
       } else {
-        blackname = observers[j].username;
+        blackname = observer.username;
       }
-    }
+    });
+
     gamelist.push({
       name: "3 minut arina",
 
-      result: this.props.game.result,
+      result: game.result,
       white: whitename,
       black: blackname,
-      status: this.props.game.status,
-      time: this.props.game.startTime.toDateString()
+      status: game.status,
+      time: game.startTime.toDateString()
     });
 
     return (
       <div>
-        {gamelist.length > 0 ? (
+        {!!gamelist.length && (
           <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
             <thead>
               <tr>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Players
+                  {translate("players")}
                 </th>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Result
+                  {translate("result")}
                 </th>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Date
+                  {translate("date")}
                 </th>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Status
+                  {translate("status")}
                 </th>
               </tr>
             </thead>
             <tbody>
-              {gamelist.map((game, index) => (
+              {gamelist.map(game => (
                 <tr onClick={this.setGameExaminMode.bind(this, game._id)}>
                   <td style={{ padding: "5px 5px" }}>
-                    {game.white}-vs-{game.black}
+                    {translate("playersColumn", { white: game.white, black: game.black })}
                   </td>
                   <td style={{ padding: "5px 5px" }}>{game.result}</td>
                   <td style={{ padding: "5px 5px" }}>{game.time}</td>
@@ -71,8 +68,10 @@ export default class ObserversComponent extends React.Component {
               ))}
             </tbody>
           </table>
-        ) : null}
+        )}
       </div>
     );
   }
 }
+
+export default translate("Common.rightBarBottom.Observers")(ObserversComponent);
