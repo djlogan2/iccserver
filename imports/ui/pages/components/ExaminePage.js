@@ -17,11 +17,7 @@ import { ActionPopup, ExaminActionPopup, GameNotificationPopup, GameRequestPopup
 export default class ExaminePage extends Component {
   constructor(props) {
     super(props);
-    this.toggleModal = data => {
-      this.setState({
-        modalShow: data
-      });
-    };
+
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -29,10 +25,9 @@ export default class ExaminePage extends Component {
       notification: false,
       newOppenetRequest: false,
       examinAction: "action",
-      activeTab: 0,
-      modalShow: 0,
-      toggleModal: this.toggleModal
+      activeTab: 0
     };
+
     this.Main = {
       LeftSection: {
         MenuLinks: links
@@ -69,43 +64,29 @@ export default class ExaminePage extends Component {
       }
     };
 
-    this.examineActionHandler = this.examineActionHandler.bind(this);
-    this.startGameExamine = this.startGameExamine.bind(this);
-    this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
-    this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
-    this.uploadPgn = this.uploadPgn.bind(this);
-
     this.delayedUpdateDimensions = _.debounce(this.updateDimensions, 100);
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!!this.props.len && !!nextProps.len) {
-      if (nextProps.len !== this.props.len)
-        if (
-          this.props.game.status === "examining" &&
-          (this.state.exnotification === true || this.state.newOppenetRequest === true)
-        ) {
+    const { len, game } = this.props;
+    const { exnotification, newOppenetRequest, examineGame } = this.state;
+
+    if (!!len && !!nextProps.len) {
+      if (nextProps.len !== len)
+        if (game.status === "examining" && (exnotification || newOppenetRequest)) {
           this.setState({ exnotification: false, newOppenetRequest: false });
         }
-      if (
-        this.props.game.status === "playing" &&
-        (this.state.newOppenetRequest === true || this.state.examineGame === true)
-      ) {
+      if (game.status === "playing" && (newOppenetRequest || examineGame)) {
         this.setState({ newOppenetRequest: false, examineGame: false });
       }
     }
   }
-  /**
-   * Add event listener
-   */
+
   componentDidMount() {
     this.updateDimensions();
     window.addEventListener("resize", this.delayedUpdateDimensions);
   }
 
-  /**
-   * Remove event listener
-   */
   componentWillUnmount() {
     window.removeEventListener("resize", this.delayedUpdateDimensions);
   }
@@ -161,70 +142,84 @@ export default class ExaminePage extends Component {
   };
 
   GamenotificationPopup = (title, mid) => {
-    return (
-      <GameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />
-    );
+    const { cssManager } = this.props;
+
+    return <GameNotificationPopup mid={mid} title={title} cssManager={cssManager} />;
   };
 
   GameResignedPopup = (title, mid) => {
+    const { cssManager } = this.props;
+
     return (
       <GameResignedPopup
         mid={mid}
         title={title}
-        cssManager={this.props.cssManager}
+        cssManager={cssManager}
         resignNotificationCloseHandler={this.resignNotificationCloseHandler}
       />
     );
   };
 
   examinActionPopup = action => {
+    const { cssManager } = this.props;
+
     return (
       <ExaminActionPopup
         action={action}
-        cssManager={this.props.cssManager}
+        cssManager={cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
       />
     );
   };
-  uploadPgn() {
-    this.setState({ notification: true });
-  }
 
-  startGameExamine() {
+  uploadPgn = () => {
+    this.setState({ notification: true });
+  };
+
+  startGameExamine = () => {
     this.setState({ examineGame: true, newOppenetRequest: false });
-  }
-  examineActionHandler(action) {
+  };
+
+  examineActionHandler = action => {
     if (action === "newoppent" || action === "play") {
       this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
     } else if (action === "examine") {
       this.startGameExamine();
     } else this.setState({ exnotification: false, examinAction: action });
-  }
-  resignNotificationCloseHandler() {
-    this.setState({ notification: !this.state.notification });
-  }
-  /*
-  notificationHandler() {
-    this.setState({ notification: !this.state.notification });
-  }*/
-  examinActionCloseHandler() {
+  };
+
+  resignNotificationCloseHandler = () => {
+    this.setState(prevState => {
+      return { notification: !prevState.notification };
+    });
+  };
+
+  examinActionCloseHandler = () => {
     this.setState({ exnotification: true });
-  }
+  };
+
   _flipboard = () => {
     this.refs.middleBoard.switchSides();
   };
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   render() {
-    let gameTurn = this.props.board.turn();
-    const game = this.props.game;
+    const {
+      board,
+      game,
+      cssManager,
+      capture,
+      onDrop,
+      onDrawObject,
+      allUsers,
+      observeUser,
+      unObserveUser,
+      gameRequest,
+      onPgnUpload
+    } = this.props;
+    const { width, height, activeTab } = this.props;
+
+    const gameTurn = board.turn();
+
     let status;
     let position = { top: "w" };
     if (!!game) {
@@ -235,63 +230,66 @@ export default class ExaminePage extends Component {
         this.top = "b";
         Object.assign(position, { top: "b" });
       }
+
+      if (game.status === "playing" || game.status === "examining") {
+        status = game.status;
+
+        Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
+
+        if (status !== "examining") {
+          Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
+
+          if (gameTurn === "w") {
+            Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
+            Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
+          } else {
+            Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
+            Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
+          }
+        }
+
+        this.Main.RightSection.MoveList = game;
+      }
     } else {
       Object.assign(position, { top: this.top });
     }
-    if ((!!game && game.status === "playing") || (!!game && game.status === "examining")) {
-      status = game.status;
-
-      Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
-      if (status !== "examining") {
-        Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
-        if (gameTurn === "w") {
-          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
-          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
-        } else {
-          Object.assign(this.Main.MiddleSection.clocks.white, { isactive: false });
-          Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
-        }
-      }
-      this.Main.RightSection.MoveList = game;
-    }
 
     return (
-      <AppWrapper cssManager={this.props.cssManager}>
+      <AppWrapper cssManager={cssManager}>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
-              cssManager={this.props.cssManager}
+              cssManager={cssManager}
+              capture={capture}
+              board={board}
+              onDrop={onDrop}
+              onDrawObject={onDrawObject}
+              width={width}
+              height={height}
+              game={game}
+              top={position.top}
+              gameStatus={Meteor.user().status.game} // DJL REMOVE
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
-              capture={this.props.capture}
-              board={this.props.board}
-              onDrop={this.props.onDrop}
-              onDrawObject={this.props.onDrawObject}
-              top={position.top}
-              width={this.state.width}
-              height={this.state.height}
-              gameStatus={Meteor.user().status.game} // DJL REMOVE
-              game={game}
             />
           </BoardWrapper>
         </Col>
         <Col span={10}>
           <ExamineRightSidebar
             game={game}
-            allUsers={this.props.allUsers}
-            observeUser={this.props.observeUser}
-            unObserveUser={this.props.unObserveUser}
-            cssManager={this.props.cssManager}
+            allUsers={allUsers}
+            observeUser={observeUser}
+            unObserveUser={unObserveUser}
+            cssManager={cssManager}
+            activeTabnumber={activeTab}
+            onPgnUpload={onPgnUpload}
+            gameRequest={gameRequest}
             RightSidebarData={this.Main.RightSection}
             flip={this._flipboard}
-            gameRequest={this.props.gameRequest}
-            ref="right_sidebar"
             startGameExamine={this.startGameExamine}
-            onPgnUpload={this.props.onPgnUpload}
             examineAction={this.examineActionHandler}
-            activeTabnumber={this.state.activeTab}
             uploadPgn={this.uploadPgn}
-            history={this.props.history}
+            ref="right_sidebar"
           />
         </Col>
       </AppWrapper>
