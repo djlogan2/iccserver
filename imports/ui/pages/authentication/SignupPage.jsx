@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
 import { Logger } from "../../../../lib/client/Logger";
-import { resourceLogin } from "../../../constants/resourceConstants";
+import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
 import { formSourceEmail, formSourcePassword, formSourceUsername } from "./authConstants";
 import { translate } from "../../HOCs/translate";
 
@@ -35,7 +35,7 @@ class SignUpPage extends Component {
         log.error("Error occurs on Sign up: " + err);
         this.setState({ error: err.reason });
       } else {
-        history.push(resourceLogin);
+        history.push(RESOURCE_LOGIN);
       }
     });
   };
@@ -96,7 +96,7 @@ class SignUpPage extends Component {
                 <div className="form-group">
                   <p className="text-center">
                     {translate("haveAccount")}
-                    <Link to={resourceLogin}>{translate("loginHere")}</Link>
+                    <Link to={RESOURCE_LOGIN}>{translate("loginHere")}</Link>
                   </p>
                 </div>
               </form>

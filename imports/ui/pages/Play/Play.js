@@ -22,7 +22,7 @@ import { compose } from "redux";
 import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
 import injectSheet from "react-jss";
 import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
-import { resourceExamine, resourceLogin } from "../../../constants/resourceConstants";
+import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
 
 const log = new Logger("client/Play_js");
 
@@ -56,7 +56,7 @@ class Play extends Component {
     if (!Meteor.userId()) {
       const { history } = this.props;
 
-      history.push(resourceLogin);
+      history.push(RESOURCE_LOGIN);
     }
   }
 
@@ -64,7 +64,7 @@ class Play extends Component {
     if (!Meteor.userId()) {
       const { history } = this.props;
 
-      history.push(resourceLogin);
+      history.push(RESOURCE_LOGIN);
     }
   }
 
@@ -139,7 +139,7 @@ class Play extends Component {
   handleExamine = () => {
     const { history } = this.props;
 
-    history.push(resourceExamine);
+    history.push(RESOURCE_EXAMINE);
   };
 
   getCoordinatesToRank(square) {

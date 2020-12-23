@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../lib/client/Logger";
-import { resourceHome, resourceSignUp } from "../../../constants/resourceConstants";
+import { RESOURCE_HOME, RESOURCE_SIGN_UP } from "../../../constants/resourceConstants";
 import { formSourceEmail, formSourcePassword } from "./authConstants";
 import { translate } from "../../HOCs/translate";
 
@@ -26,7 +26,7 @@ class LoginPage extends Component {
     if (isAuthenticated) {
       const { history } = this.props;
 
-      history.push(resourceHome);
+      history.push(RESOURCE_HOME);
     }
   }
 
@@ -48,7 +48,7 @@ class LoginPage extends Component {
           error: err.reason //"Email and Password not match"
         });
       } else {
-        history.push(resourceHome);
+        history.push(RESOURCE_HOME);
       }
     });
   };
@@ -98,7 +98,7 @@ class LoginPage extends Component {
                 <div className="form-group text-center">
                   <p className="text-center">
                     {translate("haveNoAccount")}
-                    <Link to={resourceSignUp}>{translate("registerHere")}</Link>
+                    <Link to={RESOURCE_SIGN_UP}>{translate("registerHere")}</Link>
                   </p>
                 </div>
               </form>

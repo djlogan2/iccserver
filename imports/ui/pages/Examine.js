@@ -15,7 +15,7 @@ import {
   mongoUser
 } from "../../api/client/collections";
 import { isReadySubscriptions } from "../../utils/utils";
-import { resourceLogin } from "../../constants/resourceConstants";
+import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
 
 const log = new Logger("client/Examine_js");
 
@@ -45,7 +45,7 @@ class Examine extends Component {
     if (!Meteor.userId()) {
       const { history } = this.props;
 
-      history.push(resourceLogin);
+      history.push(RESOURCE_LOGIN);
     }
   }
 
@@ -53,7 +53,7 @@ class Examine extends Component {
     if (!Meteor.userId()) {
       const { history } = this.props;
 
-      history.push(resourceLogin);
+      history.push(RESOURCE_LOGIN);
     }
   }
 

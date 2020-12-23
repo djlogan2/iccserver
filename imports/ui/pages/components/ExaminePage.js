@@ -216,7 +216,7 @@ export default class ExaminePage extends Component {
       gameRequest,
       onPgnUpload
     } = this.props;
-    const { width, height, activeTab } = this.props;
+    const { width, height, activeTab } = this.state;
 
     const gameTurn = board.turn();
 

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { get } from "lodash";
 import { translate } from "../../HOCs/translate";
-import { resourceExportPgnGame } from "../../../constants/resourceConstants";
+import { RESOURCE_EXPORT_PGN_GAME } from "../../../constants/resourceConstants";
 
 class GameSheetDownload extends Component {
   render() {
@@ -10,7 +10,7 @@ class GameSheetDownload extends Component {
 
     return (
       <button style={cssManager.buttonStyle()}>
-        <a href={`${resourceExportPgnGame}${id}`}>
+        <a href={`${RESOURCE_EXPORT_PGN_GAME}${id}`}>
           <img
             src={cssManager.buttonBackgroundImage("gameDownload")}
             alt={translate("gameDownload")}

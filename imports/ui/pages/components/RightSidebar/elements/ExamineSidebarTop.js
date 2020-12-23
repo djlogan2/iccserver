@@ -1,14 +1,13 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "antd";
+import { Button, Tabs } from "antd";
 import GameHistory from "./GameHistory";
 import ExamineObserveTab from "./ExamineObserveTab";
 import { ExamineGameControlBlock } from "./GameControlBlock";
 import { translate } from "../../../../HOCs/translate";
-import { Tabs } from "antd";
 import { PlayChooseBot } from "../PlayChooseBot";
 import { Meteor } from "meteor/meteor";
-import { resourceEditor, resourcePlay } from "../../../../../constants/resourceConstants";
+import { RESOURCE_EDITOR, RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
 
 const { TabPane } = Tabs;
 
@@ -45,7 +44,7 @@ class ExamineSidebarTop extends Component {
       game._id
     );
 
-    history.push(resourcePlay);
+    history.push(RESOURCE_PLAY);
   }
 
   componentDidUpdate(prevProps) {
@@ -85,7 +84,7 @@ class ExamineSidebarTop extends Component {
 
     return (
       <div>
-        <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to={resourceEditor}>
+        <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to={RESOURCE_EDITOR}>
           <Button>{translate("editor")}</Button>
         </Link>
         <Button onClick={() => this.playComputer()}>{translate("playComputer")}</Button>

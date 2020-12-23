@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { translate } from "../../../HOCs/translate";
 
 import "./../../css/EditorRightSidebar.css";
-import { resourceExamine } from "../../../../constants/resourceConstants";
+import { RESOURCE_EXAMINE } from "../../../../constants/resourceConstants";
 
 class EditorRightSidebar extends Component {
   constructor(props) {
@@ -55,7 +55,7 @@ class EditorRightSidebar extends Component {
     return (
       <div className="editor-right-sidebar">
         <div className="editor-right-sidebar__head">
-          <Link to={resourceExamine}>
+          <Link to={RESOURCE_EXAMINE}>
             <Button className="editor-right-sidebar__back-btn">{translate("backToPlay")}</Button>
           </Link>
 

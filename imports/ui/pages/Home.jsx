@@ -5,7 +5,7 @@ import CssManager from "./components/Css/CssManager";
 import AppWrapper from "./components/AppWrapper";
 import Loading from "./components/Loading";
 import { mongoCss } from "../../api/client/collections";
-import { resourcePlay } from "../../constants/resourceConstants";
+import { RESOURCE_PLAY } from "../../constants/resourceConstants";
 import { withTracker } from "meteor/react-meteor-data";
 
 class Home extends React.Component {
@@ -20,7 +20,7 @@ class Home extends React.Component {
   examineActionHandler = () => {
     const { history } = this.props;
 
-    history.push(resourcePlay);
+    history.push(RESOURCE_PLAY);
   };
 
   render() {

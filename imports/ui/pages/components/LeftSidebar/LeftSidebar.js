@@ -9,7 +9,7 @@ import classNames from "classnames";
 
 import { GameHistoryCollection, mongoCss } from "../../../../api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
-import { resourceLogin } from "../../../../constants/resourceConstants";
+import { RESOURCE_LOGIN } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
 import { dynamicLeftSideBarStyles } from "./dynamicLeftSidebarStyles";
@@ -61,7 +61,7 @@ class LeftSidebar extends Component {
       if (err) {
         log.error(`Error while logging out: ${err}`);
       } else {
-        history.push(resourceLogin);
+        history.push(RESOURCE_LOGIN);
       }
     });
   };
