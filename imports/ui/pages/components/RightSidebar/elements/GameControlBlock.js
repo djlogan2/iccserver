@@ -40,6 +40,8 @@ class LocationControls extends Component {
   };
 
   moveForward = () => {
+    const { game } = this.props;
+
     // TODO: This is stupid, AND not even right. Like "end of game", there is no FORWARD
     //       in a tree! You have to PICK which node!
     //       As if that weren't enough, this.state.cmi + 1 is not even remotely correct.
@@ -51,19 +53,21 @@ class LocationControls extends Component {
     // if (this.props.game.variations.movelist[ind]) {
     //   variationIndex = this.props.game.variations.movelist[ind].idc;
     // }
-    Meteor.call("moveForward", "moveForward", this.props.game._id, 1, 0, handleError);
+    Meteor.call("moveForward", "moveForward", game._id, 1, 0, handleError);
   };
 
   moveForwardEnd = () => {
+    const { game } = this.props;
+    let { cmi } = this.state;
+
     // TODO: FYI, this is stupid. There is no path to "end of game" in a tree.
     //       You have to actually PICK which final node to traverse to.
-    let cmi = this.state.cmi;
     while (
-      !!this.props.game.variations.movelist[cmi].variations &&
-      !!this.props.game.variations.movelist[cmi].variations.length
+      !!game.variations.movelist[cmi].variations &&
+      !!game.variations.movelist[cmi].variations.length
     )
-      cmi = this.props.game.variations.movelist[cmi].variations[0];
-    Meteor.call("moveToCMI", "moveToCMI", this.props.game._id, cmi);
+      cmi = game.variations.movelist[cmi].variations[0];
+    Meteor.call("moveToCMI", "moveToCMI", game._id, cmi);
   };
 
   render() {
