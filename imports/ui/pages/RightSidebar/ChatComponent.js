@@ -1,14 +1,17 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
 
-export default class ChatComponent extends Component {
-  acceptGameSeek(requestId) {
+import { translate } from "../../HOCs/translate";
+
+class ChatComponent extends Component {
+  acceptGameSeek = requestId => {
     Meteor.call("acceptLocalGameSeek", "gameSeek", requestId);
-  }
-  removeAcknowledgeMessage(messageId) {
+  };
+
+  removeAcknowledgeMessage = messageId => {
     Meteor.call("acknowledge.client.message", messageId);
-  }
+  };
+
   gameSeekRequest = requestId => {
     return (
       <div
@@ -25,7 +28,7 @@ export default class ChatComponent extends Component {
       >
         <span style={{ width: "100%", float: "left" }}>NEW GAME SEEK</span>
         <button
-          onClick={this.acceptGameSeek.bind(this, requestId)}
+          onClick={() => this.acceptGameSeek(requestId)}
           style={{
             backgroundColor: "#1565c0",
             border: "none",
@@ -44,50 +47,40 @@ export default class ChatComponent extends Component {
       </div>
     );
   };
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   render() {
-    let translator = i18n.createTranslator("Common.chatBoxMessage", this.getLang());
-    let gameSeekPopup = null;
-    const request = this.props.gameRequest;
-    let message = null;
-    if (this.props.clientMessage !== undefined) {
-      message = this.props.clientMessage;
+    const { translate, cssManager, clientMessage, gameRequest: request } = this.props;
+    let gameSeekPopup;
+    let message;
+
+    if (clientMessage) {
+      message = clientMessage;
     }
-    if (request !== undefined)
-      if (request.type === "seek" && request.owner !== Meteor.userId())
-        gameSeekPopup = this.gameSeekRequest(request._id);
+
+    if (request && request.type === "seek" && request.owner !== Meteor.userId()) {
+      gameSeekPopup = this.gameSeekRequest(request._id);
+    }
 
     return (
       <div>
         {gameSeekPopup}
-        <div style={this.props.cssManager.chatContent()}>
-          {message ? (
+        <div style={cssManager.chatContent()}>
+          {!!message && (
             <div className="user-1">
-              <h6>{translator("NEW_MESSAGE")}</h6>
+              <h6>{translate("NEW_MESSAGE")}</h6>
               <p>
                 {message.message}
                 <button
-                  style={this.props.cssManager.buttonStyle()}
-                  onClick={this.removeAcknowledgeMessage.bind(this, message._id)}
+                  style={cssManager.buttonStyle()}
+                  onClick={() => this.removeAcknowledgeMessage(message._id)}
                 >
-                  <img
-                    src={this.props.cssManager.buttonBackgroundImage("deleteSign")}
-                    alt="deleteSign"
-                  />
+                  <img src={cssManager.buttonBackgroundImage("deleteSign")} alt="deleteSign" />
                 </button>
               </p>
             </div>
-          ) : null}
+          )}
           <div className="user-1">
-            <h6>NEW GAME</h6>
+            <h6>{translate("newGame")}</h6>
             <p>
               <a href="#/">jack833</a> (639) vs. <a href="#/">York-Duvenhage</a>
               (657) (10 min) win +85 / draw +4 / lose -77
@@ -95,7 +88,7 @@ export default class ChatComponent extends Component {
             </p>
           </div>
           <div className="user-1">
-            <h6>NEW GAME</h6>
+            <h6>{translate("newGame")}</h6>
             <p>
               <a href="#/">jack833</a> (639) vs. <a href="#/">York-Duvenhage</a>
               (657) (10 min) win +85 / draw +4 / lose -77
@@ -110,13 +103,15 @@ export default class ChatComponent extends Component {
             </p>
           </div>
         </div>
-        <div style={this.props.cssManager.inputBoxStyle("chat")}>
+        <div style={cssManager.inputBoxStyle("chat")}>
           <input type="text" placeholder="Message..." />
-          <button style={this.props.cssManager.buttonStyle()} type="send">
-            <img src={this.props.cssManager.buttonBackgroundImage("chatSendButton")} alt="Send" />
+          <button style={cssManager.buttonStyle()} type="send">
+            <img src={cssManager.buttonBackgroundImage("chatSendButton")} alt="Send" />
           </button>
         </div>
       </div>
     );
   }
 }
+
+export default translate("Common.chatBoxMessage")(ChatComponent);

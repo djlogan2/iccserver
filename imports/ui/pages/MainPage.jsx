@@ -11,30 +11,25 @@ import MiddleBoard from "./MiddleSection/MiddleBoard";
 import { Logger } from "../../../lib/client/Logger";
 import { ModalProvider } from "./ModalContext";
 import {
-  GameRequestPopup,
-  GameNotificationPopup,
-  GameResignedPopup,
+  ActionPopup,
   ExaminActionPopup,
-  ActionPopup
+  GameNotificationPopup,
+  GameRequestPopup,
+  GameResignedPopup
 } from "./components/Popup";
-import i18n from "meteor/universe:i18n";
 import ExportPgnButton from "./components/Button/ExportPgnButton";
+import { translate } from "../HOCs/translate";
+
 const log = new Logger("client/MainPage");
 
-export default class MainPage extends Component {
+class MainPage extends Component {
   constructor(props) {
     super(props);
     log.trace("MainPage constructor", props);
-    this.toggleModal = data => {
-      this.setState({
-        modalShow: data
-      });
-      if (!data) {
-        props.removeGameHistory();
-      }
-    };
+
     this.gameId = null;
     this.userId = Meteor.userId();
+
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -47,6 +42,7 @@ export default class MainPage extends Component {
       modalShow: 0,
       toggleModal: this.toggleModal
     };
+
     this.Main = {
       LeftSection: {
         MenuLinks: links
@@ -82,52 +78,55 @@ export default class MainPage extends Component {
         Action: {}
       }
     };
-    this.examineActionHandler = this.examineActionHandler.bind(this);
-    this.startGameExamine = this.startGameExamine.bind(this);
-    this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
-    this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
-    this.uploadPgn = this.uploadPgn.bind(this);
   }
 
+  toggleModal = modalShow => {
+    const { removeGameHistory } = this.props;
+
+    this.setState({ modalShow });
+
+    if (!modalShow) {
+      removeGameHistory();
+    }
+  };
+
   componentWillReceiveProps(nextProps) {
-    if (!!this.props.game && !!nextProps.game) {
+    const { game } = this.props;
+    const { newOppenetRequest, examineGame, exnotification } = this.state;
+
+    if (!!game && !!nextProps.game) {
       // TODO: I have no idea what this is supposed to be doing, but it is not going to work.
       //       actions do not get published.
-      if (nextProps.game.actions.length !== this.props.game.actions.length)
-        if (
-          this.props.game.status === "examining" &&
-          (this.state.exnotification === true || this.state.newOppenetRequest === true)
-        ) {
-          this.setState({ exnotification: false, newOppenetRequest: false });
-        }
       if (
-        this.props.game.status === "playing" &&
-        (this.state.newOppenetRequest === true || this.state.examineGame === true)
+        nextProps.game.actions.length !== game.actions.length &&
+        game.status === "examining" &&
+        (exnotification === true || newOppenetRequest === true)
       ) {
+        this.setState({ exnotification: false, newOppenetRequest: false });
+      }
+      if (game.status === "playing" && (newOppenetRequest === true || examineGame === true)) {
         this.setState({ newOppenetRequest: false, examineGame: false });
       }
     }
   }
-  /**
-   * Add event listener
-   */
+
   componentDidMount() {
     this.updateDimensions();
-    window.addEventListener("resize", this.updateDimensions.bind(this));
+
+    window.addEventListener("resize", this.updateDimensions);
   }
 
-  /**
-   * Remove event listener
-   */
   componentWillUnmount() {
-    window.removeEventListener("resize", this.updateDimensions.bind(this));
+    window.removeEventListener("resize", this.updateDimensions);
   }
-  updateDimensions() {
+
+  updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
       height: window.innerHeight
     });
-  }
+  };
+
   intializeBoard = () => {
     Object.assign(this.Main.MiddleSection, {
       tomove: "white",
@@ -155,78 +154,84 @@ export default class MainPage extends Component {
   };
 
   gameRequest = (title, requestId) => {
-    return (
-      <GameRequestPopup requestId={requestId} title={title} cssManager={this.props.cssManager} />
-    );
+    const { cssManager } = this.props;
+
+    return <GameRequestPopup requestId={requestId} title={title} cssManager={cssManager}/>;
   };
+
   actionPopup = (title, action) => {
+    const { cssManager } = this.props;
+
     return (
-      <ActionPopup
-        gameID={this.gameId}
-        title={title}
-        action={action}
-        cssManager={this.props.cssManager}
-      />
+      <ActionPopup gameId={this.gameId} title={title} action={action} cssManager={cssManager}/>
     );
   };
 
   EnhancedGameNotificationPopup = (title, mid) => {
-    return <GameNotificationPopup mid={mid} title={title} cssManager={this.props.cssManager} />;
+    const { cssManager } = this.props;
+
+    return <GameNotificationPopup mid={mid} title={title} cssManager={cssManager}/>;
   };
+
   GameResignedPopup = (title, mid) => {
+    const { cssManager } = this.props;
+
     return (
       <GameResignedPopup
         mid={mid}
         title={title}
-        cssManager={this.props.cssManager}
+        cssManager={cssManager}
         resignNotificationCloseHandler={this.resignNotificationCloseHandler}
       />
     );
   };
   examinActionPopup = action => {
+    const { cssManager } = this.props;
+
     return (
       <ExaminActionPopup
         action={action}
-        cssManager={this.props.cssManager}
+        cssManager={cssManager}
         examinActionCloseHandler={this.examinActionCloseHandler}
       />
     );
   };
-  uploadPgn() {
+
+  uploadPgn = () => {
     this.setState({ notification: true });
-  }
-  loadGameHistroyPopup(games) {
+  };
+
+  loadGameHistroyPopup = games => {
+    const { cssManager } = this.props;
+
     let result;
-    let gamelist = [];
+    const gamelist = [];
 
-    if (!!games && games.length > 0) {
-      for (let i = 0; i < games.length; i++) {
+    if (!!games && games.length) {
+      games.forEach(game => {
         if (
-          (games[i].white.id === Meteor.userId() && games[i].result === "1-0") ||
-          (games[i].black.id === Meteor.userId() && games[i].result === "0-1")
+          (game.white.id === Meteor.userId() && game.result === "1-0") ||
+          (game.black.id === Meteor.userId() && game.result === "0-1")
         ) {
-          // username - opponentusername.pgn;
-
           result = "Won";
         } else {
           result = "Loss";
         }
         let time = "Fix me"; // TODO: This line is crashing (!!games[i].startTime)?games[i].startTime.toDateString():(games[i].tags.Time).replace(/"/g, '')
 
-        // console.log();
         gamelist.push({
-          id: games[i]._id,
+          time,
+          result,
+          id: game._id,
+          is_imported: games.is_imported,
           name: "3 minut arina",
-          white: games[i].white.name.replace(/"/g, ""),
-          black: games[i].black.name.replace(/"/g, ""),
-          result: result,
-          time: time,
-          is_imported: games.is_imported
+          white: game.white.name.replace(/"/g, ""),
+          black: game.black.name.replace(/"/g, "")
         });
-      }
+      });
     }
 
-    let style = {
+    const style = {
       width: "490px",
       borderRadius: "15px",
       background: "#ffffff",
@@ -242,53 +247,54 @@ export default class MainPage extends Component {
       border: "1px solid #ccc",
       boxShadow: "#0000004d"
     };
-    let btnstyle = this.props.cssManager.innerPopupMain();
+
+    const btnstyle = cssManager.innerPopupMain();
     Object.assign(btnstyle, { marginTop: "15px" });
 
     return (
       <ModalProvider value={this.state}>
         <div style={style}>
-          {gamelist.length > 0 ? (
+          {gamelist.length ? (
             <div style={{ maxHeight: "350px", overflowY: "auto", width: "100%", display: "block" }}>
               <table
                 className="gamehistory"
                 style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
               >
                 <thead>
-                  <tr>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      Players
-                    </th>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      Result
-                    </th>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      Date
-                    </th>
-                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                      PGN
-                    </th>
-                  </tr>
+                <tr>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Players
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Result
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    Date
+                  </th>
+                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                    PGN
+                  </th>
+                </tr>
                 </thead>
                 <tbody>
-                  {gamelist.map((game, index) => (
-                    <tr key={index} style={{ cursor: "pointer" }}>
-                      <td
-                        style={{ padding: "5px 5px" }}
-                        onClick={this.setGameExaminMode.bind(this, game.id, game.is_imported)}
-                      >
-                        {game.white}-vs-{game.black}
-                      </td>
-                      <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                      <td style={{ padding: "5px 5px" }}>{game.time}</td>
-                      <td style={{ padding: "5px 5px" }}>
-                        <ExportPgnButton
-                          id={game.id}
-                          src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+                {gamelist.map((game, index) => (
+                  <tr key={index} style={{ cursor: "pointer" }}>
+                    <td
+                      style={{ padding: "5px 5px" }}
+                      onClick={() => this.setGameExaminMode(game.id, game.is_imported)}
+                    >
+                      {game.white}-vs-{game.black}
+                    </td>
+                    <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                    <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                    <td style={{ padding: "5px 5px" }}>
+                      <ExportPgnButton
+                        id={game.id}
+                        src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
+                      />
+                    </td>
+                  </tr>
+                ))}
                 </tbody>
               </table>
             </div>
@@ -303,9 +309,12 @@ export default class MainPage extends Component {
         </div>
       </ModalProvider>
     );
-  }
-  setGameExaminMode(id, is_imported) {
-    Meteor.call("examineGame", "ExaminedGame", id, is_imported, error => {
+  };
+
+  setGameExaminMode = (id, isImported) => {
+    const { removeGameHistory } = this.props;
+
+    Meteor.call("examineGame", "ExaminedGame", id, isImported, error => {
       if (error) {
         log.error(error);
         this.setState({ modalShow: false });
@@ -314,46 +323,43 @@ export default class MainPage extends Component {
       }
     });
 
-    this.props.removeGameHistory();
-  }
-  startGameExamine() {
+    removeGameHistory();
+  };
+
+  startGameExamine = () => {
     this.setState({ examineGame: true, newOppenetRequest: false });
-  }
-  examineActionHandler(action) {
+  };
+
+  examineActionHandler = action => {
     if (action === "newoppent" || action === "play") {
       this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
     } else if (action === "examine") {
       this.startGameExamine();
     } else this.setState({ exnotification: false, examinAction: action });
-  }
-  resignNotificationCloseHandler() {
-    this.setState({ notification: !this.state.notification });
-  }
+  };
+
+  resignNotificationCloseHandler = () => {
+    this.setState(prevState => {
+      return { notification: !prevState.notification };
+    });
+  };
+
   /*
   notificationHandler() {
     this.setState({ notification: !this.state.notification });
   }*/
-  examinActionCloseHandler() {
+  examinActionCloseHandler = () => {
     this.setState({ exnotification: true });
-  }
+  };
+
   _flipboard = () => {
     this.refs.middleBoard._flipboard();
   };
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   render() {
-    log.trace("MainPage render", this.props);
-    let translator = i18n.createTranslator("Common.MainPage", this.getLang());
-    let gameTurn = this.props.board.turn();
-    const game = this.props.game;
-    const GameRequest = this.props.gameRequest;
+    const { translate, game, GameRequest, board, GameHistory, clientMessage } = this.props;
+
+    let gameTurn = board.turn();
     let exPopup = null;
     let actionPopup = null;
     let informativePopup = null;
@@ -375,7 +381,7 @@ export default class MainPage extends Component {
       GameRequest.type === "match" &&
       GameRequest.receiver_id === Meteor.userId()
     ) {
-      let msg = translator("gamerequest");
+      let msg = translate("gamerequest");
       informativePopup = this.gameRequest(GameRequest["challenger"] + msg, GameRequest["_id"]);
     }
 
@@ -418,7 +424,7 @@ export default class MainPage extends Component {
               ) {
                 let moveCount =
                   game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
-                actionPopup = this.actionPopup(translator(moveCount), "takeBack");
+                actionPopup = this.actionPopup(translate(moveCount), "takeBack");
               }
               break;
             case "draw_requested":
@@ -426,7 +432,7 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].draw !== "0")
               ) {
-                actionPopup = this.actionPopup(translator("draw"), "draw");
+                actionPopup = this.actionPopup(translate("draw"), "draw");
               }
               break;
             case "abort_requested":
@@ -434,7 +440,7 @@ export default class MainPage extends Component {
                 issuer !== this.userId &&
                 (!!game.pending && game.pending[othercolor].abort !== "0")
               ) {
-                actionPopup = this.actionPopup(translator("abort"), "abort");
+                actionPopup = this.actionPopup(translate("abort"), "abort");
               }
               break;
             default:
@@ -444,13 +450,13 @@ export default class MainPage extends Component {
       }
     }
 
-    if (!!this.props.GameHistory) {
-      informativePopup = this.loadGameHistroyPopup(this.props.GameHistory);
+    if (!!GameHistory) {
+      informativePopup = this.loadGameHistroyPopup(GameHistory);
     }
-    if (!!this.props.clientMessage) {
+    if (!!clientMessage) {
       informativePopup = this.EnhancedGameNotificationPopup(
-        this.props.clientMessage.message,
-        this.props.clientMessage._id
+        clientMessage.message,
+        clientMessage._id
       );
     }
     if (!!this.state.notification) {
@@ -466,7 +472,6 @@ export default class MainPage extends Component {
       leftmenu = (
         <LeftSidebar
           cssManager={this.props.cssManager}
-          history={this.props.history}
           gameHistory={this.props.gameHistoryload}
           examineAction={this.examineActionHandler}
         />
@@ -476,7 +481,7 @@ export default class MainPage extends Component {
     return (
       <ModalProvider value={this.state}>
         <div className={"main " + (this.state.modalShow ? "modal-show" : "modal-hide")}>
-          <div className="modal-overlay" />
+          <div className="modal-overlay"/>
           <div className="main__wrap row">
             {leftmenu}
             <div className="col-sm-7 col-md-8 col-lg-6 boardcol">
@@ -527,3 +532,5 @@ export default class MainPage extends Component {
 MainPage.propTypes = {
   username: PropTypes.string
 };
+
+export default translate("Common.MainPage")(MainPage);

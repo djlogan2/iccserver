@@ -44,7 +44,7 @@ export default class ActionPopup extends Component {
   };
 
   render() {
-    const { title, action, cssManager, gameID: gameId } = this.props;
+    const { title, action, cssManager, gameId } = this.props;
 
     return (
       <div style={{ position: "relative" }}>

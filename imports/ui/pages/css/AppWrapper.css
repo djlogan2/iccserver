@@ -11,3 +11,11 @@
     overflow: auto;
     flex-grow: 1;
 }
+
+.ant-notification-notice-message {
+    width: 100%;
+}
+
+.ant-notification-notice-closable .ant-notification-notice-message {
+    padding-right: 0;
+}

@@ -1,29 +1,25 @@
 import React, { Component } from "react";
-import { Logger } from "../../../../lib/client/Logger";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
-
-// eslint-disable-next-line no-unused-vars
-const log = new Logger("client/BlackPlayerClock_JS");
 
 export default class BlackPlayerClock extends Component {
   constructor(props) {
     super(props);
+
     this.interval = "none";
     const now = getMilliseconds();
-    const start =
-      this.props.game && this.props.game.clocks
-        ? this.props.game.clocks[this.props.color].starttime || now
-        : 0;
-    const current =
-      this.props.game && this.props.game.clocks
-        ? this.props.game.clocks[this.props.color].current - now + start
-        : 0;
+
+    const { game, color } = props;
+
+    const start = game && game.clocks ? game.clocks[color].starttime || now : 0;
+    const current = game && game.clocks ? game.clocks[color].current - now + start : 0;
+
     this.state = {
-      game_current: current,
-      current: current,
+      current,
       mark: now,
-      running: false
+      running: false,
+      game_current: current
     };
+
     this.componentDidUpdate();
   }
 
@@ -35,7 +31,7 @@ export default class BlackPlayerClock extends Component {
     //
     // OK, so we are sitting (cmi is sitting) on the user NOT to move.
     //
-    if (cmi === undefined) cmi = variations.cmi;
+    if (!cmi) cmi = variations.cmi;
     if (!cmi) return;
 
     let last_move_made = variations.movelist[cmi];
@@ -126,45 +122,52 @@ export default class BlackPlayerClock extends Component {
   }
 
   componentDidUpdate() {
-    const self = this;
-
-    if (!this.state.running || this.interval !== "none") {
+    const { game, color } = this.props;
+    const { running } = this.state;
+    if (!running || this.interval !== "none") {
       return;
     }
 
-    const iod = this.props.game.clocks[this.props.color].inc_or_delay;
-    const type = this.props.game.clocks[this.props.color].delaytype;
+    const iod = game.clocks[color].inc_or_delay;
+    const type = game.clocks[color].delaytype;
 
     if (type === "us" || type === "bronstein") {
-      self.interval = Meteor.setInterval(() => {
+      this.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
-        self.setState({ mark: getMilliseconds() });
-        self.interval = Meteor.setInterval(() => {
+
+        this.setState({ mark: getMilliseconds() });
+        this.interval = Meteor.setInterval(() => {
           const mark = getMilliseconds();
           const sub = mark - this.state.mark;
-          const current = self.state.current - sub;
-          self.setState({ current: current, mark: mark });
+          const current = this.state.current - sub;
+          this.setState({ current, mark });
         }, 50);
       }, iod * 1000);
     } else {
-      self.interval = Meteor.setInterval(() => {
+      this.interval = Meteor.setInterval(() => {
         const mark = getMilliseconds();
-        const sub = mark - self.state.mark;
-        const current = self.state.current - sub;
-        self.setState({ current: current, mark: mark });
+        const sub = mark - this.state.mark;
+        const current = this.state.current - sub;
+        this.setState({ current, mark });
       }, 50);
     }
   }
 
   render() {
-    if (!this.props.game) return null;
+    const { game, side } = this.props;
+    const { current } = this.state;
+
+    if (!game) {
+      return null;
+    }
+
     let hour;
     let minute;
     let second;
     let ms;
     let neg = "";
 
-    let time = this.state.current || 0;
+    let time = current || 0;
     if (time < 0) {
       neg = "-";
       time = -time;
@@ -185,7 +188,7 @@ export default class BlackPlayerClock extends Component {
     if (second < 10) second = `0${second}`;
     if (minute < 10) minute = `0${minute}`;
 
-    let cv = this.props.side / 10;
+    let cv = side / 10;
     let clockstyle = {
       right: "0",
       paddingTop: cv / 15,
@@ -205,7 +208,7 @@ export default class BlackPlayerClock extends Component {
     return (
       <div
         style={{
-          width: this.props.side * 0.2,
+          width: side * 0.2,
           display: "inline-block",
           position: "relative",
           verticalAlign: "top",

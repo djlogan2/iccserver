@@ -93,11 +93,22 @@ export const english = {
       gameLibrary: "Game Library",
       followCoach: "Follow Coach",
       examiner: "Examiner",
-      observers: "Observers"
+      observers: "Observers",
+      Observers: {
+        players: "Players",
+        result: "Result",
+        date: "Date",
+        status: "Status",
+        playersColumn: "{$white}-vs-{$black}"
+      }
     },
     MatchUserSubTab: {
       friends: "Friends",
-      recentOpponent: "Recent Opponent"
+      recentOpponent: "Recent Opponent",
+      createChallangeLink: "Create challenge Link",
+      chooseMember: "Option 1 - Choose a Member",
+      sendLinkToAnyone: "Option 2 - Send a link for anyone to play",
+      tenMin: "10 min"
     },
     GameForm: {
       timeControl: "Time Control",
@@ -137,16 +148,24 @@ export const english = {
       halfmove: "Take Back 1 Move",
       fullmove: "Take Back 2 Moves",
       abort: "Abort",
-      draw: "Draw"
+      draw: "Draw",
+      adjourn: "Adjourn"
     },
     MiddleBoard: {
       yourturn: "( Your Turn )",
       waitingforopponent: "( waiting for opponent )"
     },
     chatBoxMessage: {
-      NEW_MESSAGE: "NEW MESSAGE"
+      NEW_MESSAGE: "NEW MESSAGE",
+      newGame: "NEW GAME"
     },
     pgnActions: {
+      fen: "FEN",
+      pgn: "PGN",
+      pgnExport: "PGN Export",
+      pgnImport: "PGN Import"
+    },
+    Events: {
       fen: "FEN",
       pgn: "PGN",
       pgnExport: "PGN Export",

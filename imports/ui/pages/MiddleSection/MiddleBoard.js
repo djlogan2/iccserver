@@ -2,18 +2,17 @@ import React, { Component } from "react";
 import Player from "./Player";
 import BlackPlayerClock from "./BlackPlayerClock";
 import { Meteor } from "meteor/meteor";
-import { Logger } from "../../../../lib/client/Logger";
-import i18n from "meteor/universe:i18n";
 import Chess from "chess.js";
+
+import { translate } from "../../HOCs/translate";
 import ChessBoard from "./ChessBoard";
 
-const log = new Logger("client/MiddleBoard");
-
-export default class MiddleBoard extends Component {
+class MiddleBoard extends Component {
   constructor(props) {
     super(props);
-    log.trace("MiddleBoard constructor", props);
+
     this.chess = new Chess.Chess();
+
     this.state = {
       fen: this.chess.fen(),
       top: props.top,
@@ -25,13 +24,17 @@ export default class MiddleBoard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.top !== this.props.top) {
-      this.setState({ top: this.props.top });
+    const { top } = this.props;
+
+    if (prevProps.top !== top) {
+      this.setState({ top });
     }
   }
 
   switchSides = () => {
-    const newTop = this.state.top === "w" ? "b" : "w";
+    const { top } = this.state;
+
+    const newTop = top === "w" ? "b" : "w";
     this.setState({ top: newTop });
   };
 
@@ -45,54 +48,55 @@ export default class MiddleBoard extends Component {
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   calcBoardSize = () => {
-    let w = this.props.width;
-    let h = this.props.height;
+    const { width, height } = this.props;
 
-    return Math.min(h / 1.3, w / 2.5);
+    return Math.min(height / 1.3, width / 2.5);
   };
 
   calcSize = () => {
-    let w = this.props.width;
-    let h = this.props.height;
+    const { width, height } = this.props;
 
-    return Math.min(h / 1.3, w / 2.5);
+    return Math.min(height / 1.3, width / 2.5);
   };
 
   getTopPlayerData = () => {
-    if (this.props.game === undefined) {
-      return null;
+    const { game } = this.props;
+    const { top } = this.state;
+
+    if (game) {
+      return top === "w" ? game.white : game.black;
     }
-    return this.state.top === "w" ? this.props.game.white : this.props.game.black;
   };
 
   getBottomPlayerData = () => {
-    if (this.props.game === undefined) {
-      return null;
+    const { game } = this.props;
+    const { top } = this.state;
+
+    if (game) {
+      return top === "b" ? game.white : game.black;
     }
-    return this.state.top === "b" ? this.props.game.white : this.props.game.black;
   };
 
   render() {
-    log.trace("MiddleBoard render", this.props);
-    if (!!this.props.game && this.props.game.fen === undefined) {
+    const {
+      translate,
+      game,
+      capture,
+      MiddleBoardData,
+      cssManager,
+      onDrawObject,
+      onDrop
+    } = this.props;
+    const { top } = this.state;
+
+    if (!!game && !game.fen) {
       return null;
     }
-    if (!!this.props.game) {
-      this.chess.load(this.props.game.fen);
-    }
 
-    let translator = i18n.createTranslator("Common.MiddleBoard", this.getLang());
+    if (!!game) {
+      this.chess.load(game.fen);
+    }
 
     let boardsize = this.calcBoardSize();
     let size = this.calcSize();
@@ -100,19 +104,17 @@ export default class MiddleBoard extends Component {
     const topPlayer = this.getTopPlayerData();
     const bottomPlayer = this.getBottomPlayerData();
 
-    const topPlayertime = this.state.top === "w" ? "white" : "black";
-    const bottomPlayertime = this.state.top === "b" ? "white" : "black";
+    const topPlayertime = top === "w" ? "white" : "black";
+    const bottomPlayertime = top === "b" ? "white" : "black";
 
-    const topPlayerFallenSoldier =
-      this.state.top === "w" ? this.props.capture.b : this.props.capture.w;
-    const bottomPlayerFallenSoldier =
-      this.state.top === "b" ? this.props.capture.b : this.props.capture.w;
-    const tc = this.state.top === "w" ? "b" : "w";
-    const bc = this.state.top === "b" ? "b" : "w";
+    const topPlayerFallenSoldier = top === "w" ? capture.b : capture.w;
+    const bottomPlayerFallenSoldier = top === "b" ? capture.b : capture.w;
+    const tc = top === "w" ? "b" : "w";
+    const bc = top === "b" ? "b" : "w";
 
     let boardtop;
 
-    if (this.state.top === "w") {
+    if (top === "w") {
       boardtop = "black";
     } else {
       boardtop = "white";
@@ -121,42 +123,37 @@ export default class MiddleBoard extends Component {
     let topPlayermsg;
     let botPlayermsg;
     let color;
-    let mypeiceColor;
-    if (this.props.game && this.props.game.status === "playing") {
-      if (this.props.MiddleBoardData.black.id === Meteor.userId()) {
-        mypeiceColor = "black";
+
+    if (game && game.status === "playing") {
+      if (MiddleBoardData.black.id === Meteor.userId()) {
         if (this.chess.turn() === "b") {
-          botPlayermsg = translator("yourturn");
+          botPlayermsg = translate("yourturn");
           color = "#4cd034";
         } else {
-          topPlayermsg = translator("waitingforopponent");
+          topPlayermsg = translate("waitingforopponent");
           color = "#fff";
         }
       } else {
-        mypeiceColor = "white";
         if (this.chess.turn() === "w") {
-          botPlayermsg = translator("yourturn");
+          botPlayermsg = translate("yourturn");
           color = "#4cd034";
         } else {
-          topPlayermsg = translator("waitingforopponent");
+          topPlayermsg = translate("waitingforopponent");
           color = "#fff";
         }
       }
     }
     let fen;
-    if (
-      !!this.props.game &&
-      (this.props.game.status === "examining" || this.props.game.status === "playing")
-    ) {
-      fen = this.props.game.fen;
+    if (!!game && (game.status === "examining" || game.status === "playing")) {
+      fen = game.fen;
     } else {
       fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     }
 
-    let isUserPlaying = !!this.props.game && this.props.game.status === "playing";
-    let isUserExamining = !!this.props.game && this.props.game.status === "examining";
+    const isUserPlaying = !!game && game.status === "playing";
+    const isUserExamining = !!game && game.status === "examining";
 
-    let isPlayingOrExamining = isUserPlaying || isUserExamining;
+    const isPlayingOrExamining = isUserPlaying || isUserExamining;
 
     return (
       <div>
@@ -164,57 +161,46 @@ export default class MiddleBoard extends Component {
           {isPlayingOrExamining && (
             <Player
               playerData={topPlayer}
-              cssManager={this.props.cssManager}
+              cssManager={cssManager}
               side={size}
               color={tc}
               turnColor={color}
               FallenSoldiers={topPlayerFallenSoldier}
-              rank_and_file={this.state.draw_rank_and_file}
               Playermsg={topPlayermsg}
             />
           )}
 
-          <BlackPlayerClock
-            cssManager={this.props.cssManager}
-            game={this.props.game}
-            color={topPlayertime}
-            side={size}
-          />
-          {this.props.game && (
+          <BlackPlayerClock game={game} color={topPlayertime} side={size} />
+          {game && (
             <ChessBoard
               fen={fen}
               height={boardsize}
               width={boardsize}
-              arrows={this.props.game.arrows}
-              circles={this.props.game.circles}
+              arrows={game.arrows}
+              circles={game.circles}
               orientation={boardtop}
-              onDrop={this.props.onDrop}
-              onDrawObject={this.props.onDrawObject}
-              mycolor={mypeiceColor}
-              gameStatus={this.props.game.status}
+              onDrop={onDrop}
+              onDrawObject={onDrawObject}
+              gameStatus={game.status}
             />
           )}
 
           {isPlayingOrExamining && (
             <Player
               playerData={bottomPlayer}
-              cssManager={this.props.cssManager}
+              cssManager={cssManager}
               side={size}
               color={bc}
               turnColor={color}
               FallenSoldiers={bottomPlayerFallenSoldier}
-              rank_and_file={this.state.draw_rank_and_file}
               Playermsg={botPlayermsg}
             />
           )}
-          <BlackPlayerClock
-            cssManager={this.props.cssManager}
-            game={this.props.game}
-            color={bottomPlayertime}
-            side={size}
-          />
+          <BlackPlayerClock game={game} color={bottomPlayertime} side={size} />
         </div>
       </div>
     );
   }
 }
+
+export default translate("Common.MiddleBoard")(MiddleBoard);

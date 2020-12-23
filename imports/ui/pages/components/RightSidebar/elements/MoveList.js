@@ -6,7 +6,9 @@ import buildPgn from "./../../../helpers/build-pgn";
 export default class MoveList extends Component {
   constructor(props) {
     super(props);
+
     this.cmi = 0;
+
     this.state = {
       cmi: 0,
       toggle: false,
@@ -16,34 +18,30 @@ export default class MoveList extends Component {
       isexamin: true
     };
   }
-  static getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   componentWillReceiveProps(nextProps) {
-    if (nextProps.game.variations.cmi !== this.props.game.variations.cmi) {
+    const { game, gameRequest } = this.props;
+
+    if (nextProps.game.variations.cmi !== game.variations.cmi) {
       this.setState({ cmi: nextProps.game.variations.cmi });
     }
-    if (!!this.props.gameRequest) {
+    if (!!gameRequest) {
       if (
-        nextProps.gameRequest !== this.props.gameRequest &&
-        this.props.gameRequest.type === "match"
+        nextProps.gameRequest !== gameRequest && gameRequest.type === "match"
       ) {
-        this.setState({ gameRequest: this.props.gameRequest });
+        this.setState({ gameRequest });
       }
     }
   }
+
   moveBackwordBeginning = () => {
     Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex);
   };
+
   moveBackword = () => {
     Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
   };
+
   moveForward = () => {
     let ind = this.currentindex + 1;
     let idc = 0;
@@ -52,6 +50,7 @@ export default class MoveList extends Component {
     }
     Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc);
   };
+
   moveForwardEnd = () => {
     let movedata = this.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
@@ -65,17 +64,23 @@ export default class MoveList extends Component {
   }
 
   render() {
-    let game = this.props.game;
+    const { game, cssManager } = this.props;
+    const { cmi } = this.state;
+
     if (!!game) {
       this.message_identifier = "server:game:" + this.gameId;
       this.gameId = game._id;
     }
+
     let string = !!game.variations ? buildPgn(game.variations.movelist) : "";
     let chunks = string.split("|");
     chunks.splice(-1, 1);
+
     this.cmi = chunks.length;
+
     this.moves = [];
     this.moves.push({ idc: 0, idx: 0, move: "" });
+
     for (let i = 0; i < chunks.length; i++) {
       let ch = chunks[i].split("*-");
       this.moves.push({ idc: parseInt(ch[0]), idx: parseInt(ch[1]), move: ch[2] });
@@ -85,9 +90,11 @@ export default class MoveList extends Component {
     let cnt = 1;
     let ind = "";
     this.currentindex = 0;
+
     let moveslist = this.moves.map((move, index) => {
-      let mv = this.moves[index].move;
-      let idx = this.moves[index].idx;
+      const mv = move.move;
+      const idx = move.idx;
+
       if (index % 2 === 0) {
         ind = "";
       } else {
@@ -96,7 +103,7 @@ export default class MoveList extends Component {
       }
       let style = { color: "black" };
       let movestyle;
-      if (this.state.cmi === idx) {
+      if (cmi === idx) {
         Object.assign(style, { color: "#904f4f", fontWeight: "bold", fontSize: "15px" });
         movestyle = style;
         this.currentindex = index;
@@ -106,13 +113,13 @@ export default class MoveList extends Component {
 
       return (
         <span key={index}>
-          {ind ? <b>{ind}</b> : null}
+          {!!ind && <b>{ind}</b>}
           <span style={movestyle}> {mv}</span>
         </span>
       );
     });
-    let btnstyle;
-    btnstyle = this.props.cssManager.buttonStyle();
+
+    const btnstyle = cssManager.buttonStyle();
     Object.assign(btnstyle, {
       background: "#f1f1f1",
       borderRadius: "5px",
@@ -122,7 +129,7 @@ export default class MoveList extends Component {
 
     return (
       <div className="move-list">
-        <div style={this.props.cssManager.gameMoveList()}>{moveslist}</div>
+        <div style={cssManager.gameMoveList()}>{moveslist}</div>
       </div>
     );
   }
