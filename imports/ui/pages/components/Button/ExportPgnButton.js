@@ -11,6 +11,7 @@ const styles = {
   pgnButton: {
     display: "block",
     padding: "3px 2px",
+    width: "30px",
     "&:hover": {
       backgroundColor: "#2a9bdc",
       borderRadius: "3px"
