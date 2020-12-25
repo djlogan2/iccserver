@@ -27,8 +27,8 @@ class PlayBlock extends Component {
     this.setState({ status: PLAY_STATUS_FRIEND_OPTIONS });
   };
 
-  handlePlayFriendOptions = data => {
-    this.setState({ status: PLAY_STATUS_WITH_FRIEND, options: data });
+  handlePlayFriendOptions = options => {
+    this.setState({ options, status: PLAY_STATUS_WITH_FRIEND });
   };
 
   handleChooseFriend = friendId => {
@@ -145,7 +145,7 @@ class PlayBlock extends Component {
             examineAction={examineAction}
             currentGame={currentGame}
           />
-          <GameControlBlock game={game} flip={flip}/>
+          <GameControlBlock game={game} flip={flip} />
         </div>
       );
     }

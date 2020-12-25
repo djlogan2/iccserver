@@ -100,11 +100,11 @@ class MainPage extends Component {
       if (
         nextProps.game.actions.length !== game.actions.length &&
         game.status === "examining" &&
-        (exnotification === true || newOppenetRequest === true)
+        (exnotification || newOppenetRequest)
       ) {
         this.setState({ exnotification: false, newOppenetRequest: false });
       }
-      if (game.status === "playing" && (newOppenetRequest === true || examineGame === true)) {
+      if (game.status === "playing" && (newOppenetRequest || examineGame)) {
         this.setState({ newOppenetRequest: false, examineGame: false });
       }
     }
@@ -156,21 +156,21 @@ class MainPage extends Component {
   gameRequest = (title, requestId) => {
     const { cssManager } = this.props;
 
-    return <GameRequestPopup requestId={requestId} title={title} cssManager={cssManager}/>;
+    return <GameRequestPopup requestId={requestId} title={title} cssManager={cssManager} />;
   };
 
   actionPopup = (title, action) => {
     const { cssManager } = this.props;
 
     return (
-      <ActionPopup gameId={this.gameId} title={title} action={action} cssManager={cssManager}/>
+      <ActionPopup gameId={this.gameId} title={title} action={action} cssManager={cssManager} />
     );
   };
 
   EnhancedGameNotificationPopup = (title, mid) => {
     const { cssManager } = this.props;
 
-    return <GameNotificationPopup mid={mid} title={title} cssManager={cssManager}/>;
+    return <GameNotificationPopup mid={mid} title={title} cssManager={cssManager} />;
   };
 
   GameResignedPopup = (title, mid) => {
@@ -202,7 +202,7 @@ class MainPage extends Component {
   };
 
   loadGameHistroyPopup = games => {
-    const { cssManager } = this.props;
+    const { cssManager, translate } = this.props;
 
     let result;
     const gamelist = [];
@@ -261,40 +261,40 @@ class MainPage extends Component {
                 style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
               >
                 <thead>
-                <tr>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Players
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Result
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    Date
-                  </th>
-                  <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                    PGN
-                  </th>
-                </tr>
+                  <tr>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      {translate("players")}
+                    </th>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      {translate("result")}
+                    </th>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      {translate("date")}
+                    </th>
+                    <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                      {translate("pgn")}
+                    </th>
+                  </tr>
                 </thead>
                 <tbody>
-                {gamelist.map((game, index) => (
-                  <tr key={index} style={{ cursor: "pointer" }}>
-                    <td
-                      style={{ padding: "5px 5px" }}
-                      onClick={() => this.setGameExaminMode(game.id, game.is_imported)}
-                    >
-                      {game.white}-vs-{game.black}
-                    </td>
-                    <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                    <td style={{ padding: "5px 5px" }}>{game.time}</td>
-                    <td style={{ padding: "5px 5px" }}>
-                      <ExportPgnButton
-                        id={game.id}
-                        src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                  {gamelist.map((game, index) => (
+                    <tr key={index} style={{ cursor: "pointer" }}>
+                      <td
+                        style={{ padding: "5px 5px" }}
+                        onClick={() => this.setGameExaminMode(game.id, game.is_imported)}
+                      >
+                        {translate("playersColumn", { white: game.white, black: game.black })}
+                      </td>
+                      <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                      <td style={{ padding: "5px 5px" }}>{game.time}</td>
+                      <td style={{ padding: "5px 5px" }}>
+                        <ExportPgnButton
+                          id={game.id}
+                          src={this.props.cssManager.buttonBackgroundImage("pgnIcon")}
+                        />
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -481,7 +481,7 @@ class MainPage extends Component {
     return (
       <ModalProvider value={this.state}>
         <div className={"main " + (this.state.modalShow ? "modal-show" : "modal-hide")}>
-          <div className="modal-overlay"/>
+          <div className="modal-overlay" />
           <div className="main__wrap row">
             {leftmenu}
             <div className="col-sm-7 col-md-8 col-lg-6 boardcol">

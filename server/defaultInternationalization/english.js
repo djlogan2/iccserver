@@ -80,7 +80,21 @@ export const english = {
       abort: "Abort",
       Gamestatus: "Game status",
       examining: "Examining",
-      playing: "Playing"
+      playing: "Playing",
+      action: "Action",
+      addGameToLibrary: "Add game to library",
+      complainAboutThisGame: "Complain about this game",
+      emailGame: "Email game",
+      rematch: "Rematch",
+      examine: "Examine",
+      editor: "Editor",
+      newOpponent: "New opponent",
+      takeBackMove: "TakeBack one move",
+      takeBackMoves: "TakeBack two moves",
+      flag: "Flag",
+      moretime: "Moretime",
+      adjourn: "Adjourn",
+      playersColumn: "{$white}-vs-{$black}",
     },
     rightBarBottom: {
       chat: "Chat",
@@ -149,7 +163,11 @@ export const english = {
       fullmove: "Take Back 2 Moves",
       abort: "Abort",
       draw: "Draw",
-      adjourn: "Adjourn"
+      adjourn: "Adjourn",
+      players: "Players",
+      result: "Result",
+      date: "Date",
+      pgn: "PGN"
     },
     MiddleBoard: {
       yourturn: "( Your Turn )",
