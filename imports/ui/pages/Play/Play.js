@@ -172,29 +172,29 @@ class Play extends Component {
 
     if (gameType === "startBotGame") {
       const {
-        wild_number,
-        rating_type,
-        white_initial,
-        white_increment_or_delay,
-        white_increment_or_delay_type,
-        black_initial,
-        black_increment_or_delay,
-        black_increment_or_delay_type,
-        skill_level,
+        wildNumber,
+        ratingType,
+        whiteInitial,
+        whiteIncrementOrDelay,
+        whiteIncrementOrDelayType,
+        blackInitial,
+        blackIncrementOrDelay,
+        blackIncrementOrDelayType,
+        skillLevel,
         color
       } = gameData;
-      this.handleBotPlay(
-        wild_number,
-        rating_type,
-        white_initial,
-        white_increment_or_delay,
-        white_increment_or_delay_type,
-        black_initial,
-        black_increment_or_delay,
-        black_increment_or_delay_type,
-        skill_level,
+      this.handleBotPlay({
+        wildNumber,
+        ratingType,
+        whiteInitial,
+        whiteIncrementOrDelay,
+        whiteIncrementOrDelayType,
+        blackInitial,
+        blackIncrementOrDelay,
+        blackIncrementOrDelayType,
+        skillLevel,
         color
-      );
+      });
     } else {
       this.initFriendRematch();
     }
@@ -281,14 +281,15 @@ class Play extends Component {
       skillLevel,
       color
     );
-    this.setState({ gameData });
+
+    this.setState({ gameData, gameType: "startBotGame" });
   };
 
   render() {
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
     if (!isReady) {
-      return <Loading />;
+      return <Loading/>;
     }
 
     const { systemCss, boardCss } = this.props;
