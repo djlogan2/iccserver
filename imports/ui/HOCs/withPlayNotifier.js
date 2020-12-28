@@ -7,7 +7,7 @@ import CssManager from "../pages/components/Css/CssManager";
 export const withPlayNotifier = WrappedComponent => {
   return class extends React.Component {
     renderActionPopup = (title, action) => {
-      const { systemCss, boardCss, classes, in_game: game } = this.props;
+      const { systemCss, boardCss, classes, inGame: game } = this.props;
 
       renderNotification({
         title,
@@ -19,7 +19,7 @@ export const withPlayNotifier = WrappedComponent => {
     };
 
     render() {
-      const { in_game: game } = this.props;
+      const { inGame: game } = this.props;
 
       const translate = i18n.createTranslator("Common.MainPage");
 
