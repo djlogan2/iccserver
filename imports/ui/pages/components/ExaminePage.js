@@ -12,7 +12,13 @@ import { Col } from "antd";
 import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
-import { ActionPopup, ExaminActionPopup, GameNotificationPopup, GameRequestPopup, GameResignedPopup } from "./Popup";
+import {
+  ActionPopup,
+  ExaminActionPopup,
+  GameNotificationPopup,
+  GameRequestPopup,
+  GameResignedPopup
+} from "./Popup";
 
 export default class ExaminePage extends Component {
   constructor(props) {

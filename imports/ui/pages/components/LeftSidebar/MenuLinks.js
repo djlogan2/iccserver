@@ -2,7 +2,12 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router";
 import { links, sidebarBottom } from "./../../hardcode.json";
-import { labelLogout, labelMyGame, labelsToResources, RESOURCE_LOGIN } from "../../../../constants/resourceConstants";
+import {
+  labelLogout,
+  labelMyGame,
+  labelsToResources,
+  RESOURCE_LOGIN
+} from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import _ from "lodash";
 import { compose } from "redux";

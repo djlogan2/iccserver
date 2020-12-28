@@ -5,7 +5,7 @@ import { translate } from "../../../HOCs/translate";
 const RoomBlock = translate("Community")(
   ({ activeRoom, list, onChange, onAdd, openRightBlock, translate, isModal, handleCloseModal }) => {
     const [roomName, setRoomName] = useState("");
-    const [isPrivate, setIsPrivate] = useState(true);
+    const [isPrivate] = useState(true);
 
     const handleCancel = () => {
       setRoomName("");
