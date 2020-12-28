@@ -36,31 +36,31 @@ export default class AdjournedGameComponent extends React.Component {
         {!!gamelist.length && (
           <table style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}>
             <thead>
-            <tr>
-              <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}/>
-              <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                Result
-              </th>
-              <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                Date
-              </th>
-              <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                Status
-              </th>
-            </tr>
+              <tr>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }} />
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Result
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Date
+                </th>
+                <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
+                  Status
+                </th>
+              </tr>
             </thead>
             <tbody>
-            {gamelist.map((game, index) => (
-              <tr>
-                <td style={{ padding: "5px 5px" }}>
-                  {game.white}-vs-{game.black}
-                </td>
-                <td style={{ padding: "5px 5px" }}>{game.result}</td>
-                <td style={{ padding: "5px 5px" }}>Oct 30 2019</td>
+              {gamelist.map((game, index) => (
+                <tr>
+                  <td style={{ padding: "5px 5px" }}>
+                    {game.white}-vs-{game.black}
+                  </td>
+                  <td style={{ padding: "5px 5px" }}>{game.result}</td>
+                  <td style={{ padding: "5px 5px" }}>Oct 30 2019</td>
 
-                <td style={{ padding: "5px 5px" }}>{game.status}</td>
-              </tr>
-            ))}
+                  <td style={{ padding: "5px 5px" }}>{game.status}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         )}

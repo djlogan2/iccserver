@@ -105,7 +105,7 @@ class GameForm extends Component {
 
           <div style={cssManager.formMainHalf()}>
             <span style={cssManager.spanStyle("form")}>
-              <input type="checkbox" checked={rated} onChange={this.handleRatedChange}/>
+              <input type="checkbox" checked={rated} onChange={this.handleRatedChange} />
               <label style={radioStyle}>{translate("rated")}</label>
             </span>
           </div>

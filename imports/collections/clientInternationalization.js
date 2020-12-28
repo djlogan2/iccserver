@@ -1,13 +1,11 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
-import SimpleSchema from "simpl-schema";
+import { check, Match } from "meteor/check";
 
 const mongoClientInternationalization = new Mongo.Collection("client_internationalization");
 
 Meteor.publish("clientInternationalization", function(locale) {
-  new SimpleSchema({
-    locale: { type: String }
-  }).validate({ locale });
+  check(locale, Match.OneOf(String, null));
 
   const options = {
     locale: null
