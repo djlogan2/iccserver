@@ -43,6 +43,7 @@ class Play extends Component {
     this.userpending = null;
 
     this.state = {
+      key: Date.now(),
       gameType: null,
       gameData: null
     };
@@ -285,11 +286,15 @@ class Play extends Component {
     this.setState({ gameData, gameType: "startBotGame" });
   };
 
+  updateKey = () => {
+    this.setState({ key: Date.now() });
+  };
+
   render() {
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
     if (!isReady) {
-      return <Loading/>;
+      return <Loading />;
     }
 
     const { systemCss, boardCss } = this.props;
@@ -337,6 +342,7 @@ class Play extends Component {
           userName={!!Meteor.userId() ? Meteor.user().username : "Logged Out"}
           onRematch={this.handleRematch}
           onExamine={this.handleExamine}
+          onCancel={this.updateKey}
         />
         <PlayPage
           cssManager={css}
@@ -364,7 +370,7 @@ export default compose(
       child_chat_texts: Meteor.subscribe("child_chat_texts"),
       users: Meteor.subscribe("loggedOnUsers"),
       userData: Meteor.subscribe("userData"),
-      clientMessages: Meteor.subscribe("client_messages"),
+      client_messages: Meteor.subscribe("client_messages"),
       importedGame: Meteor.subscribe("imported_games"),
       dynamic_ratings: Meteor.subscribe("DynamicRatings")
     };

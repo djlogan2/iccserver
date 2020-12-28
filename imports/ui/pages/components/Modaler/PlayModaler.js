@@ -1,12 +1,14 @@
 import React, { Component } from "react";
-import { Modal, Button } from "antd";
+import { Button, Modal } from "antd";
 import { translate } from "../../../HOCs/translate";
 
 class PlayModaler extends Component {
   handleCancel = () => {
-    const { clientMessage } = this.props;
+    const { clientMessage, onCancel } = this.props;
 
-    Meteor.call("acknowledge.client.message", clientMessage._id);
+    Meteor.call("acknowledge.client.message", clientMessage._id, () => {
+      onCancel();
+    });
   };
 
   getTitleText = gameResult => {
