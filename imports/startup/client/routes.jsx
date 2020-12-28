@@ -10,26 +10,26 @@ import Community from "../../ui/pages/Community";
 import SignUpPage from "../../ui/pages/authentication/SignupPage";
 import LoginPage from "../../ui/pages/authentication/LoginPage.jsx";
 import {
-  resourceCommunity,
-  resourceEditor,
-  resourceExamine,
-  resourceHome,
-  resourceLogin,
-  resourcePlay,
-  resourceSignUp
+  RESOURCE_COMMUNITY,
+  RESOURCE_EDITOR,
+  RESOURCE_EXAMINE,
+  RESOURCE_HOME,
+  RESOURCE_LOGIN,
+  RESOURCE_PLAY,
+  RESOURCE_SIGN_UP
 } from "../../constants/resourceConstants";
 
 export const Routes = () => (
   <Router>
     <div>
-      <Route path={resourceSignUp} component={SignUpPage} />
-      <Route path={resourceLogin} component={LoginPage} />
+      <Route path={RESOURCE_SIGN_UP} component={SignUpPage} />
+      <Route path={RESOURCE_LOGIN} component={LoginPage} />
       <Route exact={true} path="/" component={Home} />
-      <Route exact={true} path={resourceHome} component={Home} />
-      <Route exact={true} path={resourcePlay} component={Play} />
-      <Route exact={true} path={resourceEditor} component={Editor} />
-      <Route exact={true} path={resourceExamine} component={Examine} />
-      <Route exact={true} path={resourceCommunity} component={Community} />
+      <Route exact={true} path={RESOURCE_HOME} component={Home} />
+      <Route exact={true} path={RESOURCE_PLAY} component={Play} />
+      <Route exact={true} path={RESOURCE_EDITOR} component={Editor} />
+      <Route exact={true} path={RESOURCE_EXAMINE} component={Examine} />
+      <Route exact={true} path={RESOURCE_COMMUNITY} component={Community} />
     </div>
   </Router>
 );

@@ -72,16 +72,6 @@ export default class SeekGameComponent extends React.Component {
     );
   }
 
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
-
   render() {
     return (
       <div>

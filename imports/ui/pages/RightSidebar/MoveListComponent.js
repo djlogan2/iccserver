@@ -1,9 +1,9 @@
-/* eslint-disable prettier/prettier */
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
-import i18n from "meteor/universe:i18n";
-import {Logger} from "../../../../lib/client/Logger";
+import { translate } from "../../HOCs/translate";
+import { Logger } from "../../../../lib/client/Logger";
+import { RESOURCE_EDITOR } from "../../../constants/resourceConstants";
 
 const log = new Logger("client/MoveListComponent");
 
@@ -13,10 +13,11 @@ let handleError = error => {
   }
 };
 
-export default class MoveListComponent extends Component {
+class MoveListComponent extends Component {
   constructor(props) {
     super(props);
     this.cmi = 0;
+
     this.state = {
       cmi: 0,
       toggle: false,
@@ -26,28 +27,19 @@ export default class MoveListComponent extends Component {
       isexamin: true
     };
   }
-  static getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   componentWillReceiveProps(nextProps) {
-    if (nextProps.game.variations.cmi !== this.props.game.variations.cmi) {
+    const { game, gameRequest } = this.props;
+
+    if (nextProps.game.variations.cmi !== game.variations.cmi) {
       this.setState({ cmi: nextProps.game.variations.cmi });
     }
-    if (!!this.props.gameRequest) {
-      if (
-        nextProps.gameRequest !== this.props.gameRequest &&
-        this.props.gameRequest.type === "match"
-      ) {
-        this.setState({ gameRequest: this.props.gameRequest });
-      }
+
+    if (!!gameRequest && nextProps.gameRequest !== gameRequest && gameRequest.type === "match") {
+      this.setState({ gameRequest });
     }
   }
+
   moveBackwordBeginning = () => {
     Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex, handleError);
   };
@@ -66,7 +58,7 @@ export default class MoveListComponent extends Component {
     let movedata = this.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
-      Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc, (err) => {
+      Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc, err => {
         if (err) {
           debugger;
         }
@@ -76,12 +68,21 @@ export default class MoveListComponent extends Component {
 
   moveAutoForward = () => {
     clearInterval(this.intervalID);
-    this.setState({ toggle: !this.state.toggle });
+
+    this.setState(prevState => {
+      return { toggle: !prevState.toggle };
+    });
+
     this.intervalID = setInterval(() => {
+      const { toggle } = this.state;
+
       let remainMove = this.cmi - this.currentindex;
-      if (remainMove === 0 || this.state.toggle === false) {
+      if (remainMove === 0 || !toggle) {
         clearInterval(this.intervalID);
-        this.setState({ toggle: !this.state.toggle });
+
+        this.setState(prevState => {
+          return { toggle: !prevState.toggle };
+        });
       } else {
         this.moveForward();
       }
@@ -91,50 +92,65 @@ export default class MoveListComponent extends Component {
   componentWillUnmount() {
     clearInterval(this.intervalID);
   }
+
   handleChange = e => {
+    const { examineAction } = this.props;
+
     this.setState({ examinAction: e.target.value });
-    this.props.examineAction(e.target.value);
+    examineAction(e.target.value);
   };
+
   requestFornewOppenent() {
-    this.props.examineAction("newoppent");
+    const { examineAction } = this.props;
+
+    examineAction("newoppent");
   }
+
   _takeBackAction = number => {
     Meteor.call("requestTakeback", this.message_identifier, this.gameId, number);
   };
+
   _drawRequest = () => {
     Meteor.call("requestToDraw", this.message_identifier, this.gameId);
   };
+
   _abortRequest = () => {
     Meteor.call("requestToAbort", this.message_identifier, this.gameId);
   };
+
   _adjournRequest = () => {
     Meteor.call("requestToAdjourn", this.message_identifier, this.gameId);
   };
+
   _resignGame = () => {
     Meteor.call("resignGame", this.message_identifier, this.gameId);
   };
+
   _reMatchGame = () => {
+    const { gameRequest } = this.state;
+
     let toUser;
-    if (Meteor.userId() !== this.state.gameRequest.challenger_id) {
-      toUser = this.state.gameRequest.challenger_id;
+    if (Meteor.userId() !== gameRequest.challenger_id) {
+      toUser = gameRequest.challenger_id;
     } else {
-      toUser = this.state.gameRequest.receiver_id;
+      toUser = gameRequest.receiver_id;
     }
+
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
       toUser,
-      this.state.gameRequest.wild_number,
-      this.state.gameRequest.rating_type,
-      this.state.gameRequest.rated,
-      this.state.gameRequest.adjourned,
-      this.state.gameRequest.challenger_time,
-      this.state.gameRequest.challenger_inc_or_delay,
-      this.state.gameRequest.challenger_delaytype,
-      this.state.gameRequest.receiver_time,
-      this.state.gameRequest.receiver_inc_or_delay,
-      this.state.gameRequest.receiver_delaytype,
-      this.state.gameRequest.challenger_color_request
+      gameRequest.wild_number,
+      gameRequest.rating_type,
+      gameRequest.rated,
+      gameRequest.adjourned,
+      gameRequest.challenger_time,
+      gameRequest.challenger_inc_or_delay,
+      gameRequest.challenger_delaytype,
+      gameRequest.receiver_time,
+      gameRequest.receiver_inc_or_delay,
+      gameRequest.receiver_delaytype,
+      gameRequest.challenger_color_request
     );
   };
   handleChangeSecond = event => {
@@ -153,15 +169,21 @@ export default class MoveListComponent extends Component {
       default:
     }
   };
+
   _setGameToExamine() {
+    const { startGameExamine } = this.props;
+
     this.moveBackwordBeginning();
-    this.props.startGameExamine();
+    startGameExamine();
   }
 
   addmove(move_number, variations, white_to_move, movelist, idx) {
     let string = "";
 
-    if (!movelist[idx].variations || !movelist[idx].variations.length) return "";
+    if (!movelist[idx].variations || !movelist[idx].variations.length) {
+      return string;
+    }
+
     if (movelist[idx].variations.length > 1) {
     } else {
       string +=
@@ -217,23 +239,27 @@ export default class MoveListComponent extends Component {
     }
     return string;
   }
+
   buildPgnFromMovelist(movelist) {
     return this.addmove(1, false, true, movelist, 0);
   }
 
   render() {
-    let translator = i18n.createTranslator("Common.MoveListComponent", MoveListComponent.getLang());
+    const { translate, game, cssManager } = this.props;
 
     let status = "none";
-    if(!!this.props.game) {
-      if (this.props.game.status === "playing" && (Meteor.userId() === this.props.game.white.id || Meteor.userId() === this.props.game.black.id))
+    if (!!game) {
+      if (
+        game.status === "playing" &&
+        (Meteor.userId() === game.white.id || Meteor.userId() === game.black.id)
+      )
         status = "playing";
-      else if (!!this.props.game.examiners && this.props.game.examiners.some(ex => ex.id === Meteor.userId()))
+      else if (!!game.examiners && game.examiners.some(ex => ex.id === Meteor.userId()))
         status = "examining";
-      else if (this.props.game.observers.some(ex => ex.id === Meteor.userId()))
-        status = "observing";
+      else if (game.observers.some(ex => ex.id === Meteor.userId())) status = "observing";
       this.message_identifier = "server:game:" + this.gameId;
-      let string = this.buildPgnFromMovelist(this.props.game.variations.movelist);
+      let string = this.buildPgnFromMovelist(game.variations.movelist);
+
       let chunks = string.split("|");
       chunks.splice(-1, 1);
       this.cmi = chunks.length;
@@ -249,7 +275,7 @@ export default class MoveListComponent extends Component {
     let displayButton = 0;
     let statuslabel = 0;
 
-    let mbtnstyle = this.props. cssManager.gameButtonMove();
+    let mbtnstyle = cssManager.gameButtonMove();
     if (status === "examining") {
       displayButton = 1;
       statuslabel = 1;
@@ -285,12 +311,12 @@ export default class MoveListComponent extends Component {
 
       return (
         <span key={index}>
-          {ind ? <b>{ind}</b> : null}
-          <span style={movestyle}> {mv}</span>
+          {!!ind && <b>{ind}</b>}
+          <span style={movestyle}>{mv}</span>
         </span>
       );
     });
-    let btnstyle = this.props. cssManager.buttonStyle();
+    let btnstyle = cssManager.buttonStyle();
     Object.assign(btnstyle, {
       background: "#f1f1f1",
       borderRadius: "5px",
@@ -300,46 +326,34 @@ export default class MoveListComponent extends Component {
 
     return (
       <div>
-        <div style={this.props. cssManager.gameMoveList()}>{moveslist}</div>
+        <div style={cssManager.gameMoveList()}>{moveslist}</div>
 
         {displayButton ? (
           <div style={mbtnstyle} className="moveAction">
-            <button style={btnstyle} onClick={this.moveBackwordBeginning.bind(this)}>
-              <img
-                src={this.props. cssManager.buttonBackgroundImage("fastForward")}
-                alt="fast-forward"
-              />
+            <button style={btnstyle} onClick={this.moveBackwordBeginning}>
+              <img src={cssManager.buttonBackgroundImage("fastForward")} alt="fast-forward" />
             </button>
-            <button style={btnstyle} onClick={this.moveBackword.bind(this)}>
-              <img
-                src={this.props. cssManager.buttonBackgroundImage("prevIconGray")}
-                alt="previous"
-              />
+            <button style={btnstyle} onClick={this.moveBackword}>
+              <img src={cssManager.buttonBackgroundImage("prevIconGray")} alt="previous" />
             </button>
-            <button style={btnstyle} onClick={this.moveForward.bind(this)}>
-              <img src={this.props. cssManager.buttonBackgroundImage("nextIconGray")} alt="next" />
+            <button style={btnstyle} onClick={this.moveForward}>
+              <img src={cssManager.buttonBackgroundImage("nextIconGray")} alt="next" />
             </button>
-            <button style={btnstyle} onClick={this.moveForwardEnd.bind(this, 1)}>
+            <button style={btnstyle} onClick={this.moveForwardEnd}>
               <img
-                src={this.props. cssManager.buttonBackgroundImage("fastForwardNext")}
+                src={cssManager.buttonBackgroundImage("fastForwardNext")}
                 alt="fast-forward-next"
               />
             </button>
-            <button style={btnstyle} onClick={this.moveAutoForward.bind(this)}>
+            <button style={btnstyle} onClick={this.moveAutoForward}>
               {this.state.toggle ? (
-                <img
-                  src={this.props. cssManager.buttonBackgroundImage("nextStop")}
-                  alt="next-single"
-                />
+                <img src={cssManager.buttonBackgroundImage("nextStop")} alt="next-single" />
               ) : (
-                <img
-                  src={this.props. cssManager.buttonBackgroundImage("nextStart")}
-                  alt="next-single"
-                />
+                <img src={cssManager.buttonBackgroundImage("nextStart")} alt="next-single" />
               )}
             </button>
             <button style={btnstyle} onClick={this.props.flip}>
-              <img src={this.props. cssManager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
+              <img src={cssManager.buttonBackgroundImage("flipIconGray")} alt="Flip" />
             </button>
           </div>
         ) : null}
@@ -347,43 +361,37 @@ export default class MoveListComponent extends Component {
           {statuslabel ? (
             <div
               className={"gamestatus " + (status === "playing" ? "active" : "default")}
-              style={this.props. cssManager.drawActionSection()}
+              style={cssManager.drawActionSection()}
             >
-              <span>{translator(status)}</span>
+              <span>{translate(status)}</span>
             </div>
           ) : null}
 
           {isPlaying ? (
             <ul>
-              <li style={this.props. cssManager.drawSectionList()}>
-                <button
-                  style={this.props. cssManager.buttonStyle()}
-                  onClick={this._drawRequest.bind(this)}
-                >
+              <li style={cssManager.drawSectionList()}>
+                <button style={cssManager.buttonStyle()} onClick={this._drawRequest}>
                   <img
-                    src={this.props. cssManager.buttonBackgroundImage("draw")}
+                    src={cssManager.buttonBackgroundImage("draw")}
                     alt="Draw"
-                    style={this.props. cssManager.drawSectionButton()}
+                    style={cssManager.drawSectionButton()}
                   />
-                  {translator("draw")}
+                  {translate("draw")}
                 </button>
               </li>
 
-              <li style={this.props. cssManager.drawSectionList()}>
-                <button
-                  style={this.props. cssManager.buttonStyle()}
-                  onClick={this._resignGame.bind(this)}
-                >
+              <li style={cssManager.drawSectionList()}>
+                <button style={cssManager.buttonStyle()} onClick={this._resignGame}>
                   <img
-                    src={this.props. cssManager.buttonBackgroundImage("resign")}
+                    src={cssManager.buttonBackgroundImage("resign")}
                     alt="Resign"
-                    style={this.props. cssManager.drawSectionButton()}
+                    style={cssManager.drawSectionButton()}
                   />
-                  {translator("resign")}
+                  {translate("resign")}
                 </button>
               </li>
-              <li style={this.props. cssManager.drawSectionList()}>
-                <span style={this.props. cssManager.spanStyle("form")}>
+              <li style={cssManager.drawSectionList()}>
+                <span style={cssManager.spanStyle("form")}>
                   <select
                     onChange={this.handleChangeSecond}
                     style={{
@@ -395,70 +403,64 @@ export default class MoveListComponent extends Component {
                     }}
                     value={this.state.action}
                   >
-                    <option value="action">Action</option>
-                    <option value="abort">Abort</option>
-                    <option value="halfMove">TakeBack 1 Move</option>
-                    <option value="fullMove">TakeBack 2 Moves</option>
-                    <option value="flag">Flag</option>
-                    <option value="moretime">Moretime</option>
-                    <option value="adjourn">Adjourn</option>
+                    <option value="action">{translate("action")}</option>
+                    <option value="abort">{translate("abort")}</option>
+                    <option value="halfMove">{translate("takeBackMove")}</option>
+                    <option value="fullMove">{translate("takeBackMoves")}</option>
+                    <option value="flag">{translate("flag")}</option>
+                    <option value="moretime">{translate("moretime")}</option>
+                    <option value="adjourn">{translate("adjourn")}</option>
                   </select>
                 </span>
               </li>
             </ul>
           ) : (
             <ul>
-              <li style={this.props. cssManager.drawSectionList()}>
+              <li style={cssManager.drawSectionList()}>
                 <button
                   onClick={() => this.requestFornewOppenent()}
-                  style={this.props. cssManager.buttonStyle()}
+                  style={cssManager.buttonStyle()}
                 >
                   <img
-                    src={this.props. cssManager.buttonBackgroundImage("draw")}
+                    src={cssManager.buttonBackgroundImage("draw")}
                     alt="Draw"
-                    style={this.props. cssManager.drawSectionButton()}
+                    style={cssManager.drawSectionButton()}
                   />
-                  New Opponent
+                  {translate("newOpponent")}
                 </button>
               </li>
-              <li style={this.props. cssManager.drawSectionList()}>
-                <button
-                  onClick={this._reMatchGame.bind(this)}
-                  style={this.props. cssManager.buttonStyle()}
-                >
+              <li style={cssManager.drawSectionList()}>
+                <button onClick={this._reMatchGame} style={cssManager.buttonStyle()}>
                   <img
-                    src={this.props. cssManager.buttonBackgroundImage("resign")}
+                    src={cssManager.buttonBackgroundImage("resign")}
                     alt="Resign"
-                    style={this.props. cssManager.drawSectionButton()}
+                    style={cssManager.drawSectionButton()}
                   />
-                  Rematch
+                  {translate("rematch")}
                 </button>
               </li>
               <li>
-                <Link to="/editor">
+                <Link to={RESOURCE_EDITOR}>
                   <img
-                    src={this.props. cssManager.buttonBackgroundImage("resign")}
+                    src={cssManager.buttonBackgroundImage("resign")}
                     alt="Resign"
-                    style={this.props. cssManager.drawSectionButton()}
+                    style={cssManager.drawSectionButton()}
                   />
-                  Editor
+                  {translate("editor")}
                 </Link>
               </li>
-              <li style={this.props. cssManager.drawSectionList()}>
-                <button
-                  style={this.props. cssManager.buttonStyle()}
-                  onClick={() => this._setGameToExamine()}
-                >
+              <li style={cssManager.drawSectionList()}>
+                <button style={cssManager.buttonStyle()} onClick={() => this._setGameToExamine()}>
                   <img
-                    src={this.props. cssManager.buttonBackgroundImage("examine")}
+                    src={cssManager.buttonBackgroundImage("examine")}
                     alt="examine"
-                    style={this.props. cssManager.drawSectionButton()}
+                    style={cssManager.drawSectionButton()}
                   />
-                  Examine
+                  {translate("examine")}
                 </button>
               </li>
-              <li style={this.props. cssManager.drawSectionList()}>
-                <span style={this.props. cssManager.spanStyle("form")}>
+              <li style={cssManager.drawSectionList()}>
+                <span style={cssManager.spanStyle("form")}>
                   <select
                     style={{
                       outline: "none",
@@ -471,10 +473,10 @@ export default class MoveListComponent extends Component {
                     value={this.state.examinAction}
                     onChange={this.handleChange}
                   >
-                    <option value="action">Action</option>
-                    <option value="addgame">Add Game To Library</option>
-                    <option value="complain">Complain About This Game</option>
-                    <option value="emailgame">Email Game</option>
+                    <option value="action">{translate("action")}</option>
+                    <option value="addgame">{translate("addGameToLibrary")}</option>
+                    <option value="complain">{translate("complainAboutThisGame")}</option>
+                    <option value="emailgame">{translate("emailGame")}</option>
                   </select>
                 </span>
               </li>
@@ -485,3 +487,5 @@ export default class MoveListComponent extends Component {
     );
   }
 }
+
+export default translate("Common.MoveListComponent")(MoveListComponent);

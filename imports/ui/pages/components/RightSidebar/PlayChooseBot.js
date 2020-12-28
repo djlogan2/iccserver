@@ -81,6 +81,7 @@ class PlayChooseBot extends Component {
     if (color === "random") {
       color = Math.random() < 0.5 ? "white" : "black";
     }
+
     onPlay({
       ratingType,
       color,

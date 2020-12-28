@@ -68,15 +68,6 @@ export default class ExamineComponent extends React.Component {
     });
   }
 
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
   toggleHover() {
     this.setState({ hover: !this.state.hover });
   }

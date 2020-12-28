@@ -11,19 +11,13 @@ import { Col } from "antd";
 import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
-import { Logger } from "../../../../lib/client/Logger";
-const log = new Logger("client/PlayPage");
 
 export default class PlayPage extends Component {
   constructor(props) {
     super(props);
-    log.trace("PlayPage constructor", props);
-    this.toggleModal = data => {
-      this.setState({
-        modalShow: data
-      });
-    };
+
     this.gameId = null;
+
     this.state = {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -36,6 +30,7 @@ export default class PlayPage extends Component {
       modalShow: 0,
       toggleModal: this.toggleModal
     };
+
     this.Main = {
       LeftSection: {
         MenuLinks: links
@@ -71,26 +66,21 @@ export default class PlayPage extends Component {
         Action: {}
       }
     };
-    this.examineActionHandler = this.examineActionHandler.bind(this);
-    this.startGameExamine = this.startGameExamine.bind(this);
-    this.examinActionCloseHandler = this.examinActionCloseHandler.bind(this);
-    this.resignNotificationCloseHandler = this.resignNotificationCloseHandler.bind(this);
   }
 
-  /**
-   * Add event listener
-   */
+  toggleModal = modalShow => {
+    this.setState({ modalShow });
+  };
+
   componentDidMount() {
     this.updateDimensions();
     window.addEventListener("resize", this.updateDimensions);
   }
 
-  /**
-   * Remove event listener
-   */
   componentWillUnmount() {
     window.removeEventListener("resize", this.updateDimensions);
   }
+
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
@@ -123,66 +113,67 @@ export default class PlayPage extends Component {
     });
   };
 
-  startGameExamine() {
+  startGameExamine = () => {
     this.setState({ examineGame: true, newOppenetRequest: false });
-  }
+  };
 
-  examineActionHandler(action) {
+  examineActionHandler = action => {
     if (action === "newoppent" || action === "play") {
       this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
     } else if (action === "examine") {
       this.startGameExamine();
     } else this.setState({ exnotification: false, examinAction: action });
-  }
+  };
 
-  resignNotificationCloseHandler() {
-    this.setState({ notification: !this.state.notification });
-  }
+  resignNotificationCloseHandler = () => {
+    this.setState(prevState => {
+      return { notification: !prevState.notification };
+    });
+  };
 
-  examinActionCloseHandler() {
+  examinActionCloseHandler = () => {
     this.setState({ exnotification: true });
-  }
+  };
+
   _flipboard = () => {
     this.refs.middleBoard.switchSides();
   };
-  getLang() {
-    return (
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US"
-    );
-  }
+
   render() {
-    log.trace("PlayPage render", this.props);
-    let gameTurn = this.props.board.turn();
+    const {
+      board,
+      game,
+      cssManager,
+      capture,
+      onDrop,
+      onDrawObject,
+      onRemoveCircle,
+      usersToPlayWith,
+      onChooseFriend,
+      onBotPlay
+    } = this.props;
+    const { width, height } = this.state;
+
+    const gameTurn = board.turn();
     let status;
     let position = { top: "w" };
-    if (!!this.props.game) {
-      if (this.props.game.black.id === Meteor.userId()) {
+
+    if (!!game) {
+      if (game.black.id === Meteor.userId()) {
         this.top = "w";
         Object.assign(position, { top: "w" });
       } else {
         this.top = "b";
         Object.assign(position, { top: "b" });
       }
-    } else {
-      Object.assign(position, { top: this.top });
-    }
 
-    if (!!this.props.game) {
-      status = this.props.game.status;
-      this.gameId = this.props.game._id;
+      status = game.status;
+      this.gameId = game._id;
 
-      Object.assign(
-        this.Main.MiddleSection,
-        { black: this.props.game.black },
-        { white: this.props.game.white }
-      );
+      Object.assign(this.Main.MiddleSection, { black: game.black }, { white: game.white });
       if (status === "examining") {
       } else {
-        Object.assign(this.Main.MiddleSection, { clocks: this.props.game.clocks });
+        Object.assign(this.Main.MiddleSection, { clocks: game.clocks });
         if (gameTurn === "w") {
           Object.assign(this.Main.MiddleSection.clocks.white, { isactive: true });
           Object.assign(this.Main.MiddleSection.clocks.black, { isactive: false });
@@ -191,39 +182,40 @@ export default class PlayPage extends Component {
           Object.assign(this.Main.MiddleSection.clocks.black, { isactive: true });
         }
       }
-      this.Main.RightSection.MoveList = this.props.game;
+      this.Main.RightSection.MoveList = game;
     } else {
+      Object.assign(position, { top: this.top });
       status = "idlemode";
     }
 
     return (
-      <AppWrapper cssManager={this.props.cssManager}>
+      <AppWrapper cssManager={cssManager}>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
-              cssManager={this.props.cssManager}
+              cssManager={cssManager}
               MiddleBoardData={this.Main.MiddleSection}
               ref="middleBoard"
-              capture={this.props.capture}
-              board={this.props.board}
-              onDrop={this.props.onDrop}
-              onDrawObject={this.props.onDrawObject}
-              onRemoveCircle={this.props.onRemoveCircle}
+              capture={capture}
+              board={board}
+              onDrop={onDrop}
+              onDrawObject={onDrawObject}
+              onRemoveCircle={onRemoveCircle}
               top={position.top}
-              width={this.state.width}
-              height={this.state.height}
+              width={width}
+              height={height}
               gameStatus={status}
-              game={this.props.game}
+              game={game}
             />
           </BoardWrapper>
         </Col>
         <Col span={10}>
           <PlayRightSidebar
-            game={this.props.game}
-            usersToPlayWith={this.props.usersToPlayWith}
-            onChooseFriend={this.props.onChooseFriend}
-            onBotPlay={this.props.onBotPlay}
-            cssManager={this.props.cssManager}
+            game={game}
+            usersToPlayWith={usersToPlayWith}
+            onChooseFriend={onChooseFriend}
+            onBotPlay={onBotPlay}
+            cssManager={cssManager}
             flip={this._flipboard}
             RightSidebarData={this.Main.RightSection}
           />

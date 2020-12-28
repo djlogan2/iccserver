@@ -1,20 +1,20 @@
-export const resourceHome = "/home";
-export const resourceLogin = "/login";
-export const resourceSignUp = "/sign-up";
-export const resourceExamine = "/examine";
-export const resourceUploadPgn = "/upload-pgn";
-export const resourceCommunity = "/community";
-export const resourcePlay = "/play";
-export const resourceEditor = "/editor";
+export const RESOURCE_HOME = "/home";
+export const RESOURCE_LOGIN = "/login";
+export const RESOURCE_SIGN_UP = "/sign-up";
+export const RESOURCE_EXAMINE = "/examine";
+export const RESOURCE_UPLOAD_PGN = "/upload-pgn";
+export const RESOURCE_COMMUNITY = "/community";
+export const RESOURCE_PLAY = "/play";
+export const RESOURCE_EDITOR = "/editor";
 
 export const labelsToResources = {
-  community: resourceCommunity,
-  uploadpgn: resourceUploadPgn,
-  play: resourcePlay,
-  examine: resourceExamine
+  community: RESOURCE_COMMUNITY,
+  uploadpgn: RESOURCE_UPLOAD_PGN,
+  play: RESOURCE_PLAY,
+  examine: RESOURCE_EXAMINE
 };
 
 export const labelMyGame = "mygame";
 export const labelLogout = "logout";
 
-export const resourceExportPgnGame = "export/pgn/game/";
+export const RESOURCE_EXPORT_PGN_GAME = "export/pgn/game/";

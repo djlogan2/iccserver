@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
 
 import { translate } from "../../HOCs/translate";
-import { resourceExportPgnGame } from "../../../constants/resourceConstants";
+import { RESOURCE_EXPORT_PGN_GAME } from "../../../constants/resourceConstants";
 import { ImportedGameCollection } from "../../../api/client/collections";
 
 class PGN extends Component {
@@ -38,7 +38,7 @@ class PGN extends Component {
         <input className="form-control fen-input" />
         <label className="fen-label">{translate("pgn")}</label>
         <div>
-          <a className="btn btn-primary pgn-btn" href={resourceExportPgnGame + id}>
+          <a className="btn btn-primary pgn-btn" href={RESOURCE_EXPORT_PGN_GAME + id}>
             <i>
               <img src="images/pgn-export-icon.png" alt="pgn-export-icon" />
             </i>

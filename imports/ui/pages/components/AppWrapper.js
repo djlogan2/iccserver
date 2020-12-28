@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { Row, Modal } from "antd";
+import { Modal, Row } from "antd";
 import { withRouter } from "react-router-dom";
 import { GameRequestCollection } from "../../../api/client/collections";
 
@@ -29,7 +29,7 @@ import "./../css/GameControlBlock.css";
 
 import "./../css/Community.css";
 import "./../css/Messenger.css";
-import { resourceLogin, resourcePlay } from "../../../constants/resourceConstants";
+import { RESOURCE_LOGIN, RESOURCE_PLAY } from "../../../constants/resourceConstants";
 import { translate } from "../../HOCs/translate";
 
 class AppWrapper extends Component {
@@ -37,7 +37,7 @@ class AppWrapper extends Component {
     if (!Meteor.userId()) {
       const { history } = this.props;
 
-      history.push(resourceLogin);
+      history.push(RESOURCE_LOGIN);
     }
   }
 
@@ -45,7 +45,7 @@ class AppWrapper extends Component {
     if (!Meteor.userId()) {
       const { history } = this.props;
 
-      history.push(resourceLogin);
+      history.push(RESOURCE_LOGIN);
     }
   }
 
@@ -60,7 +60,7 @@ class AppWrapper extends Component {
             visible={!!gameRequest}
             onOk={() => {
               Meteor.call("gameRequestAccept", "gameAccept", gameRequest._id, () => {
-                history.push(resourcePlay);
+                history.push(RESOURCE_PLAY);
               });
             }}
             onCancel={() => {

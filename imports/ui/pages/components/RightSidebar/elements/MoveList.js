@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import buildPgn from "./../../../helpers/build-pgn";
@@ -26,9 +25,7 @@ export default class MoveList extends Component {
       this.setState({ cmi: nextProps.game.variations.cmi });
     }
     if (!!gameRequest) {
-      if (
-        nextProps.gameRequest !== gameRequest && gameRequest.type === "match"
-      ) {
+      if (nextProps.gameRequest !== gameRequest && gameRequest.type === "match") {
         this.setState({ gameRequest });
       }
     }

@@ -2,12 +2,7 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router";
 import { links, sidebarBottom } from "./../../hardcode.json";
-import {
-  labelLogout,
-  labelMyGame,
-  labelsToResources,
-  resourceLogin
-} from "../../../../constants/resourceConstants";
+import { labelLogout, labelMyGame, labelsToResources, RESOURCE_LOGIN } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import _ from "lodash";
 import { compose } from "redux";
@@ -24,7 +19,7 @@ class MenuLinks extends Component {
     Meteor.logout(err => {
       if (err) {
       } else {
-        history.push(resourceLogin);
+        history.push(RESOURCE_LOGIN);
       }
     });
   };
