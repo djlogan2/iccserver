@@ -22,7 +22,7 @@ class RightBarBottomActiveTabs extends Component {
           <Chat cssManager={cssManager} gameRequest={gameRequest} clientMessage={clientMessage} />
         </div>
         <div
-          label="Observers"
+          label={translate("observers")}
           imgsrc="images/observers.png"
           hoverSrc="images/observers-active.png"
           default="false"
@@ -30,7 +30,7 @@ class RightBarBottomActiveTabs extends Component {
           <Observers game={game} />
         </div>
         <div
-          label="Room Chat"
+          label={translate("roomChat")}
           imgsrc="images/room-chat.png"
           hoverSrc="images/room-chat-active.png"
           default="roomchat"

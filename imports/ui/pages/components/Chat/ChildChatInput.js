@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Select, Button } from "antd";
+import { Button, Select } from "antd";
 import { translate } from "../../../HOCs/translate";
 
 const { Option } = Select;
@@ -25,7 +25,7 @@ export default translate("Community.ChildChatInput")(
               <Option value={chatItem._id}>{chatItem.text}</Option>
             ))}
           </Select>
-          <Button htmlType="submit">{translate("Send")}</Button>
+          <Button htmlType="submit">{translate("send")}</Button>
         </form>
       </Fragment>
     );

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../../../../lib/client/Logger";
+import { translate } from "../../../../HOCs/translate";
 
 const log = new Logger("client/GameControlBlock");
 
@@ -126,30 +127,32 @@ class ActionControls extends Component {
   };
 
   render() {
+    const { translate } = this.props;
+
     return (
       <div className="action-controls">
         <button
-          title="takeback"
+          title={translate("takeBack")}
           onClick={this.handleTakeback}
           className="action-controls__item action-controls__item--takeback"
         />
         <button
-          title="resign"
+          title={translate("resign")}
           onClick={this.handleResign}
           className="action-controls__item action-controls__item--resign"
         />
         <button
-          title="draw"
+          title={translate("draw")}
           onClick={this.handleDraw}
           className="action-controls__item action-controls__item--draw"
         />
         <button
-          title="adjourn"
+          title={translate("adjourn")}
           onClick={this.handleAdjorn}
           className="action-controls__item action-controls__item--adjourn"
         />
         <button
-          title="abort"
+          title={translate("abort")}
           onClick={this.handleAbort}
           className="action-controls__item action-controls__item--abort"
         />
@@ -158,11 +161,13 @@ class ActionControls extends Component {
   }
 }
 
+const EnhacnedActionControls = translate("Common.rightBarTop")(ActionControls);
+
 const GameControlBlock = ({ game, flip }) => {
   return (
     <div className="game-control-block">
       <LocationControls game={game} flip={flip} />
-      <ActionControls game={game} />
+      <EnhacnedActionControls game={game} />
     </div>
   );
 };

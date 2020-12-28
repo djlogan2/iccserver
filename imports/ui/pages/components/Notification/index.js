@@ -2,7 +2,7 @@ import React from "react";
 import { notification } from "antd";
 import { Meteor } from "meteor/meteor";
 
-const renderNotification = ({ title, action, cssManager, gameId, classes }) => {
+const renderNotification = ({ title, action, cssManager, gameId, classes, translate }) => {
   const key = `notification-${action}-${gameId}`;
 
   const responseHandler = actionType => {
@@ -62,7 +62,7 @@ const renderNotification = ({ title, action, cssManager, gameId, classes }) => {
         </div>
         <div>
           <button onClick={() => responseHandler("accepted")} className={classes.descriptionButton}>
-            <strong className={classes.titleText}>Accept</strong>
+            <strong className={classes.titleText}>{translate("accept")}</strong>
           </button>
           <button onClick={() => responseHandler("rejected")} className={classes.descriptionButton}>
             <img

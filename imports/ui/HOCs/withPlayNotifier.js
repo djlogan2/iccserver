@@ -9,10 +9,13 @@ export const withPlayNotifier = WrappedComponent => {
     renderActionPopup = (title, action) => {
       const { systemCss, boardCss, classes, inGame: game } = this.props;
 
+      const translate = i18n.createTranslator("Common.Notifier");
+
       renderNotification({
         title,
         action,
         classes,
+        translate,
         cssManager: new CssManager(systemCss, boardCss),
         gameId: game._id
       });

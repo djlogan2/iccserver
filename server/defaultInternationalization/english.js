@@ -6,6 +6,9 @@ export const english = {
         challangerWantsToPlay: "{$challenger} would like to play with you"
       }
     },
+    Notifier: {
+      accept: "Accept"
+    },
     HomeContainer: {
       mainContent: "xxxx"
     },
@@ -57,7 +60,12 @@ export const english = {
       gameShare: "Game share",
       gameDownload: "Game download",
       gameAnalysis: "Game Analysis",
-      friends: "Friends"
+      friends: "Friends",
+      takeBack: "Take back",
+      resign: "Resign",
+      draw: "Draw",
+      adjourn: "Adjourn",
+      abort: "Abort"
     },
     menuLinkLabel: {
       play: "Play",
@@ -108,6 +116,7 @@ export const english = {
       followCoach: "Follow Coach",
       examiner: "Examiner",
       observers: "Observers",
+      roomChat: "Room chat",
       Observers: {
         players: "Players",
         result: "Result",

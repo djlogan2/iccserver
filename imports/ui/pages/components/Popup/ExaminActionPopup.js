@@ -27,11 +27,11 @@ class ExaminActionPopup extends Component {
           <div className="popup_inner">
             <div>
               <label>{translate("email")}</label>
-              <input type="text" name="email"/>
+              <input type="text" name="email" />
             </div>
             <div>
               <label>{translate("complaint")}</label>
-              <textarea name="complaint" rows="4" cols="35"/>
+              <textarea name="complaint" rows="4" cols="35" />
             </div>
             <div>
               <button
@@ -50,7 +50,7 @@ class ExaminActionPopup extends Component {
           <div className="popup_inner">
             <div>
               <label>{translate("email")}</label>
-              <input type="text" name="email"/>
+              <input type="text" name="email" />
             </div>
 
             <div>
