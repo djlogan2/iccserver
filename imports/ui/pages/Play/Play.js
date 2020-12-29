@@ -43,7 +43,6 @@ class Play extends Component {
     this.userpending = null;
 
     this.state = {
-      key: Date.now(),
       gameType: null,
       gameData: null
     };
@@ -286,10 +285,6 @@ class Play extends Component {
     this.setState({ gameData, gameType: "startBotGame" });
   };
 
-  updateKey = () => {
-    this.setState({ key: Date.now() });
-  };
-
   render() {
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
@@ -342,7 +337,6 @@ class Play extends Component {
           userName={!!Meteor.userId() ? Meteor.user().username : "Logged Out"}
           onRematch={this.handleRematch}
           onExamine={this.handleExamine}
-          onCancel={this.updateKey}
         />
         <PlayPage
           cssManager={css}
@@ -418,7 +412,8 @@ export default compose(
 
       systemCss: mongoCss.findOne({ type: "system" }),
       boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] }),
-      playNotificationsCss: mongoCss.findOne({ type: "playNotifications" })
+      playNotificationsCss: mongoCss.findOne({ type: "playNotifications" }),
+      userClientMessages: ClientMessagesCollection.find().fetch()
     };
   }),
   injectSheet(dynamicPlayNotifierStyles),

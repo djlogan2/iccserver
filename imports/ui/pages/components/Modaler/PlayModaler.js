@@ -4,11 +4,9 @@ import { translate } from "../../../HOCs/translate";
 
 class PlayModaler extends Component {
   handleCancel = () => {
-    const { clientMessage, onCancel } = this.props;
+    const { clientMessage } = this.props;
 
-    Meteor.call("acknowledge.client.message", clientMessage._id, () => {
-      onCancel();
-    });
+    Meteor.call("acknowledge.client.message", clientMessage._id);
   };
 
   getTitleText = gameResult => {
