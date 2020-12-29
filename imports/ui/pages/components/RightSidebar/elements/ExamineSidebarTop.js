@@ -7,6 +7,8 @@ import { ExamineGameControlBlock } from "./GameControlBlock";
 import { translate } from "../../../../HOCs/translate";
 import PlayChooseBot from "../PlayChooseBot";
 import { Meteor } from "meteor/meteor";
+import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 import { RESOURCE_EDITOR, RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
 
 const { TabPane } = Tabs;
@@ -130,4 +132,7 @@ class ExamineSidebarTop extends Component {
   }
 }
 
-export default translate("Common.rightBarTop")(ExamineSidebarTop);
+export default compose(
+  translate("Common.rightBarTop"),
+  withRouter
+)(ExamineSidebarTop);
