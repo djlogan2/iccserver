@@ -1,5 +1,5 @@
 import chai from "chai";
-import { i18n } from "../../imports/collections/i18n";
+import { i18n } from "./i18n";
 import i18nCollection from "../../imports/collections/i18n";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 

@@ -24,10 +24,9 @@ export default class MoveList extends Component {
     if (nextProps.game.variations.cmi !== game.variations.cmi) {
       this.setState({ cmi: nextProps.game.variations.cmi });
     }
-    if (!!gameRequest) {
-      if (nextProps.gameRequest !== gameRequest && gameRequest.type === "match") {
-        this.setState({ gameRequest });
-      }
+
+    if (!!gameRequest && nextProps.gameRequest !== gameRequest && gameRequest.type === "match") {
+      this.setState({ gameRequest });
     }
   }
 
@@ -40,11 +39,13 @@ export default class MoveList extends Component {
   };
 
   moveForward = () => {
-    let ind = this.currentindex + 1;
+    const ind = this.currentindex + 1;
     let idc = 0;
+
     if (ind <= this.cmi) {
       idc = this.moves[ind].idc;
     }
+
     Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc);
   };
 
@@ -55,10 +56,6 @@ export default class MoveList extends Component {
       Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc);
     }
   };
-
-  componentWillUnmount() {
-    clearInterval(this.intervalID);
-  }
 
   render() {
     const { game, cssManager } = this.props;

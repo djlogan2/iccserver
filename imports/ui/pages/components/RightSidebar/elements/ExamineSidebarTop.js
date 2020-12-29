@@ -16,7 +16,6 @@ class ExamineSidebarTop extends Component {
     super(props);
 
     this.state = {
-      status: "others",
       moveOrPlay: "move"
     };
   }
@@ -109,16 +108,16 @@ class ExamineSidebarTop extends Component {
     return (
       <Tabs
         className="examine-sidebar-top"
-        defaultActiveKey="1"
+        defaultActiveKey="game"
         size="small"
         type="card"
         style={{ marginBottom: 32 }}
       >
-        <TabPane tab={translate("game")} key="1">
+        <TabPane tab={translate("game")} key="game">
           {moveOrPlay === "play" && this.renderPlay()}
           {moveOrPlay === "move" && this.renderMove()}
         </TabPane>
-        <TabPane tab={translate("observe")} key="2">
+        <TabPane tab={translate("observe")} key="observe">
           <ExamineObserveTab
             game={game}
             allUsers={allUsers}

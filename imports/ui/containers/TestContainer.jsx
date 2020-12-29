@@ -189,7 +189,7 @@ class TestContainer extends TrackerReact(React.Component) {
         <div>{this.state.draw_rank_and_file}</div>
         <div style={{ id: "board-left", float: "left", width: w, height: h }}>
           <Board
-             cssManager={css}
+            cssManager={css}
             board={this.chess.board()}
             draw_rank_and_file={this.state.draw_rank_and_file}
             side={size}
@@ -262,10 +262,10 @@ class TestContainer extends TrackerReact(React.Component) {
           side={100}
           draw_rank_and_file={"tl"}
           circle={{ color: "red", lineWidth: 5 }}
-           cssManager={css}
+          cssManager={css}
         />
         <PieceSquare
-           cssManager={css}
+          cssManager={css}
           rank={0}
           file={1}
           color={"w"}
@@ -283,10 +283,10 @@ class TestContainer extends TrackerReact(React.Component) {
           onMouseUp={() => console.log("here")}
           draw_rank_and_file={"tr"}
           side={100}
-           cssManager={css}
+          cssManager={css}
         />
         <PieceSquare
-           cssManager={css}
+          cssManager={css}
           rank={0}
           file={3}
           onMouseDown={() => console.log("here")}
@@ -295,8 +295,8 @@ class TestContainer extends TrackerReact(React.Component) {
           draw_rank_and_file={"br"}
           circle={{ color: "blue", lineWidth: 20 }}
         />
-        <RankSquare  cssManager={css} rank={0} file={3} side={100} />
-        <FileSquare  cssManager={css} rank={0} file={3} side={100} />
+        <RankSquare cssManager={css} rank={0} file={3} side={100} />
+        <FileSquare cssManager={css} rank={0} file={3} side={100} />
       </div>
     );
   }

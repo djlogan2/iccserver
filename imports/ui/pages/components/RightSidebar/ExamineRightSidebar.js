@@ -14,10 +14,8 @@ class ExamineRightSidebar extends Component {
   componentWillReceiveProps(nextProps) {
     const { gameRequest } = this.props;
 
-    if (!!gameRequest) {
-      if (nextProps.gameRequest !== gameRequest) {
-        this.setState({ gameRequest });
-      }
+    if (!!gameRequest && nextProps.gameRequest !== gameRequest) {
+      this.setState({ gameRequest });
     }
   }
 
@@ -32,7 +30,6 @@ class ExamineRightSidebar extends Component {
       flip,
       onPgnUpload
     } = this.props;
-
     const { gameRequest } = this.state;
 
     return (
@@ -53,4 +50,5 @@ class ExamineRightSidebar extends Component {
     );
   }
 }
+
 export default ExamineRightSidebar;
