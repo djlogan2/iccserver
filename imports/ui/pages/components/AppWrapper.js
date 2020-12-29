@@ -50,7 +50,7 @@ class AppWrapper extends Component {
   }
 
   render() {
-    const { history, className, children, translate, game_request: gameRequest } = this.props;
+    const { history, className, children, translate, gameRequest } = this.props;
 
     return (
       <div className={`app-wrapper`}>
@@ -83,7 +83,7 @@ class AppWrapper extends Component {
 
 export default withTracker(() => {
   return {
-    game_request: GameRequestCollection.findOne(
+    gameRequest: GameRequestCollection.findOne(
       {
         $or: [
           {

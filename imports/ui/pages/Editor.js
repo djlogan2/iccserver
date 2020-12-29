@@ -60,7 +60,7 @@ class Editor extends Component {
   };
 
   getCastling = castling => {
-    let result = { whiteCastling: [], blackCastling: [] };
+    const result = { whiteCastling: [], blackCastling: [] };
 
     castling.split("").forEach(letter => {
       if (letter === letter.toUpperCase()) {
@@ -90,7 +90,7 @@ class Editor extends Component {
       .join(" ");
 
     const sigh = `${miniFen} ${flags}`;
-    log.debug("sigh     =" + sigh + ", validate=", chess.validate_fen(sigh));
+    log.debug("sigh=" + sigh + ", validate=", chess.validate_fen(sigh));
     return sigh;
   };
 
