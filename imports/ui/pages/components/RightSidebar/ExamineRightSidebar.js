@@ -7,7 +7,6 @@ class ExamineRightSidebar extends Component {
     super(props);
 
     this.state = {
-      status: true,
       gameRequest: props.gameRequest
     };
   }
