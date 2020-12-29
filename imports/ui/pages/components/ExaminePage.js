@@ -12,7 +12,7 @@ import { Col } from "antd";
 import { links, tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
-import { ExaminActionPopup, GameRequestPopup, GameResignedPopup } from "./Popup";
+import { GameRequestPopup, GameResignedPopup } from "./Popup";
 
 export default class ExaminePage extends Component {
   constructor(props) {
@@ -139,18 +139,6 @@ export default class ExaminePage extends Component {
         title={title}
         cssManager={cssManager}
         resignNotificationCloseHandler={this.resignNotificationCloseHandler}
-      />
-    );
-  };
-
-  examinActionPopup = action => {
-    const { cssManager } = this.props;
-
-    return (
-      <ExaminActionPopup
-        action={action}
-        cssManager={cssManager}
-        examinActionCloseHandler={this.examinActionCloseHandler}
       />
     );
   };
