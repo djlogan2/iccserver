@@ -65,7 +65,12 @@ export const english = {
       resign: "Resign",
       draw: "Draw",
       adjourn: "Adjourn",
-      abort: "Abort"
+      abort: "Abort",
+      moveBackwardBeginning: "Move backward to the beginning",
+      moveBackward: "Move backward",
+      moveForward: "Move forward",
+      moveForwardEnd: "Move forward to the end",
+      flip: "Flip"
     },
     menuLinkLabel: {
       play: "Play",
@@ -102,7 +107,7 @@ export const english = {
       flag: "Flag",
       moretime: "Moretime",
       adjourn: "Adjourn",
-      playersColumn: "{$white}-vs-{$black}",
+      playersColumn: "{$white}-vs-{$black}"
     },
     rightBarBottom: {
       chat: "Chat",

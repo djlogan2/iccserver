@@ -72,27 +72,35 @@ class LocationControls extends Component {
   };
 
   render() {
-    const { flip } = this.props;
+    const { flip, translate } = this.props;
 
     return (
       <div className="location-controls">
         <button
+          title={translate("moveBackwardBeginning")}
           onClick={this.moveBackwordBeginning}
           className="location-controls__item location-controls__item--backward"
         />
         <button
+          title={translate("moveBackward")}
           onClick={this.moveBackword}
           className="location-controls__item location-controls__item--back"
         />
         <button
+          title={translate("moveForward")}
           onClick={this.moveForward}
           className="location-controls__item location-controls__item--next"
         />
         <button
+          title={translate("moveForwardEnd")}
           onClick={this.moveForwardEnd}
           className="location-controls__item location-controls__item--end"
         />
-        <button onClick={flip} className="location-controls__item location-controls__item--flip" />
+        <button
+          title={translate("flip")}
+          onClick={flip}
+          className="location-controls__item location-controls__item--flip"
+        />
       </div>
     );
   }
@@ -162,11 +170,12 @@ class ActionControls extends Component {
 }
 
 const EnhacnedActionControls = translate("Common.rightBarTop")(ActionControls);
+const EnhancedLocationControls = translate("Common.rightBarTop")(LocationControls);
 
 const GameControlBlock = ({ game, flip }) => {
   return (
     <div className="game-control-block">
-      <LocationControls game={game} flip={flip} />
+      <EnhancedLocationControls game={game} flip={flip} />
       <EnhacnedActionControls game={game} />
     </div>
   );
@@ -175,7 +184,7 @@ const GameControlBlock = ({ game, flip }) => {
 const ExamineGameControlBlock = ({ game, flip }) => {
   return (
     <div className="game-control-block">
-      <LocationControls game={game} flip={flip} />
+      <EnhancedLocationControls game={game} flip={flip} />
     </div>
   );
 };
