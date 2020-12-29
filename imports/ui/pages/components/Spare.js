@@ -1,15 +1,14 @@
 import React from "react";
-import { Logger } from "../../../../lib/client/Logger";
+import { get } from "lodash";
 
-const log = new Logger("client/Spare_js");
-
-const Spare = props => {
-  log.trace("Spare render?", props);
+const Spare = ({ onDropStart }) => {
   const mouseDown = e => {
-    let pieceEl = e.target.children[0];
-    let color = pieceEl.getAttribute("datacolor");
-    let role = pieceEl.getAttribute("datarole");
-    props.onDropStart({ role: role, color: color }, e);
+    const pieceEl = get(e, "target.children[0]");
+
+    const color = pieceEl.getAttribute("datacolor");
+    const role = pieceEl.getAttribute("datarole");
+
+    onDropStart({ role, color }, e);
   };
   return (
     <div className="spare merida">
