@@ -8,7 +8,7 @@ import { Routes } from "../imports/startup/client/routes.jsx";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { defaultAppStyles } from "./defaultAppStyles";
-import { ClientInternationalizationCollection } from "../imports/api/client/collections";
+import { ClientInternationalizationCollection, mongoCss } from "../imports/api/client/collections";
 import { isReadySubscriptions, updateLocale } from "../imports/utils/utils";
 
 class App extends React.Component {
@@ -53,7 +53,8 @@ export default compose(
 
     return {
       isReady: isReadySubscriptions(subscriptions),
-      i18nTranslate: ClientInternationalizationCollection.findOne()
+      i18nTranslate: ClientInternationalizationCollection.findOne(),
+      cssStyles: mongoCss.find().fetch()
     };
   }),
   injectSheet(defaultAppStyles)
