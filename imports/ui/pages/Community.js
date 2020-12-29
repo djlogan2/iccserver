@@ -4,10 +4,11 @@ import { withTracker } from "meteor/react-meteor-data";
 import AppWrapper from "../pages/components/AppWrapper";
 
 import MessengerWithData from "./components/Chat/Messenger";
-import { Rooms, mongoCss } from "../../api/client/collections";
+import { Rooms } from "../../api/client/collections";
 import RoomBlock from "./components/CommunityBlocks/RoomBlock";
 import CommunityRightBlock from "./components/CommunityBlocks/CommunityRightBlock";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
+import Loading from "./components/Loading";
 
 class Community extends Component {
   constructor(props) {
@@ -105,10 +106,14 @@ class Community extends Component {
   };
 
   render() {
-    const { allRooms, notMyRooms } = this.props;
+    const { allRooms, notMyRooms, isReady } = this.props;
     const { isRightMenu, activeRoom, isModal } = this.state;
 
     const rightBlockWidth = isRightMenu ? "214px" : 0;
+
+    if (!isReady) {
+      return <Loading isPure={true} />;
+    }
 
     return (
       <AppWrapper>
@@ -145,11 +150,9 @@ const CommunityWithTracker = withTracker(() => {
   };
 
   return {
-    isready: isReadySubscriptions(subscriptions),
+    isReady: isReadySubscriptions(subscriptions),
     allRooms: Rooms.find().fetch(),
-    notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
-    systemCss: mongoCss.findOne({ type: "system" }),
-    boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
+    notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch()
   };
 })(Community);
 
