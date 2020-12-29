@@ -1,46 +1,50 @@
 import React from "react";
 import { Meteor } from "meteor/meteor";
+import { translate } from "../../HOCs/translate";
 import { GameHistoryCollection } from "../../../api/client/collections";
 import ExportPgnButton from "../components/Button/ExportPgnButton";
 
-export default class GameHistroyComponent extends React.Component {
+class GameHistroyComponent extends React.Component {
   getGameHistory() {
     return GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     }).fetch();
   }
+
   setGameExaminMode(id) {
     Meteor.call("examineGame", "ExaminedGame", id);
   }
 
   render() {
-    let gamelist = [];
-    let games = [];
-    let result = null;
+    const { translate } = this.props;
 
-    games = this.getGameHistory();
-    for (let i = 0; i < games.length; i++) {
+    const gamelist = [];
+    let result;
+
+    const games = this.getGameHistory();
+
+    games.forEach(game => {
       if (
-        (games[i].white.id === Meteor.userId() && games[i].result === "1-0") ||
-        (games[i].black.id === Meteor.userId() && games[i].result === "0-1")
+        (game.white.id === Meteor.userId() && game.result === "1-0") ||
+        (game.black.id === Meteor.userId() && game.result === "0-1")
       ) {
-        result = "Won";
+        result = translate("won");
       } else {
-        result = "Loss";
+        result = translate("loss");
       }
+
       gamelist.push({
-        id: games[i]._id,
-        name: "3 minut arina",
-        white: games[i].white.name,
-        black: games[i].black.name,
-        result: result,
-        time: games[i].startTime.toDateString()
+        result,
+        id: game._id,
+        white: game.white.name,
+        black: game.black.name,
+        time: game.startTime.toDateString()
       });
-    }
+    });
 
     return (
       <div>
-        {gamelist.length > 0 ? (
+        {gamelist.length && (
           <table
             className="gamehistory"
             style={{ width: "100%", textAlign: "center", border: "1px solid #f1f1f1" }}
@@ -48,16 +52,16 @@ export default class GameHistroyComponent extends React.Component {
             <thead>
               <tr>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Players
+                  {translate("players")}
                 </th>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Result
+                  {translate("result")}
                 </th>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  Date
+                  {translate("date")}
                 </th>
                 <th style={{ textAlign: "center", background: "#f1f1f1", padding: "5px 5px" }}>
-                  PGN
+                  {translate("pgn")}
                 </th>
               </tr>
             </thead>
@@ -69,7 +73,7 @@ export default class GameHistroyComponent extends React.Component {
                   onClick={this.setGameExaminMode.bind(this, game.id)}
                 >
                   <td style={{ padding: "5px 5px" }}>
-                    {game.white}-vs-{game.black}
+                    {translate("playersVs", { white: game.white, black: game.black })}
                   </td>
                   <td style={{ padding: "5px 5px" }}>{game.result}</td>
                   <td style={{ padding: "5px 5px" }}>{game.time}</td>
@@ -83,8 +87,10 @@ export default class GameHistroyComponent extends React.Component {
               ))}
             </tbody>
           </table>
-        ) : null}
+        )}
       </div>
     );
   }
 }
+
+export default translate("Common.MainPage.")(GameHistroyComponent);

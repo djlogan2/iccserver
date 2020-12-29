@@ -181,7 +181,10 @@ export const english = {
       players: "Players",
       result: "Result",
       date: "Date",
-      pgn: "PGN"
+      pgn: "PGN",
+      playersVs: "{$white}-vs-{$black}",
+      won: "Won",
+      loss: "Loss"
     },
     MiddleBoard: {
       yourturn: "( Your Turn )",
