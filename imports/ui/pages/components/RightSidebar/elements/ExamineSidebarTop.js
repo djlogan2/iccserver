@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
-import { Button, Tabs } from "antd";
+import { Tabs } from "antd";
 import GameHistory from "./GameHistory";
 import ExamineObserveTab from "./ExamineObserveTab";
 import { ExamineGameControlBlock } from "./GameControlBlock";
@@ -9,7 +8,8 @@ import PlayChooseBot from "../PlayChooseBot";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-import { RESOURCE_EDITOR, RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
+import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
+import Actions from "./Actions";
 
 const { TabPane } = Tabs;
 
@@ -22,11 +22,11 @@ class ExamineSidebarTop extends Component {
     };
   }
 
-  playComputer() {
+  playComputer = () => {
     this.setState({ moveOrPlay: "play", cmi: "none" });
-  }
+  };
 
-  playBotFromHere(data) {
+  playBotFromHere = data => {
     const { history, game } = this.props;
 
     Meteor.call(
@@ -46,7 +46,7 @@ class ExamineSidebarTop extends Component {
     );
 
     history.push(RESOURCE_PLAY);
-  }
+  };
 
   componentDidUpdate(prevProps) {
     const { game } = this.props;
@@ -61,18 +61,17 @@ class ExamineSidebarTop extends Component {
     this.setState({ moveOrPlay: "move" });
   }
 
-  renderPlay() {
+  renderPlay = () => {
     return (
       <PlayChooseBot
         onClose={() => this.setState({ moveOrPlay: "move" })}
         onPlay={data => this.playBotFromHere(data)}
       />
     );
-  }
+  };
 
   renderMove() {
     const {
-      translate,
       cssManager,
       RightBarTopData,
       flip,
@@ -85,10 +84,7 @@ class ExamineSidebarTop extends Component {
 
     return (
       <div>
-        <Link style={{ marginLeft: "10px", marginBottom: "10px" }} to={RESOURCE_EDITOR}>
-          <Button>{translate("editor")}</Button>
-        </Link>
-        <Button onClick={() => this.playComputer()}>{translate("playComputer")}</Button>
+        <Actions playComputer={this.playComputer} />
         <GameHistory
           cssManager={cssManager}
           game={RightBarTopData.MoveList}

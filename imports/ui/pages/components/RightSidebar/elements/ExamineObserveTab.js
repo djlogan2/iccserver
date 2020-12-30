@@ -73,7 +73,7 @@ class ExamineObserveTab extends Component {
         {!isShowing && !isObserving && (
           <AutoComplete
             options={options}
-            style={{ width: 200 }}
+            style={{ width: "100%" }}
             onSearch={this.handleSearch}
             placeholder={translate("findUsers")}
           />
