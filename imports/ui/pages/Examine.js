@@ -16,6 +16,7 @@ import {
 } from "../../api/client/collections";
 import { isReadySubscriptions } from "../../utils/utils";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
+import { defaultCapture } from "../../constants/gameConstants";
 
 const log = new Logger("client/Examine_js");
 
@@ -61,9 +62,9 @@ class Examine extends Component {
     Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
   };
 
-  userRecord() {
+  userRecord = () => {
     return mongoUser.find().fetch();
-  }
+  };
 
   handleDraw = objectList => {
     const { game } = this.props;
@@ -79,6 +80,7 @@ class Examine extends Component {
       let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
       return index === -1;
     });
+
     const circlesToRemove = circleList.filter(circle => {
       let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
       return index !== -1;
@@ -90,6 +92,7 @@ class Examine extends Component {
       });
       return index === -1;
     });
+
     const arrowsToRemove = arrowList.filter(arrow => {
       const index = arrows.findIndex(arrowItem => {
         return arrowItem.from === arrow.orig && arrowItem.to === arrow.dest;
@@ -165,6 +168,7 @@ class Examine extends Component {
     if (game) {
       this.setState({ leaving_game: game._id });
     }
+
     Meteor.call("observeUser", "observeUser", userId, err => {
       if (err) {
         log.error(err);
@@ -244,11 +248,6 @@ class Examine extends Component {
       black: { id: "bogus", name: "White", rating: 1600 }
     };
 
-    let capture = {
-      w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
-    };
-
     const css = new CssManager(systemCss, boardCss);
 
     return (
@@ -267,7 +266,7 @@ class Examine extends Component {
           board={this._board}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
-          capture={capture}
+          capture={defaultCapture}
           game={game}
           onDrop={this._pieceSquareDragStop}
           ref="main_page"
@@ -298,11 +297,6 @@ class Examine extends Component {
       return this.renderObserver();
     }
 
-    const capture = {
-      w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
-    };
-
     const css = new CssManager(systemCss, boardCss);
     this._board.load(game.fen);
 
@@ -322,7 +316,7 @@ class Examine extends Component {
           board={this._board}
           observeUser={this.handleObserveUser}
           onPgnUpload={this.handlePgnUpload}
-          capture={capture}
+          capture={defaultCapture}
           game={game}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
