@@ -186,6 +186,10 @@ class Editor extends Component {
     return Math.min(window.innerHeight / 1.3, window.innerWidth / 2.5);
   };
 
+  updateChessground = element => {
+    this.chessground = element;
+  };
+
   render() {
     const { isReady, systemCss, boardCss, examineGame } = this.props;
     const { whiteCastling, blackCastling, orientation } = this.state;
@@ -194,10 +198,7 @@ class Editor extends Component {
       return <Loading />;
     }
 
-    let css;
-    if (systemCss && boardCss) {
-      css = new CssManager(systemCss, boardCss);
-    }
+    const css = new CssManager(systemCss, boardCss);
 
     if (this.chessground) {
       this.chessground.cg.state.viewOnly = false;
@@ -205,6 +206,7 @@ class Editor extends Component {
 
     if (!examineGame) {
       log.error("Editor_js LOADING");
+      return <Loading />;
     }
 
     const baordSize = this.calcBoardSize();
@@ -229,9 +231,7 @@ class Editor extends Component {
                 }}
                 onChange={this.handleChange}
                 resizable={true}
-                ref={el => {
-                  this.chessground = el;
-                }}
+                ref={this.updateChessground}
               />
             </div>
           </BoardWrapper>
