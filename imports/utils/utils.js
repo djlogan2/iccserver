@@ -20,6 +20,13 @@ export const isReadySubscriptions = subscriptions => {
   return true;
 };
 
+export const getLang = () =>
+  (navigator.languages && navigator.languages[0]) ||
+  navigator.language ||
+  navigator.browserLanguage ||
+  navigator.userLanguage ||
+  "en-US";
+
 export const areArraysOfObectsEqual = (firstArray, secondArray) => {
   return _(firstArray)
     .differenceWith(secondArray, _.isEqual)

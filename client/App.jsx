@@ -9,7 +9,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { defaultAppStyles } from "./defaultAppStyles";
 import { ClientInternationalizationCollection, mongoCss } from "../imports/api/client/collections";
-import { isReadySubscriptions, updateLocale } from "../imports/utils/utils";
+import { getLang, isReadySubscriptions, updateLocale } from "../imports/utils/utils";
 
 class App extends React.Component {
   render() {
@@ -37,12 +37,7 @@ class App extends React.Component {
 
 export default compose(
   withTracker(() => {
-    const lang =
-      (navigator.languages && navigator.languages[0]) ||
-      navigator.language ||
-      navigator.browserLanguage ||
-      navigator.userLanguage ||
-      "en-US";
+    const lang = getLang();
 
     const subscriptions = {
       css: Meteor.subscribe("css"),
