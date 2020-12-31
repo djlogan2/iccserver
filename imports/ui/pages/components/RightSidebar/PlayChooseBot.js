@@ -107,7 +107,12 @@ class PlayChooseBot extends Component {
       <div className="play-friend">
         <div className="play-friend__head">
           <h2 className="play-friend__name-title">{translate("playWithComputer")}</h2>
-          <Button onClick={onClose}>{translate("back")}</Button>
+          <div>
+            <Button type="primary" style={{ marginRight: "5px" }} onClick={this.handlePlay}>
+              {translate("startTheGame")}
+            </Button>
+            <Button onClick={onClose}>{translate("back")}</Button>
+          </div>
         </div>
         <Form
           className="play-bot__form"
@@ -176,9 +181,6 @@ class PlayChooseBot extends Component {
           <Form.Item label={translate("ratingType")} name="ratingType">
             <p>{translate(`ratings.${ratingType}`)}</p>
           </Form.Item>
-          <Button type="primary" onClick={this.handlePlay}>
-            {translate("startTheGame")}
-          </Button>
         </Form>
       </div>
     );
