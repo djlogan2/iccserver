@@ -18,7 +18,7 @@ class PlayRightSidebar extends Component {
 
     if (isPlaying) {
       const whiteId = get(game, "white.id");
-      const blackId = get(game, "white.black");
+      const blackId = get(game, "black.id");
 
       const isPlayersWhite = Meteor.userId() === whiteId;
 
