@@ -1,5 +1,5 @@
 import { Mongo } from "meteor/mongo";
-import { Match, check } from "meteor/check";
+import { check, Match } from "meteor/check";
 import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
@@ -107,9 +107,9 @@ class Chat {
     }
 
     function roomChat(room, user) {
-      if (!Users.isAuthorized(user, "join_room")) return self.collection.find({_id: "0"});
+      if (!Users.isAuthorized(user, "join_room")) return self.collection.find({ _id: "0" });
       // Children cannot be in rooms
-      if (user.cf === "c") return self.collection.find({_id: "0"});
+      if (user.cf === "c") return self.collection.find({ _id: "0" });
       // No chats if they aren't members. If they are just invited, no chats!
       if (!room.members.some(member => member.id === user._id))
         return self.collection.find({ _id: "none" });
@@ -160,7 +160,7 @@ class Chat {
     }
 
     function ownedRooms(user) {
-      if (user.cf === "c") return self.roomCollection.find({_id: "0"});
+      if (user.cf === "c") return self.roomCollection.find({ _id: "0" });
       if (!Users.isAuthorized(user, "join_room")) return self.roomCollection.find({ _id: "0" });
       const cursor = self.roomCollection.find({
         owner: user._id,

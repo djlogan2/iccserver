@@ -109,8 +109,6 @@ class Community extends Component {
     const { allRooms, notMyRooms, isReady } = this.props;
     const { isRightMenu, activeRoom, isModal } = this.state;
 
-    const rightBlockWidth = isRightMenu ? "214px" : 0;
-
     if (!isReady) {
       return <Loading isPure={true} />;
     }
@@ -129,16 +127,18 @@ class Community extends Component {
           />
         </div>
         <div className="community__messenger">{this.renderMessenger()}</div>
-        <div className="community__right-block" style={{ maxWidth: rightBlockWidth }}>
-          <CommunityRightBlock
-            activeRoom={activeRoom}
-            roomList={notMyRooms}
-            handleOpenModal={this.handleOpenModal}
-            onAdd={this.handleAdd}
-            onClose={this.handleCloseRightBlock}
-            onChange={this.handleChangeRoom}
-          />
-        </div>
+        {!!isRightMenu && (
+          <div className="community__right-block" style={{ maxWidth: "214px" }}>
+            <CommunityRightBlock
+              activeRoom={activeRoom}
+              roomList={notMyRooms}
+              handleOpenModal={this.handleOpenModal}
+              onAdd={this.handleAdd}
+              onClose={this.handleCloseRightBlock}
+              onChange={this.handleChangeRoom}
+            />
+          </div>
+        )}
       </AppWrapper>
     );
   }

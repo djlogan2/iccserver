@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Input, Button, notification } from "antd";
+import { Button, Input, notification } from "antd";
 import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
 
@@ -83,7 +83,10 @@ class FenPgn extends Component {
         },
         transport: "http",
         onUploaded: (err, fileRef) => {
-          debugger;
+          if (err) {
+            console.error(err);
+          }
+
           onPgnUpload(fileRef);
           this.handlePgnLoaded();
         },
