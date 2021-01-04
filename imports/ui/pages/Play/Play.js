@@ -317,8 +317,8 @@ class Play extends Component {
     const visible = !!gamemessage && !!inGame && inGame.status === "examining";
     if (visible) {
       result = inGame.result;
-      userColor =
-        inGame.white.name === !!Meteor.user() && Meteor.user().username ? "white" : "black";
+
+      userColor = inGame.white.name === Meteor.user().username ? "white" : "black";
 
       if (!userColor) {
         log.error("userColor is missing");
