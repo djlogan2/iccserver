@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import Home from "../../ui/pages/Home";
 import Play from "../../ui/pages/Play/Play";
@@ -18,10 +18,11 @@ import {
   RESOURCE_PLAY,
   RESOURCE_SIGN_UP
 } from "../../constants/resourceConstants";
+import NotFound from "../../ui/pages/NotFound/NotFound";
 
 export const Routes = () => (
   <Router>
-    <div>
+    <Switch>
       <Route path={RESOURCE_SIGN_UP} component={SignUpPage} />
       <Route path={RESOURCE_LOGIN} component={LoginPage} />
       <Route exact={true} path="/" component={Home} />
@@ -30,6 +31,7 @@ export const Routes = () => (
       <Route exact={true} path={RESOURCE_EDITOR} component={Editor} />
       <Route exact={true} path={RESOURCE_EXAMINE} component={Examine} />
       <Route exact={true} path={RESOURCE_COMMUNITY} component={Community} />
-    </div>
+      <Route component={NotFound} />
+    </Switch>
   </Router>
 );

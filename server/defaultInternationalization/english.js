@@ -6,6 +6,10 @@ export const english = {
         challangerWantsToPlay: "{$challenger} would like to play with you"
       }
     },
+    NotFound: {
+      notFound: "404 Page not found",
+      mainPage: "Main page"
+    },
     Notifier: {
       accept: "Accept"
     },
