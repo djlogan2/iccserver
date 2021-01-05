@@ -3,18 +3,22 @@ import { Button } from "antd";
 import { translate } from "../../../../HOCs/translate";
 
 const ExamineObserverTabBlock = ({ game, unObserveUser, translate }) => {
-  const ownerData = !!game.observers ? game.observers.find(item => item.id === game.owner) : {};
+  const ownerData = game.observers.find(item => item.id === game.owner) || {};
 
   return (
     <div className="examine-observer-tab-block">
       <div className="examine-observer-tab-block__head">
         <div className="examine-observer-tab-block__name">
-          <img src="" alt="" className="examine-observer-tab-block__name-img" />
+          <img
+            src={"../../../images/avatar.png"}
+            alt=""
+            className="examine-observer-tab-block__name-img"
+          />
           <h2 className="examine-observer-tab-block__name-title">{ownerData.username}</h2>
         </div>
         <span className="examine-observer-tab-block__head-right">
           {translate("observing", {
-            quantity: game.observers.length - 1,
+            quantity: game.observers.length,
             username: ownerData.username
           })}
         </span>
