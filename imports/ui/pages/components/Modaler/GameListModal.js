@@ -53,7 +53,6 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
   const formatGameList = games => {
     return games.map(gameItem => ({
       id: gameItem._id,
-      name: "3 minut arina",
       white: gameItem.white.name.replace(/"/g, ""),
       black: gameItem.black.name.replace(/"/g, ""),
       time: null, //time,

@@ -14,7 +14,7 @@ import {
   mongoCss,
   mongoUser
 } from "../../api/client/collections";
-import { isReadySubscriptions } from "../../utils/utils";
+import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
 import { defaultCapture } from "../../constants/gameConstants";
 
@@ -37,20 +37,13 @@ class Examine extends Component {
     this.userpending = null;
 
     this.state = {
-      isImportedGamesModal: false,
-      importedGames: []
+      fileData: null,
+      importedGames: [],
+      isImportedGamesModal: false
     };
   }
 
   componentDidMount() {
-    if (!Meteor.userId()) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
     if (!Meteor.userId()) {
       const { history } = this.props;
 
@@ -213,29 +206,25 @@ class Examine extends Component {
     });
   }
 
-  // TODO: This really makes no sense, does it? Why use an observeChanges().added() when
-  //       Meteor already sends you new records? If you are writing this reactively,
-  //       shouldn't you just be using a Tracker like you are already doing for all of
-  //       your other collections? Why is this one different?
   handlePgnUpload = fileData => {
-    let count = 0;
-
-    ImportedGameCollection.find({ fileRef: fileData._id }).observeChanges({
-      added: () => {
-        if (!count) {
-          count = count + 1;
-          setTimeout(() => {
-            let importedGames = ImportedGameCollection.find({ fileRef: fileData._id }).fetch();
-
-            this.setState({
-              importedGames,
-              isImportedGamesModal: true
-            });
-          }, 10);
-        }
-      }
-    });
+    this.setState({ fileData });
   };
+
+  componentDidUpdate(prevProps) {
+    const { importedGames } = this.props;
+    const { fileData } = this.state;
+
+    if (
+      importedGames &&
+      prevProps.importedGames &&
+      !areArraysOfObectsEqual(importedGames, prevProps.importedGames)
+    ) {
+      this.setState({
+        importedGames,
+        isImportedGamesModal: !!fileData
+      });
+    }
+  }
 
   renderObserver() {
     const { systemCss, boardCss, allUsers, game: gameFromProps } = this.props;
@@ -342,6 +331,7 @@ export default withTracker(() => {
     isReady: isReadySubscriptions(subscriptions),
     game: Game.findOne({ "observers.id": Meteor.userId() }),
     allUsers: Meteor.users.find().fetch(),
+    importedGames: ImportedGameCollection.find().fetch(),
     systemCss: mongoCss.findOne({ type: "system" }),
     boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
   };

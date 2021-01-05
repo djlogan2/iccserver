@@ -344,7 +344,8 @@ export const english = {
       yourMessage: "Your message",
       pgn: "PGN",
       pgnImport: "PGN Import",
-      pgnExport: "PGN Export"
+      pgnExport: "PGN Export",
+      pgnSuccessfullyUploaded: "PGN successfully uploaded"
     }
   },
   Community: {

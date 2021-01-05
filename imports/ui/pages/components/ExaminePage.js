@@ -9,7 +9,7 @@ import "./../css/RightSidebar";
 
 import { Col } from "antd";
 
-import { links, tournament } from "../hardcode.json";
+import { tournament } from "../hardcode.json";
 import MiddleBoard from "../MiddleSection/MiddleBoard";
 import BoardWrapper from "./BoardWrapper";
 import { GameRequestPopup, GameResignedPopup } from "./Popup";
@@ -29,9 +29,6 @@ export default class ExaminePage extends Component {
     };
 
     this.Main = {
-      LeftSection: {
-        MenuLinks: links
-      },
       MiddleSection: {
         white: {
           name: "Player-1",

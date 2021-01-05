@@ -35,8 +35,10 @@ class FenPgn extends Component {
   }
 
   handlePgnLoaded = () => {
+    const { translate } = this.props;
+
     notification.open({
-      message: "PGN successfully loaded"
+      message: translate("pgnSuccessfullyUploaded")
     });
   };
 
