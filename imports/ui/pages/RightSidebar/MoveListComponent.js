@@ -31,7 +31,7 @@ class MoveListComponent extends Component {
   componentWillReceiveProps(nextProps) {
     const { game, gameRequest } = this.props;
 
-    if (nextProps.game.variations.cmi !== game.variations.cmi) {
+    if (nextProps.game && game && nextProps.game.variations.cmi !== game.variations.cmi) {
       this.setState({ cmi: nextProps.game.variations.cmi });
     }
 

@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import { get } from "lodash";
+
 import buildPgn from "./../../../helpers/build-pgn";
 
 export default class MoveList extends Component {
@@ -21,8 +23,11 @@ export default class MoveList extends Component {
   componentWillReceiveProps(nextProps) {
     const { game, gameRequest } = this.props;
 
-    if (nextProps.game.variations.cmi !== game.variations.cmi) {
-      this.setState({ cmi: nextProps.game.variations.cmi });
+    const prevCmi = get(game, "variations.cmi");
+    const cmi = get(nextProps, "game.variations.cmi");
+
+    if (cmi && prevCmi !== cmi) {
+      this.setState({ cmi });
     }
 
     if (!!gameRequest && nextProps.gameRequest !== gameRequest && gameRequest.type === "match") {
