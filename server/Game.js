@@ -3773,6 +3773,34 @@ class Game {
     this.localAddObserver(message_identifier, game._id, self._id);
   }
 
+  unObserveUser(message_identifier, user_id, game_id) {
+    log.debug("unObserveUser " + message_identifier + ", " + user_id);
+    check(message_identifier, String);
+    check(user_id, String);
+    const self = Meteor.user();
+    check(self, Object);
+
+    const user = Meteor.users.findOne({ _id: user_id, isolation_group: self.isolation_group });
+    if (!user) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_USER");
+      return;
+    }
+
+    const game = this.GameCollection.findOne({ _id: game_id });
+
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_OR_EXAMINING");
+      return;
+    }
+
+    if (game.private) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "PRIVATE_GAME");
+      return;
+    }
+
+    this.localRemoveObserver(message_identifier, game._id, self._id);
+  }
+
   startGamePing(game_id, computer_color) {
     if (computer_color !== "white") this._startGamePing(game_id, "white");
     if (computer_color !== "black") this._startGamePing(game_id, "black");
@@ -4480,6 +4508,9 @@ Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   observeUser: (message_identifier, user_id) =>
     global._gameObject.observeUser(message_identifier, user_id),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  unObserveUser: (message_identifier, user_id, game_id) =>
+    global._gameObject.unObserveUser(message_identifier, user_id, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   exportToPGN: (message_identifier, game_id) => global._gameObject.exportToPGN(game_id),
   // eslint-disable-next-line meteor/audit-argument-checks

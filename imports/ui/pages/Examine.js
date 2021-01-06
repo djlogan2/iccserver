@@ -169,6 +169,19 @@ class Examine extends Component {
     });
   };
 
+  handleUnObserveUser = userId => {
+    const { game } = this.props;
+    this.setState({ leaving_game: null });
+
+    if (game) {
+      Meteor.call("unObserveUser", "unObserveUser", userId, game._id, err => {
+        if (err) {
+          log.error(err);
+        }
+      });
+    }
+  };
+
   _boardFromMongoMessages(game) {
     let position = {
       w: { p: 8, n: 2, b: 2, r: 2, q: 1 },
@@ -257,6 +270,7 @@ class Examine extends Component {
           allUsers={allUsers}
           board={this._board}
           observeUser={this.handleObserveUser}
+          unObserveUser={this.handleUnObserveUser}
           onPgnUpload={this.handlePgnUpload}
           capture={defaultCapture}
           game={game}
@@ -317,6 +331,7 @@ class Examine extends Component {
           allUsers={allUsers}
           board={this._board}
           observeUser={this.handleObserveUser}
+          unObserveUser={this.handleUnObserveUser}
           onPgnUpload={this.handlePgnUpload}
           capture={defaultCapture}
           game={game}
