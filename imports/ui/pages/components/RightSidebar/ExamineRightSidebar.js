@@ -28,7 +28,8 @@ class ExamineRightSidebar extends Component {
       RightSidebarData,
       cssManager,
       flip,
-      onPgnUpload
+      onPgnUpload,
+      onImportedGames
     } = this.props;
     const { gameRequest } = this.state;
 
@@ -45,7 +46,11 @@ class ExamineRightSidebar extends Component {
           gameRequest={gameRequest}
           ref="right_bar_top"
         />
-        <ExamineRightSidebarBottom game={game} onPgnUpload={onPgnUpload} />
+        <ExamineRightSidebarBottom
+          game={game}
+          onPgnUpload={onPgnUpload}
+          onImportedGames={onImportedGames}
+        />
       </div>
     );
   }

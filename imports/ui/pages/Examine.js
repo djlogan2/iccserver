@@ -211,7 +211,7 @@ class Examine extends Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { importedGames } = this.props;
+    const { importedGames = [] } = this.props;
     const { fileData } = this.state;
 
     if (
@@ -219,8 +219,11 @@ class Examine extends Component {
       prevProps.importedGames &&
       !areArraysOfObectsEqual(importedGames, prevProps.importedGames)
     ) {
+      const copyOfImportedGames = fileData
+        ? importedGames.filter(game => game.fileRef === fileData._id)
+        : importedGames;
       this.setState({
-        importedGames,
+        importedGames: copyOfImportedGames,
         isImportedGamesModal: !!fileData
       });
     }
@@ -263,6 +266,16 @@ class Examine extends Component {
       </div>
     );
   }
+
+  handleImportedGames = () => {
+    const { importedGames } = this.props;
+
+    this.setState({
+      importedGames,
+      fileData: null,
+      isImportedGamesModal: true
+    });
+  };
 
   render() {
     const { allUsers, isReady, game, systemCss, boardCss } = this.props;
@@ -307,6 +320,7 @@ class Examine extends Component {
           onPgnUpload={this.handlePgnUpload}
           capture={defaultCapture}
           game={game}
+          onImportedGames={this.handleImportedGames}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
           ref="main_page"

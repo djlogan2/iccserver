@@ -99,7 +99,7 @@ class FenPgn extends Component {
   };
 
   render() {
-    const { translate, game } = this.props;
+    const { translate, game, onImportedGames } = this.props;
     const { pgn } = this.state;
 
     return (
@@ -125,9 +125,19 @@ class FenPgn extends Component {
               {translate("pgnExport")}
             </Button>
           </a>
-          <label htmlFor="files" className="ant-btn fen-pgn__button ant-btn-primary">
+          <Button className="fen-pgn__button" type="primary" onClick={onImportedGames}>
+            {translate("importedGames")}
+          </Button>
+          <label
+            htmlFor="files"
+            className="ant-btn fen-pgn__button ant-btn-primary pgn-import-label"
+          >
             <i>
-              <img src="images/pgn-import-icon.png" alt="pgn-import-icon" />
+              <img
+                src="images/pgn-import-icon.png"
+                alt="pgn-import-icon"
+                className="pgn-import-icon"
+              />
             </i>
             {translate("pgnImport")}
           </label>

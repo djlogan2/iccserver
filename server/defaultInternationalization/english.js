@@ -345,7 +345,8 @@ export const english = {
       pgn: "PGN",
       pgnImport: "PGN Import",
       pgnExport: "PGN Export",
-      pgnSuccessfullyUploaded: "PGN successfully uploaded"
+      pgnSuccessfullyUploaded: "PGN successfully uploaded",
+      importedGames: "Imported games"
     }
   },
   Community: {

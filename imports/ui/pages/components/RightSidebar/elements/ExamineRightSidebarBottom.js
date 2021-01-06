@@ -8,7 +8,7 @@ const { TabPane } = Tabs;
 
 class ExamineRightSidebarBottom extends Component {
   render() {
-    const { game, onPgnUpload, translate } = this.props;
+    const { game, onPgnUpload, translate, onImportedGames } = this.props;
 
     return (
       <Tabs className="examine-right-sidebar-bottom" defaultActiveKey="1" size="small" type="card">
@@ -16,7 +16,7 @@ class ExamineRightSidebarBottom extends Component {
           <KibitzChatApp isKibitz={true} gameId={game._id} />
         </TabPane>
         <TabPane tab={translate("tabs.fenPgn")} key="fen-png">
-          <FenPgn game={game} onPgnUpload={onPgnUpload} />
+          <FenPgn game={game} onPgnUpload={onPgnUpload} onImportedGames={onImportedGames} />
         </TabPane>
         <TabPane tab={translate("tabs.games")} key="games">
           <div className="examine-sidebar-game">{translate("workInProgress")}</div>

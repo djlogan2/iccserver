@@ -182,7 +182,8 @@ export default class ExaminePage extends Component {
       observeUser,
       unObserveUser,
       gameRequest,
-      onPgnUpload
+      onPgnUpload,
+      onImportedGames
     } = this.props;
     const { width, height, activeTab } = this.state;
 
@@ -252,6 +253,7 @@ export default class ExaminePage extends Component {
             activeTabnumber={activeTab}
             onPgnUpload={onPgnUpload}
             gameRequest={gameRequest}
+            onImportedGames={onImportedGames}
             RightSidebarData={this.Main.RightSection}
             flip={this._flipboard}
             startGameExamine={this.startGameExamine}

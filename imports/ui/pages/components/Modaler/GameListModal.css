@@ -1,0 +1,5 @@
+.ant-table-tbody > tr:hover > td {
+    background: #1890ff !important;
+    cursor: pointer !important;
+    color: #ffffff !important;
+}

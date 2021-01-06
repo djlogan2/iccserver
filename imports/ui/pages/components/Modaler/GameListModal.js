@@ -8,6 +8,8 @@ import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 import ExportPgnButton from "../Button/ExportPgnButton";
 
+import "./GameListModal.css";
+
 const styles = {
   table: {
     width: "100%",
