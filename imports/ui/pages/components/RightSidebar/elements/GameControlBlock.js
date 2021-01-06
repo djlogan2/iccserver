@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import { get } from "lodash";
+
 import { Logger } from "../../../../../../lib/client/Logger";
 import { translate } from "../../../../HOCs/translate";
 
@@ -23,8 +25,11 @@ class LocationControls extends Component {
   componentWillReceiveProps(nextProps) {
     const { game } = this.props;
 
-    if (nextProps.game && nextProps.game.variations.cmi !== game.variations.cmi) {
-      this.setState({ cmi: nextProps.game.variations.cmi });
+    const cmi = get(nextProps, "game.variations.cmi");
+    const prevCmi = get(game, "variations.cmi");
+
+    if (cmi && cmi !== prevCmi) {
+      this.setState({ cmi });
     }
   }
 
