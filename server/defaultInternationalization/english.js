@@ -326,7 +326,8 @@ export const english = {
     },
     ExamineObserverTabBlock: {
       observing: "{$quantity} people are observing {$username}'s board",
-      unobserve: "Unobserver"
+      unobserve: "Unobserve",
+      user: "User"
     },
     ExamineOwnerTabBlock: {
       observing: "{$quantity} people are observing this board"

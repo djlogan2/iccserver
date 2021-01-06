@@ -19,7 +19,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate }) => {
         <span className="examine-observer-tab-block__head-right">
           {translate("observing", {
             quantity: game.observers.length,
-            username: ownerData.username
+            username: ownerData.username || translate("user")
           })}
         </span>
       </div>
