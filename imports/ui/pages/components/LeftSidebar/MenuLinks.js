@@ -17,6 +17,8 @@ import injectSheet from "react-jss";
 import classNames from "classnames";
 import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
 
+import "./MenuLinks.css";
+
 class MenuLinks extends Component {
   logout = () => {
     const { history } = this.props;
@@ -50,10 +52,14 @@ class MenuLinks extends Component {
           const isActive = _.get(history, "location.pathname") === `/${link.link}`;
 
           return (
-            <li className={classes.menuLinkItem} key={link.label}>
+            <li className={classNames(classes.menuLinkItem)} key={link.label}>
               <a
                 href="#"
-                className={classNames(classes.menuItemText, !!isActive ? classes.active : "")}
+                className={classNames(
+                  classes.menuItemText,
+                  "menulink__item",
+                  !!isActive ? classes.active : ""
+                )}
                 onClick={() => this.handleClick(link.label)}
               >
                 <img src={link.src} alt={link.label} />

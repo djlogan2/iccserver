@@ -114,6 +114,10 @@
     z-index: 99;
 }
 
+.sidebar__burger-btn:focus {
+    outline: 1px solid rgba(24,144,255,0.7);
+}
+
 .fliph .sidebar__burger-btn {
     top: 5rem;
     right: 1.3rem;
