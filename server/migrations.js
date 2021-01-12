@@ -100,6 +100,14 @@ Meteor.startup(() => {
     }
   });
 
+  Migrations.add({
+    version: "0.2.0_9",
+    name: "Update client i18n for en locales v 0.6",
+    run: () => {
+      mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
+    }
+  });
+
   Migrations.unlock();
 
   Migrations.migrateTo("latest");
