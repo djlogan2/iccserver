@@ -74,7 +74,10 @@ class ChatComponent extends Component {
                   style={cssManager.buttonStyle()}
                   onClick={() => this.removeAcknowledgeMessage(message._id)}
                 >
-                  <img src={cssManager.buttonBackgroundImage("deleteSign")} alt="deleteSign" />
+                  <img
+                    src={cssManager.buttonBackgroundImage("deleteSign")}
+                    alt={translate("deleteSign")}
+                  />
                 </button>
               </p>
             </div>
@@ -106,7 +109,10 @@ class ChatComponent extends Component {
         <div style={cssManager.inputBoxStyle("chat")}>
           <input type="text" placeholder="Message..." />
           <button style={cssManager.buttonStyle()} type="send">
-            <img src={cssManager.buttonBackgroundImage("chatSendButton")} alt="Send" />
+            <img
+              src={cssManager.buttonBackgroundImage("chatSendButton")}
+              alt={translate("sendSign")}
+            />
           </button>
         </div>
       </div>

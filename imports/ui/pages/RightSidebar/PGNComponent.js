@@ -40,13 +40,13 @@ class PGN extends Component {
         <div>
           <a className="btn btn-primary pgn-btn" href={RESOURCE_EXPORT_PGN_GAME + id}>
             <i>
-              <img src="images/pgn-export-icon.png" alt="pgn-export-icon" />
+              <img src="images/pgn-export-icon.png" alt={translate("pgnExport")} />
             </i>
             {translate("pgnExport")}
           </a>
           <label htmlFor="files" className="btn btn-primary pgn-btn">
             <i>
-              <img src="images/pgn-import-icon.png" alt="pgn-import-icon" />
+              <img src="images/pgn-import-icon.png" alt={translate("pgnImport")} />
             </i>
             {translate("pgnImport")}
           </label>

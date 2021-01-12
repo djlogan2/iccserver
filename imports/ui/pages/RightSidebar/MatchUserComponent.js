@@ -176,7 +176,10 @@ class MatchUserComponent extends TrackerReact(Component) {
             </div>
             <div style={{ width: "25%", float: "left", textAlign: "right" }}>
               <button style={cssManager.buttonStyle()} onClick={this.removeUser}>
-                <img src={cssManager.buttonBackgroundImage("deleteSign")} alt="Delete" />
+                <img
+                  src={cssManager.buttonBackgroundImage("deleteSign")}
+                  alt={translate("deleteSign")}
+                />
               </button>
             </div>
           </div>

@@ -13,7 +13,7 @@ class Events extends Component {
         <div className="">
           <a className="btn btn-primary pgn-btn" href="#">
             <i>
-              <img src="images/pgn-export-icon.png" alt="pgn-export-icon" />
+              <img src="images/pgn-export-icon.png" alt={translate("pgnExport")} />
             </i>
             {translate("pgnExport")}
           </a>
@@ -24,7 +24,7 @@ class Events extends Component {
             data-target="#PGNImport"
           >
             <i>
-              <img src="images/pgn-import-icon.png" alt="pgn-import-icon" />
+              <img src="images/pgn-import-icon.png" alt={translate("pgnImport")} />
             </i>
             {translate("pgnImport")}
           </a>

@@ -144,6 +144,7 @@ export default class PieceSquare extends Square {
           <img
             id={this._pieceId}
             src={peiceImage ? peiceImage : ""}
+            alt={this.props.piece}
             style={{
               width: "100%",
               border: "0px",

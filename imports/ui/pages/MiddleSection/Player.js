@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import FallenSoldier from "./FallenSoldier";
 
-export default class Player extends Component {
+import { translate } from "../../HOCs/translate";
+
+class Player extends Component {
   render() {
     const {
       cssManager,
@@ -10,7 +12,8 @@ export default class Player extends Component {
       turnColor,
       Playermsg,
       color,
-      FallenSoldiers
+      FallenSoldiers,
+      translate
     } = this.props;
 
     const userPicture = cssManager.userPicture(side * 0.08);
@@ -39,7 +42,7 @@ export default class Player extends Component {
         }}
       >
         <div style={{ width: side * 0.45, display: "inline-block", position: "relative" }}>
-          <img style={userPicture} src="images/player-img-top.png" alt="user" />
+          <img style={userPicture} src="images/player-img-top.png" alt={translate("userPicture")} />
           <div style={tagLine}>
             <div
               style={{
@@ -97,3 +100,5 @@ export default class Player extends Component {
     );
   }
 }
+
+export default translate("Common.Player")(Player);

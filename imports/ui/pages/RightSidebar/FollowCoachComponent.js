@@ -1,12 +1,14 @@
 import React from "react";
+import { translate } from "../../HOCs/translate";
+
 /**
- * 
- * 
-Now this display html code so we created functional component this component will be feature enhancement 
+ *
+ *
+ Now this display html code so we created functional component this component will be feature enhancement
 
  */
 
-const FollowCoachComponent = () => (
+const FollowCoachComponent = ({ translate }) => (
   <div>
     <div style={{ padding: "20px", overflowX: "scroll", height: "45vh" }}>
       <div
@@ -55,7 +57,6 @@ const FollowCoachComponent = () => (
               lineHeight: "20px"
             }}
           >
-            {" "}
             the leap into electronic typesetting, remaining essentially unchanged. It was
             popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum
             accident, sometimes on purpose (injected humour and the like).
@@ -71,17 +72,17 @@ const FollowCoachComponent = () => (
               <img
                 src="images/mail.png"
                 style={{ width: "25px", marginRight: "10px" }}
-                alt="mail"
+                alt={translate("mail")}
               />
-              Send Message
+              {translate("sendMessage")}
             </div>
             <div style={{ width: "40%", float: "left", marginLeft: "20px" }}>
               <img
                 src="images/followers.png"
                 style={{ width: "25px", marginRight: "10px" }}
-                alt="followers"
+                alt={translate("followers")}
               />
-              Follow
+              {translate("follow")}
             </div>
           </div>
         </div>
@@ -89,4 +90,4 @@ const FollowCoachComponent = () => (
     </div>
   </div>
 );
-export default FollowCoachComponent;
+export default translate("Common.rightBarBottom.FollowCoach")(FollowCoachComponent);

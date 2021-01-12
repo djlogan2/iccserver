@@ -61,7 +61,7 @@ export default class FallenSoldierSquare extends React.Component {
     return (
       <div style={{ display: "inline-block" }}>
         <div style={imageStyle}>
-          <img src={peiceImage} alt="" style={imageSide} />
+          <img src={peiceImage} alt={piece} style={imageSide} />
           <span style={spanStyle}>{count}</span>
         </div>
       </div>

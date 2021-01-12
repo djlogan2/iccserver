@@ -11,7 +11,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate }) => {
         <div className="examine-observer-tab-block__name">
           <img
             src={"../../../images/avatar.png"}
-            alt=""
+            alt={translate("userAvatar")}
             className="examine-observer-tab-block__name-img"
           />
           <h2 className="examine-observer-tab-block__name-title">{ownerData.username}</h2>

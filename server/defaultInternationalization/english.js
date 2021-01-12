@@ -11,10 +11,15 @@ export const english = {
       mainPage: "Main page"
     },
     Notifier: {
-      accept: "Accept"
+      accept: "Accept",
+      info: "Info",
+      close: "Close"
     },
-    HomeContainer: {
-      mainContent: "xxxx"
+    Home: {
+      homeImage: "Home image"
+    },
+    Player: {
+      userPicture: "User picture"
     },
     loginForm: {
       login: "Login",
@@ -134,6 +139,12 @@ export const english = {
         date: "Date",
         status: "Status",
         playersColumn: "{$white}-vs-{$black}"
+      },
+      FollowCoach: {
+        mail: "Mail",
+        followers: "Followers",
+        sendMessage: "Send message",
+        follow: "Follow"
       }
     },
     MatchUserSubTab: {
@@ -142,7 +153,8 @@ export const english = {
       createChallangeLink: "Create challenge Link",
       chooseMember: "Option 1 - Choose a Member",
       sendLinkToAnyone: "Option 2 - Send a link for anyone to play",
-      tenMin: "10 min"
+      tenMin: "10 min",
+      deleteSign: "Delete sign"
     },
     GameForm: {
       timeControl: "Time Control",
@@ -198,7 +210,9 @@ export const english = {
     },
     chatBoxMessage: {
       NEW_MESSAGE: "NEW MESSAGE",
-      newGame: "NEW GAME"
+      newGame: "NEW GAME",
+      deleteSign: "Delete sign",
+      sendSign: "Send sign"
     },
     pgnActions: {
       fen: "FEN",
@@ -284,7 +298,8 @@ export const english = {
       whiteWon: "White won!",
       blackWon: "Black won!",
       gameDrawn: "Game drawn!",
-      unknownResult: "Unknown result "
+      unknownResult: "Unknown result ",
+      userImage: "User image"
     },
     PlayBlock: {
       createGame: "Create a game",
@@ -329,7 +344,8 @@ export const english = {
     ExamineObserverTabBlock: {
       observing: "{$quantity} people are observing {$username}'s board",
       unobserve: "Unobserve",
-      user: "User"
+      user: "User",
+      userAvatar: "User avatar"
     },
     ExamineOwnerTabBlock: {
       observing: "{$quantity} people are observing this board"

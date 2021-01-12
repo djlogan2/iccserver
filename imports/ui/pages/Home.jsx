@@ -6,6 +6,7 @@ import Loading from "./components/Loading";
 import { mongoCss } from "../../api/client/collections";
 import { RESOURCE_PLAY } from "../../constants/resourceConstants";
 import { withTracker } from "meteor/react-meteor-data";
+import { translate } from "../HOCs/translate";
 
 class Home extends React.Component {
   examineActionHandler = () => {
@@ -15,7 +16,7 @@ class Home extends React.Component {
   };
 
   render() {
-    const { css } = this.props;
+    const { css, translate } = this.props;
 
     if (!css) {
       return <Loading isPure={true} />;
@@ -31,7 +32,10 @@ class Home extends React.Component {
         <div className="col-sm-10 col-md-10" style={cssManager.parentPopup(height, width)}>
           <div className="home-middle-section">
             <div className="home-slider">
-              <img src={cssManager.buttonBackgroundImage("homeImage")} alt="Home" />
+              <img
+                src={cssManager.buttonBackgroundImage("homeImage")}
+                alt={translate("homeImage")}
+              />
             </div>
             <div className="home-description" />
           </div>
@@ -46,5 +50,6 @@ export default compose(
     return {
       css: mongoCss.findOne({ type: "system" })
     };
-  })
+  }),
+  translate("Common.Home")
 )(Home);

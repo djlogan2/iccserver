@@ -56,7 +56,7 @@ const renderNotification = ({ title, action, cssManager, gameId, classes, transl
           <img
             src={cssManager.buttonBackgroundImage("infoIcon")}
             className={classes.titleIcon}
-            alt="info"
+            alt={translate("info")}
           />
           <strong className={classes.titleText}>{title}</strong>
         </div>
@@ -68,7 +68,7 @@ const renderNotification = ({ title, action, cssManager, gameId, classes, transl
             <img
               src={cssManager.buttonBackgroundImage("closeIcon")}
               className={classes.closeIcon}
-              alt="close"
+              alt={translate("close")}
             />
           </button>
         </div>

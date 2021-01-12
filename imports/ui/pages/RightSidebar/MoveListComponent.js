@@ -373,7 +373,7 @@ class MoveListComponent extends Component {
                 <button style={cssManager.buttonStyle()} onClick={this._drawRequest}>
                   <img
                     src={cssManager.buttonBackgroundImage("draw")}
-                    alt="Draw"
+                    alt={translate("draw")}
                     style={cssManager.drawSectionButton()}
                   />
                   {translate("draw")}
@@ -384,7 +384,7 @@ class MoveListComponent extends Component {
                 <button style={cssManager.buttonStyle()} onClick={this._resignGame}>
                   <img
                     src={cssManager.buttonBackgroundImage("resign")}
-                    alt="Resign"
+                    alt={translate("resign")}
                     style={cssManager.drawSectionButton()}
                   />
                   {translate("resign")}
@@ -422,8 +422,8 @@ class MoveListComponent extends Component {
                   style={cssManager.buttonStyle()}
                 >
                   <img
-                    src={cssManager.buttonBackgroundImage("draw")}
-                    alt="Draw"
+                    src={cssManager.buttonBackgroundImage("newOpponent")}
+                    alt={translate("newOpponent")}
                     style={cssManager.drawSectionButton()}
                   />
                   {translate("newOpponent")}
@@ -432,8 +432,8 @@ class MoveListComponent extends Component {
               <li style={cssManager.drawSectionList()}>
                 <button onClick={this._reMatchGame} style={cssManager.buttonStyle()}>
                   <img
-                    src={cssManager.buttonBackgroundImage("resign")}
-                    alt="Resign"
+                    src={cssManager.buttonBackgroundImage("rematch")}
+                    alt={translate("rematch")}
                     style={cssManager.drawSectionButton()}
                   />
                   {translate("rematch")}
@@ -442,8 +442,8 @@ class MoveListComponent extends Component {
               <li>
                 <Link to={RESOURCE_EDITOR}>
                   <img
-                    src={cssManager.buttonBackgroundImage("resign")}
-                    alt="Resign"
+                    src={cssManager.buttonBackgroundImage("editor")}
+                    alt={translate("editor")}
                     style={cssManager.drawSectionButton()}
                   />
                   {translate("editor")}
@@ -453,7 +453,7 @@ class MoveListComponent extends Component {
                 <button style={cssManager.buttonStyle()} onClick={() => this._setGameToExamine()}>
                   <img
                     src={cssManager.buttonBackgroundImage("examine")}
-                    alt="examine"
+                    alt={translate("examine")}
                     style={cssManager.drawSectionButton()}
                   />
                   {translate("examine")}

@@ -21,7 +21,7 @@ class Tab extends Component {
 
     return (
       <li style={cssManager.tabListItem(activeTabName, label)} onClick={onClick}>
-        <img src={src} alt="" style={cssManager.TabIcon(tabListName)} />
+        <img src={src} alt={label} style={cssManager.TabIcon(tabListName)} />
         {label}
       </li>
     );

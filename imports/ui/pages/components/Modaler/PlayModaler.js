@@ -41,7 +41,11 @@ class PlayModaler extends Component {
         <div className="play-modal">
           <div className="play-modal__main">
             <div className="play-modal__user-one">
-              <img className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
+              <img
+                className="play-modal__user-img"
+                src="images/player-img-top.png"
+                alt={translate("userImage")}
+              />
               <p className="play-modal__user-name">{userName}</p>
             </div>
             <div className="play-modal__main-center">
@@ -49,7 +53,11 @@ class PlayModaler extends Component {
               <p className="play-modal__game-status">{message}</p>
             </div>
             <div className="play-modal__user-two">
-              <img className="play-modal__user-img" src="images/player-img-top.png" alt="user" />
+              <img
+                className="play-modal__user-img"
+                src="images/player-img-top.png"
+                alt={translate("userImage")}
+              />
               <p className="play-modal__user-name">{opponentName}</p>
             </div>
           </div>
