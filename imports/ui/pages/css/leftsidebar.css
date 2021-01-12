@@ -47,6 +47,21 @@
     margin-top: 0;
 }
 
+.sidebar__img_logo {
+    display: flex;
+    flex-shrink: 0;
+    margin-left: 1rem;
+    width: 11rem;
+    height: 4rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.fliph .sidebar__img_logo {
+    width: 4rem;
+    margin-left: 0.5rem;
+}
+
 .sidebar__user {
     padding: 0.8rem;
     background: rgba(10, 10, 10, 0.1);

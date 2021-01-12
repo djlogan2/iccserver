@@ -34,7 +34,9 @@ export const english = {
       loginHere: "Login here"
     },
     leftSideBar: {
-      noLogin: "Please login"
+      noLogin: "Please login",
+      userAvatar: "User avatar",
+      logo: "logo"
     },
     gameListModal: {
       myGames: "My Games",

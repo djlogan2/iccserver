@@ -66,7 +66,7 @@ export default class ChessBoard extends PureComponent {
     }
   };
 
-  draggable() {
+  draggable = () => {
     if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
       return {
         enabled: true
@@ -76,7 +76,7 @@ export default class ChessBoard extends PureComponent {
         enabled: false
       };
     }
-  }
+  };
 
   getShapes = () => {
     const { arrows = [], circles = [] } = this.props;

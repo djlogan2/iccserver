@@ -86,12 +86,16 @@ class LeftSidebar extends Component {
           gameList={gameList}
           onClose={this.handleMyGamesClose}
         />
-        <div className="sidebar__logo" />
+        <img
+          src={visible ? "images/JHU_logo_sm_small.png" : "images/JHU_logo_sm.png"}
+          alt={translate("logo")}
+          className="sidebar__img_logo"
+        />
         <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
         <div className="sidebar__user">
           <img
-            src={"../../../images/avatar.png"}
-            alt="user avatar"
+            src="images/avatar.png"
+            alt={translate("userAvatar")}
             className={classNames(classes.sidebarUserImg)}
           />
           <span className={classes.sidebarUsername}>{username}</span>

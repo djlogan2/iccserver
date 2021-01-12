@@ -84,28 +84,54 @@ class LocationControls extends Component {
         <button
           title={translate("moveBackwardBeginning")}
           onClick={this.moveBackwordBeginning}
-          className="location-controls__item location-controls__item--backward"
-        />
+          className="location-controls__item"
+        >
+          <img
+            src="images/navigation-start.svg"
+            alt={translate("moveBackwardBeginning")}
+            className="location-controls__item__image"
+          />
+        </button>
         <button
           title={translate("moveBackward")}
           onClick={this.moveBackword}
-          className="location-controls__item location-controls__item--back"
-        />
+          className="location-controls__item"
+        >
+          <img
+            src="images/navigation-start.svg"
+            alt={translate("moveBackward")}
+            className="location-controls__item__image"
+          />
+        </button>
         <button
           title={translate("moveForward")}
           onClick={this.moveForward}
-          className="location-controls__item location-controls__item--next"
-        />
+          className="location-controls__item"
+        >
+          <img
+            src="images/navigation-next.svg"
+            alt={translate("moveForward")}
+            className="location-controls__item__image"
+          />
+        </button>
         <button
           title={translate("moveForwardEnd")}
           onClick={this.moveForwardEnd}
-          className="location-controls__item location-controls__item--end"
-        />
-        <button
-          title={translate("flip")}
-          onClick={flip}
-          className="location-controls__item location-controls__item--flip"
-        />
+          className="location-controls__item"
+        >
+          <img
+            src="images/navigation-end.svg"
+            alt={translate("moveForwardEnd")}
+            className="location-controls__item__image"
+          />
+        </button>
+        <button title={translate("flip")} onClick={flip} className="location-controls__item">
+          <img
+            src="images/navigation-flip.svg"
+            alt={translate("flip")}
+            className="location-controls__item__image"
+          />
+        </button>
       </div>
     );
   }
@@ -150,28 +176,58 @@ class ActionControls extends Component {
         <button
           title={translate("takeBack")}
           onClick={this.handleTakeback}
-          className="action-controls__item action-controls__item--takeback"
-        />
+          className="action-controls__item"
+        >
+          <img
+            src="images/navigation-takeback.svg"
+            alt={translate("takeBack")}
+            className="location-controls__item__image"
+          />
+        </button>
         <button
           title={translate("resign")}
           onClick={this.handleResign}
-          className="action-controls__item action-controls__item--resign"
-        />
+          className="action-controls__item"
+        >
+          <img
+            src="images/navigation-resign.svg"
+            alt={translate("resign")}
+            className="location-controls__item__image"
+          />
+        </button>
         <button
           title={translate("draw")}
           onClick={this.handleDraw}
-          className="action-controls__item action-controls__item--draw"
-        />
+          className="action-controls__item"
+        >
+          <img
+            src="images/navigation-draw.svg"
+            alt={translate("draw")}
+            className="location-controls__item__image"
+          />
+        </button>
         <button
           title={translate("adjourn")}
           onClick={this.handleAdjorn}
-          className="action-controls__item action-controls__item--adjourn"
-        />
+          className="action-controls__item"
+        >
+          <img
+            src="images/navigation-adjourn.svg"
+            alt={translate("adjourn")}
+            className="location-controls__item__image"
+          />
+        </button>
         <button
           title={translate("abort")}
           onClick={this.handleAbort}
-          className="action-controls__item action-controls__item--abort"
-        />
+          className="action-controls__item"
+        >
+          <img
+            src="images/navigation-abort.svg"
+            alt={translate("abort")}
+            className="location-controls__item__image"
+          />
+        </button>
       </div>
     );
   }
