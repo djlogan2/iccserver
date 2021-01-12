@@ -115,7 +115,7 @@
 }
 
 .sidebar__burger-btn:focus {
-    outline: 1px solid rgba(24,144,255,0.7);
+    outline: 1px solid rgba(0, 0, 0, .3) !important;
 }
 
 .fliph .sidebar__burger-btn {
