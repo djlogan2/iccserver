@@ -3,3 +3,7 @@
     cursor: pointer !important;
     color: #ffffff !important;
 }
+
+.ant-modal-close:focus {
+    outline: 1px solid rgba(0, 0, 0, .3) !important;
+}

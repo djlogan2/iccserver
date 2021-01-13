@@ -2,87 +2,91 @@
 }
 
 .community__sidebar {
-  width: 29.1rem;
-  background: rgba(91, 103, 133, 0.05);
-  border-right: 1px solid #e5e5e7;
+    width: 29.1rem;
+    background: rgba(91, 103, 133, 0.05);
+    border-right: 1px solid #e5e5e7;
 }
+
 .community__messenger {
-  display: flex;
-  flex-grow: 1;
+    display: flex;
+    flex-grow: 1;
 }
 
 .community__right-block {
-  width: 21.4rem;
-  background: rgba(91, 103, 133, 0.05);
-  border-left: 1px solid #e5e5e7;
+    width: 21.4rem;
+    background: rgba(91, 103, 133, 0.05);
+    border-left: 1px solid #e5e5e7;
 }
 
 .room-block {
-  padding-bottom: 1.6rem;
-  border-bottom: 1px solid #e5e5e7;
+    padding-bottom: 1.6rem;
+    border-bottom: 1px solid #e5e5e7;
 }
 
 .room-block-create-button {
-  position: relative;
-  top: 15px;
-  width: 80%;
-  left: 10%;
+    position: relative;
+    top: 15px;
+    width: 80%;
+    left: 10%;
 }
 
 .room-block__head {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.8rem 2.2rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 2.2rem;
 }
 
 .room-block__title {
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: bold;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 19px;
-  margin: 0;
-  /* padding: .8rem 2.2rem; */
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: bold;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 19px;
+    margin: 0;
+    /* padding: .8rem 2.2rem; */
 }
 
 .room-block__add {
 
 }
+
 .room-block__plus {
-  border: none;
-  background: none;
-  font-size: 2rem;
-  line-height: 2rem;
-  justify-content: center;
-  align-items: center;
-  padding-right: 0;
-  padding-left: 0;
+    border: none;
+    background: none;
+    font-size: 2rem;
+    line-height: 2rem;
+    justify-content: center;
+    align-items: center;
+    padding-right: 0;
+    padding-left: 0;
 }
+
 .room-block__plus:hover {
-  border: none;
-  background: none;
+    outline: 1px solid rgba(0, 0, 0, .3) !important;
+    background-color: transparent;
+    color: #000000;
 }
 
 .room-block__list {
-  padding: 0;
-  list-style: none;
+    padding: 0;
+    list-style: none;
 }
 
 .room-block__list-item {
-  padding: 0.8rem 2.2rem;
-  font-family: Roboto;
-  font-style: normal;
-  font-weight: normal;
-  font-size: 16px;
-  line-height: 19px;
-  cursor: pointer;
+    padding: 0.8rem 2.2rem;
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 19px;
+    cursor: pointer;
 }
 
 .room-block__list-item--active {
-  background: rgba(91, 103, 133, 0.07);
-  color: #1565c0;
-  font-weight: bold;
+    background: rgba(91, 103, 133, 0.07);
+    color: #1565c0;
+    font-weight: bold;
 }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button, Input, Modal } from "antd";
 import { translate } from "../../../HOCs/translate";
+import { KEY_ENTER } from "../../../../constants/systemConstants";
 
 const RoomBlock = translate("Community")(
   ({ activeRoom, list, onChange, onAdd, openRightBlock, translate, isModal, handleCloseModal }) => {
@@ -17,6 +18,12 @@ const RoomBlock = translate("Community")(
       handleCloseModal();
 
       onAdd(roomName, isPrivate);
+    };
+
+    const handleKeyDown = itemId => event => {
+      if (event.key === KEY_ENTER) {
+        onChange(itemId);
+      }
     };
 
     return (
@@ -46,11 +53,14 @@ const RoomBlock = translate("Community")(
                 : "room-block__list-item";
             return (
               <li
+                role="button"
+                tabIndex="0"
                 onClick={() => {
                   onChange(item._id);
                 }}
                 key={item._id}
                 className={itemClasses}
+                onKeyDown={handleKeyDown(item._id)}
               >
                 {item.name}
               </li>
