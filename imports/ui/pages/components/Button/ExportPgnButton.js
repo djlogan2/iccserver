@@ -15,6 +15,9 @@ const styles = {
     "&:hover": {
       backgroundColor: "#2a9bdc",
       borderRadius: "3px"
+    },
+    "&:focus": {
+      outline: "1px solid rgba(0, 0, 0, .3)"
     }
   }
 };
