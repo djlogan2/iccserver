@@ -96,9 +96,15 @@ class LeftSidebar extends Component {
           <img
             src="images/avatar.png"
             alt={translate("userAvatar")}
-            className={classNames(classes.sidebarUserImg)}
+            className={classNames(
+              !!visible ? classes.sidebarUserImgFliphed : classes.sidebarUserImg
+            )}
           />
-          <span className={classes.sidebarUsername}>{username}</span>
+          {!visible && (
+            <span className={classes.sidebarUsername} title={username}>
+              {username}
+            </span>
+          )}
         </div>
         <MenuLinks
           visible={visible}

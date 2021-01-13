@@ -9,6 +9,10 @@ export const dynamicLeftSideBarStyles = {
     const css = get(props, "leftSideBarCss", {});
     return css.sidebarUserImg;
   },
+  sidebarUserImgFliphed: props => {
+    const css = get(props, "leftSideBarCss", {});
+    return css.sidebarUserImgFliphed;
+  },
   fliphSidebarUserImg: {
     marginTop: "6rem"
   },

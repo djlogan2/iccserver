@@ -7,15 +7,24 @@ const leftSideBarCss = {
     overflow: "hidden",
     background: "grey"
   },
-  fliphSidebarUserImg: {
-    marginTop: "6rem"
+  sidebarUserImgFliphed: {
+    width: "2.2rem",
+    height: "2.2rem",
+    borderRadius: "50%",
+    overflow: "hidden",
+    background: "grey",
+    position: "relative",
+    right: "3px"
   },
   sidebarUsername: {
     color: "#fff",
     textAlign: "left !important",
     paddingLeft: "1rem",
-    maxWidth: "100%",
-    overflow: "hidden"
+    maxWidth: "100px",
+    overflow: "hidden",
+    display: "inline-block",
+    verticalAlign: "middle",
+    textOverflow: "ellipsis"
   },
   mainDiv: {
     display: "flex",
