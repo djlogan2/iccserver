@@ -98,7 +98,7 @@ class LocationControls extends Component {
           className="location-controls__item"
         >
           <img
-            src="images/navigation-start.svg"
+            src="images/navigation-back.svg"
             alt={translate("moveBackward")}
             className="location-controls__item__image"
           />
