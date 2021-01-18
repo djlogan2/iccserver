@@ -126,7 +126,10 @@ class Community extends Component {
             onChange={this.handleChangeRoom}
           />
         </div>
-        <div className="community__messenger" style={{ maxWidth: "calc(100% - 291px)" }}>
+        <div
+          className="community__messenger"
+          style={{ maxWidth: !!isRightMenu ? "calc(100% - 505px)" : "calc(100% - 291px)" }}
+        >
           {this.renderMessenger()}
         </div>
         {!!isRightMenu && (
