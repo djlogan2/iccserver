@@ -7,8 +7,10 @@ import injectSheet from "react-jss";
 import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 import ExportPgnButton from "../Button/ExportPgnButton";
+import { get } from "lodash";
 
 import "./GameListModal.css";
+import { RESOURCE_EXAMINE } from "../../../../constants/resourceConstants";
 
 const styles = {
   table: {
@@ -34,6 +36,12 @@ const styles = {
 const GameListModal = ({ gameList, isImported, history, onClose, classes, translate, ...rest }) => {
   const handleSetExaminMode = id => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported);
+
+    const pathName = get(history, "location.pathname");
+
+    if (pathName !== RESOURCE_EXAMINE) {
+      history.push(RESOURCE_EXAMINE);
+    }
   };
 
   const getResultOfGameItem = gameItem => {
