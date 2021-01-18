@@ -198,7 +198,7 @@ class Editor extends Component {
       return <Loading />;
     }
 
-    const css = new CssManager(systemCss.systemCss, systemCss.boardCss);
+    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
 
     if (this.chessground) {
       this.chessground.cg.state.viewOnly = false;

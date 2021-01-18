@@ -299,7 +299,7 @@ class Play extends Component {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    const css = new CssManager(systemCss.systemCss, systemCss.boardCss);
+    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
     if (!!gameRequest) {
       this.message_identifier = "server:game:" + gameRequest._id;
     }
