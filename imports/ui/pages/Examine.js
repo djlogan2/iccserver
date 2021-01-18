@@ -243,7 +243,7 @@ class Examine extends Component {
   }
 
   renderObserver() {
-    const { systemCss, boardCss, allUsers, game: gameFromProps } = this.props;
+    const { systemCss, allUsers, game: gameFromProps } = this.props;
     const { isImportedGamesModal, importedGames } = this.state;
 
     const game = gameFromProps || {
@@ -253,7 +253,7 @@ class Examine extends Component {
       black: { id: "bogus", name: "White", rating: 1600 }
     };
 
-    const css = new CssManager(systemCss, boardCss);
+    const css = new CssManager(systemCss.systemCss, systemCss.boardCss);
 
     return (
       <div className="examine">
@@ -361,7 +361,6 @@ export default withTracker(() => {
     game: Game.findOne({ "observers.id": Meteor.userId() }),
     allUsers: Meteor.users.find().fetch(),
     importedGames: ImportedGameCollection.find().fetch(),
-    systemCss: mongoCss.findOne({ type: "system" }),
-    boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
+    systemCss: mongoCss.findOne()
   };
 })(Examine);

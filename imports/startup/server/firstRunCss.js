@@ -3,31 +3,28 @@ import menuLinksCss from "../../../server/defaultStyles/menuLinksCss";
 import systemCss from "../../../server/defaultStyles/systemCss";
 import userCss from "../../../server/defaultStyles/userCss";
 import mongoCss from "../../collections/css";
+import mongoCurrentCss from "../../collections/currentCss";
 import { Meteor } from "meteor/meteor";
 import playNotificationsCss from "../../../server/defaultStyles/playNotificationsCss";
+import { DEFAULT_CSS_KEY } from "../../constants/systemConstants";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
     return;
   }
 
-  if (!mongoCss.find({ type: "system" }).count()) {
-    mongoCss.insert(systemCss);
+  if (!mongoCurrentCss.find().count()) {
+    mongoCurrentCss.insert({ value: DEFAULT_CSS_KEY });
   }
 
-  if (!mongoCss.find({ type: "board" }).count()) {
-    mongoCss.insert(userCss);
-  }
-
-  if (!mongoCss.find({ type: "leftSideBar" }).count()) {
-    mongoCss.insert(leftSideBarCss);
-  }
-
-  if (!mongoCss.find({ type: "menuLinks" }).count()) {
-    mongoCss.insert(menuLinksCss);
-  }
-
-  if (!mongoCss.find({ type: "playNotifications" }).count()) {
-    mongoCss.insert(playNotificationsCss);
+  if (!mongoCss.find({ cssKey: "default" }).count()) {
+    mongoCss.insert({
+      cssKey: "default",
+      systemCss: systemCss,
+      userCss: userCss,
+      leftSideBarCss: leftSideBarCss,
+      menuLinksCss: menuLinksCss,
+      playNotificationsCss: playNotificationsCss
+    });
   }
 }

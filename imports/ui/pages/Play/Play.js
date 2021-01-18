@@ -292,14 +292,14 @@ class Play extends Component {
       return <Loading />;
     }
 
-    const { systemCss, boardCss } = this.props;
+    const { systemCss } = this.props;
 
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
     };
 
-    const css = new CssManager(systemCss, boardCss);
+    const css = new CssManager(systemCss.systemCss, systemCss.boardCss);
     if (!!gameRequest) {
       this.message_identifier = "server:game:" + gameRequest._id;
     }
@@ -410,9 +410,7 @@ export default compose(
         }
       ),
 
-      systemCss: mongoCss.findOne({ type: "system" }),
-      boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] }),
-      playNotificationsCss: mongoCss.findOne({ type: "playNotifications" }),
+      systemCss: mongoCss.findOne(),
       userClientMessages: ClientMessagesCollection.find().fetch()
     };
   }),
