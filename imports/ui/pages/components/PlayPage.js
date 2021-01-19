@@ -28,8 +28,11 @@ export default class PlayPage extends Component {
       examinAction: "action",
       activeTab: 0,
       modalShow: 0,
-      toggleModal: this.toggleModal
+      toggleModal: this.toggleModal,
+      switchSides: Date.now()
     };
+
+    this.middleBoard = React.createRef();
 
     this.Main = {
       LeftSection: {
@@ -136,7 +139,7 @@ export default class PlayPage extends Component {
   };
 
   _flipboard = () => {
-    this.refs.middleBoard.switchSides();
+    this.setState({ switchSides: Date.now() });
   };
 
   render() {
@@ -152,7 +155,7 @@ export default class PlayPage extends Component {
       onChooseFriend,
       onBotPlay
     } = this.props;
-    const { width, height } = this.state;
+    const { width, height, switchSides } = this.state;
 
     const gameTurn = board.turn();
     let status;
@@ -195,7 +198,7 @@ export default class PlayPage extends Component {
             <MiddleBoard
               cssManager={cssManager}
               MiddleBoardData={this.Main.MiddleSection}
-              ref="middleBoard"
+              switchSides={switchSides}
               capture={capture}
               board={board}
               onDrop={onDrop}

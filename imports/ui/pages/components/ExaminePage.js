@@ -25,7 +25,8 @@ export default class ExaminePage extends Component {
       notification: false,
       newOppenetRequest: false,
       examinAction: "action",
-      activeTab: 0
+      activeTab: 0,
+      switchSides: Date.now()
     };
 
     this.Main = {
@@ -167,7 +168,7 @@ export default class ExaminePage extends Component {
   };
 
   _flipboard = () => {
-    this.refs.middleBoard.switchSides();
+    this.setState({ switchSides: Date.now() });
   };
 
   render() {
@@ -185,7 +186,7 @@ export default class ExaminePage extends Component {
       onPgnUpload,
       onImportedGames
     } = this.props;
-    const { width, height, activeTab } = this.state;
+    const { width, height, activeTab, switchSides } = this.state;
 
     const gameTurn = board.turn();
 
@@ -236,10 +237,10 @@ export default class ExaminePage extends Component {
               width={width}
               height={height}
               game={game}
+              switchSides={switchSides}
               top={position.top}
               gameStatus={Meteor.user().status.game} // DJL REMOVE
               MiddleBoardData={this.Main.MiddleSection}
-              ref="middleBoard"
             />
           </BoardWrapper>
         </Col>

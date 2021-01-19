@@ -24,10 +24,14 @@ class MiddleBoard extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { top } = this.props;
+    const { top, switchSides } = this.props;
 
     if (prevProps.top !== top) {
       this.setState({ top });
+    }
+
+    if (switchSides !== prevProps.switchSides) {
+      this.switchSides();
     }
   }
 
