@@ -66,18 +66,19 @@ class ExamineObserveTab extends Component {
 
     const options = this.getList();
     const isObserving = Meteor.user().status.game === "observing";
-    const isShowing = Meteor.user().status.game === "examining" && game.observers.length > 1;
+    const isShowing = Meteor.user().status.game === "examining" && game.observers.length;
 
     return (
       <div className="examine-observer-tab">
-        {!isShowing && !isObserving && (
-          <AutoComplete
-            options={options}
-            style={{ width: "100%" }}
-            onSearch={this.handleSearch}
-            placeholder={translate("findUsers")}
-          />
-        )}
+        {(!isShowing && !isObserving) ||
+          (isShowing && game.observers.length === 1 && (
+            <AutoComplete
+              options={options}
+              style={{ width: "100%" }}
+              onSearch={this.handleSearch}
+              placeholder={translate("findUsers")}
+            />
+          ))}
         {isObserving && <ExamineObserverTabBlock game={game} unObserveUser={unObserveUser} />}
         {isShowing && <ExamineOwnerTabBlock game={game} />}
       </div>

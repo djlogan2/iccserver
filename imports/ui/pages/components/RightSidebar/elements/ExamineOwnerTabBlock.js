@@ -39,14 +39,14 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
       <div className="examine-owner-tab-block">
         <div className="examine-owner-tab-block__head">
           <span className="examine-owner-tab-block__head-right">
-            {translate("observing", { quantity: game.observers.length - 1 })}
+            {translate("observing", { quantity: game.observers.length })}
           </span>
         </div>
         <ul className="examine-owner-tab-block__list">
           {game.observers.map(observerItem => {
-            if (game.owner === observerItem.id || Meteor.userId() === observerItem.id) {
-              return null;
-            }
+            // if (game.owner === observerItem.id || Meteor.userId() === observerItem.id) {
+            //   return null;
+            // }
 
             const isExaminer = game.examiners.filter(
               examinerItem => examinerItem.id === observerItem.id
@@ -78,14 +78,14 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
     <div className="examine-owner-tab-block">
       <div className="examine-owner-tab-block__head">
         <span className="examine-owner-tab-block__head-right">
-          {translate("observing", { quantity: game.observers.length - 1 })}
+          {translate("observing", { quantity: game.observers.length })}
         </span>
       </div>
       <ul className="examine-owner-tab-block__list">
         {game.observers.map(observerItem => {
-          if (game.owner === observerItem.id || Meteor.userId() === observerItem.id) {
-            return null;
-          }
+          // if (game.owner === observerItem.id || Meteor.userId() === observerItem.id) {
+          //   return null;
+          // }
 
           return (
             <li key={observerItem.username} className="examine-owner-tab-block__list-item">
