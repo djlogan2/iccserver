@@ -25,7 +25,7 @@ class Home extends React.Component {
     const width = window.innerWidth / 2;
     const height = window.innerHeight;
 
-    const cssManager = new CssManager(css);
+    const cssManager = new CssManager(css.systemCss);
 
     return (
       <AppWrapper>
@@ -48,7 +48,7 @@ class Home extends React.Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne({ type: "system" })
+      css: mongoCss.findOne()
     };
   }),
   translate("Common.Home")

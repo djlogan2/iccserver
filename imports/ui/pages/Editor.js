@@ -191,14 +191,14 @@ class Editor extends Component {
   };
 
   render() {
-    const { isReady, systemCss, boardCss, examineGame } = this.props;
+    const { isReady, systemCss, examineGame } = this.props;
     const { whiteCastling, blackCastling, orientation } = this.state;
 
     if (!isReady) {
       return <Loading />;
     }
 
-    const css = new CssManager(systemCss, boardCss);
+    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
 
     if (this.chessground) {
       this.chessground.cg.state.viewOnly = false;
@@ -273,7 +273,6 @@ export default withTracker(() => {
     gameHistory: GameHistoryCollection.find({
       $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
     }).fetch(),
-    systemCss: mongoCss.findOne({ type: "system" }),
-    boardCss: mongoCss.findOne({ $and: [{ type: "board" }, { name: "default-user" }] })
+    systemCss: mongoCss.findOne()
   };
 })(Editor);

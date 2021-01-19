@@ -89,7 +89,7 @@ export default compose(
   translate("Common.menuLinkLabel"),
   withTracker(() => {
     return {
-      menuLinksCss: mongoCss.findOne({ type: "menuLinks" })
+      menuLinksCss: mongoCss.findOne()
     };
   }),
   injectSheet(dynamicMenuLinksStyles)

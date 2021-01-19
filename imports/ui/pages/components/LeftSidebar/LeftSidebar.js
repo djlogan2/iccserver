@@ -123,7 +123,7 @@ export default compose(
   translate("Common.leftSideBar"),
   withTracker(() => {
     return {
-      leftSideBarCss: mongoCss.findOne({ type: "leftSideBar" })
+      leftSideBarCss: mongoCss.findOne()
     };
   }),
   injectSheet(dynamicLeftSideBarStyles)

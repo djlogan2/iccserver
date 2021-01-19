@@ -1,6 +1,7 @@
 import { Mongo } from "meteor/mongo";
 
 export const mongoCss = new Mongo.Collection("css");
+export const mongoCurrentCss = new Mongo.Collection("current_css");
 export const mongoUser = new Mongo.Collection("userData");
 export const Game = new Mongo.Collection("game");
 export const Chat = new Mongo.Collection("chat");
