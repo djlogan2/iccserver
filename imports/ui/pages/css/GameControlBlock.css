@@ -34,6 +34,10 @@
 
 }
 
+.play-modal__user-name {
+    max-width: 150px;
+}
+
 .play-modal__btn-block {
     display: flex;
     justify-content: center;
