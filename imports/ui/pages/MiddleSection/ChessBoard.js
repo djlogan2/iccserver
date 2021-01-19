@@ -7,6 +7,7 @@ import "./../css/developmentboard.css";
 import "react-chessground/dist/styles/chessground.css";
 import "./../css/Theme.css";
 import { Logger } from "../../../../lib/client/Logger";
+import { areArraysOfObectsEqual } from "../../../utils/utils";
 
 const log = new Logger("client/ChessBoard_js");
 
@@ -37,7 +38,7 @@ export default class ChessBoard extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
     const { arrows, circles } = this.props;
 
-    if (arrows.length !== prevProps.arrows.length) {
+    if (!areArraysOfObectsEqual(arrows, prevProps.arrows)) {
       this.updateShapes();
     } else if (circles.length !== prevProps.circles.length) {
       this.updateShapes();
@@ -178,7 +179,7 @@ export default class ChessBoard extends PureComponent {
   getIsExaminingOrObserving = () => {
     const { gameStatus } = this.props;
 
-    return !!gameStatus && gameStatus === "observing";
+    return !!gameStatus && (gameStatus === "observing" || gameStatus === "examining");
   };
 
   turnColor() {
