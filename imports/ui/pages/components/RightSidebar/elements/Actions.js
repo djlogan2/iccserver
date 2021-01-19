@@ -1,22 +1,22 @@
 import React from "react";
-import { Button } from "antd";
 import { Link } from "react-router-dom";
 
 import "../../../css/Actions.css";
 
 import { translate } from "../../../../HOCs/translate";
 import { RESOURCE_EDITOR } from "../../../../../constants/resourceConstants";
+import PrimaryButton from "../../Button/PrimaryButton";
 
 const Actions = translate("Common.rightBarTop")(({ translate, playComputer }) => (
   <div className="actions">
     <Link className="link element" to={RESOURCE_EDITOR}>
-      <Button block type="primary">
+      <PrimaryButton block type="primary">
         {translate("editor")}
-      </Button>
+      </PrimaryButton>
     </Link>
-    <Button className="element" type="primary" onClick={playComputer}>
+    <PrimaryButton className="element" type="primary" onClick={playComputer}>
       {translate("playComputer")}
-    </Button>
+    </PrimaryButton>
   </div>
 ));
 

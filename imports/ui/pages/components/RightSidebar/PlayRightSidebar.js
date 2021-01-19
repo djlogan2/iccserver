@@ -63,7 +63,7 @@ class PlayRightSidebar extends Component {
 
     return (
       <div className="play-right-sidebar">
-        <Tabs className={topClasses} defaultActiveKey="1" size="small" type="card">
+        <Tabs className={topClasses} defaultActiveKey="play" size="small" type="card">
           <TabPane tab={translate("tabs.playTab")} key="play">
             <PlayBlock
               game={game}

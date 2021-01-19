@@ -7,6 +7,7 @@ import mongoCurrentCss from "../../collections/currentCss";
 import { Meteor } from "meteor/meteor";
 import playNotificationsCss from "../../../server/defaultStyles/playNotificationsCss";
 import { DEFAULT_CSS_KEY } from "../../constants/systemConstants";
+import primaryButtonCss from "../../../server/defaultStyles/primaryButtonCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -24,7 +25,8 @@ export default function firstRunCSS() {
       userCss: userCss,
       leftSideBarCss: leftSideBarCss,
       menuLinksCss: menuLinksCss,
-      playNotificationsCss: playNotificationsCss
+      playNotificationsCss: playNotificationsCss,
+      primaryButtonCss: primaryButtonCss
     });
   }
 }
