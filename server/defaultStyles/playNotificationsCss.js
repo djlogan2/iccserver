@@ -2,7 +2,7 @@ const playNotificationsCss = {
   type: "playNotifications",
   notification: {
     height: "85px",
-    backgroundColor: "#FF9806",
+    backgroundColor: "#800000",
     color: "#fff"
   },
   titleText: {

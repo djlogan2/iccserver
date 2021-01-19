@@ -80,7 +80,7 @@ const renderNotification = ({ title, action, cssManager, gameId, classes, transl
     key,
     duration: 0,
     closeIcon: () => null,
-    style: { height: "55px", backgroundColor: "#FF9806", color: "#fff" },
+    style: { height: "55px", backgroundColor: "#800000", color: "#fff" },
     message: renderTitle(),
     description: null
   });
