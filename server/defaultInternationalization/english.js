@@ -334,7 +334,9 @@ export const english = {
       clearBoard: "Clear board",
       flipBoard: "Flip board",
       fen: "FEN",
-      insertFen: "Insert FEN here"
+      insertFen: "Insert FEN here",
+      whiteCastling: "White castling",
+      blackCastling: "Black castling"
     }
   },
   Examine: {

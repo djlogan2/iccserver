@@ -77,13 +77,13 @@ class EditorRightSidebar extends Component {
               <Radio.Button value="b">{translate("blackToPlay")}</Radio.Button>
             </Radio.Group>
           </div>
-
           <div className="editor-right-sidebar__castling">
             <h3 className="editor-right-sidebar__name"> {translate("castling")}</h3>
             <div className="editor-right-sidebar__castling-wrap">
               <div className="editor-right-sidebar__block">
                 <h3 className="editor-right-sidebar__check-name">{translate("white")}</h3>
                 <Checkbox.Group
+                  title={translate("whiteCastling")}
                   className="editor-right-sidebar__checkbox-list"
                   options={whiteOptions}
                   value={whiteCastling}
@@ -94,6 +94,7 @@ class EditorRightSidebar extends Component {
               <div className="editor-right-sidebar__block">
                 <h3 className="editor-right-sidebar__check-name">{translate("black")}</h3>
                 <Checkbox.Group
+                  title={translate("blackCastling")}
                   className="editor-right-sidebar__checkbox-list"
                   options={blackOptions}
                   value={blackCastling}
