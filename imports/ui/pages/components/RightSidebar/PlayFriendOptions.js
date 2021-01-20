@@ -57,7 +57,9 @@ class PlayFriendOptions extends Component {
       DynamicRatingsCollection.find().fetch()
     );
 
-    this.setState({ ratingType: ratingObject.rating_type });
+    if (ratingObject) {
+      this.setState({ ratingType: ratingObject.rating_type });
+    }
   };
 
   handlePlay = () => {
@@ -113,6 +115,7 @@ class PlayFriendOptions extends Component {
                 <InputNumber
                   name="initial"
                   min={0}
+                  max={900}
                   disabled={incrementOrDelayType === "none"}
                   value={initial}
                   onChange={this.handleChange("initial")}
