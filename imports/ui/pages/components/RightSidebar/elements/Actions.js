@@ -1,5 +1,6 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 
 import "../../../css/Actions.css";
 
@@ -7,13 +8,18 @@ import { translate } from "../../../../HOCs/translate";
 import { RESOURCE_EDITOR } from "../../../../../constants/resourceConstants";
 import PrimaryButton from "../../Button/PrimaryButton";
 
-const Actions = translate("Common.rightBarTop")(({ translate, playComputer }) => (
+const Actions = compose(
+  translate("Common.rightBarTop"),
+  withRouter
+)(({ translate, playComputer, history }) => (
   <div className="actions">
-    <Link className="link element" to={RESOURCE_EDITOR}>
-      <PrimaryButton block type="primary">
-        {translate("editor")}
-      </PrimaryButton>
-    </Link>
+    <PrimaryButton
+      className="link element"
+      type="primary"
+      onClick={() => history.push(RESOURCE_EDITOR)}
+    >
+      {translate("editor")}
+    </PrimaryButton>
     <PrimaryButton className="element" type="primary" onClick={playComputer}>
       {translate("playComputer")}
     </PrimaryButton>
