@@ -99,6 +99,7 @@ class PlayFriendOptions extends Component {
         >
           <Form.Item label={translate("timeControl")} name="time-control">
             <Radio.Group
+              name="timeControl"
               onChange={this.handleChangeIncrementOrDelayType}
               value={incrementOrDelayType}
             >
@@ -110,6 +111,7 @@ class PlayFriendOptions extends Component {
             <div className="play-right-sidebar__inc-deley-wrap">
               <Form.Item label={translate("initial")} name="initial">
                 <InputNumber
+                  name="initial"
                   min={0}
                   disabled={incrementOrDelayType === "none"}
                   value={initial}
@@ -118,6 +120,7 @@ class PlayFriendOptions extends Component {
               </Form.Item>
               <Form.Item label={translate("incrementOrDelay")} name="incrementOrDelay">
                 <InputNumber
+                  name="incrementOrDelay"
                   min={0}
                   disabled={incrementOrDelayType === "none"}
                   value={incrementOrDelay}
@@ -130,7 +133,7 @@ class PlayFriendOptions extends Component {
             <p>{translate(`ratings.${ratingType}`)}</p>
           </Form.Item>
           <Form.Item label={translate("color")} name="color">
-            <Radio.Group onChange={this.handleChangeColor} value={color}>
+            <Radio.Group name="color" onChange={this.handleChangeColor} value={color}>
               <Radio.Button value="random">{translate("colors.random")}</Radio.Button>
               <Radio.Button value="white">{translate("colors.white")}</Radio.Button>
               <Radio.Button value="black">{translate("colors.black")}</Radio.Button>

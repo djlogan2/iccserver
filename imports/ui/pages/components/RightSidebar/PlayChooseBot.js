@@ -124,6 +124,7 @@ class PlayChooseBot extends Component {
         >
           <Form.Item label={translate("difficulty")} name="difficulty">
             <Radio.Group
+              name="difficulty"
               value={difficulty}
               defaultValue={difficulty}
               onChange={this.handleChangeDifficulty}
@@ -142,7 +143,12 @@ class PlayChooseBot extends Component {
             </Radio.Group>
           </Form.Item>
           <Form.Item label={translate("color")} name="color">
-            <Radio.Group value={color} defaultValue={color} onChange={this.handleChangeColor}>
+            <Radio.Group
+              name="color"
+              value={color}
+              defaultValue={color}
+              onChange={this.handleChangeColor}
+            >
               <Radio.Button value="random">{translate("colors.random")}</Radio.Button>
               <Radio.Button value="white">{translate("colors.white")}</Radio.Button>
               <Radio.Button value="black">{translate("colors.black")}</Radio.Button>
@@ -150,6 +156,7 @@ class PlayChooseBot extends Component {
           </Form.Item>
           <Form.Item label={translate("timeControl")} name="time-control">
             <Radio.Group
+              name="timeControl"
               onChange={this.handleChangeIncrementOrDelayType}
               defaultValue={incrementOrDelayType}
               value={incrementOrDelayType}
@@ -162,6 +169,7 @@ class PlayChooseBot extends Component {
             <div className="play-right-sidebar__inc-deley-wrap">
               <Form.Item label={translate("initial")} name="initial">
                 <InputNumber
+                  name="initial"
                   min={0}
                   disabled={incrementOrDelayType === "none"}
                   value={initial}
@@ -170,6 +178,7 @@ class PlayChooseBot extends Component {
               </Form.Item>
               <Form.Item label={translate("incrementOrDelay")} name="incrementOrDelay">
                 <InputNumber
+                  name="incrementOrDelay"
                   min={0}
                   disabled={incrementOrDelayType === "none"}
                   value={incrementOrDelay}
