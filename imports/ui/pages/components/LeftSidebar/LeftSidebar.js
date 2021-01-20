@@ -91,7 +91,11 @@ class LeftSidebar extends Component {
           alt={translate("logo")}
           className="sidebar__img_logo"
         />
-        <button className="sidebar__burger-btn" onClick={this.toggleMenu} />
+        <button
+          className="sidebar__burger-btn"
+          title={translate("burgerButton")}
+          onClick={this.toggleMenu}
+        />
         <div className="sidebar__user">
           <img
             src="images/avatar.png"
