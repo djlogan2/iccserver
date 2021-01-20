@@ -41,7 +41,8 @@ export const english = {
     leftSideBar: {
       noLogin: "Please login",
       userAvatar: "User avatar",
-      logo: "logo"
+      logo: "logo",
+      burgerButton: "Burger button"
     },
     gameListModal: {
       myGames: "My Games",
@@ -333,7 +334,9 @@ export const english = {
       clearBoard: "Clear board",
       flipBoard: "Flip board",
       fen: "FEN",
-      insertFen: "Insert FEN here"
+      insertFen: "Insert FEN here",
+      whiteCastling: "White castling",
+      blackCastling: "Black castling"
     }
   },
   Examine: {
@@ -372,7 +375,9 @@ export const english = {
     RoomBlock: {
       rooms: "Your rooms: {$rooms}",
       plus: "+",
-      title: "Create room"
+      title: "Create room",
+      plusTitle: "Create new room",
+      joinRoom: "Join room with name {$roomName}"
     },
     CommunityRightBlock: {
       allRooms: "All rooms",

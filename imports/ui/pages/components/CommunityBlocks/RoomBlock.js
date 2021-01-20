@@ -40,7 +40,11 @@ const RoomBlock = translate("Community")(
           >
             <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
           </Modal>
-          <Button onClick={openRightBlock} className="room-block__plus">
+          <Button
+            onClick={openRightBlock}
+            title={translate("RoomBlock.plusTitle")}
+            className="room-block__plus"
+          >
             {translate("RoomBlock.plus")}
           </Button>
         </div>
@@ -55,6 +59,7 @@ const RoomBlock = translate("Community")(
               <li
                 role="button"
                 tabIndex="0"
+                title={translate("RoomBlock.joinRoom", { roomName: item.name })}
                 onClick={() => {
                   onChange(item._id);
                 }}
