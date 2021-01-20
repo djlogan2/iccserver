@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Button, Checkbox, Input, Radio } from "antd";
-import { Link } from "react-router-dom";
+import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 
 import "./../../css/EditorRightSidebar.css";
@@ -46,7 +47,7 @@ class EditorRightSidebar extends Component {
   };
 
   render() {
-    const { color, onStartPosition, onClear, onFlip, onFen, fen, translate } = this.props;
+    const { color, onStartPosition, onClear, onFlip, onFen, fen, translate, history } = this.props;
     const { whiteCastling, blackCastling } = this.state;
 
     const whiteOptions = [{ label: "0-0", value: "K" }, { label: "0-0-0", value: "Q" }];
@@ -55,10 +56,12 @@ class EditorRightSidebar extends Component {
     return (
       <div className="editor-right-sidebar">
         <div className="editor-right-sidebar__head">
-          <Link to={RESOURCE_EXAMINE}>
-            <Button className="editor-right-sidebar__back-btn">{translate("backToPlay")}</Button>
-          </Link>
-
+          <Button
+            className="editor-right-sidebar__back-btn"
+            onClick={() => history.push(RESOURCE_EXAMINE)}
+          >
+            {translate("backToPlay")}
+          </Button>
           <h2 className="editor-right-sidebar__title">{translate("boardSetUp")}</h2>
         </div>
         <div className="editor-right-sidebar__content">
@@ -135,4 +138,7 @@ class EditorRightSidebar extends Component {
   }
 }
 
-export default translate("Editor.EditorRightSidebar")(EditorRightSidebar);
+export default compose(
+  translate("Editor.EditorRightSidebar"),
+  withRouter
+)(EditorRightSidebar);
