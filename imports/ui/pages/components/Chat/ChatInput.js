@@ -20,7 +20,7 @@ export default translate("Community.ChatInput")(({ value, onChange, onMessage, t
           ref={el => (this.input = el)}
           value={value}
           onChange={handleChange}
-          placeholder="Your message"
+          placeholder={translate("yourMessage")}
         />
         <Button htmlType="submit">{translate("send")}</Button>
       </form>

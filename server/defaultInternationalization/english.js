@@ -388,7 +388,8 @@ export const english = {
       send: "Send"
     },
     ChatInput: {
-      send: "Send"
+      send: "Send",
+      yourMessage: "Your message"
     }
   }
 };
