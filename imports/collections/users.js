@@ -19,6 +19,7 @@ const log = new Logger("server/users_js");
 
 export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
+const ConfigurationParametersByHost = new Mongo.Collection("host_configuration");
 
 Meteor.publish("userData", function() {
   if (!this.userId) return this.ready();
@@ -74,7 +75,6 @@ Accounts.onCreateUser(function(options, user) {
 
   if (!user.status) user.status = {};
   user.status.game = "none";
-  user.isolation_group = "public";
 
   return user;
 });
@@ -290,7 +290,14 @@ Accounts.validateLoginAttempt(function(params) {
   //
   if (params.user.newguy) {
     log.debug("validateLoginAttempt updating roles for new user");
-    Meteor.users.update({ _id: params.user._id }, { $unset: { newguy: 1 } });
+    const isolation_group_by_host = ConfigurationParametersByHost.findOne({
+      host: params.connection.httpHeaders.host
+    });
+    const isolation_group = (isolation_group_by_host || {}).isolation_group || "public";
+    Meteor.users.update(
+      { _id: params.user._id },
+      { $unset: { newguy: 1 }, $set: { isolation_group: isolation_group } }
+    );
     Users.addUserToRoles(params.user, standard_member_roles);
   }
 
