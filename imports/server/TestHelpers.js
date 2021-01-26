@@ -77,7 +77,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
     if (!!options.child_chat) setobject.cf = "c";
     else if (!!options.child_chat_exempt) setobject.cf = "e";
 
-    setobject.isolation_group = options.isolation_group;
+    setobject.isolation_group = options.isolation_group || "public";
     setobject.locale = options.locale || "en-us";
     setobject.board_css = options.board_css || "developmentcss";
 
