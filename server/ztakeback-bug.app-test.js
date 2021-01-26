@@ -1,10 +1,8 @@
 import chai from "chai";
-import { Random } from "meteor/random";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 
 describe.only("To fix a bug in reconnecting with a game in progress", function() {
-  this.timeout(5000000);
   const self = TestHelpers.setupDescribe.apply(this);
   it("should rebuild the chess_js move list upon reconnect so that takebacks continue to work", function() {
     const players = [TestHelpers.createUser(), TestHelpers.createUser()];
@@ -32,13 +30,10 @@ describe.only("To fix a bug in reconnecting with a game in progress", function()
       Game.saveLocalMove(move, game_id, move);
     });
 
-    const new_game_id = Random.id();
-    Game.collection.update({ _id: game_id, status: "playing" }, { $set: { _id: new_game_id } });
-
-    // Game.gameLogoutHook(players[0]._id);
-    // Game.gameLoginHook(players[0]._id);
-    // Game.gameLogoutHook(players[1]._id);
-    // Game.gameLoginHook(players[1]._id);
+    const move_game = Game.collection.findOne();
+    Game.collection.remove({});
+    delete move_game._id;
+    const new_game_id = Game.collection.insert(move_game);
 
     self.loggedonuser = players[0];
     Game.requestLocalTakeback("tb1", new_game_id, 1);

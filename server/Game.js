@@ -276,7 +276,29 @@ class Game {
     if (game.legacy_game_number)
       throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
-    if (!active_games[game_id]) active_games[game_id] = new Chess.Chess(game.fen);
+    if (!active_games[game_id]) {
+      //
+      // Load an initial FEN if there was one
+      //
+      let fen;
+      if (!!game.tags && !!game.tags.FEN) {
+        fen = game.tags.FEN;
+      }
+      active_games[game_id] = new Chess.Chess(fen);
+
+      //
+      // Replay all of the moves in the chess object to the current CMI
+      //
+      const moves = [];
+      let cmi = game.variations.cmi;
+      while (cmi !== 0) {
+        moves.unshift(game.variations.movelist[cmi].move);
+        cmi = game.variations.movelist[cmi].prev;
+      }
+      moves.forEach(move => active_games[game_id].move(move));
+      // fen = active_games[game_id].fen();
+      // this.collection.update({ _id: game._id, status: game.status }, { $set: { fen: fen } });
+    }
 
     return game;
   }
