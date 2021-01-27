@@ -1,18 +1,17 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import { Button } from "antd";
 import PlayFriendOptions from "./PlayFriendOptions";
 import PlayWithFriend from "./PlayWithFriend";
 import PlayChooseBot from "./PlayChooseBot";
 import GameHistory from "./elements/GameHistory";
 import { GameControlBlock } from "./elements/GameControlBlock";
-import { translate } from "../../../HOCs/translate";
 import {
   PLAY_STATUS_NONE,
   PLAY_STATUS_FRIEND_OPTIONS,
   PLAY_STATUS_WITH_FRIEND,
   PLAY_STATUS_CHOOSE_BOT
 } from "../../../../constants/playStatusConstants";
+import PlayOptionButtons from "./PlayOptionButtons";
 
 class PlayBlock extends Component {
   constructor(props) {
@@ -60,6 +59,21 @@ class PlayBlock extends Component {
     });
   };
 
+  handlePlaySeek = data => {
+    const { onSeekPlay } = this.props;
+    const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
+
+    onSeekPlay({
+      color,
+      initial,
+      ratingType,
+      skillLevel,
+      incrementOrDelay,
+      incrementOrDelayType,
+      wildNumber: 0
+    });
+  };
+
   render() {
     const {
       game,
@@ -71,8 +85,7 @@ class PlayBlock extends Component {
       startGameExamine,
       gameRequest,
       examineAction,
-      currentGame,
-      translate
+      currentGame
     } = this.props;
     const { status } = this.state;
 
@@ -83,19 +96,11 @@ class PlayBlock extends Component {
 
     if (!isPlaying && status === PLAY_STATUS_NONE) {
       return (
-        <div className="play-block">
-          <div className="play-block__bottom">
-            <Button className="play-block__btn-big" block>
-              {translate("createGame")}
-            </Button>
-            <Button onClick={this.handlePlayWithFriend} className="play-block__btn-big" block>
-              {translate("playWithFriend")}
-            </Button>
-            <Button onClick={this.handlePlayComputer} className="play-block__btn-big" block>
-              {translate("playWithComputer")}
-            </Button>
-          </div>
-        </div>
+        <PlayOptionButtons
+          handlePlayWithFriend={this.handlePlayWithFriend}
+          handlePlayComputer={this.handlePlayComputer}
+          handlePlaySeek={this.handlePlaySeek}
+        />
       );
     }
 
@@ -145,7 +150,7 @@ class PlayBlock extends Component {
             examineAction={examineAction}
             currentGame={currentGame}
           />
-          <GameControlBlock game={game} flip={flip} />
+          <GameControlBlock game={game} flip={flip}/>
         </div>
       );
     }
@@ -154,4 +159,4 @@ class PlayBlock extends Component {
   }
 }
 
-export default translate("Play.PlayBlock")(PlayBlock);
+export default PlayBlock;

@@ -49,6 +49,7 @@ class PlayRightSidebar extends Component {
     const {
       game,
       onBotPlay,
+      onSeekPlay,
       usersToPlayWith,
       onChooseFriend,
       cssManager,
@@ -68,6 +69,7 @@ class PlayRightSidebar extends Component {
             <PlayBlock
               game={game}
               onBotPlay={onBotPlay}
+              onSeekPlay={onSeekPlay}
               usersToPlayWith={usersToPlayWith}
               onChooseFriend={onChooseFriend}
               cssManager={cssManager}

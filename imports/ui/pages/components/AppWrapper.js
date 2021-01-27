@@ -29,8 +29,8 @@ import "./../css/GameControlBlock.css";
 
 import "./../css/Community.css";
 import "./../css/Messenger.css";
-import { RESOURCE_LOGIN, RESOURCE_PLAY } from "../../../constants/resourceConstants";
-import { translate } from "../../HOCs/translate";
+import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
+import GameRequestModal from "./Modaler/GameRequest/GameRequestModal";
 
 class AppWrapper extends Component {
   componentDidMount() {
@@ -50,30 +50,11 @@ class AppWrapper extends Component {
   }
 
   render() {
-    const { history, className, children, translate, gameRequest } = this.props;
+    const { className, children, gameRequest } = this.props;
 
     return (
-      <div className={`app-wrapper`}>
-        {gameRequest && (
-          <Modal
-            title={translate("gameRequestModal.gameRequest")}
-            visible={!!gameRequest}
-            onOk={() => {
-              Meteor.call("gameRequestAccept", "gameAccept", gameRequest._id, () => {
-                history.push(RESOURCE_PLAY);
-              });
-            }}
-            onCancel={() => {
-              Meteor.call("gameRequestDecline", "gameDecline", gameRequest._id);
-            }}
-          >
-            <p>
-              {translate("gameRequestModal.challangerWantsToPlay", {
-                challenger: gameRequest.challenger
-              })}
-            </p>
-          </Modal>
-        )}
+      <div className="app-wrapper">
+        {gameRequest && <GameRequestModal gameRequest={gameRequest} />}
         <LeftSidebar />
         <Row className={`app-wrapper__row ${className}`}>{children}</Row>
       </div>
@@ -97,4 +78,4 @@ export default withTracker(() => {
       }
     )
   };
-})(withRouter(translate("Common.appWrapper")(AppWrapper)));
+})(withRouter(AppWrapper));

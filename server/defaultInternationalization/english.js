@@ -293,6 +293,13 @@ export const english = {
       ratingType: "Rating type",
       startTheGame: "Start the game"
     },
+    PlaySeek: {
+      dialogTitle: "Challange",
+      description: "{$username} ({$rating}) invites you to play the game",
+      details: "{$time} • {$ratingType} • {$isRated} • {$color}",
+      accept: "Accept",
+      decline: "Decline"
+    },
     PlayModaler: {
       rematch: "Rematch",
       examine: "Examine",
@@ -305,7 +312,15 @@ export const english = {
     PlayBlock: {
       createGame: "Create a game",
       playWithFriend: "Play with a friend",
-      playWithComputer: "Play with the computer"
+      playWithComputer: "Play with the computer",
+      seekButtons: {
+        minute: "1 min",
+        threeMinutes: "3 min (+2 sec inc)",
+        fiveMinutes: "5 min",
+        tenMinutes: "10 min",
+        fifteenMinutes: "15 min",
+        twentyFiveMinutes: "25 min (+10 sec inc)"
+      }
     },
     ObserveBlock: {
       inProgress: "Work in progress"

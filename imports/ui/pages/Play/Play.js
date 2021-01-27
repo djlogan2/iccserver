@@ -285,11 +285,42 @@ class Play extends Component {
     this.setState({ gameData, gameType: "startBotGame" });
   };
 
+  handleSeekPlay = gameData => {
+    const { wildNumber, initial, incrementOrDelay, incrementOrDelayType, color } = gameData;
+
+    const generatedColor = color === "random" ? (Math.random() < 0.5 ? "white" : "black") : color;
+
+    const ratingType = findRatingObject(
+      0,
+      "white", // Right now white and black always match, so just hard code
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      DynamicRatingsCollection.find().fetch()
+    );
+
+    Meteor.call(
+      "createLocalGameSeek",
+      "play_seek",
+      wildNumber,
+      ratingType.rating_type,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      true,
+      generatedColor,
+      0,
+      100000
+    );
+
+    this.setState({ gameData, gameType: "startSeekGame" });
+  };
+
   render() {
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
     if (!isReady) {
-      return <Loading />;
+      return <Loading/>;
     }
 
     const { systemCss } = this.props;
@@ -346,6 +377,7 @@ class Play extends Component {
           board={this._board}
           onChooseFriend={this.handleChooseFriend}
           onBotPlay={this.handleBotPlay}
+          onSeekPlay={this.handleSeekPlay}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
