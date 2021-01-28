@@ -8,9 +8,9 @@ class GameRequestModal extends Component {
     const { gameRequest, translate } = this.props;
 
     switch (gameRequest.type) {
-      case "seek":
-        gameRequestSeek({ gameRequest, translate });
-        return null;
+      // case "seek":
+      //   gameRequestSeek({ gameRequest, translate });
+      //   return null;
       case "match":
         return <GameRequestMatch gameRequest={gameRequest} />;
       default:
