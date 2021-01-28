@@ -164,7 +164,7 @@ class Play extends Component {
   genOptions = gameData => {
     const friendId = Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
 
-    const color = Meteor.userId() === gameData.white.id ? "white" : "black";
+    const color = Meteor.userId() === gameData.white.id ? "black" : "white";
     const initial = gameData.clocks.white.initial;
     const incrementOrDelay = gameData.clocks.white.inc_or_delay;
     const incrementOrDelayType = gameData.clocks.white.delaytype;
@@ -209,7 +209,9 @@ class Play extends Component {
   initFriendRematch = () => {
     const { inGame } = this.props;
 
+    console.log(inGame);
     const newMatchData = this.genOptions(inGame);
+    console.log(newMatchData);
     this.handleChooseFriend(newMatchData);
   };
 
