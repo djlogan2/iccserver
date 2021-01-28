@@ -298,7 +298,9 @@ export const english = {
       description: "{$username} ({$rating}) invites you to play the game",
       details: "{$time} • {$ratingType} • {$isRated} • {$color}",
       accept: "Accept",
-      decline: "Decline"
+      decline: "Decline",
+      gameSeekSearching: "Searching for the game...",
+      cancel: "Cancel"
     },
     PlayModaler: {
       rematch: "Rematch",

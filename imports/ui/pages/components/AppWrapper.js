@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { Modal, Row } from "antd";
+import { Row } from "antd";
 import { withRouter } from "react-router-dom";
 import { GameRequestCollection } from "../../../api/client/collections";
 
@@ -70,7 +70,7 @@ export default withTracker(() => {
           {
             receiver_id: Meteor.userId()
           },
-          { type: "seek" }
+          { type: "seek", owner: Meteor.userId() }
         ]
       },
       {
