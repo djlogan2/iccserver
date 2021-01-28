@@ -23,6 +23,12 @@ import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
 import injectSheet from "react-jss";
 import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
 import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
+import {
+  gameSeekAutoAccept,
+  gameSeekIsRated,
+  maxRating,
+  minRating
+} from "../../../constants/gameConstants";
 
 const log = new Logger("client/Play_js");
 
@@ -307,10 +313,11 @@ class Play extends Component {
       initial,
       incrementOrDelay,
       incrementOrDelayType,
-      true,
+      gameSeekIsRated,
       generatedColor,
-      0,
-      100000
+      minRating,
+      maxRating,
+      gameSeekAutoAccept
     );
 
     this.setState({ gameData, gameType: "startSeekGame" });
@@ -320,7 +327,7 @@ class Play extends Component {
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
     if (!isReady) {
-      return <Loading/>;
+      return <Loading />;
     }
 
     const { systemCss } = this.props;

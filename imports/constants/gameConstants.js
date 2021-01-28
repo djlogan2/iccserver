@@ -44,3 +44,8 @@ export const twentyFiveMinutesSeekOptions = {
   incrementOrDelay: 10,
   incrementOrDelayType: "inc"
 };
+
+export const maxRating = 100000;
+export const minRating = 0;
+export const gameSeekAutoAccept = true;
+export const gameSeekIsRated = true;
