@@ -153,7 +153,8 @@ export default class PlayPage extends Component {
       onRemoveCircle,
       usersToPlayWith,
       onChooseFriend,
-      onBotPlay
+      onBotPlay,
+      onSeekPlay
     } = this.props;
     const { width, height, switchSides } = this.state;
 
@@ -218,6 +219,7 @@ export default class PlayPage extends Component {
             usersToPlayWith={usersToPlayWith}
             onChooseFriend={onChooseFriend}
             onBotPlay={onBotPlay}
+            onSeekPlay={onSeekPlay}
             cssManager={cssManager}
             flip={this._flipboard}
             RightSidebarData={this.Main.RightSection}

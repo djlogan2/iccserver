@@ -23,6 +23,12 @@ import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
 import injectSheet from "react-jss";
 import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
 import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
+import {
+  gameSeekAutoAccept,
+  gameSeekIsRated,
+  maxRating,
+  minRating
+} from "../../../constants/gameConstants";
 
 const log = new Logger("client/Play_js");
 
@@ -158,7 +164,7 @@ class Play extends Component {
   genOptions = gameData => {
     const friendId = Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
 
-    const color = Meteor.userId() === gameData.white.id ? "white" : "black";
+    const color = Meteor.userId() === gameData.white.id ? "black" : "white";
     const initial = gameData.clocks.white.initial;
     const incrementOrDelay = gameData.clocks.white.inc_or_delay;
     const incrementOrDelayType = gameData.clocks.white.delaytype;
@@ -203,7 +209,9 @@ class Play extends Component {
   initFriendRematch = () => {
     const { inGame } = this.props;
 
+    console.log(inGame);
     const newMatchData = this.genOptions(inGame);
+    console.log(newMatchData);
     this.handleChooseFriend(newMatchData);
   };
 
@@ -285,6 +293,38 @@ class Play extends Component {
     this.setState({ gameData, gameType: "startBotGame" });
   };
 
+  handleSeekPlay = gameData => {
+    const { wildNumber, initial, incrementOrDelay, incrementOrDelayType, color } = gameData;
+
+    const generatedColor = color === "random" ? (Math.random() < 0.5 ? "white" : "black") : color;
+
+    const ratingType = findRatingObject(
+      0,
+      "white", // Right now white and black always match, so just hard code
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      DynamicRatingsCollection.find().fetch()
+    );
+
+    Meteor.call(
+      "createLocalGameSeek",
+      "play_seek",
+      wildNumber,
+      ratingType.rating_type,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      gameSeekIsRated,
+      generatedColor,
+      minRating,
+      maxRating,
+      gameSeekAutoAccept
+    );
+
+    this.setState({ gameData, gameType: "startSeekGame" });
+  };
+
   render() {
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
@@ -346,6 +386,7 @@ class Play extends Component {
           board={this._board}
           onChooseFriend={this.handleChooseFriend}
           onBotPlay={this.handleBotPlay}
+          onSeekPlay={this.handleSeekPlay}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
