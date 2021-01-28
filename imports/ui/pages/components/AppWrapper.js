@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { Row } from "antd";
+import { notification, Row } from "antd";
 import { withRouter } from "react-router-dom";
 import { GameRequestCollection } from "../../../api/client/collections";
 
@@ -31,6 +31,7 @@ import "./../css/Community.css";
 import "./../css/Messenger.css";
 import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
 import GameRequestModal from "./Modaler/GameRequest/GameRequestModal";
+import { get } from "lodash";
 
 class AppWrapper extends Component {
   componentDidMount() {
@@ -42,6 +43,15 @@ class AppWrapper extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const { gameRequest } = this.props;
+
+    const prevSeekId = get(prevProps, "gameRequest._id");
+    const currentSeek = get(gameRequest, "_id");
+
+    if (prevSeekId && prevSeekId !== currentSeek) {
+      notification.close(prevSeekId);
+    }
+
     if (!Meteor.userId()) {
       const { history } = this.props;
 
