@@ -31,19 +31,6 @@ Meteor.publish("userData", function() {
   ];
 });
 
-Meteor.methods({
-  getPartialUsernames: function(prefix) {
-    log.debug("Meteor.methods getPartialUsernames", prefix);
-    check(prefix, String);
-    check(this.userId, String);
-    if (prefix.length === 0) return [];
-    return Meteor.users
-      .find({ username: { $regex: "^" + prefix } }, { fields: { username: 1 } })
-      .fetch()
-      .map(rec => rec.username);
-  }
-});
-
 export const default_settings = {
   autoaccept: true
 };
@@ -324,4 +311,17 @@ Accounts.validateLoginAttempt(function(params) {
   } else LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
   log.debug("validateLoginAttempt succeeded");
   return true;
+});
+
+Meteor.methods({
+  getPartialUsernames: function(prefix) {
+    log.debug("Meteor.methods getPartialUsernames", prefix);
+    check(prefix, String);
+    check(this.userId, String);
+    if (prefix.length === 0) return [];
+    return Meteor.users
+      .find({ username: { $regex: "^" + prefix } }, { fields: { username: 1 } })
+      .fetch()
+      .map(rec => rec.username);
+  }
 });

@@ -331,6 +331,24 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
+  const other_seeks = GameRequestCollection.find({
+    type: "seek",
+    isolation_group: self.isolation_group,
+    wild: wild,
+    rating_type: rating_type,
+    time: time,
+    inc_or_delay: inc_or_delay,
+    delaytype: inc_or_delay_type,
+    rated: rated
+  }).fetch();
+
+  if (!!other_seeks.length) {
+    const random_seek = other_seeks[Math.floor(Math.random() * other_seeks.length)];
+    return GameRequests.acceptGameSeek(message_identifier, random_seek._id);
+    // TODO: Handle auto-accept.
+    // TODO: Also, don't just select random people, weight and sort by days since played each other and difference in actual ratings
+  }
+
   const users = Meteor.users
     .find({ "status.online": true, isolation_group: self.isolation_group })
     .fetch();
