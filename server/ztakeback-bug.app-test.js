@@ -2,7 +2,7 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
 
-describe.only("To fix a bug in reconnecting with a game in progress", function() {
+describe("To fix a bug in reconnecting with a game in progress", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should rebuild the chess_js move list upon reconnect so that takebacks continue to work", function() {
     const players = [TestHelpers.createUser(), TestHelpers.createUser()];

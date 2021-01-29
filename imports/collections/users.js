@@ -66,6 +66,21 @@ Accounts.onCreateUser(function(options, user) {
   return user;
 });
 
+Users.sendClientMessage = function(who, message_identifier, what) {
+  if (!global._clientMessages) {
+    log.error(
+      "Trying to send a client message, but the variable is null: who=" +
+        who +
+        ", message_identifier=" +
+        message_identifier +
+        ", what=" +
+        what
+    );
+    return;
+  }
+  global._clientMessages.sendMessageToClient(who, message_identifier, what);
+};
+
 Users.setGameStatus = function(message_identifier, user, status) {
   log.debug("setGameStatus", [message_identifier, user, status]);
   check(message_identifier, String);
@@ -141,6 +156,77 @@ Users.isAuthorized = function(user, roles, scope) {
   const id = typeof user === "string" ? user : user._id;
   if (cc && !!Meteor.users.findOne({ _id: id, cf: "c" }).count()) return true;
   return cce && !!Meteor.users.findOne({ _id: id, cf: "e" }).count();
+};
+
+Users.listIsolationGroups = function(message_identifier) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+
+  if (!Users.isAuthorized(self, "list_isolation_groups")) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return [];
+  }
+  // Of course this doesn't work.
+  // return Meteor.users.distinct("isolation_group");
+  const groups = [];
+  Meteor.users.find({}, { fields: { isolation_group: 1 } }).forEach(result => {
+    if (groups.indexOf(result.isolation_group) === -1) groups.push(result.isolation_group);
+  });
+  return groups;
+};
+
+Users.listUsers = function(message_identifier, offset, count, searchString) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+  check(offset, Number);
+  check(count, Number);
+  let selector = {};
+  let authorized = Users.isAuthorized(self, "list_users");
+  if (!authorized) {
+    authorized = Users.isAuthorized(self, "list_users", self.isolation_group);
+    if (!authorized) {
+      Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+      return [];
+    }
+    selector.isolation_group = self.isolation_group;
+  }
+  if (!!searchString) {
+    const escapedSearchString = new RegExp(
+      searchString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"),
+      "i"
+    );
+    const searchpart = { $or: [{ username: escapedSearchString }, { "emails.address": escapedSearchString }] };
+    if (!!Object.keys(selector).length) selector = { $and: [selector, searchpart] };
+    else selector = searchpart;
+  }
+
+  const test = Meteor.users.find(selector, { skip: offset, limit: count }).fetch();
+  return test;
+};
+
+Users.deleteUser = function(message_identifier, userId) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+  check(userId, String);
+
+  let victim = Meteor.users.findOne({ _id: userId });
+  if (!victim || victim._id === self._id) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  let authorized = Users.isAuthorized(self, "delete_users");
+  if (!authorized) {
+    authorized = Users.isAuthorized(self, "delete_users", self.isolation_group);
+    if (!authorized || self.isolation_group !== victim.isolation_group) {
+      Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+      return;
+    }
+  }
+  Meteor.users.remove({ _id: userId });
 };
 
 Users.addLoginHook = function(f) {

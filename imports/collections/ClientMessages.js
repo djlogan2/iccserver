@@ -259,3 +259,4 @@ Meteor.methods({
     ClientMessagesCollection.remove({ _id: id });
   }
 });
+

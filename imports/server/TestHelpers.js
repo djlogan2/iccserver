@@ -128,6 +128,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
           "meetsRatingTypeRules",
           self.sandbox.fake.returns(true)
         );
+        if (!!options && !!options.beforeEach && typeof options.beforeEach === "function") options.beforeEach();
       }
 
       self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
