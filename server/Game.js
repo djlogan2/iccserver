@@ -3996,7 +3996,7 @@ class Game {
   }
 
   gameLoginHook(user) {
-    const owned_game = this.GameCollection.findOne({ private: true, "owner.id": user._id });
+    const owned_game = this.GameCollection.findOne({ private: true, owner: user._id });
     if (!!owned_game) {
       if (!owned_game.examiners.some(ex => ex.id === user._id)) {
         const rec = { id: user._id, username: user.username };

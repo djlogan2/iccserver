@@ -3,7 +3,7 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { Users } from "../imports/collections/users";
 //import { ClientMessages } from "../imports/collections/ClientMessages";
 
-describe.only("User management", function() {
+describe("User management", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   describe("listing isolation groups", function() {
     it("should work if user is in global list_isolation_groups role", function() {
@@ -144,8 +144,7 @@ describe.only("User management", function() {
   });
 
   describe("searching global users", function() {
-    it("should work if user is in global list_users", function() {
-      this.timeout(5000000);
+    it.only("should work if user is in global list_users", function() {
       const admin = TestHelpers.createUser({
         username: "pubxxxadmin",
         email: "testmailc1yyy@djl.com"
@@ -216,7 +215,7 @@ describe.only("User management", function() {
   });
 
   describe("searching isolation group users", function() {
-    it("should work if user is in list_users", function() {
+    it.only("should work if user is in list_users", function() {
       const admin = TestHelpers.createUser({
         username: "pubxxxadmin",
         email: "testmailc1yyy@djl.com"
@@ -260,7 +259,7 @@ describe.only("User management", function() {
   });
 
   describe("deleting a user", function() {
-    it("should succeed if user is in global delete_user role and isolation groups differ", function() {
+    it.only("should succeed if user is in global delete_user role and isolation groups differ", function() {
       const admin = TestHelpers.createUser();
       const peon = TestHelpers.createUser();
       const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });

@@ -197,7 +197,9 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
       searchString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"),
       "i"
     );
-    const searchpart = { $or: [{ username: escapedSearchString }, { "emails.address": escapedSearchString }] };
+    const searchpart = {
+      $or: [{ username: escapedSearchString }, { "emails.address": escapedSearchString }]
+    };
     if (!!Object.keys(selector).length) selector = { $and: [selector, searchpart] };
     else selector = searchpart;
   }
@@ -227,6 +229,25 @@ Users.deleteUser = function(message_identifier, userId) {
     }
   }
   Meteor.users.remove({ _id: userId });
+};
+
+Users.connectionClosed = function(connection_id) {
+  const lou = LoggedOnUsers.findOne({ "connection.id": connection_id });
+  if (!lou) {
+    log.error(
+      "Connection " + connection_id + " closed without any known userid in the loggedon_users table"
+    );
+    return;
+  }
+  log.debug(
+    "Running logout hooks for user " +
+      lou.userid +
+      " due to connection " +
+      connection_id +
+      " being closed"
+  );
+  LoggedOnUsers.remove({ _id: lou._id });
+  runLogoutHooks(this, lou.userid);
 };
 
 Users.addLoginHook = function(f) {
@@ -286,20 +307,6 @@ Meteor.startup(function() {
       Meteor.users.update({ _id: fields.userId }, { $set: { "status.game": "none" } });
       const user = Meteor.users.findOne({ _id: fields.userId });
       runLoginHooks(this, user, fields.connectionId);
-    });
-    UserStatus.events.on("connectionLogout", fields => {
-      log.debug(
-        "connectionLogout userId=" +
-          fields.userId +
-          ", connectionId=" +
-          fields.connectionId +
-          ", lastActivity=" +
-          fields.lastActivity +
-          ", logoutTime=" +
-          fields.logoutTime
-      );
-      LoggedOnUsers.remove({ userid: fields.userId });
-      runLogoutHooks(this, fields.userId);
     });
     // UserStatus.events.on("connectionIdle", fields => {
     //   log.debug(

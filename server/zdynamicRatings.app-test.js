@@ -1829,6 +1829,22 @@ describe("Ratings", function() {
       increment_type: ["inc"]
     });
 
+    bullet_object.white_etime = bullet_object.black_etime = bullet_object.etime; delete bullet_object.etime;
+    blitz_object.white_etime = blitz_object.black_etime = blitz_object.etime; delete blitz_object.etime;
+    standard_object.white_etime = standard_object.black_etime = standard_object.etime; delete standard_object.etime;
+
+    bullet_object.white_increment_or_delay_type = bullet_object.black_increment_or_delay_type = bullet_object.increment_type; delete bullet_object.increment_type;
+    blitz_object.white_increment_or_delay_type = blitz_object.black_increment_or_delay_type = blitz_object.increment_type; delete blitz_object.increment_type;
+    standard_object.white_increment_or_delay_type = standard_object.black_increment_or_delay_type = standard_object.increment_type; delete standard_object.increment_type;
+
+    bullet_object.white_initial = bullet_object.black_initial = bullet_object.initial; delete bullet_object.initial;
+    blitz_object.white_initial = blitz_object.black_initial = blitz_object.initial; delete blitz_object.initial;
+    standard_object.white_initial = standard_object.black_initial = standard_object.initial; delete standard_object.initial;
+
+    bullet_object.white_increment = bullet_object.black_increment = bullet_object.increment; delete bullet_object.increment;
+    blitz_object.white_increment = blitz_object.black_increment = blitz_object.increment; delete blitz_object.increment;
+    standard_object.white_increment = standard_object.black_increment = standard_object.increment; delete standard_object.increment;
+
     bullet_object.wild_number = [0];
     blitz_object.wild_number = [0];
     standard_object.wild_number = [0];
