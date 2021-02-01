@@ -38,6 +38,13 @@ export const fifteenMinutesSeekOptions = {
   incrementOrDelayType: "inc"
 };
 
+export const twentyMinutesSeekOptions = {
+  color: "random",
+  initial: 20,
+  incrementOrDelay: 0,
+  incrementOrDelayType: "inc"
+};
+
 export const twentyFiveMinutesSeekOptions = {
   color: "random",
   initial: 25,

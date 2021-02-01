@@ -6,7 +6,7 @@ import {
   threeMinutesSeekOptions,
   fiveMinutesSeekOptions,
   tenMinutesSeekOptions,
-  fifteenMinutesSeekOptions,
+  twentyMinutesSeekOptions,
   twentyFiveMinutesSeekOptions
 } from "../../../../constants/gameConstants";
 
@@ -43,9 +43,9 @@ class PlayOptionButtons extends Component {
           </Button>
           <Button
             className="play-block__top__button"
-            onClick={() => handlePlaySeek(fifteenMinutesSeekOptions)}
+            onClick={() => handlePlaySeek(twentyMinutesSeekOptions)}
           >
-            {translate("seekButtons.fifteenMinutes")}
+            {translate("seekButtons.twentyMinutes")}
           </Button>
           <Button
             className="play-block__top__button"

@@ -321,6 +321,7 @@ export const english = {
         fiveMinutes: "5 min",
         tenMinutes: "10 min",
         fifteenMinutes: "15 min",
+        twentyMinutes: "20 min",
         twentyFiveMinutes: "25 min (+10 sec inc)"
       }
     },
