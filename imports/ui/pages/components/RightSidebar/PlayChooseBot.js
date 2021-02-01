@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Button, Form, InputNumber, Radio } from "antd";
 import { translate } from "../../../HOCs/translate";
+import { findRatingObject } from "../../../../../lib/ratinghelpers";
+import { DynamicRatingsCollection } from "../../../../api/client/collections";
 
 class PlayChooseBot extends Component {
   constructor(props) {
@@ -50,26 +52,19 @@ class PlayChooseBot extends Component {
   };
 
   updateRating = () => {
-    let { initial, incrementOrDelay } = this.state;
-    let index = initial + (2 / 3) * incrementOrDelay;
+    let { initial, incrementOrDelay, incrementOrDelayType } = this.state;
+    const ratingObject = findRatingObject(
+      0,
+      "white", // Right now white and black always match, so just hard code
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      DynamicRatingsCollection.find().fetch()
+    );
 
-    const ratingConfig = {
-      bullet: [0, 2],
-      blitz: [3, 14],
-      standard: [15, 600]
-    };
-
-    let ratingType = "none";
-
-    if (ratingConfig.bullet[0] <= index && index <= ratingConfig.bullet[1]) {
-      ratingType = "bullet";
-    } else if (ratingConfig.blitz[0] <= index && index <= ratingConfig.blitz[1]) {
-      ratingType = "blitz";
-    } else if (ratingConfig.standard[0] <= index && index <= ratingConfig.standard[1]) {
-      ratingType = "standard";
+    if (ratingObject) {
+      this.setState({ ratingType: ratingObject.rating_type });
     }
-
-    this.setState({ ratingType });
   };
 
   handlePlay = () => {
