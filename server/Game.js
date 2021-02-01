@@ -1574,7 +1574,9 @@ class Game {
       return (
         game.status !== "playing" &&
         !game.private &&
-        (!game.examiners || (game.examiners.length <= 1 && game.examiners[0].id === id_to_remove))
+        (!game.examiners ||
+          !game.examiners.length ||
+          (game.examiners.length === 1 && game.examiners[0].id === id_to_remove))
       );
     }
 
