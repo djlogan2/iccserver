@@ -57,7 +57,10 @@ function awsDoIt(game) {
     };
     const start = new Date();
     lambda.invoke(params, (err, data) => {
-      if (err) reject(err);
+      if (err || !data) {
+        reject(err);
+        return;
+      }
       const payload = JSON.parse(data.Payload);
       const body = JSON.parse(payload.body);
       const end = new Date();
