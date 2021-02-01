@@ -8,6 +8,7 @@ import { Meteor } from "meteor/meteor";
 import playNotificationsCss from "../../../server/defaultStyles/playNotificationsCss";
 import { DEFAULT_CSS_KEY } from "../../constants/systemConstants";
 import primaryButtonCss from "../../../server/defaultStyles/primaryButtonCss";
+import challengeNotificationCss from "../../../server/defaultStyles/challengeNotificationCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -26,7 +27,8 @@ export default function firstRunCSS() {
       leftSideBarCss: leftSideBarCss,
       menuLinksCss: menuLinksCss,
       playNotificationsCss: playNotificationsCss,
-      primaryButtonCss: primaryButtonCss
+      primaryButtonCss: primaryButtonCss,
+      challengeNotificationCss: challengeNotificationCss
     });
   }
 }

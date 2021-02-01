@@ -8,6 +8,10 @@ import { Meteor } from "meteor/meteor";
 import { translate } from "../../../../HOCs/translate";
 import gameRequestNotification from "./GameRequestNotification";
 import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
+import injectSheet from "react-jss";
+import { dynamicRequestNotificationsStyles } from "./dynamicRequestNotificationStyles";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../api/client/collections";
 
 class GameRequestModal extends Component {
   generateMessage = () => {
@@ -61,7 +65,7 @@ class GameRequestModal extends Component {
   };
 
   render() {
-    const { gameRequest, translate } = this.props;
+    const { gameRequest, translate, classes } = this.props;
 
     switch (gameRequest.type) {
       case "seek":
@@ -73,6 +77,7 @@ class GameRequestModal extends Component {
         gameRequestNotification(
           gameRequest,
           translate,
+          classes,
           this.handleAcceptGame,
           this.handleDeclineGame
         );
@@ -86,5 +91,11 @@ class GameRequestModal extends Component {
 
 export default compose(
   translate("Play.PlaySeek"),
-  withRouter
+  withRouter,
+  withTracker(() => {
+    return {
+      challengeNotificationCss: mongoCss.findOne()
+    };
+  }),
+  injectSheet(dynamicRequestNotificationsStyles)
 )(GameRequestModal);

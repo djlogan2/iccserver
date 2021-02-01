@@ -58,3 +58,9 @@ export const gameSeekAutoAccept = true;
 export const gameSeekIsRated = true;
 
 export const gameStatusPlaying = "playing";
+
+export const colorWhite = "white";
+export const colorBlack = "black";
+
+export const ratedGame = "rated";
+export const nonRatedGame = "non-rated";

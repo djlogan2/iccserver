@@ -1,23 +1,24 @@
 import React from "react";
 import { notification, Button } from "antd";
+import injectSheet from "react-jss";
+import { compose } from "redux";
 
-const gameRequestNotification = (gameRequest, translate, onAcceptGame, onDeclineGame) => {
+import {
+  colorBlack,
+  colorWhite,
+  nonRatedGame,
+  ratedGame
+} from "../../../../../constants/gameConstants";
+
+const gameRequestNotification = (gameRequest, translate, classes, onAcceptGame, onDeclineGame) => {
   const renderDescription = () => {
     return (
       <div>
-        <div style={{ display: "flex" }}>
+        <div className={classes.mainDiv}>
           <img
             src="images/avatar.png"
             alt={translate("userAvatar")}
-            style={{
-              width: "3.2rem",
-              height: "3.2rem",
-              borderRadius: "50%",
-              overflow: "hidden",
-              background: "grey",
-              marginRight: "8px",
-              marginTop: "6px"
-            }}
+            className={classes.imageAvatar}
           />
           <div>
             <span>
@@ -26,39 +27,21 @@ const gameRequestNotification = (gameRequest, translate, onAcceptGame, onDecline
                 rating: gameRequest.challenger_rating
               })}
             </span>
-            <div style={{ color: "#8C8C8C" }}>
+            <div className={classes.detailsDiv}>
               {translate("details", {
                 time: `${gameRequest.challenger_time} ${gameRequest.challenger_inc_or_delay}`,
                 ratingType: gameRequest.rating_type,
-                isRated: gameRequest.rated ? "rated" : "non-rated",
-                color: gameRequest.challenger_color_request
+                isRated: gameRequest.rated ? ratedGame : nonRatedGame,
+                color: gameRequest.challenger_color_request === colorWhite ? colorBlack : colorWhite
               })}
             </div>
           </div>
         </div>
-        <div style={{ textAlign: "right" }}>
-          <Button
-            onClick={onDeclineGame}
-            style={{
-              border: "0px",
-              color: "#E39335",
-              fontWeight: 500,
-              fontSize: "14px",
-              textTransform: "uppercase"
-            }}
-          >
+        <div className={classes.actionsDiv}>
+          <Button onClick={onDeclineGame} className={classes.declineButton}>
             {translate("decline")}
           </Button>
-          <Button
-            onClick={onAcceptGame}
-            style={{
-              border: "0px",
-              color: "#1565C0",
-              fontWeight: 500,
-              fontSize: "14px",
-              textTransform: "uppercase"
-            }}
-          >
+          <Button onClick={onAcceptGame} className={classes.acceptButton}>
             {translate("accept")}
           </Button>
         </div>
@@ -67,7 +50,7 @@ const gameRequestNotification = (gameRequest, translate, onAcceptGame, onDecline
   };
 
   const renderTitle = () => (
-    <div style={{ fontWeight: 500, fontSize: "16px", color: "#5b6785" }}>
+    <div className={classes.divTitle}>
       {translate("dialogTitle")}
     </div>
   );
