@@ -1,11 +1,7 @@
 import React from "react";
-import { Meteor } from "meteor/meteor";
 import { notification, Button } from "antd";
-import { get } from "lodash";
 
-const GameRequestSeek = ({ gameRequest, translate }) => {
-  const currentUser = Meteor.users.findOne({ _id: gameRequest.owner });
-
+const gameRequestNotification = (gameRequest, translate, onAcceptGame, onDeclineGame) => {
   const renderDescription = () => {
     return (
       <div>
@@ -26,22 +22,23 @@ const GameRequestSeek = ({ gameRequest, translate }) => {
           <div>
             <span>
               {translate("description", {
-                username: currentUser.username,
-                rating: get(currentUser, `ratings.${gameRequest.rating_type}.rating`, 0)
+                username: gameRequest.challenger,
+                rating: gameRequest.challenger_rating
               })}
             </span>
             <div style={{ color: "#8C8C8C" }}>
               {translate("details", {
-                time: `${gameRequest.time} ${gameRequest.inc_or_delay}`,
+                time: `${gameRequest.challenger_time} ${gameRequest.challenger_inc_or_delay}`,
                 ratingType: gameRequest.rating_type,
                 isRated: gameRequest.rated ? "rated" : "non-rated",
-                color: gameRequest.color
+                color: gameRequest.challenger_color_request
               })}
             </div>
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
           <Button
+            onClick={onDeclineGame}
             style={{
               border: "0px",
               color: "#E39335",
@@ -53,6 +50,7 @@ const GameRequestSeek = ({ gameRequest, translate }) => {
             {translate("decline")}
           </Button>
           <Button
+            onClick={onAcceptGame}
             style={{
               border: "0px",
               color: "#1565C0",
@@ -74,20 +72,19 @@ const GameRequestSeek = ({ gameRequest, translate }) => {
     </div>
   );
 
-  if (Meteor.userId() !== gameRequest.owner) {
-    notification.open({
-      duration: 0,
-      closeIcon: () => null,
-      style: {
-        position: "relative",
-        left: "15rem",
-        borderRadius: "5.76258px"
-      },
-      message: renderTitle(),
-      description: renderDescription(),
-      placement: "topLeft"
-    });
-  }
+  notification.open({
+    key: gameRequest._id,
+    duration: 0,
+    closeIcon: () => null,
+    style: {
+      position: "relative",
+      left: "15rem",
+      borderRadius: "5.76258px"
+    },
+    message: renderTitle(),
+    description: renderDescription(),
+    placement: "topLeft"
+  });
 };
 
-export default GameRequestSeek;
+export default gameRequestNotification;
