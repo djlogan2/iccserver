@@ -3,7 +3,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { notification, Row } from "antd";
 import { withRouter } from "react-router-dom";
-import { GameRequestCollection } from "../../../api/client/collections";
+import { GameRequestCollection, mongoUser } from "../../../api/client/collections";
 
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 
@@ -29,9 +29,10 @@ import "./../css/GameControlBlock.css";
 
 import "./../css/Community.css";
 import "./../css/Messenger.css";
-import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
+import { RESOURCE_LOGIN, RESOURCE_PLAY } from "../../../constants/resourceConstants";
 import GameRequestModal from "./Modaler/GameRequest/GameRequestModal";
 import { get } from "lodash";
+import { gameStatusPlaying } from "../../../constants/gameConstants";
 
 class AppWrapper extends Component {
   componentDidMount() {
@@ -43,7 +44,7 @@ class AppWrapper extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { gameRequest } = this.props;
+    const { gameRequest, history } = this.props;
 
     const prevSeekId = get(prevProps, "gameRequest._id");
     const currentSeek = get(gameRequest, "_id");
@@ -52,12 +53,25 @@ class AppWrapper extends Component {
       notification.close(prevSeekId);
     }
 
+    const currentUser = Meteor.user();
+
+    const isPlaying = get(currentUser, "status.game") === gameStatusPlaying;
+    const pathName = get(history, "location.pathname");
+
+    if (isPlaying && pathName !== RESOURCE_PLAY) {
+      history.push(RESOURCE_PLAY);
+    }
+
     if (!Meteor.userId()) {
       const { history } = this.props;
 
       history.push(RESOURCE_LOGIN);
     }
   }
+
+  userRecord = () => {
+    return mongoUser.find().fetch();
+  };
 
   render() {
     const { className, children, gameRequest } = this.props;
