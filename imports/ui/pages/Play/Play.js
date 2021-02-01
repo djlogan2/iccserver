@@ -209,9 +209,7 @@ class Play extends Component {
   initFriendRematch = () => {
     const { inGame } = this.props;
 
-    console.log(inGame);
     const newMatchData = this.genOptions(inGame);
-    console.log(newMatchData);
     this.handleChooseFriend(newMatchData);
   };
 

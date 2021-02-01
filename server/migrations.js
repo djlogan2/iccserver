@@ -7,6 +7,7 @@ import { english } from "./defaultInternationalization/english";
 import mongoClientInternationalization from "../imports/collections/clientInternationalization";
 import mongoCss from "../imports/collections/css";
 import leftSideBarCss from "./defaultStyles/leftSideBarCss";
+import challengeNotificationCss from "./defaultStyles/challengeNotificationCss";
 
 const log = new Logger("server/migrations");
 
@@ -131,6 +132,25 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.8",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
+    }
+  });
+
+  Migrations.add({
+    version: "0.2.0_13",
+    name: "Update client i18n for en locales v 0.9",
+    run: () => {
+      mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
+    }
+  });
+
+  Migrations.add({
+    version: "0.2.0_14",
+    name: "Add client css for challenge notifications",
+    run: () => {
+      mongoCss.update(
+        { cssKey: "default" },
+        { challengeNotificationCss: challengeNotificationCss }
+      );
     }
   });
 

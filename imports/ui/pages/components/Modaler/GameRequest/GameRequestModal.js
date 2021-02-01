@@ -1,8 +1,17 @@
 import React, { Component } from "react";
 import { notification, Button } from "antd";
+import { get } from "lodash";
+import { withRouter } from "react-router-dom";
+import { compose } from "redux";
+import { Meteor } from "meteor/meteor";
 
-import GameRequestMatch from "./GameRequestMatch";
 import { translate } from "../../../../HOCs/translate";
+import gameRequestNotification from "./GameRequestNotification";
+import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
+import injectSheet from "react-jss";
+import { dynamicRequestNotificationsStyles } from "./dynamicRequestNotificationStyles";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../api/client/collections";
 
 class GameRequestModal extends Component {
   generateMessage = () => {
@@ -17,6 +26,14 @@ class GameRequestModal extends Component {
       </div>
     );
   };
+
+  componentDidUpdate(prevProps) {
+    const { gameRequest } = this.props;
+
+    if (prevProps.gameRequest && prevProps.gameRequest._id !== get(gameRequest, "_id")) {
+      notification.close(prevProps.gameRequest._id);
+    }
+  }
 
   generateSearchingGameNotification = () => {
     const { gameRequest } = this.props;
@@ -33,18 +50,38 @@ class GameRequestModal extends Component {
     });
   };
 
-  render() {
+  handleAcceptGame = () => {
+    const { history, gameRequest } = this.props;
+
+    Meteor.call("gameRequestAccept", "gameAccept", gameRequest._id, () => {
+      history.push(RESOURCE_PLAY);
+    });
+  };
+
+  handleDeclineGame = () => {
     const { gameRequest } = this.props;
+
+    Meteor.call("gameRequestDecline", "gameDecline", gameRequest._id);
+  };
+
+  render() {
+    const { gameRequest, translate, classes } = this.props;
 
     switch (gameRequest.type) {
       case "seek":
         if (gameRequest.owner === Meteor.userId()) {
           this.generateSearchingGameNotification();
         }
-        // gameRequestSeek({ gameRequest, translate });
         return null;
       case "match":
-        return <GameRequestMatch gameRequest={gameRequest} />;
+        gameRequestNotification(
+          gameRequest,
+          translate,
+          classes,
+          this.handleAcceptGame,
+          this.handleDeclineGame
+        );
+        return null;
       default:
         console.error("Missmatch at game request");
         return null;
@@ -52,4 +89,13 @@ class GameRequestModal extends Component {
   }
 }
 
-export default translate("Play.PlaySeek")(GameRequestModal);
+export default compose(
+  translate("Play.PlaySeek"),
+  withRouter,
+  withTracker(() => {
+    return {
+      challengeNotificationCss: mongoCss.findOne()
+    };
+  }),
+  injectSheet(dynamicRequestNotificationsStyles)
+)(GameRequestModal);

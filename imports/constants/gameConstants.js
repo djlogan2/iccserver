@@ -38,6 +38,13 @@ export const fifteenMinutesSeekOptions = {
   incrementOrDelayType: "inc"
 };
 
+export const twentyMinutesSeekOptions = {
+  color: "random",
+  initial: 20,
+  incrementOrDelay: 0,
+  incrementOrDelayType: "inc"
+};
+
 export const twentyFiveMinutesSeekOptions = {
   color: "random",
   initial: 25,
@@ -49,3 +56,11 @@ export const maxRating = 100000;
 export const minRating = 0;
 export const gameSeekAutoAccept = true;
 export const gameSeekIsRated = true;
+
+export const gameStatusPlaying = "playing";
+
+export const colorWhite = "white";
+export const colorBlack = "black";
+
+export const ratedGame = "rated";
+export const nonRatedGame = "non-rated";
