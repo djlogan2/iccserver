@@ -393,6 +393,10 @@ Accounts.validateLoginAttempt(function(params) {
   //
   const lou = LoggedOnUsers.findOne({ userid: params.user._id });
   log.debug("validateLoginAttempt lou", lou);
+
+  // const resumeToken = params?.methodArguments[0]?.resume;
+  // const hash = Accounts._hashLoginToken(resumeToken || "");
+  //
   if (!!lou) {
     if (lou.connection.id !== params.connection.id) {
       log.error(
@@ -407,6 +411,10 @@ Accounts.validateLoginAttempt(function(params) {
       );
       const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
       LoggedOnUsers.remove({ userid: params.user._id });
+      Meteor.users.update(
+        { _id: params.user._id },
+        { $set: { "services.resume.loginTokens": [] } }
+      );
       throw new Meteor.Error("401", message);
     }
   } else LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
