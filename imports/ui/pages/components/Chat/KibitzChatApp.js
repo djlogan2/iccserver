@@ -4,14 +4,21 @@ import ChatApp from "./ChatApp";
 import { withTracker } from "meteor/react-meteor-data";
 
 import { Chat, ChildChatTexts } from "../../../../api/client/collections";
+import { Logger } from "../../../../../lib/client/Logger";
+
+const log = new Logger("client/PersonalChatApp_js");
 
 class KibitzChatApp extends Component {
   handleMessage(text) {
-    Meteor.call("kibitz", "kibitz", this.props.gameId, this.props.isKibitz, text, err => {
-      if (err) {
-        console.error(err);
-      }
-    });
+    const { gameId, isKibitz } = this.props;
+
+    if (text) {
+      Meteor.call("kibitz", "kibitz", gameId, isKibitz, text, err => {
+        if (err) {
+          log.error(err);
+        }
+      });
+    }
   }
 
   render() {

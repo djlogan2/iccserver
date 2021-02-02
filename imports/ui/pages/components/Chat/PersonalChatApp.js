@@ -13,7 +13,11 @@ class PersonalChatApp extends Component {
   }
 
   handleChat(text) {
-    Meteor.call("writeToUser", "writeToUser", this.props.opponentId, text);
+    const { opponentId } = this.props;
+
+    if (text) {
+      Meteor.call("writeToUser", "writeToUser", opponentId, text);
+    }
   }
 
   render() {
