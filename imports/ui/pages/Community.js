@@ -78,11 +78,13 @@ class Community extends Component {
       messageList: [...messageList, newMessage]
     });
 
-    Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, err => {
-      if (err) {
-        console.error(err);
-      }
-    });
+    if (newMessage.text) {
+      Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, err => {
+        if (err) {
+          console.error(err);
+        }
+      });
+    }
   };
 
   renderMessenger = () => {
