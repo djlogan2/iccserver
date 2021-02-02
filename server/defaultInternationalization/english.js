@@ -294,7 +294,7 @@ export const english = {
       startTheGame: "Start the game"
     },
     PlaySeek: {
-      dialogTitle: "Challange",
+      dialogTitle: "Challenge",
       description: "{$username} ({$rating}) invites you to play the game",
       details: "{$time} • {$ratingType} • {$isRated} • {$color}",
       accept: "Accept",
