@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Button, Form, InputNumber, Radio } from "antd";
 import { translate } from "../../../HOCs/translate";
-import { findRatingObject } from "../../../../../lib/ratinghelpers";
+import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection } from "../../../../api/client/collections";
 
 class PlayChooseBot extends Component {
@@ -98,6 +98,10 @@ class PlayChooseBot extends Component {
       ratingType
     } = this.state;
 
+    const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(
+      DynamicRatingsCollection.find().fetch()
+    );
+
     return (
       <div className="play-friend">
         <div className="play-friend__head">
@@ -162,19 +166,29 @@ class PlayChooseBot extends Component {
               <Radio.Button value="bronstein">{translate("control.bronstein")}</Radio.Button>
             </Radio.Group>
             <div className="play-right-sidebar__inc-deley-wrap">
-              <Form.Item label={translate("initial")} name="initial">
+              <Form.Item
+                label={translate("initial")}
+                name="initial"
+                rules={[{ required: !(incrementOrDelayType === "none") }]}
+              >
                 <InputNumber
                   name="initial"
-                  min={0}
+                  min={1}
+                  max={maxInitialValue}
                   disabled={incrementOrDelayType === "none"}
                   value={initial}
                   onChange={this.handleChange("initial")}
                 />
               </Form.Item>
-              <Form.Item label={translate("incrementOrDelay")} name="incrementOrDelay">
+              <Form.Item
+                label={translate("incrementOrDelay")}
+                name="incrementOrDelay"
+                rules={[{ required: !(incrementOrDelayType === "none") }]}
+              >
                 <InputNumber
                   name="incrementOrDelay"
-                  min={0}
+                  min={1}
+                  max={maxIncOrDelayValue}
                   disabled={incrementOrDelayType === "none"}
                   value={incrementOrDelay}
                   onChange={this.handleChange("incrementOrDelay")}
