@@ -5,7 +5,7 @@ import { translate } from "../../../HOCs/translate";
 const { Option } = Select;
 
 export default translate("Community.ChildChatInput")(
-  ({ childChatTexts, selected, onChange, onMessage, translate }) => {
+  ({ childChatTexts, selected, onChange, onMessage, translate, disabled }) => {
     const handleSubmit = e => {
       e.preventDefault();
       this.select.focus();
@@ -19,6 +19,7 @@ export default translate("Community.ChildChatInput")(
             style={{ width: "100%" }}
             onChange={onChange}
             value={selected}
+            disabled={disabled}
             ref={el => (this.select = el)}
           >
             {childChatTexts.map(chatItem => (

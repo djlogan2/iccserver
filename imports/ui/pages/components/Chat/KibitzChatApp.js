@@ -22,10 +22,11 @@ class KibitzChatApp extends Component {
   }
 
   render() {
-    const { childChatTexts, chats } = this.props;
+    const { childChatTexts, chats, disabled } = this.props;
 
     return (
       <ChatApp
+        disabled={disabled}
         childChat={Meteor.user().cf === "c"}
         childChatTexts={childChatTexts}
         user={Meteor.user()}

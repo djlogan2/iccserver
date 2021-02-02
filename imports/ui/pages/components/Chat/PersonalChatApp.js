@@ -21,7 +21,7 @@ class PersonalChatApp extends Component {
   }
 
   render() {
-    const { childChatTexts } = this.props;
+    const { childChatTexts, disabled } = this.props;
     log.trace("PersonalChatApp render", this.props);
     const cc1 =
       (Meteor.user().cf || "") + (!!this.props.opponent ? this.props.opponent.cf || "" : "");
@@ -30,6 +30,7 @@ class PersonalChatApp extends Component {
 
     return (
       <ChatApp
+        disabled={disabled}
         childChat={childChat}
         childChatTexts={childChatTexts}
         user={Meteor.user()}

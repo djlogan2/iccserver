@@ -8,6 +8,7 @@ import { translate } from "../../../HOCs/translate";
 
 import PlayBlock from "./PlayBlock";
 import ObserveBlock from "./ObserveBlock";
+import { gameComputerId } from "../../../../constants/gameConstants";
 const { TabPane } = Tabs;
 
 class PlayRightSidebar extends Component {
@@ -20,19 +21,30 @@ class PlayRightSidebar extends Component {
       const whiteId = get(game, "white.id");
       const blackId = get(game, "black.id");
 
+      const isBotPlay = this.isBotPlay();
+
       const isPlayersWhite = Meteor.userId() === whiteId;
 
       return (
         <Tabs className="play-right-sidebar__bottom" defaultActiveKey="1" size="small" type="card">
           <TabPane tab={translate("bottomTabs.chatTab")} key="chat">
-            <PersonalChatApp opponentId={isPlayersWhite ? blackId : whiteId} />
+            <PersonalChatApp disabled={isBotPlay} opponentId={isPlayersWhite ? blackId : whiteId} />
           </TabPane>
           <TabPane tab={translate("bottomTabs.kibitzTab")} key="kibitz">
-            <KibitzChatApp isKibitz={true} gameId={game._id} />
+            <KibitzChatApp disabled={isBotPlay} isKibitz={true} gameId={game._id} />
           </TabPane>
         </Tabs>
       );
     }
+  };
+
+  isBotPlay = () => {
+    const { game } = this.props;
+
+    const whiteId = get(game, "white.id");
+    const blackId = get(game, "black.id");
+
+    return whiteId === gameComputerId || blackId === gameComputerId;
   };
 
   isPlaying = () => {

@@ -64,3 +64,5 @@ export const colorBlack = "black";
 
 export const ratedGame = "rated";
 export const nonRatedGame = "non-rated";
+
+export const gameComputerId = "computer";
