@@ -231,25 +231,6 @@ Users.deleteUser = function(message_identifier, userId) {
   Meteor.users.remove({ _id: userId });
 };
 
-Users.connectionClosed = function(connection_id) {
-  const lou = LoggedOnUsers.findOne({ "connection.id": connection_id });
-  if (!lou) {
-    log.error(
-      "Connection " + connection_id + " closed without any known userid in the loggedon_users table"
-    );
-    return;
-  }
-  log.debug(
-    "Running logout hooks for user " +
-      lou.userid +
-      " due to connection " +
-      connection_id +
-      " being closed"
-  );
-  LoggedOnUsers.remove({ _id: lou._id });
-  runLogoutHooks(this, lou.userid);
-};
-
 Users.addLoginHook = function(f) {
   Meteor.startup(function() {
     loginHooks.push(f);
@@ -307,6 +288,23 @@ Meteor.startup(function() {
       Meteor.users.update({ _id: fields.userId }, { $set: { "status.game": "none" } });
       const user = Meteor.users.findOne({ _id: fields.userId });
       runLoginHooks(this, user, fields.connectionId);
+    });
+    UserStatus.events.on("connectionLogout", fields => {
+      log.debug(
+        "connectionLogout userId=" +
+          fields.userId +
+          ", connectionId=" +
+          fields.connectionId +
+          ", ipAddr=" +
+          fields.ipAddr +
+          ", userAgent=" +
+          fields.userAgent +
+          ", loginTime=" +
+          fields.loginTime
+      );
+      Meteor.users.update({ _id: fields.userId }, { $set: { "status.game": "none" } });
+      LoggedOnUsers.remove({ userid: fields.userId });
+      runLogoutHooks(this, fields.userId, fields.connectionId);
     });
     // UserStatus.events.on("connectionIdle", fields => {
     //   log.debug(
@@ -397,8 +395,18 @@ Accounts.validateLoginAttempt(function(params) {
   log.debug("validateLoginAttempt lou", lou);
   if (!!lou) {
     if (lou.connection.id !== params.connection.id) {
-      log.error("Duplicate login by " + params.user.username + "/" + params.user._id);
+      log.error(
+        "Duplicate login by " +
+          params.user.username +
+          "/" +
+          params.user._id +
+          " on connection " +
+          params.connection.id +
+          " when lou says are are already logged on to connection " +
+          lou.connection.id
+      );
       const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
+      LoggedOnUsers.remove({ userid: params.user._id });
       throw new Meteor.Error("401", message);
     }
   } else LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });

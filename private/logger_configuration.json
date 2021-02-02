@@ -59,7 +59,7 @@
     "server/PgnImport_js": "DEBUG",
     "server/pgnparser_js": "DEBUG",
     "server/Singular_js": "DEBUG",
-    "server/timestamp_js": "ERROR",
+    "server/timestamp_js": "DEBUG",
     "server/TimestampServer": "WARN",
     "server/UCI": "ERROR",
     "server/users_js": "DEBUG",
