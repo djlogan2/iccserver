@@ -19,5 +19,13 @@ export const dynamicLeftSideBarStyles = {
   sidebarUsername: props => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.sidebarUsername;
+  },
+  sidebarUsernameNone: props => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.sidebarUsernameNone;
+  },
+  statusLabel: props => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.statusLabel;
   }
 };

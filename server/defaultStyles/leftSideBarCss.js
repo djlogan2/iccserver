@@ -20,11 +20,30 @@ const leftSideBarCss = {
     color: "#fff",
     textAlign: "left !important",
     paddingLeft: "1rem",
+    maxWidth: "75px",
+    overflow: "hidden",
+    display: "inline-block",
+    verticalAlign: "middle",
+    textOverflow: "ellipsis"
+  },
+  sidebarUsernameNone: {
+    color: "#fff",
+    textAlign: "left !important",
+    paddingLeft: "1rem",
     maxWidth: "100px",
     overflow: "hidden",
     display: "inline-block",
     verticalAlign: "middle",
     textOverflow: "ellipsis"
+  },
+  statusLabel: {
+    color: "#ffffff",
+    background: "#4F4F4F",
+    padding: "2px 4px",
+    borderRadius: "4px",
+    float: "right",
+    position: "relative",
+    top: "0.3rem"
   },
   mainDiv: {
     display: "flex",

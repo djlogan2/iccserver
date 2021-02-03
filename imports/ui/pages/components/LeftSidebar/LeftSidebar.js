@@ -1,18 +1,20 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router";
-import MenuLinks from "./MenuLinks";
-import GameListModal from "./../Modaler/GameListModal";
 import { Meteor } from "meteor/meteor";
 import { compose } from "redux";
 import injectSheet from "react-jss";
 import classNames from "classnames";
+import { get } from "lodash";
+import { withTracker } from "meteor/react-meteor-data";
 
+import MenuLinks from "./MenuLinks";
+import GameListModal from "./../Modaler/GameListModal";
 import { GameHistoryCollection, mongoCss } from "../../../../api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_LOGIN } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
 import { dynamicLeftSideBarStyles } from "./dynamicLeftSidebarStyles";
+import { gameStatusNone } from "../../../../constants/gameConstants";
 
 const log = new Logger("client/LeftSidebar_js");
 
@@ -74,9 +76,9 @@ class LeftSidebar extends Component {
     const { examineAction, translate, classes } = this.props;
     const { visible, isMyGamesModal, gameList } = this.state;
 
-    const username = !!Meteor.user() ? Meteor.user().username : translate("noLogin");
-
-    log.trace("LeftSidebar render", this.props);
+    const currentUser = Meteor.user();
+    const username = !!currentUser ? currentUser.username : translate("noLogin");
+    const gameStatus = get(currentUser, "status.game");
 
     return (
       <div className={visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"}>
@@ -105,9 +107,26 @@ class LeftSidebar extends Component {
             )}
           />
           {!visible && (
-            <span className={classes.sidebarUsername} title={username}>
-              {username}
-            </span>
+            <>
+              <span
+                className={
+                  gameStatus !== gameStatusNone
+                    ? classes.sidebarUsername
+                    : classes.sidebarUsernameNone
+                }
+                title={username}
+              >
+                {username}
+              </span>
+              {gameStatus !== gameStatusNone && (
+                <span
+                  className={classes.statusLabel}
+                  title={translate(`statuses.${gameStatus}Tooltip`)}
+                >
+                  {translate(`statuses.${gameStatus}`)}
+                </span>
+              )}
+            </>
           )}
         </div>
         <MenuLinks

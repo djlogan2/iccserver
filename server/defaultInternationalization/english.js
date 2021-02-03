@@ -42,7 +42,13 @@ export const english = {
       noLogin: "Please login",
       userAvatar: "User avatar",
       logo: "logo",
-      burgerButton: "Burger button"
+      burgerButton: "Burger button",
+      statuses: {
+        playing: "PL",
+        examining: "EX",
+        playingTooltip: "Playing",
+        examiningTooltip: "Examining"
+      }
     },
     gameListModal: {
       myGames: "My Games",
