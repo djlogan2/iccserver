@@ -53,9 +53,7 @@ class Player extends Component {
                 marginTop: "5px"
               }}
             >
-              <a
-                href="#/"
-                target="_blank"
+              <p
                 style={{
                   color: "#fff",
                   fontSize: side * 0.022,
@@ -65,8 +63,8 @@ class Player extends Component {
                   width: "100%"
                 }}
               >
-                {playerData.name}({playerData.rating})
-              </a>
+                {playerData.name} ({playerData.rating})
+              </p>
             </div>
 
             <div style={{ position: "absolute", bottom: "0", paddingRight: "40px" }}>

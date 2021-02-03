@@ -55,9 +55,6 @@ class PlayOptionButtons extends Component {
           </Button>
         </div>
         <div className="play-block__bottom">
-          <Button className="play-block__btn-big" block>
-            {translate("createGame")}
-          </Button>
           <Button onClick={handlePlayWithFriend} className="play-block__btn-big" block>
             {translate("playWithFriend")}
           </Button>
