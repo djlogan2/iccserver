@@ -150,7 +150,7 @@ class PlayBlock extends Component {
             examineAction={examineAction}
             currentGame={currentGame}
           />
-          <GameControlBlock game={game} flip={flip}/>
+          <GameControlBlock game={game} flip={flip} />
         </div>
       );
     }
