@@ -12,15 +12,30 @@ import injectSheet from "react-jss";
 import { dynamicRequestNotificationsStyles } from "./dynamicRequestNotificationStyles";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../api/client/collections";
+import { Logger } from "../../../../../../lib/client/Logger";
+
+const log = new Logger("server/i18n_js");
 
 class GameRequestModal extends Component {
+  handleCancelSeek = () => {
+    const { gameRequest } = this.props;
+
+    Meteor.call("removeGameSeek", "remove_game_seek", gameRequest._id, err => {
+      if (err) {
+        log.error(err.reason);
+      } else {
+        notification.close(gameRequest._id);
+      }
+    });
+  };
+
   generateMessage = () => {
-    const { translate } = this.props;
+    const { translate, classes } = this.props;
 
     return (
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div style={{ marginTop: "0.5rem" }}>{translate("gameSeekSearching")}</div>
-        <Button style={{ backgroundColor: "#1565C0", color: "#ffffff" }}>
+      <div className={classes.seekSearchDiv}>
+        <div className={classes.gameSeekSearchingDiv}>{translate("gameSeekSearching")}</div>
+        <Button onClick={this.handleCancelSeek} className={classes.cancelSeekButton}>
           {translate("cancel")}
         </Button>
       </div>

@@ -36,6 +36,17 @@ const challengeNotificationCss = {
     fontWeight: 500,
     fontSize: "16px",
     color: "#5b6785"
+  },
+  cancelSeekButton: {
+    backgroundColor: "#1565C0",
+    color: "#ffffff"
+  },
+  seekSearchDiv: {
+    display: "flex",
+    justifyContent: "space-between"
+  },
+  gameSeekSearchingDiv: {
+    marginTop: "0.5rem"
   }
 };
 

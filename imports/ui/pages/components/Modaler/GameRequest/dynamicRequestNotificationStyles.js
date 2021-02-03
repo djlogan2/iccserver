@@ -28,5 +28,17 @@ export const dynamicRequestNotificationsStyles = {
   divTitle: props => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.divTitle;
+  },
+  cancelSeekButton: props => {
+    const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
+    return css.cancelSeekButton;
+  },
+  seekSearchDiv: props => {
+    const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
+    return css.seekSearchDiv;
+  },
+  gameSeekSearchingDiv: props => {
+    const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
+    return css.gameSeekSearchingDiv;
   }
 };

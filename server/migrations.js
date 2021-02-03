@@ -178,6 +178,17 @@ Meteor.startup(() => {
     }
   });
 
+  Migrations.add({
+    version: "0.2.0_18",
+    name: "Update client css for challenge notifications",
+    run: () => {
+      mongoCss.update(
+        { cssKey: "default" },
+        { challengeNotificationCss: challengeNotificationCss }
+      );
+    }
+  });
+
   Migrations.unlock();
 
   Migrations.migrateTo("latest");
