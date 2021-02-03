@@ -10,6 +10,6 @@
 } */
 
 .editor__main {
-    overflow: auto;
+    overflow: hidden;
     height: 100%;
 }
