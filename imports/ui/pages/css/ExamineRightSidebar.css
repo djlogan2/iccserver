@@ -20,6 +20,7 @@
     row-gap: 2.4rem;
     /* margin-top: 8rem; */
 }
+
 .play-block__top__button {
     color: #ffffff;
     height: 100%;
@@ -30,7 +31,7 @@
 .play-block__bottom {
     display: flex;
     flex-direction: column;
-    width: 33rem;
+    width: 60rem;
     max-width: 90%;
     /* margin-top: 8rem; */
 }
@@ -40,4 +41,7 @@
     height: auto;
     background: #EFF0F3;
     margin-top: 2.4rem;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 8px;
 }
