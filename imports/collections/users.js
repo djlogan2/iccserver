@@ -372,10 +372,10 @@ Accounts.validateLoginAttempt(function(params) {
       host: params.connection.httpHeaders.host
     });
     const isolation_group = (isolation_group_by_host || {}).isolation_group || "public";
-    Meteor.users.update(
-      { _id: params.user._id },
-      { $unset: { newguy: 1 }, $set: { isolation_group: isolation_group } }
-    );
+    const child_chat = isolation_group_by_host?.child_chat;
+    const setObject = { isolation_group: isolation_group };
+    if (child_chat) setObject.cf = child_chat;
+    Meteor.users.update({ _id: params.user._id }, { $unset: { newguy: 1 }, $set: setObject });
     Users.addUserToRoles(params.user, standard_member_roles);
   }
 
