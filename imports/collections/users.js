@@ -101,7 +101,9 @@ Users.setGameStatus = function(message_identifier, user, status) {
 const group_change_hooks = [];
 
 Users.addGroupChangeHook = function(func) {
-  Meteor.startup(() => group_change_hooks.push(func));
+  Meteor.startup(() => {
+    group_change_hooks.push(func);
+  });
 };
 
 const loginHooks = [];
@@ -229,6 +231,12 @@ Users.deleteUser = function(message_identifier, userId) {
     }
   }
   Meteor.users.remove({ _id: userId });
+};
+
+Users.getConnectionFromUser = function(user_id) {
+  const lou = LoggedOnUsers.findOne({ uerid: user_id });
+  if (!lou) return;
+  return lou.connection.id;
 };
 
 Users.addLoginHook = function(f) {

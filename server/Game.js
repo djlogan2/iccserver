@@ -1111,6 +1111,7 @@ class Game {
 
   calculateGameLag(lagobject) {
     log.debug("calculateGameLag");
+    if (!lagobject || !lagobject.pings) return 0;
     let gamelag;
     let totallag = 0;
     const lagvalues = lagobject.pings.slice(-2);
@@ -4337,22 +4338,18 @@ Meteor.methods({
     check(game_id, String);
     check(pong, Object);
     check(user, Object);
-    if (!game_pings[game_id])
-      throw new ICCMeteorError(
-        "server",
-        "Unable to update game ping",
-        "Unable to locate game to ping (2)"
-      );
+    if (!game_pings[game_id]) {
+      log.error("Unable to locate game to ping (2)");
+      return;
+    }
     const game = global._gameObject.GameCollection.findOne(
       { _id: game_id, status: "playing" },
       { fields: { "white.id": 1 } }
     );
-    if (!game)
-      throw new ICCMeteorError(
-        "server",
-        "Unable to update game ping",
-        "Unable to locate game to ping (3)"
-      );
+    if (!game) {
+      log.error("Unable to locate game to ping (3)");
+      return;
+    }
     const color = game.white.id === user._id ? "white" : "black";
     game_pings[game_id][color].pongArrived(pong);
   },
