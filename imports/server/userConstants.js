@@ -76,6 +76,7 @@ export const viewable_logged_on_user_fields = {
   ratings: 1,
   mugshot: 1,
   "status.game": 1,
+  "status.client": 1,
   "status.legacy": 1,
   "status.lastLogin.date": 1,
   "status.idle": 1,

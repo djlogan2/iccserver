@@ -22,6 +22,7 @@ const logged_on_user_fields = {
   username: 1,
   status: {
     game: 1,
+    client: 1,
     idle: 1,
     legacy: 1,
     lastActivity: 1,
@@ -53,6 +54,7 @@ const our_allowed_user_fields = {
     legacy: 1,
     game: 1,
     idle: 1,
+    client: 1,
     online: 1,
     lastActivity: 1,
     lastLogin: {
@@ -103,6 +105,7 @@ const all_fields = {
   status: {
     //    online: 1,
     game: 1,
+    client: 1,
     online: 1,
     lastActivity: 1,
     lastLogin: {

@@ -62,6 +62,7 @@ Accounts.onCreateUser(function(options, user) {
 
   if (!user.status) user.status = {};
   user.status.game = "none";
+  user.status.client = "none";
 
   return user;
 });
@@ -81,6 +82,31 @@ Users.sendClientMessage = function(who, message_identifier, what) {
   global._clientMessages.sendMessageToClient(who, message_identifier, what);
 };
 
+Users.setClientStatus = function(message_identifier, user, status) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+  check(user, Match.Maybe(String));
+  check(status, String);
+  if (!!user && user !== self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to set client status",
+      "Setting another users client status is not currently supported"
+    );
+  // Cannot change the client status away from "game" if user is currently playing a game
+  if (self.status.game === "playing") {
+    if (status !== "game")
+      Users.sendClientMessage(self, message_identifier, "INVALID_PLAYING_STATUS");
+    return;
+  } else if (status === "game") {
+    // Only the game file can set a client status of "game"
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+  Meteor.users.update({ _id: self._id }, { $set: { "status.client": status } });
+};
+
 Users.setGameStatus = function(message_identifier, user, status) {
   log.debug("setGameStatus", [message_identifier, user, status]);
   check(message_identifier, String);
@@ -95,7 +121,10 @@ Users.setGameStatus = function(message_identifier, user, status) {
       "Unable to set users game status",
       "Invalid status"
     );
-  Meteor.users.update({ _id: user, "status.online": true }, { $set: { "status.game": status } });
+  const setObject = { "status.game": status };
+  if (status === "none") setObject["status.client"] = "none";
+  else setObject["status.client"] = "game";
+  Meteor.users.update({ _id: user, "status.online": true }, { $set: setObject });
 };
 
 const group_change_hooks = [];
@@ -293,7 +322,6 @@ Meteor.startup(function() {
           ", loginTime=" +
           fields.loginTime
       );
-      Meteor.users.update({ _id: fields.userId }, { $set: { "status.game": "none" } });
       const user = Meteor.users.findOne({ _id: fields.userId });
       runLoginHooks(this, user, fields.connectionId);
     });
@@ -310,7 +338,10 @@ Meteor.startup(function() {
           ", loginTime=" +
           fields.loginTime
       );
-      Meteor.users.update({ _id: fields.userId }, { $set: { "status.game": "none" } });
+      Meteor.users.update(
+        { _id: fields.userId },
+        { $set: { status: { game: "none", client: "none" } } }
+      );
       LoggedOnUsers.remove({ userid: fields.userId });
       runLogoutHooks(this, fields.userId, fields.connectionId);
     });
@@ -431,14 +462,5 @@ Accounts.validateLoginAttempt(function(params) {
 });
 
 Meteor.methods({
-  getPartialUsernames: function(prefix) {
-    log.debug("Meteor.methods getPartialUsernames", prefix);
-    check(prefix, String);
-    check(this.userId, String);
-    if (prefix.length === 0) return [];
-    return Meteor.users
-      .find({ username: { $regex: "^" + prefix } }, { fields: { username: 1 } })
-      .fetch()
-      .map(rec => rec.username);
-  }
+  setClientStatus: Users.setClientStatus
 });
