@@ -935,7 +935,8 @@ Meteor.methods({
   //gameRequestAccept: GameRequests.acceptMatchRequest,
   gameRequestDecline: GameRequests.declineMatchRequest,
   createLocalGameSeek: GameRequests.addLocalGameSeek,
-  acceptLocalGameSeek: GameRequests.acceptGameSeek
+  acceptLocalGameSeek: GameRequests.acceptGameSeek,
+  removeGameSeek: GameRequests.removeGameSeek
 });
 
 function seekMatchesUser(message_identifier, user, seek) {
