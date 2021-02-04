@@ -333,13 +333,7 @@ Meteor.startup(function() {
         "connectionLogout userId=" +
           fields.userId +
           ", connectionId=" +
-          fields.connectionId +
-          ", ipAddr=" +
-          fields.ipAddr +
-          ", userAgent=" +
-          fields.userAgent +
-          ", loginTime=" +
-          fields.loginTime
+          fields.connectionId
       );
       Meteor.users.update(
         { _id: fields.userId },

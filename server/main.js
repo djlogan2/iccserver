@@ -17,6 +17,7 @@ import "../imports/collections/users";
 import "../lib/server/timestamp";
 import "../server/Chat";
 import "../server/migrations";
+import "../server/clientCollection";
 //??
 
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
