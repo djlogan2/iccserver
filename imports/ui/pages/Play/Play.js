@@ -402,7 +402,6 @@ export default compose(
       chats: Meteor.subscribe("chat"),
       child_chat_texts: Meteor.subscribe("child_chat_texts"),
       users: Meteor.subscribe("loggedOnUsers"),
-      userData: Meteor.subscribe("userData"),
       client_messages: Meteor.subscribe("client_messages"),
       importedGame: Meteor.subscribe("imported_games"),
       dynamic_ratings: Meteor.subscribe("DynamicRatings")

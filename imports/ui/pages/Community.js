@@ -153,8 +153,7 @@ class Community extends Component {
 
 const CommunityWithTracker = withTracker(() => {
   const subscriptions = {
-    chat: Meteor.subscribe("chat"),
-    userData: Meteor.subscribe("userData")
+    chat: Meteor.subscribe("chat")
   };
 
   return {

@@ -3,7 +3,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { notification, Row } from "antd";
 import { withRouter } from "react-router-dom";
-import { GameRequestCollection, mongoUser } from "../../../api/client/collections";
+import { GameRequestCollection } from "../../../api/client/collections";
 
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 
@@ -33,6 +33,7 @@ import { RESOURCE_LOGIN, RESOURCE_PLAY } from "../../../constants/resourceConsta
 import GameRequestModal from "./Modaler/GameRequest/GameRequestModal";
 import { get } from "lodash";
 import { gameStatusPlaying } from "../../../constants/gameConstants";
+import { isReadySubscriptions } from "../../../utils/utils";
 
 class AppWrapper extends Component {
   componentDidMount() {
@@ -67,18 +68,20 @@ class AppWrapper extends Component {
 
       history.push(RESOURCE_LOGIN);
     }
-  }
 
-  userRecord = () => {
-    return mongoUser.find().fetch();
-  };
+    const clientStatus = get(currentUser, "status.client");
+
+    if (clientStatus && clientStatus !== pathName.substring(1)) {
+      history.push(`/${clientStatus}`);
+    }
+  }
 
   render() {
     const { className, children, gameRequest } = this.props;
 
     return (
       <div className="app-wrapper">
-        {gameRequest && <GameRequestModal gameRequest={gameRequest} />}
+        {gameRequest && <GameRequestModal gameRequest={gameRequest}/>}
         <LeftSidebar />
         <Row className={`app-wrapper__row ${className}`}>{children}</Row>
       </div>
@@ -87,7 +90,12 @@ class AppWrapper extends Component {
 }
 
 export default withTracker(() => {
+  const subscriptions = {
+    userData: Meteor.subscribe("userData")
+  };
+
   return {
+    isReady: isReadySubscriptions(subscriptions),
     gameRequest: GameRequestCollection.findOne(
       {
         $or: [
