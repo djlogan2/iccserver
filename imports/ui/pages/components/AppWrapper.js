@@ -33,6 +33,7 @@ import { RESOURCE_LOGIN, RESOURCE_PLAY } from "../../../constants/resourceConsta
 import GameRequestModal from "./Modaler/GameRequest/GameRequestModal";
 import { get } from "lodash";
 import { gameStatusPlaying } from "../../../constants/gameConstants";
+import { isReadySubscriptions } from "../../../utils/utils";
 
 class AppWrapper extends Component {
   componentDidMount() {
@@ -67,6 +68,12 @@ class AppWrapper extends Component {
 
       history.push(RESOURCE_LOGIN);
     }
+
+    const clientStatus = get(currentUser, "status.client");
+
+    if (clientStatus && clientStatus !== pathName.substring(1)) {
+      history.push(`/${clientStatus}`);
+    }
   }
 
   render() {
@@ -74,7 +81,7 @@ class AppWrapper extends Component {
 
     return (
       <div className="app-wrapper">
-        {gameRequest && <GameRequestModal gameRequest={gameRequest} />}
+        {gameRequest && <GameRequestModal gameRequest={gameRequest}/>}
         <LeftSidebar />
         <Row className={`app-wrapper__row ${className}`}>{children}</Row>
       </div>
@@ -83,7 +90,12 @@ class AppWrapper extends Component {
 }
 
 export default withTracker(() => {
+  const subscriptions = {
+    userData: Meteor.subscribe("userData")
+  };
+
   return {
+    isReady: isReadySubscriptions(subscriptions),
     gameRequest: GameRequestCollection.findOne(
       {
         $or: [

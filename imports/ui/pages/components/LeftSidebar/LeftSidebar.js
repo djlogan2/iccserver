@@ -54,6 +54,18 @@ class LeftSidebar extends Component {
   handleRedirect = resource => {
     const { history } = this.props;
     history.push(resource);
+
+    Meteor.call(
+      "setClientStatus",
+      "set_client_status",
+      Meteor.userId(),
+      resource.substring(1),
+      err => {
+        if (err) {
+          log.error(err);
+        }
+      }
+    );
   };
 
   handleLogout = () => {
