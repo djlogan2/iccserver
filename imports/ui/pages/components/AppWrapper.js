@@ -69,11 +69,11 @@ class AppWrapper extends Component {
       history.push(RESOURCE_LOGIN);
     }
 
-    const clientStatus = get(currentUser, "status.client");
+    // const clientStatus = get(currentUser, "status.client");
 
-    if (clientStatus && clientStatus !== pathName.substring(1)) {
-      history.push(`/${clientStatus}`);
-    }
+    // if (clientStatus && clientStatus !== pathName.substring(1)) {
+    //   history.push(`/${clientStatus}`);
+    // }
   }
 
   render() {
@@ -81,7 +81,7 @@ class AppWrapper extends Component {
 
     return (
       <div className="app-wrapper">
-        {gameRequest && <GameRequestModal gameRequest={gameRequest}/>}
+        {gameRequest && <GameRequestModal gameRequest={gameRequest} />}
         <LeftSidebar />
         <Row className={`app-wrapper__row ${className}`}>{children}</Row>
       </div>
