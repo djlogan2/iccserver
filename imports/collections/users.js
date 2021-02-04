@@ -19,6 +19,7 @@ const log = new Logger("server/users_js");
 
 export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
+const LogonHistory = new Mongo.Collection("logon_history");
 const ConfigurationParametersByHost = new Mongo.Collection("host_configuration");
 
 Meteor.publish(null, function() {
@@ -263,7 +264,7 @@ Users.deleteUser = function(message_identifier, userId) {
 };
 
 Users.getConnectionFromUser = function(user_id) {
-  const lou = LoggedOnUsers.findOne({ uerid: user_id });
+  const lou = LoggedOnUsers.findOne({ user_id: user_id });
   if (!lou) return;
   return lou.connection.id;
 };
@@ -296,11 +297,6 @@ Meteor.startup(function() {
   Roles.createRole("room_chat", { unlessExists: true });
   Roles.createRole("personal_chat", { unlessExists: true });
   Roles.addUsersToRoles(users, ["kibitz", "room_chat", "personal_chat"]);
-  const loggedin_users = Meteor.users
-    .find({ "status.online": true }, { fields: { _id: 1 } })
-    .fetch()
-    .map(user => user._id);
-  LoggedOnUsers.remove({ userid: { $nin: loggedin_users } });
   Meteor.users.update(
     { isolation_group: { $exists: false } },
     { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } }
@@ -323,6 +319,13 @@ Meteor.startup(function() {
           fields.loginTime
       );
       const user = Meteor.users.findOne({ _id: fields.userId });
+      LoggedOnUsers.insert({
+        user_id: fields.userId,
+        connection_id: fields.connectionId,
+        ip_address: fields.ipAddr,
+        logon_date: fields.loginTime,
+        userAgent: fields.userAgent
+      });
       runLoginHooks(this, user, fields.connectionId);
     });
     UserStatus.events.on("connectionLogout", fields => {
@@ -342,7 +345,13 @@ Meteor.startup(function() {
         { _id: fields.userId },
         { $set: { status: { game: "none", client: "none" } } }
       );
-      LoggedOnUsers.remove({ userid: fields.userId });
+      const lou = LoggedOnUsers.findOne({ connection_id: fields.connectionId });
+      LoggedOnUsers.remove({ connection_id: fields.connectionId });
+      if (!!lou) {
+        delete lou.connection_id;
+        lou.logoff_date = new Date();
+        LogonHistory.insert(lou);
+      }
       runLogoutHooks(this, fields.userId, fields.connectionId);
     });
     // UserStatus.events.on("connectionIdle", fields => {
@@ -427,37 +436,37 @@ Accounts.validateLoginAttempt(function(params) {
     throw new Meteor.Error("401", message);
   }
 
-  //
-  // If the user has already logged in, disallow subsequent logins.
-  //
-  const lou = LoggedOnUsers.findOne({ userid: params.user._id });
-  log.debug("validateLoginAttempt lou", lou);
+  if (params.type === "resume") {
+    const resumeToken = params?.methodArguments[0]?.resume;
+    if (resumeToken) {
+      const userId = params?.user?._id;
+      if (userId) {
+        // We need to compare the hash of the resume token since that is what is stored in DB
+        //@ts-ignore
+        const hash = Accounts._hashLoginToken(resumeToken);
+        const user = Meteor.users.findOne({ _id: userId });
 
-  // const resumeToken = params?.methodArguments[0]?.resume;
-  // const hash = Accounts._hashLoginToken(resumeToken || "");
-  //
-  if (!!lou) {
-    if (lou.connection.id !== params.connection.id) {
-      log.error(
-        "Duplicate login by " +
-          params.user.username +
-          "/" +
-          params.user._id +
-          " on connection " +
-          params.connection.id +
-          " when lou says are are already logged on to connection " +
-          lou.connection.id
-      );
-      const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
-      LoggedOnUsers.remove({ userid: params.user._id });
-      Meteor.users.update(
-        { _id: params.user._id },
-        { $set: { "services.resume.loginTokens": [] } }
-      );
-      throw new Meteor.Error("401", message);
+        // Check that user exists
+        if (user) {
+          // Only allow token reuse if user has the resume token in their stored resume tokens, and also that it is the only token
+          const tokenReuseAllowed =
+            user?.services?.resume?.loginTokens?.find(token => token.hashedToken === hash) &&
+            user?.services?.resume?.loginTokens?.length === 1;
+          // If token reuse is not allowed, we should remove all existing tokens to log out other clients
+          if (!tokenReuseAllowed) {
+            Meteor.users.update({ _id: userId }, { $set: { "services.resume.loginTokens": [] } });
+          }
+        }
+      }
     }
-  } else LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
-  log.debug("validateLoginAttempt succeeded");
+  }
+  // If user is logging in with password, then we should just remove all existing resume tokens
+  else if (params.type === "password") {
+    const userId = params?.user?._id;
+    if (userId) {
+      Meteor.users.update({ _id: userId }, { $set: { "services.resume.loginTokens": [] } });
+    }
+  }
   return true;
 });
 
