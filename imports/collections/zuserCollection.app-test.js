@@ -161,13 +161,13 @@ describe("Users", function() {
   //   chai.assert.isUndefined(msg);
   // });
 
-  it("should only get a subset of the entire user record in the userData subscription", function(done) {
+  it.only("should only get a subset of the entire user record in the userData subscription", function(done) {
     const user1 = TestHelpers.createUser({ isolation_group: "group1" });
     TestHelpers.createUser({ login: false });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
-    collector.collect("userData", collections => {
+    collector.collect(null, collections => {
       chai.assert.equal(collections.users.length, 1);
       const msg = compare(our_allowed_user_fields, collections.users[0]);
       if (!!msg) done(new Error(msg));
@@ -175,7 +175,8 @@ describe("Users", function() {
     });
   });
 
-  it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
+  it.only("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
+    this.timeout(500000);
     const user1 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
     const user2 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
     chai.assert.isDefined(user1);
@@ -190,6 +191,7 @@ describe("Users", function() {
   });
 
   it("should only get logged on users with the loggedOnUsers subscription", function(done) {
+    this.timeout(500000);
     const user1 = TestHelpers.createUser({ isolation_group: "group1", login: false });
     const user2 = TestHelpers.createUser({ isolation_group: "group1", login: true });
     const user3 = TestHelpers.createUser({ isolation_group: "group1", login: true });

@@ -86,7 +86,7 @@ describe("Client Messages", function() {
     chai.assert.equal(6, ClientMessages.collection.find().count());
     /*
     const collector = new PublicationCollector({ userId: user1._id });
-    collector.collect("userData", collections => {
+    collector.collect("`userData", collections => {
       // We don't really care what happens in here, we just need the collection to stop.
     });
      */

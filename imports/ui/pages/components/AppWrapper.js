@@ -3,7 +3,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { notification, Row } from "antd";
 import { withRouter } from "react-router-dom";
-import { GameRequestCollection, mongoUser } from "../../../api/client/collections";
+import { GameRequestCollection } from "../../../api/client/collections";
 
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 
@@ -68,10 +68,6 @@ class AppWrapper extends Component {
       history.push(RESOURCE_LOGIN);
     }
   }
-
-  userRecord = () => {
-    return mongoUser.find().fetch();
-  };
 
   render() {
     const { className, children, gameRequest } = this.props;

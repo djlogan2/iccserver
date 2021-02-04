@@ -291,7 +291,7 @@ describe("PGN Import", function() {
     compareMovelist(0, 0, parser.gamelist[0].variations, game.variations);
   });
   /*
-  it.only("should parse a big file correctly in the file processor", function(done) {
+  it("should parse a big file correctly in the file processor", function(done) {
     this.timeout(500000);
     const fss = fs.createReadStream("/Users/davidlogan/Downloads/merged.pgn");
     const parser = new Parser();

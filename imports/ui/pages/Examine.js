@@ -11,8 +11,7 @@ import {
   ClientMessagesCollection,
   Game,
   ImportedGameCollection,
-  mongoCss,
-  mongoUser
+  mongoCss
 } from "../../api/client/collections";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
@@ -53,10 +52,6 @@ class Examine extends Component {
 
   initExamine = () => {
     Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
-  };
-
-  userRecord = () => {
-    return mongoUser.find().fetch();
   };
 
   handleDraw = objectList => {
@@ -352,8 +347,7 @@ export default withTracker(() => {
     clientMessages: Meteor.subscribe("client_messages"),
     game: Meteor.subscribe("games"),
     importedGame: Meteor.subscribe("imported_games"),
-    users: Meteor.subscribe("loggedOnUsers"),
-    userData: Meteor.subscribe("userData")
+    users: Meteor.subscribe("loggedOnUsers")
   };
 
   return {

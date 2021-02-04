@@ -21,7 +21,7 @@ export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
 const ConfigurationParametersByHost = new Mongo.Collection("host_configuration");
 
-Meteor.publish("userData", function() {
+Meteor.publish(null, function() {
   if (!this.userId) return this.ready();
 
   log.debug("User " + this.userId + " has arrived");

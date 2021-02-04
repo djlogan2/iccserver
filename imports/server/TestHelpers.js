@@ -53,6 +53,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
     const setobject = {};
     setobject.status = {
       game: "none",
+      client: "none",
       lastLogin: {
         date: new Date(),
         ipAddr: "127.0.0.1",

@@ -263,8 +263,7 @@ export default withTracker(() => {
     clientMessages: Meteor.subscribe("client_messages"),
     game: Meteor.subscribe("games"),
     importedGame: Meteor.subscribe("imported_games"),
-    users: Meteor.subscribe("loggedOnUsers"),
-    userData: Meteor.subscribe("userData")
+    users: Meteor.subscribe("loggedOnUsers")
   };
 
   return {
