@@ -24,8 +24,6 @@ const ConfigurationParametersByHost = new Mongo.Collection("host_configuration")
 
 Meteor.publish(null, function() {
   if (!this.userId) return this.ready();
-
-  log.debug("User " + this.userId + " has arrived");
   return [
     Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner }),
     Meteor.roleAssignment.find({ "user._id": this.userId })
@@ -266,7 +264,7 @@ Users.deleteUser = function(message_identifier, userId) {
 Users.getConnectionFromUser = function(user_id) {
   const lou = LoggedOnUsers.findOne({ user_id: user_id });
   if (!lou) return;
-  return lou.connection.id;
+  return lou.connection_id;
 };
 
 Users.addLoginHook = function(f) {

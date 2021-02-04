@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
+import { Logger } from "../../../../lib/client/Logger";
+const log = new Logger("client/BlackPlayerClock_js");
 
 export default class BlackPlayerClock extends Component {
   constructor(props) {
@@ -99,6 +101,15 @@ export default class BlackPlayerClock extends Component {
     }
 
     if (running !== state.running) {
+      log.debug(
+        "id=" +
+          props.game._id +
+          ", pcurrent=" +
+          pcurrent +
+          ", state.game_current=" +
+          state.game_current +
+        ", running=" + running
+      );
       returnstate.running = running;
       returnstate.mark = mark;
     }

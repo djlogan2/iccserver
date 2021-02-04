@@ -84,7 +84,7 @@ class Play extends Component {
 
   _pieceSquareDragStop = raf => {
     const { inGame } = this.props;
-
+    log.debug("Making move " + raf.move + " in game " + inGame._id);
     Meteor.call("addGameMove", "gameMove", inGame._id, raf.move, handleError);
   };
 
