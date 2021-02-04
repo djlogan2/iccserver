@@ -11,7 +11,7 @@ import MenuLinks from "./MenuLinks";
 import GameListModal from "./../Modaler/GameListModal";
 import { GameHistoryCollection, mongoCss } from "../../../../api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
-import { RESOURCE_LOGIN } from "../../../../constants/resourceConstants";
+import { RESOURCE_LOGIN, RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import { dynamicLeftSideBarStyles } from "./dynamicLeftSidebarStyles";
 import { gameStatusNone } from "../../../../constants/gameConstants";
@@ -110,7 +110,7 @@ class LeftSidebar extends Component {
           title={translate("burgerButton")}
           onClick={this.toggleMenu}
         />
-        <div className="sidebar__user">
+        <div className="sidebar__user" onClick={() => this.handleRedirect(RESOURCE_PROFILE)}>
           <img
             src="images/avatar.png"
             alt={translate("userAvatar")}
