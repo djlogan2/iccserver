@@ -339,7 +339,7 @@ describe("User management", function() {
     });
   });
 
-  describe.only("altering a user", function() {
+  describe("altering a user", function() {
     describe("setPassword", function() {
       it("should succeed if user is in set_other_password role AND both users are in the same isolation group", function() {
         const admin = TestHelpers.createUser();
