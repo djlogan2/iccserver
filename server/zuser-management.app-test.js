@@ -148,7 +148,10 @@ describe("User management", function() {
         username: "pubuxxxadmin",
         email: "testmailpubeyyy@djl.com"
       });
-      const peon = TestHelpers.createUser({ username: "thisisapubuxxxpeon", email: "pubeyyy@djl.com" });
+      const peon = TestHelpers.createUser({
+        username: "thisisapubuxxxpeon",
+        email: "pubeyyy@djl.com"
+      });
       const isolation_group_admin = TestHelpers.createUser({
         username: "adminisouxxxtest",
         isolation_group: "iso",
@@ -219,7 +222,10 @@ describe("User management", function() {
         username: "pubuxxxadmin",
         email: "testmailpubeyyy@djl.com"
       });
-      const peon = TestHelpers.createUser({ options: "thisisapubuxxxpeon", email: "pubeyyy@djl.com" });
+      const peon = TestHelpers.createUser({
+        options: "thisisapubuxxxpeon",
+        email: "pubeyyy@djl.com"
+      });
       const isolation_group_admin = TestHelpers.createUser({
         username: "adminisouxxxtest",
         isolation_group: "iso",
@@ -333,22 +339,91 @@ describe("User management", function() {
     });
   });
 
-  describe("altering a user", function() {
+  describe.only("altering a user", function() {
     describe("setPassword", function() {
       it("should succeed if user is in set_other_password role AND both users are in the same isolation group", function() {
-        chai.assert.fail("do me");
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_password");
+        Users.addUserToRoles(isolation_group_admin, "set_other_password", "iso");
+        self.loggedonuser = isolation_group_admin;
+        Users.setOtherPassword("mi1", isolation_group_peon._id, "newpassword");
+        Users.setOtherPassword("mi2", isolation_group_admin._id, "newpassword");
+        const peon2 = Meteor.users.findOne({ _id: isolation_group_peon._id });
+        const admin2 = Meteor.users.findOne({ _id: isolation_group_admin._id });
+        chai.assert.notEqual(
+          isolation_group_peon.services.password.bcrypt,
+          peon2.services.password.bcrypt
+        );
+        chai.assert.notEqual(
+          isolation_group_admin.services.password.bcrypt,
+          admin2.services.password.bcrypt
+        );
       });
       it("should succeed if user is in global set_other_password role and isolation groups differ", function() {
-        chai.assert.fail("do me");
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_password");
+        Users.addUserToRoles(isolation_group_admin, "set_other_password", "iso");
+        self.loggedonuser = admin;
+        Users.setOtherPassword("mi1", peon._id, "newpassword");
+        Users.setOtherPassword("mi1", isolation_group_peon._id, "newpassword");
+        const peon2 = Meteor.users.findOne({ _id: peon._id });
+        const peon3 = Meteor.users.findOne({ _id: isolation_group_peon._id });
+        chai.assert.notEqual(peon.services.password.bcrypt, peon2.services.password.bcrypt);
+        chai.assert.notEqual(
+          isolation_group_peon.services.password.bcrypt,
+          peon3.services.password.bcrypt
+        );
       });
       it("should fail if user is not in set_other_password role AND both users are in the same isolation group", function() {
-        chai.assert.fail("do me");
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_password");
+        Users.addUserToRoles(isolation_group_admin, "set_other_password", "iso");
+        self.loggedonuser = peon;
+        Users.setOtherPassword("mi1", isolation_group_peon._id, "newpassword");
+        const peon2 = Meteor.users.findOne({ _id: isolation_group_peon._id });
+        chai.assert.equal(
+          isolation_group_peon.services.password.bcrypt,
+          peon2.services.password.bcrypt
+        );
+        chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+        chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
       });
       it("should fail if user is in set_other_password role and both users are NOT in the same isolation group", function() {
-        chai.assert.fail("do me");
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_password");
+        Users.addUserToRoles(isolation_group_admin, "set_other_password", "iso");
+        self.loggedonuser = isolation_group_admin;
+        Users.setOtherPassword("mi1", peon._id, "newpassword");
+        const peon2 = Meteor.users.findOne({ _id: peon._id });
+        chai.assert.equal(peon.services.password.bcrypt, peon2.services.password.bcrypt);
+        chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+        chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
       });
-      it("should fail if user is not in global_set_other_password role and isolation groups differ", function() {
-        chai.assert.fail("do me");
+      it("should fail if user is not in global set_other_password role and isolation groups differ", function() {
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_password");
+        Users.addUserToRoles(isolation_group_admin, "set_other_password", "iso");
+        self.loggedonuser = isolation_group_peon;
+        Users.setOtherPassword("mi1", peon._id, "newpassword");
+        const peon2 = Meteor.users.findOne({ _id: peon._id });
+        chai.assert.equal(peon.services.password.bcrypt, peon2.services.password.bcrypt);
+        chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+        chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
       });
     });
     // child chat

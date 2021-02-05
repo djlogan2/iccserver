@@ -261,6 +261,40 @@ Users.deleteUser = function(message_identifier, userId) {
   Meteor.users.remove({ _id: userId });
 };
 
+// TODO: This really should come out. Once we the mail server running, we need to simply
+//       allow users to send reset emails to users. Two disparate users should really never
+//       know the password to the same account.
+Users.setOtherPassword = function(message_identifier, user_id, new_password) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+  check(user_id, String);
+  check(new_password, String);
+
+  const victim = Meteor.users.findOne({ _id: user_id });
+  if (!victim) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  if (!Users.isAuthorized(self, "set_other_password")) {
+    if (
+      self.isolation_group !== victim.isolation_group ||
+      !Users.isAuthorized(self, "set_other_password", self.isolation_group)
+    ) {
+      Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+      return;
+    }
+  }
+
+  if (!new_password || !new_password.length) {
+    Users.sendClientMessage(self, message_identifier, "INVALID_PASSWORD");
+    return;
+  }
+
+  Accounts.setPassword(user_id, new_password);
+};
+
 Users.getConnectionFromUser = function(user_id) {
   const lou = LoggedOnUsers.findOne({ user_id: user_id });
   if (!lou) return;
@@ -328,10 +362,7 @@ Meteor.startup(function() {
     });
     UserStatus.events.on("connectionLogout", fields => {
       log.debug(
-        "connectionLogout userId=" +
-          fields.userId +
-          ", connectionId=" +
-          fields.connectionId
+        "connectionLogout userId=" + fields.userId + ", connectionId=" + fields.connectionId
       );
       Meteor.users.update(
         { _id: fields.userId },
@@ -463,5 +494,6 @@ Accounts.validateLoginAttempt(function(params) {
 });
 
 Meteor.methods({
-  setClientStatus: Users.setClientStatus
+  setClientStatus: Users.setClientStatus,
+  setOtherPassword: Users.setOtherPassword
 });

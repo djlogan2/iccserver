@@ -34,7 +34,8 @@ export const all_roles = [
   "create_tournament_template",
   "list_isolation_groups",
   "list_users",
-  "delete_users"
+  "delete_users",
+  "set_other_password"
 ];
 
 export const standard_member_roles = [
