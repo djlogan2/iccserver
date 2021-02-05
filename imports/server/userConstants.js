@@ -79,6 +79,7 @@ export const viewable_logged_on_user_fields = {
   "status.client": 1,
   "status.legacy": 1,
   "status.lastLogin.date": 1,
+  "status.lastActivity": 1,
   "status.idle": 1,
   cf: 1
 };

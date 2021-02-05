@@ -7,7 +7,7 @@ import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { titles } from "../imports/server/userConstants";
+import { fields_viewable_by_account_owner, titles } from "../imports/server/userConstants";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
 import { Singular } from "./singular";
@@ -339,7 +339,8 @@ GameRequests.addLocalGameSeek = function(
     time: time,
     inc_or_delay: inc_or_delay,
     delaytype: inc_or_delay_type,
-    rated: rated
+    rated: rated,
+    matchingusers: self._id
   }).fetch();
 
   if (!!other_seeks.length) {

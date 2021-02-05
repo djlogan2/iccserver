@@ -8,6 +8,7 @@ import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { Singular } from "./singular";
 import { Logger } from "../lib/server/Logger";
+import { fields_viewable_by_account_owner } from "../imports/server/userConstants";
 
 const log = new Logger("server/Chat_js");
 

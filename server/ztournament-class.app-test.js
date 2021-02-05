@@ -95,7 +95,6 @@ describe("Tourney.isAuthorized", function() {
     chai.assert.isTrue(tourn.isAuthorized(user, "create_tournament_template"));
   });
   it("should return true for a top level user with a bottom level scope", function() {
-    this.timeout(500000);
     const tourn = new Tourney("test", ["top", "mid", "bottom"]);
     const user = TestHelpers.createUser();
     Users.addUserToRoles(user, "create_tournament_template", "top");

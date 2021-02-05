@@ -26,7 +26,6 @@ describe("User management", function() {
     });
 
     it("should fail if user is not in global list_isolation_groups role", function() {
-      this.timeout(5000000);
       const peon = TestHelpers.createUser();
       const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
 
@@ -146,28 +145,28 @@ describe("User management", function() {
   describe("searching global users", function() {
     it("should work if user is in global list_users", function() {
       const admin = TestHelpers.createUser({
-        username: "pubxxxadmin",
-        email: "testmailc1yyy@djl.com"
+        username: "pubuxxxadmin",
+        email: "testmailpubeyyy@djl.com"
       });
-      const peon = TestHelpers.createUser({ username: "thisisapubxxxpeon", email: "c1yyy@djl.com" });
+      const peon = TestHelpers.createUser({ username: "thisisapubuxxxpeon", email: "pubeyyy@djl.com" });
       const isolation_group_admin = TestHelpers.createUser({
-        username: "adminisoxxxtest",
+        username: "adminisouxxxtest",
         isolation_group: "iso",
-        email: "someone@testc1yyydom.com"
+        email: "someone@testisoeyyydom.com"
       });
       const isolation_group_peon = TestHelpers.createUser({
-        username: "peontestisoxxx",
+        username: "peontestisouxxx",
         isolation_group: "iso",
-        email: "someone@c1yyy.com"
+        email: "someone@isoeyyy.com"
       });
 
       Users.addUserToRoles(admin, "list_users");
       Users.addUserToRoles(isolation_group_admin, "list_users", "iso");
 
       self.loggedonuser = admin;
-      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pub").length, 2);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pubu").length, 2);
       chai.assert.equal(Users.listUsers("mi2", 0, 50, "xxx").length, 4);
-      chai.assert.equal(Users.listUsers("mi3", 0, 50, "c1").length, 2);
+      chai.assert.equal(Users.listUsers("mi3", 0, 50, "isoe").length, 2);
       chai.assert.equal(Users.listUsers("mi4", 0, 50, "yyy").length, 4);
     });
 
@@ -217,28 +216,30 @@ describe("User management", function() {
   describe("searching isolation group users", function() {
     it("should work if user is in list_users", function() {
       const admin = TestHelpers.createUser({
-        username: "pubxxxadmin",
-        email: "testmailc1yyy@djl.com"
+        username: "pubuxxxadmin",
+        email: "testmailpubeyyy@djl.com"
       });
-      const peon = TestHelpers.createUser({ options: "thisisapubxxxpeon", email: "c1yyy@djl.com" });
+      const peon = TestHelpers.createUser({ options: "thisisapubuxxxpeon", email: "pubeyyy@djl.com" });
       const isolation_group_admin = TestHelpers.createUser({
-        username: "adminisoxxxtest",
+        username: "adminisouxxxtest",
         isolation_group: "iso",
-        email: "someone@testc1yyydom.com"
+        email: "someone@testisoeyyydom.com"
       });
       const isolation_group_peon = TestHelpers.createUser({
-        username: "peontestisoxxx",
+        username: "peontestisouxxx",
         isolation_group: "iso",
-        email: "someone@c1yyy.com"
+        email: "someone@isoeyyy.com"
       });
 
       Users.addUserToRoles(admin, "list_users");
       Users.addUserToRoles(isolation_group_admin, "list_users", "iso");
 
       self.loggedonuser = isolation_group_admin;
-      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pub").length, 1);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pubu").length, 0);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "isou").length, 2);
       chai.assert.equal(Users.listUsers("mi2", 0, 50, "xxx").length, 2);
-      chai.assert.equal(Users.listUsers("mi3", 0, 50, "c1").length, 1);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pube").length, 0);
+      chai.assert.equal(Users.listUsers("mi3", 0, 50, "isoe").length, 2);
       chai.assert.equal(Users.listUsers("mi4", 0, 50, "yyy").length, 2);
     });
     it("should fail if user is not in list_users", function() {
@@ -260,13 +261,14 @@ describe("User management", function() {
 
   describe("deleting a user", function() {
     it("should succeed if user is in global delete_user role and isolation groups differ", function() {
+      this.timeout(5000000);
       const admin = TestHelpers.createUser();
       const peon = TestHelpers.createUser();
       const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
       const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
 
-      Users.addUserToRoles(admin, "list_users");
-      Users.addUserToRoles(isolation_group_admin, "list_users", "iso");
+      Users.addUserToRoles(admin, "delete_users");
+      Users.addUserToRoles(isolation_group_admin, "delete_users", "iso");
 
       self.loggedonuser = admin;
       Users.deleteUser("mi1", peon._id);

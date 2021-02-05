@@ -60,7 +60,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
         userAgent:
           "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36"
       },
-      lastActvity: new Date(),
+      lastActivity: new Date(),
       legacy: false,
       idle: false,
       online: options.login === undefined || options.login
