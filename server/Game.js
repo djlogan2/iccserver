@@ -16,6 +16,7 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
+import { UserStatus } from "meteor/mizzao:user-status";
 import { Parser } from "./pgn/pgnparser";
 //import { Awsmanager } from "./awsmanager";
 
@@ -51,8 +52,54 @@ class Game {
     // TODO: Need to adjourn these, not just delete them
     // Meteor.startup(() => _self.GameCollection.remove({}));
 
-    Users.addLogoutHook(user => this.gameLogoutHook(user));
-    Users.addLoginHook(user => this.gameLoginHook(user));
+    UserStatus.events.on("connectionLogin", function(fields) {
+      const user = Meteor.users.findOne({ _id: fields.userId });
+      const owned_game = _self.GameCollection.findOne({ private: true, owner: fields.userId });
+      if (!!owned_game) {
+        if (!owned_game.examiners.some(ex => ex.id === fields.userId)) {
+          const rec = { id: user._id, username: user.username };
+          _self.GameCollection.update(
+            { _id: owned_game._id, status: owned_game.status },
+            { $addToSet: { analysis: rec, examiners: rec, observers: rec } }
+          );
+        }
+      }
+      Users.setGameStatus("server", user, _self.getStatusFromGameCollection(fields.userId));
+    });
+
+    UserStatus.events.on("connectionLogout", function(fields) {
+      if (_self.getStatusFromGameCollection(fields.userId) === "none") return;
+
+      const doTheLogout = () => {
+        _self.localResignAllGames("server", fields.userId, 4);
+        _self.localUnobserveAllGames("server", fields.userId, true, true);
+        Users.setGameStatus("server", fields.userId, "none");
+      };
+
+      if (Meteor.isTest || Meteor.isAppTest || !SystemConfiguration.logoutTimeout()) {
+        doTheLogout();
+        return;
+      }
+
+      log.debug("Starting two minute timer for logged out user", fields.userId);
+      const cursor = Meteor.users.find({ _id: fields.userId }).observeChanges({
+        changed(id, fields2) {
+          if ("status" in fields2 && "online" in fields2.status && fields2.status.online) {
+            log.debug("Logged out user logged back in in time", fields.userId);
+            Meteor.clearInterval(interval);
+            cursor.stop();
+          }
+        }
+      });
+
+      const interval = Meteor.setInterval(() => {
+        log.debug("Two minute time expired, resigning/unobserving/status", fields.userId);
+        Meteor.clearInterval(interval);
+        cursor.stop();
+        if (!Meteor.users.find({ _id: fields.userId, "status.online": true }).count())
+          doTheLogout();
+      }, SystemConfiguration.logoutTimeout());
+    });
 
     if (Meteor.isTest || Meteor.isAppTest) {
       this.collection = _self.GameCollection;
@@ -3996,53 +4043,6 @@ class Game {
     if (!!this.GameCollection.find({ "observers.id": userId }).count()) return "observing";
 
     return "none";
-  }
-
-  gameLoginHook(user) {
-    const owned_game = this.GameCollection.findOne({ private: true, owner: user._id });
-    if (!!owned_game) {
-      if (!owned_game.examiners.some(ex => ex.id === user._id)) {
-        const rec = { id: user._id, username: user.username };
-        this.GameCollection.update(
-          { _id: owned_game._id, status: owned_game.status },
-          { $addToSet: { analysis: rec, examiners: rec, observers: rec } }
-        );
-      }
-    }
-    Users.setGameStatus("server", user, this.getStatusFromGameCollection(user._id));
-  }
-
-  gameLogoutHook(userId) {
-    if (this.getStatusFromGameCollection(userId) === "none") return;
-
-    const doTheLogout = () => {
-      this.localResignAllGames("server", userId, 4);
-      this.localUnobserveAllGames("server", userId, true, true);
-      Users.setGameStatus("server", userId, "none");
-    };
-
-    if (Meteor.isTest || Meteor.isAppTest || !SystemConfiguration.logoutTimeout()) {
-      doTheLogout();
-      return;
-    }
-
-    log.debug("Starting two minute timer for logged out user", userId);
-    const cursor = Meteor.users.find({ _id: userId }).observeChanges({
-      changed(id, fields) {
-        if ("status" in fields && "online" in fields.status && fields.status.online) {
-          log.debug("Logged out user logged back in in time", userId);
-          Meteor.clearInterval(interval);
-          cursor.stop();
-        }
-      }
-    });
-
-    const interval = Meteor.setInterval(() => {
-      log.debug("Two minute time expired, resigning/unobserving/status", userId);
-      Meteor.clearInterval(interval);
-      cursor.stop();
-      if (!Meteor.users.find({ _id: userId, "status.online": true }).count()) doTheLogout();
-    }, SystemConfiguration.logoutTimeout());
   }
 
   updateUserRatings(game, result, reason) {

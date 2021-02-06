@@ -31,6 +31,7 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 //    what: "the text"
 // }
 import { Chat } from "./Chat";
+import { UserStatus } from "meteor/mizzao:user-status";
 
 describe("Chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -783,25 +784,25 @@ describe("Chats", function() {
     self.loggedonuser = user2;
     Chat.writeToUser("mi1", user1._id, "The text 2");
 
-    Chat.chatLogoutHook(user1._id);
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: user1._id });
     const chats1 = Chat.collection.find().fetch();
     chai.assert.equal(chats1.length, 2);
     chai.assert.equal(1, chats1[0].logons);
     chai.assert.equal(1, chats1[1].logons);
 
-    Chat.chatLoginHook(user1);
+    UserStatus.events.emit("connectionLogin", { connectionId: 1, userId: user1._id });
     const chats = Chat.collection.find().fetch();
     chai.assert.equal(chats.length, 2);
     chai.assert.equal(2, chats[0].logons);
     chai.assert.equal(2, chats[1].logons);
 
-    Chat.chatLogoutHook(user2._id);
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: user2._id });
     const chats3 = Chat.collection.find().fetch();
     chai.assert.equal(chats3.length, 2);
     chai.assert.equal(1, chats1[0].logons);
     chai.assert.equal(1, chats1[1].logons);
 
-    Chat.chatLogoutHook(user1._id);
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: user1._id });
     chai.assert.equal(Chat.collection.find().count(), 0);
   });
 

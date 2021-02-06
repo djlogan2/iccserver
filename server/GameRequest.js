@@ -7,9 +7,10 @@ import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { fields_viewable_by_account_owner, titles } from "../imports/server/userConstants";
 import { DynamicRatings } from "./DynamicRatings";
+import { titles } from "../imports/server/userConstants";
 import { Users } from "../imports/collections/users";
+import { UserStatus } from "meteor/mizzao:user-status";
 import { Singular } from "./singular";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
@@ -1097,16 +1098,16 @@ GameRequests.removeAllUserMatches = function(userId, loggedOff) {
   });
 };
 
-function logoutHook(userId) {
-  GameRequests.removeAllUserMatches(userId, true);
-  GameRequests.removeUserFromAllSeeks(userId);
-}
+UserStatus.events.on("connectionLogin", function(fields) {
+  GameRequests.removeAllUserMatches(fields.userId, false);
+  GameRequests.removeUserFromAllSeeks(fields.userId);
+  GameRequests.updateAllUserSeeks("server", fields.userId);
+});
 
-function loginHook(user) {
-  GameRequests.removeAllUserMatches(user._id, false);
-  GameRequests.removeUserFromAllSeeks(user._id);
-  GameRequests.updateAllUserSeeks("server", user);
-}
+UserStatus.events.on("connectionLogout", function(fields) {
+  GameRequests.removeAllUserMatches(fields.userId, true);
+  GameRequests.removeUserFromAllSeeks(fields.userId);
+});
 
 function groupChangeHook(message_identifier, userId) {
   check(message_identifier, String);
@@ -1119,14 +1120,10 @@ function groupChangeHook(message_identifier, userId) {
 
 if (Meteor.isTest || Meteor.isAppTest) {
   GameRequests.collection = GameRequestCollection;
-  GameRequests.loginHook = loginHook;
-  GameRequests.logoutHook = logoutHook;
   GameRequests.seekMatchesUser = seekMatchesUser;
 }
 
-Meteor.startup(function() {
-  Users.addLogoutHook(logoutHook);
-  Users.addLoginHook(loginHook);
+Meteor.startup(function() {;
   Users.addGroupChangeHook(groupChangeHook);
 });
 

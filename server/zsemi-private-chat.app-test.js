@@ -4,6 +4,7 @@ import { Chat } from "./Chat";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { Users } from "../imports/collections/users";
+import { UserStatus } from "meteor/mizzao:user-status";
 
 describe("private group chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -118,7 +119,7 @@ describe("private group chats", function() {
       [{ id: invited._id, username: invited.username, message_identifier: "mi2" }],
       room2.invited
     );
-    Chat.chatLogoutHook(invited._id);
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: invited._id });
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0], self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
@@ -518,12 +519,12 @@ describe("private group chats", function() {
       room2.members
     );
 
-    Chat.chatLogoutHook(firstguy._id);
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: firstguy._id });
 
     const room3 = Chat.roomCollection.findOne();
     chai.assert.sameDeepMembers([{ id: otherguy._id, username: otherguy.username }], room3.members);
 
-    Chat.chatLogoutHook(otherguy._id);
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: otherguy._id });
     chai.assert.equal(0, Chat.roomCollection.find().count());
   });
 
@@ -669,8 +670,8 @@ describe("private group chats", function() {
       room2.members
     );
     Chat.writeToRoom("mi4", private_room, "The text");
-    Chat.chatLogoutHook(firstguy._id);
-    Chat.chatLogoutHook(otherguy._id);
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: firstguy._id });
+    UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: otherguy._id });
     chai.assert.equal(0, Chat.roomCollection.find().count());
     chai.assert.equal(0, Chat.collection.find().count());
   });

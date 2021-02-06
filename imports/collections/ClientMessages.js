@@ -2,7 +2,7 @@ import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
 import { Match, check } from "meteor/check";
 import { i18n } from "./i18n";
-import { Users } from "./users";
+import { UserStatus } from "meteor/mizzao:user-status";
 
 import { Logger } from "../../lib/server/Logger";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
@@ -226,18 +226,16 @@ if (!global._clientMessages) {
 
 module.exports.ClientMessages = global._clientMessages;
 
-function logoutHook(userId) {
-  ClientMessagesCollection.remove({ to: userId });
-}
-
 Meteor.startup(function() {
   Object.keys(DefinedClientMessagesMap).forEach(i18n.addIfNotExists);
-  Users.addLogoutHook(logoutHook);
 
   if (Meteor.isTest || Meteor.isAppTest) {
     global._clientMessages.collection = ClientMessagesCollection;
-    global._clientMessages.logoutHook = logoutHook;
   }
+
+  UserStatus.events.on("connectionLogout", function(fields){
+    ClientMessagesCollection.remove({ to: fields.userId });
+  });
 });
 
 Meteor.publish("client_messages", function() {

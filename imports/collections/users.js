@@ -134,9 +134,6 @@ Users.addGroupChangeHook = function(func) {
   });
 };
 
-const loginHooks = [];
-const logoutHooks = [];
-
 Users.addUserToRoles = function(user, roles, options) {
   check(user, Match.OneOf(Object, String));
   check(roles, Match.OneOf(Array, String));
@@ -301,26 +298,6 @@ Users.getConnectionFromUser = function(user_id) {
   return lou.connection_id;
 };
 
-Users.addLoginHook = function(f) {
-  Meteor.startup(function() {
-    loginHooks.push(f);
-  });
-};
-
-Users.addLogoutHook = function(f) {
-  Meteor.startup(function() {
-    logoutHooks.push(f);
-  });
-};
-
-function runLoginHooks(context, user, connection) {
-  loginHooks.forEach(f => f.call(context, user, connection));
-}
-
-function runLogoutHooks(context, user) {
-  logoutHooks.forEach(f => f.call(context, user));
-}
-
 Meteor.startup(function() {
   const users = Meteor.users
     .find({ isolation_group: { $exists: false } }, { fields: { _id: 1 } })
@@ -333,11 +310,8 @@ Meteor.startup(function() {
     { isolation_group: { $exists: false } },
     { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } }
   );
-  if (Meteor.isTest || Meteor.isAppTest) {
-    Users.runLoginHooks = runLoginHooks;
-    Users.ruLogoutHooks = runLogoutHooks;
-  } else {
-    UserStatus.events.on("connectionLogin", fields => {
+  if (!Meteor.isTest && !Meteor.isAppTest) {
+      UserStatus.events.on("connectionLogin", fields => {
       log.debug(
         "connectionLogin userId=" +
           fields.userId +
@@ -350,7 +324,7 @@ Meteor.startup(function() {
           ", loginTime=" +
           fields.loginTime
       );
-      const user = Meteor.users.findOne({ _id: fields.userId });
+
       LoggedOnUsers.insert({
         user_id: fields.userId,
         connection_id: fields.connectionId,
@@ -358,7 +332,6 @@ Meteor.startup(function() {
         logon_date: fields.loginTime,
         userAgent: fields.userAgent
       });
-      runLoginHooks(this, user, fields.connectionId);
     });
     UserStatus.events.on("connectionLogout", fields => {
       log.debug(
@@ -375,7 +348,6 @@ Meteor.startup(function() {
         lou.logoff_date = new Date();
         LogonHistory.insert(lou);
       }
-      runLogoutHooks(this, fields.userId, fields.connectionId);
     });
     // UserStatus.events.on("connectionIdle", fields => {
     //   log.debug(
