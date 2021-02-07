@@ -1,6 +1,6 @@
 import { check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
-import { UserStatus } from "meteor/mizzao:user-status";
+import { Users } from "../imports/collections/users";
 
 const clientCollection = new Mongo.Collection("client_collection");
 
@@ -9,7 +9,7 @@ Meteor.publish(null, function() {
   return clientCollection.find({ userid: Meteor.userId() });
 });
 
-UserStatus.events.on("connectionLogout", function(fields) {
+Users.events.on("userLogout", function(fields) {
   clientCollection.remove({ userid: fields.userId });
 });
 

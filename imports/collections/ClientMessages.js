@@ -2,7 +2,7 @@ import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
 import { Match, check } from "meteor/check";
 import { i18n } from "./i18n";
-import { UserStatus } from "meteor/mizzao:user-status";
+import { Users } from "./users";
 
 import { Logger } from "../../lib/server/Logger";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
@@ -233,7 +233,7 @@ Meteor.startup(function() {
     global._clientMessages.collection = ClientMessagesCollection;
   }
 
-  UserStatus.events.on("connectionLogout", function(fields){
+  Users.events.on("userLogout", function(fields) {
     ClientMessagesCollection.remove({ to: fields.userId });
   });
 });
@@ -257,4 +257,3 @@ Meteor.methods({
     ClientMessagesCollection.remove({ _id: id });
   }
 });
-

@@ -3,7 +3,6 @@ import { check, Match } from "meteor/check";
 import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
-import { UserStatus } from "meteor/mizzao:user-status";
 import { ClientMessages } from "../imports/collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
@@ -203,7 +202,7 @@ class Chat {
       ]
     });
 
-    UserStatus.events.on("connectionLogin", function(fields) {
+    Users.events.on("userLogin", function(fields) {
       self.collection.update(
         {
           $and: [
@@ -217,7 +216,7 @@ class Chat {
       );
     });
 
-    UserStatus.events.on("connectionLogout", function(fields) {
+    Users.events.on("userLogout", function(fields) {
       //
       // Remove the user as an invitee from all rooms he's been invited to,
       // and inform their owners

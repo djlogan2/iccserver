@@ -1,6 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check, Match } from "meteor/check";
+import { EventEmitter } from "events";
+
 import {
   all_roles,
   fields_viewable_by_account_owner,
@@ -21,6 +23,7 @@ export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
 const LogonHistory = new Mongo.Collection("logon_history");
 const ConfigurationParametersByHost = new Mongo.Collection("host_configuration");
+const statusEvents = new EventEmitter();
 
 Meteor.publish(null, function() {
   if (!this.userId) return this.ready();
@@ -298,6 +301,8 @@ Users.getConnectionFromUser = function(user_id) {
   return lou.connection_id;
 };
 
+Users.events = statusEvents;
+
 Meteor.startup(function() {
   const users = Meteor.users
     .find({ isolation_group: { $exists: false } }, { fields: { _id: 1 } })
@@ -310,8 +315,9 @@ Meteor.startup(function() {
     { isolation_group: { $exists: false } },
     { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } }
   );
+
   if (!Meteor.isTest && !Meteor.isAppTest) {
-      UserStatus.events.on("connectionLogin", fields => {
+    UserStatus.events.on("connectionLogin", fields => {
       log.debug(
         "connectionLogin userId=" +
           fields.userId +
@@ -325,6 +331,7 @@ Meteor.startup(function() {
           fields.loginTime
       );
 
+      const loginCount = LoggedOnUsers.find({ user_id: fields.userId }).count();
       LoggedOnUsers.insert({
         user_id: fields.userId,
         connection_id: fields.connectionId,
@@ -332,21 +339,27 @@ Meteor.startup(function() {
         logon_date: fields.loginTime,
         userAgent: fields.userAgent
       });
+      if (!loginCount) {
+        log.debug("Emitting userLogin for " + fields.userId);
+        statusEvents.emit("userLogin", { userId: fields.userId });
+      }
     });
+
     UserStatus.events.on("connectionLogout", fields => {
       log.debug(
         "connectionLogout userId=" + fields.userId + ", connectionId=" + fields.connectionId
       );
-      Meteor.users.update(
-        { _id: fields.userId },
-        { $set: { status: { game: "none", client: "none" } } }
-      );
-      const lou = LoggedOnUsers.findOne({ connection_id: fields.connectionId });
       LoggedOnUsers.remove({ connection_id: fields.connectionId });
-      if (!!lou) {
-        delete lou.connection_id;
-        lou.logoff_date = new Date();
-        LogonHistory.insert(lou);
+
+      if (!LoggedOnUsers.find({ user_id: fields.userId }).count()) {
+        log.debug("Emitting userLogoug for " + fields.userId);
+        const lou = LoggedOnUsers.findOne({ connection_id: fields.connectionId });
+        if (!!lou) {
+          delete lou.connection_id;
+          lou.logoff_date = new Date();
+          LogonHistory.insert(lou);
+        }
+        statusEvents.emit("userLogout", { userId: fields.userId });
       }
     });
     // UserStatus.events.on("connectionIdle", fields => {

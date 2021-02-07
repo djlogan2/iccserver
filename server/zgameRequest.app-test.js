@@ -11,7 +11,7 @@ import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { UserStatus } from "meteor/mizzao:user-status";
+import { Users } from "../imports/collections/users";
 
 function legacyMatchRequest(challenger, receiver) {
   return [
@@ -1456,7 +1456,7 @@ describe("game_requests collection", function() {
     const collector = new PublicationCollector({ userId: challenger._id });
     collector.collect("game_requests", collections => {
       chai.assert.equal(collections.game_requests.length, 11);
-      UserStatus.events.emit("connectionLogout", { connectionId: 1, userId: challenger._id });
+      Users.events.emit("userLogout", { userId: challenger._id });
       chai.assert.equal(GameRequests.collection.find().count(), 6);
       chai.assert.equal(GameRequests.collection.find({ matchingusers: challenger._id }).count(), 0);
       chai.assert.equal(GameRequests.collection.find({ type: "seek" }).count(), 2);
@@ -1553,7 +1553,7 @@ describe("Local seeks", function() {
       );
     });
     self.loggedonuser = undefined;
-    UserStatus.events.emit("connectionLogin", { connectionId: 1, userId: guy2._id });
+    Users.events.emit("userLogin", { connectionId: 1, userId: guy2._id });
     chai.assert.equal(GameRequests.collection.find({ matchingusers: guy2._id }).count(), 3);
   });
 

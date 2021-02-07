@@ -10,7 +10,6 @@ import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { DynamicRatings } from "./DynamicRatings";
 import { titles } from "../imports/server/userConstants";
 import { Users } from "../imports/collections/users";
-import { UserStatus } from "meteor/mizzao:user-status";
 import { Singular } from "./singular";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
@@ -1098,13 +1097,13 @@ GameRequests.removeAllUserMatches = function(userId, loggedOff) {
   });
 };
 
-UserStatus.events.on("connectionLogin", function(fields) {
+Users.events.on("userLogin", function(fields) {
   GameRequests.removeAllUserMatches(fields.userId, false);
   GameRequests.removeUserFromAllSeeks(fields.userId);
   GameRequests.updateAllUserSeeks("server", fields.userId);
 });
 
-UserStatus.events.on("connectionLogout", function(fields) {
+Users.events.on("userLogout", function(fields) {
   GameRequests.removeAllUserMatches(fields.userId, true);
   GameRequests.removeUserFromAllSeeks(fields.userId);
 });

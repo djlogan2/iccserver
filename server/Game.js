@@ -16,7 +16,6 @@ import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 import { Users } from "../imports/collections/users";
-import { UserStatus } from "meteor/mizzao:user-status";
 import { Parser } from "./pgn/pgnparser";
 //import { Awsmanager } from "./awsmanager";
 
@@ -52,7 +51,7 @@ class Game {
     // TODO: Need to adjourn these, not just delete them
     // Meteor.startup(() => _self.GameCollection.remove({}));
 
-    UserStatus.events.on("connectionLogin", function(fields) {
+    Users.events.on("userLogin", function(fields) {
       const user = Meteor.users.findOne({ _id: fields.userId });
       const owned_game = _self.GameCollection.findOne({ private: true, owner: fields.userId });
       if (!!owned_game) {
@@ -67,7 +66,7 @@ class Game {
       Users.setGameStatus("server", user, _self.getStatusFromGameCollection(fields.userId));
     });
 
-    UserStatus.events.on("connectionLogout", function(fields) {
+    Users.events.on("userLogout", function(fields) {
       if (_self.getStatusFromGameCollection(fields.userId) === "none") return;
 
       const doTheLogout = () => {
