@@ -385,6 +385,14 @@ Meteor.startup(function() {
         logon_date: fields.loginTime,
         userAgent: fields.userAgent
       });
+      LogonHistory.insert({
+        user_id: fields.userId,
+        connection_id: fields.connectionId,
+        ip_address: fields.ipAddr,
+        logon_date: fields.loginTime,
+        userAgent: fields.userAgent
+      });
+
       if (!loginCount) {
         log.debug("Emitting userLogin for " + fields.userId);
         statusEvents.emit("userLogin", { userId: fields.userId });
@@ -396,12 +404,13 @@ Meteor.startup(function() {
         "connectionLogout userId=" + fields.userId + ", connectionId=" + fields.connectionId
       );
 
-      const lou = LoggedOnUsers.findOne({ connection_id: fields.connectionId });
-
-      if (!!lou) {
-        lou.logoff_date = new Date();
-        LogonHistory.insert(lou);
-      }
+      LogonHistory.update(
+        { conndtion_id: fields.connectionId },
+        {
+          $set: { logoff_date: new Date() },
+          $unset: { connection_id: 1 }
+        }
+      );
 
       LoggedOnUsers.remove({ connection_id: fields.connectionId });
 
