@@ -231,7 +231,11 @@ class Chat {
               "Unable to remove invitee from room",
               "Unable to find invitee in room list"
             );
-          ClientMessages.sendMessageToClient(room.owner, invitee.message_identifier, "USER_LOGGED_OFF");
+          ClientMessages.sendMessageToClient(
+            room.owner,
+            invitee.message_identifier,
+            "USER_LOGGED_OFF"
+          );
         });
 
       self.roomCollection.update(

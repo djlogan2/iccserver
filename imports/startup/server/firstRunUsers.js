@@ -9,23 +9,6 @@ import { Users } from "../../collections/users";
 const log = new Logger("server/firstRunUsers_js");
 
 export default function firstRunUsers() {
-  const roles_in_db = Meteor.roles
-    .find()
-    .fetch()
-    .map(r => r._id);
-
-  const remove_from_db = [];
-  const add_to_db = [];
-  all_roles.forEach(r => {
-    if (!roles_in_db.some(rr => rr === r)) add_to_db.push(r);
-  });
-  roles_in_db.forEach(r => {
-    if (!all_roles.some(rr => rr === r)) remove_from_db.push(r);
-  });
-
-  add_to_db.forEach(r => Roles.createRole(r, { unlessExists: true }));
-  remove_from_db.forEach(r => Roles.deleteRole(r));
-
   if (!Meteor.isTest && !Meteor.isAppTest && Meteor.users.find().count() === 0) {
     const id = Accounts.createUser({
       username: "admin",

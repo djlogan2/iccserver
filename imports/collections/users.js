@@ -261,6 +261,52 @@ Users.deleteUser = function(message_identifier, userId) {
   Meteor.users.remove({ _id: userId });
 };
 
+Users.addRole = function(message_identifier, user, role, scope) {
+  check(message_identifier, String);
+  check(user, String);
+  check(role, String);
+  check(scope, Match.Maybe(String));
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "set_role_" + role, scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  const victim = Meteor.users.findOne({ _id: user });
+  if (!victim || (!!scope && victim.isolation_group !== scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  Users.addUserToRoles(user, role, scope);
+};
+
+Users.removeRole = function(message_identifier, user, role, scope) {
+  check(message_identifier, String);
+  check(user, String);
+  check(role, String);
+  check(scope, Match.Maybe(String));
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "set_role_" + role, scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  const victim = Meteor.users.findOne({ _id: user });
+  if (!victim || (!!scope && victim.isolation_group !== scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  Users.removeUserFromRoles(user, role, scope);
+};
+
 // TODO: This really should come out. Once we the mail server running, we need to simply
 //       allow users to send reset emails to users. Two disparate users should really never
 //       know the password to the same account.
@@ -383,7 +429,10 @@ Meteor.startup(function() {
     //   );
     // });
   }
-  all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+  all_roles.forEach(role => {
+    Roles.createRole(role, { unlessExists: true });
+    Roles.createRole("set_role_" + role, { unlessExists: true });
+  });
 });
 
 Accounts.validateLoginAttempt(function(params) {
@@ -480,5 +529,7 @@ Accounts.validateLoginAttempt(function(params) {
 
 Meteor.methods({
   setClientStatus: Users.setClientStatus,
-  setOtherPassword: Users.setOtherPassword
+  setOtherPassword: Users.setOtherPassword,
+  addRole: Users.addRole,
+  removeRole: Users.removeRole
 });

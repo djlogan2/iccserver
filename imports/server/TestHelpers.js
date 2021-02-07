@@ -43,7 +43,10 @@ if (Meteor.isTest || Meteor.isAppTest) {
     const id = Accounts.createUser(userRecord);
     userRecord._id = id;
 
-    all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+    all_roles.forEach(role => {
+      Roles.createRole(role, { unlessExists: true });
+      Roles.createRole("set_role_" + role, { unlessExists: true });
+    });
 
     if (!!options.roles) {
       //  options.roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
@@ -143,7 +146,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
             if (
               roles !== "child_chat" &&
               roles !== "child_chat_exempt" &&
-              all_roles.indexOf(roles) === -1
+              all_roles.indexOf(roles.replace("set_role_", "")) === -1
             )
               // eslint-disable-next-line no-console
               console.log("Unable to find known role of " + roles);
@@ -153,7 +156,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
               if (
                 roles[x] !== "child_chat" &&
                 roles[x] !== "child_chat_exempt" &&
-                all_roles.indexOf(roles[x]) === -1
+                all_roles.indexOf(roles[x].replace("set_role_", "")) === -1
               ) {
                 // eslint-disable-next-line no-console
                 console.log("Unable to find known role of " + roles[x]);
@@ -188,7 +191,10 @@ if (Meteor.isTest || Meteor.isAppTest) {
       );
 
       resetDatabase(null, () => {
-        all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+        all_roles.forEach(role => {
+          Roles.createRole(role, { unlessExists: true });
+          Roles.createRole("set_role_" + role, { unlessExists: true });
+        });
         done();
       });
     });
