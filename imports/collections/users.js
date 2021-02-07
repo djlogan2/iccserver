@@ -405,7 +405,7 @@ Meteor.startup(function() {
       );
 
       LogonHistory.update(
-        { conndtion_id: fields.connectionId },
+        { connection_id: fields.connectionId },
         {
           $set: { logoff_date: new Date() },
           $unset: { connection_id: 1 }
