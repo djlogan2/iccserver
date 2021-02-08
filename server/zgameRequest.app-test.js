@@ -11,6 +11,7 @@ import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { standard_member_roles } from "../imports/server/userConstants";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { Users } from "../imports/collections/users";
 
 function legacyMatchRequest(challenger, receiver) {
   return [
@@ -57,8 +58,8 @@ function legacySeekParameters(user) {
   ];
 }
 
-function localSeekParameters() {
-  return ["id1", 0, "standard", 15, 0, "none", true, null, null, null, true];
+function localSeekParameters(initial) {
+  return ["id1", 0, "standard", initial || 15, 0, "none", true, null, null, null, true];
 }
 
 //GameRequests.addLegacyGameSeek = function(
@@ -1452,11 +1453,10 @@ describe("game_requests collection", function() {
     chai.assert.equal(GameRequests.collection.find().count(), 15);
 
     self.loggedonuser = challenger;
-
     const collector = new PublicationCollector({ userId: challenger._id });
     collector.collect("game_requests", collections => {
       chai.assert.equal(collections.game_requests.length, 11);
-      GameRequests.logoutHook(challenger._id);
+      Users.events.emit("userLogout", { userId: challenger._id });
       chai.assert.equal(GameRequests.collection.find().count(), 6);
       chai.assert.equal(GameRequests.collection.find({ matchingusers: challenger._id }).count(), 0);
       chai.assert.equal(GameRequests.collection.find({ type: "seek" }).count(), 2);
@@ -1553,7 +1553,7 @@ describe("Local seeks", function() {
       );
     });
     self.loggedonuser = undefined;
-    GameRequests.loginHook(guy2);
+    Users.events.emit("userLogin", { connectionId: 1, userId: guy2._id });
     chai.assert.equal(GameRequests.collection.find({ matchingusers: guy2._id }).count(), 3);
   });
 
@@ -1594,6 +1594,8 @@ describe("Local seeks", function() {
 });
 
 function add15(self, challenger, receiver, otherguy) {
+  if (!this.count) this.count = 0;
+  let fifteen = 15 + this.count++;
   self.loggedonuser = challenger;
   GameRequests.addLocalMatchRequest(
     "mi1",
@@ -1602,13 +1604,14 @@ function add15(self, challenger, receiver, otherguy) {
     "standard",
     true,
     false,
-    15,
+    fifteen,
     0,
     "none",
-    15,
+    fifteen,
     0,
     "none"
   );
+  fifteen = 15 + this.count++;
   GameRequests.addLocalMatchRequest(
     "mi1",
     otherguy,
@@ -1616,18 +1619,22 @@ function add15(self, challenger, receiver, otherguy) {
     "standard",
     true,
     false,
-    15,
+    fifteen,
     0,
     "none",
-    15,
+    fifteen,
     0,
     "none"
   );
-  GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+  fifteen = 15 + this.count++;
+  GameRequests.addLocalGameSeek.apply(null, localSeekParameters(fifteen));
+  fifteen = 15 + this.count++;
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, receiver));
+  fifteen = 15 + this.count++;
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(challenger, otherguy));
 
   self.loggedonuser = receiver;
+  fifteen = 15 + this.count++;
   GameRequests.addLocalMatchRequest(
     "mi1",
     challenger,
@@ -1635,13 +1642,14 @@ function add15(self, challenger, receiver, otherguy) {
     "standard",
     true,
     false,
-    15,
+    fifteen,
     0,
     "none",
-    15,
+    fifteen,
     0,
     "none"
   );
+  fifteen = 15 + this.count++;
   GameRequests.addLocalMatchRequest(
     "mi1",
     otherguy,
@@ -1649,18 +1657,22 @@ function add15(self, challenger, receiver, otherguy) {
     "standard",
     true,
     false,
-    15,
+    fifteen,
     0,
     "none",
-    15,
+    fifteen,
     0,
     "none"
   );
-  GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+  fifteen = 15 + this.count++;
+  GameRequests.addLocalGameSeek.apply(null, localSeekParameters(fifteen));
+  fifteen = 15 + this.count++;
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(receiver, challenger));
+  fifteen = 15 + this.count++;
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(receiver, otherguy));
 
   self.loggedonuser = otherguy;
+  fifteen = 15 + this.count++;
   GameRequests.addLocalMatchRequest(
     "mi1",
     challenger,
@@ -1668,13 +1680,14 @@ function add15(self, challenger, receiver, otherguy) {
     "standard",
     true,
     false,
-    15,
+    fifteen,
     0,
     "none",
-    15,
+    fifteen,
     0,
     "none"
   );
+  fifteen = 15 + this.count++;
   GameRequests.addLocalMatchRequest(
     "mi1",
     receiver,
@@ -1682,15 +1695,18 @@ function add15(self, challenger, receiver, otherguy) {
     "standard",
     true,
     false,
-    15,
+    fifteen,
     0,
     "none",
-    15,
+    fifteen,
     0,
     "none"
   );
-  GameRequests.addLocalGameSeek.apply(null, localSeekParameters());
+  fifteen = 15 + this.count++;
+  GameRequests.addLocalGameSeek.apply(null, localSeekParameters(fifteen));
+  fifteen = 15 + this.count++;
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(otherguy, challenger));
+  fifteen = 15 + this.count++;
   GameRequests.addLegacyMatchRequest.apply(null, legacyMatchRequest(otherguy, receiver));
 }
 

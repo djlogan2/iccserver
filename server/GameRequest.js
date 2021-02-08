@@ -7,8 +7,8 @@ import { ClientMessages } from "../imports/collections/ClientMessages";
 import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { titles } from "../imports/server/userConstants";
 import { DynamicRatings } from "./DynamicRatings";
+import { titles } from "../imports/server/userConstants";
 import { Users } from "../imports/collections/users";
 import { Singular } from "./singular";
 
@@ -339,7 +339,8 @@ GameRequests.addLocalGameSeek = function(
     time: time,
     inc_or_delay: inc_or_delay,
     delaytype: inc_or_delay_type,
-    rated: rated
+    rated: rated,
+    matchingusers: self._id
   }).fetch();
 
   if (!!other_seeks.length) {
@@ -1096,16 +1097,16 @@ GameRequests.removeAllUserMatches = function(userId, loggedOff) {
   });
 };
 
-function logoutHook(userId) {
-  GameRequests.removeAllUserMatches(userId, true);
-  GameRequests.removeUserFromAllSeeks(userId);
-}
+Users.events.on("userLogin", function(fields) {
+  GameRequests.removeAllUserMatches(fields.userId, false);
+  GameRequests.removeUserFromAllSeeks(fields.userId);
+  GameRequests.updateAllUserSeeks("server", fields.userId);
+});
 
-function loginHook(user) {
-  GameRequests.removeAllUserMatches(user._id, false);
-  GameRequests.removeUserFromAllSeeks(user._id);
-  GameRequests.updateAllUserSeeks("server", user);
-}
+Users.events.on("userLogout", function(fields) {
+  GameRequests.removeAllUserMatches(fields.userId, true);
+  GameRequests.removeUserFromAllSeeks(fields.userId);
+});
 
 function groupChangeHook(message_identifier, userId) {
   check(message_identifier, String);
@@ -1118,14 +1119,10 @@ function groupChangeHook(message_identifier, userId) {
 
 if (Meteor.isTest || Meteor.isAppTest) {
   GameRequests.collection = GameRequestCollection;
-  GameRequests.loginHook = loginHook;
-  GameRequests.logoutHook = logoutHook;
   GameRequests.seekMatchesUser = seekMatchesUser;
 }
 
-Meteor.startup(function() {
-  Users.addLogoutHook(logoutHook);
-  Users.addLoginHook(loginHook);
+Meteor.startup(function() {;
   Users.addGroupChangeHook(groupChangeHook);
 });
 

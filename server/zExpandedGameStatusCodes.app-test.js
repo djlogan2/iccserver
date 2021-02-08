@@ -1,6 +1,7 @@
 import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Game } from "./Game";
+import { Users } from "../imports/collections/users";
 
 describe("Expanded game status codes", function() {
   this.timeout(10000);
@@ -151,7 +152,7 @@ describe("Expanded game status codes", function() {
   it("should record status2 of 4 when white disconnects and forfeits", function() {
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["a4","a5","b4","b5","c4","c5","d4","d5","e4","e5","f4","f5","g4","g5","h4"]);
-    Game.gameLogoutHook(result.p1._id);
+    Users.events.emit("userLogout", { userId: result.p1._id });
     const game = Game.collection.findOne({ _id: result.game_id });
     chai.assert.equal(game.status, "examining");
     chai.assert.equal(game.result, "0-1");
@@ -168,7 +169,7 @@ describe("Expanded game status codes", function() {
   it("should record status2 of 4 when black disconnects and forfeits", function() {
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["a4","a5","b4","b5","c4","c5","d4","d5","e4","e5","f4","f5","g4","g5","h4","h5"]);
-    Game.gameLogoutHook(result.p2._id);
+    Users.events.emit("userLogout", { userId: result.p2._id });
     const game = Game.collection.findOne({ _id: result.game_id });
     chai.assert.equal(game.status, "examining");
     chai.assert.equal(game.result, "1-0");

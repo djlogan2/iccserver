@@ -1,6 +1,7 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+import { Users } from "../imports/collections/users";
 //
 // create_date: [date saved],
 // chat_room
@@ -295,7 +296,7 @@ describe("Chats", function() {
 
   it("should not allow a user not in join_room role to be invited to a private room", function() {
     const firstguy = TestHelpers.createUser();
-    const otherguy = TestHelpers.createUser({roles: ["play_rated_games"]});
+    const otherguy = TestHelpers.createUser({ roles: ["play_rated_games"] });
 
     self.loggedonuser = firstguy;
     const private_room = Chat.createRoom("mi1", "My Room", true);
@@ -783,25 +784,25 @@ describe("Chats", function() {
     self.loggedonuser = user2;
     Chat.writeToUser("mi1", user1._id, "The text 2");
 
-    Chat.chatLogoutHook(user1._id);
+    Users.events.emit("userLogout", { userId: user1._id });
     const chats1 = Chat.collection.find().fetch();
     chai.assert.equal(chats1.length, 2);
     chai.assert.equal(1, chats1[0].logons);
     chai.assert.equal(1, chats1[1].logons);
 
-    Chat.chatLoginHook(user1);
+    Users.events.emit("userLogin", { connectionId: 1, userId: user1._id });
     const chats = Chat.collection.find().fetch();
     chai.assert.equal(chats.length, 2);
     chai.assert.equal(2, chats[0].logons);
     chai.assert.equal(2, chats[1].logons);
 
-    Chat.chatLogoutHook(user2._id);
+    Users.events.emit("userLogout", { userId: user2._id });
     const chats3 = Chat.collection.find().fetch();
     chai.assert.equal(chats3.length, 2);
     chai.assert.equal(1, chats1[0].logons);
     chai.assert.equal(1, chats1[1].logons);
 
-    Chat.chatLogoutHook(user1._id);
+    Users.events.emit("userLogout", { userId: user1._id });
     chai.assert.equal(Chat.collection.find().count(), 0);
   });
 

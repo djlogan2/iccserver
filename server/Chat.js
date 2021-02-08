@@ -201,6 +201,107 @@ class Chat {
         { find: personalChat }
       ]
     });
+
+    Users.events.on("userLogin", function(fields) {
+      self.collection.update(
+        {
+          $and: [
+            { type: "private" },
+            { logons: 1 },
+            { $or: [{ id: fields.userId }, { "issuer.id": fields.userId }] }
+          ]
+        },
+        { $set: { logons: 2 } },
+        { multi: true }
+      );
+    });
+
+    Users.events.on("userLogout", function(fields) {
+      //
+      // Remove the user as an invitee from all rooms he's been invited to,
+      // and inform their owners
+      //
+      self.roomCollection
+        .find({ "invited.id": fields.userId })
+        .fetch()
+        .forEach(room => {
+          const invitee = room.invited.find(invitee => invitee.id === fields.userId);
+          if (!invitee)
+            throw new Meteor.Error(
+              "Unable to remove invitee from room",
+              "Unable to find invitee in room list"
+            );
+          ClientMessages.sendMessageToClient(
+            room.owner,
+            invitee.message_identifier,
+            "USER_LOGGED_OFF"
+          );
+        });
+
+      self.roomCollection.update(
+        { "invited.id": fields.userId },
+        { $pull: { invited: { id: fields.userId } } },
+        { multi: true }
+      );
+
+      //
+      // Delete all private rooms for which this member was the last member to logoff
+      //
+      const private_rooms_to_delete = self.roomCollection
+        .find({ public: false, "members.id": fields.userId })
+        .fetch()
+        .filter(room => room.members.length === 1)
+        .map(room => room._id);
+
+      if (!!private_rooms_to_delete.length) {
+        self.collection.remove({ type: "room", id: { $in: private_rooms_to_delete } });
+        self.roomCollection.remove({ _id: { $in: private_rooms_to_delete } });
+      }
+
+      //
+      // Remove them as members from all rooms they are in
+      //
+      self.roomCollection.update(
+        { "members.id": fields.userId },
+        { $pull: { members: { id: fields.userId } } }
+      );
+
+      //
+      // Delete all private chats for which this member is the 2nd of the two
+      // members to logoff
+      //
+      self.collection.remove({
+        $and: [
+          { type: "private" },
+          { logons: 1 },
+          { $or: [{ "issuer.id": fields.userId }, { id: fields.userId }] }
+        ]
+      });
+
+      //
+      // Mark all private messages as only one user of the private chats
+      // still logged on
+      //
+      self.collection.update(
+        {
+          $and: [
+            { type: "private" },
+            { logons: 2 },
+            { $or: [{ id: fields.userId }, { "issuer.id": fields.userId }] }
+          ]
+        },
+        { $set: { logons: 1 } },
+        { multi: true }
+      );
+    });
+
+    Singular.addTask(() => {
+      Game.GameCollection.find({}).observeChanges({
+        removed(id) {
+          self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
+        }
+      });
+    });
   }
 
   kibitz(message_identifier, game_id, kibitz, txt) {
@@ -646,94 +747,6 @@ class Chat {
       issuer: { id: self._id, username: self.username }
     });
   }
-
-  chatLoginHook(user) {
-    log.debug("chatLoginHook", user._id);
-    this.collection.update(
-      {
-        $and: [
-          { type: "private" },
-          { logons: 1 },
-          { $or: [{ id: user._id }, { "issuer.id": user._id }] }
-        ]
-      },
-      { $set: { logons: 2 } },
-      { multi: true }
-    );
-  }
-
-  chatLogoutHook(userId) {
-    log.debug("chatLogoutHook", userId);
-    //
-    // Remove the user as an invitee from all rooms he's been invited to,
-    // and inform their owners
-    //
-    this.roomCollection
-      .find({ "invited.id": userId })
-      .fetch()
-      .forEach(room => {
-        const invitee = room.invited.find(invitee => invitee.id === userId);
-        if (!invitee)
-          throw new Meteor.Error(
-            "Unable to remove invitee from room",
-            "Unable to find invitee in room list"
-          );
-        ClientMessages.sendMessageToClient(
-          room.owner,
-          invitee.message_identifier,
-          "USER_LOGGED_OFF"
-        );
-      });
-
-    this.roomCollection.update(
-      { "invited.id": userId },
-      { $pull: { invited: { id: userId } } },
-      { multi: true }
-    );
-
-    //
-    // Delete all private rooms for which this member was the last member to logoff
-    //
-    const private_rooms_to_delete = this.roomCollection
-      .find({ public: false, "members.id": userId })
-      .fetch()
-      .filter(room => room.members.length === 1)
-      .map(room => room._id);
-
-    if (!!private_rooms_to_delete.length) {
-      this.collection.remove({ type: "room", id: { $in: private_rooms_to_delete } });
-      this.roomCollection.remove({ _id: { $in: private_rooms_to_delete } });
-    }
-
-    //
-    // Remove them as members from all rooms they are in
-    //
-    this.roomCollection.update({ "members.id": userId }, { $pull: { members: { id: userId } } });
-
-    //
-    // Delete all private chats for which this member is the 2nd of the two
-    // members to logoff
-    //
-    this.collection.remove({
-      $and: [{ type: "private" }, { logons: 1 }, { $or: [{ "issuer.id": userId }, { id: userId }] }]
-    });
-
-    //
-    // Mark all private messages as only one user of the private chats
-    // still logged on
-    //
-    this.collection.update(
-      {
-        $and: [
-          { type: "private" },
-          { logons: 2 },
-          { $or: [{ id: userId }, { "issuer.id": userId }] }
-        ]
-      },
-      { $set: { logons: 1 } },
-      { multi: true }
-    );
-  }
 }
 
 if (!global._chatObject) {
@@ -741,17 +754,6 @@ if (!global._chatObject) {
 }
 
 module.exports.Chat = global._chatObject;
-
-Users.addLogoutHook(user => global._chatObject.chatLogoutHook.call(global._chatObject, user));
-Users.addLoginHook(user => global._chatObject.chatLoginHook.call(global._chatObject, user));
-
-Singular.addTask(() => {
-  Game.GameCollection.find({}).observeChanges({
-    removed(id) {
-      global._chatObject.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
-    }
-  });
-});
 
 Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks

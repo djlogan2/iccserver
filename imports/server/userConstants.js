@@ -34,7 +34,8 @@ export const all_roles = [
   "create_tournament_template",
   "list_isolation_groups",
   "list_users",
-  "delete_users"
+  "delete_users",
+  "set_other_password"
 ];
 
 export const standard_member_roles = [
@@ -79,6 +80,7 @@ export const viewable_logged_on_user_fields = {
   "status.client": 1,
   "status.legacy": 1,
   "status.lastLogin.date": 1,
+  "status.lastActivity": 1,
   "status.idle": 1,
   cf: 1
 };

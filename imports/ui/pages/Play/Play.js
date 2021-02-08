@@ -29,6 +29,7 @@ import {
   minRating
 } from "../../../constants/gameConstants";
 
+const clientCollection = new Mongo.Collection("client_collection");
 const log = new Logger("client/Play_js");
 
 let handleError = error => {
@@ -83,7 +84,7 @@ class Play extends Component {
 
   _pieceSquareDragStop = raf => {
     const { inGame } = this.props;
-
+    log.debug("Making move " + raf.move + " in game " + inGame._id);
     Meteor.call("addGameMove", "gameMove", inGame._id, raf.move, handleError);
   };
 
@@ -319,6 +320,15 @@ class Play extends Component {
   };
 
   render() {
+    const test = clientCollection.findOne();
+    if (!test) {
+      Meteor.call("client_collection", { value: 1, static: "stuff" });
+      console.log("first time in");
+    } else {
+      Meteor.call("client_collection", { value: test.value + 1 });
+      console.log("Updating value to " + (test.value + 1));
+    }
+
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
     if (!isReady) {

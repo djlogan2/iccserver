@@ -8,6 +8,7 @@ import { i18n } from "./i18n";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 import { Match } from "meteor/check";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+import { Users } from "./users";
 
 describe("Client Messages", function() {
   beforeEach(function(done) {
@@ -90,7 +91,7 @@ describe("Client Messages", function() {
       // We don't really care what happens in here, we just need the collection to stop.
     });
      */
-    ClientMessages.logoutHook(user1._id);
+    Users.events.emit("userLogout", { userId: user1._id });
     chai.assert.equal(3, ClientMessages.collection.find().count());
   });
 

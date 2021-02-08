@@ -4,6 +4,7 @@ import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { Chat } from "./Chat";
+import { Users } from "../imports/collections/users";
 
 describe("Game owners", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -103,7 +104,7 @@ describe("Game owners", function() {
     Game.localAddObserver("mi2", game_id, observer._id);
     self.loggedonuser = owner;
     Game.setPrivate("mi3", game_id, true);
-    Game.gameLogoutHook(owner._id);
+    Users.events.emit("userLogout", { userId: owner._id });
     const game1 = Game.collection.findOne();
     chai.assert.isDefined(game1);
     chai.assert.isTrue(game1.private);
@@ -123,7 +124,7 @@ describe("Game owners", function() {
     Game.localAddObserver("mi2", game_id, observer._id);
     self.loggedonuser = owner;
     Game.setPrivate("mi3", game_id, true);
-    Game.gameLogoutHook(owner._id);
+    Users.events.emit("userLogout", { userId: owner._id });
     const game1 = Game.collection.findOne();
     chai.assert.isDefined(game1);
     chai.assert.isTrue(game1.private);
@@ -133,7 +134,7 @@ describe("Game owners", function() {
       game1.observers
     );
 
-    Game.gameLoginHook(owner);
+    Users.events.emit("userLogin", { connectionId: 1, userId: owner._id });
     const userRecord = Meteor.users.findOne({ _id: owner._id });
     chai.assert.isDefined(userRecord);
     chai.assert.equal(userRecord.status.game, "examining");
@@ -171,7 +172,8 @@ describe("Game owners", function() {
     self.loggedonuser = observer;
     Game.localAddObserver("mi2", game_id, observer._id);
     self.loggedonuser = owner;
-    Game.gameLogoutHook(owner._id);
+    Users.events.emit("userLogout", { userId: owner._id });
+    Users.events.emit("userLogout", { userId: owner._id });
     const game1 = Game.collection.findOne();
     chai.assert.isUndefined(game1);
   });
@@ -182,7 +184,7 @@ describe("Game owners", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     self.loggedonuser = owner;
     Game.setPrivate("mi3", game_id, true);
-    Game.gameLogoutHook(owner._id);
+    Users.events.emit("userLogout", { userId: owner._id });
     const game1 = Game.collection.findOne();
     chai.assert.isUndefined(game1);
   });

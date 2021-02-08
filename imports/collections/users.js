@@ -1,6 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check, Match } from "meteor/check";
+import { EventEmitter } from "events";
+
 import {
   all_roles,
   fields_viewable_by_account_owner,
@@ -19,12 +21,12 @@ const log = new Logger("server/users_js");
 
 export const Users = {};
 const LoggedOnUsers = new Mongo.Collection("loggedon_users");
+const LogonHistory = new Mongo.Collection("logon_history");
 const ConfigurationParametersByHost = new Mongo.Collection("host_configuration");
+const statusEvents = new EventEmitter();
 
 Meteor.publish(null, function() {
   if (!this.userId) return this.ready();
-
-  log.debug("User " + this.userId + " has arrived");
   return [
     Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner }),
     Meteor.roleAssignment.find({ "user._id": this.userId })
@@ -134,9 +136,6 @@ Users.addGroupChangeHook = function(func) {
     group_change_hooks.push(func);
   });
 };
-
-const loginHooks = [];
-const logoutHooks = [];
 
 Users.addUserToRoles = function(user, roles, options) {
   check(user, Match.OneOf(Object, String));
@@ -262,31 +261,93 @@ Users.deleteUser = function(message_identifier, userId) {
   Meteor.users.remove({ _id: userId });
 };
 
+Users.addRole = function(message_identifier, user, role, scope) {
+  check(message_identifier, String);
+  check(user, String);
+  check(role, String);
+  check(scope, Match.Maybe(String));
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "set_role_" + role, scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  const victim = Meteor.users.findOne({ _id: user });
+  if (!victim || (!!scope && victim.isolation_group !== scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  Users.addUserToRoles(user, role, scope);
+};
+
+Users.removeRole = function(message_identifier, user, role, scope) {
+  check(message_identifier, String);
+  check(user, String);
+  check(role, String);
+  check(scope, Match.Maybe(String));
+
+  const self = Meteor.user();
+  check(self, Object);
+
+  if (!Users.isAuthorized(self, "set_role_" + role, scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  const victim = Meteor.users.findOne({ _id: user });
+  if (!victim || (!!scope && victim.isolation_group !== scope)) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  Users.removeUserFromRoles(user, role, scope);
+};
+
+// TODO: This really should come out. Once we the mail server running, we need to simply
+//       allow users to send reset emails to users. Two disparate users should really never
+//       know the password to the same account.
+Users.setOtherPassword = function(message_identifier, user_id, new_password) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+  check(user_id, String);
+  check(new_password, String);
+
+  const victim = Meteor.users.findOne({ _id: user_id });
+  if (!victim) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  if (!Users.isAuthorized(self, "set_other_password")) {
+    if (
+      self.isolation_group !== victim.isolation_group ||
+      !Users.isAuthorized(self, "set_other_password", self.isolation_group)
+    ) {
+      Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+      return;
+    }
+  }
+
+  if (!new_password || !new_password.length) {
+    Users.sendClientMessage(self, message_identifier, "INVALID_PASSWORD");
+    return;
+  }
+
+  Accounts.setPassword(user_id, new_password);
+};
+
 Users.getConnectionFromUser = function(user_id) {
-  const lou = LoggedOnUsers.findOne({ uerid: user_id });
+  const lou = LoggedOnUsers.findOne({ user_id: user_id });
   if (!lou) return;
-  return lou.connection.id;
+  return lou.connection_id;
 };
 
-Users.addLoginHook = function(f) {
-  Meteor.startup(function() {
-    loginHooks.push(f);
-  });
-};
-
-Users.addLogoutHook = function(f) {
-  Meteor.startup(function() {
-    logoutHooks.push(f);
-  });
-};
-
-function runLoginHooks(context, user, connection) {
-  loginHooks.forEach(f => f.call(context, user, connection));
-}
-
-function runLogoutHooks(context, user) {
-  logoutHooks.forEach(f => f.call(context, user));
-}
+Users.events = statusEvents;
 
 Meteor.startup(function() {
   const users = Meteor.users
@@ -296,19 +357,12 @@ Meteor.startup(function() {
   Roles.createRole("room_chat", { unlessExists: true });
   Roles.createRole("personal_chat", { unlessExists: true });
   Roles.addUsersToRoles(users, ["kibitz", "room_chat", "personal_chat"]);
-  const loggedin_users = Meteor.users
-    .find({ "status.online": true }, { fields: { _id: 1 } })
-    .fetch()
-    .map(user => user._id);
-  LoggedOnUsers.remove({ userid: { $nin: loggedin_users } });
   Meteor.users.update(
     { isolation_group: { $exists: false } },
     { $set: { isolation_group: "public" }, $unset: { groups: 1, limit_to_group: 1 } }
   );
-  if (Meteor.isTest || Meteor.isAppTest) {
-    Users.runLoginHooks = runLoginHooks;
-    Users.ruLogoutHooks = runLogoutHooks;
-  } else {
+
+  if (!Meteor.isTest && !Meteor.isAppTest) {
     UserStatus.events.on("connectionLogin", fields => {
       log.debug(
         "connectionLogin userId=" +
@@ -322,28 +376,48 @@ Meteor.startup(function() {
           ", loginTime=" +
           fields.loginTime
       );
-      const user = Meteor.users.findOne({ _id: fields.userId });
-      runLoginHooks(this, user, fields.connectionId);
+
+      const loginCount = LoggedOnUsers.find({ user_id: fields.userId }).count();
+      LoggedOnUsers.insert({
+        user_id: fields.userId,
+        connection_id: fields.connectionId,
+        ip_address: fields.ipAddr,
+        logon_date: fields.loginTime,
+        userAgent: fields.userAgent
+      });
+      LogonHistory.insert({
+        user_id: fields.userId,
+        connection_id: fields.connectionId,
+        ip_address: fields.ipAddr,
+        logon_date: fields.loginTime,
+        userAgent: fields.userAgent
+      });
+
+      if (!loginCount) {
+        log.debug("Emitting userLogin for " + fields.userId);
+        statusEvents.emit("userLogin", { userId: fields.userId });
+      }
     });
+
     UserStatus.events.on("connectionLogout", fields => {
       log.debug(
-        "connectionLogout userId=" +
-          fields.userId +
-          ", connectionId=" +
-          fields.connectionId +
-          ", ipAddr=" +
-          fields.ipAddr +
-          ", userAgent=" +
-          fields.userAgent +
-          ", loginTime=" +
-          fields.loginTime
+        "connectionLogout userId=" + fields.userId + ", connectionId=" + fields.connectionId
       );
-      Meteor.users.update(
-        { _id: fields.userId },
-        { $set: { status: { game: "none", client: "none" } } }
+
+      LogonHistory.update(
+        { connection_id: fields.connectionId },
+        {
+          $set: { logoff_date: new Date() },
+          $unset: { connection_id: 1 }
+        }
       );
-      LoggedOnUsers.remove({ userid: fields.userId });
-      runLogoutHooks(this, fields.userId, fields.connectionId);
+
+      LoggedOnUsers.remove({ connection_id: fields.connectionId });
+
+      if (!LoggedOnUsers.find({ user_id: fields.userId }).count()) {
+        log.debug("Emitting userLogoug for " + fields.userId);
+        statusEvents.emit("userLogout", { userId: fields.userId });
+      }
     });
     // UserStatus.events.on("connectionIdle", fields => {
     //   log.debug(
@@ -366,7 +440,10 @@ Meteor.startup(function() {
     //   );
     // });
   }
-  all_roles.forEach(role => Roles.createRole(role, { unlessExists: true }));
+  all_roles.forEach(role => {
+    Roles.createRole(role, { unlessExists: true });
+    Roles.createRole("set_role_" + role, { unlessExists: true });
+  });
 });
 
 Accounts.validateLoginAttempt(function(params) {
@@ -427,40 +504,43 @@ Accounts.validateLoginAttempt(function(params) {
     throw new Meteor.Error("401", message);
   }
 
-  //
-  // If the user has already logged in, disallow subsequent logins.
-  //
-  const lou = LoggedOnUsers.findOne({ userid: params.user._id });
-  log.debug("validateLoginAttempt lou", lou);
+  if (params.type === "resume") {
+    const resumeToken = params?.methodArguments[0]?.resume;
+    if (resumeToken) {
+      const userId = params?.user?._id;
+      if (userId) {
+        // We need to compare the hash of the resume token since that is what is stored in DB
+        //@ts-ignore
+        const hash = Accounts._hashLoginToken(resumeToken);
+        const user = Meteor.users.findOne({ _id: userId });
 
-  // const resumeToken = params?.methodArguments[0]?.resume;
-  // const hash = Accounts._hashLoginToken(resumeToken || "");
-  //
-  if (!!lou) {
-    if (lou.connection.id !== params.connection.id) {
-      log.error(
-        "Duplicate login by " +
-          params.user.username +
-          "/" +
-          params.user._id +
-          " on connection " +
-          params.connection.id +
-          " when lou says are are already logged on to connection " +
-          lou.connection.id
-      );
-      const message = i18n.localizeMessage(params.user.locale || "en-us", "LOGIN_FAILED_DUP");
-      LoggedOnUsers.remove({ userid: params.user._id });
-      Meteor.users.update(
-        { _id: params.user._id },
-        { $set: { "services.resume.loginTokens": [] } }
-      );
-      throw new Meteor.Error("401", message);
+        // Check that user exists
+        if (user) {
+          // Only allow token reuse if user has the resume token in their stored resume tokens, and also that it is the only token
+          const tokenReuseAllowed =
+            user?.services?.resume?.loginTokens?.find(token => token.hashedToken === hash) &&
+            user?.services?.resume?.loginTokens?.length === 1;
+          // If token reuse is not allowed, we should remove all existing tokens to log out other clients
+          if (!tokenReuseAllowed) {
+            Meteor.users.update({ _id: userId }, { $set: { "services.resume.loginTokens": [] } });
+          }
+        }
+      }
     }
-  } else LoggedOnUsers.insert({ userid: params.user._id, connection: params.connection });
-  log.debug("validateLoginAttempt succeeded");
+  }
+  // If user is logging in with password, then we should just remove all existing resume tokens
+  else if (params.type === "password") {
+    const userId = params?.user?._id;
+    if (userId) {
+      Meteor.users.update({ _id: userId }, { $set: { "services.resume.loginTokens": [] } });
+    }
+  }
   return true;
 });
 
 Meteor.methods({
-  setClientStatus: Users.setClientStatus
+  setClientStatus: Users.setClientStatus,
+  setOtherPassword: Users.setOtherPassword,
+  addRole: Users.addRole,
+  removeRole: Users.removeRole
 });

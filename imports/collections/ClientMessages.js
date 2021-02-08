@@ -226,18 +226,16 @@ if (!global._clientMessages) {
 
 module.exports.ClientMessages = global._clientMessages;
 
-function logoutHook(userId) {
-  ClientMessagesCollection.remove({ to: userId });
-}
-
 Meteor.startup(function() {
   Object.keys(DefinedClientMessagesMap).forEach(i18n.addIfNotExists);
-  Users.addLogoutHook(logoutHook);
 
   if (Meteor.isTest || Meteor.isAppTest) {
     global._clientMessages.collection = ClientMessagesCollection;
-    global._clientMessages.logoutHook = logoutHook;
   }
+
+  Users.events.on("userLogout", function(fields) {
+    ClientMessagesCollection.remove({ to: fields.userId });
+  });
 });
 
 Meteor.publish("client_messages", function() {
@@ -259,4 +257,3 @@ Meteor.methods({
     ClientMessagesCollection.remove({ _id: id });
   }
 });
-
