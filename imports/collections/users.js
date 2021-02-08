@@ -2,6 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { Accounts } from "meteor/accounts-base";
 import { check, Match } from "meteor/check";
 import { EventEmitter } from "events";
+import { get } from "lodash";
 
 import {
   all_roles,
@@ -341,6 +342,32 @@ Users.setOtherPassword = function(message_identifier, user_id, new_password) {
   Accounts.setPassword(user_id, new_password);
 };
 
+Users.updateCurrentUsername = function(message_identifier, username) {
+  const self = Meteor.user();
+
+  check(self, Object);
+  check(message_identifier, String);
+  check(username, String);
+
+  Accounts.setUsername(self._id, username);
+};
+
+Users.updateCurrentEmail = function(message_identifier, email) {
+  const self = Meteor.user();
+
+  check(self, Object);
+  check(message_identifier, String);
+  check(email, String);
+
+  const currentEmail = get(self, "emails[0].address");
+
+  if (currentEmail) {
+    Accounts.removeEmail(self._id, get(self, "emails[0].address"));
+  }
+
+  Accounts.addEmail(self._id, email);
+};
+
 Users.getConnectionFromUser = function(user_id) {
   const lou = LoggedOnUsers.findOne({ user_id: user_id });
   if (!lou) return;
@@ -542,5 +569,7 @@ Meteor.methods({
   setClientStatus: Users.setClientStatus,
   setOtherPassword: Users.setOtherPassword,
   addRole: Users.addRole,
-  removeRole: Users.removeRole
+  removeRole: Users.removeRole,
+  updateCurrentUsername: Users.updateCurrentUsername,
+  updateCurrentEmail: Users.updateCurrentEmail
 });

@@ -8,6 +8,7 @@ import mongoClientInternationalization from "../imports/collections/clientIntern
 import mongoCss from "../imports/collections/css";
 import leftSideBarCss from "./defaultStyles/leftSideBarCss";
 import challengeNotificationCss from "./defaultStyles/challengeNotificationCss";
+import profileCss from "./defaultStyles/profileCss";
 
 const log = new Logger("server/migrations");
 
@@ -186,6 +187,22 @@ Meteor.startup(() => {
         { cssKey: "default" },
         { challengeNotificationCss: challengeNotificationCss }
       );
+    }
+  });
+
+  Migrations.add({
+    version: "0.3.2_1",
+    name: "Update client css for profile",
+    run: () => {
+      mongoCss.update({ cssKey: "default" }, { profileCss: profileCss });
+    }
+  });
+
+  Migrations.add({
+    version: "0.3.2_2",
+    name: "Update client i18n for en locales v 0.11",
+    run: () => {
+      mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
     }
   });
 

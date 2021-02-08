@@ -1,39 +1,84 @@
 import React, { Component } from "react";
-import { Button, Card, Input } from "antd";
+import { Button, Card, Input, notification } from "antd";
+import { compose } from "redux";
+
+import { translate } from "../../../HOCs/translate";
+import { EMAIL_PROPERTY, USERNAME_PROPERTY } from "../../../../constants/systemConstants";
+import injectSheet from "react-jss";
+import { dynamicUserProfileStyles } from "./dynamicUserProfileStyles";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
 
 class ProfileDetailsCard extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      username: "",
+      email: ""
+    };
+  }
+
+  handleInputChange = property => event => {
+    this.setState({ [property]: event.target.value });
+  };
+
+  updateUsernameAndEmail = () => {
+    const { translate } = this.props;
+    const { username, email } = this.state;
+
+    if (username) {
+      Meteor.call("updateCurrentUsername", "update_current_username", username, err => {
+        if (!err) {
+          notification.open({
+            message: translate("notifications.usernameChanged"),
+            description: null,
+            duration: 5
+          });
+        }
+      });
+    }
+
+    if (email) {
+      Meteor.call("updateCurrentEmail", "update_current_email", email, err => {
+        if (!err) {
+          notification.open({
+            message: translate("notifications.emailChanged"),
+            description: null,
+            duration: 5
+          });
+        }
+      });
+    }
+  };
+
   render() {
-    console.log(Meteor.user())
+    const { translate, classes } = this.props;
     const currentUser = Meteor.user();
+
     return (
-      <Card
-        title="Profile details"
-        style={{
-          position: "relative",
-          top: "2rem",
-          left: "2rem",
-          width: "calc(100% - 4rem)",
-          height: "48%"
-        }}
-      >
-        <div style={{ display: "flex" }}>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <img
-              src="images/avatar.png"
-              alt="logo"
-              style={{
-                width: "min(20vh, 20vw)",
-                height: "min(20vh, 20vw)",
-                borderRadius: "50%",
-                overflow: "hidden",
-                background: "grey"
-              }}
-            />
-            <Button type="primary">Upload new avatar</Button>
+      <Card title={translate("cardTitle")} className={classes.card} bodyStyle={{ height: " 100%" }}>
+        <div className={classes.mainDiv}>
+          <div className={classes.avatarChangeDiv}>
+            <img src="images/avatar.png" alt="logo" className={classes.avatar} />
+            <Button type="primary">{translate("uploadNewAvatar")}</Button>
           </div>
-          <div>
-            <Input placeholder="Username" defaultValue={currentUser.username} />
-            <Input placeholder="E-mail" defaultValue={currentUser.emails[0].address} />
+          <div className={classes.changeUsernameDiv}>
+            <div className={classes.formUsernameDiv}>
+              <Input
+                placeholder={translate("username")}
+                defaultValue={currentUser.username}
+                onChange={this.handleInputChange(USERNAME_PROPERTY)}
+              />
+              <Input
+                placeholder={translate("email")}
+                defaultValue={currentUser.emails[0].address}
+                onChange={this.handleInputChange(EMAIL_PROPERTY)}
+              />
+              <Button type="primary" onClick={this.updateUsernameAndEmail}>
+                {translate("update")}
+              </Button>
+            </div>
           </div>
         </div>
       </Card>
@@ -41,4 +86,12 @@ class ProfileDetailsCard extends Component {
   }
 }
 
-export default ProfileDetailsCard;
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne()
+    };
+  }),
+  translate("Profile.ProfileDetailsCard"),
+  injectSheet(dynamicUserProfileStyles)
+)(ProfileDetailsCard);
