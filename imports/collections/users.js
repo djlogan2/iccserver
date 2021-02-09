@@ -240,10 +240,9 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
     authorized = Users.isAuthorized(self, "list_users", self.isolation_group);
     if (!authorized) {
       Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
-      selector.isolation_group = self.isolation_group;
       return { userList: [], totalCount: 0 };
-    } else fields.isolation_group = 1;
-  }
+    } else selector.isolation_group = self.isolation_group;
+  } else fields.isolation_group = 1;
   if (!!searchString) {
     const escapedSearchString = new RegExp(
       searchString.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&"),
@@ -257,7 +256,9 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
   }
 
   return {
-    userlist: Meteor.users.find(selector, { skip: offset, limit: count, fields: fields }).fetch(),
+    userList: Meteor.users
+      .find(selector, { skip: offset, limit: count, fields: fields, sort: { username: 1 } })
+      .fetch(),
     totalCount: Meteor.users.find(selector).count()
   };
 };
