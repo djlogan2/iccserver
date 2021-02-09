@@ -1,4 +1,4 @@
-import { getProfileCss } from "../../../../utils/utils";
+export const getProfileCss = props => props?.css?.profileCss;
 
 export const dynamicUserProfileStyles = {
   card: props => getProfileCss(props)?.card,
