@@ -221,15 +221,28 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
   check(message_identifier, String);
   check(offset, Number);
   check(count, Number);
+
+  const fields = {
+    _id: 1,
+    board_css: 1,
+    createdAt: 1,
+    emails: 1,
+    locale: 1,
+    profile: 1,
+    ratings: 1,
+    settings: 1,
+    status: 1,
+    username: 1
+  };
   let selector = {};
   let authorized = Users.isAuthorized(self, "list_users");
   if (!authorized) {
     authorized = Users.isAuthorized(self, "list_users", self.isolation_group);
     if (!authorized) {
       Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+      selector.isolation_group = self.isolation_group;
       return [];
-    }
-    selector.isolation_group = self.isolation_group;
+    } else fields.isolation_group = 1;
   }
   if (!!searchString) {
     const escapedSearchString = new RegExp(
@@ -243,8 +256,10 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
     else selector = searchpart;
   }
 
-  const test = Meteor.users.find(selector, { skip: offset, limit: count }).fetch();
-  return test;
+  return {
+    userlist: Meteor.users.find(selector, { skip: offset, limit: count, fields: fields }).fetch(),
+    totalCount: Meteor.user.find(selector).count()
+  };
 };
 
 Users.deleteUser = function(message_identifier, userId) {
