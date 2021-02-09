@@ -365,6 +365,37 @@ Users.setOtherPassword = function(message_identifier, user_id, new_password) {
   Accounts.setPassword(user_id, new_password);
 };
 
+Users.setOtherUsername = function(message_identifier, user_id, new_username) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+  check(user_id, String);
+  check(new_username, String);
+
+  const victim = Meteor.users.findOne({ _id: user_id });
+  if (!victim) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  if (!Users.isAuthorized(self, "set_other_username")) {
+    if (
+      self.isolation_group !== victim.isolation_group ||
+      !Users.isAuthorized(self, "set_other_username", self.isolation_group)
+    ) {
+      Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+      return;
+    }
+  }
+
+  if (!new_username || !new_username.length) {
+    Users.sendClientMessage(self, message_identifier, "INVALID_USERNAME");
+    return;
+  }
+
+  Accounts.setUsername(user_id, new_username);
+};
+
 Users.updateCurrentUsername = function(message_identifier, username) {
   const self = Meteor.user();
 
@@ -605,6 +636,7 @@ Accounts.validateLoginAttempt(function(params) {
 Meteor.methods({
   setClientStatus: Users.setClientStatus,
   setOtherPassword: Users.setOtherPassword,
+  setOtherUsername: Users.setOtherUsername,
   addRole: Users.addRole,
   removeRole: Users.removeRole,
   updateCurrentUsername: Users.updateCurrentUsername,
