@@ -4,7 +4,7 @@ import { Users } from "../imports/collections/users";
 import { all_roles } from "../imports/server/userConstants";
 import { Roles } from "meteor/alanning:roles";
 
-describe.only("User management", function() {
+describe("User management", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   describe("listing isolation groups", function() {
     it("should work if user is in global list_isolation_groups role", function() {
