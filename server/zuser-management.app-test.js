@@ -266,6 +266,35 @@ describe("User management", function() {
     });
   });
 
+  describe("Changing a username", function() {
+    it("should be allowed by a user if he's changing his own username, and he is in the 'change_username' role", () => {
+      chai.assert.fail("do me");
+    });
+    it("should not be allowed by a user if he's changing his own username, and he is not in the 'change_username' role", () => {
+      chai.assert.fail("do me");
+    });
+    it("should not be allowed by a user to change another users username", () => {
+      chai.assert.fail("do me");
+    });
+    it("should return a client message if the username change fails", () => {
+      chai.assert.fail("do me");
+    });
+  });
+  describe("Changing a username", function() {
+    it("should be allowed by a user if he's changing his own email, and he is in the 'change_email' role", () => {
+      chai.assert.fail("do me");
+    });
+    it("should not be allowed by a user if he's changing his own email, and he is not in the 'change_email' role", () => {
+      chai.assert.fail("do me");
+    });
+    it("should not be allowed by a user to change another users email", () => {
+      chai.assert.fail("do me");
+    });
+    it("should return a client message if the email change fails, and the original email should still be in place", () => {
+      chai.assert.fail("do me");
+    });
+  });
+
   describe("deleting a user", function() {
     it("should succeed if user is in global delete_user role and isolation groups differ", function() {
       this.timeout(5000000);

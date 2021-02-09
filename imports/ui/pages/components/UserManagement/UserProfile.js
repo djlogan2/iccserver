@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 import AppWrapper from "../AppWrapper";
 import ProfileDetailsCard from "./ProfileDetailsCard";
-import SecurityTab from "./SecurityTab";
+import SecurityTab from "./SecurityCard";
 
 class UserProfile extends Component {
   render() {

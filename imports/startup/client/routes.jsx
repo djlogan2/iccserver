@@ -16,7 +16,8 @@ import {
   RESOURCE_EXAMINE,
   RESOURCE_HOME,
   RESOURCE_LOGIN,
-  RESOURCE_PLAY, RESOURCE_PROFILE,
+  RESOURCE_PLAY,
+  RESOURCE_PROFILE,
   RESOURCE_SIGN_UP
 } from "../../constants/resourceConstants";
 import NotFound from "../../ui/pages/NotFound/NotFound";

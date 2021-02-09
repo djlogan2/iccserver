@@ -13,13 +13,13 @@ import { mongoCss } from "../../../../api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicUserProfileStyles } from "./dynamicUserProfileStyles";
 
-class SecurityTab extends Component {
+class SecurityCard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      [CURRENT_PASSWORD_PROPERTY]: "",
+      [NEW_PASSWORD_PROPERTY]: "",
+      [CONFIRM_PASSWORD_PROPERTY]: "",
       error: null,
       disabled: false
     };
@@ -103,4 +103,4 @@ export default compose(
   }),
   translate("Profile.SecurityTab"),
   injectSheet(dynamicUserProfileStyles)
-)(SecurityTab);
+)(SecurityCard);

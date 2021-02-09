@@ -23,14 +23,14 @@ export default function firstRunCSS() {
   if (!mongoCss.find({ cssKey: "default" }).count()) {
     mongoCss.insert({
       cssKey: "default",
-      systemCss: systemCss,
-      userCss: userCss,
-      leftSideBarCss: leftSideBarCss,
-      menuLinksCss: menuLinksCss,
-      playNotificationsCss: playNotificationsCss,
-      primaryButtonCss: primaryButtonCss,
-      challengeNotificationCss: challengeNotificationCss,
-      profileCss: profileCss
+      systemCss,
+      userCss,
+      leftSideBarCss,
+      menuLinksCss,
+      playNotificationsCss,
+      primaryButtonCss,
+      challengeNotificationCss,
+      profileCss
     });
   }
 }

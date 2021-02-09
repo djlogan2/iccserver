@@ -23,7 +23,7 @@ class ProfileDetailsCard extends Component {
     this.setState({ [property]: event.target.value });
   };
 
-  updateUsernameAndEmail = () => {
+  handleUpdate = () => {
     const { translate } = this.props;
     const { username, email } = this.state;
 
@@ -39,7 +39,7 @@ class ProfileDetailsCard extends Component {
       });
     }
 
-    if (email) {
+    if (email && /^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_-]+).([a-zA-Z0-9_\-.]+)$/g.test(email)) {
       Meteor.call("updateCurrentEmail", "update_current_email", email, err => {
         if (!err) {
           notification.open({
@@ -75,7 +75,7 @@ class ProfileDetailsCard extends Component {
                 defaultValue={currentUser.emails[0].address}
                 onChange={this.handleInputChange(EMAIL_PROPERTY)}
               />
-              <Button type="primary" onClick={this.updateUsernameAndEmail}>
+              <Button type="primary" onClick={this.handleUpdate}>
                 {translate("update")}
               </Button>
             </div>

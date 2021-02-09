@@ -32,3 +32,5 @@ export const areArraysOfObectsEqual = (firstArray, secondArray) => {
     .differenceWith(secondArray, _.isEqual)
     .isEmpty();
 };
+
+export const getProfileCss = props => props?.css?.profileCss;
