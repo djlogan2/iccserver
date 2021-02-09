@@ -415,5 +415,32 @@ export const english = {
       send: "Send",
       yourMessage: "Your message"
     }
+  },
+  Profile: {
+    ProfileDetailsCard: {
+      cardTitle: "Profile details",
+      uploadNewAvatar: "Upload new avatar",
+      username: "Username",
+      email: "E-mail",
+      update: "Update",
+      notifications: {
+        usernameChanged: "Username was changed successfully",
+        emailChanged: "E-mail was changed successfully"
+      }
+    },
+    SecurityTab: {
+      cardTitle: "Security",
+      currentPassword: "Current password",
+      newPassword: "New password",
+      confirmPassword: "Confirm password",
+      updatePassword: "Update password",
+      norifications: {
+        passwordChanged: "Password was changed successfully"
+      },
+      validation: {
+        allValuesAreRequired: "All values are required",
+        passwordsNotTheSame: "New passwords are not the same"
+      }
+    }
   }
 };

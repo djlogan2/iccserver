@@ -68,6 +68,7 @@
     border-radius: .5rem;
     width: calc(100% - 2rem);
     margin-left: 1rem;
+    cursor: pointer;
 }
 
 .fliph .sidebar__user {

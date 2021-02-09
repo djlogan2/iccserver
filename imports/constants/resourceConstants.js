@@ -6,6 +6,7 @@ export const RESOURCE_UPLOAD_PGN = "/upload-pgn";
 export const RESOURCE_COMMUNITY = "/community";
 export const RESOURCE_PLAY = "/play";
 export const RESOURCE_EDITOR = "/editor";
+export const RESOURCE_PROFILE = "/profile";
 
 export const labelsToResources = {
   community: RESOURCE_COMMUNITY,
