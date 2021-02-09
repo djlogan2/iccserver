@@ -61,7 +61,7 @@ class ProfileDetailsCard extends Component {
         <div className={classes.mainDiv}>
           <div className={classes.avatarChangeDiv}>
             <img src="images/avatar.png" alt="logo" className={classes.avatar} />
-            <Button type="primary">{translate("uploadNewAvatar")}</Button>
+            <Button disabled type="primary">{translate("uploadNewAvatar")}</Button>
           </div>
           <div className={classes.changeUsernameDiv}>
             <div className={classes.formUsernameDiv}>
