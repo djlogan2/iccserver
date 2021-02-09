@@ -27,7 +27,15 @@ const ConfigurationParametersByHost = new Mongo.Collection("host_configuration")
 const statusEvents = new EventEmitter();
 
 Meteor.publish(null, function() {
-  if (!this.userId) return this.ready();
+  if (!this._session) return this.ready();
+
+  if (!this.userId) {
+    log.debug(
+      "trying logout for null user in publish for connection " + this._session.connectionHandle.id
+    );
+    Users.tryLogout(this._session.connectionHandle.id);
+    return this.ready();
+  }
   return [
     Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner }),
     Meteor.roleAssignment.find({ "user._id": this.userId })
