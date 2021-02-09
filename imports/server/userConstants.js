@@ -35,7 +35,10 @@ export const all_roles = [
   "list_isolation_groups",
   "list_users",
   "delete_users",
-  "set_other_password"
+  "set_other_password",
+  "set_other_username",
+  "change_username",
+  "change_email"
 ];
 
 export const standard_member_roles = [

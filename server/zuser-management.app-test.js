@@ -4,7 +4,7 @@ import { Users } from "../imports/collections/users";
 import { all_roles } from "../imports/server/userConstants";
 import { Roles } from "meteor/alanning:roles";
 
-describe("User management", function() {
+describe.only("User management", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   describe("listing isolation groups", function() {
     it("should work if user is in global list_isolation_groups role", function() {
@@ -57,7 +57,7 @@ describe("User management", function() {
 
       self.loggedonuser = admin;
       const users = Users.listUsers("mi1", 0, 50);
-      chai.assert.equal(users.length, 4);
+      chai.assert.equal(users.userlist.length, 4);
     });
 
     it("should fail if user is not in global list_users", function() {
@@ -74,8 +74,8 @@ describe("User management", function() {
       self.loggedonuser = isolation_group_peon;
       const users2 = Users.listUsers("mi2", 0, 50);
 
-      chai.assert.equal(users1.length, 0);
-      chai.assert.equal(users2.length, 0);
+      chai.assert.equal(users1.userlist.length, 0);
+      chai.assert.equal(users2.userlist.length, 0);
 
       chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
       chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
@@ -107,7 +107,7 @@ describe("User management", function() {
 
       self.loggedonuser = isolation_group_admin;
       const users = Users.listUsers("mi1", 0, 50);
-      chai.assert.equal(users.length, 2);
+      chai.assert.equal(users.userList.length, 2);
     });
 
     it("should fail if user is not in list_users", function() {
@@ -124,8 +124,8 @@ describe("User management", function() {
       self.loggedonuser = isolation_group_peon;
       const users2 = Users.listUsers("mi2", 0, 50);
 
-      chai.assert.equal(users1.length, 0);
-      chai.assert.equal(users2.length, 0);
+      chai.assert.equal(users1.userList.length, 0);
+      chai.assert.equal(users2.userList.length, 0);
 
       chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
       chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
@@ -168,10 +168,10 @@ describe("User management", function() {
       Users.addUserToRoles(isolation_group_admin, "list_users", "iso");
 
       self.loggedonuser = admin;
-      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pubu").length, 2);
-      chai.assert.equal(Users.listUsers("mi2", 0, 50, "xxx").length, 4);
-      chai.assert.equal(Users.listUsers("mi3", 0, 50, "isoe").length, 2);
-      chai.assert.equal(Users.listUsers("mi4", 0, 50, "yyy").length, 4);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pubu").userlist.length, 2);
+      chai.assert.equal(Users.listUsers("mi2", 0, 50, "xxx").userlist.length, 4);
+      chai.assert.equal(Users.listUsers("mi3", 0, 50, "isoe").userlist.length, 2);
+      chai.assert.equal(Users.listUsers("mi4", 0, 50, "yyy").userlist.length, 4);
     });
 
     it("should fail if user is not in global list_users", function() {
@@ -195,9 +195,9 @@ describe("User management", function() {
       Users.addUserToRoles(isolation_group_admin, "list_users", "iso");
 
       self.loggedonuser = peon;
-      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pub").length, 0);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pub").userlist.length, 0);
       self.loggedonuser = isolation_group_peon;
-      chai.assert.equal(Users.listUsers("mi2", 0, 50, "pub").length, 0);
+      chai.assert.equal(Users.listUsers("mi2", 0, 50, "pub").userlist.length, 0);
 
       chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
       chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
@@ -242,12 +242,12 @@ describe("User management", function() {
       Users.addUserToRoles(isolation_group_admin, "list_users", "iso");
 
       self.loggedonuser = isolation_group_admin;
-      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pubu").length, 0);
-      chai.assert.equal(Users.listUsers("mi1", 0, 50, "isou").length, 2);
-      chai.assert.equal(Users.listUsers("mi2", 0, 50, "xxx").length, 2);
-      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pube").length, 0);
-      chai.assert.equal(Users.listUsers("mi3", 0, 50, "isoe").length, 2);
-      chai.assert.equal(Users.listUsers("mi4", 0, 50, "yyy").length, 2);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pubu").userlist.length, 0);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "isou").userlist.length, 2);
+      chai.assert.equal(Users.listUsers("mi2", 0, 50, "xxx").userlist.length, 2);
+      chai.assert.equal(Users.listUsers("mi1", 0, 50, "pube").userlist.length, 0);
+      chai.assert.equal(Users.listUsers("mi3", 0, 50, "isoe").userlist.length, 2);
+      chai.assert.equal(Users.listUsers("mi4", 0, 50, "yyy").userlist.length, 2);
     });
     it("should fail if user is not in list_users", function() {
       // Tested above
@@ -458,7 +458,83 @@ describe("User management", function() {
         chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
       });
     });
-    describe.only("user roles", function() {
+    describe("setOtherUsername", function() {
+      it("should succeed if user is in set_other_username role AND both users are in the same isolation group", function() {
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_username");
+        Users.addUserToRoles(isolation_group_admin, "set_other_username", "iso");
+        self.loggedonuser = isolation_group_admin;
+        Users.setOtherUsername("mi1", isolation_group_peon._id, "newusername");
+        Users.setOtherUsername("mi2", isolation_group_admin._id, "newusername");
+        const peon2 = Meteor.users.findOne({ _id: isolation_group_peon._id });
+        const admin2 = Meteor.users.findOne({ _id: isolation_group_admin._id });
+        chai.assert.notEqual(isolation_group_peon.username, peon2.username);
+        chai.assert.notEqual(isolation_group_admin.username, admin2.username);
+      });
+      it("should succeed if user is in global set_other_username role and isolation groups differ", function() {
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_username");
+        Users.addUserToRoles(isolation_group_admin, "set_other_username", "iso");
+        self.loggedonuser = admin;
+        Users.setOtherUsername("mi1", peon._id, "newusername");
+        Users.setOtherUsername("mi1", isolation_group_peon._id, "newusername");
+        const peon2 = Meteor.users.findOne({ _id: peon._id });
+        const peon3 = Meteor.users.findOne({ _id: isolation_group_peon._id });
+        chai.assert.notEqual(peon.username, peon2.username);
+        chai.assert.notEqual(isolation_group_peon.username, peon3.username);
+      });
+      it("should fail if user is not in set_other_username role AND both users are in the same isolation group", function() {
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_username");
+        Users.addUserToRoles(isolation_group_admin, "set_other_username", "iso");
+        self.loggedonuser = peon;
+        Users.setOtherUsername("mi1", isolation_group_peon._id, "newusername");
+        const peon2 = Meteor.users.findOne({ _id: isolation_group_peon._id });
+        chai.assert.equal(isolation_group_peon.username, peon2.username);
+        chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+        chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
+      });
+
+      it("should fail if user is in set_other_username role and both users are NOT in the same isolation group", function() {
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_username");
+        Users.addUserToRoles(isolation_group_admin, "set_other_username", "iso");
+        self.loggedonuser = isolation_group_admin;
+        Users.setOtherUsername("mi1", peon._id, "newusername");
+        const peon2 = Meteor.users.findOne({ _id: peon._id });
+        chai.assert.equal(peon.username, peon2.username);
+        chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+        chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
+      });
+
+      it("should fail if user is not in global set_other_username role and isolation groups differ", function() {
+        const admin = TestHelpers.createUser();
+        const peon = TestHelpers.createUser();
+        const isolation_group_admin = TestHelpers.createUser({ isolation_group: "iso" });
+        const isolation_group_peon = TestHelpers.createUser({ isolation_group: "iso" });
+        Users.addUserToRoles(admin, "set_other_username");
+        Users.addUserToRoles(isolation_group_admin, "set_other_username", "iso");
+        self.loggedonuser = isolation_group_peon;
+        Users.setOtherUsername("mi1", peon._id, "newusername");
+        const peon2 = Meteor.users.findOne({ _id: peon._id });
+        chai.assert.equal(peon.username, peon2.username);
+        chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+        chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
+      });
+    });
+    describe.skip("user roles", function() {
       function xxx(admin, user, role, global, group) {
         self.loggedonuser = admin;
 
@@ -555,6 +631,64 @@ describe("User management", function() {
       });
       // set rating
       // reset rating
+    });
+  });
+
+  describe("Changing a username", function() {
+    it("should be allowed by a user if he's changing his own username, and he is in the 'change_username' role", () => {
+      self.loggedonuser = TestHelpers.createUser({ roles: ["change_username"] });
+      Users.updateCurrentUsername("mi1", "newusername");
+      const user1 = Meteor.users.findOne();
+      chai.assert.equal("newusername", user1.username);
+    });
+    it("should not be allowed by a user if he's changing his own username, and he is not in the 'change_username' role", () => {
+      self.loggedonuser = TestHelpers.createUser({});
+      Users.updateCurrentUsername("mi1", "newusername");
+      const user1 = Meteor.users.findOne();
+      chai.assert.equal(self.loggedonuser.username, user1.username);
+      chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
+    });
+    it("should return a client message if the username change fails", () => {
+      const firstguy = TestHelpers.createUser();
+      self.loggedonuser = TestHelpers.createUser();
+      Users.updateCurrentUsername("mi1", firstguy.username);
+      const user1 = Meteor.users.findOne({_id: self.loggedonuser._id});
+      chai.assert.equal(self.loggedonuser.username, user1.username);
+      chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_CHANGE_USERNAME");
+    });
+  });
+
+  describe("Changing an email", function() {
+    it("should be allowed by a user if he's changing his own email, and he is in the 'change_username' role", () => {
+      self.loggedonuser = TestHelpers.createUser({ roles: ["change_email"] });
+      Meteor.users.update({ _id: self.loggedonuser._id }, { $set: { "emails[0].verified": true } });
+      Users.updateCurrentEmail("mi1", "email@email.com");
+      const user1 = Meteor.users.findOne();
+      chai.assert.equal("email@email.com", user1.emails[0].address);
+      chai.assert.isFalse(user1.emails[0].verified);
+    });
+    it("should not be allowed by a user if he's changing his own email, and he is not in the 'change_username' role", () => {
+      self.loggedonuser = TestHelpers.createUser({});
+      Meteor.users.update({ _id: self.loggedonuser._id }, { $set: { "emails[0].verified": true } });
+      Users.updateCurrentEmail("mi1", "newusername");
+      const user1 = Meteor.users.findOne();
+      chai.assert.equal(self.loggedonuser.emails[0].address, user1.emails[0].address);
+      chai.assert.isTrue(user1.emails[0].verified);
+      chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
+    });
+    it("should return a client message if the email change fails", () => {
+      const firstguy = TestHelpers.createUser();
+      self.loggedonuser = TestHelpers.createUser({});
+      Meteor.users.update({ _id: self.loggedonuser._id }, { $set: { "emails[0].verified": true } });
+      Users.updateCurrentEmail("mi1", firstguy.emails[0].address);
+      const user1 = Meteor.users.findOne();
+      chai.assert.equal(self.loggedonuser.emails[0].address, user1.emails[0].address);
+      chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+      chai.assert.isTrue(user1.emails[0].verified);
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_CHANGE_EMAIL");
     });
   });
 });

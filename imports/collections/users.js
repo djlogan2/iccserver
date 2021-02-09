@@ -241,7 +241,7 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
     if (!authorized) {
       Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
       selector.isolation_group = self.isolation_group;
-      return [];
+      return { userList: [], totalCount: 0 };
     } else fields.isolation_group = 1;
   }
   if (!!searchString) {
@@ -258,7 +258,7 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
 
   return {
     userlist: Meteor.users.find(selector, { skip: offset, limit: count, fields: fields }).fetch(),
-    totalCount: Meteor.user.find(selector).count()
+    totalCount: Meteor.users.find(selector).count()
   };
 };
 
