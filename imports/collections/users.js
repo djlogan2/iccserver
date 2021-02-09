@@ -347,6 +347,28 @@ Users.getConnectionFromUser = function(user_id) {
   return lou.connection_id;
 };
 
+Users.tryLogout = function(connectionId) {
+  LogonHistory.update(
+    { connection_id: connectionId },
+    {
+      $set: { logoff_date: new Date() },
+      $unset: { connection_id: 1 }
+    },
+    { multi: true }
+  );
+
+  const lou = LoggedOnUsers.findOne({ connection_id: connectionId });
+
+  if (!!lou) {
+    LoggedOnUsers.remove({ _id: lou._id });
+
+    if (!LoggedOnUsers.find({ user_id: lou.user_id }).count()) {
+      log.debug("Emitting userLogout for " + lou.user_id);
+      statusEvents.emit("userLogout", { userId: lou.user_id });
+    }
+  }
+};
+
 Users.events = statusEvents;
 
 Meteor.startup(function() {
@@ -378,13 +400,19 @@ Meteor.startup(function() {
       );
 
       const loginCount = LoggedOnUsers.find({ user_id: fields.userId }).count();
-      LoggedOnUsers.insert({
-        user_id: fields.userId,
-        connection_id: fields.connectionId,
-        ip_address: fields.ipAddr,
-        logon_date: fields.loginTime,
-        userAgent: fields.userAgent
-      });
+      LoggedOnUsers.upsert(
+        {
+          user_id: fields.userId,
+          connection_id: fields.connectionId
+        },
+        {
+          $set: {
+            ip_address: fields.ipAddr,
+            logon_date: fields.loginTime,
+            userAgent: fields.userAgent
+          }
+        }
+      );
       LogonHistory.insert({
         user_id: fields.userId,
         connection_id: fields.connectionId,
@@ -403,21 +431,7 @@ Meteor.startup(function() {
       log.debug(
         "connectionLogout userId=" + fields.userId + ", connectionId=" + fields.connectionId
       );
-
-      LogonHistory.update(
-        { connection_id: fields.connectionId },
-        {
-          $set: { logoff_date: new Date() },
-          $unset: { connection_id: 1 }
-        }
-      );
-
-      LoggedOnUsers.remove({ connection_id: fields.connectionId });
-
-      if (!LoggedOnUsers.find({ user_id: fields.userId }).count()) {
-        log.debug("Emitting userLogoug for " + fields.userId);
-        statusEvents.emit("userLogout", { userId: fields.userId });
-      }
+      Users.tryLogout(fields.connectionId);
     });
     // UserStatus.events.on("connectionIdle", fields => {
     //   log.debug(
