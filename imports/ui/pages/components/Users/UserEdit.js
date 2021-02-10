@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import AppWrapper from "../AppWrapper";
 import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
-import Loading from "../Loading";
+import { Col, Space, Spin } from "antd";
 
 const log = new Logger("client/UserManagement_js");
 
@@ -28,7 +28,8 @@ class UserEdit extends Component {
           history.push(RESOURCE_USERS);
         }
 
-        this.setState({ user: results[0] });
+        console.log(results);
+        this.setState({ user: results.userList[0] });
       });
     }
   }
@@ -36,6 +37,7 @@ class UserEdit extends Component {
   render() {
     const { user } = this.state;
 
+    console.log(1234);
     return (
       <AppWrapper>
         {user ? (
@@ -52,7 +54,11 @@ class UserEdit extends Component {
             {JSON.stringify(user)}
           </div>
         ) : (
-          <Loading />
+          <Col span={24} className="loading__sidebar">
+            <Space size="middle">
+              <Spin size="large" />
+            </Space>
+          </Col>
         )}
       </AppWrapper>
     );
