@@ -7,12 +7,14 @@ export const RESOURCE_COMMUNITY = "/community";
 export const RESOURCE_PLAY = "/play";
 export const RESOURCE_EDITOR = "/editor";
 export const RESOURCE_PROFILE = "/profile";
+export const RESOURCE_USERS = "/users";
 
 export const labelsToResources = {
   community: RESOURCE_COMMUNITY,
   uploadpgn: RESOURCE_UPLOAD_PGN,
   play: RESOURCE_PLAY,
-  examine: RESOURCE_EXAMINE
+  examine: RESOURCE_EXAMINE,
+  users: RESOURCE_USERS
 };
 
 export const labelMyGame = "mygame";

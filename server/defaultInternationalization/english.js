@@ -102,7 +102,8 @@ export const english = {
       logout: "Logout",
       community: "Community",
       mygame: "My Games",
-      uploadpgn: "Imported PGNs"
+      uploadpgn: "Imported PGNs",
+      users: "Users"
     },
     MoveListComponent: {
       takeBack: "Take Back",
