@@ -240,7 +240,7 @@ Meteor.startup(function() {
   });
 });
 
-Meteor.publish("client_messages", function() {
+Meteor.publish(null, function() {
   return ClientMessagesCollection.find({ to: this.userId });
 });
 

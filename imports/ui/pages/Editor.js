@@ -260,7 +260,6 @@ class Editor extends Component {
 export default withTracker(() => {
   const subscriptions = {
     chats: Meteor.subscribe("chat"),
-    clientMessages: Meteor.subscribe("client_messages"),
     game: Meteor.subscribe("games"),
     importedGame: Meteor.subscribe("imported_games"),
     users: Meteor.subscribe("loggedOnUsers")

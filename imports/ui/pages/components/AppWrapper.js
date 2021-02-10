@@ -91,7 +91,6 @@ class AppWrapper extends Component {
 
 export default withTracker(() => {
   const subscriptions = {
-    userData: Meteor.subscribe("userData")
   };
 
   return {

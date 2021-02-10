@@ -344,7 +344,6 @@ export default withTracker(() => {
   const subscriptions = {
     chats: Meteor.subscribe("chat"),
     child_chat_texts: Meteor.subscribe("child_chat_texts"),
-    clientMessages: Meteor.subscribe("client_messages"),
     game: Meteor.subscribe("games"),
     importedGame: Meteor.subscribe("imported_games"),
     users: Meteor.subscribe("loggedOnUsers")
