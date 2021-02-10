@@ -404,7 +404,17 @@ Users.updateCurrentUsername = function(message_identifier, username) {
   check(message_identifier, String);
   check(username, String);
 
-  Accounts.setUsername(self._id, username);
+  if (!Users.isAuthorized(self, "change_username")) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  try {
+    Accounts.setUsername(self._id, username);
+  } catch (e) {
+    log.error("Unable to change username", e);
+    Users.sendClientMessage(self, message_identifier, "UNABLE_TO_CHANGE_USERNAME");
+  }
 };
 
 Users.updateCurrentEmail = function(message_identifier, email) {
@@ -414,13 +424,19 @@ Users.updateCurrentEmail = function(message_identifier, email) {
   check(message_identifier, String);
   check(email, String);
 
-  const currentEmail = get(self, "emails[0].address");
-
-  if (currentEmail) {
-    Accounts.removeEmail(self._id, get(self, "emails[0].address"));
+  if (!Users.isAuthorized(self, "change_email")) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
   }
 
-  Accounts.addEmail(self._id, email);
+  try {
+    const currentEmail = get(self, "emails[0].address");
+    Accounts.addEmail(self._id, email);
+    if (currentEmail) Accounts.removeEmail(self._id, currentEmail);
+  } catch (e) {
+    log.error("Unable to change email address", e);
+    Users.sendClientMessage(self, message_identifier, "UNABLE_TO_CHANGE_EMAIL");
+  }
 };
 
 Users.getConnectionFromUser = function(user_id) {

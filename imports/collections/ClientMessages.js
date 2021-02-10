@@ -148,7 +148,9 @@ const DefinedClientMessagesMap = {
   TOO_MANY_PRIVATE_ROOMS: {},
   INVALID_FEN: {},
   GAME_NOT_FOUND: {},
-  OVERLAPPING_RATING: { parameters: ["rating_type"] }
+  OVERLAPPING_RATING: { parameters: ["rating_type"] },
+  UNABLE_TO_CHANGE_USERNAME: {},
+  UNABLE_TO_CHANGE_EMAIL: {}
 };
 
 class ClientMessages {
