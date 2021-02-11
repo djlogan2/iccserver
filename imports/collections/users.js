@@ -26,6 +26,12 @@ const LogonHistory = new Mongo.Collection("logon_history");
 const ConfigurationParametersByHost = new Mongo.Collection("host_configuration");
 const statusEvents = new EventEmitter();
 
+Meteor.users.deny({
+  update() {
+    return true;
+  }
+});
+
 Meteor.publish(null, function() {
   if (!this._session) return this.ready();
 
