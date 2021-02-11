@@ -44,17 +44,27 @@ class MenuLinks extends Component {
   };
 
   getSidebar = linksArray => {
-    const { history, visible, translate, classes } = this.props;
+    const { history, visible, translate, classes, currentRoles } = this.props;
+    const availableRoutes = currentRoles.map(role => role?.role?._id);
 
     return (
       <ul className={classes.rowStyle}>
         {linksArray.map(link => {
           const isActive = _.get(history, "location.pathname") === `/${link.link}`;
 
-          return (
+          const suitableRoles = [];
+
+          if (!link.roles || !link.roles.length) {
+            suitableRoles.push("");
+          } else {
+            link.roles.forEach(role => {
+              if (availableRoutes.includes(role)) suitableRoles.push(role);
+            });
+          }
+
+          return !!suitableRoles.length ? (
             <li className={classNames(classes.menuLinkItem)} key={link.label}>
               <a
-                href="#"
                 className={classNames(
                   classes.menuItemText,
                   "menulink__item",
@@ -66,7 +76,7 @@ class MenuLinks extends Component {
                 {!visible && <span>{translate(link.label)}</span>}
               </a>
             </li>
-          );
+          ) : null;
         })}
       </ul>
     );
@@ -89,7 +99,8 @@ export default compose(
   translate("Common.menuLinkLabel"),
   withTracker(() => {
     return {
-      menuLinksCss: mongoCss.findOne()
+      menuLinksCss: mongoCss.findOne(),
+      currentRoles: Meteor.roleAssignment.find().fetch()
     };
   }),
   injectSheet(dynamicMenuLinksStyles)

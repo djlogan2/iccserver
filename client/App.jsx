@@ -13,7 +13,7 @@ import { getLang, isReadySubscriptions, updateLocale } from "../imports/utils/ut
 
 class App extends React.Component {
   render() {
-    const { isReady, classes, i18nTranslate } = this.props;
+    const { isReady, classes, i18nTranslate, currentRoles } = this.props;
 
     if (i18nTranslate) {
       i18n.addTranslations(updateLocale(i18nTranslate.locale), i18nTranslate.i18n);
@@ -23,8 +23,10 @@ class App extends React.Component {
       });
     }
 
+    const availableRoutes = currentRoles.map(role => role?.role?._id);
+
     return isReady ? (
-      <Routes />
+      <Routes currentRoles={availableRoutes} />
     ) : (
       <Col span={24} className={classes.loadingSidebar}>
         <Space size="middle">
@@ -49,7 +51,8 @@ export default compose(
     return {
       isReady: isReadySubscriptions(subscriptions),
       i18nTranslate: ClientInternationalizationCollection.findOne(),
-      cssStyles: mongoCss.find().fetch()
+      cssStyles: mongoCss.find().fetch(),
+      currentRoles: Meteor.roleAssignment.find().fetch()
     };
   }),
   injectSheet(defaultAppStyles)

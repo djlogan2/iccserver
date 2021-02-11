@@ -102,7 +102,8 @@ export const english = {
       logout: "Logout",
       community: "Community",
       mygame: "My Games",
-      uploadpgn: "Imported PGNs"
+      uploadpgn: "Imported PGNs",
+      users: "Users"
     },
     MoveListComponent: {
       takeBack: "Take Back",
@@ -440,6 +441,35 @@ export const english = {
       validation: {
         allValuesAreRequired: "All values are required",
         passwordsNotTheSame: "New passwords are not the same"
+      }
+    }
+  },
+  Users: {
+    list: {
+      userInfo: "User info",
+      username: "Username",
+      email: "E-mail",
+      locale: "Locale",
+      ratings: "Ratings",
+      blitz: "Blitz",
+      bullet: "Bullet",
+      standard: "Standard",
+      statuses: "Statuses",
+      online: "Online",
+      game: "Game",
+      actions: "Actions",
+      edit: "Edit"
+    },
+    edit: {
+      details: {
+        cardTitle: "Details",
+        username: "Username",
+        update: "Update"
+      },
+      security: {
+        cardTitle: "Security",
+        newPassword: "New password",
+        update: "Update password"
       }
     }
   }

@@ -10,6 +10,7 @@ import { DEFAULT_CSS_KEY } from "../../constants/systemConstants";
 import primaryButtonCss from "../../../server/defaultStyles/primaryButtonCss";
 import challengeNotificationCss from "../../../server/defaultStyles/challengeNotificationCss";
 import profileCss from "../../../server/defaultStyles/profileCss";
+import userManagementCss from "../../../server/defaultStyles/userManagementCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -30,7 +31,8 @@ export default function firstRunCSS() {
       playNotificationsCss,
       primaryButtonCss,
       challengeNotificationCss,
-      profileCss
+      profileCss,
+      userManagementCss
     });
   }
 }

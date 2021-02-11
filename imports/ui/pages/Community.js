@@ -151,7 +151,7 @@ class Community extends Component {
   }
 }
 
-const CommunityWithTracker = withTracker(() => {
+export default withTracker(() => {
   const subscriptions = {
     chat: Meteor.subscribe("chat")
   };
@@ -162,5 +162,3 @@ const CommunityWithTracker = withTracker(() => {
     notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch()
   };
 })(Community);
-
-export default CommunityWithTracker;
