@@ -11,9 +11,9 @@ export const renderOnline = (text, record) =>
 
 export const renderButtonEdit = history => (text, record) => (
   <Button
+    style={{ backgroundColor: "#4F4F4F", color: "#FFFFFF" }}
     icon={<EditOutlined />}
     onClick={() => history.push(`${RESOURCE_USERS}/${record.username}`)}
-    type="primary"
   >
     Edit
   </Button>

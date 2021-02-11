@@ -6,6 +6,8 @@ import AppWrapper from "../AppWrapper";
 import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 import { Col, Space, Spin } from "antd";
+import DetailsCard from "./DetailsCard";
+import SecurityCard from "./SecurityCard";
 
 const log = new Logger("client/UserManagement_js");
 
@@ -28,7 +30,6 @@ class UserEdit extends Component {
           history.push(RESOURCE_USERS);
         }
 
-        console.log(results);
         this.setState({ user: results.userList[0] });
       });
     }
@@ -37,7 +38,6 @@ class UserEdit extends Component {
   render() {
     const { user } = this.state;
 
-    console.log(1234);
     return (
       <AppWrapper>
         {user ? (
@@ -48,10 +48,13 @@ class UserEdit extends Component {
               width: "calc(100% - 4rem)",
               height: "calc(100% - 4rem",
               borderRadius: "10px",
-              border: "1px #EDEDED solid"
+              border: "1px #EDEDED solid",
+              display: "flex",
+              flexDirection: "column"
             }}
           >
-            {JSON.stringify(user)}
+            <DetailsCard currentUser={user} />
+            <SecurityCard currentUser={user} />
           </div>
         ) : (
           <Col span={24} className="loading__sidebar">
