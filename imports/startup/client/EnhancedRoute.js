@@ -1,9 +1,14 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
+import { ROLE_DEVELOPER } from "../../constants/systemConstants";
 
 const EnhancedRoute = ({ availableRoles, roles, path, component, ...rest }) => {
   const suitableRoles = [];
+
+  if (availableRoles.includes(ROLE_DEVELOPER)) {
+    suitableRoles.push(ROLE_DEVELOPER);
+  }
 
   if (roles && roles.length) {
     roles.forEach(role => {

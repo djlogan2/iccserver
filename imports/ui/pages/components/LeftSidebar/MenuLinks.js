@@ -18,6 +18,7 @@ import classNames from "classnames";
 import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
 
 import "./MenuLinks.css";
+import { ROLE_DEVELOPER } from "../../../../constants/systemConstants";
 
 class MenuLinks extends Component {
   logout = () => {
@@ -53,6 +54,10 @@ class MenuLinks extends Component {
           const isActive = _.get(history, "location.pathname") === `/${link.link}`;
 
           const suitableRoles = [];
+
+          if (availableRoutes.includes(ROLE_DEVELOPER)) {
+            suitableRoles.push(ROLE_DEVELOPER);
+          }
 
           if (!link.roles || !link.roles.length) {
             suitableRoles.push("");
