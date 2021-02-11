@@ -16,6 +16,7 @@ import injectSheet from "react-jss";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../api/client/collections";
 import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
+import { ROLE_LIST_USERS } from "../../../../constants/systemConstants";
 
 const { Column, ColumnGroup } = Table;
 
@@ -41,8 +42,16 @@ class UsersList extends Component {
   };
 
   render() {
-    const { history, translate, classes } = this.props;
+    const { history, translate, classes, roles } = this.props;
     const { usersList } = this.state;
+
+    const scope = roles.find(element => {
+      if (element?.role?.id === ROLE_LIST_USERS) {
+        return !!element.scope ? element.scope : null;
+      }
+
+      return false;
+    });
 
     return (
       <AppWrapper>
@@ -52,6 +61,13 @@ class UsersList extends Component {
               <Column title={translate("userInfo")} dataIndex="username" key="username" />
               <Column title={translate("email")} render={renderEmail} key="email" />
               <Column title={translate("locale")} dataIndex="locale" key="locale" />
+              {!scope && (
+                <Column
+                  title={translate("isolationGroup")}
+                  dataIndex="isolation_group"
+                  key="isolation_group"
+                />
+              )}
             </ColumnGroup>
             <ColumnGroup title={translate("ratings")}>
               <Column title={translate("blitz")} key="blitz" render={renderRating("blitz")} />
@@ -79,7 +95,8 @@ class UsersList extends Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
+      roles: Meteor.roleAssignment.find().fetch()
     };
   }),
   withRouter,

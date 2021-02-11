@@ -8,3 +8,4 @@ export const NEW_PASSWORD_PROPERTY = "newPassword";
 export const CONFIRM_PASSWORD_PROPERTY = "confirmPassword";
 
 export const ROLE_DEVELOPER = "developer";
+export const ROLE_LIST_USERS = "list_users";

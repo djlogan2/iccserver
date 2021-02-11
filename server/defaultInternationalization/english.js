@@ -450,6 +450,7 @@ export const english = {
       username: "Username",
       email: "E-mail",
       locale: "Locale",
+      isolationGroup: "Isolation group",
       ratings: "Ratings",
       blitz: "Blitz",
       bullet: "Bullet",

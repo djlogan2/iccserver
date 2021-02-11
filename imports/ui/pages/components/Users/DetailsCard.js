@@ -37,7 +37,7 @@ class DetailsCard extends Component {
   };
 
   render() {
-    const { currentUser, translate, classes } = this.props;
+    const { currentUser, translate, classes, scope } = this.props;
 
     return (
       <Card

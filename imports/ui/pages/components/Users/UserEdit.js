@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 
 import AppWrapper from "../AppWrapper";
 import { Logger } from "../../../../../lib/client/Logger";
@@ -8,6 +9,9 @@ import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 import { Col, Space, Spin } from "antd";
 import DetailsCard from "./DetailsCard";
 import SecurityCard from "./SecurityCard";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
+import { ROLE_LIST_USERS } from "../../../../constants/systemConstants";
 
 const log = new Logger("client/UserManagement_js");
 
@@ -36,7 +40,16 @@ class UserEdit extends Component {
   }
 
   render() {
+    const { roles } = this.props;
     const { user } = this.state;
+
+    const scope = roles.find(element => {
+      if (element?.role?.id === ROLE_LIST_USERS) {
+        return !!element.scope ? element.scope : null;
+      }
+
+      return false;
+    });
 
     return (
       <AppWrapper>
@@ -53,7 +66,7 @@ class UserEdit extends Component {
               flexDirection: "column"
             }}
           >
-            <DetailsCard currentUser={user} />
+            <DetailsCard scope={scope} currentUser={user} />
             <SecurityCard currentUser={user} />
           </div>
         ) : (
@@ -68,4 +81,11 @@ class UserEdit extends Component {
   }
 }
 
-export default withRouter(UserEdit);
+export default compose(
+  withTracker(() => {
+    return {
+      roles: Meteor.roleAssignment.find().fetch()
+    };
+  }),
+  withRouter
+)(UserEdit);
