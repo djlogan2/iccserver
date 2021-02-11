@@ -3,6 +3,7 @@ import { Button, Card, Input } from "antd";
 import { Meteor } from "meteor/meteor";
 
 import { NEW_PASSWORD_PROPERTY } from "../../../../constants/systemConstants";
+import { translate } from "../../../HOCs/translate";
 
 class SecurityCard extends Component {
   constructor(props) {
@@ -27,6 +28,8 @@ class SecurityCard extends Component {
   };
 
   render() {
+    const { translate } = this.props;
+
     return (
       <Card
         style={{
@@ -36,7 +39,7 @@ class SecurityCard extends Component {
           marginLeft: "2rem"
         }}
         bodyStyle={{ height: "100%" }}
-        title="Security"
+        title={translate("cardTitle")}
       >
         <div
           style={{
@@ -50,10 +53,10 @@ class SecurityCard extends Component {
         >
           <Input.Password
             onChange={this.handleChange(NEW_PASSWORD_PROPERTY)}
-            placeholder="New password"
+            placeholder={translate("newPassword")}
           />
           <Button type="primary" onClick={this.handleClick}>
-            Update password
+            {translate("update")}
           </Button>
         </div>
       </Card>
@@ -61,4 +64,4 @@ class SecurityCard extends Component {
   }
 }
 
-export default SecurityCard;
+export default translate("Users.edit.security")(SecurityCard);

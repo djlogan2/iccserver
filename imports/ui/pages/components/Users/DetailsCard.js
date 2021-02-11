@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import { Button, Card, Input } from "antd";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 
+import { translate } from "../../../HOCs/translate";
 import { USERNAME_PROPERTY } from "../../../../constants/systemConstants";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 
@@ -31,7 +33,7 @@ class DetailsCard extends Component {
   };
 
   render() {
-    const { currentUser } = this.props;
+    const { currentUser, translate } = this.props;
 
     return (
       <Card
@@ -42,7 +44,7 @@ class DetailsCard extends Component {
           marginLeft: "2rem"
         }}
         bodyStyle={{ height: "100%" }}
-        title="Details"
+        title={translate("cardTitle")}
       >
         <div
           style={{
@@ -55,12 +57,12 @@ class DetailsCard extends Component {
           }}
         >
           <Input
-            placeholder="Username"
+            placeholder={translate("username")}
             onChange={this.handleChange(USERNAME_PROPERTY)}
             defaultValue={currentUser.username}
           />
           <Button type="primary" onClick={this.handleClick}>
-            Update
+            {translate("update")}
           </Button>
         </div>
       </Card>
@@ -68,4 +70,7 @@ class DetailsCard extends Component {
   }
 }
 
-export default withRouter(DetailsCard);
+export default compose(
+  withRouter,
+  translate("Users.edit.details")
+)(DetailsCard);

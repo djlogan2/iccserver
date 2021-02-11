@@ -443,5 +443,34 @@ export const english = {
         passwordsNotTheSame: "New passwords are not the same"
       }
     }
+  },
+  Users: {
+    list: {
+      userInfo: "User info",
+      username: "Username",
+      email: "E-mail",
+      locale: "Locale",
+      ratings: "Ratings",
+      blitz: "Blitz",
+      bullet: "Bullet",
+      standard: "Standard",
+      statuses: "Statuses",
+      online: "Online",
+      game: "Game",
+      actions: "Actions",
+      edit: "Edit"
+    },
+    edit: {
+      details: {
+        cardTitle: "Details",
+        username: "Username",
+        update: "Update"
+      },
+      security: {
+        cardTitle: "Security",
+        newPassword: "New password",
+        update: "Update password"
+      }
+    }
   }
 };

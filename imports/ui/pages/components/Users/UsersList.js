@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "antd";
 import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 
 import AppWrapper from "../AppWrapper";
 import {
@@ -10,6 +11,7 @@ import {
   renderButtonEdit,
   renderEmail
 } from "./renderListUtils";
+import { translate } from "../../../HOCs/translate";
 
 const { Column, ColumnGroup } = Table;
 
@@ -35,7 +37,7 @@ class UsersList extends Component {
   };
 
   render() {
-    const { history } = this.props;
+    const { history, translate } = this.props;
     const { usersList } = this.state;
 
     return (
@@ -51,22 +53,26 @@ class UsersList extends Component {
           }}
         >
           <Table dataSource={usersList} style={{ width: "100%", height: "100%" }}>
-            <ColumnGroup title="User info">
-              <Column title="Username" dataIndex="username" key="username" />
-              <Column title="E-mail" render={renderEmail} key="email" />
-              <Column title="Locale" dataIndex="locale" key="locale" />
+            <ColumnGroup title={translate("userInfo")}>
+              <Column title={translate("userInfo")} dataIndex="username" key="username" />
+              <Column title={translate("email")} render={renderEmail} key="email" />
+              <Column title={translate("locale")} dataIndex="locale" key="locale" />
             </ColumnGroup>
-            <ColumnGroup title="Ratings">
-              <Column title="Blitz" key="blitz" render={renderRating("blitz")} />
-              <Column title="Bullet" key="bullet" render={renderRating("bullet")} />
-              <Column title="Standard" key="standard" render={renderRating("standard")} />
+            <ColumnGroup title={translate("ratings")}>
+              <Column title={translate("blitz")} key="blitz" render={renderRating("blitz")} />
+              <Column title={translate("bullet")} key="bullet" render={renderRating("bullet")} />
+              <Column
+                title={translate("standard")}
+                key="standard"
+                render={renderRating("standard")}
+              />
             </ColumnGroup>
-            <ColumnGroup title="Statuses">
-              <Column title="Online" render={renderOnline} />
-              <Column title="Game" render={renderStatus("game")} />
+            <ColumnGroup title={translate("statuses")}>
+              <Column title={translate("online")} render={renderOnline} />
+              <Column title={translate("game")} render={renderStatus("game")} />
             </ColumnGroup>
-            <ColumnGroup title="Actions">
-              <Column key="edit" render={renderButtonEdit(history)} />
+            <ColumnGroup title={translate("actions")}>
+              <Column key="edit" render={renderButtonEdit(history, translate)} />
             </ColumnGroup>
           </Table>
         </div>
@@ -75,4 +81,7 @@ class UsersList extends Component {
   }
 }
 
-export default withRouter(UsersList);
+export default compose(
+  withRouter,
+  translate("Users.list")
+)(UsersList);
