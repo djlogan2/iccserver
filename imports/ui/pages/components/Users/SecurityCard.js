@@ -1,9 +1,14 @@
 import React, { Component } from "react";
 import { Button, Card, Input } from "antd";
 import { Meteor } from "meteor/meteor";
+import { compose } from "redux";
 
 import { NEW_PASSWORD_PROPERTY } from "../../../../constants/systemConstants";
 import { translate } from "../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
 
 class SecurityCard extends Component {
   constructor(props) {
@@ -28,29 +33,15 @@ class SecurityCard extends Component {
   };
 
   render() {
-    const { translate } = this.props;
+    const { translate, classes } = this.props;
 
     return (
       <Card
-        style={{
-          width: "calc(100% - 4rem)",
-          height: "calc(50% - 4rem)",
-          marginTop: "2rem",
-          marginLeft: "2rem"
-        }}
+        className={classes.editCard}
         bodyStyle={{ height: "100%" }}
         title={translate("cardTitle")}
       >
-        <div
-          style={{
-            width: "50%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "space-around"
-          }}
-        >
+        <div className={classes.editMainCardDiv}>
           <Input.Password
             onChange={this.handleChange(NEW_PASSWORD_PROPERTY)}
             placeholder={translate("newPassword")}
@@ -64,4 +55,12 @@ class SecurityCard extends Component {
   }
 }
 
-export default translate("Users.edit.security")(SecurityCard);
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne()
+    };
+  }),
+  translate("Users.edit.security"),
+  injectSheet(dynamicUserManagementStyles)
+)(SecurityCard);

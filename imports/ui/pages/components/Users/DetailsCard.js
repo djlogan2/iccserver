@@ -7,6 +7,10 @@ import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 import { USERNAME_PROPERTY } from "../../../../constants/systemConstants";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
 
 class DetailsCard extends Component {
   constructor(props) {
@@ -33,29 +37,15 @@ class DetailsCard extends Component {
   };
 
   render() {
-    const { currentUser, translate } = this.props;
+    const { currentUser, translate, classes } = this.props;
 
     return (
       <Card
-        style={{
-          width: "calc(100% - 4rem)",
-          height: "calc(50% - 4rem)",
-          marginTop: "2rem",
-          marginLeft: "2rem"
-        }}
+        className={classes.editCard}
         bodyStyle={{ height: "100%" }}
         title={translate("cardTitle")}
       >
-        <div
-          style={{
-            width: "50%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "space-around"
-          }}
-        >
+        <div className={classes.editMainCardDiv}>
           <Input
             placeholder={translate("username")}
             onChange={this.handleChange(USERNAME_PROPERTY)}
@@ -71,6 +61,12 @@ class DetailsCard extends Component {
 }
 
 export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne()
+    };
+  }),
   withRouter,
-  translate("Users.edit.details")
+  translate("Users.edit.details"),
+  injectSheet(dynamicUserManagementStyles)
 )(DetailsCard);

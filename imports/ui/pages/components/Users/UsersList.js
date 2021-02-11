@@ -12,6 +12,10 @@ import {
   renderEmail
 } from "./renderListUtils";
 import { translate } from "../../../HOCs/translate";
+import injectSheet from "react-jss";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
+import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
 
 const { Column, ColumnGroup } = Table;
 
@@ -37,22 +41,13 @@ class UsersList extends Component {
   };
 
   render() {
-    const { history, translate } = this.props;
+    const { history, translate, classes } = this.props;
     const { usersList } = this.state;
 
     return (
       <AppWrapper>
-        <div
-          style={{
-            marginTop: "2rem",
-            marginLeft: "2rem",
-            width: "calc(100% - 4rem)",
-            height: "calc(100% - 4rem)",
-            borderRadius: "10px",
-            border: "1px #EDEDED solid"
-          }}
-        >
-          <Table dataSource={usersList} style={{ width: "100%", height: "100%" }}>
+        <div className={classes.listMainDiv}>
+          <Table dataSource={usersList} className={classes.listTable}>
             <ColumnGroup title={translate("userInfo")}>
               <Column title={translate("userInfo")} dataIndex="username" key="username" />
               <Column title={translate("email")} render={renderEmail} key="email" />
@@ -82,6 +77,12 @@ class UsersList extends Component {
 }
 
 export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne()
+    };
+  }),
   withRouter,
-  translate("Users.list")
+  translate("Users.list"),
+  injectSheet(dynamicUserManagementStyles)
 )(UsersList);
