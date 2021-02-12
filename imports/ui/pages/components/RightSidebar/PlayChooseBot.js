@@ -12,7 +12,7 @@ class PlayChooseBot extends Component {
       difficulty: 5,
       color: "random",
       incrementOrDelayType: "inc",
-      initial: 7,
+      initial: 15,
       incrementOrDelay: 0,
       ratingType: "none"
     };
