@@ -17,6 +17,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../api/client/collections";
 import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
 import { ROLE_LIST_USERS } from "../../../../constants/systemConstants";
+import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 
 const { Column, ColumnGroup } = Table;
 
@@ -41,6 +42,11 @@ class UsersList extends Component {
     });
   };
 
+  handleRowClick = row => {
+    const { history } = this.props;
+    history.push(`${RESOURCE_USERS}/${row.username}`);
+  };
+
   render() {
     const { history, translate, classes, roles } = this.props;
     const { usersList } = this.state;
@@ -56,7 +62,15 @@ class UsersList extends Component {
     return (
       <AppWrapper>
         <div className={classes.listMainDiv}>
-          <Table dataSource={usersList} className={classes.listTable}>
+          <Table
+            dataSource={usersList}
+            className={classes.listTable}
+            onRow={row => ({
+              onClick: () => {
+                this.handleRowClick(row);
+              }
+            })}
+          >
             <ColumnGroup title={translate("userInfo")}>
               <Column title={translate("userInfo")} dataIndex="username" key="username" />
               <Column title={translate("email")} render={renderEmail} key="email" />
