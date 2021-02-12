@@ -470,7 +470,12 @@ export const english = {
       security: {
         cardTitle: "Security",
         newPassword: "New password",
-        update: "Update password"
+        confirmPassword: "Confirm password",
+        update: "Update password",
+        errors: {
+          allValuesAreRequired: "All values are required",
+          passwordsNotTheSame: "New passwords are not the same"
+        }
       }
     }
   }

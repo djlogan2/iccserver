@@ -35,6 +35,9 @@ const userManagementCss = {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "space-around"
+  },
+  errorTitle: {
+    color: "#bc0000"
   }
 };
 

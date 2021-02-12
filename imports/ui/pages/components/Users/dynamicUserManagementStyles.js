@@ -5,5 +5,6 @@ export const dynamicUserManagementStyles = {
   listTable: props => getUserManagementCss(props)?.listTable,
   editMainDiv: props => getUserManagementCss(props)?.editMainDiv,
   editCard: props => getUserManagementCss(props)?.editCard,
-  editMainCardDiv: props => getUserManagementCss(props)?.editMainCardDiv
+  editMainCardDiv: props => getUserManagementCss(props)?.editMainCardDiv,
+  errorTitle: props => getUserManagementCss(props)?.errorTitle
 };
