@@ -308,7 +308,7 @@ class Play extends Component {
       incrementOrDelay,
       incrementOrDelayType,
       gameSeekIsRated,
-      color,
+      color === "random" ? null : color,
       minRating,
       maxRating,
       gameSeekAutoAccept

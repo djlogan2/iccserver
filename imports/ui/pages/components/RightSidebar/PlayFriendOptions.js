@@ -70,7 +70,7 @@ class PlayFriendOptions extends Component {
 
     onPlay({
       ratingType,
-      color,
+      color: color === "random" ? null : color,
       incrementOrDelayType,
       initial,
       incrementOrDelay
