@@ -12,6 +12,8 @@ import SecurityCard from "./SecurityCard";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../api/client/collections";
 import { ROLE_LIST_USERS } from "../../../../constants/systemConstants";
+import injectSheet from "react-jss";
+import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
 
 const log = new Logger("client/UserManagement_js");
 
@@ -40,7 +42,7 @@ class UserEdit extends Component {
   }
 
   render() {
-    const { roles } = this.props;
+    const { roles, classes } = this.props;
     const { user } = this.state;
 
     const scope = roles.find(element => {
@@ -54,18 +56,7 @@ class UserEdit extends Component {
     return (
       <AppWrapper>
         {user ? (
-          <div
-            style={{
-              marginTop: "2rem",
-              marginLeft: "2rem",
-              width: "calc(100% - 4rem)",
-              height: "calc(100% - 4rem",
-              borderRadius: "10px",
-              border: "1px #EDEDED solid",
-              display: "flex",
-              flexDirection: "column"
-            }}
-          >
+          <div className={classes.editMainDiv}>
             <DetailsCard scope={scope} currentUser={user} />
             <SecurityCard currentUser={user} />
           </div>
@@ -84,8 +75,10 @@ class UserEdit extends Component {
 export default compose(
   withTracker(() => {
     return {
-      roles: Meteor.roleAssignment.find().fetch()
+      roles: Meteor.roleAssignment.find().fetch(),
+      css: mongoCss.findOne()
     };
   }),
-  withRouter
+  withRouter,
+  injectSheet(dynamicUserManagementStyles)
 )(UserEdit);
