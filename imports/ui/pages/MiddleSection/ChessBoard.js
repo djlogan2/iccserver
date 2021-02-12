@@ -1,5 +1,6 @@
 import React, { PureComponent } from "react";
 import _ from "lodash";
+import { Modal } from "antd";
 
 import Chess from "chess.js";
 import Chessground from "react-chessground";
@@ -18,7 +19,9 @@ export default class ChessBoard extends PureComponent {
     this.chess = new Chess.Chess();
 
     this.state = {
-      shapes: []
+      shapes: [],
+      pendingMove: null,
+      selectVisible: false
     };
 
     this.deleyedHandleResize = _.debounce(this.handleResize, 300);
@@ -53,10 +56,21 @@ export default class ChessBoard extends PureComponent {
     const { onDrop } = this.props;
     log.debug("onMove from=" + from + ", to=" + to);
 
+    const moves = this.chess.moves({ verbose: true });
+
+    for (let i = 0, len = moves.length; i < len; i++) { /* eslint-disable-line */
+      if (moves[i].flags.indexOf("p") !== -1 && moves[i].from === from) {
+        // setPendingMove([from, to])
+        // setSelectVisible(true)
+        this.setState({ pendingMove: [from, to], selectVisible: true });
+        return;
+      }
+    }
+
     const move = this.chess.move({
-      from: from,
-      to: to,
-      promotion: "q"
+      from,
+      to,
+      promotion: "x"
     });
 
     if (move) {
@@ -186,9 +200,27 @@ export default class ChessBoard extends PureComponent {
     return this.chess.turn() === "w" ? "white" : "black";
   }
 
+  promotion = e => {
+    const { onDrop } = this.props;
+    const { pendingMove } = this.state;
+
+    const from = pendingMove[0];
+    const to = pendingMove[1];
+    const move = this.chess.move({ from, to, promotion: e });
+
+    this.setState({ selectVisible: false });
+
+    if (move) {
+      const history = this.chess.history();
+      const moves = history[history.length - 1];
+
+      onDrop({ move: moves });
+    }
+  };
+
   render() {
     const { fen, onDrawObject, width, height, orientation } = this.props;
-    const { shapes } = this.state;
+    const { shapes, selectVisible } = this.state;
 
     this.chess.load(fen);
 
@@ -197,6 +229,8 @@ export default class ChessBoard extends PureComponent {
       enabled: !!onDrawObject,
       onChange: this.handleDrawObject
     };
+
+    const color = this.chess.turn();
 
     return (
       <div className="merida">
@@ -216,6 +250,22 @@ export default class ChessBoard extends PureComponent {
             this.chessground = el;
           }}
         />
+        <Modal visible={selectVisible} footer={null} closable={false}>
+          <div style={{ textAlign: "center", cursor: "pointer" }}>
+            <span role="presentation" onClick={() => this.promotion("q")}>
+              <img src={`/images/pieces/merida/${color}Q.svg`} alt="queen" style={{ width: 50 }} />
+            </span>
+            <span role="presentation" onClick={() => this.promotion("r")}>
+              <img src={`/images/pieces/merida/${color}R.svg`} alt="rook" style={{ width: 50 }} />
+            </span>
+            <span role="presentation" onClick={() => this.promotion("b")}>
+              <img src={`/images/pieces/merida/${color}B.svg`} alt="bishop" style={{ width: 50 }} />
+            </span>
+            <span role="presentation" onClick={() => this.promotion("n")}>
+              <img src={`/images/pieces/merida/${color}N.svg`} alt="knight" style={{ width: 50 }} />
+            </span>
+          </div>
+        </Modal>
       </div>
     );
   }
