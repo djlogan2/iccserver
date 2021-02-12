@@ -73,10 +73,6 @@ class PlayChooseBot extends Component {
     let { color } = this.state;
     const { ratingType, difficulty, incrementOrDelayType, initial, incrementOrDelay } = this.state;
 
-    if (color === "random") {
-      color = Math.random() < 0.5 ? "white" : "black";
-    }
-
     onPlay({
       ratingType,
       color,

@@ -290,8 +290,6 @@ class Play extends Component {
   handleSeekPlay = gameData => {
     const { wildNumber, initial, incrementOrDelay, incrementOrDelayType, color } = gameData;
 
-    const generatedColor = color === "random" ? (Math.random() < 0.5 ? "white" : "black") : color;
-
     const ratingType = findRatingObject(
       0,
       "white", // Right now white and black always match, so just hard code
@@ -310,7 +308,7 @@ class Play extends Component {
       incrementOrDelay,
       incrementOrDelayType,
       gameSeekIsRated,
-      generatedColor,
+      color,
       minRating,
       maxRating,
       gameSeekAutoAccept
