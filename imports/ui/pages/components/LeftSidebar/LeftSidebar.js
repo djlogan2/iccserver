@@ -101,7 +101,7 @@ class LeftSidebar extends Component {
           onClose={this.handleMyGamesClose}
         />
         <img
-          src={visible ? "images/JHU_logo_sm_small.png" : "images/JHU_logo_sm.png"}
+          src={visible ? "/images/JHU_logo_sm_small.png" : "/images/JHU_logo_sm.png"}
           alt={translate("logo")}
           className="sidebar__img_logo"
         />
@@ -112,7 +112,7 @@ class LeftSidebar extends Component {
         />
         <div className="sidebar__user" onClick={() => this.handleRedirect(RESOURCE_PROFILE)}>
           <img
-            src="images/avatar.png"
+            src="/images/avatar.png"
             alt={translate("userAvatar")}
             className={classNames(
               !!visible ? classes.sidebarUserImgFliphed : classes.sidebarUserImg
