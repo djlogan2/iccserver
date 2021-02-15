@@ -664,5 +664,6 @@ Meteor.methods({
   removeRole: Users.removeRole,
   updateCurrentUsername: Users.updateCurrentUsername,
   updateCurrentEmail: Users.updateCurrentEmail,
-  listUsers: Users.listUsers
+  listUsers: Users.listUsers,
+  listIsolationGroups: Users.listIsolationGroups
 });

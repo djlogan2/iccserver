@@ -30,7 +30,7 @@ const userManagementCss = {
   },
   editMainCardDiv: {
     width: "50%",
-    height: "100%",
+    height: "90%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",

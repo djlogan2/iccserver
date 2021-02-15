@@ -21,7 +21,9 @@ class UserEdit extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: null
+      user: null,
+      currentGroup: null,
+      isolationGroups: []
     };
   }
 
@@ -38,12 +40,27 @@ class UserEdit extends Component {
 
         this.setState({ user: results.userList[0] });
       });
+
+      Meteor.call("listIsolationGroups", "listIsolationGroups", (err, results) => {
+        if (err) {
+          log.error(err);
+          history.push(RESOURCE_USERS);
+        }
+
+        const isolationGroups = results.map(result => {
+          return {
+            value: result,
+            label: result
+          };
+        });
+        this.setState({ isolationGroups });
+      });
     }
   }
 
   render() {
     const { roles, classes } = this.props;
-    const { user } = this.state;
+    const { user, isolationGroups } = this.state;
 
     const scope = roles.find(element => {
       if (element?.role?.id === ROLE_LIST_USERS) {
@@ -58,7 +75,7 @@ class UserEdit extends Component {
         {user ? (
           <div className={classes.editMainDiv}>
             <DetailsCard scope={scope} currentUser={user} />
-            <SecurityCard currentUser={user} />
+            <SecurityCard currentUser={user} isolationGroups={isolationGroups} />
           </div>
         ) : (
           <Col span={24} className="loading__sidebar">

@@ -1,10 +1,11 @@
 import React, { Component } from "react";
-import { Button, Card, Input } from "antd";
+import { Button, Card, Input, AutoComplete } from "antd";
 import { Meteor } from "meteor/meteor";
 import { compose } from "redux";
 
 import {
   CONFIRM_PASSWORD_PROPERTY,
+  ISOLATION_GROUP_PROPERTY,
   NEW_PASSWORD_PROPERTY
 } from "../../../../constants/systemConstants";
 import { translate } from "../../../HOCs/translate";
@@ -20,12 +21,25 @@ class SecurityCard extends Component {
     this.state = {
       error: null,
       [NEW_PASSWORD_PROPERTY]: "",
-      [CONFIRM_PASSWORD_PROPERTY]: ""
+      [CONFIRM_PASSWORD_PROPERTY]: "",
+      [ISOLATION_GROUP_PROPERTY]: ""
     };
+  }
+
+  componentDidMount() {
+    const { currentUser } = this.props;
+
+    if (currentUser.isolation_group) {
+      this.setState({ [ISOLATION_GROUP_PROPERTY]: currentUser.isolation_group });
+    }
   }
 
   handleChange = property => event => {
     this.setState({ [property]: event.target.value });
+  };
+
+  handleAutocompleteChange = property => value => {
+    this.setState({ [property]: value });
   };
 
   handleClick = () => {
@@ -54,7 +68,7 @@ class SecurityCard extends Component {
   };
 
   render() {
-    const { translate, classes } = this.props;
+    const { translate, classes, isolationGroups, currentUser } = this.props;
     const { error } = this.state;
 
     return (
@@ -72,6 +86,13 @@ class SecurityCard extends Component {
           <Input.Password
             onChange={this.handleChange(CONFIRM_PASSWORD_PROPERTY)}
             placeholder={translate("confirmPassword")}
+          />
+          <AutoComplete
+            defaultValue={currentUser.isolation_group}
+            options={isolationGroups}
+            style={{ width: "100%" }}
+            placeholder="Isolation group"
+            onChange={this.handleAutocompleteChange(ISOLATION_GROUP_PROPERTY)}
           />
           <Button type="primary" onClick={this.handleClick}>
             {translate("update")}
