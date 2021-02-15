@@ -331,6 +331,22 @@ GameRequests.addLocalGameSeek = function(
   const existing_seek = GameRequestCollection.findOne(game);
   if (existing_seek) return existing_seek._id;
 
+  Meteor.users.update(
+    { _id: self._id },
+    {
+      $set: {
+        "settings.seek_default": {
+          wild: wild,
+          rating_type: rating_type,
+          time: time,
+          inc_or_delay: inc_or_delay,
+          inc_or_delay_type: inc_or_delay_type,
+          rated: rated
+        }
+      }
+    }
+  );
+
   const other_seeks = GameRequestCollection.find({
     type: "seek",
     isolation_group: self.isolation_group,
@@ -753,6 +769,27 @@ GameRequests.addLocalMatchRequest = function(
     fancy_time_control: fancy_time_control
   };
 
+  if (!is_it_adjourned)
+    Meteor.users.update(
+      { _id: Meteor.userId() },
+      {
+        $set: {
+          "settings.match_default": {
+            wild_number: wild_number,
+            rating_type: rating_type,
+            rated: is_it_rated,
+            challenger_time: challenger_time,
+            challenger_inc_or_delay: challenger_inc_or_delay,
+            challenger_delaytype: challenger_inc_or_delay_type,
+            receiver_time: receiver_time,
+            receiver_inc_or_delay: receiver_inc_or_delay,
+            receiver_delaytype: receiver_inc_or_delay_type,
+            challenger_color_request: challenger_color_request
+          }
+        }
+      }
+    );
+
   return GameRequestCollection.insert(record);
 };
 
@@ -1122,7 +1159,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
   GameRequests.seekMatchesUser = seekMatchesUser;
 }
 
-Meteor.startup(function() {;
+Meteor.startup(function() {
   Users.addGroupChangeHook(groupChangeHook);
 });
 

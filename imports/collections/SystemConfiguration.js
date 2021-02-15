@@ -25,6 +25,31 @@ function lookup(item, defaultValue) {
   return itemrecord.value;
 }
 
+SystemConfiguration.seekDefault = function() {
+  return lookup("seek_default", {
+    wild: 0,
+    rating_type: "standard",
+    time: 15,
+    inc_or_delay: 0,
+    inc_or_delay_type: "none",
+    rated: true
+  });
+};
+
+SystemConfiguration.matchDefault = function() {
+  return lookup("match_default", {
+    wild_number: 0,
+    rating_type: "standard",
+    rated: true,
+    challenger_time: 15,
+    challenger_inc_or_delay: 0,
+    challenger_delaytype: "none",
+    receiver_time: 15,
+    receiver_inc_or_delay: 0,
+    receiver_delaytype: "none"
+  });
+};
+
 SystemConfiguration.logoutTimeout = function() {
   return lookup("logout_timeout", 120000);
 };

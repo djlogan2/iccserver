@@ -26,6 +26,52 @@ const LogonHistory = new Mongo.Collection("logon_history");
 const ConfigurationParametersByHost = new Mongo.Collection("host_configuration");
 const statusEvents = new EventEmitter();
 
+Meteor.publishComposite("developer_loggedon_users", {
+  find() {
+    return Meteor.users.find({ _id: this.userId });
+  },
+  children: [
+    {
+      find(user) {
+        if (!Users.isAuthorized(user, "developer")) return this.ready();
+        return LoggedOnUsers.find();
+      }
+    }
+  ]
+});
+
+Meteor.publishComposite("developer_all_users", {
+  find() {
+    return Meteor.users.find({ _id: this.userId });
+  },
+  children: [
+    {
+      find(user) {
+        if (!Users.isAuthorized(user, "developer")) return this.ready();
+        return Meteor.users.find();
+      }
+    },
+    {
+      find(user) {
+        if (!Users.isAuthorized(user, "developer")) return this.ready();
+        return Meteor.roleAssignment.find();
+      }
+    },
+    {
+      find(user) {
+        if (!Users.isAuthorized(user, "developer")) return this.ready();
+        return Meteor.roles.find();
+      }
+    },
+    {
+      find(user) {
+        if (!Users.isAuthorized(user, "developer")) return this.ready();
+        return LogonHistory.find();
+      }
+    }
+  ]
+});
+
 Meteor.users.deny({
   update() {
     return true;
@@ -73,6 +119,8 @@ Accounts.onCreateUser(function(options, user) {
 
   user.ratings = DynamicRatings.getUserRatingsObject();
   user.settings = default_settings;
+  user.settings.match_default = SystemConfiguration.matchDefault();
+  user.settings.seek_default = SystemConfiguration.seekDefault();
   user.locale = "unknown";
   user.board_css = SystemConfiguration.defaultBoardCSS();
   user.newguy = true;
