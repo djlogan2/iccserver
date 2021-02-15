@@ -91,7 +91,7 @@ class SecurityCard extends Component {
             defaultValue={currentUser.isolation_group}
             options={isolationGroups}
             style={{ width: "100%" }}
-            placeholder="Isolation group"
+            placeholder={translate("isolationGroup")}
             onChange={this.handleAutocompleteChange(ISOLATION_GROUP_PROPERTY)}
           />
           <Button type="primary" onClick={this.handleClick}>

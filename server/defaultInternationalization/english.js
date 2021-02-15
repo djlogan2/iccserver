@@ -471,7 +471,8 @@ export const english = {
         cardTitle: "Security",
         newPassword: "New password",
         confirmPassword: "Confirm password",
-        update: "Update password",
+        isolationGroup: "Isolation group",
+        update: "Update",
         errors: {
           allValuesAreRequired: "All values are required",
           passwordsNotTheSame: "New passwords are not the same"
