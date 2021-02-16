@@ -3,10 +3,8 @@ import menuLinksCss from "../../../server/defaultStyles/menuLinksCss";
 import systemCss from "../../../server/defaultStyles/systemCss";
 import userCss from "../../../server/defaultStyles/userCss";
 import mongoCss from "../../collections/css";
-import mongoCurrentCss from "../../collections/currentCss";
 import { Meteor } from "meteor/meteor";
 import playNotificationsCss from "../../../server/defaultStyles/playNotificationsCss";
-import { DEFAULT_CSS_KEY } from "../../constants/systemConstants";
 import primaryButtonCss from "../../../server/defaultStyles/primaryButtonCss";
 import challengeNotificationCss from "../../../server/defaultStyles/challengeNotificationCss";
 import profileCss from "../../../server/defaultStyles/profileCss";
@@ -15,10 +13,6 @@ import userManagementCss from "../../../server/defaultStyles/userManagementCss";
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
     return;
-  }
-
-  if (!mongoCurrentCss.find().count()) {
-    mongoCurrentCss.insert({ value: DEFAULT_CSS_KEY });
   }
 
   if (!mongoCss.find({ cssKey: "default" }).count()) {
