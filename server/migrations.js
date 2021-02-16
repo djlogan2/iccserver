@@ -263,6 +263,14 @@ Meteor.startup(() => {
     }
   });
 
+  Migrations.add({
+    version: "0.3.4_1",
+    name: "Update client css default key",
+    run: () => {
+      mongoCss.update({ cssKey: "default" }, { $set: { cssKey: "development" } });
+    }
+  });
+
   Migrations.unlock();
 
   Migrations.migrateTo("latest");
