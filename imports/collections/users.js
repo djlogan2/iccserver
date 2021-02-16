@@ -521,6 +521,40 @@ Users.tryLogout = function(connectionId) {
   }
 };
 
+Users.developerUserUpdate = function(client_state) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(client_state, Object);
+
+  if (!Users.isAuthorized(self, "developer")) throw new Meteor.Error("You are not authorized");
+
+  const victim = Meteor.users.findOne({ _id: client_state.user });
+  const set = {};
+  const unset = {};
+
+  if (!victim) throw new Meteor.Error("Cannot find the user to update");
+
+  if (!!client_state.base) {
+    if (!!client_state.base.username) Accounts.setUsername(victim._id, client_state.base.username);
+    if (!!client_state.base.password) Accounts.setPassword(victim._id, client_state.base.password);
+    if (!!client_state.base.cf) {
+      if (client_state.base.cf === "d") unset.cf = 1;
+      else if (client_state.base.cf === "c" || client_state.base.cf === "e") {
+        set.cf = client_state.base.cf;
+      } else throw new Meteor.Error("Invalid child chat value");
+    }
+    if (!!client_state.base.isolation_group)
+      set.isolation_group = client_state.base.isolation_group;
+  }
+
+  const modifier = {};
+  if (!!Object.keys(set).length) modifier.$set = set;
+  if (!!Object.keys(unset).length) modifier.$unset = unset;
+  if (!!Object.keys(modifier).length) {
+    Meteor.users.update({ _id: victim._id }, modifier);
+  }
+};
+
 Users.events = statusEvents;
 
 Meteor.startup(function() {
@@ -713,5 +747,6 @@ Meteor.methods({
   updateCurrentUsername: Users.updateCurrentUsername,
   updateCurrentEmail: Users.updateCurrentEmail,
   listUsers: Users.listUsers,
-  listIsolationGroups: Users.listIsolationGroups
+  listIsolationGroups: Users.listIsolationGroups,
+  developer_user_update: Users.developerUserUpdate
 });

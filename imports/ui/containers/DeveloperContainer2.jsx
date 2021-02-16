@@ -2,6 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import React, { Component } from "react";
 import {
+  Alert,
   Button,
   Card,
   Checkbox,
@@ -64,22 +65,26 @@ class EmailList extends Component {
     ));
     return (
       <table width="100%">
-        <tr>
-          <th />
-          <th>Email address</th>
-          <th>Verified</th>
-        </tr>
-        {rows}
-        <tr>
-          <Button type="primary">Add</Button>
-          <td>
-            <Input />
-          </td>
-          <td>
-            <Checkbox />
-          </td>
-          <td />
-        </tr>
+        <thead>
+          <tr>
+            <th />
+            <th>Email address</th>
+            <th>Verified</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows}
+          <tr>
+            <Button type="primary">Add</Button>
+            <td>
+              <Input />
+            </td>
+            <td>
+              <Checkbox />
+            </td>
+            <td />
+          </tr>
+        </tbody>
       </table>
     );
   }
@@ -203,15 +208,91 @@ class History extends Component {
 class DeveloperContainer2 extends Component {
   constructor(props) {
     super(props);
-    this.state = { user: "x" };
+    this.state = {};
   }
+
   dohim(item) {
-    this.setState({ user: item.key });
+    this.setState({ user: item.key, base: null, save: true });
   }
+
+  dochange(item) {
+    if (!this || !this.state) return;
+    const base = { ...this.state.base };
+    const user = Meteor.users.findOne({ _id: this.state.user });
+    switch (item.target.id) {
+      case "username":
+      case "isolation_group":
+      case "locale":
+      case "board_css":
+        if (!!user && user[item.target.id] === item.target.value) delete base[item.target.id];
+        else base[item.target.id] = item.target.value;
+        this.setState({ base: base });
+        break;
+      case "password":
+        if (!item.target.value || item.target.value === "") delete base.password;
+        else base.password = item.target.value;
+        this.setState({ base: base });
+        break;
+      default:
+        debugger;
+    }
+  }
+
+  childchat(value) {
+    if (!this || !this.state) return;
+    const base = { ...this.state.base };
+    const user = Meteor.users.findOne({ _id: this.state.user });
+    if (!!user && (user.cf === value || (value === "d" && !user.cf))) delete base.cf;
+    else base.cf = value;
+    this.setState({ base: base });
+  }
+
+  dosave() {
+    Meteor.call("developer_user_update", this.state, err => {
+      const state = { base: undefined };
+      if (!!err) state.error = err;
+      this.setState(state);
+    });
+  }
+
+  static getDerivedStateFromProps(pros, state) {
+    state.save = DeveloperContainer2.save_disabled(state);
+    console.log("state.save=" + state.save);
+    return state;
+  }
+
+  static save_disabled(state) {
+    if (!state.user) return true;
+    console.log("state.user=" + JSON.stringify(state.user));
+    if (!!state.base) {
+      console.log("state.base=" + JSON.stringify(state.base));
+      if (
+        state.base.username === "" ||
+        state.base.isolation_group === "" ||
+        state.base.locale === "" ||
+        state.base.board_css === ""
+      )
+        return true;
+      if (!!Object.keys(state.base).length) return false;
+    }
+    return true;
+  }
+
   render() {
     const left = 3;
     const right = 21;
     const user = Meteor.users.findOne({ _id: this.state.user });
+    const base = this.state.base;
+    let error_div = "";
+    if (this.state.error)
+      error_div = (
+        <Alert
+          message={this.state.error.message}
+          type="error"
+          closable
+          description={this.state.error.reason}
+        />
+      );
     return (
       <Layout>
         <UserList
@@ -221,10 +302,11 @@ class DeveloperContainer2 extends Component {
         />
         <Layout>
           <Content>
+            {error_div}
             <Collapse accordian>
               <Panel header="Base" key="1">
                 <Row>
-                  <Col span={left}>Legacy</Col>
+                  <Col span={left}>User ID</Col>
                   <Col span={right}>
                     <Title level={4}>{user?._id}</Title>
                   </Col>
@@ -232,31 +314,44 @@ class DeveloperContainer2 extends Component {
                 <Row>
                   <Col span={left}>Username</Col>
                   <Col span={right}>
-                    <Input value={user?.username} onChange={() => {}} />
+                    <Input
+                      id="username"
+                      value={base?.username === undefined ? user?.username : base?.username}
+                      onChange={arg => this.dochange(arg)}
+                    />
                   </Col>
                 </Row>
                 <Row>
                   <Col span={left}>Isolation Group</Col>
                   <Col span={right}>
-                    <Input value={user?.isolation_group} onChange={() => {}} />
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={left}>Legacy</Col>
-                  <Col span={right}>
-                    <Checkbox checked={user?.legacy} />
+                    <Input
+                      id="isolation_group"
+                      value={
+                        base?.isolation_group === undefined
+                          ? user?.isolation_group
+                          : base?.isolation_group
+                      }
+                      onChange={arg => this.dochange(arg)}
+                    />
                   </Col>
                 </Row>
                 <Row>
                   <Col span={left}>Password</Col>
                   <Col span={right}>
-                    <Password onChange={() => {}} />
+                    <Password
+                      id="password"
+                      value={base?.password}
+                      onChange={arg => this.dochange(arg)}
+                    />
                   </Col>
                 </Row>
                 <Row>
                   <Col span={left}>Child Chat</Col>
                   <Col span={right}>
-                    <Select value={user?.cf || "d"}>
+                    <Select
+                      value={base?.cf || user?.cf || "d"}
+                      onChange={arg => this.childchat(arg)}
+                    >
                       <Option value="d">Default</Option>
                       <Option value="c">Child</Option>
                       <Option value="e">Exempt</Option>
@@ -266,13 +361,21 @@ class DeveloperContainer2 extends Component {
                 <Row>
                   <Col span={left}>Locale</Col>
                   <Col span={right}>
-                    <Input value={user?.locale} />
+                    <Input
+                      id="locale"
+                      value={base?.locale || user?.locale}
+                      onChange={arg => this.dochange(arg)}
+                    />
                   </Col>
                 </Row>
                 <Row>
                   <Col span={left}>Board CSS</Col>
                   <Col span={right}>
-                    <Input value={user?.board_css} />
+                    <Input
+                      id="board_css"
+                      value={base?.board_css || user?.board_css}
+                      onChange={arg => this.dochange(arg)}
+                    />
                   </Col>
                 </Row>
                 <Row>
@@ -287,12 +390,25 @@ class DeveloperContainer2 extends Component {
                     <Checkbox checked={user?.newguy} />
                   </Col>
                 </Row>
+                <Row>
+                  <Col>
+                    <Button type="primary" onClick={() => this.dosave()} disabled={this.state.save}>
+                      Save
+                    </Button>
+                  </Col>
+                </Row>
               </Panel>
               <Panel header="Status" key="2">
                 <Row>
                   <Col span={left}>Last Login Date</Col>
                   <Col span={right}>
-                    <Input value={user?.status?.lastLogin?.date} />
+                    <Input
+                      value={
+                        !!user?.status?.lastLogin?.date
+                          ? date.format(user?.status?.lastLogin?.date, "YYYY-MM-DD HH:mm:ss")
+                          : ""
+                      }
+                    />
                   </Col>
                 </Row>
                 <Row>
@@ -320,9 +436,21 @@ class DeveloperContainer2 extends Component {
                   </Col>
                 </Row>
                 <Row>
+                  <Col span={left}>Logged onto V1</Col>
+                  <Col span={right}>
+                    <Checkbox checked={user?.legacy} />
+                  </Col>
+                </Row>
+                <Row>
                   <Col span={left}>Last Activity</Col>
                   <Col span={right}>
-                    <Input value={user?.status?.lastActivity} />
+                    <Input
+                      value={
+                        user?.status?.lastActivity
+                          ? date.format(user?.status?.lastActivity, "YYYY-MM-DD HH:mm:ss")
+                          : ""
+                      }
+                    />
                   </Col>
                 </Row>
                 <Row>
