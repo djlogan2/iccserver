@@ -44,11 +44,27 @@ class SecurityCard extends Component {
 
   handleClick = () => {
     const { currentUser, translate } = this.props;
-    const { newPassword, confirmPassword } = this.state;
+    const { newPassword, confirmPassword, isolationGroup } = this.state;
 
-    if (!newPassword || !confirmPassword) {
+    if ((!newPassword || !confirmPassword) && !isolationGroup) {
       this.setState({ error: translate("errors.allValuesAreRequired") });
       return;
+    }
+
+    if (isolationGroup) {
+      Meteor.call(
+        "setOtherIsolationGroup",
+        "setOtherIsolationGroup",
+        currentUser._id,
+        isolationGroup,
+        err => {
+          if (err) {
+            this.setState({ error: err.reason });
+          } else {
+            this.setState({ error: null });
+          }
+        }
+      );
     }
 
     if (newPassword !== confirmPassword) {

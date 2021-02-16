@@ -420,6 +420,37 @@ Users.setOtherPassword = function(message_identifier, user_id, new_password) {
   Accounts.setPassword(user_id, new_password);
 };
 
+Users.setOtherIsolationGroup = function(message_identifier, user_id, new_isolation_group) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(message_identifier, String);
+  check(user_id, String);
+  check(new_isolation_group, String);
+
+  const victim = Meteor.users.findOne({ _id: user_id });
+  if (!victim) {
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    return;
+  }
+
+  if (!Users.isAuthorized(self, "set_other_isolation_group")) {
+    if (
+      self.isolation_group !== victim.isolation_group ||
+      !Users.isAuthorized(self, "set_other_isolation_group", self.isolation_group)
+    ) {
+      Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+      return;
+    }
+  }
+
+  if (!new_isolation_group || !new_isolation_group.length) {
+    Users.sendClientMessage(self, message_identifier, "INVALID_PASSWORD");
+    return;
+  }
+
+  Meteor.users.update({ _id: user_id }, { $set: { isolation_group: new_isolation_group } });
+};
+
 Users.setOtherUsername = function(message_identifier, user_id, new_username) {
   const self = Meteor.user();
   check(self, Object);
@@ -741,6 +772,7 @@ Accounts.validateLoginAttempt(function(params) {
 Meteor.methods({
   setClientStatus: Users.setClientStatus,
   setOtherPassword: Users.setOtherPassword,
+  setOtherIsolationGroup: Users.setOtherIsolationGroup,
   setOtherUsername: Users.setOtherUsername,
   addRole: Users.addRole,
   removeRole: Users.removeRole,
