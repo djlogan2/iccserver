@@ -55,7 +55,9 @@ class EmailList extends Component {
     const rows = this.props.emails.map(email => (
       <tr>
         <td>
-          <Button type="danger">Remove</Button>
+          <Button type="danger" onClick={arg => this.removeEmail(arg)}>
+            Remove
+          </Button>
         </td>
         <td>{email.address}</td>
         <td>
@@ -75,7 +77,13 @@ class EmailList extends Component {
         <tbody>
           {rows}
           <tr>
-            <Button type="primary">Add</Button>
+            <Button
+              type="primary"
+              disabled={this.state.addDisabled}
+              onClick={arg => this.addEmail(arg)}
+            >
+              Add
+            </Button>
             <td>
               <Input />
             </td>
