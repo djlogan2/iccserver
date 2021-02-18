@@ -552,6 +552,37 @@ Users.tryLogout = function(connectionId) {
   }
 };
 
+Users.developerEmailUpdate = function(user_id, op, email, verified) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(user_id, String);
+  check(op, String);
+  check(email, String);
+  check(verified, Match.Maybe(Boolean));
+
+  if (!Users.isAuthorized(self, "developer")) throw new Meteor.Error("You are not authorized");
+
+  const victim = Meteor.users.findOne({ _id: user_id });
+  if (!victim) throw new Meteor.Error("Cannot find the user to update");
+
+  switch (op) {
+    case "add":
+      Accounts.addEmail(victim._id, email);
+      break;
+    case "remove":
+      Accounts.removeEmail(victim._id, email);
+      break;
+    case "toggle":
+      Meteor.users.update(
+        { _id: victim._id, "emails.address": email },
+        { "emails.$.verified": verified || false }
+      );
+      break;
+    default:
+      throw new Meteor.error("Unable to alter email", "Unknown operation '" + op + "'");
+  }
+};
+
 Users.developerUserUpdate = function(client_state) {
   const self = Meteor.user();
   check(self, Object);
@@ -560,10 +591,10 @@ Users.developerUserUpdate = function(client_state) {
   if (!Users.isAuthorized(self, "developer")) throw new Meteor.Error("You are not authorized");
 
   const victim = Meteor.users.findOne({ _id: client_state.user });
+  if (!victim) throw new Meteor.Error("Cannot find the user to update");
+
   const set = {};
   const unset = {};
-
-  if (!victim) throw new Meteor.Error("Cannot find the user to update");
 
   if (!!client_state.base) {
     if (!!client_state.base.username) Accounts.setUsername(victim._id, client_state.base.username);
@@ -583,6 +614,38 @@ Users.developerUserUpdate = function(client_state) {
   if (!!Object.keys(unset).length) modifier.$unset = unset;
   if (!!Object.keys(modifier).length) {
     Meteor.users.update({ _id: victim._id }, modifier);
+  }
+};
+
+Users.developerUpdateRole = function(user_id, role, type) {
+  const self = Meteor.user();
+  check(self, Object);
+  check(user_id, String);
+  check(role, String);
+  check(type, String);
+
+  if (!Users.isAuthorized(self, "developer")) throw new Meteor.Error("You are not authorized");
+
+  const victim = Meteor.users.findOne({ _id: user_id });
+  if (!victim) throw new Meteor.Error("Cannot find the user to update");
+
+  Roles.removeUsersFromRoles(victim._id, role, victim.isolation_group);
+  Roles.removeUsersFromRoles(victim._id, role);
+
+  switch (type) {
+    case "No":
+      break;
+    case "Global":
+      Roles.addUsersToRoles(victim._id, role);
+      break;
+    case "Group only":
+      Roles.addUsersToRoles(victim._id, role, victim.isolation_group);
+      break;
+    default:
+      throw new Meteor.Error(
+        "Unable to set role " + role + " correctly",
+        type + " is an unknown type"
+      );
   }
 };
 
@@ -780,5 +843,7 @@ Meteor.methods({
   updateCurrentEmail: Users.updateCurrentEmail,
   listUsers: Users.listUsers,
   listIsolationGroups: Users.listIsolationGroups,
-  developer_user_update: Users.developerUserUpdate
+  developer_user_update: Users.developerUserUpdate,
+  developer_email_update: Users.developerEmailUpdate,
+  developer_update_role: Users.developerUpdateRole
 });

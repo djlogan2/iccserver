@@ -1,6 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import React, { Component } from "react";
+import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import {
   Alert,
   Button,
@@ -50,55 +51,111 @@ class UserList extends Component {
 }
 
 class EmailList extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  toggleVerified(email) {
+    Meteor.call("developer_email_update", this.props.user_id, "toggle", this.state.email, err => {
+      if (!!err) this.props.onError(err);
+    });
+  }
+
+  removeEmail(email) {
+    Meteor.call("developer_email_update", this.props.user_id, "remove", email, err => {
+      if (!!err) this.props.onError(err);
+    });
+  }
+
+  newEmail(item) {
+    this.setState({ email: item.target.value });
+  }
+
+  toggleNewEmailVerified() {
+    this.setState({ verified: !this.state.verified });
+  }
+
+  saveNewEmail() {
+    Meteor.call(
+      "developer_email_update",
+      this.props.user_id,
+      "add",
+      this.state.email,
+      this.state.verified,
+      err => {
+        if (!!err) this.props.onError(err);
+        else {
+          this.setState({ email: undefined, verified: undefined });
+        }
+      }
+    );
+  }
+
   render() {
+    const GUTTER = 16;
+    const C1 = 22;
+    const C2 = 1;
+    const C3 = 1;
     if (!this.props.emails) return <div />;
     const rows = this.props.emails.map(email => (
-      <tr>
-        <td>
-          <Button type="danger" onClick={arg => this.removeEmail(arg)}>
-            Remove
-          </Button>
-        </td>
-        <td>{email.address}</td>
-        <td>
-          <Checkbox checked={email.verified} />{" "}
-        </td>
-      </tr>
+      <Row gutter={GUTTER}>
+        <Col span={C1}>{email.address}</Col>
+        <Col span={C2}>
+          <Checkbox checked={email.verified} onClick={() => this.toggleVerified(email.address)} />
+        </Col>
+        <Col span={C3}>
+          <Button
+            shape="circle"
+            type="danger"
+            onClick={() => this.removeEmail(email.address)}
+            icon={<MinusOutlined />}
+          />
+        </Col>
+      </Row>
     ));
     return (
-      <table width="100%">
-        <thead>
-          <tr>
-            <th />
-            <th>Email address</th>
-            <th>Verified</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows}
-          <tr>
+      <div>
+        <Row gutter={GUTTER}>
+          <Col span={C1}>Email Address</Col>
+          <Col span={C2}>Verified</Col>
+          <Col span={C3}>{""}</Col>
+        </Row>
+        {rows}
+        <Row gutter={GUTTER}>
+          <Col span={C1}>
+            <Input value={this.state.email} onChange={arg => this.newEmail(arg)} />
+          </Col>
+          <Col span={C2}>
+            <Checkbox checked={this.state.verified} onClick={() => this.toggleNewEmailVerified()} />
+          </Col>
+          <Col span={C3}>
             <Button
+              shape="circle"
               type="primary"
-              disabled={this.state.addDisabled}
-              onClick={arg => this.addEmail(arg)}
-            >
-              Add
-            </Button>
-            <td>
-              <Input />
-            </td>
-            <td>
-              <Checkbox />
-            </td>
-            <td />
-          </tr>
-        </tbody>
-      </table>
+              icon={<PlusOutlined />}
+              onClick={() => this.saveNewEmail()}
+            />
+          </Col>
+        </Row>
+      </div>
     );
   }
 }
 
+const style = {
+  No: {},
+  Global: { "background-color": "red" },
+  "Group only": { "background-color": "yellow" }
+};
+
 class Roles extends Component {
+  changeRole(victim, role, changeto) {
+    Meteor.call("developer_update_role", victim, role, changeto, err => {
+      this.props.onError(err);
+    });
+  }
+
   render() {
     // Role   Status             Set others
     // role   [no/global/iso]    [no/global/iso]
@@ -151,14 +208,22 @@ class Roles extends Component {
           <tr>
             <td>{role}</td>
             <td>
-              <Select value={in_role}>
+              <Select
+                style={style[in_role.toLowerCase()]}
+                value={in_role}
+                onChange={arg => this.changeRole(this.props.user_id, role, arg)}
+              >
                 <Option value="No">No</Option>
                 <Option value="Global">Global</Option>
                 <Option value="Group only">Group Only</Option>
               </Select>
             </td>
             <td>
-              <Select value={set_role}>
+              <Select
+                className={style[set_role.toLowerCase()]}
+                value={set_role}
+                onChange={arg => this.changeRole(this.props.user_id, "set_role_" + role, arg)}
+              >
                 <Option value="No">No</Option>
                 <Option value="Global">Global</Option>
                 <Option value="Group only">Group Only</Option>
@@ -169,7 +234,7 @@ class Roles extends Component {
         );
       });
     return (
-      <table width="100%">
+      <table>
         <thead>
           <tr>
             <th>Role Name</th>
@@ -221,6 +286,10 @@ class DeveloperContainer2 extends Component {
 
   dohim(item) {
     this.setState({ user: item.key, base: null, save: true });
+  }
+
+  setError(err) {
+    this.setState({ error: err });
   }
 
   dochange(item) {
@@ -480,7 +549,11 @@ class DeveloperContainer2 extends Component {
                 </Row>
               </Panel>
               <Panel header="Email Addresses" key="3">
-                <EmailList emails={user?.emails} />
+                <EmailList
+                  user_id={user?._id}
+                  emails={user?.emails}
+                  onError={err => this.setError(err)}
+                />
               </Panel>
               <Panel header="Profile" key="4">
                 <Row>
@@ -524,7 +597,7 @@ class DeveloperContainer2 extends Component {
               </Panel>
               <Panel header="Settings" key="5" />
               <Panel header="Roles" key="6">
-                <Roles user_id={user?._id} isolation_group={user?.isolation_group} />
+                <Roles user_id={user?._id} isolation_group={user?.isolation_group} onError={err => this.setError(err)} />
               </Panel>
               <Panel header="Login History" key="7">
                 <History user_id={user?._id} />
