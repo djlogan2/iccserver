@@ -19,6 +19,7 @@ const columns = [
   { title: "Username", dataIndex: "username", key: "key" },
   { title: "IP Address", dataIndex: "ip_address", key: "key" },
   { title: "Online", dataIndex: "status", key: "key" },
+  { title: "Idle", dataIndex: "idle", key: "key" },
   { title: "Game", dataIndex: "game_status", key: "key" },
   { title: "Client", dataIndex: "client_status", key: "key" }
 ];
@@ -81,6 +82,24 @@ class DeveloperContainer extends Component {
     );
   }
 
+  xxx(ms) {
+    if (!ms) return "";
+
+    if (ms < 1000) return "<0s";
+    let ims = ms;
+
+    ims = ms / 1000; // # of seconds
+    if (ims < 60) return "" + Math.floor(ims) + "s";
+
+    ims /= 60; // # of minutes
+    if (ims < 60) return "" + Math.floor(ims) + "m";
+
+    ims /= 60; // # of hours
+    if (ims < 24) return "" + Math.floor(ims) + "h";
+
+    ims /= 24;
+    return "" + Math.round(ims) + "d";
+  }
   do_all_users(tabledata) {
     Meteor.users
       .find()
@@ -96,6 +115,10 @@ class DeveloperContainer extends Component {
         }
         if (!!td_records) {
           td_records.forEach(td_rec => {
+            if (user?.status?.lastActivity) {
+              let dif = new Date().getTime() - user.status.lastActivity.getTime();
+              td_rec.idle = this.xxx(dif);
+            } else td_rec.idle = "";
             td_rec.user_id = user._id;
             td_rec.username = user.username;
             td_rec.status = user.status.online.toString();
