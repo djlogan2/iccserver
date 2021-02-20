@@ -189,7 +189,7 @@ Users.setGameStatus = function(message_identifier, user, status) {
   const setObject = { "status.game": status };
   if (status === "none") setObject["status.client"] = "none";
   else setObject["status.client"] = "game";
-  Meteor.users.update({ _id: user, "status.online": true }, { $set: setObject });
+  Meteor.users.update({ _id: user }, { $set: setObject });
 };
 
 const group_change_hooks = [];
