@@ -552,6 +552,23 @@ Users.tryLogout = function(connectionId) {
   }
 };
 
+Users.checkLoggedOnUsers = function(connection_id_array) {
+  const dt = new Date();
+  dt.setMinutes(dt.getMinutes() - 5);
+  LoggedOnUsers.find({
+    $and: [
+      { connection_id: { $exists: true } },
+      { connection_id: { $nin: connection_id_array } },
+      { logon_date: { $lt: dt } }
+    ]
+  }).forEach(balu => {
+    log.error(
+      "Bad logged on user record for connection " + balu.connection_id + ", user " + balu.user_id
+    );
+    Users.tryLogout(balu.connection_id);
+  });
+};
+
 Users.developerEmailUpdate = function(user_id, op, email, verified) {
   const self = Meteor.user();
   check(self, Object);
