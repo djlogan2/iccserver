@@ -710,13 +710,18 @@ Meteor.startup(function() {
           }
         }
       );
-      LogonHistory.insert({
-        user_id: fields.userId,
-        connection_id: fields.connectionId,
-        ip_address: fields.ipAddr,
-        logon_date: fields.loginTime,
-        userAgent: fields.userAgent
-      });
+      LogonHistory.upsert(
+        { user_id: fields.userId, connection_id: fields.connectionId },
+        {
+          $set: {
+            user_id: fields.userId,
+            connection_id: fields.connectionId,
+            ip_address: fields.ipAddr,
+            logon_date: fields.loginTime,
+            userAgent: fields.userAgent
+          }
+        }
+      );
 
       if (!loginCount) {
         log.debug("Emitting userLogin for " + fields.userId);
@@ -846,6 +851,18 @@ Accounts.validateLoginAttempt(function(params) {
       Meteor.users.update({ _id: userId }, { $set: { "services.resume.loginTokens": [] } });
     }
   }
+  LogonHistory.upsert(
+    { user_id: params?.user?._id, connection_id: params?.connection?.id },
+    {
+      $set: {
+        user_id: params?.user?._id,
+        connection_id: params?.connection?.id,
+        ip_address: params?.connection?.httpHeaders["x-forwarded-for"],
+        logon_date: new Date(),
+        userAgent: params?.connection?.httpHeaders["user-agent"]
+      }
+    }
+  );
   return true;
 });
 
