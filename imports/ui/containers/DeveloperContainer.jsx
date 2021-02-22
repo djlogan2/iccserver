@@ -51,14 +51,13 @@ class DeveloperContainer extends Component {
         return table_rec.connection_id === td_rec.connection_id;
       },
       (table_rec, td_rec) => {
+        const last60 = table_rec.pings.slice(Math.max(table_rec.pings.length - 60, 0));
         td_rec.last = date.format(table_rec.last, "YYYY-MM-DD HH:mm:ss");
-        td_rec.min_ping = table_rec.pings.reduce((prev, cur) => {
+        td_rec.min_ping = last60.reduce((prev, cur) => {
           return prev === null || prev > cur ? cur : prev;
         }, null);
-        td_rec.avg_ping = Math.round(
-          table_rec.pings.reduce((a, b) => a + b) / table_rec.pings.length
-        );
-        td_rec.max_ping = table_rec.pings.reduce((prev, cur) => {
+        td_rec.avg_ping = Math.round(last60.reduce((a, b) => a + b) / last60.length);
+        td_rec.max_ping = last60.reduce((prev, cur) => {
           return prev === null || prev < cur ? cur : prev;
         }, null);
         td_rec.count_ping = table_rec.pings.length;
