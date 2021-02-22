@@ -16,11 +16,31 @@ import { mongoCss } from "../../../../api/client/collections";
 import injectSheet from "react-jss";
 import classNames from "classnames";
 import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
+import { serverTS } from "../../../../../lib/client/timestamp";
 
 import "./MenuLinks.css";
 import { ROLE_DEVELOPER } from "../../../../constants/systemConstants";
 
 class MenuLinks extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { lastping: 0, averageping: 0 };
+    this.pings = [];
+    this.sendingPingResult = result => {
+      if (this.pings.length >= 60) this.pings.shift();
+      this.pings.push(result.delay);
+      const average = this.pings.reduce((sum, val) => sum + val, 0) / this.pings.length;
+      this.setState({ lastping: result.delay, averageping: average });
+    };
+  }
+
+  componentDidMount() {
+    serverTS().events.on("sendingPingResult", this.sendingPingResult);
+  }
+  componentWillUnmount() {
+    serverTS().events.removeListener("sendingPingResult", this.sendingPingResult);
+  }
+
   logout = () => {
     const { history } = this.props;
 
@@ -42,6 +62,45 @@ class MenuLinks extends Component {
     } else if (label === labelLogout) {
       onLogout();
     }
+  };
+
+  //djl
+  connectionStatus = () => {
+    if(!this.props.currentRoles.some(role => role.role._id === "developer")) return <div/>;
+    const ping_style = { margin: "0px", width: "100%" };
+    const average_style = { margin: "0px", width: "100%" };
+
+    if (this.state.lastping > 500) {
+      ping_style.color = "black";
+      ping_style.backgroundColor = "red";
+    } else if (this.state.lastping > 200) {
+      ping_style.color = "black";
+      ping_style.backgroundColor = "yellow";
+    } else {
+      ping_style.color = "white";
+      ping_style.backgroundColor = "green";
+    }
+
+    if (this.state.averageping > 500) {
+      average_style.color = "black";
+      average_style.backgroundColor = "red";
+    } else if (this.state.averageping > 200) {
+      average_style.color = "black";
+      average_style.backgroundColor = "yellow";
+    } else {
+      average_style.color = "white";
+      average_style.backgroundColor = "green";
+    }
+
+    return (
+      <table width="100%">
+        <tbody>
+        <tr><td><p style={{ margin: "0px", width: "100%", color: "white" }}>Connection ID: {Meteor.default_connection._lastSessionId}</p></td></tr>
+        <tr><td><p style={ping_style}>Ping time: {this.state.lastping}</p></td></tr>
+        <tr><td><p style={average_style}>Average lag: {Math.round(this.state.averageping)}</p></td></tr>
+        </tbody>
+      </table>
+    );
   };
 
   getSidebar = linksArray => {
@@ -93,6 +152,7 @@ class MenuLinks extends Component {
     return (
       <div className={classes.menuLinks}>
         {this.getSidebar(links)}
+        {this.connectionStatus()}
         {this.getSidebar(sidebarBottom)}
       </div>
     );
