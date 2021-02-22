@@ -76,7 +76,7 @@ class DeveloperContainer3 extends Component {
   }
 
   componentDidMount() {
-    this.fuckme = {
+    this.emitobject = {
       sendingPing: request => this.sendingPing(request),
       stop: () => this.stop(),
       cleanupOldPings: request => this.cleanupOldPings(request),
@@ -86,30 +86,30 @@ class DeveloperContainer3 extends Component {
       sendingPong: pong => this.sendingPong(pong),
       clientLagFunc: () => this.clientLagFunc()
     };
-    serverTS().events.on("sendingPing", this.fuckme.sendingPing);
-    serverTS().events.on("stop", this.fuckme.stop);
-    serverTS().events.on("cleanupOldPings", this.fuckme.cleanupOldPings);
-    serverTS().events.on("pingArrived", this.fuckme.pingArrived);
-    serverTS().events.on("sendingPingResult", this.fuckme.sendingPingResult);
-    serverTS().events.on("lagFunc", this.fuckme.serverLagFunc);
+    serverTS().events.on("sendingPing", this.emitobject.sendingPing);
+    serverTS().events.on("stop", this.emitobject.stop);
+    serverTS().events.on("cleanupOldPings", this.emitobject.cleanupOldPings);
+    serverTS().events.on("pingArrived", this.emitobject.pingArrived);
+    serverTS().events.on("sendingPingResult", this.emitobject.sendingPingResult);
+    serverTS().events.on("lagFunc", this.emitobject.serverLagFunc);
 
-    clientTS().events.on("sendingPong", this.fuckme.sendingPong);
-    clientTS().events.on("lagFunc", this.fuckme.clientLagFunc);
+    clientTS().events.on("sendingPong", this.emitobject.sendingPong);
+    clientTS().events.on("lagFunc", this.emitobject.clientLagFunc);
 
     //this.interval_id = Meteor.setInterval(() => this.interval(), 1000);
   }
 
   componentWillUnmount() {
     //Meteor.clearInterval(this.interval_id);
-    serverTS().events.removeListener("sendingPing", this.fuckme.sendingPing);
-    serverTS().events.removeListener("stop", this.fuckme.stop);
-    serverTS().events.removeListener("cleanupOldPings", this.fuckme.cleanupOldPings);
-    serverTS().events.removeListener("pingArrived", this.fuckme.pingArrived);
-    serverTS().events.removeListener("sendingPingResult", this.fuckme.sendingPingResult);
-    serverTS().events.removeListener("lagFunc", this.fuckme.serverLagFunc);
+    serverTS().events.removeListener("sendingPing", this.emitobject.sendingPing);
+    serverTS().events.removeListener("stop", this.emitobject.stop);
+    serverTS().events.removeListener("cleanupOldPings", this.emitobject.cleanupOldPings);
+    serverTS().events.removeListener("pingArrived", this.emitobject.pingArrived);
+    serverTS().events.removeListener("sendingPingResult", this.emitobject.sendingPingResult);
+    serverTS().events.removeListener("lagFunc", this.emitobject.serverLagFunc);
 
-    clientTS().events.removeListener("sendingPong", this.fuckme.sendingPong);
-    clientTS().events.removeListener("lagFunc", this.fuckme.clientLagFunc);
+    clientTS().events.removeListener("sendingPong", this.emitobject.sendingPong);
+    clientTS().events.removeListener("lagFunc", this.emitobject.clientLagFunc);
   }
 
   render() {
