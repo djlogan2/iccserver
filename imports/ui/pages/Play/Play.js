@@ -459,7 +459,12 @@ export default compose(
 )(Play);
 
 const game_timestamps = {};
-Game.find({ status: "playing" }).observeChanges({
+Game.find({
+  $and: [
+    { status: "playing" },
+    { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
+  ]
+}).observeChanges({
   added(id, game) {
     //  log.debug("timstamp observer added, id=" + id);
     let color;
