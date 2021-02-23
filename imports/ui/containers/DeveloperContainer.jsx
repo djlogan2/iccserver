@@ -12,16 +12,22 @@ const loggedon_users = new Mongo.Collection("loggedon_users");
 const columns = [
   { title: "Connection ID", dataIndex: "connection_id", key: "key" },
   { title: "Last ping", dataIndex: "last", key: "key" },
-  { title: "Minimum ping", dataIndex: "min_ping", key: "key" },
-  { title: "Average ping", dataIndex: "avg_ping", key: "key" },
-  { title: "Maximum ping", dataIndex: "max_ping", key: "key" },
-  { title: "Ping count", dataIndex: "count_ping", key: "key" },
   { title: "Username", dataIndex: "username", key: "key" },
   { title: "IP Address", dataIndex: "ip_address", key: "key" },
-  { title: "Online", dataIndex: "status", key: "key" },
   { title: "Idle", dataIndex: "idle", key: "key" },
+
+  { title: "Client", dataIndex: "client_status", key: "key" },
   { title: "Game", dataIndex: "game_status", key: "key" },
-  { title: "Client", dataIndex: "client_status", key: "key" }
+
+  { title: "Server Min", dataIndex: "s_min_ping", key: "key" },
+  { title: "Server Avg", dataIndex: "s_avg_ping", key: "key" },
+  { title: "Server Max", dataIndex: "s_max_ping", key: "key" },
+  { title: "Server count", dataIndex: "s_count_ping", key: "key" },
+
+  { title: "Client Min", dataIndex: "c_min_ping", key: "key" },
+  { title: "Client Avg", dataIndex: "c_avg_ping", key: "key" },
+  { title: "Client Max", dataIndex: "c_max_ping", key: "key" },
+  { title: "Client count", dataIndex: "c_count_ping", key: "key" }
 ];
 
 class DeveloperContainer extends Component {
@@ -51,16 +57,33 @@ class DeveloperContainer extends Component {
         return table_rec.connection_id === td_rec.connection_id;
       },
       (table_rec, td_rec) => {
-        const last60 = table_rec.pings.slice(Math.max(table_rec.pings.length - 60, 0));
-        td_rec.last = date.format(table_rec.last, "YYYY-MM-DD HH:mm:ss");
-        td_rec.min_ping = last60.reduce((prev, cur) => {
+        const s_last60 = table_rec.server_pings.slice(
+          Math.max(table_rec.server_pings.length - 60, 0)
+        );
+        td_rec.s_min_ping = s_last60.reduce((prev, cur) => {
           return prev === null || prev > cur ? cur : prev;
         }, null);
-        td_rec.avg_ping = Math.round(last60.reduce((a, b) => a + b) / last60.length);
-        td_rec.max_ping = last60.reduce((prev, cur) => {
+        if (!!s_last60.length)
+          td_rec.s_avg_ping = Math.round(s_last60.reduce((a, b) => a + b, 0) / s_last60.length);
+        td_rec.s_max_ping = s_last60.reduce((prev, cur) => {
           return prev === null || prev < cur ? cur : prev;
         }, null);
-        td_rec.count_ping = table_rec.pings.length;
+        td_rec.s_count_ping = table_rec.server_pings.length;
+
+        const c_last60 = table_rec.client_pings.slice(
+          Math.max(table_rec.client_pings.length - 60, 0)
+        );
+        td_rec.c_min_ping = c_last60.reduce((prev, cur) => {
+          return prev === null || prev > cur ? cur : prev;
+        }, null);
+        if (!!c_last60.length)
+          td_rec.c_avg_ping = Math.round(c_last60.reduce((a, b) => a + b, 0) / c_last60.length);
+        td_rec.c_max_ping = c_last60.reduce((prev, cur) => {
+          return prev === null || prev < cur ? cur : prev;
+        }, null);
+        td_rec.c_count_ping = table_rec.client_pings.length;
+
+        td_rec.last = date.format(table_rec.last, "YYYY-MM-DD HH:mm:ss");
         td_rec.connection_id = table_rec.connection_id;
       }
     );
@@ -120,7 +143,6 @@ class DeveloperContainer extends Component {
             } else td_rec.idle = "";
             td_rec.user_id = user._id;
             td_rec.username = user.username;
-            td_rec.status = user.status.online.toString();
             td_rec.game_status = user.status.game;
             td_rec.client_status = user.status.client;
           });
@@ -136,7 +158,7 @@ class DeveloperContainer extends Component {
     this.do_all_users(tabledata);
     return (
       <div>
-        <Table dataSource={tabledata} columns={columns} />
+        <Table dataSource={tabledata} columns={columns} pagination={{ pageSize: 100 }} />
       </div>
     );
   }
