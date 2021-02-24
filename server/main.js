@@ -19,7 +19,7 @@ import "../server/Chat";
 import "../server/migrations";
 import "../server/clientCollection";
 //??
-
+import current_release from "../imports/startup/release";
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
 import firstRunClientInternationalization from "../imports/startup/server/firstRunClientInternationalization";
@@ -44,4 +44,10 @@ Meteor.startup(() => {
   firstRunCSS();
   firstRunUsers();
   firstRunClientInternationalization();
+
+  Meteor.methods({
+    current_release: () => current_release.current_release.release,
+    current_commit: () => current_release.current_release.commit
+  });
+
 });

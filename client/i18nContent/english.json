@@ -63,7 +63,9 @@
       "logout": "Logout",
       "community": "Community",
       "mygame": "My Games",
-      "uploadpgn": "Imported PGNs"
+      "uploadpgn": "Imported PGNs",
+      "average_lag": "Average lag",
+      "last_ping": "Last ping"
     },
     "MoveListComponent": {
       "takeBack": "Take Back",

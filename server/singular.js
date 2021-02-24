@@ -33,7 +33,7 @@ class Singular {
           timestamp: new Date().getTime()
         };
         const currentMaster = this.collection.findOne({ type: "master" });
-        const doc = this.collection
+        this.collection
           .rawCollection()
           .findAndModify(currentMaster, null, { $set: newMaster }, { new: true, update: true })
           .then(doc => {

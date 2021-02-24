@@ -3,27 +3,13 @@ import { Mongo } from "meteor/mongo";
 import date from "date-and-time";
 
 export const SystemConfiguration = {};
-const client_published_settings = ["game_history_count", "current_release", "last_commit"];
+const client_published_settings = ["game_history_count"];
 const SystemConfigurationCollection = new Mongo.Collection("system_configuration");
 
 Meteor.publish(null, () => {
   return SystemConfigurationCollection.find(
     { item: { $in: client_published_settings } },
     { fields: { item: 1, value: 1 } }
-  );
-});
-
-Meteor.startup(() => {
-  const accessed = date.format(new Date(), "YYYY-MM-DD");
-  let release = Assets.getText("release.txt");
-  const spl = release.split("\n");
-  SystemConfigurationCollection.upsert(
-    { item: "current_release" },
-    { $set: { value: spl[0], accessed: accessed } }
-  );
-  SystemConfigurationCollection.upsert(
-    { item: "last_commit" },
-    { $set: { value: spl[1], accessed: accessed } }
   );
 });
 

@@ -3,6 +3,7 @@ import { render } from "react-dom";
 import React from "react";
 import "../lib/client/timestamp";
 import { Logger } from "../lib/client/Logger";
+import current_release from "../imports/startup/release";
 
 import App from "./App";
 
@@ -31,6 +32,8 @@ window.onerror = function myErrorHandler(message, source, lineno, colno, error) 
 // *******************************************************************************************************
 
 Meteor.startup(() => {
+  Meteor.current_release = current_release.current_release.release;
+  Meteor.current_commit = current_release.current_release.commit;
   render(<App />, document.getElementById("target"));
 
   // log sent messages
