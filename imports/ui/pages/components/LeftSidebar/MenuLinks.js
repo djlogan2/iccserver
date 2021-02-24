@@ -118,20 +118,20 @@ class MenuLinks extends Component {
         <tbody>
           <tr>
             <td>
-              <Tooltip title="Last ping">
-                <Tag style={{ width: "100%" }} color={ping_color}>
+              <Tooltip title={this.props.translate("last_ping")}>
+                <Tag style={{ width: "100%", textAlign: "right" }} color={ping_color}>
                   {this.state.lastping}
                 </Tag>
               </Tooltip>
             </td>
             <td>
-              <Tooltip title="Average lag">
-                <Tag style={{ width: "100%" }} color={average_color}>
+              <Tooltip title={this.props.translate("average_lag")}>
+                <Tag style={{ width: "100%", textAlign: "right" }} color={average_color}>
                   {Math.round(this.state.averageping)}
                 </Tag>
               </Tooltip>
             </td>
-            <td>
+            <td style={{ textAlign: "center" }}>
               <Tooltip title={release_information}>
                 <SettingOutlined style={{ color: "white" }} />
               </Tooltip>

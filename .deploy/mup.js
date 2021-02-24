@@ -41,7 +41,7 @@ module.exports = {
   },
   hooks: {
     'pre.deploy': {
-      localCommand: 'echo "const current_release={\\"release\\":" "\\""`git describe --tag`"\\", \\"commit\\":\\""`git rev-parse HEAD`"\\"}" > ../imports/startup/release.js'
+      localCommand: 'echo "export const current_release={\\"release\\":" "\\""`git describe --tag`"\\", \\"commit\\":\\""`git rev-parse HEAD`"\\"}" > ../imports/startup/release.js'
     }
   }
 };

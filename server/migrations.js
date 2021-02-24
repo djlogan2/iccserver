@@ -10,6 +10,7 @@ import leftSideBarCss from "./defaultStyles/leftSideBarCss";
 import challengeNotificationCss from "./defaultStyles/challengeNotificationCss";
 import profileCss from "./defaultStyles/profileCss";
 import userManagementCss from "./defaultStyles/userManagementCss";
+import clientInternationalization from "../imports/collections/clientInternationalization";
 
 const log = new Logger("server/migrations");
 
@@ -268,6 +269,22 @@ Meteor.startup(() => {
     name: "Update client css default key",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { $set: { cssKey: "development" } });
+    }
+  });
+
+  Migrations.add({
+    version: "0.3.16_1",
+    name: "Update client css default key",
+    run: () => {
+      clientInternationalization.update(
+        {},
+        {
+          $set: {
+            "i18n.Common.menuLinkLabel.last_ping": "Last ping",
+            "i18n.Common.menuLinkLabel.average_lag": "Average lag"
+          }
+        }
+      );
     }
   });
 

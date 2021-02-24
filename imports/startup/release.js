@@ -1,1 +1,1 @@
-export const current_release={"release": "release-0.3.15-1-gd91a4f3", "commit":"d91a4f3354734ff2dc61f3ff1f247d9a42da341b"}
+export const current_release={"release": "release-0.3.15-2-gd8b1f9b", "commit":"d8b1f9b5050c773f8f4d83ba42ce86ab4a949937"}
