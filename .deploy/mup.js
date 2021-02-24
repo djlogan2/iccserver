@@ -38,5 +38,10 @@ module.exports = {
     servers: {
       one: {}
     }
+  },
+  hooks: {
+    'pre.deploy': {
+      localCommand: 'git describe --tag > ../private/release.txt ; git rev-parse HEAD >> ../private/release.txt'
+    }
   }
 };

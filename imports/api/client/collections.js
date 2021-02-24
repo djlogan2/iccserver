@@ -15,3 +15,4 @@ export const DynamicRatingsCollection = new Mongo.Collection("ratings");
 export const ClientInternationalizationCollection = new Mongo.Collection(
   "client_internationalization"
 );
+export const SystemConfigurationCollection = new Mongo.Collection("system_configuration");
