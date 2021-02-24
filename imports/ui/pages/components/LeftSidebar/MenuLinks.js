@@ -26,7 +26,7 @@ import { ROLE_DEVELOPER } from "../../../../constants/systemConstants";
 class MenuLinks extends Component {
   constructor(props) {
     super(props);
-    this.state = { lastping: 0, averageping: 0 };
+    this.state = { lastping: 0, averageping: 0, lagging: 0 };
     this.pings = [];
     Meteor.call("current_release", (error, result) => {
       this.setState({ current_release: result });
@@ -34,19 +34,28 @@ class MenuLinks extends Component {
     Meteor.call("current_commit", (error, result) => {
       this.setState({ current_commit: result });
     });
+    this.lagging = () => {
+      this.setState({ lagging: this.state.lagging + 1 });
+    };
     this.sendingPingResult = result => {
       if (this.pings.length >= 60) this.pings.shift();
       this.pings.push(result.delay);
       const average = this.pings.reduce((sum, val) => sum + val, 0) / this.pings.length;
-      this.setState({ lastping: result.delay, averageping: average });
+      this.setState({
+        lastping: result.delay,
+        averageping: average,
+        lagging: 0
+      });
     };
   }
 
   componentDidMount() {
     serverTS().events.on("sendingPingResult", this.sendingPingResult);
+    serverTS().events.on("lagFunc", this.lagging);
   }
   componentWillUnmount() {
     serverTS().events.removeListener("sendingPingResult", this.sendingPingResult);
+    serverTS().events.removeListener("lagFunc", this.lagging);
   }
 
   logout = () => {
@@ -76,7 +85,7 @@ class MenuLinks extends Component {
     let ping_color;
     let average_color;
 
-    if (this.state.lastping > 500) {
+    if (!!this.state.lagging || this.state.lastping > 500) {
       ping_color = "red";
     } else if (this.state.lastping > 200) {
       ping_color = "gold";
@@ -84,7 +93,7 @@ class MenuLinks extends Component {
       ping_color = "green";
     }
 
-    if (this.state.averageping > 500) {
+    if (!!this.state.lagging || this.state.averageping > 500) {
       average_color = "red";
     } else if (this.state.averageping > 200) {
       average_color = "gold";
@@ -120,17 +129,21 @@ class MenuLinks extends Component {
             <td>
               <Tooltip title={this.props.translate("last_ping")}>
                 <Tag style={{ width: "100%", textAlign: "right" }} color={ping_color}>
-                  {this.state.lastping}
+                  {!!this.state.lagging
+                    ? "Disconnected " + this.state.lagging + "s"
+                    : this.state.lastping}
                 </Tag>
               </Tooltip>
             </td>
-            <td>
-              <Tooltip title={this.props.translate("average_lag")}>
-                <Tag style={{ width: "100%", textAlign: "right" }} color={average_color}>
-                  {Math.round(this.state.averageping)}
-                </Tag>
-              </Tooltip>
-            </td>
+            {!this.state.lagging && (
+              <td>
+                <Tooltip title={this.props.translate("average_lag")}>
+                  <Tag style={{ width: "100%", textAlign: "right" }} color={average_color}>
+                    {Math.round(this.state.averageping)}
+                  </Tag>
+                </Tooltip>
+              </td>
+            )}
             <td style={{ textAlign: "center" }}>
               <Tooltip title={release_information}>
                 <SettingOutlined style={{ color: "white" }} />
