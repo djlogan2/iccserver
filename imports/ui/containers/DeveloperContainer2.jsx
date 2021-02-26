@@ -1,7 +1,8 @@
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import React, { Component } from "react";
-import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
+import PlusOutlined from "@ant-design/icons/PlusOutlined";
+import MinusOutlined from "@ant-design/icons/MinusOutlined";
 import {
   Alert,
   Button,

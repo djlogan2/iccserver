@@ -18,7 +18,7 @@ import injectSheet from "react-jss";
 import classNames from "classnames";
 import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
 import { serverTS } from "../../../../../lib/client/timestamp";
-import { SettingOutlined } from "@ant-design/icons";
+import SettingOutlined from "@ant-design/icons/SettingOutlined";
 
 import "./MenuLinks.css";
 import { ROLE_DEVELOPER } from "../../../../constants/systemConstants";

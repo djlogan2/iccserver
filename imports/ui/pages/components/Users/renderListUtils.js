@@ -1,6 +1,8 @@
 import React from "react";
 import { Button } from "antd";
-import { CheckOutlined, MinusOutlined, EditOutlined } from "@ant-design/icons";
+import CheckOutlined from "@ant-design/icons/CheckOutlined";
+import MinusOutlined from "@ant-design/icons/MinusOutlined";
+import EditOutlined from "@ant-design/icons/EditOutlined";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 
 export const renderEmail = (text, record) => record?.emails[0]?.address;
