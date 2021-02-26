@@ -104,10 +104,11 @@ describe("Client Messages", function() {
 
   // We need a meteor method for this!
   it("should delete acknowledged messages from the collection", function() {
-    sinon.replace(i18n, "localizeMessage", sinon.fake.returns("the message"));
+    const sandbox = sinon.createSandbox();
+    sandbox.replace(i18n, "localizeMessage", sandbox.fake.returns("the message"));
     const user1 = TestHelpers.createUser({ login: true });
     const user2 = TestHelpers.createUser({ login: true });
-    //sinon.replace(Meteor, "userId", () => {return user1._id});
+    //sandbox.replace(Meteor, "userId", () => {return user1._id});
     const id1 = ClientMessages.sendMessageToClient(user1._id, "id1", "FOR_TESTING");
     ClientMessages.sendMessageToClient(user1._id, "id2", "FOR_TESTING");
     ClientMessages.sendMessageToClient(user2._id, "id3", "FOR_TESTING");
@@ -116,18 +117,19 @@ describe("Client Messages", function() {
     const remainder = ClientMessages.collection.find().fetch();
     chai.assert.equal(2, remainder.length);
     chai.assert.notInclude(remainder, { _id: id1 });
-    sinon.restore();
+    sandbox.restore();
   });
 
   it("should not allow the meteor call to delete a message that does not belong to them", function() {
-    sinon.replace(i18n, "localizeMessage", sinon.fake.returns("the message"));
+    const sandbox = sinon.createSandbox();
+    sandbox.replace(i18n, "localizeMessage", sandbox.fake.returns("the message"));
     const user1 = TestHelpers.createUser({ login: true });
     const user2 = TestHelpers.createUser({ login: true });
     const id1 = ClientMessages.sendMessageToClient(user1._id, "id1", "FOR_TESTING");
     ClientMessages.sendMessageToClient(user2._id, "id2", "FOR_TESTING");
     let method = Meteor.server.method_handlers["acknowledge.client.message"];
     chai.assert.throws(() => method.apply({ userId: user2._id }, [id1]), ICCMeteorError);
-    sinon.restore();
+    sandbox.restore();
   });
 
   it("should throw an error if the message doesn't exist", function() {
@@ -150,7 +152,8 @@ describe("Client Messages publication", function() {
 
   it("should only publish messages belonging to the user", function(done) {
     this.timeout(30000);
-    sinon.replace(i18n, "localizeMessage", sinon.fake.returns("the message"));
+    const sandbox = sinon.createSandbox();
+    sandbox.replace(i18n, "localizeMessage", sandbox.fake.returns("the message"));
     const user1 = TestHelpers.createUser();
     const user2 = TestHelpers.createUser();
     ClientMessages.sendMessageToClient(user1._id, "mi1", "FOR_TESTING");
@@ -176,7 +179,7 @@ describe("Client Messages publication", function() {
       chai.assert.equal(collections.client_messages[0].to, user1._id);
       chai.assert.equal(collections.client_messages[0].client_identifier, "mi1");
       chai.assert.equal(collections.client_messages[0].message, "the message");
-      sinon.restore();
+      sandbox.restore();
       done();
     });
   });

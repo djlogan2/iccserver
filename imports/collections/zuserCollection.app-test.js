@@ -100,7 +100,27 @@ const all_fields = {
   //   resume: {loginTokens: [{when: {$date: 0, hashedToken: 0}}]}
   // },
   settings: {
-    autoaccept: 1
+    autoaccept: 1,
+    match_default: {
+      wild_number: 1,
+      rating_type: 1,
+      rated: 1,
+      challenger_time: 1,
+      challenger_inc_or_delay: 1,
+      challenger_delaytype: 1,
+      receiver_time: 1,
+      receiver_inc_or_delay: 1,
+      receiver_delaytype: 1,
+      challenger_color_request: 1
+    },
+    seek_default: {
+      wild: 1,
+      rating_type: 1,
+      time: 1,
+      inc_or_delay: 1,
+      inc_or_delay_type: 1,
+      rated: 1
+    }
   },
   status: {
     //    online: 1,
