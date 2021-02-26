@@ -84,7 +84,6 @@ class Play extends Component {
 
   _pieceSquareDragStop = raf => {
     const { inGame } = this.props;
-    log.debug("Making move " + raf.move + " in game " + inGame._id);
     Meteor.call("addGameMove", "gameMove", inGame._id, raf.move, handleError);
   };
 
@@ -318,15 +317,6 @@ class Play extends Component {
   };
 
   render() {
-    const test = clientCollection.findOne();
-    if (!test) {
-      Meteor.call("client_collection", { value: 1, static: "stuff" });
-      console.log("first time in");
-    } else {
-      Meteor.call("client_collection", { value: test.value + 1 });
-      console.log("Updating value to " + (test.value + 1));
-    }
-
     const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
 
     if (!isReady) {
@@ -466,14 +456,13 @@ Game.find({
   ]
 }).observeChanges({
   added(id, game) {
-    //  log.debug("timstamp observer added, id=" + id);
     let color;
     if (game.white.id === Meteor.userId()) color = "white";
     else if (game.black.id === Meteor.userId()) color = "black";
     if (!color) throw new Meteor.Error("Unable to discern which color we are");
     game_timestamps[id] = {
       color,
-      timestamp: new TimestampClient(new Logger("client/play/timestamp"), "client game", (_, msg) =>
+      timestamp: new TimestampClient((_, msg) =>
         Meteor.call("gamepong", id, msg)
       )
     };
@@ -501,7 +490,7 @@ Game.find({
       try {
         game_timestamps[id].timestamp.end();
       } catch (e) {
-        log.error("observeChanges removed error", e);
+        log.error("observeChanges removed error " + e.message, JSON.stringify(e));
       } finally {
         delete game_timestamps[id];
       }

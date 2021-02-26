@@ -54,7 +54,6 @@ export default class ChessBoard extends PureComponent {
 
   onMove = (from, to) => {
     const { onDrop } = this.props;
-    log.debug("onMove from=" + from + ", to=" + to);
 
     const moves = this.chess.moves({ verbose: true });
 

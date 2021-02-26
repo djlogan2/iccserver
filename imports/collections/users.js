@@ -82,9 +82,6 @@ Meteor.publish(null, function() {
   if (!this._session) return this.ready();
 
   if (!this.userId) {
-    log.debug(
-      "trying logout for null user in publish for connection " + this._session.connectionHandle.id
-    );
     Users.tryLogout(this._session.connectionHandle.id);
     return this.ready();
   }
@@ -173,7 +170,6 @@ Users.setClientStatus = function(message_identifier, user, status) {
 };
 
 Users.setGameStatus = function(message_identifier, user, status) {
-  log.debug("setGameStatus", [message_identifier, user, status]);
   check(message_identifier, String);
   check(user, Match.OneOf(Object, String));
   check(status, String);
@@ -545,10 +541,8 @@ Users.tryLogout = function(connectionId) {
   if (!!lou) {
     LoggedOnUsers.remove({ _id: lou._id });
 
-    if (!LoggedOnUsers.find({ user_id: lou.user_id }).count()) {
-      log.debug("Emitting userLogout for " + lou.user_id);
+    if (!LoggedOnUsers.find({ user_id: lou.user_id }).count())
       statusEvents.emit("userLogout", { userId: lou.user_id });
-    }
   }
 };
 
@@ -683,19 +677,6 @@ Meteor.startup(function() {
 
   if (!Meteor.isTest && !Meteor.isAppTest) {
     UserStatus.events.on("connectionLogin", fields => {
-      log.debug(
-        "connectionLogin userId=" +
-          fields.userId +
-          ", connectionId=" +
-          fields.connectionId +
-          ", ipAddr=" +
-          fields.ipAddr +
-          ", userAgent=" +
-          fields.userAgent +
-          ", loginTime=" +
-          fields.loginTime
-      );
-
       const loginCount = LoggedOnUsers.find({ user_id: fields.userId }).count();
       LoggedOnUsers.upsert(
         {
@@ -723,16 +704,10 @@ Meteor.startup(function() {
         }
       );
 
-      if (!loginCount) {
-        log.debug("Emitting userLogin for " + fields.userId);
-        statusEvents.emit("userLogin", { userId: fields.userId });
-      }
+      if (!loginCount) statusEvents.emit("userLogin", { userId: fields.userId });
     });
 
     UserStatus.events.on("connectionLogout", fields => {
-      log.debug(
-        "connectionLogout userId=" + fields.userId + ", connectionId=" + fields.connectionId
-      );
       Users.tryLogout(fields.connectionId);
     });
     // UserStatus.events.on("connectionIdle", fields => {
@@ -763,27 +738,19 @@ Meteor.startup(function() {
 });
 
 Accounts.validateLoginAttempt(function(params) {
-  log.debug("validateLoginAttempt", params);
   // params.type = service name
   // params.allowed = t/f
   // params.user
   // params.connection
   // params.methodName
   // params.methodArguments
-  if (!params.allowed) {
-    log.debug("validateLoginAttempt not allowed");
-    return false;
-  }
-  if (!params.user) {
-    log.debug("validateLoginAttempt no user");
-    return false;
-  }
+  if (!params.allowed) return false;
+  if (!params.user) return false;
 
   //
   // Set the users locale from the http headers if they don't already have one set.
   //
   if (!params.user.locale || params.user.locale === "unknown") {
-    log.debug("validateLoginAttempt updating locale");
     const httpHeaders = params.connection.httpHeaders || {};
     const acceptLanguage = (httpHeaders["accept-language"] || "en-us")
       .split(/[,;]/)[0]
@@ -799,7 +766,6 @@ Accounts.validateLoginAttempt(function(params) {
   // login, we get here, where we delete that, and fill in the users roles.
   //
   if (params.user.newguy) {
-    log.debug("validateLoginAttempt updating roles for new user");
     const isolation_group_by_host = ConfigurationParametersByHost.findOne({
       host: params.connection.httpHeaders.host
     });

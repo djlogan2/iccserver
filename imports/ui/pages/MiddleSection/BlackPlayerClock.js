@@ -102,16 +102,6 @@ export default class BlackPlayerClock extends Component {
     }
 
     if (running !== state.running) {
-      log.debug(
-        "id=" +
-          props.game._id +
-          ", pcurrent=" +
-          pcurrent +
-          ", state.game_current=" +
-          state.game_current +
-          ", running=" +
-          running
-      );
       returnstate.running = running;
       returnstate.mark = mark;
     }

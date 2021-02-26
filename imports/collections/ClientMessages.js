@@ -167,14 +167,6 @@ class ClientMessages {
   };
 
   sendMessageToClient = function(user, client_identifier, i18n_message) {
-    log.debug(
-      "sendMessageToClient user=" +
-        user +
-        ", client_identifier=" +
-        client_identifier +
-        ", i18n_message=" +
-        i18n_message
-    );
     check(user, Match.OneOf(Object, String));
     check(client_identifier, String);
     check(
@@ -246,7 +238,6 @@ Meteor.publish(null, function() {
 
 Meteor.methods({
   "acknowledge.client.message": function(id) {
-    log.debug("Meteor.methods acknowledge.client.message");
     check(id, String);
     const rec = ClientMessagesCollection.findOne({ _id: id });
     if (!rec)

@@ -3666,7 +3666,7 @@ describe("when playing a game", function() {
 
     self.clock.tick(150);
 
-    const client = new TimestampClient(new Logger("test"), "debug1", (key, msg) => {
+    const client = new TimestampClient((key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         if (!!error) chai.assert.fail(error);
         const game2 = Game.collection.findOne({});
@@ -3759,7 +3759,7 @@ describe("when playing a game", function() {
 
     Game.resignLocalGame("mi2", game_id);
 
-    const client = new TimestampClient(new Logger("test"), "debug3", (key, msg) => {
+    const client = new TimestampClient((key, msg) => {
       Meteor.call("gamepong", game_id, msg, error => {
         chai.assert.equal(
           error.message,
