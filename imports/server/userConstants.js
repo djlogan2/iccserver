@@ -37,6 +37,7 @@ export const all_roles = [
   "delete_users",
   "set_other_password",
   "set_other_username",
+  "set_other_isolation_group",
   "change_username",
   "change_email"
 ];

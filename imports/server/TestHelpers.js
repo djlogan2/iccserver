@@ -132,10 +132,12 @@ if (Meteor.isTest || Meteor.isAppTest) {
           "meetsRatingTypeRules",
           self.sandbox.fake.returns(true)
         );
-        if (!!options && !!options.beforeEach && typeof options.beforeEach === "function") options.beforeEach();
+        if (!!options && !!options.beforeEach && typeof options.beforeEach === "function")
+          options.beforeEach();
       }
 
       self.sandbox.replace(Meteor, "user", self.meteorUsersFake);
+      self.sandbox.replace(Meteor, "userId", () => self.loggedonuser._id);
 
       const orig_isauthorized = Users.isAuthorized;
       self.sandbox.replace(
