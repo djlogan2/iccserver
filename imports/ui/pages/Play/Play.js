@@ -469,7 +469,6 @@ Game.find({
   },
   changed(id, fields) {
     if (fields.status && fields.status !== "playing") {
-      log.debug("timstamp observer changed, no longer playing id=" + id);
       if (!!game_timestamps[id]) {
         game_timestamps[id].timestamp.end();
         delete game_timestamps[id];
@@ -485,12 +484,11 @@ Game.find({
     }
   },
   removed(id) {
-    log.debug("timstamp observer removed, id=" + id);
     if (!!game_timestamps[id]) {
       try {
         game_timestamps[id].timestamp.end();
       } catch (e) {
-        log.error("observeChanges removed error " + e.message, JSON.stringify(e));
+        // For some reason, two removes can come through here...not sure why, but really who cares?
       } finally {
         delete game_timestamps[id];
       }

@@ -101,9 +101,7 @@ class Chat {
         ]
       };
       if (user.cf === "c") query_object.$and.push({ child_chat: true });
-      const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
-      log.debug("personalChat", cursor.count());
-      return cursor;
+      return self.collection.find(query_object, { sort: { createdAt: 1 } });
     }
 
     function roomChat(room, user) {
@@ -113,7 +111,7 @@ class Chat {
       // No chats if they aren't members. If they are just invited, no chats!
       if (!room.members.some(member => member.id === user._id))
         return self.collection.find({ _id: "none" });
-      const cursor = self.collection.find(
+      return self.collection.find(
         {
           isolation_group: user.isolation_group,
           type: "room",
@@ -121,12 +119,10 @@ class Chat {
         },
         { sort: { createdAt: 1 }, limit: SystemConfiguration.roomChatLimit() }
       );
-      log.debug("roomChat", cursor.count());
-      return cursor;
     }
 
     function games(user) {
-      const cursor = Game.GameCollection.find(
+      return Game.GameCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -141,8 +137,6 @@ class Chat {
         },
         { fields: { _id: 1, observers: 1 } }
       );
-      log.debug("playedGames", cursor.count());
-      return cursor;
     }
 
     function gameKibitzes(game, user) {
@@ -154,27 +148,23 @@ class Chat {
         query_object.type = { $in: ["kibitz", "whisper"] };
       else query_object.type = "kibitz";
       if (user.cf === "c") query_object.child_chat = true;
-      const cursor = self.collection.find(query_object, { sort: { createdAt: 1 } });
-      log.debug("gameKibitzes", cursor.count());
-      return cursor;
+      return self.collection.find(query_object, { sort: { createdAt: 1 } });
     }
 
     function ownedRooms(user) {
       if (user.cf === "c") return self.roomCollection.find({ _id: "0" });
       if (!Users.isAuthorized(user, "join_room")) return self.roomCollection.find({ _id: "0" });
-      const cursor = self.roomCollection.find({
+      return self.roomCollection.find({
         owner: user._id,
         public: false,
         isolation_group: user.isolation_group
       });
-      log.debug("ownedRooms", cursor.count());
-      return cursor;
     }
 
     function nonOwnedRooms(user) {
       if (user.cf === "c") return self.roomCollection.find({ _id: "0" });
       if (!Users.isAuthorized(user, "join_room")) return self.roomCollection.find({ _id: "0" });
-      const cursor = self.roomCollection.find(
+      return self.roomCollection.find(
         {
           $and: [
             { isolation_group: user.isolation_group },
@@ -183,8 +173,6 @@ class Chat {
         },
         { fields: { _id: 1, name: 1, members: 1 } }
       );
-      log.debug("nonOwnedRooms", cursor.count());
-      return cursor;
     }
 
     Meteor.publishComposite("chat", {
@@ -305,7 +293,6 @@ class Chat {
   }
 
   kibitz(message_identifier, game_id, kibitz, txt) {
-    log.debug("kibitz " + message_identifier + ", " + game_id + ", " + kibitz + ", " + txt);
     check(message_identifier, String);
     check(txt, String);
     check(game_id, String);
@@ -365,7 +352,6 @@ class Chat {
   }
 
   createRoom(message_identifier, roomName, priv) {
-    log.debug("createRoom " + message_identifier + ", " + roomName + ", " + priv);
     check(message_identifier, String);
     check(roomName, String);
     check(priv, Match.Maybe(Boolean));
@@ -413,7 +399,6 @@ class Chat {
   }
 
   writeToRoom(message_identifier, room_id, txt) {
-    log.debug("writeToRoom " + message_identifier + ", " + room_id + ", " + txt);
     check(message_identifier, String);
     check(room_id, String);
     check(txt, String);
@@ -462,7 +447,6 @@ class Chat {
   }
 
   deleteRoom(message_identifier, room_id) {
-    log.debug("deleteRoom " + message_identifier + ", " + room_id);
     check(message_identifier, String);
     check(room_id, String);
 
@@ -494,7 +478,6 @@ class Chat {
   }
 
   joinRoom(message_identifier, room_id) {
-    log.debug("joinRoom " + message_identifier + ", " + room_id);
     check(message_identifier, String);
     check(room_id, String);
 
@@ -548,7 +531,6 @@ class Chat {
   }
 
   leaveRoom(message_identifier, room_id, user_id) {
-    log.debug("leaveRoom " + message_identifier + ", " + room_id + ", " + user_id);
     check(message_identifier, String);
     check(room_id, String);
 
@@ -599,7 +581,6 @@ class Chat {
   }
 
   inviteToRoom(message_identifier, room_id, user_id) {
-    log.debug("inviteToRoom " + message_identifier + ", " + room_id + ", " + user_id);
     check(message_identifier, String);
     check(room_id, String);
     check(user_id, String);
@@ -674,8 +655,6 @@ class Chat {
   }
 
   writeToUser(message_identifier, user_id, text) {
-    log.debug("writeToUser " + message_identifier + ", " + user_id + ", " + text);
-
     const self = Meteor.user();
     const user = Meteor.users.findOne({ _id: user_id });
 
