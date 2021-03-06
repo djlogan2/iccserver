@@ -150,7 +150,8 @@ const DefinedClientMessagesMap = {
   GAME_NOT_FOUND: {},
   OVERLAPPING_RATING: { parameters: ["rating_type"] },
   UNABLE_TO_CHANGE_USERNAME: {},
-  UNABLE_TO_CHANGE_EMAIL: {}
+  UNABLE_TO_CHANGE_EMAIL: {},
+  INVALID_PLAYING_STATUS: {}
 };
 
 class ClientMessages {

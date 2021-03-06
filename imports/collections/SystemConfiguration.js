@@ -1,6 +1,7 @@
 import { check } from "meteor/check";
 import { Mongo } from "meteor/mongo";
 import date from "date-and-time";
+import { EventEmitter } from "events";
 
 export const SystemConfiguration = {};
 const client_published_settings = ["game_history_count"];
@@ -25,6 +26,21 @@ function lookup(item, defaultValue) {
   return itemrecord.value;
 }
 
+SystemConfiguration.events = new EventEmitter();
+
+Meteor.startup(() => {
+  SystemConfigurationCollection.find({}, { fields: { value: 1 } }).observeChanges({
+    changed(id, fields) {
+      if ("value" in fields) {
+        // Yes, this is a find, but a change to a configuration parameter should happen
+        // so rarely that this should never be an issue.
+        const sc = SystemConfigurationCollection.findOne({ _id: id });
+        SystemConfiguration.events.emit("changed", { item: sc.item, value: fields.value });
+      }
+    }
+  });
+});
+
 SystemConfiguration.seekDefault = function() {
   return lookup("seek_default", {
     wild: 0,
@@ -34,6 +50,18 @@ SystemConfiguration.seekDefault = function() {
     inc_or_delay_type: "none",
     rated: true
   });
+};
+
+SystemConfiguration.pingsToSave = function(callback) {
+  if(!!callback && typeof callback === "function") {
+    SystemConfiguration.events.on("changed", data => {
+      if(data.item === "pings_to_save")
+        callback(data.value);
+    });
+    callback(lookup("pings_to_save", 3600));
+  } else {
+    return lookup("pings_to_save", 3600);
+  }
 };
 
 SystemConfiguration.matchDefault = function() {

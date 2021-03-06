@@ -43,7 +43,7 @@ class PersonalChatApp extends Component {
 
 export default withTracker(props => {
   return {
-    opponent: Meteor.users.findOne({ _id: props.opponentId }),
+    opponent: Meteor.users.findOne({ _id: { $in: [Meteor.userId(), props.opponentId] } }),
     childChatTexts: ChildChatTexts.find().fetch(),
     chats: Chat.find({
       type: "private",

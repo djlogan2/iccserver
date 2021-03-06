@@ -1381,10 +1381,8 @@ class Game {
       );
 
       this.sendGameStatus(game._id, game.white.id, game.black.id, game.tomove, score_string2, 0);
-
       Users.setGameStatus(message_identifier, self._id, "examining");
     } else {
-      Users.setGameStatus(message_identifier, self._id, "none");
       this.GameCollection.remove({ _id: game._id });
     }
   }
@@ -1568,6 +1566,7 @@ class Game {
     }
 
     if (delete_game) {
+      game.observers.forEach(obr => Users.setGameStatus("server", obr.id, "none"));
       this.GameCollection.remove({ _id: game_id });
       delete active_games[game_id];
     } else {
@@ -3732,12 +3731,7 @@ class Game {
             throw new ICCMeteorError("server", "Unable to set ping information", "game not found");
 
           const item = game.lag[color].active.find(ping => ping.id === msg.id);
-          if (!item)
-            throw new ICCMeteorError(
-              "server",
-              "Unable to set ping information",
-              "cannot find ping id in array of active pings"
-            );
+          if (!item) return;
 
           const pushobject = {};
           const pullobject = {};
@@ -4114,10 +4108,7 @@ Meteor.methods({
     check(game_id, String);
     check(pong, Object);
     check(user, Object);
-    if (!game_pings[game_id]) {
-      log.error("Unable to locate game to ping (2)");
-      return;
-    }
+    if (!game_pings[game_id]) return;
     const game = global._gameObject.GameCollection.findOne(
       { _id: game_id, status: "playing" },
       { fields: { "white.id": 1 } }

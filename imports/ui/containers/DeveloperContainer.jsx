@@ -19,15 +19,9 @@ const columns = [
   { title: "Client", dataIndex: "client_status", key: "key" },
   { title: "Game", dataIndex: "game_status", key: "key" },
 
-  { title: "Server Min", dataIndex: "s_min_ping", key: "key" },
-  { title: "Server Avg", dataIndex: "s_avg_ping", key: "key" },
-  { title: "Server Max", dataIndex: "s_max_ping", key: "key" },
-  { title: "Server count", dataIndex: "s_count_ping", key: "key" },
+  { title: "Server Min/Avg/Max/Last", dataIndex: "s_ping", key: "key" },
 
-  { title: "Client Min", dataIndex: "c_min_ping", key: "key" },
-  { title: "Client Avg", dataIndex: "c_avg_ping", key: "key" },
-  { title: "Client Max", dataIndex: "c_max_ping", key: "key" },
-  { title: "Client count", dataIndex: "c_count_ping", key: "key" }
+  { title: "Client Min/Avg/Max/Last", dataIndex: "c_ping", key: "key" }
 ];
 
 class DeveloperContainer extends Component {
@@ -60,28 +54,39 @@ class DeveloperContainer extends Component {
         const s_last60 = table_rec.server_pings.slice(
           Math.max(table_rec.server_pings.length - 60, 0)
         );
-        td_rec.s_min_ping = s_last60.reduce((prev, cur) => {
-          return prev === null || prev > cur ? cur : prev;
-        }, null);
+        td_rec.s_ping =
+          "" +
+          s_last60.reduce((prev, cur) => {
+            return prev === null || prev > cur ? cur : prev;
+          }, null);
         if (!!s_last60.length)
-          td_rec.s_avg_ping = Math.round(s_last60.reduce((a, b) => a + b, 0) / s_last60.length);
-        td_rec.s_max_ping = s_last60.reduce((prev, cur) => {
-          return prev === null || prev < cur ? cur : prev;
-        }, null);
-        td_rec.s_count_ping = table_rec.server_pings.length;
+          td_rec.s_ping +=
+            " / " + Math.round(s_last60.reduce((a, b) => a + b, 0) / s_last60.length);
+        td_rec.s_ping +=
+          " / " +
+          s_last60.reduce((prev, cur) => {
+            return prev === null || prev < cur ? cur : prev;
+          }, null);
+        td_rec.s_ping += " / " + s_last60.splice(-1);
 
         const c_last60 = table_rec.client_pings.slice(
           Math.max(table_rec.client_pings.length - 60, 0)
         );
-        td_rec.c_min_ping = c_last60.reduce((prev, cur) => {
-          return prev === null || prev > cur ? cur : prev;
-        }, null);
+        td_rec.c_ping =
+          "" +
+          c_last60.reduce((prev, cur) => {
+            return prev === null || prev > cur ? cur : prev;
+          }, null);
         if (!!c_last60.length)
-          td_rec.c_avg_ping = Math.round(c_last60.reduce((a, b) => a + b, 0) / c_last60.length);
-        td_rec.c_max_ping = c_last60.reduce((prev, cur) => {
-          return prev === null || prev < cur ? cur : prev;
-        }, null);
-        td_rec.c_count_ping = table_rec.client_pings.length;
+          td_rec.c_ping +=
+            " / " + Math.round(c_last60.reduce((a, b) => a + b, 0) / c_last60.length);
+        td_rec.c_ping +=
+          " / " +
+          c_last60.reduce((prev, cur) => {
+            return prev === null || prev < cur ? cur : prev;
+          }, null);
+        td_rec.c_ping += " / " + c_last60.splice(-1);
+
 
         td_rec.last = date.format(table_rec.last, "YYYY-MM-DD HH:mm:ss");
         td_rec.connection_id = table_rec.connection_id;
