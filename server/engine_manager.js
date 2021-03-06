@@ -4,13 +4,11 @@ import { Book } from "./Book";
 import Chess from "chess.js";
 import { Random } from "meteor/random";
 import AWS from "aws-sdk";
-import { AWSmanager } from "./awsmanager";
 import { Meteor } from "meteor/meteor";
 import { Singular } from "./singular";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
-const ANALYSIS_THREADS = 1;
 
 if (!process.env.AWS_ACCESS_KEY_ID) {
   AWS.config.credentials = new AWS.SharedIniFileCredentials({ profile: "icc" });
@@ -18,14 +16,6 @@ if (!process.env.AWS_ACCESS_KEY_ID) {
 }
 
 const lambda = new AWS.Lambda();
-
-async function start_engine(game_id) {
-  return AWSmanager.getEngine(game_id, { MultiPV: 3 });
-}
-
-async function stop_engine(game_id) {
-  AWSmanager.releaseEngine(game_id);
-}
 
 function awsDoIt(game) {
   return new Promise((resolve, reject) => {
@@ -63,20 +53,11 @@ function awsDoIt(game) {
       const computer_start = Date.parse(body.timing.start);
       const computer_end = Date.parse(body.timing.end);
       const lambda_time = computer_end - computer_start;
-      const time_diff = server_time - lambda_time;
+      // You can use time_diff/2 for lag if you wish
+      //const time_diff = server_time - lambda_time;
       resolve(body.results);
     });
   });
-}
-
-function getMoveCount(game) {
-  let cmi = game.variations.cmi;
-  let movecount = 0;
-  while (cmi !== 0) {
-    movecount++;
-    cmi = game.variations.movelist[cmi].prev;
-  }
-  return movecount;
 }
 
 const playGameMove = Meteor.bindEnvironment(game_id => {
@@ -123,48 +104,6 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
   });
 });
 
-const parseStockfishAnalysisResults = Meteor.bindEnvironment((game_id, data) => {
-  const newgame = Game.GameCollection.findOne({ _id: game_id });
-  if (!newgame) return;
-
-  if (!newgame.computer_variations[newgame.variations.cmi]) newgame.computer_variations.push([]);
-
-  if (!data.multipv) return;
-
-  const mpv = data.multipv - 1;
-  if (newgame.computer_variations[newgame.variations.cmi].length <= mpv) {
-    for (let x = newgame.computer_variations[newgame.variations.cmi].length; x <= mpv; x++)
-      newgame.computer_variations[newgame.variations.cmi].push({ ...data });
-  } else newgame.computer_variations[newgame.variations.cmi][mpv] = { ...data };
-
-  Game.GameCollection.update(
-    { _id: game_id, status: newgame.status },
-    { $set: { computer_variations: newgame.computer_variations } }
-  );
-});
-
-async function start_analysis(game_id, game) {
-  const engine = start_engine(game_id, "analysis");
-  if (!engine)
-    throw new Meteor.Error(
-      "Unable to start analysis",
-      "We should have an engine for game id " + game_id + ", but we do not"
-    );
-
-  engine.position(game.fen);
-  engine.goInfinite().on("data", data => parseStockfishAnalysisResults(game_id, data));
-}
-
-async function end_analysis(game_id) {
-  const engine = _engines.analysis[game_id];
-  if (!engine)
-    throw new Meteor.Error(
-      "Unable to stop analysis",
-      "We should have an engine for game id " + game_id + ", but we do not"
-    );
-  await engine.stop();
-}
-
 function watchForComputerGames() {
   Game.GameCollection.find({
     $and: [{ status: "playing" }, { $or: [{ "white.id": "computer" }, { "black.id": "computer" }] }]
@@ -179,25 +118,8 @@ function watchForComputerGames() {
   });
 }
 
-function watchAllGamesForAnalysis() {
-  Game.GameCollection.find({}).observeChanges({
-    added(id, fields) {
-      start_analysis(id, fields);
-    },
-    changed(id, fields) {
-      if (fields.fen) {
-        end_analysis(id).then(() => start_analysis(id, fields));
-      }
-    },
-    removed(id) {
-      stop_engine(id, "analysis");
-    }
-  });
-}
-
 Meteor.startup(() => {
   if (!Meteor.isTest && !Meteor.isAppTest) {
     Singular.addTask(watchForComputerGames);
-    //watchAllGamesForAnalysis();
   }
 });

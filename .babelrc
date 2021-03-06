@@ -1,3 +1,16 @@
 {
-  "plugins": [["direct-import", { "modules": ["antd", "@ant-design", "lodash", "react-dom", "simpl-schema"] }, "antd", "react-dom", "lodash", "simpl-schema"]]
+  "plugins": [
+    [
+      "babel-plugin-direct-import",
+      {
+        "modules": [
+          "antd",
+          "@ant-design",
+          "lodash",
+          "react-dom",
+          "simpl-schema"
+        ]
+      }
+    ]
+  ]
 }
