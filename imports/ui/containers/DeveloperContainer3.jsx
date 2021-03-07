@@ -1,218 +1,84 @@
 import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
-import { Row, Col } from "antd";
+import { Row, Col, Table, Input, Button } from "antd";
 import { withTracker } from "meteor/react-meteor-data";
-import { serverTS, clientTS } from "../../../lib/client/timestamp";
+import { isReadySubscriptions } from "../../utils/utils";
+import { Mongo } from "meteor/mongo";
+
+const analysis_engines = new Mongo.Collection("aws_stockfish_instances");
+const DOWN_STATUSES = ["interrupted", "termination_delay", "terminating", "stopping", "terminated"];
+const columns = [
+  { title: "_id", dataIndex: "id", key: "id" },
+  { title: "AWS Instance ID", dataIndex: "instance_id", key: "id" },
+  { title: "Spot Request ID", dataIndex: "spot_instance_id", key: "id" },
+  { title: "IP Address", dataIndex: "ip_address", key: "id" },
+  { title: "Status", dataIndex: "status", key: "id" },
+  { title: "Action", dataIndex: "action", key: "id" }
+];
 
 class DeveloperContainer3 extends Component {
-  constructor(props) {
-    super(props);
-    const sysdate = new Date().getTime();
-    this.state = {
-      sysdate: sysdate,
-      tsdate: sysdate,
-      server_pings: 0,
-      last_ping_sent: {},
-      last_response_received: {}
-    };
-    this.server_pings = [];
+  changeInstanceCount(data) {
+    if (!data.target.value.length) {
+      this.setState({ instance_count: "" });
+    } else {
+      this.setState({ instance_count: data.target.value });
+    }
   }
 
-  interval() {
-    const sysdate = new Date().getTime();
-    const tsdate = serverTS().getMilliseconds();
-    this.setState({ sysdate: sysdate, tsdate: tsdate });
-  }
-
-  sendingPing(request) {
-    this.server_pings.push(request);
-    const sysdate = new Date().getTime();
-    const tsdate = serverTS().getMilliseconds();
-    this.setState({ sysdate: sysdate, tsdate: tsdate, server_pings: this.server_pings.length, last_ping_sent: request });
-  }
-
-  stop() {
-    console.log("stop");
-  }
-
-  cleanupOldPings(request) {
-    this.server_pings = this.server_pings.filter(p => p.id !== request.id);
-    const sysdate = new Date().getTime();
-    const tsdate = serverTS().getMilliseconds();
-    this.setState({ sysdate: sysdate, tsdate: tsdate, server_pings: this.server_pings.length });
-  }
-
-  pingArrived(response) {
-    this.server_pings = this.server_pings.filter(p => p.id !== response.id);
-    const arrival = serverTS().getMilliseconds();
-    const delay = arrival - response.originate - (response.transmit - response.receive);
-    const sysdate = new Date().getTime();
-    const tsdate = serverTS().getMilliseconds();
-    if(delay < 0) {
-      this.setState({ sysdate: sysdate, tsdate: tsdate, server_pings: this.server_pings.length, last_response_received: response, delay: delay, arrival: arrival,
-      last_bad_ping_sent: this.state.last_ping_sent,
-      last_bad_response_received: response,
-      last_bad_delay: delay,
-      last_bad_arrival: arrival
-      });
-    } else
-      this.setState({ sysdate: sysdate, tsdate: tsdate, server_pings: this.server_pings.length, last_response_received: response, delay: delay, arrival: arrival });
-  }
-
-  sendingPingResult(result) {
-    console.log("sendingPingResult");
-  }
-
-  serverLagFunc() {
-    console.log("serverLagFunc");
-  }
-
-  sendingPong(pong) {
-    console.log("sendingPong");
-  }
-
-  clientLagFunc() {
-    console.log("clientLagFunc");
-  }
-
-  componentDidMount() {
-    this.emitobject = {
-      sendingPing: request => this.sendingPing(request),
-      stop: () => this.stop(),
-      cleanupOldPings: request => this.cleanupOldPings(request),
-      pingArrived: response => this.pingArrived(response),
-      sendingPingResult: result => this.sendingPingResult(result),
-      serverLagFunc: () => this.serverLagFunc(),
-      sendingPong: pong => this.sendingPong(pong),
-      clientLagFunc: () => this.clientLagFunc()
-    };
-    serverTS().events.on("sendingPing", this.emitobject.sendingPing);
-    serverTS().events.on("stop", this.emitobject.stop);
-    serverTS().events.on("cleanupOldPings", this.emitobject.cleanupOldPings);
-    serverTS().events.on("pingArrived", this.emitobject.pingArrived);
-    serverTS().events.on("sendingPingResult", this.emitobject.sendingPingResult);
-    serverTS().events.on("lagFunc", this.emitobject.serverLagFunc);
-
-    clientTS().events.on("sendingPong", this.emitobject.sendingPong);
-    clientTS().events.on("lagFunc", this.emitobject.clientLagFunc);
-
-    //this.interval_id = Meteor.setInterval(() => this.interval(), 1000);
-  }
-
-  componentWillUnmount() {
-    //Meteor.clearInterval(this.interval_id);
-    serverTS().events.removeListener("sendingPing", this.emitobject.sendingPing);
-    serverTS().events.removeListener("stop", this.emitobject.stop);
-    serverTS().events.removeListener("cleanupOldPings", this.emitobject.cleanupOldPings);
-    serverTS().events.removeListener("pingArrived", this.emitobject.pingArrived);
-    serverTS().events.removeListener("sendingPingResult", this.emitobject.sendingPingResult);
-    serverTS().events.removeListener("lagFunc", this.emitobject.serverLagFunc);
-
-    clientTS().events.removeListener("sendingPong", this.emitobject.sendingPong);
-    clientTS().events.removeListener("lagFunc", this.emitobject.clientLagFunc);
+  saveInstanceCount() {
+    if (!this.state?.instance_count) return;
+    const count = analysis_engines.find({ status: { $nin: DOWN_STATUSES } }).count();
+    const newcount = parseInt(this.state.instance_count);
+    if (count === newcount) return;
+    Meteor.call("developer_modifySpotFleetRequest", newcount);
   }
 
   render() {
-    const left = 2;
-    const right = 22;
-    const diff = this.state.sysdate - this.state.tsdate;
-    const server = this.server_pings.map(ping => (
-      <Row>
-        <Col span={2}>{ping.id}</Col>
-        <Col span={2}>{ping.originate}</Col>
-        <Col span={20}/>
-      </Row>
-    ));
+    const tabledata = this.props.analysis_engines.map(ae => {
+      return {
+        id: ae._id,
+        instance_id: ae.instance_id,
+        spot_instance_id: ae.spot_fleet_instance.SpotInstanceRequestId,
+        ip_address: ae.aws_instance?.PublicIpAddress,
+        status: ae.status,
+        action: <Button>Terminate</Button>
+      };
+    });
+
+    const count = tabledata.reduce((ct, td) => {
+      return ct + (DOWN_STATUSES.indexOf(td.status) === -1 ? 1 : 0);
+    }, 0);
     return (
       <div>
         <Row>
-          <Col span={left}>Connection ID</Col>
-          <Col span={right}>{this.props.connection_id}</Col>
-        </Row>
-        <Row>
-          <Col span={left}>System Date</Col>
-          <Col span={right}>{this.state.sysdate}</Col>
-        </Row>
-        <Row>
-          <Col span={left}>Timestamp Date</Col>
-          <Col span={right}>{this.state.tsdate}</Col>
-        </Row>
-        <Row>
-          <Col span={left}>Difference</Col>
-          <Col span={right}>{diff}</Col>
-        </Row>
-        <Row>
-          <Col span={left}>Last ping sent</Col>
-          <Col span={right}>
-            <Row>
-              <Col span={left}>ID:</Col>
-              <Col span={right}>{this?.state?.last_ping_sent?.id}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Originate:</Col>
-              <Col span={right}>{this?.state?.last_ping_sent?.originate}</Col>
-            </Row>
+          <Col>
+            <table>
+              <tr>
+                <td>Instance count:</td>
+                <td>
+                  <Input
+                    onChange={data => this.changeInstanceCount(data)}
+                    value={
+                      !!this.state && "instance_count" in this.state
+                        ? this.state.instance_count
+                        : count
+                    }
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <Button onClick={() => this.saveInstanceCount()}>Save</Button>
+                </td>
+              </tr>
+            </table>
           </Col>
         </Row>
         <Row>
-          <Col span={left}>Last result received</Col>
-          <Col span={right}>
-            <Row>
-              <Col span={left}>ID:</Col>
-              <Col span={right}>{this?.state?.last_response_received?.id}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Originate:</Col>
-              <Col span={right}>{this?.state?.last_response_received?.originate}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Transmit:</Col>
-              <Col span={right}>{this?.state?.last_response_received?.transmit}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Receive:</Col>
-              <Col span={right}>{this?.state?.last_response_received?.receive}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Arrival:</Col>
-              <Col span={right}>{this?.state?.arrival}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Calculated delay:</Col>
-              <Col span={right}>{this?.state?.delay}</Col>
-            </Row>
+          <Col span={24}>
+            <Table dataSource={tabledata} columns={columns} pagination={{ pageSize: 100 }} />
           </Col>
         </Row>
-        <Row>
-          <Col span={left}>Last BAD result received</Col>
-          <Col span={right}>
-            <Row>
-              <Col span={left}>ID:</Col>
-              <Col span={right}>{this?.state?.last_bad_response_received?.id}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Originate:</Col>
-              <Col span={right}>{this?.state?.last_bad_response_received?.originate}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Transmit:</Col>
-              <Col span={right}>{this?.state?.last_bad_response_received?.transmit}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Receive:</Col>
-              <Col span={right}>{this?.state?.last_bad_response_received?.receive}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Arrival:</Col>
-              <Col span={right}>{this?.state?.last_bad_arrival}</Col>
-            </Row>
-            <Row>
-              <Col span={left}>Calculated delay:</Col>
-              <Col span={right}>{this?.state?.last_bad_delay}</Col>
-            </Row>
-          </Col>
-        </Row>
-        {server}
       </div>
     );
   }
@@ -231,7 +97,12 @@ class DeveloperContainer3 extends Component {
 //  GAME HISTORY
 //  ------------------------------------------------------------
 export default withTracker(() => {
+  const subscriptions = {
+    analysis_engines: Meteor.subscribe("developer_analysis_engines")
+  };
+
   return {
-    connection_id: Meteor.default_connection._lastSessionId
+    isReady: isReadySubscriptions(subscriptions),
+    analysis_engines: analysis_engines.find().fetch()
   };
 })(DeveloperContainer3);
