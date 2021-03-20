@@ -1,7 +1,7 @@
 import chai from "chai";
 import ResourceManager from "./ResourceManager";
 
-describe.only("load balancer", function() {
+describe("load balancer", function() {
   function create(count) {
     console.log("create called for count=" + count);
     return new Promise((resolve, reject) => {
