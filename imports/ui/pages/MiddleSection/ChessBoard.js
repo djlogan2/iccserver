@@ -4,13 +4,11 @@ import { Modal } from "antd";
 
 import Chess from "chess.js";
 import Chessground from "react-chessground";
+import "chessboard/dist/index.css";
 import "./../css/developmentboard.css";
 import "react-chessground/dist/styles/chessground.css";
 import "./../css/Theme.css";
-import { Logger } from "../../../../lib/client/Logger";
 import { areArraysOfObectsEqual } from "../../../utils/utils";
-
-const log = new Logger("client/ChessBoard_js");
 
 export default class ChessBoard extends PureComponent {
   constructor(props) {

@@ -6,6 +6,7 @@ import Chess from "chess.js";
 
 import { translate } from "../../HOCs/translate";
 import ChessBoard from "./ChessBoard";
+import NewChessBoard from "./NewChessBoard";
 
 class MiddleBoard extends Component {
   constructor(props) {
@@ -90,7 +91,8 @@ class MiddleBoard extends Component {
       MiddleBoardData,
       cssManager,
       onDrawObject,
-      onDrop
+      onDrop,
+      height
     } = this.props;
     const { top } = this.state;
 
@@ -160,48 +162,57 @@ class MiddleBoard extends Component {
     const isPlayingOrExamining = isUserPlaying || isUserExamining;
 
     return (
-      <div>
-        <div style={{ width: size }}>
-          {isPlayingOrExamining && (
-            <Player
-              playerData={topPlayer}
-              cssManager={cssManager}
-              side={size}
-              color={tc}
-              turnColor={color}
-              FallenSoldiers={topPlayerFallenSoldier}
-              Playermsg={topPlayermsg}
-            />
-          )}
+      <div
+        style={{
+          width: size,
+          height,
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "column"
+        }}
+      >
+        {isPlayingOrExamining && (
+          <Player
+            playerData={topPlayer}
+            cssManager={cssManager}
+            side={size}
+            color={tc}
+            turnColor={color}
+            FallenSoldiers={topPlayerFallenSoldier}
+            Playermsg={topPlayermsg}
+          />
+        )}
 
-          <BlackPlayerClock game={game} color={topPlayertime} side={size} />
-          {game && (
-            <ChessBoard
-              fen={fen}
-              height={boardsize}
-              width={boardsize}
-              arrows={game.arrows}
-              circles={game.circles}
-              orientation={boardtop}
-              onDrop={onDrop}
-              onDrawObject={onDrawObject}
-              gameStatus={game.status}
-            />
-          )}
+        <BlackPlayerClock game={game} color={topPlayertime} side={size} />
+        {game && (
+          <NewChessBoard
+            fen={fen}
+            height={boardsize}
+            width={boardsize}
+            arrows={game.arrows}
+            circles={game.circles}
+            orientation={boardtop}
+            onDrop={onDrop}
+            onDrawObject={onDrawObject}
+            gameStatus={game.status}
+            turnColor={this.chess.turn() === "w" ? "white" : "black"}
+            blackId={game?.black?.id}
+            whiteId={game?.white?.id}
+          />
+        )}
 
-          {isPlayingOrExamining && (
-            <Player
-              playerData={bottomPlayer}
-              cssManager={cssManager}
-              side={size}
-              color={bc}
-              turnColor={color}
-              FallenSoldiers={bottomPlayerFallenSoldier}
-              Playermsg={botPlayermsg}
-            />
-          )}
-          <BlackPlayerClock game={game} color={bottomPlayertime} side={size} />
-        </div>
+        {isPlayingOrExamining && (
+          <Player
+            playerData={bottomPlayer}
+            cssManager={cssManager}
+            side={size}
+            color={bc}
+            turnColor={color}
+            FallenSoldiers={bottomPlayerFallenSoldier}
+            Playermsg={botPlayermsg}
+          />
+        )}
+        <BlackPlayerClock game={game} color={bottomPlayertime} side={size} />
       </div>
     );
   }
