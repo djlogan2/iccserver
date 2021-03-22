@@ -3,10 +3,10 @@ import _ from "lodash";
 import { Modal } from "antd";
 
 import Chess from "chess.js";
-import Chessground from "react-chessground";
+//import Chessground from "react-chessground";
 import "chessboard/dist/index.css";
 import "./../css/developmentboard.css";
-import "react-chessground/dist/styles/chessground.css";
+//import "react-chessground/dist/styles/chessground.css";
 import "./../css/Theme.css";
 import { areArraysOfObectsEqual } from "../../../utils/utils";
 
@@ -231,22 +231,22 @@ export default class ChessBoard extends PureComponent {
 
     return (
       <div className="merida">
-        <Chessground
-          drawable={drawable}
-          draggable={this.draggable()}
-          selectable={this.draggable()}
-          turnColor={this.turnColor()}
-          width={width}
-          height={height}
-          resizable={true}
-          fen={fen}
-          orientation={orientation}
-          movable={this.calcMovable()}
-          onMove={this.onMove}
-          ref={el => {
-            this.chessground = el;
-          }}
-        />
+        {/*<Chessground*/}
+        {/*  drawable={drawable}*/}
+        {/*  draggable={this.draggable()}*/}
+        {/*  selectable={this.draggable()}*/}
+        {/*  turnColor={this.turnColor()}*/}
+        {/*  width={width}*/}
+        {/*  height={height}*/}
+        {/*  resizable={true}*/}
+        {/*  fen={fen}*/}
+        {/*  orientation={orientation}*/}
+        {/*  movable={this.calcMovable()}*/}
+        {/*  onMove={this.onMove}*/}
+        {/*  ref={el => {*/}
+        {/*    this.chessground = el;*/}
+        {/*  }}*/}
+        {/*/>*/}
         <Modal visible={selectVisible} footer={null} closable={false}>
           <div style={{ textAlign: "center", cursor: "pointer" }}>
             <span role="presentation" onClick={() => this.promotion("q")}>

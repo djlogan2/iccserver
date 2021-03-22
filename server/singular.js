@@ -8,7 +8,6 @@ class Singular {
   constructor() {
     this.collection = new Mongo.Collection("meteor_instances");
     this.my_ip = process.env.MY_IP_ADDRESS;
-    this.my_port = process.env.MY_PORT;
     this.tasklist = [];
     this.master = false;
     if (Meteor.isTest || Meteor.isAppTest) return;

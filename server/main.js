@@ -2,7 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 import "./PgnExport";
 import "./engine_manager";
-import "../server/awsanalysis/AnalysisEngines";
+//import "../server/awsanalysis/AnalysisEngines";
 import "./Book";
 import "./PgnImport";
 

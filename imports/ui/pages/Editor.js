@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Game, GameHistoryCollection, mongoCss } from "../../api/client/collections.js";
 import Chess from "chess.js";
-import Chessground from "react-chessground";
+//import Chessground from "react-chessground";
 import FenParser from "@chess-fu/fen-parser";
 import { Col } from "antd";
 
@@ -216,23 +216,23 @@ class Editor extends Component {
         <Col span={14} className="editor__main">
           <BoardWrapper>
             <div className="merida">
-              <Chessground
-                fen={examineGame.fen}
-                width={baordSize}
-                height={baordSize}
-                orientation={orientation}
-                draggable={{
-                  enabled: true, // allow moves & premoves to use drag'n drop
-                  distance: 1, // minimum distance to initiate a drag; in pixels
-                  autoDistance: true, // lets chessground set distance to zero when user drags pieces
-                  centerPiece: true, // center the piece on cursor at drag start
-                  showGhost: true, // show ghost of piece being dragged
-                  deleteOnDropOff: true // delete a piece when it is dropped off the board
-                }}
-                onChange={this.handleChange}
-                resizable={true}
-                ref={this.updateChessground}
-              />
+              {/*<Chessground*/}
+              {/*  fen={examineGame.fen}*/}
+              {/*  width={baordSize}*/}
+              {/*  height={baordSize}*/}
+              {/*  orientation={orientation}*/}
+              {/*  draggable={{*/}
+              {/*    enabled: true, // allow moves & premoves to use drag'n drop*/}
+              {/*    distance: 1, // minimum distance to initiate a drag; in pixels*/}
+              {/*    autoDistance: true, // lets chessground set distance to zero when user drags pieces*/}
+              {/*    centerPiece: true, // center the piece on cursor at drag start*/}
+              {/*    showGhost: true, // show ghost of piece being dragged*/}
+              {/*    deleteOnDropOff: true // delete a piece when it is dropped off the board*/}
+              {/*  }}*/}
+              {/*  onChange={this.handleChange}*/}
+              {/*  resizable={true}*/}
+              {/*  ref={this.updateChessground}*/}
+              {/*/>*/}
             </div>
           </BoardWrapper>
         </Col>

@@ -7,7 +7,7 @@ import { GameRequestCollection } from "../../../api/client/collections";
 
 import LeftSidebar from "./LeftSidebar/LeftSidebar";
 
-import "react-chessground/dist/styles/chessground.css";
+//import "react-chessground/dist/styles/chessground.css";
 
 import "./../css/developmentboard.css";
 import "./../css/Spare.css";
