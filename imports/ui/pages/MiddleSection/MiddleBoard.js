@@ -5,7 +5,6 @@ import { Meteor } from "meteor/meteor";
 import Chess from "chess.js";
 
 import { translate } from "../../HOCs/translate";
-import ChessBoard from "./ChessBoard";
 import NewChessBoard from "./NewChessBoard";
 
 class MiddleBoard extends Component {
@@ -91,8 +90,7 @@ class MiddleBoard extends Component {
       MiddleBoardData,
       cssManager,
       onDrawObject,
-      onDrop,
-      height
+      onDrop
     } = this.props;
     const { top } = this.state;
 
@@ -162,15 +160,7 @@ class MiddleBoard extends Component {
     const isPlayingOrExamining = isUserPlaying || isUserExamining;
 
     return (
-      <div
-        style={{
-          width: size,
-          height,
-          display: "flex",
-          alignItems: "center",
-          flexDirection: "column"
-        }}
-      >
+      <div style={{ width: size }}>
         {isPlayingOrExamining && (
           <Player
             playerData={topPlayer}
@@ -185,20 +175,22 @@ class MiddleBoard extends Component {
 
         <BlackPlayerClock game={game} color={topPlayertime} side={size} />
         {game && (
-          <NewChessBoard
-            fen={fen}
-            height={boardsize}
-            width={boardsize}
-            arrows={game.arrows}
-            circles={game.circles}
-            orientation={boardtop}
-            onDrop={onDrop}
-            onDrawObject={onDrawObject}
-            gameStatus={game.status}
-            turnColor={this.chess.turn() === "w" ? "white" : "black"}
-            blackId={game?.black?.id}
-            whiteId={game?.white?.id}
-          />
+          <div style={{ height: boardsize, width: "100%" }}>
+            <NewChessBoard
+              fen={fen}
+              height={boardsize}
+              width={boardsize}
+              arrows={game.arrows}
+              circles={game.circles}
+              orientation={boardtop}
+              onDrop={onDrop}
+              onDrawObject={onDrawObject}
+              gameStatus={game.status}
+              turnColor={this.chess.turn() === "w" ? "white" : "black"}
+              blackId={game?.black?.id}
+              whiteId={game?.white?.id}
+            />
+          </div>
         )}
 
         {isPlayingOrExamining && (
