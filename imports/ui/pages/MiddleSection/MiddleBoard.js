@@ -6,6 +6,7 @@ import Chess from "chess.js";
 
 import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
+import "./ChessBoard";
 
 class MiddleBoard extends Component {
   constructor(props) {
@@ -175,7 +176,7 @@ class MiddleBoard extends Component {
 
         <BlackPlayerClock game={game} color={topPlayertime} side={size} />
         {game && (
-          <div style={{ height: boardsize, width: "100%" }}>
+          <div style={{ width: "100%", height: boardsize }}>
             <NewChessBoard
               fen={fen}
               height={boardsize}
