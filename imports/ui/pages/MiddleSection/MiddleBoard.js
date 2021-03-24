@@ -179,6 +179,7 @@ class MiddleBoard extends Component {
           <div style={{ width: "100%", height: boardsize }}>
             <NewChessBoard
               fen={fen}
+              chess={this.chess}
               height={boardsize}
               width={boardsize}
               arrows={game.arrows}

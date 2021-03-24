@@ -1,13 +1,9 @@
 import React, { Component } from "react";
 import ChessBoard from "chessboard";
 
-import Chess from "chess.js";
-
 class NewChessBoard extends Component {
   constructor(props) {
     super(props);
-
-    this.chess = new Chess.Chess();
 
     this.state = {
       legalMoves: this.getLegalMoves(),
@@ -73,10 +69,11 @@ class NewChessBoard extends Component {
   };
 
   getLegalMoves = () => {
+    const { chess } = this.props;
     const moves = {};
     ["a", "b", "c", "d", "e", "f", "g", "h"].forEach(rank => {
       for (let file = 1; file <= 8; file++) {
-        const legal = this.chess
+        const legal = chess
           .moves({ square: rank + file, verbose: true })
           .map(verbose => verbose.to);
         if (!!legal && !!legal.length) moves[rank + file] = legal;
@@ -86,11 +83,11 @@ class NewChessBoard extends Component {
   };
 
   handleMove = move => {
-    const { onDrop } = this.props;
+    const { onDrop, chess } = this.props;
 
-    this.chess.move(move[0] + move[1], { sloppy: true });
+    chess.move(move[0] + move[1], { sloppy: true });
 
-    const history = this.chess.history();
+    const history = chess.history();
     const moves = history[history.length - 1];
 
     onDrop({ move: moves });
@@ -151,8 +148,6 @@ class NewChessBoard extends Component {
     const { orientation, fen } = this.props;
     const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize } = this.state;
     const hasLegalMoves = this.haveLegalMoves();
-
-    this.chess.load(fen);
 
     return (
       <ChessBoard
