@@ -119,7 +119,6 @@ Accounts.onCreateUser(function(options, user) {
   user.settings.match_default = SystemConfiguration.matchDefault();
   user.settings.seek_default = SystemConfiguration.seekDefault();
   user.locale = "unknown";
-  user.board_css = SystemConfiguration.defaultBoardCSS();
   user.newguy = true;
 
   if (!user.status) user.status = {};
@@ -274,7 +273,6 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
 
   const fields = {
     _id: 1,
-    board_css: 1,
     createdAt: 1,
     emails: 1,
     locale: 1,
@@ -833,6 +831,7 @@ Accounts.validateLoginAttempt(function(params) {
 });
 
 Meteor.methods({
+  setBoardProfile: Users.setBoardProfile,
   setClientStatus: Users.setClientStatus,
   setOtherPassword: Users.setOtherPassword,
   setOtherIsolationGroup: Users.setOtherIsolationGroup,

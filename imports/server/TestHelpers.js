@@ -83,7 +83,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
     setobject.isolation_group = options.isolation_group || "public";
     setobject.locale = options.locale || "en-us";
-    setobject.board_css = options.board_css || "developmentcss";
 
     if (userRecord.profile && userRecord.profile.legacy)
       setobject["profile.legacy.validated"] = true;

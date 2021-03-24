@@ -301,7 +301,6 @@ class DeveloperContainer2 extends Component {
       case "username":
       case "isolation_group":
       case "locale":
-      case "board_css":
         if (!!user && user[item.target.id] === item.target.value) delete base[item.target.id];
         else base[item.target.id] = item.target.value;
         this.setState({ base: base });
@@ -347,8 +346,7 @@ class DeveloperContainer2 extends Component {
       if (
         state.base.username === "" ||
         state.base.isolation_group === "" ||
-        state.base.locale === "" ||
-        state.base.board_css === ""
+        state.base.locale === ""
       )
         return true;
       if (!!Object.keys(state.base).length) return false;
@@ -442,16 +440,6 @@ class DeveloperContainer2 extends Component {
                     <Input
                       id="locale"
                       value={base?.locale || user?.locale}
-                      onChange={arg => this.dochange(arg)}
-                    />
-                  </Col>
-                </Row>
-                <Row>
-                  <Col span={left}>Board CSS</Col>
-                  <Col span={right}>
-                    <Input
-                      id="board_css"
-                      value={base?.board_css || user?.board_css}
                       onChange={arg => this.dochange(arg)}
                     />
                   </Col>

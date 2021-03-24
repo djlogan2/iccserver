@@ -37,7 +37,6 @@ const our_allowed_user_fields = {
   createdAt: 1,
   username: 1,
   locale: 1,
-  board_css: 1,
   emails: 1,
   profile: {
     firstname: 1,
@@ -71,7 +70,6 @@ const all_fields = {
   cf: 1,
   username: 1,
   locale: 1,
-  board_css: 1,
   createdAt: 1,
   emails: 1,
   newguy: 1,

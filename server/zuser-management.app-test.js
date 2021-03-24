@@ -134,7 +134,6 @@ describe("User management", function() {
 
     const fields = {
       _id: 1,
-      board_css: 1,
       createdAt: 1,
       emails: 1,
       locale: 1,

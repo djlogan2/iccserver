@@ -13,7 +13,6 @@ export default function firstRunUsers() {
     const id = Accounts.createUser({
       username: "admin",
       locale: "en-us",
-      board_css: "developmentcss",
       email: "icc@chessclub.com",
       password: "administrator",
       profile: {
@@ -32,7 +31,6 @@ export default function firstRunUsers() {
       const idx = Accounts.createUser({
         username: "uiuxtest" + x,
         locale: "en-us",
-        board_css: "developmentcss",
         email: "iccserver" + x + "@chessclub.com",
         password: "iccserver" + x,
         profile: {

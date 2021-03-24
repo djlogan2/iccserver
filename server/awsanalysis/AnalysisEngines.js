@@ -324,6 +324,15 @@ AnalysisEngines.removeInstanceRecords = function(selector) {
   });
 };
 
+AnalysisEngines.updateEngine = function(selector, modifier) {
+  return new Promise((resolve, reject) => {
+    this.engine_collection.update(selector, modifier, (err, result) => {
+      if (!!err) reject(err);
+      else resolve(result);
+    });
+  });
+};
+
 AnalysisEngines.removeEngineRecords = function(selector) {
   return new Promise((resolve, reject) => {
     this.engine_collection.remove(selector, (err, result) => {
@@ -352,7 +361,30 @@ AnalysisEngines.removeEngineRecords = function(selector) {
 //        yes           yes         yes  - No action
 //
 // engines in database - any allocated ones have to be moved, otherwise delete old ones,
-AnalysisEngines.initialInstanceLoad = async function() {
+AnalysisEngines._initialEngineLoad = async function() {
+  const instances = this.instance_collection.find().fetch();
+  const all_instance_ids = instances.map(r => r.instance_id);
+  const defunct_engines = this.engine_collection
+    .find({ intance_id: { $nin: all_instance_ids } })
+    .fetch();
+
+  defunct_engines.forEach(eng => {
+    if (eng.status !== "waiting")
+      promises.push(
+        this.moveFailingEngine(eng).then(() => this.removeEngineRecords({ _id: eng._id }))
+      );
+    else promises.push(this.removeEngineRecords({ _id: eng._id }));
+  });
+
+  instances.forEach(ndi => {
+    if (!this.engine_collection.find({ instance_id: ndi._id }).count())
+      promises.push(this.checkAndInstallStockfish(ndi));
+  });
+
+  await Promise.all(promises);
+};
+
+AnalysisEngines._initialInstanceLoad = async function() {
   //{"InstanceId": "uCcARPanpkQQNjnL7", "SpotInstanceRequestId": "6FGPP9ZfPn5uswccG"}
   const spot_instances = await this.describeSpotFleetInstances();
   //{"InstanceId": "uCcARPanpkQQNjnL7", "PublicIpAddress": "1.2.3.0", "State": {"Name": "pending"}, "SpotInstanceRequestId": "6FGPP9ZfPn5uswccG"}
@@ -390,22 +422,30 @@ AnalysisEngines.initialInstanceLoad = async function() {
   );
   promises.push(this.removeInstanceRecords({ instance_id: { $nin: not_defunct_instances } }));
   await Promise.all(promises);
+}
 
-  const instances = this.instance_collection.find().fetch();
-  const all_instance_ids = instances.map(r => r.instance_id);
-  const defunct_engines = this.engine_collection
-    .find({ intance_id: { $nin: all_instance_ids } })
-    .fetch();
+AnalysisEngines.initialInstanceLoad = async function() {
+  await this._initialInstanceLoad();
+  await this._initialEngineLoad();
+};
 
-  defunct_engines.forEach(eng => {
-    if (eng.status !== "waiting") promises.push(this.moveFailingEngine(eng).then(() => this.removeEngineRecords({ _id: eng._id })));
-    else promises.push(this.removeEngineRecords({ _id: eng._id }));
-  });
+AnalysisEngines.moveFailingEngine = async function(engine) {
+};
 
-  instances.forEach(ndi => {
-    if (!this.engine_collection.find({ instance_id: ndi._id }).count())
-      promises.push(this.checkAndInstallStockfish(ndi));
-  });
+AnalysisEngines.checkAndInstallStockfish = function(instance) {
+}
 
-  await Promise.all(promises);
+AnalysisEngines.checkIfStockfishInstalled = function(instance) {
+}
+AnalysisEngines.setAllocateRemoteEngine = function(engine, ourid) {
+
+}
+
+AnalysisEngines.allocateEngine = async function(ourid) {
+  const engine = this.engine_collection.findOne({ status: "busy" });
+  if (!engine) {
+    await this.setAllocateRemoteEngine(engine, ourid);
+    await this.updateEngine({ _id: engine._id }, { $set: { ourid: ourid, status: "busy" } });
+    return engine;
+  }
 };

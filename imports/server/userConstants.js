@@ -65,7 +65,6 @@ export const fields_viewable_by_account_owner = {
   ratings: 1,
   emails: 1,
   locale: 1,
-  board_css: 1,
   mugshot: 1,
   settings: 1,
   status: 1,
