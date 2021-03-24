@@ -11,19 +11,23 @@ class NewChessBoard extends Component {
       arrows: [],
       smartMoves: false,
       showLegalMoves: true,
-      smallSize: 500
+      smallSize: 500,
+      fen: null
     };
   }
 
   componentDidMount() {
-    this.setState({ legalMoves: this.getLegalMoves() });
+    const { chess } = this.props;
+
+    this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { fen } = this.props;
+    const { chess } = this.props;
+    const { fen } = this.state;
 
-    if (prevProps.fen !== fen) {
-      this.setState({ legalMoves: this.getLegalMoves() });
+    if (fen !== chess.fen()) {
+      this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
     }
   }
 
@@ -130,22 +134,22 @@ class NewChessBoard extends Component {
   };
 
   haveLegalMoves = () => {
-    const { turnColor, whiteId, blackId, gameStatus } = this.props;
+    const { chess, whiteId, blackId, gameStatus } = this.props;
     const userId = Meteor.userId();
 
     if (gameStatus !== "playing") {
       return true;
     }
 
-    if (userId === whiteId && turnColor === "white") {
+    if (userId === whiteId && chess.turn() === "w") {
       return true;
     }
 
-    return userId === blackId && turnColor === "black";
+    return userId === blackId && chess.turn() === "b";
   };
 
   render() {
-    const { orientation, fen } = this.props;
+    const { orientation, chess } = this.props;
     const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize } = this.state;
     const hasLegalMoves = this.haveLegalMoves();
 
@@ -164,7 +168,7 @@ class NewChessBoard extends Component {
           }
         }}
         perspective={orientation}
-        fen={fen}
+        fen={chess.fen()}
         boardSquares={{
           light: { default: "#FFFFFF", active: "#9c9c9c" },
           dark: { default: "#1565c0", active: "#1255A1" }
@@ -183,7 +187,7 @@ class NewChessBoard extends Component {
           wQ: "images/chesspieces/wQ.png",
           wR: "images/chesspieces/wR.png"
         }}
-        movable={hasLegalMoves ? legalMoves : []}
+        movable={hasLegalMoves ? legalMoves : {}}
         circles={circles}
         arrows={arrows}
         onUpdateCircles={circle => this.handleUpdateCircles(circle)}

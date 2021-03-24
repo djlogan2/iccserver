@@ -148,11 +148,11 @@ class MiddleBoard extends Component {
         }
       }
     }
-    let fen;
+
     if (!!game && (game.status === "examining" || game.status === "playing")) {
-      fen = game.fen;
+      this.chess.load(game.fen);
     } else {
-      fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+      this.chess.load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
 
     const isUserPlaying = !!game && game.status === "playing";
@@ -178,7 +178,6 @@ class MiddleBoard extends Component {
         {game && (
           <div style={{ width: "100%", height: boardsize }}>
             <NewChessBoard
-              fen={fen}
               chess={this.chess}
               height={boardsize}
               width={boardsize}
@@ -188,7 +187,6 @@ class MiddleBoard extends Component {
               onDrop={onDrop}
               onDrawObject={onDrawObject}
               gameStatus={game.status}
-              turnColor={this.chess.turn() === "w" ? "white" : "black"}
               blackId={game?.black?.id}
               whiteId={game?.white?.id}
             />
