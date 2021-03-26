@@ -168,6 +168,8 @@ Users.setClientStatus = function(message_identifier, user, status) {
   Meteor.users.update({ _id: self._id }, { $set: { "status.client": status } });
 };
 
+Users.setBoardProfile = function() {};
+
 Users.setGameStatus = function(message_identifier, user, status) {
   check(message_identifier, String);
   check(user, Match.OneOf(Object, String));

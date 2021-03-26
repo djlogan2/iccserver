@@ -40,7 +40,7 @@
     "aws-sdk": "^2.834.0",
     "bcrypt": "^5.0.0",
     "chess.js": "git+https://github.com/jhlywa/chess.js.git",
-    "chessboard": "github:djlogan2/icc-chessboard",
+    "chessboard": "git+https://github.com/djlogan2/icc-chessboard.git",
     "classnames": "^2.2.6",
     "create-react-class": "^15.7.0",
     "date-and-time": "^0.14.2",

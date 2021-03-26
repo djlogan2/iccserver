@@ -86,10 +86,10 @@ class NewChessBoard extends Component {
     return moves;
   };
 
-  handleMove = move => {
+  handleMove = (move, promotion) => {
     const { onDrop, chess } = this.props;
 
-    chess.move(move[0] + move[1], { sloppy: true });
+    chess.move(move[0] + move[1] + promotion, { sloppy: true });
 
     const history = chess.history();
     const moves = history[history.length - 1];
@@ -192,10 +192,11 @@ class NewChessBoard extends Component {
         arrows={arrows}
         onUpdateCircles={circle => this.handleUpdateCircles(circle)}
         onUpdateArrows={arrow => this.handleUpdateArrows(arrow)}
-        onMove={move => this.handleMove(move)}
+        onMove={(move, promotion) => this.handleMove(move, promotion)}
         smartMoves={smartMoves}
         showLegalMoves={showLegalMoves}
         smallSize={smallSize}
+        promotionPieces={["q", "n", "b", "r"]}
       />
     );
   }
