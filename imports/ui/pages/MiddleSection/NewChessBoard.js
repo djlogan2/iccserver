@@ -167,7 +167,7 @@ class NewChessBoard extends Component {
             color: "white"
           },
           promotion: {
-            backgroundColor: "#535353"
+            backgroundColor: "#a8a8a8"
           }
         }}
         perspective={orientation}
