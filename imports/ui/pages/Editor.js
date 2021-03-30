@@ -15,7 +15,8 @@ import BoardWrapper from "./components/BoardWrapper";
 import { Logger } from "../../../lib/client/Logger";
 
 import AppWrapper from "./components/AppWrapper";
-import { isReadySubscriptions } from "../../utils/utils";
+import { getBoardSquares, isReadySubscriptions } from "../../utils/utils";
+import ChessBoard, { PiecesSidebar } from "chessboard";
 
 const log = new Logger("client/Editor_js");
 
@@ -26,7 +27,9 @@ class Editor extends Component {
     this.state = {
       whiteCastling: [],
       blackCastling: [],
-      orientation: "white"
+      orientation: "white",
+      arrows: [],
+      circles: []
     };
 
     if (props.isReady && props.examineGame) {
@@ -73,15 +76,11 @@ class Editor extends Component {
     return result;
   };
 
-  generateFen = () => {
+  generateFen = fen => {
     const { examineGame } = this.props;
 
-    const miniFen = !!this.chessground
-      ? this.chessground.cg.getFen()
-      : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
-    const serverFen = !!examineGame
-      ? examineGame.fen
-      : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    const miniFen = fen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    const serverFen = examineGame?.fen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
     const chess = new Chess.Chess();
     let flags = serverFen
@@ -190,9 +189,97 @@ class Editor extends Component {
     this.chessground = element;
   };
 
+  handleUpdateArrows = arrow => {
+    const { arrows } = this.state;
+
+    arrow.color = this.getColorFromEvent(arrow.event);
+    delete arrow.event;
+
+    let equalIndex;
+    const isExists = arrows.some((element, index) => {
+      const isEqual =
+        element.piece.to === arrow.piece.to && element.piece.from === arrow.piece.from;
+
+      if (isEqual) {
+        equalIndex = index;
+      }
+
+      return isEqual;
+    });
+
+    if (isExists) {
+      arrows.splice(equalIndex, 1);
+    } else {
+      arrows.push(arrow);
+    }
+
+    this.setState({ arrows: [...arrows] });
+  };
+
+  getColorFromEvent = event => {
+    if (event.altKey && event.shiftKey) {
+      return "#d40000";
+    } else if (event.altKey && event.ctrlKey) {
+      return "#f6e000";
+    } else {
+      return "#35bc00";
+    }
+  };
+
+  handleUpdateCircles = circle => {
+    const { gameStatus } = this.props;
+    const { circles } = this.state;
+
+    if (gameStatus === "playing") {
+      return;
+    }
+
+    circle.color = this.getColorFromEvent(circle.event);
+    delete circle.event;
+
+    let equalIndex;
+    const isExists = circles.some((element, index) => {
+      const isEqual = circle.piece === element.piece;
+
+      if (isEqual) {
+        equalIndex = index;
+      }
+
+      return isEqual;
+    });
+
+    if (isExists) {
+      circles.splice(equalIndex, 1);
+    } else {
+      circles.push(circle);
+    }
+
+    this.setState({ circles: [...circles] });
+  };
+
+  handleMove = (currentMove, promotion) => {
+    const { examineGame } = this.props;
+
+    const chess = new Chess.Chess();
+
+    chess.load(examineGame.fen);
+    const currentSquare = chess.get(currentMove[0]);
+
+    chess.remove(currentMove[0]);
+
+    chess.put(currentSquare, currentMove[1]);
+    // chess.move(currentMove[0] + currentMove[1] + promotion, { sloppy: true });
+
+    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
+      if (err) {
+        log.error(err.reason);
+      }
+    });
+  };
+
   render() {
     const { isReady, systemCss, examineGame } = this.props;
-    const { whiteCastling, blackCastling, orientation } = this.state;
+    const { whiteCastling, blackCastling, orientation, arrows, circles } = this.state;
 
     if (!isReady) {
       return <Loading />;
@@ -215,29 +302,75 @@ class Editor extends Component {
       <AppWrapper className="editor" cssManager={css}>
         <Col span={14} className="editor__main">
           <BoardWrapper>
-            <div className="merida">
-              {/*<Chessground*/}
-              {/*  fen={examineGame.fen}*/}
-              {/*  width={baordSize}*/}
-              {/*  height={baordSize}*/}
-              {/*  orientation={orientation}*/}
-              {/*  draggable={{*/}
-              {/*    enabled: true, // allow moves & premoves to use drag'n drop*/}
-              {/*    distance: 1, // minimum distance to initiate a drag; in pixels*/}
-              {/*    autoDistance: true, // lets chessground set distance to zero when user drags pieces*/}
-              {/*    centerPiece: true, // center the piece on cursor at drag start*/}
-              {/*    showGhost: true, // show ghost of piece being dragged*/}
-              {/*    deleteOnDropOff: true // delete a piece when it is dropped off the board*/}
-              {/*  }}*/}
-              {/*  onChange={this.handleChange}*/}
-              {/*  resizable={true}*/}
-              {/*  ref={this.updateChessground}*/}
-              {/*/>*/}
+            <div style={{ width: "100%", height: baordSize }}>
+              <ChessBoard
+                raf={{ inside: true, vertical: "bottom", horizontal: "right" }} // where is either an object or a string
+                styles={{
+                  wrapper: {
+                    backgroundColor: "#292929"
+                  },
+                  files: {
+                    color: "white"
+                  },
+                  ranks: {
+                    color: "white"
+                  },
+                  promotion: {
+                    backgroundColor: "#a8a8a8"
+                  }
+                }}
+                perspective={orientation}
+                fen={examineGame.fen}
+                boardSquares={{
+                  light: { default: "#FFFFFF", active: "#9c9c9c" },
+                  dark: { default: "#1565c0", active: "#1255A1" }
+                }}
+                pieceImages={{
+                  bB: "images/chesspieces/bB.png",
+                  bK: "images/chesspieces/bK.png",
+                  bN: "images/chesspieces/bN.png",
+                  bP: "images/chesspieces/bP.png",
+                  bQ: "images/chesspieces/bQ.png",
+                  bR: "images/chesspieces/bR.png",
+                  wB: "images/chesspieces/wB.png",
+                  wK: "images/chesspieces/wK.png",
+                  wN: "images/chesspieces/wN.png",
+                  wP: "images/chesspieces/wP.png",
+                  wQ: "images/chesspieces/wQ.png",
+                  wR: "images/chesspieces/wR.png"
+                }}
+                movable={() => getBoardSquares()}
+                circles={circles}
+                arrows={arrows}
+                onUpdateCircles={circle => this.handleUpdateCircles(circle)}
+                onUpdateArrows={arrow => this.handleUpdateArrows(arrow)}
+                onMove={(move, promotion) => this.handleMove(move, promotion)}
+                smartMoves={false}
+                showLegalMoves={false}
+                smallSize={500}
+                promotionPieces={["q", "n", "b", "r"]}
+              />
             </div>
           </BoardWrapper>
         </Col>
         <Col span={10} className="editor-right-sidebar-wrapper">
-          <Spare onDropStart={this.handleDropStart} />
+          <PiecesSidebar
+            pieceImages={{
+              bB: "images/chesspieces/bB.png",
+              bK: "images/chesspieces/bK.png",
+              bN: "images/chesspieces/bN.png",
+              bP: "images/chesspieces/bP.png",
+              bQ: "images/chesspieces/bQ.png",
+              bR: "images/chesspieces/bR.png",
+              wB: "images/chesspieces/wB.png",
+              wK: "images/chesspieces/wK.png",
+              wN: "images/chesspieces/wN.png",
+              wP: "images/chesspieces/wP.png",
+              wQ: "images/chesspieces/wQ.png",
+              wR: "images/chesspieces/wR.png"
+            }}
+            size={baordSize / 12}
+          />
           <EditorRightSidebar
             fen={examineGame.fen}
             orientation={orientation}
