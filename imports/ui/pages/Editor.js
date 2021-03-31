@@ -298,6 +298,20 @@ class Editor extends Component {
     this.setState({ edit: {} });
   };
 
+  handlePieceDelete = square => {
+    const { examineGame } = this.props;
+    const chess = new Chess.Chess();
+
+    chess.load(examineGame.fen);
+    chess.remove(square);
+
+    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
+      if (err) {
+        log.error(err.reason);
+      }
+    });
+  };
+
   render() {
     const { isReady, systemCss, examineGame } = this.props;
     const { whiteCastling, blackCastling, orientation, arrows, circles, edit } = this.state;
@@ -372,6 +386,7 @@ class Editor extends Component {
                 promotionPieces={["q", "n", "b", "r"]}
                 edit={edit}
                 handleAdd={this.handlePieceAdd}
+                handleDelete={this.handlePieceDelete}
               />
             </div>
           </BoardWrapper>
