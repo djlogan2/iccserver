@@ -29,7 +29,8 @@ class Editor extends Component {
       blackCastling: [],
       orientation: "white",
       arrows: [],
-      circles: []
+      circles: [],
+      edit: {}
     };
 
     if (props.isReady && props.examineGame) {
@@ -257,7 +258,7 @@ class Editor extends Component {
     this.setState({ circles: [...circles] });
   };
 
-  handleMove = (currentMove, promotion) => {
+  handleMove = currentMove => {
     const { examineGame } = this.props;
 
     const chess = new Chess.Chess();
@@ -277,9 +278,29 @@ class Editor extends Component {
     });
   };
 
+  handleAdd = piece => {
+    this.setState({ edit: { add: piece } });
+  };
+
+  handlePieceAdd = (piece, square) => {
+    const { examineGame } = this.props;
+    const chess = new Chess.Chess();
+
+    chess.load(examineGame.fen);
+    chess.put({ type: piece[1].toLowerCase(), color: piece[0] }, square);
+
+    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
+      if (err) {
+        log.error(err.reason);
+      }
+    });
+
+    this.setState({ edit: {} });
+  };
+
   render() {
     const { isReady, systemCss, examineGame } = this.props;
-    const { whiteCastling, blackCastling, orientation, arrows, circles } = this.state;
+    const { whiteCastling, blackCastling, orientation, arrows, circles, edit } = this.state;
 
     if (!isReady) {
       return <Loading />;
@@ -344,11 +365,13 @@ class Editor extends Component {
                 arrows={arrows}
                 onUpdateCircles={circle => this.handleUpdateCircles(circle)}
                 onUpdateArrows={arrow => this.handleUpdateArrows(arrow)}
-                onMove={(move, promotion) => this.handleMove(move, promotion)}
+                onMove={move => this.handleMove(move)}
                 smartMoves={false}
                 showLegalMoves={false}
                 smallSize={500}
                 promotionPieces={["q", "n", "b", "r"]}
+                edit={edit}
+                handleAdd={this.handlePieceAdd}
               />
             </div>
           </BoardWrapper>
@@ -370,6 +393,7 @@ class Editor extends Component {
               wR: "images/chesspieces/wR.png"
             }}
             size={baordSize / 12}
+            onAdd={this.handleAdd}
           />
           <EditorRightSidebar
             fen={examineGame.fen}
