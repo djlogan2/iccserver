@@ -409,6 +409,9 @@ class Editor extends Component {
             }}
             size={baordSize / 12}
             onAdd={this.handleAdd}
+            style={{
+              backgroundColor: "#c7cbd5"
+            }}
           />
           <EditorRightSidebar
             fen={examineGame.fen}
