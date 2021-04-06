@@ -10,7 +10,6 @@ import { Col } from "antd";
 import CssManager from "./components/Css/CssManager";
 import EditorRightSidebar from "./components/RightSidebar/EditorRightSidebar";
 import Loading from "../pages/components/Loading";
-import Spare from "./components/Spare";
 import BoardWrapper from "./components/BoardWrapper";
 import { Logger } from "../../../lib/client/Logger";
 

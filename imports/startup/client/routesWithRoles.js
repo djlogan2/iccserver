@@ -1,5 +1,5 @@
 import {
-  RESOURCE_COMMUNITY,
+  RESOURCE_COMMUNITY, RESOURCE_CUSTOMIZABLE_BOARD,
   RESOURCE_EDITOR,
   RESOURCE_EXAMINE,
   RESOURCE_HOME,
@@ -16,6 +16,7 @@ import Community from "../../ui/pages/Community";
 import UserProfile from "../../ui/pages/components/UserManagement/UserProfile";
 import UsersList from "../../ui/pages/components/Users/UsersList";
 import UserEdit from "../../ui/pages/components/Users/UserEdit";
+import CustomizableBoard from "../../ui/pages/CustomizableBoard";
 
 const routesWithRoles = [
   {
@@ -62,6 +63,11 @@ const routesWithRoles = [
     roles: ["list_users"],
     component: UserEdit,
     path: `${RESOURCE_USERS}/:username`
+  },
+  {
+    roles: [],
+    component: CustomizableBoard,
+    path: RESOURCE_CUSTOMIZABLE_BOARD
   }
 ];
 

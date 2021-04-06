@@ -8,6 +8,7 @@ export const RESOURCE_PLAY = "/play";
 export const RESOURCE_EDITOR = "/editor";
 export const RESOURCE_PROFILE = "/profile";
 export const RESOURCE_USERS = "/users";
+export const RESOURCE_CUSTOMIZABLE_BOARD = "/custom_board";
 
 export const labelsToResources = {
   community: RESOURCE_COMMUNITY,
