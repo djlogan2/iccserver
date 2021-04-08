@@ -25,7 +25,11 @@ class CustomizableBoard extends Component {
       promotionPieces: ["q", "r", "b", "n"],
       perspective: "white",
       boardColorsLight: { default: "#FFFFFF", active: "#9c9c9c" },
-      boardColorsDark: { default: "#1565c0", active: "#1255A1" }
+      boardColorsDark: { default: "#1565c0", active: "#1255A1" },
+      wrapperColor: "#292929",
+      promotionColor: "#a8a8a8",
+      filesColor: "#ffffff",
+      ranksColor: "#ffffff"
     };
   }
 
@@ -121,7 +125,11 @@ class CustomizableBoard extends Component {
       promotionPieces,
       perspective,
       boardColorsLight,
-      boardColorsDark
+      boardColorsDark,
+      wrapperColor,
+      promotionColor,
+      filesColor,
+      ranksColor
     } = this.state;
 
     return (
@@ -151,16 +159,16 @@ class CustomizableBoard extends Component {
             }}
             styles={{
               wrapper: {
-                backgroundColor: "#292929"
+                backgroundColor: wrapperColor
               },
               files: {
-                color: "white"
+                color: filesColor
               },
               ranks: {
-                color: "white"
+                color: ranksColor
               },
               promotion: {
-                backgroundColor: "#a8a8a8"
+                backgroundColor: promotionColor
               }
             }}
             movable={legalMoves}
@@ -183,6 +191,8 @@ class CustomizableBoard extends Component {
             showLegalMoves={showLegalMoves}
             promotionPieces={promotionPieces}
             perspective={perspective}
+            wrapperColor={wrapperColor}
+            promotionColor={promotionColor}
             handleUpdate={this.handleModalUpdate}
           />
         </div>

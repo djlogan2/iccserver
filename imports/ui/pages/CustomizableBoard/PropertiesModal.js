@@ -2,7 +2,6 @@ import React from "react";
 
 import { SettingOutlined } from "@ant-design/icons";
 import { Modal, Select, Checkbox } from "antd";
-import { SketchPicker } from "react-color";
 import CustomColorPicker from "../components/CustomColorPicker/CustomColorPicker";
 
 const promotionOptions = [
@@ -24,7 +23,10 @@ class PropertiesModal extends React.Component {
       promotionPieces: props.promotionPieces,
       perspective: props.perspective,
       boardColorsLight: props.boardColorsLight,
-      boardColorsDark: props.boardColorsDark
+      boardColorsDark: props.boardColorsDark,
+      wrapperColor: props.wrapperColor,
+      filesColor: props.filesColor,
+      ranksColor: props.ranksColor
     };
   }
 
@@ -50,7 +52,20 @@ class PropertiesModal extends React.Component {
   };
 
   render() {
-    const { isOpen, raf, smartMoves, showLegalMoves, perspective, promotionPieces, boardColorsLight, boardColorsDark } = this.state;
+    const {
+      isOpen,
+      raf,
+      smartMoves,
+      showLegalMoves,
+      perspective,
+      promotionPieces,
+      boardColorsLight,
+      boardColorsDark,
+      wrapperColor,
+      promotionColor,
+      filesColor,
+      ranksColor
+    } = this.state;
 
     return (
       <React.Fragment>
@@ -153,6 +168,31 @@ class PropertiesModal extends React.Component {
                 onChange={color =>
                   this.setState({ boardColorsDark: { ...boardColorsDark, active: color.hex } })
                 }
+              />
+            </span>
+            <span>
+              {"Wrapper color: "}
+              <CustomColorPicker
+                color={wrapperColor}
+                onChange={color => this.setState({ wrapperColor: color.hex })}
+              />
+            </span>
+            <span>
+              {"Promotion color: "}
+              <CustomColorPicker
+                color={promotionColor}
+                onChange={color => this.setState({ promotionColor: color.hex })}
+              />
+            </span>
+            <span>
+              {"Files and ranks colors: "}
+              <CustomColorPicker
+                color={filesColor}
+                onChange={color => this.setState({ filesColor: color.hex })}
+              />
+              <CustomColorPicker
+                color={ranksColor}
+                onChange={color => this.setState({ ranksColor: color.hex })}
               />
             </span>
           </div>
