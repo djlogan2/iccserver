@@ -338,7 +338,7 @@ class Editor extends Component {
           <BoardWrapper>
             <div style={{ width: "100%", height: baordSize }}>
               <ChessBoard
-                raf={{ inside: true, vertical: "bottom", horizontal: "right" }} // where is either an object or a string
+                raf={{ inside: false, vertical: "bottom", horizontal: "right" }} // where is either an object or a string
                 styles={{
                   wrapper: {
                     backgroundColor: "#292929"
