@@ -386,6 +386,21 @@ class Editor extends Component {
                 edit={edit}
                 handleAdd={this.handlePieceAdd}
                 handleDelete={this.handlePieceDelete}
+                accessibilityPieces={{
+                  bP: "Black pawn",
+                  bR: "Black rook",
+                  bN: "Black knight",
+                  bB: "Black bishop",
+                  bQ: "Black queen",
+                  bK: "Black king",
+                  wP: "White pawn",
+                  wR: "White rook",
+                  wN: "White knight",
+                  wB: "White bishop",
+                  wQ: "White queen",
+                  wK: "White king",
+                  emptySquare: "Empty square"
+                }}
               />
             </div>
           </BoardWrapper>
