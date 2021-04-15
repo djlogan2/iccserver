@@ -24,7 +24,7 @@ class Home extends React.Component {
 
     const width = window.innerWidth / 2;
     const height = window.innerHeight;
-    console.log(css);
+
     const cssManager = new CssManager(css.systemCss);
 
     return (

@@ -160,8 +160,6 @@ class MiddleBoard extends Component {
 
     const isPlayingOrExamining = isUserPlaying || isUserExamining;
 
-    console.log(boardsize);
-
     return (
       <div style={{ width: size }}>
         {isPlayingOrExamining && (
