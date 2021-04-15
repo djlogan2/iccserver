@@ -6,6 +6,7 @@ class NewChessBoard extends Component {
     super(props);
 
     this.state = {
+      key: Date.now(),
       legalMoves: this.getLegalMoves(),
       circles: [],
       arrows: [],
@@ -18,9 +19,20 @@ class NewChessBoard extends Component {
 
   componentDidMount() {
     const { chess } = this.props;
+    window.addEventListener("resize", this.updateWindowSize);
 
     this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
   }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateWindowSize);
+  }
+
+  updateWindowSize = () => {
+    this.setState({
+      key: Date.now()
+    });
+  };
 
   componentDidUpdate(prevProps, prevState) {
     const { chess } = this.props;
@@ -150,12 +162,13 @@ class NewChessBoard extends Component {
 
   render() {
     const { orientation, chess } = this.props;
-    const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize } = this.state;
+    const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize, key } = this.state;
     const hasLegalMoves = this.haveLegalMoves();
 
     return (
       <ChessBoard
-        raf={{ inside: false, vertical: "bottom", horizontal: "right" }} // where is either an object or a string
+        key={key}
+        raf={{ inside: false, vertical: "bottom", horizontal: "right" }}
         styles={{
           wrapper: {
             backgroundColor: "#292929"

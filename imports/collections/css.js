@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 const mongoCss = new Mongo.Collection("css");
 
 Meteor.startup(() => {
-  mongoCss.rawCollection().ensureIndex({ cssKey: 1 }, { unique: 1 });
+  mongoCss.rawCollection().createIndex({ cssKey: 1 }, { unique: 1 });
 });
 
 Meteor.publish(null, () => {

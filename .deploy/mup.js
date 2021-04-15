@@ -1,9 +1,9 @@
 module.exports = {
   servers: {
     one: {
-      host: "18.204.10.150",
-      username: "david",
-      pem: "~/.ssh/id_rsa"
+      host: "100.25.103.111",
+      username: "oleshkoo",
+      pem: "~/.ssh/prod-icc"
     }
   },
 
@@ -19,11 +19,11 @@ module.exports = {
 
     buildOptions: {
       serverOnly: true,
-      debug: true
+      debug: false
     },
 
     env: {
-      ROOT_URL: "http://18.204.10.150",
+      ROOT_URL: "http://100.25.103.111",
       MONGO_URL: "mongodb://mongodb/meteor",
       MONGO_OPLOG_URL: "mongodb://mongodb/local"
     },

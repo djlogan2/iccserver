@@ -160,6 +160,8 @@ class MiddleBoard extends Component {
 
     const isPlayingOrExamining = isUserPlaying || isUserExamining;
 
+    console.log(boardsize);
+
     return (
       <div style={{ width: size }}>
         {isPlayingOrExamining && (
@@ -176,7 +178,7 @@ class MiddleBoard extends Component {
 
         <BlackPlayerClock game={game} color={topPlayertime} side={size} />
         {game && (
-          <div style={{ width: "100%", height: boardsize }}>
+          <div style={{ width: boardsize, height: boardsize }}>
             <NewChessBoard
               chess={this.chess}
               height={boardsize}
