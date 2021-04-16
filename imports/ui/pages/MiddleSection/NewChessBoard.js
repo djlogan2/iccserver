@@ -13,7 +13,8 @@ class NewChessBoard extends Component {
       smartMoves: false,
       showLegalMoves: true,
       smallSize: 500,
-      fen: null
+      fen: null,
+      lastMove: null
     };
   }
 
@@ -101,7 +102,7 @@ class NewChessBoard extends Component {
   handleMove = (move, promotion) => {
     const { onDrop, chess } = this.props;
 
-    chess.move(move[0] + move[1] + promotion, { sloppy: true });
+    const lastMove = chess.move(move[0] + move[1] + promotion, { sloppy: true });
 
     const history = chess.history();
     const moves = history[history.length - 1];
@@ -109,6 +110,7 @@ class NewChessBoard extends Component {
     onDrop({ move: moves });
 
     this.setState({
+      lastMove,
       legalMoves: this.getLegalMoves()
     });
   };
@@ -162,7 +164,16 @@ class NewChessBoard extends Component {
 
   render() {
     const { orientation, chess } = this.props;
-    const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize, key } = this.state;
+    const {
+      legalMoves,
+      circles,
+      arrows,
+      smartMoves,
+      showLegalMoves,
+      smallSize,
+      key,
+      lastMove
+    } = this.state;
     const hasLegalMoves = this.haveLegalMoves();
 
     return (
@@ -181,8 +192,11 @@ class NewChessBoard extends Component {
           },
           promotion: {
             backgroundColor: "#a8a8a8"
-          }
+          },
+          lastMove: "5px solid #3CFF33"
         }}
+        lastMove={lastMove}
+        showLastMove
         perspective={orientation}
         fen={chess.fen()}
         boardSquares={{
@@ -226,7 +240,8 @@ class NewChessBoard extends Component {
           wB: "White bishop",
           wQ: "White queen",
           wK: "White king",
-          emptySquare: "Empty square"
+          emptySquare: "Empty square",
+          legalMoves: "Legal moves: "
         }}
       />
     );
