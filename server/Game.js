@@ -1165,6 +1165,8 @@ class Game {
       return;
     }
 
+    //chess.move('Nf6')
+    // // -> { color: 'b', from: 'g8', to: 'f6', flags: 'n', piece: 'n', san: 'Nf6' }
     const result = chessObject.move(move);
     if (!result) {
       ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
@@ -1183,7 +1185,8 @@ class Game {
     this.addMoveToMoveList(
       variation,
       move,
-      game.status === "playing" ? game.clocks[bw].current : null
+      game.status === "playing" ? game.clocks[bw].current : null,
+      result.piece, result.color, result.from, result.to, result.promotion
     );
 
     if (game.status === "playing") {
@@ -3030,7 +3033,7 @@ class Game {
     }
   }
 
-  addMoveToMoveList(variation_object, move, current) {
+  addMoveToMoveList(variation_object, move, current, piece, color, from, to, promotion) {
     const exists = this.findVariation(move, variation_object.cmi, variation_object.movelist);
 
     if (exists) {
@@ -3039,6 +3042,7 @@ class Game {
       const newi = variation_object.movelist.length;
       variation_object.movelist.push({
         move: move,
+        smith: { piece, color, from, to, promotion },
         prev: variation_object.cmi,
         current: current
       });
