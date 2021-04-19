@@ -162,19 +162,19 @@ class NewChessBoard extends Component {
     return userId === blackId && chess.turn() === "b";
   };
 
+  getLastMove = () => {
+    const { variations } = this.props;
+    if (variations.cmi && variations.movelist[variations.cmi]) {
+      return variations.movelist[variations.cmi].smith;
+    }
+  };
+
   render() {
     const { orientation, chess } = this.props;
-    const {
-      legalMoves,
-      circles,
-      arrows,
-      smartMoves,
-      showLegalMoves,
-      smallSize,
-      key,
-      lastMove
-    } = this.state;
+    const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize, key } = this.state;
     const hasLegalMoves = this.haveLegalMoves();
+
+    const lastMove = this.getLastMove();
 
     return (
       <ChessBoard

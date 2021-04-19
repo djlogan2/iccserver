@@ -189,6 +189,7 @@ class MiddleBoard extends Component {
               gameStatus={game.status}
               blackId={game?.black?.id}
               whiteId={game?.white?.id}
+              variations={game.variations}
             />
           </div>
         )}
