@@ -12,6 +12,7 @@ import {
   PLAY_STATUS_CHOOSE_BOT
 } from "../../../../constants/playStatusConstants";
 import PlayOptionButtons from "./PlayOptionButtons";
+import GameCommandsBlock from "../GameCommandsBlock/GameCommandsBlock";
 
 class PlayBlock extends Component {
   constructor(props) {
@@ -140,7 +141,13 @@ class PlayBlock extends Component {
 
     if (isPlaying) {
       return (
-        <div className="playing">
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%"
+          }}
+        >
           <GameHistory
             cssManager={cssManager}
             game={RightSidebarData.MoveList}
@@ -150,6 +157,7 @@ class PlayBlock extends Component {
             examineAction={examineAction}
             currentGame={currentGame}
           />
+          <GameCommandsBlock game={game} />
           <GameControlBlock game={game} flip={flip} />
         </div>
       );

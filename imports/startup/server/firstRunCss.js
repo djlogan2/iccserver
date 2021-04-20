@@ -9,6 +9,7 @@ import primaryButtonCss from "../../../server/defaultStyles/primaryButtonCss";
 import challengeNotificationCss from "../../../server/defaultStyles/challengeNotificationCss";
 import profileCss from "../../../server/defaultStyles/profileCss";
 import userManagementCss from "../../../server/defaultStyles/userManagementCss";
+import commandsCss from "../../../server/defaultStyles/commandsCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -26,7 +27,8 @@ export default function firstRunCSS() {
       primaryButtonCss,
       challengeNotificationCss,
       profileCss,
-      userManagementCss
+      userManagementCss,
+      commandsCss
     });
   }
 }

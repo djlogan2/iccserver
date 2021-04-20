@@ -6,7 +6,7 @@ export default class GameHistory extends Component {
     const { cssManager, game, flip, gameRequest, startGameExamine, examineAction } = this.props;
 
     return (
-      <div className="game-history">
+      <div style={{ flexGrow: "1" }}>
         <MoveList
           cssManager={cssManager}
           game={game}

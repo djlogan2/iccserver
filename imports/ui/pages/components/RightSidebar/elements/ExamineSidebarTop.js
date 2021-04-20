@@ -10,6 +10,7 @@ import { withRouter } from "react-router-dom";
 import { compose } from "redux";
 import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
 import Actions from "./Actions";
+import GameCommandsBlock from "../../GameCommandsBlock/GameCommandsBlock";
 
 const { TabPane } = Tabs;
 
@@ -83,7 +84,7 @@ class ExamineSidebarTop extends Component {
     } = this.props;
 
     return (
-      <div>
+      <div style={{ display: "flex", flexDirection: "column", flexGrow: "1" }}>
         <Actions playComputer={this.playComputer} />
         <GameHistory
           cssManager={cssManager}
@@ -94,6 +95,7 @@ class ExamineSidebarTop extends Component {
           gameRequest={gameRequest}
           examineAction={examineAction}
         />
+        <GameCommandsBlock game={game} />
         <ExamineGameControlBlock game={game} flip={flip} />
       </div>
     );
@@ -104,14 +106,12 @@ class ExamineSidebarTop extends Component {
     const { moveOrPlay } = this.state;
 
     return (
-      <Tabs
-        className="examine-sidebar-top"
-        defaultActiveKey="game"
-        size="small"
-        type="card"
-        style={{ marginBottom: 32 }}
-      >
-        <TabPane tab={translate("game")} key="game">
+      <Tabs className="examine-sidebar-top" defaultActiveKey="game" size="small" type="card">
+        <TabPane
+          tab={translate("game")}
+          key="game"
+          style={{ height: "calc(100% - 50px)", display: "flex", flexDirection: "column" }}
+        >
           {moveOrPlay === "play" && this.renderPlay()}
           {moveOrPlay === "move" && this.renderMove()}
         </TabPane>

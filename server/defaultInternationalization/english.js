@@ -88,7 +88,9 @@ export const english = {
       moveBackward: "Move backward",
       moveForward: "Move forward",
       moveForwardEnd: "Move forward to the end",
-      flip: "Flip"
+      flip: "Flip",
+      inputCommand: "Input command",
+      send: "Send"
     },
     menuLinkLabel: {
       play: "Play",

@@ -2702,6 +2702,15 @@ class Game {
     return new_cmi;
   }
 
+  sendCommand(message_identifier, game_id, command) {
+    check(message_identifier, String);
+    check(game_id, String);
+    check(command, String);
+
+    const self = Meteor.user();
+    check(self, Object);
+  }
+
   moveToCMI(message_identifier, game_id, cmi) {
     check(game_id, String);
     check(cmi, Number);
@@ -4313,5 +4322,8 @@ Meteor.methods({
     global._gameObject.removeArrow(message_identifier, game_id, from, to),
   // eslint-disable-next-line meteor/audit-argument-checks
   moveToCMI: (message_identifier, game_id, cmi) =>
-    global._gameObject.moveToCMI(message_identifier, game_id, cmi)
+    global._gameObject.moveToCMI(message_identifier, game_id, cmi),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  sendCommand: (message_identifier, game_id, command) =>
+    global._gameObject.sendCommand(message_identifier, game_id, command)
 });
