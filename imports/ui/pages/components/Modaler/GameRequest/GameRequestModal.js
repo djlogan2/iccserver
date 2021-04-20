@@ -50,6 +50,13 @@ class GameRequestModal extends Component {
     }
   }
 
+  componentWillUnmount() {
+    const { gameRequest } = this.props;
+
+    this.handleCancelSeek();
+    notification.close(gameRequest._id);
+  }
+
   generateSearchingGameNotification = () => {
     const { gameRequest } = this.props;
 
