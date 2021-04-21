@@ -22,9 +22,11 @@ class GameCommandsBlock extends React.Component {
     const { game } = this.props;
     const { value } = this.state;
 
-    Meteor.call("sendCommand", "sendCommand", game._id, value, error => {
+    Meteor.call("addGameMove", "addGameMove", game._id, value, error => {
       if (error) {
         console.error(error);
+      } else {
+        this.setState({ value: "" });
       }
     });
   };
