@@ -47,7 +47,8 @@ export const english = {
         playing: "PL",
         examining: "EX",
         playingTooltip: "Playing",
-        examiningTooltip: "Examining"
+        examiningTooltip: "Examining",
+        observing: "Observing"
       }
     },
     gameListModal: {
