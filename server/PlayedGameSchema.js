@@ -77,6 +77,10 @@ export const PlayedGameSchema = new SimpleSchema({
   fen: String,
   startingfen: { type: String, required: false },
   tomove: String,
+  premove: { type: Object, required: false },
+  "premove.from": String,
+  "premove.to": String,
+  "premove.promotion": String,
   legacy_game_number: {
     type: Number,
     required: false,

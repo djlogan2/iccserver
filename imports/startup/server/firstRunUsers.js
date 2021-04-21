@@ -20,7 +20,8 @@ export default function firstRunUsers() {
         lastname: "Administrator"
       },
       settings: {
-        autoaccept: false
+        autoaccept: false,
+        premove: false
       }
     });
     Roles.addUsersToRoles(id, "administrator");
@@ -44,7 +45,8 @@ export default function firstRunUsers() {
           }
         },
         settings: {
-          autoaccept: true
+          autoaccept: true,
+          premove: false
         }
       });
       Users.addUserToRoles(idx, standard_member_roles);

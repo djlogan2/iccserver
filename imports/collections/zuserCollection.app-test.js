@@ -47,7 +47,8 @@ const our_allowed_user_fields = {
     }
   },
   settings: {
-    autoaccept: 1
+    autoaccept: 1,
+    premove: 1
   },
   status: {
     legacy: 1,
@@ -99,6 +100,7 @@ const all_fields = {
   // },
   settings: {
     autoaccept: 1,
+    premove: 1,
     match_default: {
       wild_number: 1,
       rating_type: 1,

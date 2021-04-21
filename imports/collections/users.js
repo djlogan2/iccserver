@@ -92,7 +92,8 @@ Meteor.publish(null, function() {
 });
 
 export const default_settings = {
-  autoaccept: true
+  autoaccept: true,
+  premove: false
 };
 
 Accounts.onCreateUser(function(options, user) {
