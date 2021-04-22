@@ -4,7 +4,7 @@
       "label": "play",
       "link": "play",
       "src": "../../../images/play-icon-white.png",
-      "roles": []
+      "roles": ["play_rated_games"]
     },
     {
       "label": "community",

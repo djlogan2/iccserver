@@ -30,7 +30,7 @@ const routesWithRoles = [
     path: RESOURCE_HOME
   },
   {
-    roles: [],
+    roles: ["play_rated_games"],
     component: Play,
     path: RESOURCE_PLAY
   },
