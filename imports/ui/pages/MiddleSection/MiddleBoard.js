@@ -43,16 +43,6 @@ class MiddleBoard extends Component {
     this.setState({ top: newTop });
   };
 
-  circleLineWidthChange = event => {
-    this._circle.lineWidth = event.target.value;
-    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
-  };
-
-  circleColorChange = event => {
-    this._circle.color = event.target.value;
-    this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
-  };
-
   calcBoardSize = () => {
     const { width, height } = this.props;
 
