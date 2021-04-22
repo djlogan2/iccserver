@@ -219,7 +219,7 @@ class Examine extends Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { importedGames = [] } = this.props;
+    const { importedGames = [], game } = this.props;
     const { fileData } = this.state;
 
     if (
@@ -234,6 +234,10 @@ class Examine extends Component {
         importedGames: copyOfImportedGames,
         isImportedGamesModal: !!fileData
       });
+    }
+
+    if (!game && prevProps.game) {
+      this.initExamine();
     }
   }
 
