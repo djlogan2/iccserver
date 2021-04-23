@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Button } from "antd";
+import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 import {
   oneMinuteSeekOptions,
@@ -9,14 +10,30 @@ import {
   twentyMinutesSeekOptions,
   twentyFiveMinutesSeekOptions
 } from "../../../../constants/gameConstants";
+import { withTracker } from "meteor/react-meteor-data";
+import { Meteor } from "meteor/meteor";
+import {
+  ROLE_PLAY_RATED_GAMES,
+  ROLE_PLAY_UNRATED_GAMES
+} from "../../../../constants/rolesConstants";
 
 class PlayOptionButtons extends Component {
   render() {
-    const { translate, handlePlayWithFriend, handlePlayComputer, handlePlaySeek } = this.props;
+    const {
+      translate,
+      handlePlayWithFriend,
+      handlePlayComputer,
+      handlePlaySeek,
+      currentRoles
+    } = this.props;
+
+    const roles = currentRoles.map(role => role.role._id);
+    const isRatedGames = roles.includes(ROLE_PLAY_RATED_GAMES);
+    const isUnratedGames = roles.includes(ROLE_PLAY_UNRATED_GAMES);
 
     return (
       <div className="play-block">
-        <div className="play-block__top">
+        <div className={isRatedGames ? "play-block__top" : "play-block__top__disabled"}>
           <Button
             className="play-block__top__button"
             onClick={() => handlePlaySeek(oneMinuteSeekOptions)}
@@ -58,7 +75,11 @@ class PlayOptionButtons extends Component {
           <Button onClick={handlePlayWithFriend} className="play-block__btn-big" block>
             {translate("playWithFriend")}
           </Button>
-          <Button onClick={handlePlayComputer} className="play-block__btn-big" block>
+          <Button
+            onClick={handlePlayComputer}
+            className={isUnratedGames ? "play-block__btn-big" : "play-block__btn-big__disabled"}
+            block
+          >
             {translate("playWithComputer")}
           </Button>
         </div>
@@ -67,4 +88,11 @@ class PlayOptionButtons extends Component {
   }
 }
 
-export default translate("Play.PlayBlock")(PlayOptionButtons);
+export default compose(
+  withTracker(() => {
+    return {
+      currentRoles: Meteor.roleAssignment.find().fetch()
+    };
+  }),
+  translate("Play.PlayBlock")
+)(PlayOptionButtons);

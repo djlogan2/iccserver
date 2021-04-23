@@ -273,6 +273,7 @@ export const english = {
         white: "White",
         black: "Black"
       },
+      isRated: "Rated",
       selectOpponent: "Select opponent"
     },
     PlayChooseBot: {

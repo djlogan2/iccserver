@@ -222,7 +222,7 @@ class Play extends Component {
       color: null
     };
 
-    const { color, initial, incrementOrDelayType, incrementOrDelay } = options;
+    const { color, initial, incrementOrDelayType, incrementOrDelay, rated } = options;
 
     const rating_object = findRatingObject(
       0,
@@ -241,7 +241,7 @@ class Play extends Component {
       friendId,
       defaultData.wild_number,
       rating_object.rating_type,
-      defaultData.rated,
+      rated,
       defaultData.is_adjourned,
       initial,
       incrementOrDelay,

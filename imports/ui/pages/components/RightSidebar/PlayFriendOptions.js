@@ -1,19 +1,33 @@
 import React, { Component } from "react";
 import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection } from "../../../../api/client/collections";
-import { Button, Form, InputNumber, Radio } from "antd";
+import { Button, Form, InputNumber, Radio, Switch } from "antd";
 import { translate } from "../../../HOCs/translate";
+import { compose } from "redux";
+import { withTracker } from "meteor/react-meteor-data";
+import { Meteor } from "meteor/meteor";
+import {
+  ROLE_PLAY_RATED_GAMES,
+  ROLE_PLAY_UNRATED_GAMES
+} from "../../../../constants/rolesConstants";
 
 class PlayFriendOptions extends Component {
   constructor(props) {
     super(props);
 
+    const roles = props.currentRoles.map(role => role.role._id);
+    const isRatedGames = roles.includes(ROLE_PLAY_RATED_GAMES);
+    const isUnratedGames = roles.includes(ROLE_PLAY_UNRATED_GAMES);
+
     this.state = {
+      isRatedGames,
+      isUnratedGames,
       color: "random",
       incrementOrDelayType: "inc",
       initial: 15,
       incrementOrDelay: 0,
-      ratingType: "none"
+      ratingType: "none",
+      rated: isRatedGames
     };
   }
 
@@ -66,9 +80,10 @@ class PlayFriendOptions extends Component {
     const { onPlay } = this.props;
 
     let { color } = this.state;
-    const { ratingType, incrementOrDelayType, initial, incrementOrDelay } = this.state;
+    const { ratingType, incrementOrDelayType, initial, incrementOrDelay, rated } = this.state;
 
     onPlay({
+      rated,
       ratingType,
       color: color === "random" ? null : color,
       incrementOrDelayType,
@@ -79,7 +94,16 @@ class PlayFriendOptions extends Component {
 
   render() {
     const { onClose, translate } = this.props;
-    const { initial, incrementOrDelay, incrementOrDelayType, ratingType, color } = this.state;
+    const {
+      rated,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      ratingType,
+      color,
+      isRatedGames,
+      isUnratedGames
+    } = this.state;
 
     const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(
       DynamicRatingsCollection.find().fetch()
@@ -152,6 +176,13 @@ class PlayFriendOptions extends Component {
               <Radio.Button value="black">{translate("colors.black")}</Radio.Button>
             </Radio.Group>
           </Form.Item>
+          <Form.Item label={translate("isRated")} name="rated">
+            <Switch
+              defaultChecked={rated}
+              disabled={!isRatedGames || !isUnratedGames}
+              onChange={rated => this.setState({ rated })}
+            />
+          </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
             {translate("selectOpponent")}
           </Button>
@@ -161,4 +192,11 @@ class PlayFriendOptions extends Component {
   }
 }
 
-export default translate("Play.PlayFriendOptions")(PlayFriendOptions);
+export default compose(
+  withTracker(() => {
+    return {
+      currentRoles: Meteor.roleAssignment.find().fetch()
+    };
+  }),
+  translate("Play.PlayFriendOptions")
+)(PlayFriendOptions);
