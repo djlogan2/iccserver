@@ -3,7 +3,7 @@ module.exports = {
     one: {
       host: "18.204.10.150",
       username: "oleshkoo",
-      pem: "~/.ssh/prod-icc"
+      pem: "./prod-icc"
     }
   },
 
