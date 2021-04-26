@@ -38,6 +38,10 @@ class PlayBlock extends Component {
     onChooseFriend({ friendId, options });
   };
 
+  handleCancelFriend = friendId => {
+    Meteor.call("cancelMatchRequest", "cancelMatchRequest", friendId);
+  };
+
   handlePlayComputer = () => {
     this.setState({ status: PLAY_STATUS_CHOOSE_BOT });
   };
@@ -79,6 +83,7 @@ class PlayBlock extends Component {
     const {
       game,
       usersToPlayWith,
+      sentRequests,
       flip,
       cssManager,
       RightSidebarData,
@@ -123,7 +128,9 @@ class PlayBlock extends Component {
             this.setState({ status: PLAY_STATUS_NONE });
           }}
           usersToPlayWith={usersToPlayWith}
+          sentRequests={sentRequests}
           onChoose={this.handleChooseFriend}
+          onCancel={this.handleCancelFriend}
         />
       );
     }
