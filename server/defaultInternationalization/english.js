@@ -106,7 +106,9 @@ export const english = {
       community: "Community",
       mygame: "My Games",
       uploadpgn: "Imported PGNs",
-      users: "Users"
+      users: "Users",
+      last_ping: "Last ping",
+      average_lag: "Average lag"
     },
     MoveListComponent: {
       takeBack: "Take Back",
