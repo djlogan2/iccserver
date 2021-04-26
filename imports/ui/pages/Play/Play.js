@@ -163,8 +163,9 @@ class Play extends Component {
     const initial = gameData.clocks.white.initial;
     const incrementOrDelay = gameData.clocks.white.inc_or_delay;
     const incrementOrDelayType = gameData.clocks.white.delaytype;
+    const rated = gameData.rated;
 
-    const options = { color, initial, incrementOrDelayType, incrementOrDelay };
+    const options = { color, initial, incrementOrDelayType, incrementOrDelay, rated };
     return { friendId, options };
   };
 
@@ -235,6 +236,18 @@ class Play extends Component {
 
     if (!rating_object) throw new Meteor.Error("Unable to find a rating type");
 
+    console.log(friendId,
+      defaultData.wild_number,
+      rating_object.rating_type,
+      rated,
+      defaultData.is_adjourned,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      initial,
+      incrementOrDelay,
+      incrementOrDelayType,
+      color);
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
