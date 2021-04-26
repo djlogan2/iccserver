@@ -63,6 +63,7 @@ class PlayRightSidebar extends Component {
       onBotPlay,
       onSeekPlay,
       usersToPlayWith,
+      sentRequests,
       onChooseFriend,
       cssManager,
       RightSidebarData,
@@ -83,6 +84,7 @@ class PlayRightSidebar extends Component {
               onBotPlay={onBotPlay}
               onSeekPlay={onSeekPlay}
               usersToPlayWith={usersToPlayWith}
+              sentRequests={sentRequests}
               onChooseFriend={onChooseFriend}
               cssManager={cssManager}
               RightSidebarData={RightSidebarData}

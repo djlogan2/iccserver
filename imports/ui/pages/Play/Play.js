@@ -317,7 +317,7 @@ class Play extends Component {
   };
 
   render() {
-    const { isReady, gameRequest, inGame, usersToPlayWith } = this.props;
+    const { isReady, gameRequest, inGame, usersToPlayWith, sentRequests } = this.props;
 
     if (!isReady) {
       return <Loading />;
@@ -374,6 +374,7 @@ class Play extends Component {
           capture={capture}
           game={inGame}
           usersToPlayWith={usersToPlayWith}
+          sentRequests={sentRequests}
           board={this._board}
           onChooseFriend={this.handleChooseFriend}
           onBotPlay={this.handleBotPlay}
@@ -392,6 +393,7 @@ export default compose(
   withTracker(() => {
     const subscriptions = {
       game: Meteor.subscribe("games"),
+      game_requests: Meteor.subscribe("game_requests"),
       chats: Meteor.subscribe("chat"),
       child_chat_texts: Meteor.subscribe("child_chat_texts"),
       users: Meteor.subscribe("loggedOnUsers"),
@@ -405,6 +407,8 @@ export default compose(
       usersToPlayWith: Meteor.users
         .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
         .fetch(),
+
+      sentRequests: GameRequestCollection.find({ challenger_id: Meteor.userId() }).fetch(),
 
       inGame: Game.findOne({
         $or: [

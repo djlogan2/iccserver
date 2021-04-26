@@ -924,6 +924,36 @@ GameRequests.declineMatchRequest = function(message_identifier, game_id) {
   );
 };
 
+GameRequests.cancelMatchRequest = function(message_identifier, receiver_id) {
+  check(message_identifier, String);
+  check(receiver_id, String);
+  const self = Meteor.user();
+  check(self, Object);
+
+  const request = GameRequestCollection.findOne({ receiver_id, challenger_id: self._id });
+  if (!request)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to cancel match",
+      "game request not found"
+    );
+  if (request.receiver_id === self._id)
+    throw new ICCMeteorError(
+      message_identifier,
+      "Unable to cancel match",
+      "challenger cannot cancel a match"
+    );
+  if (request.challenger_id !== self._id)
+    throw new ICCMeteorError(message_identifier, "Unable to cancel match", "not the challenger");
+
+  GameRequestCollection.remove({ _id: request._id });
+  ClientMessages.sendMessageToClient(
+    request.challenger_id,
+    request.message_identifier,
+    "MATCH_CANCELED"
+  );
+};
+
 GameRequests.removeLegacyMatchRequest = function(
   message_identifier,
   challenger_name,
@@ -972,6 +1002,7 @@ Meteor.methods({
   // Look in LegacyUsers for this
   //gameRequestAccept: GameRequests.acceptMatchRequest,
   gameRequestDecline: GameRequests.declineMatchRequest,
+  cancelMatchRequest: GameRequests.cancelMatchRequest,
   createLocalGameSeek: GameRequests.addLocalGameSeek,
   acceptLocalGameSeek: GameRequests.acceptGameSeek,
   removeGameSeek: GameRequests.removeGameSeek

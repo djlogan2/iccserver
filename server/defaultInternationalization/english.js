@@ -245,7 +245,8 @@ export const english = {
       PLAY_WITH_FRIEND: "Play with friend",
       BACK: "Back",
       FRIENDS: "Friends",
-      CHOOSE: "Choose"
+      CHOOSE: "Choose",
+      CANCEL: "Cancel"
     },
     PlayFriendOptions: {
       PLAY_WITH_FRIEND: "Play with friend",
