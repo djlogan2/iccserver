@@ -245,50 +245,6 @@ class Game {
         ]
       }
     ]);
-    /*
-    Meteor.publishComposite("games", [
-      {
-        find: userRecord,
-        children: [
-          {
-            find: gamesWeArePlaying
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: gamesWeOwn
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: examineWithAnalysis
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: examineWithoutAnalysis
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: allGames
-          }
-        ]
-      }
-    ]);
-     */
   }
 
   getAndCheck(self, message_identifier, game_id) {
@@ -1140,20 +1096,23 @@ class Game {
 
   internalSaveLocalPremove(message_identifier, game, move) {
     const chessObject = active_games[game._id];
-    const temp = new Chess(chessObject.fen());
+    const temp = new Chess.Chess(chessObject.fen());
     const moves = temp.moves();
     let found = false;
-    for (let x = 0; !found && x < moves.length(); x++) {
+    for (let x = 0; !found && x < moves.length; x++) {
       temp.move(moves[x]);
-      const result = chessObject.move(move, { sloppy: true });
+      const result = temp.move(move, { sloppy: true });
       if (!!result) {
         result.message_identifier = message_identifier;
-        this.GameCollection.update({ _id: game._id }, { $set: { premove: result } });
+        this.GameCollection.update(
+          { _id: game._id, status: "playing" },
+          { $set: { premove: result } }
+        );
         return;
       }
       temp.undo();
     }
-    ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE");
+    ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", move);
     // TODO: Do we delete the premove in this case?
   }
 
@@ -1274,7 +1233,7 @@ class Game {
         gamelag = this.calculateGameLag(game.lag[bw]) | 0;
         gameping = game.lag[bw].pings.slice(-1) | 0;
 
-        let used = timenow - game.clocks[bw].starttime + gamelag;
+        let used = timenow - game.clocks[bw].starttime - gamelag;
         let addback = 0;
 
         if (game.clocks[bw].delaytype !== "none") {
@@ -1355,12 +1314,13 @@ class Game {
       );
     } else if (game.status === "playing")
       if (!!premove) {
-        const otherguy = Meteor.users.find({ _id: game[otherbw].id });
+        const otherguy = Meteor.users.findOne({ _id: game[otherbw].id });
         this.internalSaveLocalMove(
           otherguy,
           game.premove.message_identifier,
           game._id,
-          premove.san
+          premove.san,
+          true
         );
       } else {
         this.startMoveTimer(
