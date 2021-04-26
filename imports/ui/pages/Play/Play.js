@@ -236,18 +236,6 @@ class Play extends Component {
 
     if (!rating_object) throw new Meteor.Error("Unable to find a rating type");
 
-    console.log(friendId,
-      defaultData.wild_number,
-      rating_object.rating_type,
-      rated,
-      defaultData.is_adjourned,
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
-      color);
     Meteor.call(
       "addLocalMatchRequest",
       "matchRequest",
