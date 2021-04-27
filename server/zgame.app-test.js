@@ -4350,4 +4350,31 @@ describe("Starting an examined game", function() {
       chai.assert.equal(game11.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     });
   });
+
+  it.only("should not crash when a takeback is requested on a new game (bug found 4/27/21)", function() {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none"
+    );
+    chai.assert.doesNotThrow(() => Game.requestLocalTakeback("mi1", game_id, 1));
+    const game = Game.collection.findOne();
+    chai.assert.equal(game.pending.white.takeback.number, 0);
+    chai.assert.equal(game.pending.white.takeback.mid, "0");
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "TAKEBACK_BEGINNING_OF_GAME");
+  });
 });
