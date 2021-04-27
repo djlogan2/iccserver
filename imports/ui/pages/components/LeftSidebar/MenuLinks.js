@@ -160,7 +160,8 @@ class MenuLinks extends Component {
 
     const availableRoutes = currentRoles.map(role => role?.role?._id);
 
-    const cf = Meteor.user().cf;
+    const user = Meteor.user();
+    const { cf } = user;
     const isChildChat = cf && cf.indexOf("c") !== -1 && cf.indexOf("e") === -1;
 
     return (
