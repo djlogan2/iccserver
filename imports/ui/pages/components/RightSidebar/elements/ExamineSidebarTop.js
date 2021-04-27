@@ -85,19 +85,21 @@ class ExamineSidebarTop extends Component {
     } = this.props;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", flexGrow: "1" }}>
-        <Actions playComputer={this.playComputer} />
-        <GameHistory
-          cssManager={cssManager}
-          game={RightBarTopData.MoveList}
-          flip={flip}
-          actionData={actionData}
-          startGameExamine={startGameExamine}
-          gameRequest={gameRequest}
-          examineAction={examineAction}
-        />
-        <GameCommandsBlock game={game} />
-        <ExamineGameControlBlock game={game} flip={flip} />
+      <div style={{ height: "calc(100% - 50px)", display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", flexDirection: "column", flexGrow: "1" }}>
+          <Actions playComputer={this.playComputer} />
+          <GameHistory
+            cssManager={cssManager}
+            game={RightBarTopData.MoveList}
+            flip={flip}
+            actionData={actionData}
+            startGameExamine={startGameExamine}
+            gameRequest={gameRequest}
+            examineAction={examineAction}
+          />
+          <GameCommandsBlock game={game} />
+          <ExamineGameControlBlock game={game} flip={flip} />
+        </div>
       </div>
     );
   }
@@ -108,11 +110,7 @@ class ExamineSidebarTop extends Component {
 
     return (
       <Tabs className="examine-sidebar-top" defaultActiveKey="game" size="small" type="card">
-        <TabPane
-          tab={translate("game")}
-          key="game"
-          style={{ height: "calc(100% - 50px)", display: "flex", flexDirection: "column" }}
-        >
+        <TabPane tab={translate("game")} key="game">
           {moveOrPlay === "play" && this.renderPlay()}
           {moveOrPlay === "move" && this.renderMove()}
         </TabPane>
