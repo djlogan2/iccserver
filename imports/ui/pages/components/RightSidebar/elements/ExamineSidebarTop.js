@@ -30,6 +30,7 @@ class ExamineSidebarTop extends Component {
   playBotFromHere = data => {
     const { history, game } = this.props;
 
+    console.log(data);
     Meteor.call(
       "startBotGame",
       "play_computer",

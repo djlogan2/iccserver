@@ -350,7 +350,8 @@ export default withTracker(() => {
     child_chat_texts: Meteor.subscribe("child_chat_texts"),
     game: Meteor.subscribe("games"),
     importedGame: Meteor.subscribe("imported_games"),
-    users: Meteor.subscribe("loggedOnUsers")
+    users: Meteor.subscribe("loggedOnUsers"),
+    dynamic_ratings: Meteor.subscribe("DynamicRatings")
   };
 
   return {

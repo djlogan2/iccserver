@@ -467,9 +467,7 @@ Game.find({
     if (!color) throw new Meteor.Error("Unable to discern which color we are");
     game_timestamps[id] = {
       color,
-      timestamp: new TimestampClient((_, msg) =>
-        Meteor.call("gamepong", id, msg)
-      )
+      timestamp: new TimestampClient((_, msg) => Meteor.call("gamepong", id, msg))
     };
   },
   changed(id, fields) {
