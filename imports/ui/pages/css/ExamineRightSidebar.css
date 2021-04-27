@@ -17,6 +17,13 @@
     /* margin-top: 8rem; */
 }
 
+.play-block__top__disabled {
+    display: none;
+    width: 60rem;
+    height: 10rem;
+    max-width: 90%;
+}
+
 .play-block__top__button {
     color: #ffffff;
     height: 100%;
@@ -33,6 +40,17 @@
 }
 
 .play-block__btn-big {
+    padding: 2.4rem;
+    height: auto;
+    background: #EFF0F3;
+    margin-top: 2.4rem;
+    font-size: 18px;
+    font-weight: 500;
+    border-radius: 8px;
+}
+
+.play-block__btn-big__disabled {
+    display: none;
     padding: 2.4rem;
     height: auto;
     background: #EFF0F3;

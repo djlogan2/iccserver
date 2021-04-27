@@ -113,7 +113,8 @@ class FenPgn extends Component {
           />
           <label>{translate("pgn")}</label>
           <TextArea
-            row={4}
+            row={10}
+            style={{ flex: 1 }}
             value={pgn}
             onChange={this.handlePgnChange}
             placeholder="1. f3 d6 2. e4 Nf6 3. Nh3 Nxe4"

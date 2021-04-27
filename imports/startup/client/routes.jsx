@@ -21,9 +21,9 @@ export const Routes = ({ currentRoles }) => {
       <Switch>
         <Route path={RESOURCE_SIGN_UP} component={SignUpPage} />
         <Route path={RESOURCE_LOGIN} component={LoginPage} />
-        <Route exact={true} path="/developer" component={DeveloperContainer} /> */}
-        <Route exact={true} path="/developer2" component={DeveloperContainer2} /> */}
-        <Route exact={true} path="/developer3" component={DeveloperContainer3} /> */}
+        <Route exact={true} path="/developer" component={DeveloperContainer} />
+        <Route exact={true} path="/developer2" component={DeveloperContainer2} />
+        <Route exact={true} path="/developer3" component={DeveloperContainer3} />
         {routes}
         <Route component={NotFound} />
       </Switch>
