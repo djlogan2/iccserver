@@ -245,50 +245,6 @@ class Game {
         ]
       }
     ]);
-    /*
-    Meteor.publishComposite("games", [
-      {
-        find: userRecord,
-        children: [
-          {
-            find: gamesWeArePlaying
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: gamesWeOwn
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: examineWithAnalysis
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: examineWithoutAnalysis
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: allGames
-          }
-        ]
-      }
-    ]);
-     */
   }
 
   getAndCheck(self, message_identifier, game_id) {
@@ -1138,7 +1094,29 @@ class Game {
     this.internalSaveLocalMove(self, message_identifier, game_id, move);
   }
 
-  internalSaveLocalMove(self, message_identifier, game_id, move) {
+  internalSaveLocalPremove(message_identifier, game, move) {
+    const chessObject = active_games[game._id];
+    const temp = new Chess.Chess(chessObject.fen());
+    const moves = temp.moves();
+    let found = false;
+    for (let x = 0; !found && x < moves.length; x++) {
+      temp.move(moves[x]);
+      const result = temp.move(move, { sloppy: true });
+      if (!!result) {
+        result.message_identifier = message_identifier;
+        this.GameCollection.update(
+          { _id: game._id, status: "playing" },
+          { $set: { premove: result } }
+        );
+        return;
+      }
+      temp.undo();
+    }
+    ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", move);
+    // TODO: Do we delete the premove in this case?
+  }
+
+  internalSaveLocalMove(self, message_identifier, game_id, move, is_premove) {
     const game = this.getAndCheck(self, message_identifier, game_id);
 
     if (!game) return;
@@ -1153,11 +1131,13 @@ class Game {
             "Unable to make local move",
             "Computer is trying to make an illegal move"
           );
-        ClientMessages.sendMessageToClient(
-          Meteor.user(),
-          message_identifier,
-          "COMMAND_INVALID_NOT_YOUR_MOVE"
-        );
+        if (!self.settings.premove)
+          ClientMessages.sendMessageToClient(
+            Meteor.user(),
+            message_identifier,
+            "COMMAND_INVALID_NOT_YOUR_MOVE"
+          );
+        else this.internalSaveLocalPremove(message_identifier, game, move);
         return;
       }
     } else if (game.examiners.map(e => e.id).indexOf(self._id) === -1) {
@@ -1168,20 +1148,29 @@ class Game {
     //chess.move('Nf6')
     // // -> { color: 'b', from: 'g8', to: 'f6', flags: 'n', piece: 'n', san: 'Nf6' }
     const result = chessObject.move(move);
+    const bw = self._id === game.white.id ? "white" : "black";
+    const otherbw = bw === "white" ? "black" : "white";
+
     if (!result) {
       ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
+      if (is_premove)
+        this.startMoveTimer(
+          game_id,
+          self._id,
+          (game.clocks[bw].inc_or_delay | 0) * 1000,
+          game.clocks[bw].delaytype,
+          game.clocks[bw].current
+        );
       return;
     }
 
-    this.endMoveTimer(game_id);
+    if (!is_premove) this.endMoveTimer(game_id);
 
     const setobject = { fen: chessObject.fen() };
 
     const unsetobject = {};
     let gamelag = 0;
     let gameping = 0;
-    const bw = self._id === game.white.id ? "white" : "black";
-    const otherbw = bw === "white" ? "black" : "white";
     this.addMoveToMoveList(
       variation,
       move,
@@ -1244,7 +1233,7 @@ class Game {
         gamelag = this.calculateGameLag(game.lag[bw]) | 0;
         gameping = game.lag[bw].pings.slice(-1) | 0;
 
-        let used = timenow - game.clocks[bw].starttime + gamelag;
+        let used = timenow - game.clocks[bw].starttime - gamelag;
         let addback = 0;
 
         if (game.clocks[bw].delaytype !== "none") {
@@ -1267,6 +1256,8 @@ class Game {
           if (!opponentlag) opponentlag = 0;
         }
 
+        // Editors note: This will ensure that there is a minimum amount of time drop
+        // when the user premoves.
         if (used <= SystemConfiguration.minimumMoveTime())
           used = SystemConfiguration.minimumMoveTime();
         setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
@@ -1291,6 +1282,9 @@ class Game {
     setobject.variations = variation;
     setobject.tomove = otherbw;
     setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
+    const premove = game.premove;
+
+    if (!!premove) unsetobject.premove = 1;
 
     if (setobject.result) {
       if (game.white.id !== "computer")
@@ -1319,13 +1313,24 @@ class Game {
         setobject.status2
       );
     } else if (game.status === "playing")
-      this.startMoveTimer(
-        game_id,
-        otherbw,
-        (game.clocks[otherbw].inc_or_delay | 0) * 1000,
-        game.clocks[otherbw].delaytype,
-        game.clocks[otherbw].current
-      );
+      if (!!premove) {
+        const otherguy = Meteor.users.findOne({ _id: game[otherbw].id });
+        this.internalSaveLocalMove(
+          otherguy,
+          game.premove.message_identifier,
+          game._id,
+          premove.san,
+          true
+        );
+      } else {
+        this.startMoveTimer(
+          game_id,
+          otherbw,
+          (game.clocks[otherbw].inc_or_delay | 0) * 1000,
+          game.clocks[otherbw].delaytype,
+          game.clocks[otherbw].current
+        );
+      }
   }
 
   //	There are three outcome codes, given in the following order:
