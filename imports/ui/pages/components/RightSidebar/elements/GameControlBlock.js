@@ -78,7 +78,6 @@ class LocationControls extends Component {
 
   detectMoveListFill = () => {
     const { game } = this.props;
-    console.log(game?.variations);
 
     return game?.variations?.movelist.length === 1;
   };
