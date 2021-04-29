@@ -11,49 +11,55 @@
 //  analysis: t/f
 //  owner: t/f
 //}
+
+const fields = {
+  analysis: [4, 5],
+  arrows: [2, 3, 4, 5, 6],
+  black: [0, 1, 2, 3, 4, 5, 6, 7],
+  circles: [2, 3, 4, 5, 6],
+  clocks: [0, 1, 2, 3, 4, 5, 6, 7],
+  computer_variations: [2, 3, 4],
+  deny_chat: [4, 5, 6],
+  deny_requests: [4, 5, 6],
+  examiners: [3, 4, 5, 6],
+  fen: [0, 1, 2, 3, 4, 5, 6],
+  isolation_group: [0, 1, 2, 3, 4, 5, 6, 7],
+  legacy_game_id: [0, 1, 2, 3, 4, 5, 6],
+  legacy_game_number: [0, 1, 2, 3, 4, 5, 6],
+  observers: [0, 1, 2, 3, 4, 5, 6],
+  owner: [4],
+  pending: [0, 1, 2, 3, 4, 5, 6],
+  premove: [1, 2],
+  private: [4],
+  rated: [0, 1, 2, 3, 4, 5, 6, 7],
+  rating_type: [0, 1, 2, 3, 4, 5, 6, 7],
+  requestors: [4],
+  result: [3, 4, 5, 6, 7],
+  skill_level: [0, 1, 2, 3, 4, 5, 6, 7],
+  startingfen: [0, 1, 2, 3, 4, 5, 6],
+  startTime: [0, 1, 2, 3, 4, 5, 6, 7],
+  status: [3, 4, 5, 6, 7],
+  status2: [3, 4, 5, 6, 7],
+  tags: [3, 4, 5, 6],
+  tomove: [0, 1, 2, 3, 4, 5, 6, 7],
+  variations: [0, 1, 2, 3, 4, 5, 6],
+  white: [0, 1, 2, 3, 4, 5, 6, 7],
+  wild: [0, 1, 2, 3, 4, 5, 6, 7]
+};
+
 class GamePublisher {
-  constructor(collection) {
+  constructor(collection, userId) {
     this.collection = collection;
-    this.fields = {
-      analysis: [4, 5],
-      arrows: [2, 3, 4, 5, 6],
-      black: [0, 1, 2, 3, 4, 5, 6, 7],
-      circles: [2, 3, 4, 5, 6],
-      clocks: [0, 1, 2, 3, 4, 5, 6, 7],
-      computer_variations: [2, 3, 4],
-      deny_chat: [4, 5, 6],
-      deny_requests: [4, 5, 6],
-      examiners: [3, 4, 5, 6],
-      fen: [0, 1, 2, 3, 4, 5, 6],
-      isolation_group: [0, 1, 2, 3, 4, 5, 6, 7],
-      legacy_game_id: [0, 1, 2, 3, 4, 5, 6],
-      legacy_game_number: [0, 1, 2, 3, 4, 5, 6],
-      observers: [0, 1, 2, 3, 4, 5, 6],
-      owner: [4],
-      pending: [0, 1, 2, 3, 4, 5, 6],
-      premove: [1, 2],
-      private: [4],
-      rated: [0, 1, 2, 3, 4, 5, 6, 7],
-      rating_type: [0, 1, 2, 3, 4, 5, 6, 7],
-      requestors: [4],
-      result: [3, 4, 5, 6, 7],
-      skill_level: [0, 1, 2, 3, 4, 5, 6, 7],
-      startingfen: [0, 1, 2, 3, 4, 5, 6],
-      startTime: [0, 1, 2, 3, 4, 5, 6, 7],
-      status: [3, 4, 5, 6, 7],
-      status2: [3, 4, 5, 6, 7],
-      tags: [3, 4, 5, 6],
-      tomove: [0, 1, 2, 3, 4, 5, 6, 7],
-      variations: [0, 1, 2, 3, 4, 5, 6],
-      white: [0, 1, 2, 3, 4, 5, 6, 7],
-      wild: [0, 1, 2, 3, 4, 5, 6, 7]
-    };
+    this.userId = userId;
     this.oldType = {};
     this.newType = {};
+    this.authorizedFields = [];
+    this.addedFields = [];
+    this.deletedFields = [];
   }
 
   updateUserType(rec) {
-    this.oldType = {...this.this.newType};
+    this.oldType = { ...this.newType };
 
     this.newType = {
       data: { ...this.oldType.data }
@@ -79,8 +85,10 @@ class GamePublisher {
       analysis: false, //TODO: ... not sure how to do arrays yet
       owner: "owner" in rec ? rec.owner === this.userId : !!this.oldType.owner
     };
-    temp.player = temp.played && (this.newType.data.color === "white" || this.newType.data.color === "black");
-    temp.tomove = !temp.played || !temp.player || this.newType.data.color === this.newType.data.tomove;
+    temp.player =
+      temp.played && (this.newType.data.color === "white" || this.newType.data.color === "black");
+    temp.tomove =
+      !temp.played || !temp.player || this.newType.data.color === this.newType.data.tomove;
     temp.observer = !temp.player; // TODO: This isn't true. We need to check the observer array
 
     if (temp.played && temp.player && !temp.tomove) temp.type = 0;
@@ -100,48 +108,45 @@ class GamePublisher {
     if (this.oldType.analysis !== temp.analysis) this.newType.analysis = temp.analysis;
     if (this.oldType.owner !== temp.owner) this.newType.played = temp.owner;
     if (this.oldType.type !== temp.type) this.newType.type = temp.type;
-
   }
 
   getUserFields() {
-    this.retfields = {
-      addedFields: [],
-      deletedFields: [],
-      authorizedFields: []
-    };
-    for (const k in this.fields) {
-      if (this.fields[k].indexOf(this.newType) !== -1) {
-        this.retfields.authorizedFields.push(k);
-        if (oldtype !== this.newType && this.fields[k].indexOf(oldtype) !== -1) {
-          this.retfields.addedFields.push(k);
+    for (const k in fields) {
+      if (fields[k].indexOf(this.newType.type) !== -1) {
+        this.authorizedFields.push(k);
+        if (
+          this.oldType.type !== this.newType.type &&
+          fields[k].indexOf(this.oldType.type) !== -1
+        ) {
+          this.addedFields.push(k);
         }
       } else if (
-        oldtype !== this.newType &&
-        this.fields[k].indexOf(oldtype) !== -1 &&
-        this.fields[k].indexOf(this.newType) === -1
+        this.oldType.type !== this.newType.type &&
+        fields[k].indexOf(this.oldType.type) !== -1 &&
+        fields[k].indexOf(this.newType.type) === -1
       ) {
-        this.retfields.deletedFields.push(k);
+        this.deletedFields.push(k);
       }
     }
   }
 
-  copyAuthorizedFields(rec, fields) {
+  copyAuthorizedFields(rec) {
     const newrec = {};
-    for (const k in rec) if (fields.authorizedFields.indexOf(k) !== -1) newrec[k] = rec[k];
+    for (const k in rec) if (this.authorizedFields.indexOf(k) !== -1) newrec[k] = rec[k];
     return newrec;
   }
 
-  nullDeletedFields(rec, fields) {
+  nullDeletedFields(rec) {
     const retrec = { ...rec };
-    for (const k in fields.deletedFields) retrec[k] = null;
+    for (const k in this.deletedFields) retrec[k] = null;
     return retrec;
   }
 
-  addNewFields(id, rec, fields) {
+  addNewFields(id, rec) {
     let fromDatabase = {};
     let doit = false;
-    if (!fields || !fields.addedFields || !fields.addedFields.length) return;
-    for (const k in fields.addedFields) {
+    if (!fields || !this.addedFields || !this.addedFields.length) return rec;
+    for (const k in this.addedFields) {
       if (!(k in rec)) {
         fromDatabase[k] = 1;
         doit = true;
@@ -151,12 +156,17 @@ class GamePublisher {
     else return rec;
   }
 
-  getUpdatedRecord(id, rec, oldtype) {
-    const this.newType = this.updateUserType(rec, oldtype);
-    // fieldset: {deletedfields: [], newfields: [], authorizedfields: []}
-    const fieldset = this.getUserFields(oldtype, this.newType);
-    let newrec = this.copyAuthorizedFields(rec, fieldset.authorizedFields);
-    newrec = this.nullDeletedFields(newrec, fieldset.deletedFields);
-    newrec = this.addNewFields(id, newrec, fieldset.addedFields);
+  getUpdatedRecord(id, rec) {
+    this.updateUserType(rec);
+    if (this.oldType.type !== this.newType.type) this.getUserFields();
+    let newrec = this.copyAuthorizedFields(rec);
+    if (this.oldType.type !== this.newType.type) {
+      newrec = this.nullDeletedFields(newrec);
+      newrec = this.addNewFields(id, newrec);
+    }
+    if (!Object.keys(newrec).length) return null;
+    else return newrec;
   }
 }
+
+export default GamePublisher;

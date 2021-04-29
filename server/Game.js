@@ -18,6 +18,7 @@ import { Users } from "../imports/collections/users";
 import { Parser } from "./pgn/pgnparser";
 //import { Awsmanager } from "./awsmanager";
 import { exportGameObjectToPGN } from "../lib/exportpgn";
+import GamePublisher from "./GamePublisher";
 
 export const GameHistory = {};
 
@@ -98,153 +99,41 @@ class Game {
       this.collection = _self.GameCollection;
     }
 
-    function gamesWeArePlaying(user) {
-      return _self.GameCollection.find(
-        {
-          $and: [
-            { isolation_group: user.isolation_group },
-            { status: "playing" },
-            { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
-          ]
-        },
-        {
-          fields: {
-            black: 1,
-            clocks: 1,
-            fen: 1,
-            lag: 1,
-            observers: 1,
-            pending: 1,
-            rated: 1,
-            rating_type: 1,
-            startTime: 1,
-            status: 1,
-            tomove: 1,
-            variations: 1,
-            white: 1,
-            wild: 1
-          }
-        }
-      );
-    }
-
-    function gamesWeOwn(user) {
-      return _self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
-    }
-
-    function examineWithAnalysis(user) {
-      return _self.GameCollection.find(
-        {
-          $and: [
-            { isolation_group: user.isolation_group },
-            { "observers.id": user._id },
-            { owner: { $ne: user._id } },
-            {
-              $or: [{ status: "playing" }, { private: { $ne: true } }, { "analysis.id": user._id }]
-            }
-          ]
-        },
-        {
-          fields: {
-            deny_chat: 0,
-            deny_requests: 0,
-            requestors: 0,
-            analysis: 0,
-            actions: 0
-          }
-        }
-      );
-    }
-
-    function examineWithoutAnalysis(user) {
-      return _self.GameCollection.find(
-        {
-          $and: [
-            { isolation_group: user.isolation_group },
-            { "observers.id": user._id },
-            { owner: { $ne: user._id } },
-            { private: true },
-            { "analysis.id": { $ne: user._id } }
-          ]
-        },
-        {
-          fields: {
-            deny_chat: 0,
-            deny_requests: 0,
-            requestors: 0,
-            computer_variations: 0,
-            analysis: 0,
-            actions: 0
-          }
-        }
-      );
-    }
-
-    function allGames(user) {
-      if (user.status.game === "playing") return _self.GameCollection.find({ _id: "none" });
-      return _self.GameCollection.find(
-        {
-          $and: [
-            { isolation_group: user.isolation_group },
-            {
-              $or: [
-                { status: "examining" },
-                {
-                  $and: [{ "white.id": { $ne: user._id } }, { "black.id": { $ne: user._id } }]
-                }
-              ]
-            },
-            { "observers.id": { $ne: user._id } },
-            { owner: { $ne: user._id } },
-            { private: { $ne: true } }
-          ]
-        },
-        {
-          fields: {
-            startTime: 1,
-            result: 1,
-            status2: 1,
-            private: 1,
-            tomove: 1,
-            wild: 1,
-            rating_type: 1,
-            rated: 1,
-            status: 1,
-            clocks: 1,
-            white: 1,
-            black: 1
-          }
-        }
-      );
-    }
-
-    const attempts = [gamesWeArePlaying, gamesWeOwn, examineWithAnalysis, examineWithoutAnalysis];
-
-    function userRecord() {
-      return Meteor.users.find({ _id: this.userId, "status.online": true });
-    }
-
-    //
-    // OK, since we are currently in a "single game" system, the easy fix to publish/publishComposite
-    // not returning record data correctly is to simply assume that there will always be only one
-    // record for which we care about, and simply return that.
-    //
-    Meteor.publishComposite("games", [
-      {
-        find: userRecord,
-        children: [
-          {
-            find(user) {
-              for (let i = 0; i < attempts.length; i++) {
-                const cursor = attempts[i](user);
-                if (!!cursor.count()) return cursor;
-              }
-              return _self.GameCollection.find({ _id: "0" });
-            }
-          }
+    Meteor.publish("games", function() {
+      const self = this;
+      const gamePublisher = new GamePublisher(_self.GameCollection, this.userId);
+      const games_handle = _self.GameCollection.find({
+        $or: [
+          { "white.id": this.userId },
+          { "black.id": this.userId },
+          { "observer.id": this.userId },
+          { owner: this.userId }
         ]
-      }
-    ]);
+      }).observeChanges({
+        added(id, fields) {
+          const rec = gamePublisher.getUpdatedRecord(id, fields);
+          if (!!rec) {
+            self.added("game", id, fields);
+            self.ready();
+          }
+        },
+        changed(id, fields) {
+          const rec = gamePublisher.getUpdatedRecord(id, fields);
+          if (!!rec) {
+            self.changed("game", id, rec);
+            self.ready();
+          }
+        },
+        deleted(id) {
+          self.removed("game", id);
+          self.ready();
+        }
+      });
+      this.onStop(() => {
+        games_handle.stop();
+      });
+      this.ready();
+    });
   }
 
   getAndCheck(self, message_identifier, game_id) {
