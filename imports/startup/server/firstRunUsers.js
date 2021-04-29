@@ -2,7 +2,7 @@ import { Meteor } from "meteor/meteor";
 import { Logger } from "../../../lib/server/Logger";
 import { Accounts } from "meteor/accounts-base";
 import { Roles } from "meteor/alanning:roles";
-import { all_roles, standard_member_roles } from "../../server/userConstants";
+import { standard_member_roles } from "../../server/userConstants";
 import { Users } from "../../collections/users";
 
 // eslint-disable-next-line no-unused-vars

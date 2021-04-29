@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
-import { Logger } from "../../../../lib/client/Logger";
-import { RESOURCE_HOME, RESOURCE_SIGN_UP } from "../../../constants/resourceConstants";
-import { formSourceEmail, formSourcePassword } from "./authConstants";
-import { translate } from "../../HOCs/translate";
+import { Logger } from "../../../../../lib/client/Logger";
+import { RESOURCE_HOME, RESOURCE_SIGN_UP } from "../../../../constants/resourceConstants";
+import { formSourceEmail, formSourcePassword } from "../authConstants";
+import { translate } from "../../../HOCs/translate";
 
 const log = new Logger("client/LoginPage_js");
 
@@ -14,7 +14,7 @@ class LoginPage extends Component {
 
     this.state = {
       error: "",
-      isAuthenticated: Meteor.userId() !== null,
+      isAuthenticated: !!Meteor.userId(),
       email: null,
       password: null
     };

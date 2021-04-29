@@ -90,8 +90,7 @@ class AppWrapper extends Component {
 }
 
 export default withTracker(() => {
-  const subscriptions = {
-  };
+  const subscriptions = {};
 
   return {
     isReady: isReadySubscriptions(subscriptions),

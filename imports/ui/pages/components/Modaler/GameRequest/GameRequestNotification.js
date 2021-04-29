@@ -1,7 +1,5 @@
 import React from "react";
 import { notification, Button } from "antd";
-import injectSheet from "react-jss";
-import { compose } from "redux";
 
 import {
   colorBlack,
@@ -49,11 +47,7 @@ const gameRequestNotification = (gameRequest, translate, classes, onAcceptGame, 
     );
   };
 
-  const renderTitle = () => (
-    <div className={classes.divTitle}>
-      {translate("dialogTitle")}
-    </div>
-  );
+  const renderTitle = () => <div className={classes.divTitle}>{translate("dialogTitle")}</div>;
 
   notification.open({
     key: gameRequest._id,

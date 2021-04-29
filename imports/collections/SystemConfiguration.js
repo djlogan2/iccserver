@@ -53,10 +53,9 @@ SystemConfiguration.seekDefault = function() {
 };
 
 SystemConfiguration.pingsToSave = function(callback) {
-  if(!!callback && typeof callback === "function") {
+  if (!!callback && typeof callback === "function") {
     SystemConfiguration.events.on("changed", data => {
-      if(data.item === "pings_to_save")
-        callback(data.value);
+      if (data.item === "pings_to_save") callback(data.value);
     });
     callback(lookup("pings_to_save", 3600));
   } else {

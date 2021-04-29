@@ -29,7 +29,6 @@ import {
   minRating
 } from "../../../constants/gameConstants";
 
-const clientCollection = new Mongo.Collection("client_collection");
 const log = new Logger("client/Play_js");
 
 let handleError = error => {

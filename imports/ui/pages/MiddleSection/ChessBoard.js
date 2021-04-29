@@ -216,16 +216,10 @@ export default class ChessBoard extends PureComponent {
   };
 
   render() {
-    const { fen, onDrawObject, width, height, orientation } = this.props;
-    const { shapes, selectVisible } = this.state;
+    const { fen } = this.props;
+    const { selectVisible } = this.state;
 
     this.chess.load(fen);
-
-    const drawable = {
-      shapes,
-      enabled: !!onDrawObject,
-      onChange: this.handleDrawObject
-    };
 
     const color = this.chess.turn();
 
