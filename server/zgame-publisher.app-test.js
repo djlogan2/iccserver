@@ -368,6 +368,8 @@ describe.only("GamePublisher", function() {
     chai.assert.isDefined(gamePublisher.authorizedFields);
     chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen"]);
     chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["premove"]);
+    chai.assert.includeMembers(gamePublisher.deletedFields, ["result"]);
+    chai.assert.includeMembers(gamePublisher.addedFields, ["fen"]);
   });
   it("should set the authorized fields correctly for type 1", function() {
     const gamePublisher = new GamePublisher({}, "user1");
@@ -376,6 +378,8 @@ describe.only("GamePublisher", function() {
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
     chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen", "premove"]);
+    chai.assert.includeMembers(gamePublisher.deletedFields, ["result"]);
+    chai.assert.includeMembers(gamePublisher.addedFields, ["fen", "premove"]);
   });
   it("should set the authorized fields correctly for type 2", function() {
     const gamePublisher = new GamePublisher({}, "user1");
@@ -427,10 +431,24 @@ describe.only("GamePublisher", function() {
     chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime"]);
     chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["variations", "fen"]);
   });
-  //   authorizedFields
-  //   addedFields
-  //   deletedFields
   // copyAuthorizedFields(rec)
+  it("should copy authorized fields from input to output", function() {
+    const date = new Date();
+    const orig = {startTime: date, fen: "ppPPppPP", white: {id: "x", username: "y"}, observers: [{id: "1", username: "o1"},{id: "2", username: "o2"}]};
+    const expected_copy_1 = {startTime: date, white: {id: "x", username: "y"}, };
+    const expected_copy_2 = {startTime: date, fen: "ppPPppPP", white: {id: "x", username: "y"}, observers: [{id: "1", username: "o1"},{id: "2", username: "o2"}]};
+    const gamePublisher = new GamePublisher({}, "user1");
+    gamePublisher.oldType = { type: 0 };
+    gamePublisher.newType = { type: 7 };
+    gamePublisher.getUserFields();
+    const newrec1 = gamePublisher.copyAuthorizedFields(orig);
+    chai.assert.deepEqual(newrec1, expected_copy_1);
+    gamePublisher.oldType = { type: 7 };
+    gamePublisher.newType = { type: 0 };
+    gamePublisher.getUserFields();
+    const newrec2 = gamePublisher.copyAuthorizedFields(orig);
+    chai.assert.deepEqual(newrec2, expected_copy_2);
+  });
   // nullDeletedFields(rec)
   // addNewFields(id, rec)
   // getUpdatedRecord(id, rec)
