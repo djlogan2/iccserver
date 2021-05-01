@@ -377,7 +377,12 @@ describe.only("GamePublisher", function() {
     gamePublisher.newType = { type: 1 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen", "premove"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, [
+      "_id",
+      "startTime",
+      "fen",
+      "premove"
+    ]);
     chai.assert.includeMembers(gamePublisher.deletedFields, ["result"]);
     chai.assert.includeMembers(gamePublisher.addedFields, ["fen", "premove"]);
   });
@@ -387,7 +392,12 @@ describe.only("GamePublisher", function() {
     gamePublisher.newType = { type: 2 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen", "computer_variations"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, [
+      "_id",
+      "startTime",
+      "fen",
+      "computer_variations"
+    ]);
   });
   it("should set the authorized fields correctly for type 3", function() {
     const gamePublisher = new GamePublisher({}, "user1");
@@ -395,7 +405,13 @@ describe.only("GamePublisher", function() {
     gamePublisher.newType = { type: 3 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen", "computer_variations", "examiners"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, [
+      "_id",
+      "startTime",
+      "fen",
+      "computer_variations",
+      "examiners"
+    ]);
   });
   it("should set the authorized fields correctly for type 4", function() {
     const gamePublisher = new GamePublisher({}, "user1");
@@ -403,7 +419,14 @@ describe.only("GamePublisher", function() {
     gamePublisher.newType = { type: 4 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen", "computer_variations", "examiners", "deny_chat"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, [
+      "_id",
+      "startTime",
+      "fen",
+      "computer_variations",
+      "examiners",
+      "deny_chat"
+    ]);
   });
   it("should set the authorized fields correctly for type 5", function() {
     const gamePublisher = new GamePublisher({}, "user1");
@@ -411,7 +434,13 @@ describe.only("GamePublisher", function() {
     gamePublisher.newType = { type: 5 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen", "computer_variations", "examiners"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, [
+      "_id",
+      "startTime",
+      "fen",
+      "computer_variations",
+      "examiners"
+    ]);
   });
   it("should set the authorized fields correctly for type 6", function() {
     const gamePublisher = new GamePublisher({}, "user1");
@@ -419,7 +448,12 @@ describe.only("GamePublisher", function() {
     gamePublisher.newType = { type: 6 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen", "examiners"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, [
+      "_id",
+      "startTime",
+      "fen",
+      "examiners"
+    ]);
     chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["computer_variations"]);
   });
   it("should set the authorized fields correctly for type 7", function() {
@@ -434,9 +468,19 @@ describe.only("GamePublisher", function() {
   // copyAuthorizedFields(rec)
   it("should copy authorized fields from input to output", function() {
     const date = new Date();
-    const orig = {startTime: date, fen: "ppPPppPP", white: {id: "x", username: "y"}, observers: [{id: "1", username: "o1"},{id: "2", username: "o2"}]};
-    const expected_copy_1 = {startTime: date, white: {id: "x", username: "y"}, };
-    const expected_copy_2 = {startTime: date, fen: "ppPPppPP", white: {id: "x", username: "y"}, observers: [{id: "1", username: "o1"},{id: "2", username: "o2"}]};
+    const orig = {
+      startTime: date,
+      fen: "ppPPppPP",
+      white: { id: "x", username: "y" },
+      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+    };
+    const expected_copy_1 = { startTime: date, white: { id: "x", username: "y" } };
+    const expected_copy_2 = {
+      startTime: date,
+      fen: "ppPPppPP",
+      white: { id: "x", username: "y" },
+      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+    };
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 0 };
     gamePublisher.newType = { type: 7 };
@@ -450,6 +494,57 @@ describe.only("GamePublisher", function() {
     chai.assert.deepEqual(newrec2, expected_copy_2);
   });
   // nullDeletedFields(rec)
+  it("should copy authorized fields from input to output", function() {
+    const date = new Date();
+    const orig = {
+      startTime: date,
+      fen: "ppPPppPP",
+      white: { id: "x", username: "y" },
+      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+    };
+    const gamePublisher = new GamePublisher({}, "user1");
+    gamePublisher.oldType = { type: 0 };
+    gamePublisher.newType = { type: 7 };
+    gamePublisher.getUserFields();
+    const newrec = gamePublisher.nullDeletedFields(orig);
+    chai.assert.isNull(newrec.fen);
+    chai.assert.isNull(newrec.observers);
+  });
   // addNewFields(id, rec)
+  it("should leave any fields in the original record alone, and copy any new fields from a database lookup", function() {
+    this.timeout(500000);
+    const date = new Date();
+    const id = Random.id();
+    const orig = {
+      startTime: date,
+      white: { id: "x", username: "y" },
+      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+    };
+    const expected_copy_2 = {
+      startTime: date,
+      fen: "ppPPppPP",
+      white: { id: "x", username: "y" },
+      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+    };
+    const gamePublisher = new GamePublisher(
+      {
+        findOne(selector, modifier) {
+          chai.assert.deepEqual(selector, { _id: id });
+          chai.assert.isDefined(modifier.fields.fen);
+          chai.assert.isUndefined(modifier.fields.observers);
+          return {fen: "ppPPppPP"};
+        }
+      },
+      "user1"
+    );
+    gamePublisher.oldType = { type: 7 };
+    gamePublisher.newType = { type: 0 };
+    gamePublisher.getUserFields();
+    const newrec1 = gamePublisher.addNewFields(id, orig);
+    chai.assert.deepEqual(newrec1, expected_copy_2);
+  });
+  it("should not look up a record in the database if there NOT any left over added fields", function() {chai.assert.fail("do me");});
   // getUpdatedRecord(id, rec)
+  it("should not null deleted fields if the type does not change", function() {chai.assert.fail("do me");});
+  it("should not add fields if the type does not change", function() {chai.assert.fail("do me");});
 });

@@ -155,7 +155,7 @@ class GamePublisher {
         this.authorizedFields.push(k);
         if (
           this.oldType.type !== this.newType.type &&
-          fields[k].indexOf(this.oldType.type) !== -1
+          fields[k].indexOf(this.oldType.type) === -1
         ) {
           this.addedFields.push(k);
         }
@@ -211,7 +211,8 @@ class GamePublisher {
     let fromDatabase = {};
     let doit = false;
     if (!fields || !this.addedFields || !this.addedFields.length) return rec;
-    for (const k in this.addedFields) {
+    for (let x = 0; x < this.addedFields.length; x++) {
+      const k = this.addedFields[x];
       if (!(k in rec)) {
         fromDatabase[k] = 1;
         doit = true;

@@ -101,7 +101,8 @@ class Game {
 
     Meteor.publish("games", function() {
       const self = this;
-      const gamePublisher = new GamePublisher(_self.GameCollection, this.userId);
+      const gamePublishers = {};
+      //const gamePublisher = new GamePublisher(_self.GameCollection, this.userId);
       const games_handle = _self.GameCollection.find({
         $or: [
           { "white.id": this.userId },
@@ -111,20 +112,24 @@ class Game {
         ]
       }).observeChanges({
         added(id, fields) {
-          const rec = gamePublisher.getUpdatedRecord(id, fields);
+          gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
+          const rec = gamePublishers[id].getUpdatedRecord(id, fields);
           if (!!rec) {
             self.added("game", id, fields);
             self.ready();
           }
         },
         changed(id, fields) {
-          const rec = gamePublisher.getUpdatedRecord(id, fields);
+          if (!gamePublishers[id])
+            gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
+          const rec = gamePublishers[id].getUpdatedRecord(id, fields);
           if (!!rec) {
             self.changed("game", id, rec);
             self.ready();
           }
         },
         deleted(id) {
+          delete gamePublishers[id];
           self.removed("game", id);
           self.ready();
         }
