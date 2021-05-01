@@ -30,13 +30,59 @@ const bound = Meteor.bindEnvironment(callback => {
   callback();
 });
 
-process.on("uncaughtException", (err, origin) => {
+process.on("uncaughtExceptionMonitor", (err, origin) => {
   bound(() => {
-    fs.writeSync(process.stderr.fd, `Caught exception: ${err}\nException origin: ${origin}`);
+    fs.writeSync(process.stderr.fd, `Uncaught exception: ${err}\nException origin: ${origin}`);
     // eslint-disable-next-line no-console
-    console.log(`Caught exception: ${err}\nException origin: ${origin}`);
-    log.error(`Caught exception: ${err}\nException origin: ${origin}`);
-    process.exit(7);
+    console.log(`Uncaught exception: ${err}\nException origin: ${origin}`);
+    log.error(`Uncaught exception: ${err}\nException origin: ${origin}`);
+    //process.exit(7);
+  });
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  bound(() => {
+    fs.writeSync(process.stderr.fd, `Uncaught rejection: ${promise}\nReason: ${reason}`);
+    // eslint-disable-next-line no-console
+    console.log(`Uncaught rejection: ${promise}\nReason: ${reason}`);
+    log.error(`Uncaught rejection: ${promise}\nReason: ${reason}`);
+    //process.exit(7);
+  });
+});
+
+process.on("multipleResolves", (type, promise, reason) => {
+  bound(() => {
+    fs.writeSync(
+      process.stderr.fd,
+      `Uncaught multiple resolve: ${type}\nPromise: ${promise}\nReason: ${reason}`
+    );
+    // eslint-disable-next-line no-console
+    console.log(`Uncaught multiple resolve: ${type}\nPromise: ${promise}\nReason: ${reason}`);
+    log.error(`Uncaught multiple resolve: ${type}\nPromise: ${promise}\nReason: ${reason}`);
+    //process.exit(7);
+  });
+});
+
+process.on("warning", warning => {
+  bound(() => {
+    fs.writeSync(
+      process.stderr.fd,
+      `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${
+        warning.stack
+      }`
+    );
+    // eslint-disable-next-line no-console
+    console.log(
+      `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${
+        warning.stack
+      }`
+    );
+    log.error(
+      `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${
+        warning.stack
+      }`
+    );
+    //process.exit(7);
   });
 });
 
@@ -49,5 +95,4 @@ Meteor.startup(() => {
     current_release: () => current_release.current_release.release,
     current_commit: () => current_release.current_release.commit
   });
-
 });

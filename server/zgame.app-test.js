@@ -4351,7 +4351,7 @@ describe("Starting an examined game", function() {
     });
   });
 
-  it.only("should not crash when a takeback is requested on a new game (bug found 4/27/21)", function() {
+  it("should not crash when a takeback is requested on a new game (bug found 4/27/21)", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;

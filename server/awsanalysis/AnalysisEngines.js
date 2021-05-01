@@ -28,16 +28,6 @@ export const AnalysisEngines = {
   allocation_requested: 0
 };
 
-process.on("uncaughtException", function(err) {
-  log.error("uncaughtException", err);
-  debugger;
-});
-
-process.on("unhandledRejection", error => {
-  log.error("unhandledRejection", error);
-  debugger;
-});
-
 Meteor.publishComposite("developer_analysis_engines", {
   find() {
     return Meteor.users.find({ _id: this.userId });
