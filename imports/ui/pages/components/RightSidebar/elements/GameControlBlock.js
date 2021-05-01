@@ -76,8 +76,16 @@ class LocationControls extends Component {
     Meteor.call("moveToCMI", "moveToCMI", game._id, cmi);
   };
 
+  detectMoveListFill = () => {
+    const { game } = this.props;
+
+    return game?.variations?.movelist.length === 1;
+  };
+
   render() {
     const { flip, translate } = this.props;
+
+    const disabled = this.detectMoveListFill();
 
     return (
       <div className="location-controls">
@@ -85,6 +93,7 @@ class LocationControls extends Component {
           title={translate("moveBackwardBeginning")}
           onClick={this.moveBackwordBeginning}
           className="location-controls__item"
+          disabled={disabled}
         >
           <img
             src="images/navigation-start.svg"
@@ -96,6 +105,7 @@ class LocationControls extends Component {
           title={translate("moveBackward")}
           onClick={this.moveBackword}
           className="location-controls__item"
+          disabled={disabled}
         >
           <img
             src="images/navigation-back.svg"
@@ -107,6 +117,7 @@ class LocationControls extends Component {
           title={translate("moveForward")}
           onClick={this.moveForward}
           className="location-controls__item"
+          disabled={disabled}
         >
           <img
             src="images/navigation-next.svg"
@@ -118,6 +129,7 @@ class LocationControls extends Component {
           title={translate("moveForwardEnd")}
           onClick={this.moveForwardEnd}
           className="location-controls__item"
+          disabled={disabled}
         >
           <img
             src="images/navigation-end.svg"

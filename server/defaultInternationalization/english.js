@@ -106,7 +106,9 @@ export const english = {
       community: "Community",
       mygame: "My Games",
       uploadpgn: "Imported PGNs",
-      users: "Users"
+      users: "Users",
+      last_ping: "Last ping",
+      average_lag: "Average lag"
     },
     MoveListComponent: {
       takeBack: "Take Back",
@@ -243,7 +245,8 @@ export const english = {
       PLAY_WITH_FRIEND: "Play with friend",
       BACK: "Back",
       FRIENDS: "Friends",
-      CHOOSE: "Choose"
+      CHOOSE: "Choose",
+      CANCEL: "Cancel"
     },
     PlayFriendOptions: {
       PLAY_WITH_FRIEND: "Play with friend",
@@ -273,6 +276,7 @@ export const english = {
         white: "White",
         black: "Black"
       },
+      isRated: "Rated",
       selectOpponent: "Select opponent"
     },
     PlayChooseBot: {

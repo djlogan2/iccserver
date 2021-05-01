@@ -3,6 +3,8 @@ import { Button, Form, InputNumber, Radio } from "antd";
 import { translate } from "../../../HOCs/translate";
 import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection } from "../../../../api/client/collections";
+import { compose } from "redux";
+import { withTracker } from "meteor/react-meteor-data";
 
 class PlayChooseBot extends Component {
   constructor(props) {
@@ -84,7 +86,7 @@ class PlayChooseBot extends Component {
   };
 
   render() {
-    const { onClose, translate } = this.props;
+    const { onClose, translate, ratings } = this.props;
     const {
       initial,
       incrementOrDelay,
@@ -94,9 +96,7 @@ class PlayChooseBot extends Component {
       ratingType
     } = this.state;
 
-    const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(
-      DynamicRatingsCollection.find().fetch()
-    );
+    const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(ratings);
 
     return (
       <div className="play-friend">
@@ -201,4 +201,11 @@ class PlayChooseBot extends Component {
   }
 }
 
-export default translate("Play.PlayChooseBot")(PlayChooseBot);
+export default compose(
+  withTracker(() => {
+    return {
+      ratings: DynamicRatingsCollection.find().fetch()
+    };
+  }),
+  translate("Play.PlayChooseBot")
+)(PlayChooseBot);

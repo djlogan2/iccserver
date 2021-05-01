@@ -268,7 +268,6 @@ class Editor extends Component {
     chess.remove(currentMove[0]);
 
     chess.put(currentSquare, currentMove[1]);
-    // chess.move(currentMove[0] + currentMove[1] + promotion, { sloppy: true });
 
     Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
       if (err) {
@@ -286,13 +285,15 @@ class Editor extends Component {
     const chess = new Chess.Chess();
 
     chess.load(examineGame.fen);
-    chess.put({ type: piece[1].toLowerCase(), color: piece[0] }, square);
+    const isAdded = chess.put({ type: piece[1].toLowerCase(), color: piece[0] }, square);
 
-    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
-      if (err) {
-        log.error(err.reason);
-      }
-    });
+    if (isAdded) {
+      Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
+        if (err) {
+          log.error(err.reason);
+        }
+      });
+    }
 
     this.setState({ edit: {} });
   };
@@ -338,7 +339,11 @@ class Editor extends Component {
           <BoardWrapper>
             <div style={{ width: "100%", height: baordSize }}>
               <ChessBoard
-                raf={{ inside: false, vertical: "bottom", horizontal: "right" }} // where is either an object or a string
+                raf={{
+                  inside: false,
+                  vertical: "bottom",
+                  horizontal: "right"
+                }} // where is either an object or a string
                 styles={{
                   wrapper: {
                     backgroundColor: "#292929"

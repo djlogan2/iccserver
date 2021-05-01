@@ -26,7 +26,7 @@ export const withPlayNotifier = WrappedComponent => {
 
       const translate = i18n.createTranslator("Common.MainPage");
 
-      if (game && game.pending) {
+      if (game && game.pending && game.status === "playing") {
         const othercolor = Meteor.userId() === game.white.id ? "black" : "white";
 
         if (game.pending[othercolor].takeback.number !== 0) {

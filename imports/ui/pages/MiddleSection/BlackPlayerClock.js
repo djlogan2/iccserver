@@ -1,8 +1,5 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
-import { Logger } from "../../../../lib/client/Logger";
-
-const log = new Logger("client/BlackPlayerClock_js");
 
 export default class BlackPlayerClock extends Component {
   constructor(props) {

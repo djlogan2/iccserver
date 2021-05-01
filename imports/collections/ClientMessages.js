@@ -42,6 +42,7 @@ const DefinedClientMessagesMap = {
   UNABLE_TO_PLAY_OPPONENT: {},
   SERVER_ERROR: { parameters: ["message", "reason"] },
   TAKEBACK_ALREADY_PENDING: {},
+  TAKEBACK_BEGINNING_OF_GAME: {},
   NO_TAKEBACK_PENDING: {},
   TAKEBACK_ACCEPTED: {},
   TAKEBACK_DECLINED: {},

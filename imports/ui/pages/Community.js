@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import AppWrapper from "../pages/components/AppWrapper";
+import { compose } from "redux";
+import { withRouter } from "react-router-dom";
 
 import MessengerWithData from "./components/Chat/Messenger";
 import { Rooms } from "../../api/client/collections";
@@ -9,6 +11,7 @@ import RoomBlock from "./components/CommunityBlocks/RoomBlock";
 import CommunityRightBlock from "./components/CommunityBlocks/CommunityRightBlock";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
 import Loading from "./components/Loading";
+import { RESOURCE_HOME } from "../../constants/resourceConstants";
 
 class Community extends Component {
   constructor(props) {
@@ -108,8 +111,14 @@ class Community extends Component {
   };
 
   render() {
-    const { allRooms, notMyRooms, isReady } = this.props;
+    const { allRooms, notMyRooms, isReady, history } = this.props;
     const { isRightMenu, activeRoom, isModal } = this.state;
+
+    const cf = Meteor.user().cf;
+
+    if (cf && cf.indexOf("c") !== -1 && cf.indexOf("e") === -1) {
+      history.push(RESOURCE_HOME);
+    }
 
     if (!isReady) {
       return <Loading isPure={true} />;
@@ -151,14 +160,17 @@ class Community extends Component {
   }
 }
 
-export default withTracker(() => {
-  const subscriptions = {
-    chat: Meteor.subscribe("chat")
-  };
+export default compose(
+  withRouter,
+  withTracker(() => {
+    const subscriptions = {
+      chat: Meteor.subscribe("chat")
+    };
 
-  return {
-    isReady: isReadySubscriptions(subscriptions),
-    allRooms: Rooms.find().fetch(),
-    notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch()
-  };
-})(Community);
+    return {
+      isReady: isReadySubscriptions(subscriptions),
+      allRooms: Rooms.find().fetch(),
+      notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch()
+    };
+  })
+)(Community);

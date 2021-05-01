@@ -1641,6 +1641,11 @@ class Game {
         "User is not either player"
       );
 
+    if (!game.variations.cmi) {
+      // beginning of game
+      ClientMessages.sendMessageToClient(self, message_identifier, "TAKEBACK_BEGINNING_OF_GAME");
+      return;
+    }
     //
     // If other player has a matching takeback requested, go ahead
     // and treat this as an accepted takeback.
