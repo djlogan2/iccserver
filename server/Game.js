@@ -110,16 +110,18 @@ class Game {
           { "observer.id": this.userId },
           { owner: this.userId }
         ]
-      }).observeChanges({
+      },{fields: {lag: 0}}).observeChanges({
         added(id, fields) {
+          log.debug("" + self.userId + " added, id=" + id + ", fields=" + JSON.stringify(fields));
           gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
           const rec = gamePublishers[id].getUpdatedRecord(id, fields);
           if (!!rec) {
-            self.added("game", id, fields);
+            self.added("game", id, rec);
             self.ready();
           }
         },
         changed(id, fields) {
+          log.debug("" + self.userId + " changed, id=" + id + ", fields=" + JSON.stringify(fields));
           if (!gamePublishers[id])
             gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
           const rec = gamePublishers[id].getUpdatedRecord(id, fields);
@@ -128,7 +130,8 @@ class Game {
             self.ready();
           }
         },
-        deleted(id) {
+        removed(id) {
+          log.debug("" + self.userId + " removed, id=" + id);
           delete gamePublishers[id];
           self.removed("game", id);
           self.ready();

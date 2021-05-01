@@ -34,7 +34,7 @@ const fields = {
   observers: [0, 1, 2, 3, 4, 5, 6],
   owner: [4],
   pending: [0, 1, 2, 3, 4, 5, 6],
-  premove: [1, 2],
+  premove: [0, 2],
   private: [4],
   rated: [0, 1, 2, 3, 4, 5, 6, 7],
   rating_type: [0, 1, 2, 3, 4, 5, 6, 7],
@@ -43,7 +43,7 @@ const fields = {
   skill_level: [0, 1, 2, 3, 4, 5, 6, 7],
   startingfen: [0, 1, 2, 3, 4, 5, 6],
   startTime: [0, 1, 2, 3, 4, 5, 6, 7],
-  status: [3, 4, 5, 6, 7],
+  status: [0, 1, 2, 3, 4, 5, 6, 7],
   status2: [3, 4, 5, 6, 7],
   tags: [3, 4, 5, 6],
   tomove: [0, 1, 2, 3, 4, 5, 6, 7],
@@ -195,7 +195,7 @@ class GamePublisher {
 
   nullDeletedFields(rec) {
     const retrec = { ...rec };
-    for (let k = 0; k < this.deletedFields.length; k++) retrec[this.deletedFields[k]] = null;
+    for (let k = 0; k < this.deletedFields.length; k++) retrec[this.deletedFields[k]] = undefined;
     log.debug(
       "" +
         this.userId +

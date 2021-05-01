@@ -18,7 +18,7 @@ const actionSchema = new SimpleSchema({
   time: {
     type: Date,
     autoValue: function() {
-      return new Date();
+      return new Date()
     }
   },
   issuer: String,
@@ -70,7 +70,13 @@ export const PlayedGameSchema = new SimpleSchema({
   startTime: {
     type: Date,
     autoValue: function() {
-      return new Date();
+      if (this.isInsert) return new Date();
+      else if (this.isUpsert) {
+        return { $setOnInsert: new Date() };
+      } else {
+        this.unset();
+        return undefined;
+      }
     }
   },
   pending: PendingSchema,

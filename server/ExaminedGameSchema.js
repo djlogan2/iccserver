@@ -88,7 +88,13 @@ export const ExaminedGameSchema = new SimpleSchema({
   startTime: {
     type: Date,
     autoValue: function() {
-      return new Date();
+      if (this.isInsert) return new Date();
+      else if (this.isUpsert) {
+        return { $setOnInsert: new Date() };
+      } else {
+        this.unset();
+        return undefined;
+      }
     }
   },
   isolation_group: String,

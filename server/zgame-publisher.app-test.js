@@ -14,7 +14,7 @@ import GamePublisher from "./GamePublisher";
 // all = anyone not in the above categories
 //
 
-describe.only("GamePublisher", function() {
+describe("GamePublisher", function() {
   //const self = TestHelpers.setupDescribe.call(this);
   // updateUserType(rec)
   // type = 0   <- Player, not to move
