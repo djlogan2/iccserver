@@ -14,6 +14,7 @@
 
 import { Logger } from "../lib/server/Logger";
 
+// eslint-disable-next-line no-unused-vars
 const log = new Logger("server/GamePublisher_js");
 
 const fields = {
@@ -54,7 +55,6 @@ const fields = {
 
 class GamePublisher {
   constructor(collection, userId) {
-    log.debug("new GamePublisher, userid=" + userId);
     this.collection = collection;
     this.userId = userId;
     this.oldType = {};
@@ -65,14 +65,6 @@ class GamePublisher {
   }
 
   updateUserType(rec) {
-    log.debug(
-      "" +
-        this.userId +
-        " updateUserType, rec=" +
-        JSON.stringify(rec) +
-        ", oldtype=" +
-        JSON.stringify(this.oldType)
-    );
     this.oldType = { ...this.newType };
 
     this.newType = {
@@ -135,21 +127,9 @@ class GamePublisher {
     )
       this.newType.type = 6;
     else this.newType.type = 7;
-
-    log.debug("" + this.userId + " updateUserType, newtype=" + JSON.stringify(this.newType));
   }
 
   getUserFields() {
-    log.debug(
-      "" +
-        this.userId +
-        " getUserFields, authorized=" +
-        JSON.stringify(this.authorizedFields) +
-        ", addedFields=" +
-        JSON.stringify(this.addedFields) +
-        ", deletedFields=" +
-        this.deletedFields
-    );
     for (const k in fields) {
       if (fields[k].indexOf(this.newType.type) !== -1) {
         this.authorizedFields.push(k);
@@ -167,43 +147,17 @@ class GamePublisher {
         this.deletedFields.push(k);
       }
     }
-    log.debug(
-      "" +
-        this.userId +
-        " getUserFields, authorized=" +
-        JSON.stringify(this.authorizedFields) +
-        ", addedFields=" +
-        JSON.stringify(this.addedFields) +
-        ", deletedFields=" +
-        this.deletedFields
-    );
   }
 
   copyAuthorizedFields(rec) {
     const newrec = {};
     for (const k in rec) if (this.authorizedFields.indexOf(k) !== -1) newrec[k] = rec[k];
-    log.debug(
-      "" +
-        this.userId +
-        " copyAuthorizedFields, rec=" +
-        JSON.stringify(rec) +
-        ", newrec=" +
-        JSON.stringify(newrec)
-    );
     return newrec;
   }
 
   nullDeletedFields(rec) {
     const retrec = { ...rec };
     for (let k = 0; k < this.deletedFields.length; k++) retrec[this.deletedFields[k]] = undefined;
-    log.debug(
-      "" +
-        this.userId +
-        " nullDeletedFields, rec=" +
-        JSON.stringify(rec) +
-        ", newrec=" +
-        JSON.stringify(retrec)
-    );
     return retrec;
   }
 
@@ -218,22 +172,12 @@ class GamePublisher {
         doit = true;
       }
     }
-    const newrec = doit
+    return doit
       ? { ...rec, ...this.collection.findOne({ _id: id }, { fields: fromDatabase }) }
       : rec;
-    log.debug(
-      "" +
-        this.userId +
-        " addNewFields, rec=" +
-        JSON.stringify(rec) +
-        ", newrec=" +
-        JSON.stringify(newrec)
-    );
-    return newrec;
   }
 
   getUpdatedRecord(id, rec) {
-    log.debug("" + this.userId + " getUpdatedRecord, rec=" + JSON.stringify(rec) + ", id=" + id);
     this.updateUserType(rec);
     if (this.oldType.type !== this.newType.type) this.getUserFields();
     let newrec = this.copyAuthorizedFields(rec);

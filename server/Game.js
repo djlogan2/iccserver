@@ -102,17 +102,19 @@ class Game {
     Meteor.publish("games", function() {
       const self = this;
       const gamePublishers = {};
-      //const gamePublisher = new GamePublisher(_self.GameCollection, this.userId);
-      const games_handle = _self.GameCollection.find({
-        $or: [
-          { "white.id": this.userId },
-          { "black.id": this.userId },
-          { "observer.id": this.userId },
-          { owner: this.userId }
-        ]
-      },{fields: {lag: 0}}).observeChanges({
+      const games_handle = _self.GameCollection.find(
+        {
+          $or: [
+            { "white.id": this.userId },
+            { "black.id": this.userId },
+            { "observers.id": this.userId },
+            { owner: this.userId }
+          ]
+        },
+        { fields: { lag: 0 } }
+      ).observeChanges({
         added(id, fields) {
-          log.debug("" + self.userId + " added, id=" + id + ", fields=" + JSON.stringify(fields));
+          //log.debug("" + self.userId + " added, id=" + id + ", fields=" + JSON.stringify(fields));
           gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
           const rec = gamePublishers[id].getUpdatedRecord(id, fields);
           if (!!rec) {
@@ -121,7 +123,7 @@ class Game {
           }
         },
         changed(id, fields) {
-          log.debug("" + self.userId + " changed, id=" + id + ", fields=" + JSON.stringify(fields));
+          //log.debug("" + self.userId + " changed, id=" + id + ", fields=" + JSON.stringify(fields));
           if (!gamePublishers[id])
             gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
           const rec = gamePublishers[id].getUpdatedRecord(id, fields);
@@ -131,7 +133,7 @@ class Game {
           }
         },
         removed(id) {
-          log.debug("" + self.userId + " removed, id=" + id);
+          //log.debug("" + self.userId + " removed, id=" + id);
           delete gamePublishers[id];
           self.removed("game", id);
           self.ready();
@@ -3865,6 +3867,32 @@ class Game {
 }
 
 if (!global._gameObject) {
+  /*
+
+  This adds log.debug() messages to the top of every game method
+
+  Object.getOwnPropertyNames(Game.prototype).forEach(k => {
+    if (typeof Game.prototype[k] === "function") {
+      Game.prototype["debug_" + k] = Game.prototype[k];
+      Game.prototype[k] = function() {
+        let msg = k + "(";
+        let comma = "";
+        for (let x = 0; x < arguments.length; x++) {
+          msg += comma;
+          comma = ",";
+          if (typeof arguments[x] === "object") {
+            msg += JSON.stringify(arguments[x]);
+          } else {
+            msg += "" + arguments[x];
+          }
+        }
+        msg += ")";
+        log.debug(msg);
+        return Game.prototype["debug_" + k].apply(this, arguments);
+      };
+    }
+  });
+   */
   global._gameObject = new Game();
 }
 

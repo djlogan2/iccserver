@@ -236,9 +236,9 @@ class Examine extends Component {
       });
     }
 
-    if (!game && prevProps.game) {
-      this.initExamine();
-    }
+    // if (!game && prevProps.game) {
+    //   this.initExamine();
+    // }
   }
 
   renderObserver() {
