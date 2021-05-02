@@ -366,10 +366,14 @@ describe("GamePublisher", function() {
     gamePublisher.newType = { type: 0 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen"]);
-    chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["premove"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, [
+      "_id",
+      "startTime",
+      "fen",
+      "premove"
+    ]);
     chai.assert.includeMembers(gamePublisher.deletedFields, ["result"]);
-    chai.assert.includeMembers(gamePublisher.addedFields, ["fen"]);
+    chai.assert.includeMembers(gamePublisher.addedFields, ["fen", "premove"]);
   });
   it("should set the authorized fields correctly for type 1", function() {
     const gamePublisher = new GamePublisher({}, "user1");
@@ -377,12 +381,8 @@ describe("GamePublisher", function() {
     gamePublisher.newType = { type: 1 };
     gamePublisher.getUserFields();
     chai.assert.isDefined(gamePublisher.authorizedFields);
-    chai.assert.includeMembers(gamePublisher.authorizedFields, [
-      "_id",
-      "startTime",
-      "fen",
-      "premove"
-    ]);
+    chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["premove"]);
+    chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen"]);
     chai.assert.includeMembers(gamePublisher.deletedFields, ["result"]);
     chai.assert.includeMembers(gamePublisher.addedFields, ["fen", "premove"]);
   });
@@ -507,8 +507,8 @@ describe("GamePublisher", function() {
     gamePublisher.newType = { type: 7 };
     gamePublisher.getUserFields();
     const newrec = gamePublisher.nullDeletedFields(orig);
-    chai.assert.isNull(newrec.fen);
-    chai.assert.isNull(newrec.observers);
+    chai.assert.isUndefined(newrec.fen);
+    chai.assert.isUndefined(newrec.observers);
   });
   // addNewFields(id, rec)
   it("should leave any fields in the original record alone, and copy any new fields from a database lookup", function() {
@@ -532,7 +532,7 @@ describe("GamePublisher", function() {
           chai.assert.deepEqual(selector, { _id: id });
           chai.assert.isDefined(modifier.fields.fen);
           chai.assert.isUndefined(modifier.fields.observers);
-          return {fen: "ppPPppPP"};
+          return { fen: "ppPPppPP" };
         }
       },
       "user1"
@@ -543,8 +543,14 @@ describe("GamePublisher", function() {
     const newrec1 = gamePublisher.addNewFields(id, orig);
     chai.assert.deepEqual(newrec1, expected_copy_2);
   });
-  it("should not look up a record in the database if there NOT any left over added fields", function() {chai.assert.fail("do me");});
+  it("should not look up a record in the database if there NOT any left over added fields", function() {
+    chai.assert.fail("do me");
+  });
   // getUpdatedRecord(id, rec)
-  it("should not null deleted fields if the type does not change", function() {chai.assert.fail("do me");});
-  it("should not add fields if the type does not change", function() {chai.assert.fail("do me");});
+  it("should not null deleted fields if the type does not change", function() {
+    chai.assert.fail("do me");
+  });
+  it("should not add fields if the type does not change", function() {
+    chai.assert.fail("do me");
+  });
 });

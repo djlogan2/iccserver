@@ -234,7 +234,7 @@ Meteor.startup(function() {
   });
 });
 
-Meteor.publish(null, function() {
+Meteor.publish(Meteor.isTest || Meteor.isAppTest ? "client_messages" : null, function() {
   return ClientMessagesCollection.find({ to: this.userId });
 });
 

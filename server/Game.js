@@ -953,13 +953,13 @@ class Game {
 
     const newtm = game.tomove === "white" ? "black" : "white";
     const chess = new Chess.Chess(game.fen);
-    chess.move(move);
+    const cmove = chess.move(move);
     const newfen = chess.fen();
 
     const result = this.GameCollection.update(
       { _id: game._id, status: game.status },
       {
-        $push: { actions: { type: "move", issuer: "legacy", parameter: move } },
+        $push: { actions: { type: "move", issuer: "legacy", parameter: move, ...cmove } },
         $set: { variations: variation, tomove: newtm, fen: newfen }
       }
     );
