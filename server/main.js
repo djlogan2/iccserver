@@ -50,7 +50,7 @@ if (!Meteor.isTest && !Meteor.isAppTest) {
       //process.exit(7);
     });
   });
-
+/*
   process.on("multipleResolves", (type, promise, reason) => {
     bound(() => {
       fs.writeSync(
@@ -63,7 +63,7 @@ if (!Meteor.isTest && !Meteor.isAppTest) {
       //process.exit(7);
     });
   });
-
+*/
   process.on("warning", warning => {
     bound(() => {
       fs.writeSync(
