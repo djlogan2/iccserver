@@ -16,25 +16,25 @@ const styles = {
   table: {
     width: "100%",
     textAlign: "center",
-    border: "1px solid #f1f1f1"
+    border: "1px solid #f1f1f1",
   },
   backgroundDiv: {
-    background: "#ffffff"
+    background: "#ffffff",
   },
   tableDiv: {
     overflowY: "auto",
     width: "100%",
-    display: "block"
+    display: "block",
   },
   noDataDiv: {
     maxHeight: "350px",
     overflowY: "auto",
-    width: "350px"
-  }
+    width: "350px",
+  },
 };
 
-const GameListModal = ({ gameList, isImported, history, onClose, classes, translate, ...rest }) => {
-  const handleSetExaminMode = id => {
+const GameListModal = ({ gameList, isImported, history, onClose, classes, translate, visible }) => {
+  const handleSetExaminMode = (id) => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported);
 
     const pathName = get(history, "location.pathname");
@@ -44,7 +44,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
     }
   };
 
-  const getResultOfGameItem = gameItem => {
+  const getResultOfGameItem = (gameItem) => {
     const isUserWhite = gameItem.white.id === Meteor.userId();
     const isUserBlack = gameItem.black.id === Meteor.userId();
 
@@ -60,15 +60,16 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
     }
   };
 
-  const formatGameList = games => {
-    return games.map(gameItem => ({
+  const formatGameList = (games) => {
+    return games.map((gameItem) => ({
       id: gameItem._id,
+      key: gameItem._id,
       white: gameItem.white.name.replace(/"/g, ""),
       black: gameItem.black.name.replace(/"/g, ""),
       time: null, //time,
       date: gameItem.startTime,
       is_imported: games.is_imported,
-      result: getResultOfGameItem(gameItem)
+      result: getResultOfGameItem(gameItem),
     }));
   };
 
@@ -76,8 +77,14 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
     return new Date(b.date) - new Date(a.date);
   });
 
-  return (
-    <Modal title={translate("myGames")} width={1000} onCancel={onClose} footer={null} {...rest}>
+  return visible ? ( //TODO strange issue, need some actions to resolve
+    <Modal
+      title={translate("myGames")}
+      width={1000}
+      onCancel={onClose}
+      footer={null}
+      visible={visible}
+    >
       <div className={classes.backgroundDiv}>
         {formattedGameList.length ? (
           <div className={classes.tableDiv}>
@@ -85,11 +92,11 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
               className={classes.table}
               dataSource={formattedGameList}
               pagination={{ position: ["none", "bottomRight"] }}
-              onRow={row => ({
+              onRow={(row) => ({
                 onClick: () => {
                   handleSetExaminMode(row.id);
                   onClose();
-                }
+                },
               })}
             >
               <Table.Column
@@ -98,7 +105,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
                 render={(text, record) =>
                   translate("playersColumn", {
                     white: record.white,
-                    black: record.black
+                    black: record.black,
                   })
                 }
               />
@@ -119,7 +126,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
         )}
       </div>
     </Modal>
-  );
+  ) : null;
 };
 
 export default compose(

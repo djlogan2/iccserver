@@ -29,7 +29,7 @@ class Editor extends Component {
       orientation: "white",
       arrows: [],
       circles: [],
-      edit: {}
+      edit: {},
     };
 
     if (props.isReady && props.examineGame) {
@@ -62,10 +62,10 @@ class Editor extends Component {
     this.setState({ whiteCastling, blackCastling });
   };
 
-  getCastling = castling => {
+  getCastling = (castling) => {
     const result = { whiteCastling: [], blackCastling: [] };
 
-    castling.split("").forEach(letter => {
+    castling.split("").forEach((letter) => {
       if (letter === letter.toUpperCase()) {
         result.whiteCastling.push(letter);
       } else {
@@ -76,17 +76,14 @@ class Editor extends Component {
     return result;
   };
 
-  generateFen = fen => {
+  generateFen = (fen) => {
     const { examineGame } = this.props;
 
     const miniFen = fen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     const serverFen = examineGame?.fen || "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
     const chess = new Chess.Chess();
-    let flags = serverFen
-      .split(" ")
-      .slice(1)
-      .join(" ");
+    let flags = serverFen.split(" ").slice(1).join(" ");
 
     const sigh = `${miniFen} ${flags}`;
     log.debug("sigh=" + sigh + ", validate=", chess.validate_fen(sigh));
@@ -97,7 +94,7 @@ class Editor extends Component {
     const { examineGame } = this.props;
 
     const newFen = this.generateFen();
-    Meteor.call("loadFen", "loadFen", examineGame._id, newFen, err => {
+    Meteor.call("loadFen", "loadFen", examineGame._id, newFen, (err) => {
       if (err) {
         log.error(err.reason);
       }
@@ -117,18 +114,25 @@ class Editor extends Component {
 
     log.debug("Editor::handleCastling", [white, black]);
     // 'k', 'q', 'kq'
-    Meteor.call("setCastling", "setCastling", examineGame._id, white.toLowerCase(), black, err => {
-      if (err) {
-        log.error(err.reason);
+    Meteor.call(
+      "setCastling",
+      "setCastling",
+      examineGame._id,
+      white.toLowerCase(),
+      black,
+      (err) => {
+        if (err) {
+          log.error(err.reason);
+        }
       }
-    });
+    );
   };
 
   handleStartPosition = () => {
     const { examineGame } = this.props;
 
     log.debug("Editor::handleStartPosition");
-    Meteor.call("setStartingPosition", "setStartingPosition", examineGame._id, err => {
+    Meteor.call("setStartingPosition", "setStartingPosition", examineGame._id, (err) => {
       if (err) {
         log.error(err.reason);
       }
@@ -139,7 +143,7 @@ class Editor extends Component {
     const { examineGame } = this.props;
 
     log.debug("Editor::handleClear");
-    Meteor.call("clearBoard", "clearBoard", examineGame._id, err => {
+    Meteor.call("clearBoard", "clearBoard", examineGame._id, (err) => {
       if (err) {
         log.error(err.reason);
       }
@@ -149,30 +153,30 @@ class Editor extends Component {
   handleFlip = () => {
     log.debug("Editor::handleFlip");
 
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return {
-        orientation: prevState.orientation === "white" ? "black" : "white"
+        orientation: prevState.orientation === "white" ? "black" : "white",
       };
     });
   };
 
-  handleColorChange = color => {
+  handleColorChange = (color) => {
     const { examineGame } = this.props;
 
     log.debug("Editor::handleColorChange", color);
     this.setState({ color });
-    Meteor.call("setToMove", "setToMove", examineGame._id, color, err => {
+    Meteor.call("setToMove", "setToMove", examineGame._id, color, (err) => {
       if (err) {
         log.error(err.reason);
       }
     });
   };
 
-  handleNewFen = newFen => {
+  handleNewFen = (newFen) => {
     const { examineGame } = this.props;
 
     log.debug("Editor::handleNewFen", newFen);
-    Meteor.call("loadFen", "loadFen", examineGame._id, newFen, err => {
+    Meteor.call("loadFen", "loadFen", examineGame._id, newFen, (err) => {
       if (err) {
         log.error(err.reason);
       }
@@ -185,11 +189,11 @@ class Editor extends Component {
     return Math.min(window.innerHeight / 1.3, window.innerWidth / 2.5);
   };
 
-  updateChessground = element => {
+  updateChessground = (element) => {
     this.chessground = element;
   };
 
-  handleUpdateArrows = arrow => {
+  handleUpdateArrows = (arrow) => {
     const { arrows } = this.state;
 
     arrow.color = this.getColorFromEvent(arrow.event);
@@ -216,7 +220,7 @@ class Editor extends Component {
     this.setState({ arrows: [...arrows] });
   };
 
-  getColorFromEvent = event => {
+  getColorFromEvent = (event) => {
     if (event.altKey && event.shiftKey) {
       return "#d40000";
     } else if (event.altKey && event.ctrlKey) {
@@ -226,7 +230,7 @@ class Editor extends Component {
     }
   };
 
-  handleUpdateCircles = circle => {
+  handleUpdateCircles = (circle) => {
     const { gameStatus } = this.props;
     const { circles } = this.state;
 
@@ -257,7 +261,7 @@ class Editor extends Component {
     this.setState({ circles: [...circles] });
   };
 
-  handleMove = currentMove => {
+  handleMove = (currentMove) => {
     const { examineGame } = this.props;
 
     const chess = new Chess.Chess();
@@ -269,14 +273,14 @@ class Editor extends Component {
 
     chess.put(currentSquare, currentMove[1]);
 
-    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
+    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), (err) => {
       if (err) {
         log.error(err.reason);
       }
     });
   };
 
-  handleAdd = piece => {
+  handleAdd = (piece) => {
     this.setState({ edit: { add: piece } });
   };
 
@@ -288,7 +292,7 @@ class Editor extends Component {
     const isAdded = chess.put({ type: piece[1].toLowerCase(), color: piece[0] }, square);
 
     if (isAdded) {
-      Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
+      Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), (err) => {
         if (err) {
           log.error(err.reason);
         }
@@ -298,14 +302,14 @@ class Editor extends Component {
     this.setState({ edit: {} });
   };
 
-  handlePieceDelete = square => {
+  handlePieceDelete = (square) => {
     const { examineGame } = this.props;
     const chess = new Chess.Chess();
 
     chess.load(examineGame.fen);
     chess.remove(square);
 
-    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), err => {
+    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), (err) => {
       if (err) {
         log.error(err.reason);
       }
@@ -342,27 +346,27 @@ class Editor extends Component {
                 raf={{
                   inside: false,
                   vertical: "bottom",
-                  horizontal: "right"
+                  horizontal: "right",
                 }} // where is either an object or a string
                 styles={{
                   wrapper: {
-                    backgroundColor: "#292929"
+                    backgroundColor: "#292929",
                   },
                   files: {
-                    color: "white"
+                    color: "white",
                   },
                   ranks: {
-                    color: "white"
+                    color: "white",
                   },
                   promotion: {
-                    backgroundColor: "#a8a8a8"
-                  }
+                    backgroundColor: "#a8a8a8",
+                  },
                 }}
                 perspective={orientation}
                 fen={examineGame.fen}
                 boardSquares={{
                   light: { default: "#FFFFFF", active: "#9c9c9c" },
-                  dark: { default: "#1565c0", active: "#1255A1" }
+                  dark: { default: "#1565c0", active: "#1255A1" },
                 }}
                 pieceImages={{
                   bB: "images/chesspieces/bB.png",
@@ -376,14 +380,14 @@ class Editor extends Component {
                   wN: "images/chesspieces/wN.png",
                   wP: "images/chesspieces/wP.png",
                   wQ: "images/chesspieces/wQ.png",
-                  wR: "images/chesspieces/wR.png"
+                  wR: "images/chesspieces/wR.png",
                 }}
                 movable={() => getBoardSquares()}
                 circles={circles}
                 arrows={arrows}
-                onUpdateCircles={circle => this.handleUpdateCircles(circle)}
-                onUpdateArrows={arrow => this.handleUpdateArrows(arrow)}
-                onMove={move => this.handleMove(move)}
+                onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
+                onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
+                onMove={(move) => this.handleMove(move)}
                 smartMoves={false}
                 showLegalMoves={false}
                 smallSize={500}
@@ -404,7 +408,7 @@ class Editor extends Component {
                   wB: "White bishop",
                   wQ: "White queen",
                   wK: "White king",
-                  emptySquare: "Empty square"
+                  emptySquare: "Empty square",
                 }}
               />
             </div>
@@ -424,12 +428,12 @@ class Editor extends Component {
               wN: "images/chesspieces/wN.png",
               wP: "images/chesspieces/wP.png",
               wQ: "images/chesspieces/wQ.png",
-              wR: "images/chesspieces/wR.png"
+              wR: "images/chesspieces/wR.png",
             }}
             size={baordSize / 12}
             onAdd={this.handleAdd}
             style={{
-              backgroundColor: "#c7cbd5"
+              backgroundColor: "#c7cbd5",
             }}
           />
           <EditorRightSidebar
@@ -456,15 +460,15 @@ export default withTracker(() => {
     chats: Meteor.subscribe("chat"),
     game: Meteor.subscribe("games"),
     importedGame: Meteor.subscribe("imported_games"),
-    users: Meteor.subscribe("loggedOnUsers")
+    users: Meteor.subscribe("loggedOnUsers"),
   };
 
   return {
     isReady: isReadySubscriptions(subscriptions),
     examineGame: Game.findOne({ "examiners.id": Meteor.userId() }),
     gameHistory: GameHistoryCollection.find({
-      $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+      $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }],
     }).fetch(),
-    systemCss: mongoCss.findOne()
+    systemCss: mongoCss.findOne(),
   };
 })(Editor);
