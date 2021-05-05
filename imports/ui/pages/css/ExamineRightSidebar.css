@@ -36,7 +36,22 @@
     flex-direction: column;
     width: 60rem;
     max-width: 90%;
-    /* margin-top: 8rem; */
+}
+
+.ant-tabs-tabpane {
+    height: inherit;
+}
+
+.ant-tabs-content {
+    height: inherit;
+}
+
+.ant-tabs-content-holder {
+    height: 100%;
+}
+
+.ant-tabs-tabpane-active {
+    height: inherit;
 }
 
 .play-block__btn-big {

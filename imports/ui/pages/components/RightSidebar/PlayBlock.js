@@ -9,7 +9,7 @@ import {
   PLAY_STATUS_NONE,
   PLAY_STATUS_FRIEND_OPTIONS,
   PLAY_STATUS_WITH_FRIEND,
-  PLAY_STATUS_CHOOSE_BOT
+  PLAY_STATUS_CHOOSE_BOT,
 } from "../../../../constants/playStatusConstants";
 import PlayOptionButtons from "./PlayOptionButtons";
 import GameCommandsBlock from "../GameCommandsBlock/GameCommandsBlock";
@@ -19,7 +19,7 @@ class PlayBlock extends Component {
     super(props);
 
     this.state = {
-      status: PLAY_STATUS_NONE
+      status: PLAY_STATUS_NONE,
     };
   }
 
@@ -27,18 +27,18 @@ class PlayBlock extends Component {
     this.setState({ status: PLAY_STATUS_FRIEND_OPTIONS });
   };
 
-  handlePlayFriendOptions = options => {
+  handlePlayFriendOptions = (options) => {
     this.setState({ options, status: PLAY_STATUS_WITH_FRIEND });
   };
 
-  handleChooseFriend = friendId => {
+  handleChooseFriend = (friendId) => {
     const { onChooseFriend } = this.props;
     const { options } = this.state;
 
     onChooseFriend({ friendId, options });
   };
 
-  handleCancelFriend = friendId => {
+  handleCancelFriend = (friendId) => {
     Meteor.call("cancelMatchRequest", "cancelMatchRequest", friendId);
   };
 
@@ -46,7 +46,7 @@ class PlayBlock extends Component {
     this.setState({ status: PLAY_STATUS_CHOOSE_BOT });
   };
 
-  hanldePlayWithBot = data => {
+  hanldePlayWithBot = (data) => {
     const { onBotPlay } = this.props;
     const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
 
@@ -60,11 +60,11 @@ class PlayBlock extends Component {
       whiteIncrementOrDelayType: incrementOrDelayType,
       blackInitial: initial,
       blackIncrementOrDelay: incrementOrDelay,
-      blackIncrementOrDelayType: incrementOrDelayType
+      blackIncrementOrDelayType: incrementOrDelayType,
     });
   };
 
-  handlePlaySeek = data => {
+  handlePlaySeek = (data) => {
     const { onSeekPlay } = this.props;
     const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
 
@@ -75,7 +75,7 @@ class PlayBlock extends Component {
       skillLevel,
       incrementOrDelay,
       incrementOrDelayType,
-      wildNumber: 0
+      wildNumber: 0,
     });
   };
 
@@ -91,7 +91,7 @@ class PlayBlock extends Component {
       startGameExamine,
       gameRequest,
       examineAction,
-      currentGame
+      currentGame,
     } = this.props;
     const { status } = this.state;
 
@@ -152,7 +152,7 @@ class PlayBlock extends Component {
           style={{
             display: "flex",
             flexDirection: "column",
-            height: "100%"
+            height: "100%",
           }}
         >
           <GameHistory

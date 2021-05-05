@@ -74,7 +74,7 @@ class PlayRightSidebar extends Component {
 
     return (
       <div className="play-right-sidebar">
-        <div id="top-div" style={{ height: "50%" }}>
+        <div id="top-div" style={{ flex: 1 }}>
           <Tabs defaultActiveKey="play" size="small" type="card">
             <TabPane tab={translate("tabs.playTab")} key="play">
               <PlayBlock
