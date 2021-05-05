@@ -21,11 +21,11 @@ class Community extends Component {
       inputValue: "",
       messageList: [],
       isRightMenu: false,
-      isModal: false
+      isModal: false,
     };
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps) => {
     const { allRooms } = this.props;
 
     if (allRooms && allRooms.length && !areArraysOfObectsEqual(prevProps.allRooms, allRooms)) {
@@ -34,7 +34,7 @@ class Community extends Component {
   };
 
   handleAdd = (roomName, isPrivate) => {
-    Meteor.call("createRoom", "createRoom", roomName, isPrivate, error => {
+    Meteor.call("createRoom", "createRoom", roomName, isPrivate, (error) => {
       if (error) {
         console.log(error);
       }
@@ -57,7 +57,7 @@ class Community extends Component {
     this.setState({ isRightMenu: false });
   };
 
-  handleChangeRoom = roomId => {
+  handleChangeRoom = (roomId) => {
     const { activeRoom } = this.state;
 
     if (activeRoom) {
@@ -68,21 +68,21 @@ class Community extends Component {
     this.setState({ activeRoom: roomId });
   };
 
-  handleChange = inputValue => {
+  handleChange = (inputValue) => {
     this.setState({ inputValue });
   };
 
-  handleMessage = roomId => {
+  handleMessage = (roomId) => {
     const { inputValue, messageList } = this.state;
     const newMessage = { text: inputValue, name: "you" };
 
     this.setState({
       inputValue: "",
-      messageList: [...messageList, newMessage]
+      messageList: [...messageList, newMessage],
     });
 
     if (newMessage.text) {
-      Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, err => {
+      Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, (err) => {
         if (err) {
           console.error(err);
         }
@@ -98,7 +98,7 @@ class Community extends Component {
       return;
     }
 
-    const roomData = roomList.find(item => item._id === activeRoom);
+    const roomData = roomList.find((item) => item._id === activeRoom);
 
     return (
       <MessengerWithData
@@ -164,13 +164,13 @@ export default compose(
   withRouter,
   withTracker(() => {
     const subscriptions = {
-      chat: Meteor.subscribe("chat")
+      chat: Meteor.subscribe("chat"),
     };
 
     return {
       isReady: isReadySubscriptions(subscriptions),
       allRooms: Rooms.find().fetch(),
-      notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch()
+      notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
     };
   })
 )(Community);

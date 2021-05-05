@@ -26,7 +26,7 @@ export default class ExaminePage extends Component {
       newOppenetRequest: false,
       examinAction: "action",
       activeTab: 0,
-      switchSides: Date.now()
+      switchSides: Date.now(),
     };
 
     this.Main = {
@@ -34,32 +34,32 @@ export default class ExaminePage extends Component {
         white: {
           name: "Player-1",
           rating: 1600,
-          userPicture: "player-img-top.png"
+          userPicture: "player-img-top.png",
         },
         black: {
           name: "Player-2",
           rating: 1600,
-          userPicture: "player-img-bottom.png"
+          userPicture: "player-img-bottom.png",
         },
         clocks: {
           white: {
             isactive: false,
-            current: 300000
+            current: 300000,
           },
           black: {
             isactive: false,
-            current: 300000
-          }
-        }
+            current: 300000,
+          },
+        },
       },
       RightSection: {
         TournamentList: {
-          Tournaments: tournament
+          Tournaments: tournament,
         },
         MoveList: {},
         status: "other",
-        Action: {}
-      }
+        Action: {},
+      },
     };
 
     this.delayedUpdateDimensions = _.debounce(this.updateDimensions, 100);
@@ -92,7 +92,7 @@ export default class ExaminePage extends Component {
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     });
   };
 
@@ -102,23 +102,23 @@ export default class ExaminePage extends Component {
       white: {
         name: "Player-1",
         rating: 1600,
-        userPicture: "player-img-top.png"
+        userPicture: "player-img-top.png",
       },
       black: {
         name: "Player-2",
         rating: 1600,
-        userPicture: "player-img-bottom.png"
+        userPicture: "player-img-bottom.png",
       },
       clocks: {
         white: {
           isactive: false,
-          current: 480000
+          current: 480000,
         },
         black: {
           isactive: false,
-          current: 480000
-        }
-      }
+          current: 480000,
+        },
+      },
     });
   };
 
@@ -149,7 +149,7 @@ export default class ExaminePage extends Component {
     this.setState({ examineGame: true, newOppenetRequest: false });
   };
 
-  examineActionHandler = action => {
+  examineActionHandler = (action) => {
     if (action === "newoppent" || action === "play") {
       this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
     } else if (action === "examine") {
@@ -158,7 +158,7 @@ export default class ExaminePage extends Component {
   };
 
   resignNotificationCloseHandler = () => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return { notification: !prevState.notification };
     });
   };
@@ -184,7 +184,7 @@ export default class ExaminePage extends Component {
       unObserveUser,
       gameRequest,
       onPgnUpload,
-      onImportedGames
+      onImportedGames,
     } = this.props;
     const { width, height, activeTab, switchSides } = this.state;
 
@@ -269,5 +269,5 @@ export default class ExaminePage extends Component {
 }
 
 ExaminePage.propTypes = {
-  username: PropTypes.string
+  username: PropTypes.string,
 };

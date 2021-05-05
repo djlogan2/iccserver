@@ -29,49 +29,49 @@ export default class PlayPage extends Component {
       activeTab: 0,
       modalShow: 0,
       toggleModal: this.toggleModal,
-      switchSides: Date.now()
+      switchSides: Date.now(),
     };
 
     this.middleBoard = React.createRef();
 
     this.Main = {
       LeftSection: {
-        MenuLinks: links
+        MenuLinks: links,
       },
       MiddleSection: {
         white: {
           name: "Player-1",
           rating: 1600,
-          userPicture: "player-img-top.png"
+          userPicture: "player-img-top.png",
         },
         black: {
           name: "Player-2",
           rating: 1600,
-          userPicture: "player-img-bottom.png"
+          userPicture: "player-img-bottom.png",
         },
         clocks: {
           white: {
             isactive: false,
-            current: 300000
+            current: 300000,
           },
           black: {
             isactive: false,
-            current: 300000
-          }
-        }
+            current: 300000,
+          },
+        },
       },
       RightSection: {
         TournamentList: {
-          Tournaments: tournament
+          Tournaments: tournament,
         },
         MoveList: {},
         status: "other",
-        Action: {}
-      }
+        Action: {},
+      },
     };
   }
 
-  toggleModal = modalShow => {
+  toggleModal = (modalShow) => {
     this.setState({ modalShow });
   };
 
@@ -87,7 +87,7 @@ export default class PlayPage extends Component {
   updateDimensions = () => {
     this.setState({
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
     });
   };
   intializeBoard = () => {
@@ -96,23 +96,23 @@ export default class PlayPage extends Component {
       white: {
         name: "Player-1",
         rating: 1600,
-        userPicture: "player-img-top.png"
+        userPicture: "player-img-top.png",
       },
       black: {
         name: "Player-2",
         rating: 1600,
-        userPicture: "player-img-bottom.png"
+        userPicture: "player-img-bottom.png",
       },
       clocks: {
         white: {
           isactive: false,
-          current: 480000
+          current: 480000,
         },
         black: {
           isactive: false,
-          current: 480000
-        }
-      }
+          current: 480000,
+        },
+      },
     });
   };
 
@@ -120,7 +120,7 @@ export default class PlayPage extends Component {
     this.setState({ examineGame: true, newOppenetRequest: false });
   };
 
-  examineActionHandler = action => {
+  examineActionHandler = (action) => {
     if (action === "newoppent" || action === "play") {
       this.setState({ exnotification: false, examinAction: "action", newOppenetRequest: true });
     } else if (action === "examine") {
@@ -129,7 +129,7 @@ export default class PlayPage extends Component {
   };
 
   resignNotificationCloseHandler = () => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return { notification: !prevState.notification };
     });
   };
@@ -155,7 +155,7 @@ export default class PlayPage extends Component {
       sentRequests,
       onChooseFriend,
       onBotPlay,
-      onSeekPlay
+      onSeekPlay,
     } = this.props;
     const { width, height, switchSides } = this.state;
 
@@ -233,5 +233,5 @@ export default class PlayPage extends Component {
 }
 
 PlayPage.propTypes = {
-  username: PropTypes.string
+  username: PropTypes.string,
 };

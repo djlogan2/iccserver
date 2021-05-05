@@ -17,7 +17,7 @@ class DetailsCard extends Component {
     super(props);
 
     this.state = {
-      [USERNAME_PROPERTY]: ""
+      [USERNAME_PROPERTY]: "",
     };
   }
 
@@ -32,12 +32,12 @@ class DetailsCard extends Component {
     }
   };
 
-  handleChange = property => event => {
+  handleChange = (property) => (event) => {
     this.setState({ [property]: event.target.value });
   };
 
   render() {
-    const { currentUser, translate, classes, scope } = this.props;
+    const { currentUser, translate, classes } = this.props;
 
     return (
       <Card
@@ -63,7 +63,7 @@ class DetailsCard extends Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
     };
   }),
   withRouter,

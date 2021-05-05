@@ -27,7 +27,7 @@ class ExamineSidebarTop extends Component {
     this.setState({ moveOrPlay: "play", cmi: "none" });
   };
 
-  playBotFromHere = data => {
+  playBotFromHere = (data) => {
     const { history, game } = this.props;
 
     Meteor.call(
@@ -66,7 +66,7 @@ class ExamineSidebarTop extends Component {
     return (
       <PlayChooseBot
         onClose={() => this.setState({ moveOrPlay: "move" })}
-        onPlay={data => this.playBotFromHere(data)}
+        onPlay={(data) => this.playBotFromHere(data)}
       />
     );
   };
@@ -84,7 +84,15 @@ class ExamineSidebarTop extends Component {
     } = this.props;
 
     return (
-      <div style={{ height: "calc(100% - 50px)", display: "flex", flexDirection: "column" }}>
+      <div
+        id="test-div"
+        style={{
+          height: "calc(100% - 50px)",
+          display: "flex",
+          flexDirection: "column",
+          marginTop: "10px"
+        }}
+      >
         <div style={{ display: "flex", flexDirection: "column", flexGrow: "1" }}>
           <Actions playComputer={this.playComputer} />
           <GameHistory
@@ -109,7 +117,7 @@ class ExamineSidebarTop extends Component {
 
     return (
       <Tabs className="examine-sidebar-top" defaultActiveKey="game" size="small" type="card">
-        <TabPane tab={translate("game")} key="game">
+        <TabPane tab={translate("game")} key="game" style={{ height: "100%" }}>
           {moveOrPlay === "play" && this.renderPlay()}
           {moveOrPlay === "move" && this.renderMove()}
         </TabPane>
@@ -126,7 +134,4 @@ class ExamineSidebarTop extends Component {
   }
 }
 
-export default compose(
-  translate("Common.rightBarTop"),
-  withRouter
-)(ExamineSidebarTop);
+export default compose(translate("Common.rightBarTop"), withRouter)(ExamineSidebarTop);

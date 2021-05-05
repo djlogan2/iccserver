@@ -1,13 +1,11 @@
 import React from "react";
 import { notification, Button } from "antd";
-import injectSheet from "react-jss";
-import { compose } from "redux";
 
 import {
   colorBlack,
   colorWhite,
   nonRatedGame,
-  ratedGame
+  ratedGame,
 } from "../../../../../constants/gameConstants";
 
 const gameRequestNotification = (gameRequest, translate, classes, onAcceptGame, onDeclineGame) => {
@@ -24,7 +22,7 @@ const gameRequestNotification = (gameRequest, translate, classes, onAcceptGame, 
             <span>
               {translate("description", {
                 username: gameRequest.challenger,
-                rating: gameRequest.challenger_rating
+                rating: gameRequest.challenger_rating,
               })}
             </span>
             <div className={classes.detailsDiv}>
@@ -32,7 +30,8 @@ const gameRequestNotification = (gameRequest, translate, classes, onAcceptGame, 
                 time: `${gameRequest.challenger_time} ${gameRequest.challenger_inc_or_delay}`,
                 ratingType: gameRequest.rating_type,
                 isRated: gameRequest.rated ? ratedGame : nonRatedGame,
-                color: gameRequest.challenger_color_request === colorWhite ? colorBlack : colorWhite
+                color:
+                  gameRequest.challenger_color_request === colorWhite ? colorBlack : colorWhite,
               })}
             </div>
           </div>
@@ -49,11 +48,7 @@ const gameRequestNotification = (gameRequest, translate, classes, onAcceptGame, 
     );
   };
 
-  const renderTitle = () => (
-    <div className={classes.divTitle}>
-      {translate("dialogTitle")}
-    </div>
-  );
+  const renderTitle = () => <div className={classes.divTitle}>{translate("dialogTitle")}</div>;
 
   notification.open({
     key: gameRequest._id,
@@ -62,11 +57,11 @@ const gameRequestNotification = (gameRequest, translate, classes, onAcceptGame, 
     style: {
       position: "relative",
       left: "15rem",
-      borderRadius: "5.76258px"
+      borderRadius: "5.76258px",
     },
     message: renderTitle(),
     description: renderDescription(),
-    placement: "topLeft"
+    placement: "topLeft",
   });
 };
 
