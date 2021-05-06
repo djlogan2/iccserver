@@ -23,7 +23,7 @@ class UserEdit extends Component {
     this.state = {
       user: null,
       currentGroup: null,
-      isolationGroups: []
+      isolationGroups: [],
     };
   }
 
@@ -47,10 +47,10 @@ class UserEdit extends Component {
           history.push(RESOURCE_USERS);
         }
 
-        const isolationGroups = results.map(result => {
+        const isolationGroups = results.map((result) => {
           return {
             value: result,
-            label: result
+            label: result,
           };
         });
         this.setState({ isolationGroups });
@@ -62,7 +62,7 @@ class UserEdit extends Component {
     const { roles, classes } = this.props;
     const { user, isolationGroups } = this.state;
 
-    const scope = roles.find(element => {
+    const scope = roles.find((element) => {
       if (element?.role?.id === ROLE_LIST_USERS) {
         return !!element.scope ? element.scope : null;
       }
@@ -93,7 +93,7 @@ export default compose(
   withTracker(() => {
     return {
       roles: Meteor.roleAssignment.find().fetch(),
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
     };
   }),
   withRouter,

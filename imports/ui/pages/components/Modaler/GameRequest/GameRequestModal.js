@@ -20,7 +20,7 @@ class GameRequestModal extends Component {
   handleCancelSeek = () => {
     const { gameRequest } = this.props;
 
-    Meteor.call("removeGameSeek", "remove_game_seek", gameRequest._id, err => {
+    Meteor.call("removeGameSeek", "remove_game_seek", gameRequest._id, (err) => {
       if (err) {
         log.error(err.reason);
       } else {
@@ -66,9 +66,9 @@ class GameRequestModal extends Component {
       description: null,
       duration: 0,
       style: {
-        height: "6.4rem"
+        height: "6.4rem",
       },
-      closeIcon: () => null
+      closeIcon: () => null,
     });
   };
 
@@ -116,7 +116,7 @@ export default compose(
   withRouter,
   withTracker(() => {
     return {
-      challengeNotificationCss: mongoCss.findOne()
+      challengeNotificationCss: mongoCss.findOne(),
     };
   }),
   injectSheet(dynamicRequestNotificationsStyles)

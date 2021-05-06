@@ -14,7 +14,7 @@ class GameCommandsBlock extends React.Component {
     super(props);
 
     this.state = {
-      value: ""
+      value: "",
     };
   }
 
@@ -22,7 +22,7 @@ class GameCommandsBlock extends React.Component {
     const { game } = this.props;
     const { value } = this.state;
 
-    Meteor.call("addGameMove", "addGameMove", game._id, value, error => {
+    Meteor.call("addGameMove", "addGameMove", game._id, value, (error) => {
       if (error) {
         console.error(error);
       } else {
@@ -39,7 +39,7 @@ class GameCommandsBlock extends React.Component {
       <div className={classes.mainDiv}>
         <Input
           value={value}
-          onChange={event => this.setState({ value: event.target.value })}
+          onChange={(event) => this.setState({ value: event.target.value })}
           placeholder={translate("inputCommand")}
         />
         <Button onClick={this.handleClick}>{translate("send")}</Button>
@@ -51,7 +51,7 @@ class GameCommandsBlock extends React.Component {
 export default compose(
   withTracker(() => {
     return {
-      commandsCss: mongoCss.findOne()
+      commandsCss: mongoCss.findOne(),
     };
   }),
   injectSheet(dynamicStyles),

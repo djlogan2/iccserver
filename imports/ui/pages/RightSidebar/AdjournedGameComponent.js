@@ -27,7 +27,7 @@ export default class AdjournedGameComponent extends React.Component {
         result: games[i].result,
         white: whitename,
         black: blackname,
-        status: games[i].status
+        status: games[i].status,
       });
     }
 

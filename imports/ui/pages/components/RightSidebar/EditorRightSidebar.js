@@ -13,7 +13,7 @@ class EditorRightSidebar extends Component {
 
     this.state = {
       whiteCastling: props.whiteCastling,
-      blackCastling: props.blackCastling
+      blackCastling: props.blackCastling,
     };
   }
 
@@ -40,7 +40,7 @@ class EditorRightSidebar extends Component {
     return "";
   }
 
-  handleColor = e => {
+  handleColor = (e) => {
     const { onColorChange } = this.props;
 
     onColorChange(e.target.value);
@@ -50,8 +50,14 @@ class EditorRightSidebar extends Component {
     const { color, onStartPosition, onClear, onFlip, onFen, fen, translate, history } = this.props;
     const { whiteCastling, blackCastling } = this.state;
 
-    const whiteOptions = [{ label: "0-0", value: "K" }, { label: "0-0-0", value: "Q" }];
-    const blackOptions = [{ label: "0-0", value: "k" }, { label: "0-0-0", value: "q" }];
+    const whiteOptions = [
+      { label: "0-0", value: "K" },
+      { label: "0-0-0", value: "Q" },
+    ];
+    const blackOptions = [
+      { label: "0-0", value: "k" },
+      { label: "0-0-0", value: "q" },
+    ];
 
     return (
       <div className="editor-right-sidebar">
@@ -88,7 +94,7 @@ class EditorRightSidebar extends Component {
                   options={whiteOptions}
                   value={whiteCastling}
                   name="white"
-                  onChange={data => this.handleCastling("white", data)}
+                  onChange={(data) => this.handleCastling("white", data)}
                 />
               </div>
               <div className="editor-right-sidebar__block">
@@ -99,7 +105,7 @@ class EditorRightSidebar extends Component {
                   options={blackOptions}
                   value={blackCastling}
                   name="black"
-                  onChange={data => this.handleCastling("black", data)}
+                  onChange={(data) => this.handleCastling("black", data)}
                 />
               </div>
             </div>
@@ -128,7 +134,7 @@ class EditorRightSidebar extends Component {
           <div className="editor-right-sidebar__fen-block">
             <h3 className="editor-right-sidebar__name"> {translate("fen")}</h3>
             <Input
-              onChange={e => onFen(e.target.value)}
+              onChange={(e) => onFen(e.target.value)}
               value={fen}
               placeholder={translate("insertFen")}
             />
@@ -139,7 +145,4 @@ class EditorRightSidebar extends Component {
   }
 }
 
-export default compose(
-  translate("Editor.EditorRightSidebar"),
-  withRouter
-)(EditorRightSidebar);
+export default compose(translate("Editor.EditorRightSidebar"), withRouter)(EditorRightSidebar);

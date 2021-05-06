@@ -38,7 +38,7 @@ export default class CssManager {
       backgroundColor: "#fff",
       fontSize: "16px",
       color: "blue",
-      padding: "2px 10px"
+      padding: "2px 10px",
     };
     //Object.assign(style, this._systemStyle.drawActionSection);
     return style;
@@ -355,7 +355,7 @@ export default class CssManager {
       position: "absolute",
       top: 0,
       left: 0,
-      zIndex: 2
+      zIndex: 2,
     };
   }
 

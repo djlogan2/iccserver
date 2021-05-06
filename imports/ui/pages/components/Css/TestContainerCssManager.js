@@ -194,7 +194,7 @@ export default class CssManager {
       position: "absolute",
       top: 0,
       left: 0,
-      zIndex: 2
+      zIndex: 2,
     };
   }
 
@@ -251,55 +251,55 @@ const developmentcss = [
       all: {
         position: "absolute",
         left: "-40px",
-        top: "10px"
-      }
+        top: "10px",
+      },
     },
     rightTopContent: {
       all: {
-        height: "55vh"
-      }
+        height: "55vh",
+      },
     },
     rightBottomContent: {
       all: {
-        height: "45vh"
-      }
+        height: "45vh",
+      },
     },
     actionButtonImage: {
       takeBack: {
-        backgroundImage: "../../../../../public/images/take-forward-icon.png"
+        backgroundImage: "../../../../../public/images/take-forward-icon.png",
       },
       draw: {
-        backgroundImage: "../../../../../public/images/draw-icon.png"
+        backgroundImage: "../../../../../public/images/draw-icon.png",
       },
       resign: {
-        backgroundImage: "../../../../../public/images/resign-icon.png"
+        backgroundImage: "../../../../../public/images/resign-icon.png",
       },
       abort: {
-        backgroundImage: "../../../../../public/images/abort-icon.png"
-      }
+        backgroundImage: "../../../../../public/images/abort-icon.png",
+      },
     },
     gameAnalysisIcon: {
       all: {
-        backgroundImage: "../../../../../public/images/live-analisys-icon.png"
-      }
+        backgroundImage: "../../../../../public/images/live-analisys-icon.png",
+      },
     },
     gameSheetDownloadIcon: {
       all: {
-        backgroundImage: "../../../../../public/images/download-icon-gray.png"
-      }
+        backgroundImage: "../../../../../public/images/download-icon-gray.png",
+      },
     },
     gameShareIcon: {
       all: {
-        backgroundImage: "../../../../../public/images/share-icon-gray.png"
-      }
+        backgroundImage: "../../../../../public/images/share-icon-gray.png",
+      },
     },
     chatContent: {
       all: {
         padding: "20px 15px",
         maxHeight: "230px",
         overflowY: "scroll",
-        minHeight: "230px"
-      }
+        minHeight: "230px",
+      },
     },
 
     chatInputBox: {
@@ -310,8 +310,8 @@ const developmentcss = [
         maxWidth: "100%",
         width: "100%",
         bottom: "0px",
-        background: "#fff"
-      }
+        background: "#fff",
+      },
     },
     chatSendButton: {
       all: {
@@ -323,8 +323,8 @@ const developmentcss = [
         height: "50px",
         border: "none",
         outline: "none",
-        cursor: "pointer"
-      }
+        cursor: "pointer",
+      },
     },
     gameMoveList: {
       all: {
@@ -332,8 +332,8 @@ const developmentcss = [
         padding: "10px 15px",
         color: "#808080",
         overflowY: "auto",
-        maxHeight: "185px"
-      }
+        maxHeight: "185px",
+      },
     },
     gameButtonMove: {
       all: {
@@ -345,33 +345,33 @@ const developmentcss = [
         position: "absolute",
         width: "100%",
         bottom: "350px",
-        zIndex: "999"
-      }
+        zIndex: "999",
+      },
     },
     gameTopHeader: {
       all: {
-        marginLeft: "5px"
-      }
+        marginLeft: "5px",
+      },
     },
     showLg: {
       all: {
-        display: "block"
-      }
+        display: "block",
+      },
     },
     tab: {
-      all: {}
+      all: {},
     },
     tabList: {
       all: {
         display: "inline-block",
         listStyle: "none",
         marginBottom: "-1px",
-        padding: "1.5rem 1.75rem"
-      }
+        padding: "1.5rem 1.75rem",
+      },
     },
     tabContent: {
-      all: {}
-    }
+      all: {},
+    },
   },
   {
     name: "developmentcss",
@@ -379,27 +379,27 @@ const developmentcss = [
     tagLine: {
       all: {
         marginTop: "10px",
-        marginLeft: "10px"
-      }
+        marginLeft: "10px",
+      },
     },
     userName: {
       all: {
         color: "#fff",
         fontSize: "18px",
         fontWeight: "600",
-        marginRight: "15px"
-      }
+        marginRight: "15px",
+      },
     },
     flags: {
       all: {
-        backgroundImage: "../../../../../public/images/user-flag.png"
+        backgroundImage: "../../../../../public/images/user-flag.png",
       },
       in: {
-        backgroundImage: "india.png"
+        backgroundImage: "india.png",
       },
       us: {
-        backgroundImage: "../../../../../public/images/user-flag.png"
-      }
+        backgroundImage: "../../../../../public/images/user-flag.png",
+      },
     },
     clock: {
       all: {
@@ -414,65 +414,65 @@ const developmentcss = [
         color: "#fff",
         top: "5px",
         background: "#333333",
-        fontWeight: "700"
-      }
+        fontWeight: "700",
+      },
     },
     square: {
       all: {},
       w: {
-        backgroundColor: "green"
+        backgroundColor: "green",
       },
       b: {
-        backgroundColor: "yellow"
-      }
+        backgroundColor: "yellow",
+      },
     },
     external_rank: {
       all: {
         float: "left",
         position: "relative",
-        color: "black"
-      }
+        color: "black",
+      },
     },
     external_file: {
       all: {
         float: "left",
         position: "relative",
-        color: "black"
-      }
+        color: "black",
+      },
     },
     internal_rank_and_file: {
       all: {
         position: "absolute",
-        zIndex: 3
+        zIndex: 3,
       },
       color: {
         w: {
-          color: "red"
+          color: "red",
         },
         b: {
-          color: "white"
-        }
+          color: "white",
+        },
       },
       position: {
         tl: {
           top: 0,
-          left: 0
+          left: 0,
         },
         tr: {
           top: 0,
           right: 0,
-          textAlign: "right"
+          textAlign: "right",
         },
         bl: {
           bottom: 0,
-          left: 0
+          left: 0,
         },
         br: {
           bottom: 0,
           right: 0,
-          textAlign: "right"
-        }
-      }
+          textAlign: "right",
+        },
+      },
     },
     pieces: {
       w: {
@@ -481,7 +481,7 @@ const developmentcss = [
         n: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
         q: "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
         k: "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
-        p: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg"
+        p: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg",
       },
       b: {
         r: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
@@ -489,17 +489,17 @@ const developmentcss = [
         n: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
         q: "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
         k: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
-        p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg"
-      }
+        p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg",
+      },
     },
     fsquare: {
       all: {},
       w: {
-        backgroundColor: "blue"
+        backgroundColor: "blue",
       },
       b: {
-        backgroundColor: "blue"
-      }
+        backgroundColor: "blue",
+      },
     },
     fallendpieces: {
       all: {
@@ -508,48 +508,48 @@ const developmentcss = [
         backgroundSize: "100%",
         backgroundPosition: "center",
         display: "inline-block",
-        borderRadius: "3px"
+        borderRadius: "3px",
       },
       w: {
         r: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/72/Chess_rlt45.svg)`,
         },
         b: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/b/b1/Chess_blt45.svg)`,
         },
         n: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg)`,
         },
         q: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg)`,
         },
         k: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg)`,
         },
         p: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg)`
-        }
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg)`,
+        },
       },
       b: {
         r: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg)`,
         },
         b: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/9/98/Chess_bdt45.svg)`,
         },
         n: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg)`,
         },
         q: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg)`,
         },
         k: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg)`
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg)`,
         },
         p: {
-          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg)`
-        }
-      }
-    }
-  }
+          backgroundImage: `url(https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg)`,
+        },
+      },
+    },
+  },
 ];

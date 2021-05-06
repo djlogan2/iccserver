@@ -27,9 +27,9 @@ const logged_on_user_fields = {
     legacy: 1,
     lastActivity: 1,
     lastLogin: {
-      date: 1
-    }
-  }
+      date: 1,
+    },
+  },
 };
 
 const our_allowed_user_fields = {
@@ -43,12 +43,12 @@ const our_allowed_user_fields = {
     lastname: 1,
     legacy: {
       username: 1,
-      autologin: 1
-    }
+      autologin: 1,
+    },
   },
   settings: {
     autoaccept: 1,
-    premove: 1
+    premove: 1,
   },
   status: {
     legacy: 1,
@@ -60,10 +60,10 @@ const our_allowed_user_fields = {
     lastLogin: {
       date: 1,
       ipAddr: 1,
-      userAgent: 1
-    }
+      userAgent: 1,
+    },
   },
-  cf: 1
+  cf: 1,
 };
 
 const all_fields = {
@@ -76,11 +76,11 @@ const all_fields = {
   newguy: 1,
   services: {
     password: {
-      bcrypt: 1
+      bcrypt: 1,
     },
     resume: {
-      loginTokens: 1
-    }
+      loginTokens: 1,
+    },
   },
   profile: {
     firstname: 1,
@@ -89,8 +89,8 @@ const all_fields = {
       username: 1,
       validated: 1,
       autologin: 1,
-      password: 1
-    }
+      password: 1,
+    },
   },
   // For documentation purposes to show programmers what is in the
   // user record -- please don't publish these :)
@@ -111,7 +111,7 @@ const all_fields = {
       receiver_time: 1,
       receiver_inc_or_delay: 1,
       receiver_delaytype: 1,
-      challenger_color_request: 1
+      challenger_color_request: 1,
     },
     seek_default: {
       wild: 1,
@@ -119,8 +119,8 @@ const all_fields = {
       time: 1,
       inc_or_delay: 1,
       inc_or_delay_type: 1,
-      rated: 1
-    }
+      rated: 1,
+    },
   },
   status: {
     //    online: 1,
@@ -131,16 +131,16 @@ const all_fields = {
     lastLogin: {
       date: 1,
       ipAddr: 1,
-      userAgent: 1
+      userAgent: 1,
     },
     idle: 1,
-    legacy: 1
+    legacy: 1,
   },
-  isolation_group: 1
+  isolation_group: 1,
 };
 
-describe("Users", function() {
-  beforeEach(function(done) {
+describe("Users", function () {
+  beforeEach(function (done) {
     resetDatabase(null, done);
   });
 
@@ -198,14 +198,14 @@ describe("Users", function() {
   //   });
   // });
 
-  it("should only get a subset of the user record in the loggedOnUsers subscription", function(done) {
+  it("should only get a subset of the user record in the loggedOnUsers subscription", function (done) {
     const user1 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
     const user2 = TestHelpers.createUser({ isolation_group: "group1", child_chat: true });
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user1._id });
-    collector.collect("loggedOnUsers", collections => {
-      const user2a = collections.users.filter(u => u.username === user2.username);
+    collector.collect("loggedOnUsers", (collections) => {
+      const user2a = collections.users.filter((u) => u.username === user2.username);
       chai.assert.equal(user2a.length, 1);
       const msg = compare(logged_on_user_fields, user2a[0]);
       const error = !!msg ? new Error(msg) : null;
@@ -213,7 +213,7 @@ describe("Users", function() {
     });
   });
 
-  it("should also get logged on users with the loggedOnUsers subscription", function(done) {
+  it("should also get logged on users with the loggedOnUsers subscription", function (done) {
     // Because we are now ALWAYS sending ourselves via an unnamed subscription, there is no way
     // to not get our own user record.
     const user1 = TestHelpers.createUser({ isolation_group: "group1", login: false });
@@ -222,9 +222,12 @@ describe("Users", function() {
     chai.assert.isDefined(user1);
     chai.assert.isDefined(user1._id);
     const collector = new PublicationCollector({ userId: user3._id });
-    collector.collect("loggedOnUsers", collections => {
+    collector.collect("loggedOnUsers", (collections) => {
       chai.assert.equal(collections.users.length, 2); // I am not a loggedOnUser, I am a "userData", thus loggedOnUsers = 1
-      chai.assert.sameMembers([user2._id, user3._id], collections.users.map(u => u._id));
+      chai.assert.sameMembers(
+        [user2._id, user3._id],
+        collections.users.map((u) => u._id)
+      );
       done();
     });
   });
@@ -234,7 +237,7 @@ describe("Users", function() {
   // record that we do not know about in these tests. I want a zero percent chance that sensitive data
   // would be published to clients.
   //
-  it("should not have any fields in production we do not know about", function(done) {
+  it("should not have any fields in production we do not know about", function (done) {
     this.timeout(60000);
 
     var config = {
@@ -244,7 +247,7 @@ describe("Users", function() {
       dstPort: 27017,
       localHost: "127.0.0.1",
       localPort: 17017,
-      privateKey: require("fs").readFileSync("/Users/davidlogan/.ssh/id_rsa")
+      privateKey: require("fs").readFileSync("/Users/davidlogan/.ssh/id_rsa"),
     };
 
     const func = (error, server) => {
@@ -255,7 +258,7 @@ describe("Users", function() {
 
       MyCollection.find()
         .fetch()
-        .forEach(user => {
+        .forEach((user) => {
           const msg = compare(all_fields, user, "produser:", true);
           chai.assert.isUndefined(msg);
         });

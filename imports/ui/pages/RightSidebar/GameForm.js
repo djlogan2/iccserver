@@ -2,32 +2,32 @@ import React, { Component } from "react";
 import { translate } from "../../HOCs/translate";
 
 class GameForm extends Component {
-  handleChangeMinute = event => {
+  handleChangeMinute = (event) => {
     const { handleChangeMinute } = this.props;
 
     handleChangeMinute(parseInt(event.target.value));
   };
-  handleChangeSecond = event => {
+  handleChangeSecond = (event) => {
     const { handleChangeSecond } = this.props;
 
     handleChangeSecond(parseInt(event.target.value));
   };
-  handleChangeGameType = event => {
+  handleChangeGameType = (event) => {
     const { handleChangeGameType } = this.props;
 
     handleChangeGameType(event.target.value);
   };
-  handleChangeColor = event => {
+  handleChangeColor = (event) => {
     const { handleChangeColor } = this.props;
 
     handleChangeColor(event.target.value);
   };
-  handleIncOrDelayTypeChange = event => {
+  handleIncOrDelayTypeChange = (event) => {
     const { handleIncOrDelayTypeChange } = this.props;
 
     handleIncOrDelayTypeChange(event.target.value);
   };
-  handleRatedChange = event => {
+  handleRatedChange = (event) => {
     const { handleRatedChange } = this.props;
 
     handleRatedChange(event.target.checked);
@@ -52,7 +52,7 @@ class GameForm extends Component {
       width: "40%",
       height: "26px",
       border: "1px solid #1565c0",
-      padding: "2px 6px"
+      padding: "2px 6px",
     };
     let formMainStyle = cssManager.formMain();
 
@@ -62,7 +62,7 @@ class GameForm extends Component {
       paddingBottom: "10px",
       borderBottom: "1px solid #eee",
       paddingLeft: "0.70rem",
-      paddingRight: "0.70rem"
+      paddingRight: "0.70rem",
     });
 
     return (

@@ -8,7 +8,7 @@ class RightSidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      gameRequest: props.gameRequest
+      gameRequest: props.gameRequest,
     };
   }
 
@@ -31,7 +31,7 @@ class RightSidebar extends Component {
       flip,
       startGameExamine,
       examineAction,
-      gameRequest
+      gameRequest,
     } = this.props;
     const { gameRequest: stateGameRequest } = this.state;
 
@@ -68,7 +68,7 @@ class RightSidebar extends Component {
       game,
       activeTabnumber,
       RightSidebarData,
-      uploadPgn
+      uploadPgn,
     } = this.props;
 
     switch (gameStatus) {

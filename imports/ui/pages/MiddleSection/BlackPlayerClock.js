@@ -17,7 +17,7 @@ export default class BlackPlayerClock extends Component {
       current,
       mark: now,
       running: false,
-      game_current: current
+      game_current: current,
     };
 
     this.componentDidUpdate();
@@ -202,7 +202,7 @@ export default class BlackPlayerClock extends Component {
       width: cv * 1.3,
       background: "#333333",
       fontWeight: "700",
-      position: "absolute"
+      position: "absolute",
     };
 
     return (
@@ -212,7 +212,7 @@ export default class BlackPlayerClock extends Component {
           display: "inline-block",
           position: "relative",
           verticalAlign: "top",
-          marginTop: "8px"
+          marginTop: "8px",
         }}
       >
         <div style={clockstyle}>

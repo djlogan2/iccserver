@@ -14,7 +14,7 @@ export default class ExamineComponent extends React.Component {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     };
   }
 
@@ -28,28 +28,28 @@ export default class ExamineComponent extends React.Component {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     });
   }
   handelUserClick = (user, Id) => {
     this.setState({ user: user.username, userId: Id });
   };
-  handleChangeMinute = minute => {
+  handleChangeMinute = (minute) => {
     this.setState({ time: minute });
   };
-  handleChangeSecond = inc => {
+  handleChangeSecond = (inc) => {
     this.setState({ inc: inc });
   };
-  handleChangeGameType = type => {
+  handleChangeGameType = (type) => {
     this.setState({ rating_type: type });
   };
-  handleIncOrDelayTypeChange = incOrDelay => {
+  handleIncOrDelayTypeChange = (incOrDelay) => {
     this.setState({ incOrdelayType: incOrDelay });
   };
-  handleChangeColor = color => {
+  handleChangeColor = (color) => {
     this.setState({ color: color });
   };
-  handleRatedChange = rate => {
+  handleRatedChange = (rate) => {
     this.setState({ rated: rate });
   };
 
@@ -64,7 +64,7 @@ export default class ExamineComponent extends React.Component {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     });
   }
 
@@ -119,18 +119,18 @@ export default class ExamineComponent extends React.Component {
 class SubTabs extends Component {
   static propTypes = {
     children: PropTypes.instanceOf(Array).isRequired,
-    cssManager: PropTypes.object.isRequired
+    cssManager: PropTypes.object.isRequired,
   };
 
   constructor(props) {
     super(props);
 
     this.state = {
-      activeTab: this.props.children[0].props.label
+      activeTab: this.props.children[0].props.label,
     };
   }
 
-  onClickTabItem = tab => {
+  onClickTabItem = (tab) => {
     this.setState({ activeTab: tab });
   };
 
@@ -138,13 +138,13 @@ class SubTabs extends Component {
     const {
       onClickTabItem,
       props: { children },
-      state: { activeTab }
+      state: { activeTab },
     } = this;
 
     return (
       <div className="tab">
         <ol className="tab-list">
-          {children.map(child => {
+          {children.map((child) => {
             const { label } = child.props;
 
             return (
@@ -159,7 +159,7 @@ class SubTabs extends Component {
           })}
         </ol>
         <div className="tab-content">
-          {children.map(child => {
+          {children.map((child) => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;
           })}
@@ -173,7 +173,7 @@ class Tab extends Component {
   static propTypes = {
     activeTab: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
-    onClick: PropTypes.func.isRequired
+    onClick: PropTypes.func.isRequired,
   };
 
   onClick = () => {
@@ -184,7 +184,7 @@ class Tab extends Component {
   render() {
     const {
       onClick,
-      props: { activeTab, label }
+      props: { activeTab, label },
     } = this;
     //TODO : Now we have working on.we will remove soon
     let tablistItem = {
@@ -194,7 +194,7 @@ class Tab extends Component {
       padding: "1rem 1.75rem",
       borderRadius: "0px 30px 0px 0px",
       border: "#ccc 1px solid",
-      cursor: "pointer"
+      cursor: "pointer",
     };
 
     if (activeTab === label)
@@ -207,7 +207,7 @@ class Tab extends Component {
         padding: "1rem 1.75rem",
         border: "#ccc 0px solid",
         borderRadius: "0px 20px 0px 0px",
-        cursor: "pointer"
+        cursor: "pointer",
       };
 
     return (

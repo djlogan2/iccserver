@@ -17,12 +17,12 @@ import { Random } from "meteor/random";
 export const TestHelpers = {};
 
 if (Meteor.isTest || Meteor.isAppTest) {
-  TestHelpers.createUser = function(_options) {
+  TestHelpers.createUser = function (_options) {
     const options = _options || {};
     const userRecord = {
       username: options.username || faker.internet.userName(),
       email: options.email || faker.internet.email(),
-      password: options.password || faker.internet.password()
+      password: options.password || faker.internet.password(),
     };
     if (
       options.legacy === undefined ||
@@ -35,15 +35,15 @@ if (Meteor.isTest || Meteor.isAppTest) {
         legacy: {
           username: options.legacy_username || faker.internet.userName(),
           password: options.legacy_password || faker.internet.password(),
-          autologin: options.legacy_autologin || true
-        }
+          autologin: options.legacy_autologin || true,
+        },
       };
     }
 
     const id = Accounts.createUser(userRecord);
     userRecord._id = id;
 
-    all_roles.forEach(role => {
+    all_roles.forEach((role) => {
       Roles.createRole(role, { unlessExists: true });
       Roles.createRole("set_role_" + role, { unlessExists: true });
     });
@@ -61,21 +61,21 @@ if (Meteor.isTest || Meteor.isAppTest) {
         date: new Date(),
         ipAddr: "127.0.0.1",
         userAgent:
-          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36"
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.135 Safari/537.36",
       },
       lastActivity: new Date(),
       legacy: false,
       idle: false,
-      online: options.login === undefined || options.login
+      online: options.login === undefined || options.login,
     };
 
     setobject["services.resume"] = {
       loginTokens: [
         {
           when: new Date(),
-          hashedToken: Random.id()
-        }
-      ]
+          hashedToken: Random.id(),
+        },
+      ],
     };
 
     if (!!options.child_chat) setobject.cf = "c";
@@ -92,10 +92,10 @@ if (Meteor.isTest || Meteor.isAppTest) {
     return Meteor.users.findOne({ _id: id });
   };
 
-  TestHelpers.setupDescribe = function(options) {
+  TestHelpers.setupDescribe = function (options) {
     const self = this;
 
-    beforeEach.call(this, function(done) {
+    beforeEach.call(this, function (done) {
       self.sandbox = sinon.createSandbox();
       if (!!options && options.timer) {
         self.sandbox.useFakeTimers();
@@ -107,12 +107,12 @@ if (Meteor.isTest || Meteor.isAppTest) {
               self.sandbox.clock.tick(1000);
             }
             if (remain) self.sandbox.clock.tick(remain);
-          }
+          },
         };
       }
       self.meteorUsersFake = self.sandbox.fake(() =>
         Meteor.users.findOne({
-          _id: self.loggedonuser ? self.loggedonuser._id : ""
+          _id: self.loggedonuser ? self.loggedonuser._id : "",
         })
       );
 
@@ -122,7 +122,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
           "getUserRatingsObject",
           self.sandbox.fake.returns({
             bullet: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
-            standard: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 }
+            standard: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
           })
         );
 
@@ -181,18 +181,22 @@ if (Meteor.isTest || Meteor.isAppTest) {
 
       self.sandbox.replace(Timestamp, "pingTime", self.sandbox.fake.returns(456));
 
-      self.sandbox.replace(UCI, "getScoreForFen", self.sandbox.fake(() => Promise.resolve(234)));
+      self.sandbox.replace(
+        UCI,
+        "getScoreForFen",
+        self.sandbox.fake(() => Promise.resolve(234))
+      );
 
       self.sandbox.replace(
         i18n,
         "localizeMessage",
-        self.sandbox.fake(function(locale, i18nvalue, parameters) {
+        self.sandbox.fake(function (locale, i18nvalue, parameters) {
           return "i18n: " + locale + ", " + i18nvalue + ", " + parameters;
         })
       );
 
       resetDatabase(null, () => {
-        all_roles.forEach(role => {
+        all_roles.forEach((role) => {
           Roles.createRole(role, { unlessExists: true });
           Roles.createRole("set_role_" + role, { unlessExists: true });
         });
@@ -200,7 +204,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
       });
     });
 
-    afterEach.call(this, function() {
+    afterEach.call(this, function () {
       global._clientMessages.sendMessageToClient.restore();
       self.sandbox.restore();
       delete self.meteorUsersFake;

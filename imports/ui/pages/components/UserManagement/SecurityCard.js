@@ -5,7 +5,7 @@ import { translate } from "../../../HOCs/translate";
 import {
   CURRENT_PASSWORD_PROPERTY,
   CONFIRM_PASSWORD_PROPERTY,
-  NEW_PASSWORD_PROPERTY
+  NEW_PASSWORD_PROPERTY,
 } from "../../../../constants/systemConstants";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
@@ -21,11 +21,11 @@ class SecurityCard extends Component {
       [NEW_PASSWORD_PROPERTY]: "",
       [CONFIRM_PASSWORD_PROPERTY]: "",
       error: null,
-      disabled: false
+      disabled: false,
     };
   }
 
-  handleInputChange = property => event => {
+  handleInputChange = (property) => (event) => {
     this.setState({ [property]: event.target.value });
   };
 
@@ -44,17 +44,17 @@ class SecurityCard extends Component {
     if (currentPassword && newPassword && newPassword === confirmPassword) {
       this.setState({ disabled: true });
 
-      Accounts.changePassword(currentPassword, newPassword, err => {
+      Accounts.changePassword(currentPassword, newPassword, (err) => {
         this.setState({
           error: err ? err.reason : null,
-          disabled: false
+          disabled: false,
         });
 
         if (!err) {
           notification.open({
             message: translate("notifications.passwordChanged"),
             description: null,
-            duration: 5
+            duration: 5,
           });
         }
       });
@@ -98,7 +98,7 @@ class SecurityCard extends Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
     };
   }),
   translate("Profile.SecurityTab"),

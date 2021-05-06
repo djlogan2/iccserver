@@ -4,15 +4,15 @@ import { Meteor } from "meteor/meteor";
 import { translate } from "../../HOCs/translate";
 
 class ChatComponent extends Component {
-  acceptGameSeek = requestId => {
+  acceptGameSeek = (requestId) => {
     Meteor.call("acceptLocalGameSeek", "gameSeek", requestId);
   };
 
-  removeAcknowledgeMessage = messageId => {
+  removeAcknowledgeMessage = (messageId) => {
     Meteor.call("acknowledge.client.message", messageId);
   };
 
-  gameSeekRequest = requestId => {
+  gameSeekRequest = (requestId) => {
     return (
       <div
         style={{
@@ -23,7 +23,7 @@ class ChatComponent extends Component {
           padding: "5px",
           borderRadius: "5px",
           display: "inline-block",
-          textAlign: "center"
+          textAlign: "center",
         }}
       >
         <span style={{ width: "100%", float: "left" }}>NEW GAME SEEK</span>
@@ -39,7 +39,7 @@ class ChatComponent extends Component {
             display: "inline-block",
             fontSize: "12px",
             borderRadius: "5px",
-            marginTop: "15px"
+            marginTop: "15px",
           }}
         >
           START

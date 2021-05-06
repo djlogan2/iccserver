@@ -1,24 +1,24 @@
 import { get } from "lodash";
 
 export const dynamicMenuLinksStyles = {
-  menuLinks: props => {
+  menuLinks: (props) => {
     const css = get(props, "menuLinksCss.menuLinksCss", {});
     return css.menuLinks;
   },
-  menuLinkItem: props => {
+  menuLinkItem: (props) => {
     const css = get(props, "menuLinksCss.menuLinksCss", {});
     return css.menuLinkItem;
   },
-  menuItemText: props => {
+  menuItemText: (props) => {
     const css = get(props, "menuLinksCss.menuLinksCss", {});
     return css.menuItemText;
   },
-  active: props => {
+  active: (props) => {
     const css = get(props, "menuLinksCss.menuLinksCss", {});
     return css.active;
   },
-  rowStyle: props => {
+  rowStyle: (props) => {
     const css = get(props, "menuLinksCss.menuLinksCss", {});
     return css.rowStyle;
-  }
+  },
 };

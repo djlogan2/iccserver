@@ -14,7 +14,7 @@ const PrimaryButton = ({ css, ...rest }) => (
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
     };
   })
 )(PrimaryButton);

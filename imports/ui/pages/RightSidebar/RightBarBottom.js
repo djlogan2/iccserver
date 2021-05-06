@@ -19,7 +19,7 @@ class RightBarBottom extends Component {
       cssManager,
       clientMessage,
       Gamedata,
-      uploadPgn
+      uploadPgn,
     } = this.props;
     return (
       <Tabs

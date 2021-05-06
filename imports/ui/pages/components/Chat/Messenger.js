@@ -32,12 +32,12 @@ const Messenger = ({ roomData, inputValue, messageList, onChange, onMessage }) =
   );
 };
 
-const MessengerWithData = withTracker(props => {
+const MessengerWithData = withTracker((props) => {
   return {
     messageList: Chat.find({
       type: "room",
-      id: props.roomData._id
-    }).fetch()
+      id: props.roomData._id,
+    }).fetch(),
   };
 })(Messenger);
 

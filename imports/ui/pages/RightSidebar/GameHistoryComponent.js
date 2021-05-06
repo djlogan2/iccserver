@@ -7,7 +7,7 @@ import ExportPgnButton from "../components/Button/ExportPgnButton";
 class GameHistroyComponent extends React.Component {
   getGameHistory() {
     return GameHistoryCollection.find({
-      $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+      $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }],
     }).fetch();
   }
 
@@ -23,7 +23,7 @@ class GameHistroyComponent extends React.Component {
 
     const games = this.getGameHistory();
 
-    games.forEach(game => {
+    games.forEach((game) => {
       if (
         (game.white.id === Meteor.userId() && game.result === "1-0") ||
         (game.black.id === Meteor.userId() && game.result === "0-1")
@@ -38,7 +38,7 @@ class GameHistroyComponent extends React.Component {
         id: game._id,
         white: game.white.name,
         black: game.black.name,
-        time: game.startTime.toDateString()
+        time: game.startTime.toDateString(),
       });
     });
 

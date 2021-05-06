@@ -4,11 +4,13 @@ import { SettingOutlined } from "@ant-design/icons";
 import { Modal, Select, Checkbox } from "antd";
 import CustomColorPicker from "../components/CustomColorPicker/CustomColorPicker";
 
+const { Option } = Select;
+
 const promotionOptions = [
   { label: "queen", value: "q" },
   { label: "rook", value: "r" },
   { label: "bishop", value: "b" },
-  { label: "knight", value: "n" }
+  { label: "knight", value: "n" },
 ];
 
 class PropertiesModal extends React.Component {
@@ -26,19 +28,19 @@ class PropertiesModal extends React.Component {
       boardColorsDark: props.boardColorsDark,
       wrapperColor: props.wrapperColor,
       filesColor: props.filesColor,
-      ranksColor: props.ranksColor
+      ranksColor: props.ranksColor,
     };
   }
 
   handleClick = () => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return {
-        isOpen: !prevState.isOpen
+        isOpen: !prevState.isOpen,
       };
     });
   };
 
-  handleCheckboxClick = property => event => {
+  handleCheckboxClick = (property) => (event) => {
     this.setState({ [property]: event.target.checked });
   };
 
@@ -64,7 +66,7 @@ class PropertiesModal extends React.Component {
       wrapperColor,
       promotionColor,
       filesColor,
-      ranksColor
+      ranksColor,
     } = this.state;
 
     return (
@@ -97,16 +99,16 @@ class PropertiesModal extends React.Component {
               <Select
                 placeholder="Perspective"
                 defaultValue={perspective}
-                onChange={value => this.setState({ perspective: value })}
+                onChange={(value) => this.setState({ perspective: value })}
               >
-                <Select.Option value="white">White</Select.Option>
-                <Select.Option value="black">Black</Select.Option>
+                <Option value="white">White</Option>
+                <Option value="black">Black</Option>
               </Select>
             </span>
             <Checkbox
               style={{ marginLeft: 0 }}
               checked={raf.inside}
-              onChange={event => this.setState({ raf: { ...raf, inside: event.target.checked } })}
+              onChange={(event) => this.setState({ raf: { ...raf, inside: event.target.checked } })}
             >
               Show coordinates inside the square
             </Checkbox>
@@ -115,11 +117,11 @@ class PropertiesModal extends React.Component {
               <Select
                 placeholder="Files"
                 defaultValue={raf.vertical}
-                onChange={value => this.setState({ raf: { ...raf, vertical: value } })}
+                onChange={(value) => this.setState({ raf: { ...raf, vertical: value } })}
               >
-                <Select.Option value="bottom">Bottom</Select.Option>
-                <Select.Option value="top">Top</Select.Option>
-                <Select.Option value="none">None</Select.Option>
+                <Option value="bottom">Bottom</Option>
+                <Option value="top">Top</Option>
+                <Option value="none">None</Option>
               </Select>
             </span>
             <span>
@@ -128,29 +130,29 @@ class PropertiesModal extends React.Component {
                 label="Ranks"
                 placeholder="Ranks"
                 defaultValue={raf.horizontal}
-                onChange={value => this.setState({ raf: { ...raf, horizontal: value } })}
+                onChange={(value) => this.setState({ raf: { ...raf, horizontal: value } })}
               >
-                <Select.Option value="left">Left</Select.Option>
-                <Select.Option value="right">Right</Select.Option>
-                <Select.Option value="none">None</Select.Option>
+                <Option value="left">Left</Option>
+                <Option value="right">Right</Option>
+                <Option value="none">None</Option>
               </Select>
             </span>
             <Checkbox.Group
               options={promotionOptions}
               defaultValue={promotionPieces}
-              onChange={values => this.setState({ promotionPieces: values })}
+              onChange={(values) => this.setState({ promotionPieces: values })}
             />
             <span>
               {"Board light colors: "}
               <CustomColorPicker
                 color={boardColorsLight.default}
-                onChange={color =>
+                onChange={(color) =>
                   this.setState({ boardColorsLight: { ...boardColorsLight, default: color.hex } })
                 }
               />
               <CustomColorPicker
                 color={boardColorsLight.active}
-                onChange={color =>
+                onChange={(color) =>
                   this.setState({ boardColorsLight: { ...boardColorsLight, active: color.hex } })
                 }
               />
@@ -159,13 +161,13 @@ class PropertiesModal extends React.Component {
               {"Board dark colors: "}
               <CustomColorPicker
                 color={boardColorsDark.default}
-                onChange={color =>
+                onChange={(color) =>
                   this.setState({ boardColorsDark: { ...boardColorsDark, default: color.hex } })
                 }
               />
               <CustomColorPicker
                 color={boardColorsDark.active}
-                onChange={color =>
+                onChange={(color) =>
                   this.setState({ boardColorsDark: { ...boardColorsDark, active: color.hex } })
                 }
               />
@@ -174,25 +176,25 @@ class PropertiesModal extends React.Component {
               {"Wrapper color: "}
               <CustomColorPicker
                 color={wrapperColor}
-                onChange={color => this.setState({ wrapperColor: color.hex })}
+                onChange={(color) => this.setState({ wrapperColor: color.hex })}
               />
             </span>
             <span>
               {"Promotion color: "}
               <CustomColorPicker
                 color={promotionColor}
-                onChange={color => this.setState({ promotionColor: color.hex })}
+                onChange={(color) => this.setState({ promotionColor: color.hex })}
               />
             </span>
             <span>
               {"Files and ranks colors: "}
               <CustomColorPicker
                 color={filesColor}
-                onChange={color => this.setState({ filesColor: color.hex })}
+                onChange={(color) => this.setState({ filesColor: color.hex })}
               />
               <CustomColorPicker
                 color={ranksColor}
-                onChange={color => this.setState({ ranksColor: color.hex })}
+                onChange={(color) => this.setState({ ranksColor: color.hex })}
               />
             </span>
           </div>

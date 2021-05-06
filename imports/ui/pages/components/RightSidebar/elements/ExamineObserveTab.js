@@ -11,22 +11,22 @@ class ExamineObserveTab extends Component {
 
     this.state = {
       searchValue: "",
-      observerId: null
+      observerId: null,
     };
   }
 
-  handleSearch = searchValue => {
+  handleSearch = (searchValue) => {
     this.setState({ searchValue });
   };
 
-  handleObserve = e => {
+  handleObserve = (e) => {
     const { allUsers, observeUser } = this.props;
     const observerUsername = get(e, "target.value");
 
-    const observer = allUsers.find(item => observerUsername === item.username);
+    const observer = allUsers.find((item) => observerUsername === item.username);
 
     this.setState({
-      observerId: observer._id
+      observerId: observer._id,
     });
 
     observeUser(observer._id);
@@ -38,13 +38,13 @@ class ExamineObserveTab extends Component {
 
     const userList = allUsers
       .filter(
-        item =>
+        (item) =>
           item._id !== Meteor.userId() &&
           !!item.status &&
           (item.status.game === "examining" || item.status.game === "playing") &&
           item.username.toLowerCase().includes(searchValue)
       )
-      .map(item => item.username);
+      .map((item) => item.username);
 
     return userList.map((name, i) => {
       return {
@@ -56,7 +56,7 @@ class ExamineObserveTab extends Component {
               {translate("observe")}
             </Button>
           </div>
-        )
+        ),
       };
     });
   };

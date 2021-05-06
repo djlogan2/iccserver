@@ -3,7 +3,7 @@ import { Button } from "antd";
 import { translate } from "../../../../HOCs/translate";
 
 const ExamineObserverTabBlock = ({ game, unObserveUser, translate }) => {
-  const ownerData = game.observers.find(item => item.id === game.owner) || {};
+  const ownerData = game.observers.find((item) => item.id === game.owner) || {};
 
   return (
     <div className="examine-observer-tab-block">
@@ -19,7 +19,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate }) => {
         <span className="examine-observer-tab-block__head-right">
           {translate("observing", {
             quantity: game.observers.length,
-            username: ownerData.username || translate("user")
+            username: ownerData.username || translate("user"),
           })}
         </span>
       </div>
@@ -33,7 +33,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate }) => {
         </Button>
       </div>
       <ul className="examine-observer-tab-block__list">
-        {game.observers.map(observerItem => {
+        {game.observers.map((observerItem) => {
           if (game.owner === Meteor.userId()) {
             return (
               <li key={observerItem.username} className="examine-owner-tab-block__list-item">

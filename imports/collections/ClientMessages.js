@@ -13,13 +13,13 @@ const ClientMessagesCollection = new Mongo.Collection("client_messages");
 const ClientMessageSchema = {
   createDate: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   to: String,
   client_identifier: String,
-  message: String
+  message: String,
 };
 ClientMessagesCollection.attachSchema(ClientMessageSchema);
 
@@ -152,11 +152,11 @@ const DefinedClientMessagesMap = {
   OVERLAPPING_RATING: { parameters: ["rating_type"] },
   UNABLE_TO_CHANGE_USERNAME: {},
   UNABLE_TO_CHANGE_EMAIL: {},
-  INVALID_PLAYING_STATUS: {}
+  INVALID_PLAYING_STATUS: {},
 };
 
 class ClientMessages {
-  messageParameters = function(i18n_message) {
+  messageParameters = function (i18n_message) {
     check(
       i18n_message,
       Match.Where(() => {
@@ -168,7 +168,7 @@ class ClientMessages {
     return DefinedClientMessagesMap[i18n_message];
   };
 
-  sendMessageToClient = function(user, client_identifier, i18n_message) {
+  sendMessageToClient = function (user, client_identifier, i18n_message) {
     check(user, Match.OneOf(Object, String));
     check(client_identifier, String);
     check(
@@ -181,7 +181,7 @@ class ClientMessages {
     ); // It has to be a known and supported message to the client
     const parms = [];
     for (let x = 3; x < arguments.length; x++)
-      if (Array.isArray(arguments[x])) arguments[x].forEach(arg => parms.push(arg));
+      if (Array.isArray(arguments[x])) arguments[x].forEach((arg) => parms.push(arg));
       else parms.push(arguments[x]);
     const required_parms = !DefinedClientMessagesMap[i18n_message].parameters
       ? 0
@@ -207,7 +207,7 @@ class ClientMessages {
     return ClientMessagesCollection.insert({
       to: id,
       client_identifier: client_identifier,
-      message: message
+      message: message,
     });
   };
 }
@@ -222,24 +222,24 @@ if (!global._clientMessages) {
 
 module.exports.ClientMessages = global._clientMessages;
 
-Meteor.startup(function() {
+Meteor.startup(function () {
   Object.keys(DefinedClientMessagesMap).forEach(i18n.addIfNotExists);
 
   if (Meteor.isTest || Meteor.isAppTest) {
     global._clientMessages.collection = ClientMessagesCollection;
   }
 
-  Users.events.on("userLogout", function(fields) {
+  Users.events.on("userLogout", function (fields) {
     ClientMessagesCollection.remove({ to: fields.userId });
   });
 });
 
-Meteor.publish(Meteor.isTest || Meteor.isAppTest ? "client_messages" : null, function() {
+Meteor.publish(Meteor.isTest || Meteor.isAppTest ? "client_messages" : null, function () {
   return ClientMessagesCollection.find({ to: this.userId });
 });
 
 Meteor.methods({
-  "acknowledge.client.message": function(id) {
+  "acknowledge.client.message": function (id) {
     check(id, String);
     const rec = ClientMessagesCollection.findOne({ _id: id });
     if (!rec)
@@ -250,5 +250,5 @@ Meteor.methods({
         "We should not be deleting a client message that does not belong to us"
       );
     ClientMessagesCollection.remove({ _id: id });
-  }
+  },
 });

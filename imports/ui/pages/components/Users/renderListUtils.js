@@ -6,8 +6,8 @@ import EditOutlined from "@ant-design/icons/EditOutlined";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 
 export const renderEmail = (text, record) => record?.emails[0]?.address;
-export const renderRating = ratingType => (text, record) => record?.ratings?.[ratingType]?.rating;
-export const renderStatus = status => (text, record) => record?.status?.[status];
+export const renderRating = (ratingType) => (text, record) => record?.ratings?.[ratingType]?.rating;
+export const renderStatus = (status) => (text, record) => record?.status?.[status];
 export const renderOnline = (text, record) =>
   !!record?.status?.online ? <CheckOutlined /> : <MinusOutlined />;
 

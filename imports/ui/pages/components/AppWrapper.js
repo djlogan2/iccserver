@@ -90,8 +90,7 @@ class AppWrapper extends Component {
 }
 
 export default withTracker(() => {
-  const subscriptions = {
-  };
+  const subscriptions = {};
 
   return {
     isReady: isReadySubscriptions(subscriptions),
@@ -99,14 +98,14 @@ export default withTracker(() => {
       {
         $or: [
           {
-            receiver_id: Meteor.userId()
+            receiver_id: Meteor.userId(),
           },
-          { type: "seek", owner: Meteor.userId() }
-        ]
+          { type: "seek", owner: Meteor.userId() },
+        ],
       },
       {
-        sort: { create_date: -1 }
+        sort: { create_date: -1 },
       }
-    )
+    ),
   };
 })(withRouter(AppWrapper));

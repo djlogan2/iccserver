@@ -1,7 +1,7 @@
 import React from "react";
 
 const ModalContext = React.createContext({
-  toggleModal: () => {}
+  toggleModal: () => {},
 });
 
 export const ModalProvider = ModalContext.Provider;

@@ -11,7 +11,7 @@ class Tab extends Component {
   render() {
     const {
       onClick,
-      props: { activeTab, label }
+      props: { activeTab, label },
     } = this;
     //TODO : Now we have working on.we will remove soon
     let tablistItem = {
@@ -21,7 +21,7 @@ class Tab extends Component {
       padding: "1rem 1.75rem",
       borderRadius: "0px 30px 0px 0px",
       border: "#ccc 1px solid",
-      cursor: "pointer"
+      cursor: "pointer",
     };
 
     if (activeTab === label)
@@ -34,7 +34,7 @@ class Tab extends Component {
         padding: "1rem 1.75rem",
         border: "#ccc 0px solid",
         borderRadius: "0px 20px 0px 0px",
-        cursor: "pointer"
+        cursor: "pointer",
       };
 
     return (
@@ -48,7 +48,7 @@ class Tab extends Component {
 Tab.propTypes = {
   activeTab: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
-  onClick: PropTypes.func.isRequired
+  onClick: PropTypes.func.isRequired,
 };
 
 export default Tab;

@@ -10,7 +10,7 @@ class Tab extends Component {
   render() {
     const {
       onClick,
-      props: { activeTab, label, src, tabListName, cssManager }
+      props: { activeTab, label, src, tabListName, cssManager },
     } = this;
 
     let activeTabName;
@@ -33,7 +33,7 @@ Tab.propTypes = {
   label: PropTypes.string.isRequired,
   src: PropTypes.any,
   onClick: PropTypes.func.isRequired,
-  cssManager: PropTypes.object.isRequired
+  cssManager: PropTypes.object.isRequired,
 };
 
 export default Tab;

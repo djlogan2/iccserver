@@ -17,7 +17,7 @@ class ObserversComponent extends React.Component {
     let blackname;
     const { observers } = game;
 
-    observers.forEach(observer => {
+    observers.forEach((observer) => {
       if (observer.id === game.white.id) {
         whitename = observer.username;
       } else {
@@ -32,7 +32,7 @@ class ObserversComponent extends React.Component {
       white: whitename,
       black: blackname,
       status: game.status,
-      time: game.startTime.toDateString()
+      time: game.startTime.toDateString(),
     });
 
     return (
@@ -56,7 +56,7 @@ class ObserversComponent extends React.Component {
               </tr>
             </thead>
             <tbody>
-              {gamelist.map(game => (
+              {gamelist.map((game) => (
                 <tr onClick={this.setGameExaminMode.bind(this, game._id)}>
                   <td style={{ padding: "5px 5px" }}>
                     {translate("playersColumn", { white: game.white, black: game.black })}

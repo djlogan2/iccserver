@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-export const updateLocale = locale => {
+export const updateLocale = (locale) => {
   const localeArray = locale.split("-");
 
   if (localeArray && localeArray.length === 2) {
@@ -75,11 +75,11 @@ export const getBoardSquares = () => {
     "h5",
     "h6",
     "h7",
-    "h8"
+    "h8",
   ];
 };
 
-export const isReadySubscriptions = subscriptions => {
+export const isReadySubscriptions = (subscriptions) => {
   for (const k in subscriptions) {
     if (!subscriptions[k].ready()) {
       return false;
@@ -97,7 +97,5 @@ export const getLang = () =>
   "en-US";
 
 export const areArraysOfObectsEqual = (firstArray, secondArray) => {
-  return _(firstArray)
-    .differenceWith(secondArray, _.isEqual)
-    .isEmpty();
+  return _(firstArray).differenceWith(secondArray, _.isEqual).isEmpty();
 };

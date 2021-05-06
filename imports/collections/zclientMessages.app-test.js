@@ -10,12 +10,12 @@ import { Match } from "meteor/check";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { Users } from "./users";
 
-describe("Client Messages", function() {
-  beforeEach(function(done) {
+describe("Client Messages", function () {
+  beforeEach(function (done) {
     resetDatabase(null, done);
   });
 
-  it("should throw an error if we call it with an unknown message identifier", function() {
+  it("should throw an error if we call it with an unknown message identifier", function () {
     this.timeout(30000);
     const user = TestHelpers.createUser();
     chai.assert.throws(
@@ -24,7 +24,7 @@ describe("Client Messages", function() {
     );
   });
 
-  it("should throw an error if we call it with an known message identifier but with an incorrect number of parameters", function() {
+  it("should throw an error if we call it with an known message identifier but with an incorrect number of parameters", function () {
     const user = TestHelpers.createUser();
     chai.assert.throws(
       () =>
@@ -51,38 +51,38 @@ describe("Client Messages", function() {
   //   chai.assert.doesNotThrow(() => ClientMessages.sendMessageToClient(user._id, "mi1", "FOR_TESTING_10", 1, "2", 3, "4", 5, "6", 7, "8", 9, "10"));
   // });
   //
-  it("should have a users messages deleted when they logoff", function() {
+  it("should have a users messages deleted when they logoff", function () {
     const user1 = TestHelpers.createUser();
     const user2 = TestHelpers.createUser();
     ClientMessages.collection.insert({
       to: user1._id,
       client_identifier: "message11",
-      message: "message11"
+      message: "message11",
     });
     ClientMessages.collection.insert({
       to: user1._id,
       client_identifier: "message12",
-      message: "message12"
+      message: "message12",
     });
     ClientMessages.collection.insert({
       to: user1._id,
       client_identifier: "message13",
-      message: "message13"
+      message: "message13",
     });
     ClientMessages.collection.insert({
       to: user2._id,
       client_identifier: "message21",
-      message: "message21"
+      message: "message21",
     });
     ClientMessages.collection.insert({
       to: user2._id,
       client_identifier: "message22",
-      message: "message22"
+      message: "message22",
     });
     ClientMessages.collection.insert({
       to: user2._id,
       client_identifier: "message23",
-      message: "message23"
+      message: "message23",
     });
     chai.assert.equal(6, ClientMessages.collection.find().count());
     /*
@@ -95,7 +95,7 @@ describe("Client Messages", function() {
     chai.assert.equal(3, ClientMessages.collection.find().count());
   });
 
-  it("should not save a message for a user if they are logged off", function() {
+  it("should not save a message for a user if they are logged off", function () {
     const user1 = TestHelpers.createUser({ login: false });
     ClientMessages.sendMessageToClient(user1._id, "identifier", "FOR_TESTING");
     const rec = ClientMessages.collection.find({}).fetch();
@@ -103,7 +103,7 @@ describe("Client Messages", function() {
   });
 
   // We need a meteor method for this!
-  it("should delete acknowledged messages from the collection", function() {
+  it("should delete acknowledged messages from the collection", function () {
     const sandbox = sinon.createSandbox();
     sandbox.replace(i18n, "localizeMessage", sandbox.fake.returns("the message"));
     const user1 = TestHelpers.createUser({ login: true });
@@ -120,7 +120,7 @@ describe("Client Messages", function() {
     sandbox.restore();
   });
 
-  it("should not allow the meteor call to delete a message that does not belong to them", function() {
+  it("should not allow the meteor call to delete a message that does not belong to them", function () {
     const sandbox = sinon.createSandbox();
     sandbox.replace(i18n, "localizeMessage", sandbox.fake.returns("the message"));
     const user1 = TestHelpers.createUser({ login: true });
@@ -132,11 +132,11 @@ describe("Client Messages", function() {
     sandbox.restore();
   });
 
-  it("should throw an error if the message doesn't exist", function() {
+  it("should throw an error if the message doesn't exist", function () {
     chai.assert.throws(() => ClientMessages.messageParameters("DOES NOT EXIST"), Match.Error);
   });
 
-  it("should not throw an error if the message doesn't exist", function() {
+  it("should not throw an error if the message doesn't exist", function () {
     chai.assert.doesNotThrow(() => ClientMessages.messageParameters("FOR_TESTING_10"));
     chai.assert.deepEqual(
       { parameters: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"] },
@@ -145,12 +145,12 @@ describe("Client Messages", function() {
   });
 });
 
-describe("Client Messages publication", function() {
-  beforeEach(function(done) {
+describe("Client Messages publication", function () {
+  beforeEach(function (done) {
     resetDatabase(null, done);
   });
 
-  it("should only publish messages belonging to the user", function(done) {
+  it("should only publish messages belonging to the user", function (done) {
     this.timeout(30000);
     const sandbox = sinon.createSandbox();
     sandbox.replace(i18n, "localizeMessage", sandbox.fake.returns("the message"));
@@ -174,7 +174,7 @@ describe("Client Messages publication", function() {
     );
     chai.assert.equal(ClientMessages.collection.find().count(), 2);
     const collector = new PublicationCollector({ userId: user1._id });
-    collector.collect("client_messages", collections => {
+    collector.collect("client_messages", (collections) => {
       chai.assert.equal(collections.client_messages.length, 1);
       chai.assert.equal(collections.client_messages[0].to, user1._id);
       chai.assert.equal(collections.client_messages[0].client_identifier, "mi1");

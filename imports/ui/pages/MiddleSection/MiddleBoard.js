@@ -20,7 +20,7 @@ class MiddleBoard extends Component {
       white: props.MiddleBoardData.white,
       black: props.MiddleBoardData.black,
       height: 500,
-      width: 1000
+      width: 1000,
     };
   }
 
@@ -81,7 +81,7 @@ class MiddleBoard extends Component {
       MiddleBoardData,
       cssManager,
       onDrawObject,
-      onDrop
+      onDrop,
     } = this.props;
     const { top } = this.state;
 

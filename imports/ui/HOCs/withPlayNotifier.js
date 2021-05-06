@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import CssManager from "../pages/components/Css/CssManager";
 
-export const withPlayNotifier = WrappedComponent => {
+export const withPlayNotifier = (WrappedComponent) => {
   return class extends React.Component {
     renderActionPopup = (title, action) => {
       const { systemCss, classes, inGame: game } = this.props;
@@ -17,7 +17,7 @@ export const withPlayNotifier = WrappedComponent => {
         classes,
         translate,
         cssManager: new CssManager(systemCss.systemCss, systemCss.userCss),
-        gameId: game._id
+        gameId: game._id,
       });
     };
 

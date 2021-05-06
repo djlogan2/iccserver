@@ -6,7 +6,7 @@ const { Option } = Select;
 
 export default translate("Community.ChildChatInput")(
   ({ childChatTexts, selected, onChange, onMessage, translate, disabled }) => {
-    const handleSubmit = e => {
+    const handleSubmit = (e) => {
       e.preventDefault();
       this.select.focus();
       onMessage();
@@ -20,9 +20,9 @@ export default translate("Community.ChildChatInput")(
             onChange={onChange}
             value={selected}
             disabled={disabled}
-            ref={el => (this.select = el)}
+            ref={(el) => (this.select = el)}
           >
-            {childChatTexts.map(chatItem => (
+            {childChatTexts.map((chatItem) => (
               <Option value={chatItem._id}>{chatItem.text}</Option>
             ))}
           </Select>

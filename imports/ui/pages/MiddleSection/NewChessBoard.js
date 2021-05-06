@@ -16,7 +16,7 @@ class NewChessBoard extends Component {
       showLegalMoves: true,
       smallSize: 500,
       fen: null,
-      lastMove: null
+      lastMove: null,
     };
   }
 
@@ -33,7 +33,7 @@ class NewChessBoard extends Component {
 
   updateWindowSize = () => {
     this.setState({
-      key: Date.now()
+      key: Date.now(),
     });
   };
 
@@ -46,7 +46,7 @@ class NewChessBoard extends Component {
     }
   }
 
-  getColorFromEvent = event => {
+  getColorFromEvent = (event) => {
     if (event.altKey && event.shiftKey) {
       return "#d40000";
     } else if (event.altKey && event.ctrlKey) {
@@ -56,7 +56,7 @@ class NewChessBoard extends Component {
     }
   };
 
-  handleUpdateCircles = circle => {
+  handleUpdateCircles = (circle) => {
     const { gameStatus } = this.props;
     const { circles } = this.state;
 
@@ -90,11 +90,11 @@ class NewChessBoard extends Component {
   getLegalMoves = () => {
     const { chess } = this.props;
     const moves = {};
-    ["a", "b", "c", "d", "e", "f", "g", "h"].forEach(rank => {
+    ["a", "b", "c", "d", "e", "f", "g", "h"].forEach((rank) => {
       for (let file = 1; file <= 8; file++) {
         const legal = chess
           .moves({ square: rank + file, verbose: true })
-          .map(verbose => verbose.to);
+          .map((verbose) => verbose.to);
         if (!!legal && !!legal.length) moves[rank + file] = legal;
       }
     });
@@ -116,7 +116,7 @@ class NewChessBoard extends Component {
 
       this.setState({
         lastMove,
-        legalMoves: this.getLegalMoves()
+        legalMoves: this.getLegalMoves(),
       });
     } else {
       const temp = new Chess.Chess(chess.fen());
@@ -137,7 +137,7 @@ class NewChessBoard extends Component {
     }
   };
 
-  handleUpdateArrows = arrow => {
+  handleUpdateArrows = (arrow) => {
     const { gameStatus } = this.props;
     const { arrows } = this.state;
 
@@ -204,18 +204,18 @@ class NewChessBoard extends Component {
         raf={{ inside: false, vertical: "bottom", horizontal: "right" }}
         styles={{
           wrapper: {
-            backgroundColor: "#292929"
+            backgroundColor: "#292929",
           },
           files: {
-            color: "white"
+            color: "white",
           },
           ranks: {
-            color: "white"
+            color: "white",
           },
           promotion: {
-            backgroundColor: "#a8a8a8"
+            backgroundColor: "#a8a8a8",
           },
-          lastMove: "5px solid #3CFF33"
+          lastMove: "5px solid #3CFF33",
         }}
         lastMove={lastMove}
         showLastMove
@@ -223,7 +223,7 @@ class NewChessBoard extends Component {
         fen={chess.fen()}
         boardSquares={{
           light: { default: "#FFFFFF", active: "#9c9c9c" },
-          dark: { default: "#1565c0", active: "#1255A1" }
+          dark: { default: "#1565c0", active: "#1255A1" },
         }}
         pieceImages={{
           bB: "images/chesspieces/bB.png",
@@ -237,13 +237,13 @@ class NewChessBoard extends Component {
           wN: "images/chesspieces/wN.png",
           wP: "images/chesspieces/wP.png",
           wQ: "images/chesspieces/wQ.png",
-          wR: "images/chesspieces/wR.png"
+          wR: "images/chesspieces/wR.png",
         }}
         movable={isCurrentTurn ? legalMoves : () => getBoardSquares()}
         circles={circles}
         arrows={arrows}
-        onUpdateCircles={circle => this.handleUpdateCircles(circle)}
-        onUpdateArrows={arrow => this.handleUpdateArrows(arrow)}
+        onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
+        onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
         onMove={(move, promotion) => this.handleMove(move, promotion)}
         smartMoves={smartMoves}
         showLegalMoves={isCurrentTurn && showLegalMoves}
@@ -263,7 +263,7 @@ class NewChessBoard extends Component {
           wQ: "White queen",
           wK: "White king",
           emptySquare: "Empty square",
-          legalMoves: "Legal moves: "
+          legalMoves: "Legal moves: ",
         }}
       />
     );

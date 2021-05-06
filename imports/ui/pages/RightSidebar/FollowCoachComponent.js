@@ -14,7 +14,7 @@ const FollowCoachComponent = ({ translate }) => (
       <div
         style={{
           width: "65px",
-          float: "left"
+          float: "left",
         }}
       >
         <img src="images/user.png" style={{ width: "60px" }} alt="user" />
@@ -23,26 +23,26 @@ const FollowCoachComponent = ({ translate }) => (
         style={{
           width: "78%",
           float: "left",
-          marginLeft: "10px"
+          marginLeft: "10px",
         }}
       >
         <div
           style={{
             width: "100%",
-            float: "left"
+            float: "left",
           }}
         >
           <div
             style={{
               width: "40%",
-              float: "left"
+              float: "left",
             }}
           >
             Mike
           </div>
           <div
             style={{
-              marginLeft: "15px"
+              marginLeft: "15px",
             }}
           >
             Location | Rating 215
@@ -54,7 +54,7 @@ const FollowCoachComponent = ({ translate }) => (
               float: "left",
               marginTop: "10px",
               fontSize: "14px",
-              lineHeight: "20px"
+              lineHeight: "20px",
             }}
           >
             the leap into electronic typesetting, remaining essentially unchanged. It was
@@ -65,7 +65,7 @@ const FollowCoachComponent = ({ translate }) => (
             style={{
               width: "100%",
               float: "left",
-              marginTop: "10px"
+              marginTop: "10px",
             }}
           >
             <div style={{ width: "50%", float: "left" }}>

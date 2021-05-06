@@ -8,9 +8,9 @@ const PlayWithFriend = ({
   onCancel,
   usersToPlayWith,
   translate,
-  sentRequests
+  sentRequests,
 }) => {
-  const receiverIds = sentRequests.map(req => req.receiver_id);
+  const receiverIds = sentRequests.map((req) => req.receiver_id);
 
   return (
     <div className="play-friend">
@@ -20,7 +20,7 @@ const PlayWithFriend = ({
       </div>
       <h3 className="play-friend__header">{translate("FRIENDS")}</h3>
       <ul className="play-friend__list">
-        {usersToPlayWith.map(userItem => (
+        {usersToPlayWith.map((userItem) => (
           <li key={userItem.username} className="play-friend__list-item">
             {userItem.username}
             {receiverIds.includes(userItem._id) ? (

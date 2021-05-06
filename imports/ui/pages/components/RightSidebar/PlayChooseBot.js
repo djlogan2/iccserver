@@ -16,7 +16,7 @@ class PlayChooseBot extends Component {
       incrementOrDelayType: "inc",
       initial: 15,
       incrementOrDelay: 0,
-      ratingType: "none"
+      ratingType: "none",
     };
   }
 
@@ -24,26 +24,26 @@ class PlayChooseBot extends Component {
     this.updateRating();
   }
 
-  handleChangeDifficulty = e => {
+  handleChangeDifficulty = (e) => {
     this.setState({
-      difficulty: e.target.value
+      difficulty: e.target.value,
     });
   };
 
-  handleChangeColor = e => {
+  handleChangeColor = (e) => {
     this.setState({
-      color: e.target.value
+      color: e.target.value,
     });
   };
 
-  handleChangeIncrementOrDelayType = e => {
+  handleChangeIncrementOrDelayType = (e) => {
     this.setState({
-      incrementOrDelayType: e.target.value
+      incrementOrDelayType: e.target.value,
     });
   };
 
-  handleChange = inputName => {
-    return number => {
+  handleChange = (inputName) => {
+    return (number) => {
       const newState = {};
       newState[inputName] = number;
 
@@ -81,7 +81,7 @@ class PlayChooseBot extends Component {
       incrementOrDelayType,
       initial,
       incrementOrDelay,
-      skillLevel: difficulty
+      skillLevel: difficulty,
     });
   };
 
@@ -93,7 +93,7 @@ class PlayChooseBot extends Component {
       difficulty,
       incrementOrDelayType,
       color,
-      ratingType
+      ratingType,
     } = this.state;
 
     const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(ratings);
@@ -114,7 +114,7 @@ class PlayChooseBot extends Component {
           layout="vertical"
           initialValues={{
             initial,
-            incrementOrDelay
+            incrementOrDelay,
           }}
         >
           <Form.Item label={translate("difficulty")} name="difficulty">
@@ -204,7 +204,7 @@ class PlayChooseBot extends Component {
 export default compose(
   withTracker(() => {
     return {
-      ratings: DynamicRatingsCollection.find().fetch()
+      ratings: DynamicRatingsCollection.find().fetch(),
     };
   }),
   translate("Play.PlayChooseBot")

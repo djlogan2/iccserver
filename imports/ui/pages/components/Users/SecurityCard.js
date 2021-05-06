@@ -6,7 +6,7 @@ import { compose } from "redux";
 import {
   CONFIRM_PASSWORD_PROPERTY,
   ISOLATION_GROUP_PROPERTY,
-  NEW_PASSWORD_PROPERTY
+  NEW_PASSWORD_PROPERTY,
 } from "../../../../constants/systemConstants";
 import { translate } from "../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
@@ -22,7 +22,7 @@ class SecurityCard extends Component {
       error: null,
       [NEW_PASSWORD_PROPERTY]: "",
       [CONFIRM_PASSWORD_PROPERTY]: "",
-      [ISOLATION_GROUP_PROPERTY]: ""
+      [ISOLATION_GROUP_PROPERTY]: "",
     };
   }
 
@@ -34,11 +34,11 @@ class SecurityCard extends Component {
     }
   }
 
-  handleChange = property => event => {
+  handleChange = (property) => (event) => {
     this.setState({ [property]: event.target.value });
   };
 
-  handleAutocompleteChange = property => value => {
+  handleAutocompleteChange = (property) => (value) => {
     this.setState({ [property]: value });
   };
 
@@ -57,7 +57,7 @@ class SecurityCard extends Component {
         "setOtherIsolationGroup",
         currentUser._id,
         isolationGroup,
-        err => {
+        (err) => {
           if (err) {
             this.setState({ error: err.reason });
           } else {
@@ -73,7 +73,7 @@ class SecurityCard extends Component {
     }
 
     if (newPassword && confirmPassword) {
-      Meteor.call("setOtherPassword", "setOtherPassword", currentUser._id, newPassword, err => {
+      Meteor.call("setOtherPassword", "setOtherPassword", currentUser._id, newPassword, (err) => {
         if (err) {
           this.setState({ error: err.reason });
         } else {
@@ -122,7 +122,7 @@ class SecurityCard extends Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
     };
   }),
   translate("Users.edit.security"),

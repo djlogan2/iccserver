@@ -85,7 +85,7 @@ export default class Board extends React.Component {
       }
     }
     if (this._fileline === "b") board.push(this._renderFileRow(this.props.top === "b"));
-    const arrows = this.state.arrows.map(arrow => this._renderArrow(arrow)) || "";
+    const arrows = this.state.arrows.map((arrow) => this._renderArrow(arrow)) || "";
     if (this.state.currentarrow) arrows.push(this._renderArrow(this.state.currentarrow));
 
     return (
@@ -93,7 +93,7 @@ export default class Board extends React.Component {
         <div
           style={{
             width: this.props.side,
-            height: this.props.side
+            height: this.props.side,
           }}
         >
           {board}
@@ -108,7 +108,7 @@ export default class Board extends React.Component {
     this.state = {
       circles: this.props.circles,
       arrows: [],
-      currentarrow: null
+      currentarrow: null,
     };
     this._circle = this.props.circle;
     this._setup();
@@ -176,12 +176,12 @@ export default class Board extends React.Component {
     log.error("rankSquareclick");
   };
 
-  _pieceSquareMouseDown = raf => {
+  _pieceSquareMouseDown = (raf) => {
     this.mousedown = raf;
     this.mousein = raf;
   };
 
-  _pieceSquareIn = raf => {
+  _pieceSquareIn = (raf) => {
     if (!this.mousedown) return;
     if (this.mousein.rank === raf.rank && this.mousein.file === raf.file) return;
     this.mousein = raf;
@@ -190,7 +190,7 @@ export default class Board extends React.Component {
       from: this.mousedown,
       to: raf,
       lineWidth: this.props.arrow.lineWidth,
-      color: this.props.arrow.color
+      color: this.props.arrow.color,
     };
 
     this.setState({ currentarrow: currentarrow });
@@ -214,12 +214,12 @@ export default class Board extends React.Component {
     return { x: x, y: y };
   }
 
-  _pieceSquareDragStart = raf => {
+  _pieceSquareDragStart = (raf) => {
     this.fileFrom = raf.file;
     this.rankFrom = raf.rank + 1;
     this.piece = raf.piece;
   };
-  _pieceSquareDragStop = raf => {
+  _pieceSquareDragStop = (raf) => {
     this.rankTo = raf.rank + 1;
     this.fileTo = raf.file;
 
@@ -232,7 +232,7 @@ export default class Board extends React.Component {
     let isMove = this.props.onDrop({
       from: moveFrom,
       to: moveTo,
-      p: this.piece
+      p: this.piece,
     });
     return isMove;
   };
@@ -242,7 +242,7 @@ export default class Board extends React.Component {
     this.fileTo = filefromList[file];
     return this.fileTo + this.rankTo;
   }
-  _pieceSquareMouseUp = raf => {
+  _pieceSquareMouseUp = (raf) => {
     /*   if (raf.rank === this.mousedown.rank && raf.file === this.mousedown.file) {
       const obj = this._circleObject(raf.rank, raf.file);
       if (obj) {
@@ -330,7 +330,7 @@ export default class Board extends React.Component {
       <div
         style={{
           width: this.props.side,
-          height: this.props.side / this._rank_squares
+          height: this.props.side / this._rank_squares,
         }}
       >
         {filerow}
@@ -359,7 +359,7 @@ export default class Board extends React.Component {
       width: this._square_side,
       height: this._square_side / 5,
       position: "relative",
-      float: "left"
+      float: "left",
     };
     return <div style={style} />;
   }
@@ -416,7 +416,7 @@ export default class Board extends React.Component {
         to={{ x: to.x, y: to.y }}
         arrow={{
           lineWidth: arrow.lineWidth,
-          color: arrow.color
+          color: arrow.color,
         }}
       />
     );
@@ -443,7 +443,7 @@ export default class Board extends React.Component {
       <div
         style={{
           width: this.props.side,
-          height: this._square_side
+          height: this._square_side,
         }}
         key={"rank-" + rank}
       >

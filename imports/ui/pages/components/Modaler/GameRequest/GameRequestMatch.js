@@ -26,7 +26,7 @@ class GameRequestMatch extends Component {
       >
         <p>
           {translate("gameRequestModal.challangerWantsToPlay", {
-            challenger: gameRequest.challenger
+            challenger: gameRequest.challenger,
           })}
         </p>
       </Modal>
@@ -34,7 +34,4 @@ class GameRequestMatch extends Component {
   }
 }
 
-export default compose(
-  withRouter,
-  translate("Common.appWrapper")
-)(GameRequestMatch);
+export default compose(withRouter, translate("Common.appWrapper"))(GameRequestMatch);

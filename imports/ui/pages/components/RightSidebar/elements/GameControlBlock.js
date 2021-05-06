@@ -7,7 +7,7 @@ import { translate } from "../../../../HOCs/translate";
 
 const log = new Logger("client/GameControlBlock");
 
-let handleError = error => {
+let handleError = (error) => {
   if (error) {
     log.error(error);
   }
@@ -18,7 +18,7 @@ class LocationControls extends Component {
     super(props);
 
     this.state = {
-      cmi: 0
+      cmi: 0,
     };
   }
 

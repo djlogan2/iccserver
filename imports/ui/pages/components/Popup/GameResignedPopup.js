@@ -21,7 +21,7 @@ class GameResignedPopup extends Component {
           padding: "20px",
           textAlign: "center",
           border: "1px solid #ccc",
-          boxShadow: "#0000004d"
+          boxShadow: "#0000004d",
         }}
       >
         <div className="popup_inner">
@@ -29,7 +29,7 @@ class GameResignedPopup extends Component {
             style={{
               margin: "10px 0px 20px",
               color: "#000",
-              fontSize: "17px"
+              fontSize: "17px",
             }}
           >
             {title}

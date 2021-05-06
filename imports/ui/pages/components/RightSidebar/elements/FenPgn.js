@@ -18,7 +18,7 @@ class FenPgn extends Component {
     super(props);
 
     this.state = {
-      pgn: ""
+      pgn: "",
     };
   }
 
@@ -38,7 +38,7 @@ class FenPgn extends Component {
     const { translate } = this.props;
 
     notification.open({
-      message: translate("pgnSuccessfullyUploaded")
+      message: translate("pgnSuccessfullyUploaded"),
     });
   };
 
@@ -49,23 +49,23 @@ class FenPgn extends Component {
     this.setState({ pgn: pgn.pgn });
   };
 
-  handleFenChange = e => {
+  handleFenChange = (e) => {
     const { game } = this.props;
     const newFen = get(e, "target.value");
 
-    Meteor.call("loadFen", "loadFen", game._id, newFen, err => {
+    Meteor.call("loadFen", "loadFen", game._id, newFen, (err) => {
       if (err) {
         log.error(err.reason);
       }
     });
   };
 
-  handlePgnChange = e => {
+  handlePgnChange = (e) => {
     const { game } = this.props;
     const pgn = get(e, "target.value");
 
     if (pgn && pgn.length) {
-      Meteor.call("importPGNIntoExaminedGame", "ipieg", game._id, pgn, err => {
+      Meteor.call("importPGNIntoExaminedGame", "ipieg", game._id, pgn, (err) => {
         if (err) {
           log.error(err.reason);
         }
@@ -73,7 +73,7 @@ class FenPgn extends Component {
     }
   };
 
-  changeFilehandler = event => {
+  changeFilehandler = (event) => {
     const { onPgnUpload } = this.props;
     const file = get(event, "target.files[0]");
 
@@ -81,7 +81,7 @@ class FenPgn extends Component {
       ImportedPgnFiles.insert({
         file,
         meta: {
-          creatorId: Meteor.userId()
+          creatorId: Meteor.userId(),
         },
         transport: "http",
         onUploaded: (err, fileRef) => {
@@ -93,7 +93,7 @@ class FenPgn extends Component {
           this.handlePgnLoaded();
         },
         streams: "dynamic",
-        chunkSize: "dynamic"
+        chunkSize: "dynamic",
       });
     }
   };
@@ -146,7 +146,7 @@ class FenPgn extends Component {
             id="files"
             className="ant-btn fen-pgn__button ant-btn-primary"
             type="file"
-            onChange={e => this.changeFilehandler(e)}
+            onChange={(e) => this.changeFilehandler(e)}
           />
         </div>
       </div>

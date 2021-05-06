@@ -9,7 +9,7 @@ export const i18nCollection = new Mongo.Collection("i18n");
 const i18nSchema = new SimpleSchema({
   messageid: String,
   locale: String,
-  text: String
+  text: String,
 });
 
 i18nCollection.attachSchema(i18nSchema);
@@ -32,7 +32,7 @@ const log = new Logger("server/i18n_js");
 // update: type: server is no longer needed
 // update: locale has become its own field since simple-schema cannot handle multiple layers of types
 
-i18n.standardizeLocale = function(locale) {
+i18n.standardizeLocale = function (locale) {
   // We need an array of all of the possible locales.
   // This includes, in order:
   // (1) The original locale, such as, say "fr_sp"
@@ -57,9 +57,9 @@ i18n.standardizeLocale = function(locale) {
   return all;
 };
 
-i18n.localizeMessage = function(locale, i18nvalue, parameters) {
+i18n.localizeMessage = function (locale, i18nvalue, parameters) {
   const i8nrecord = i18nCollection.findOne({
-    messageid: i18nvalue
+    messageid: i18nvalue,
   });
 
   if (!i8nrecord) {
@@ -87,17 +87,17 @@ i18n.localizeMessage = function(locale, i18nvalue, parameters) {
   );
 };
 
-i18n.addIfNotExists = function(i18nvalue) {
+i18n.addIfNotExists = function (i18nvalue) {
   if (!!i18nCollection.find({ messageid: i18nvalue }).count()) return;
   i18nCollection.insert({
     messageid: i18nvalue,
     locale: "en",
-    text: i18nvalue
+    text: i18nvalue,
   });
   log.error("I18N ADDING NON-EXISTANT MESSAGE IDENTIFIER: " + i18nvalue);
 };
 
 export default i18nCollection;
-Meteor.startup(function() {
+Meteor.startup(function () {
   if (Meteor.isTest || Meteor.isAppTest) i18n.collection = i18nCollection;
 });

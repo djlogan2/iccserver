@@ -16,7 +16,7 @@ export default class SeekGameComponent extends React.Component {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     };
   }
   removeUser() {
@@ -29,26 +29,26 @@ export default class SeekGameComponent extends React.Component {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     });
   }
 
-  handleChangeMinute = minute => {
+  handleChangeMinute = (minute) => {
     this.setState({ time: minute });
   };
-  handleChangeSecond = inc => {
+  handleChangeSecond = (inc) => {
     this.setState({ inc: inc });
   };
-  handleChangeGameType = type => {
+  handleChangeGameType = (type) => {
     this.setState({ type: type });
   };
-  handleIncOrDelayTypeChange = incOrDelay => {
+  handleIncOrDelayTypeChange = (incOrDelay) => {
     this.setState({ incOrdelayType: incOrDelay });
   };
-  handleChangeColor = color => {
+  handleChangeColor = (color) => {
     this.setState({ color: color });
   };
-  handleRatedChange = rate => {
+  handleRatedChange = (rate) => {
     this.setState({ rated: rate });
   };
 

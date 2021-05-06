@@ -37,26 +37,25 @@ Meteor.startup(() => {
         const sc = SystemConfigurationCollection.findOne({ _id: id });
         SystemConfiguration.events.emit("changed", { item: sc.item, value: fields.value });
       }
-    }
+    },
   });
 });
 
-SystemConfiguration.seekDefault = function() {
+SystemConfiguration.seekDefault = function () {
   return lookup("seek_default", {
     wild: 0,
     rating_type: "standard",
     time: 15,
     inc_or_delay: 0,
     inc_or_delay_type: "none",
-    rated: true
+    rated: true,
   });
 };
 
-SystemConfiguration.pingsToSave = function(callback) {
-  if(!!callback && typeof callback === "function") {
-    SystemConfiguration.events.on("changed", data => {
-      if(data.item === "pings_to_save")
-        callback(data.value);
+SystemConfiguration.pingsToSave = function (callback) {
+  if (!!callback && typeof callback === "function") {
+    SystemConfiguration.events.on("changed", (data) => {
+      if (data.item === "pings_to_save") callback(data.value);
     });
     callback(lookup("pings_to_save", 3600));
   } else {
@@ -64,7 +63,7 @@ SystemConfiguration.pingsToSave = function(callback) {
   }
 };
 
-SystemConfiguration.matchDefault = function() {
+SystemConfiguration.matchDefault = function () {
   return lookup("match_default", {
     wild_number: 0,
     rating_type: "standard",
@@ -74,43 +73,43 @@ SystemConfiguration.matchDefault = function() {
     challenger_delaytype: "none",
     receiver_time: 15,
     receiver_inc_or_delay: 0,
-    receiver_delaytype: "none"
+    receiver_delaytype: "none",
   });
 };
 
-SystemConfiguration.currentRelease = function() {
+SystemConfiguration.currentRelease = function () {
   return lookup("current_release", "Unknown");
 };
 
-SystemConfiguration.logoutTimeout = function() {
+SystemConfiguration.logoutTimeout = function () {
   return lookup("logout_timeout", 120000);
 };
 
-SystemConfiguration.minimumMoveTime = function() {
+SystemConfiguration.minimumMoveTime = function () {
   return lookup("minimum_move_time", 10);
 };
 
-SystemConfiguration.minimumLag = function() {
+SystemConfiguration.minimumLag = function () {
   return lookup("minimum_lag", 100);
 };
 
-SystemConfiguration.roomChatLimit = function() {
+SystemConfiguration.roomChatLimit = function () {
   return lookup("room_chat_limit", 500);
 };
 
-SystemConfiguration.gameHistoryCount = function() {
+SystemConfiguration.gameHistoryCount = function () {
   return lookup("game_history_count", 20);
 };
 
-SystemConfiguration.maximumPrivateRoomCount = function() {
+SystemConfiguration.maximumPrivateRoomCount = function () {
   return lookup("maximum_private_rooms", 5);
 };
 
-SystemConfiguration.computerGameTimeSubtract = function() {
+SystemConfiguration.computerGameTimeSubtract = function () {
   return lookup("maximum_computer_game_time_subtract", 1000);
 };
 
-SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
+SystemConfiguration.winDrawLossAssessValues = function (robject1, robject2) {
   check(robject1, Object);
   check(robject2, Object);
   const opponentNumberOfGames = robject2.won + robject2.draw + robject2.lost;
@@ -141,26 +140,26 @@ SystemConfiguration.winDrawLossAssessValues = function(robject1, robject2) {
   return {
     win: parseInt(resultw),
     draw: parseInt(resultd),
-    loss: parseInt(resultl)
+    loss: parseInt(resultl),
   };
 };
 
-SystemConfiguration.maximumGameHistorySearchCount = function() {
+SystemConfiguration.maximumGameHistorySearchCount = function () {
   return lookup("maximum_game_history_search_count", 100);
 };
 
-SystemConfiguration.maximumRunningEngines = function() {
+SystemConfiguration.maximumRunningEngines = function () {
   return lookup("maximum_running_engines", 5);
 };
 
-SystemConfiguration.enginePath = function() {
+SystemConfiguration.enginePath = function () {
   return lookup("engine_path", process.env.DEVELOPER_UCI_ENGINE);
 };
 
-SystemConfiguration.uciSecondsToPonderPerMoveScore = function() {
+SystemConfiguration.uciSecondsToPonderPerMoveScore = function () {
   return lookup("uci_seconds_to_ponder_per_move_score", 10);
 };
 
-SystemConfiguration.uciThreadsPerEngine = function() {
+SystemConfiguration.uciThreadsPerEngine = function () {
   return lookup("uci_threads_per_engine", 4);
 };

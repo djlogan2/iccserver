@@ -3,6 +3,7 @@ import { compose } from "redux";
 import { Spin, Space, Col } from "antd";
 import injectSheet from "react-jss";
 import i18n from "meteor/universe:i18n";
+import "antd/dist/antd.css";
 
 import { Routes } from "../imports/startup/client/routes.jsx";
 import { withTracker } from "meteor/react-meteor-data";

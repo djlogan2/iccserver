@@ -9,11 +9,11 @@ class SubTabs extends Component {
     super(props);
 
     this.state = {
-      activeTab: get(props, "children[0].props.label")
+      activeTab: get(props, "children[0].props.label"),
     };
   }
 
-  onClickTabItem = activeTab => {
+  onClickTabItem = (activeTab) => {
     this.setState({ activeTab });
   };
 
@@ -21,13 +21,13 @@ class SubTabs extends Component {
     const {
       onClickTabItem,
       props: { children, cssManager },
-      state: { activeTab }
+      state: { activeTab },
     } = this;
 
     return (
       <div className="tab">
         <ol className="tab-list">
-          {children.map(child => {
+          {children.map((child) => {
             const { label } = child.props;
 
             return (
@@ -42,7 +42,7 @@ class SubTabs extends Component {
           })}
         </ol>
         <div className="tab-content">
-          {children.map(child => {
+          {children.map((child) => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;
           })}
@@ -54,7 +54,7 @@ class SubTabs extends Component {
 
 SubTabs.propTypes = {
   children: PropTypes.instanceOf(Array).isRequired,
-  cssManager: PropTypes.object.isRequired
+  cssManager: PropTypes.object.isRequired,
 };
 
 export default SubTabs;

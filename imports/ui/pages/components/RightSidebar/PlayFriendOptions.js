@@ -8,14 +8,14 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import {
   ROLE_PLAY_RATED_GAMES,
-  ROLE_PLAY_UNRATED_GAMES
+  ROLE_PLAY_UNRATED_GAMES,
 } from "../../../../constants/rolesConstants";
 
 class PlayFriendOptions extends Component {
   constructor(props) {
     super(props);
 
-    const roles = props.currentRoles.map(role => role.role._id);
+    const roles = props.currentRoles.map((role) => role.role._id);
     const isRatedGames = roles.includes(ROLE_PLAY_RATED_GAMES);
     const isUnratedGames = roles.includes(ROLE_PLAY_UNRATED_GAMES);
 
@@ -27,7 +27,7 @@ class PlayFriendOptions extends Component {
       initial: 15,
       incrementOrDelay: 0,
       ratingType: "none",
-      rated: isRatedGames
+      rated: isRatedGames,
     };
   }
 
@@ -35,20 +35,20 @@ class PlayFriendOptions extends Component {
     this.updateRating();
   }
 
-  handleChangeColor = e => {
+  handleChangeColor = (e) => {
     this.setState({
-      color: e.target.value
+      color: e.target.value,
     });
   };
 
-  handleChangeIncrementOrDelayType = e => {
+  handleChangeIncrementOrDelayType = (e) => {
     this.setState({
-      incrementOrDelayType: e.target.value
+      incrementOrDelayType: e.target.value,
     });
   };
 
-  handleChange = inputName => {
-    return number => {
+  handleChange = (inputName) => {
+    return (number) => {
       const newState = {};
 
       newState[inputName] = number;
@@ -88,7 +88,7 @@ class PlayFriendOptions extends Component {
       color: color === "random" ? null : color,
       incrementOrDelayType,
       initial,
-      incrementOrDelay
+      incrementOrDelay,
     });
   };
 
@@ -102,7 +102,7 @@ class PlayFriendOptions extends Component {
       ratingType,
       color,
       isRatedGames,
-      isUnratedGames
+      isUnratedGames,
     } = this.state;
 
     const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(
@@ -121,7 +121,7 @@ class PlayFriendOptions extends Component {
           initialValues={{
             initial,
             incrementOrDelay,
-            color: "random"
+            color: "random",
           }}
         >
           <Form.Item label={translate("timeControl")} name="time-control">
@@ -180,7 +180,7 @@ class PlayFriendOptions extends Component {
             <Switch
               defaultChecked={rated}
               disabled={!isRatedGames || !isUnratedGames}
-              onChange={rated => this.setState({ rated })}
+              onChange={(rated) => this.setState({ rated })}
             />
           </Form.Item>
           <Button type="primary" onClick={this.handlePlay}>
@@ -195,7 +195,7 @@ class PlayFriendOptions extends Component {
 export default compose(
   withTracker(() => {
     return {
-      currentRoles: Meteor.roleAssignment.find().fetch()
+      currentRoles: Meteor.roleAssignment.find().fetch(),
     };
   }),
   translate("Play.PlayFriendOptions")

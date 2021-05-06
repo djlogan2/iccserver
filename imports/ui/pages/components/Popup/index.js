@@ -9,5 +9,5 @@ export {
   ExaminActionPopup,
   GameRequestPopup,
   ActionPopup,
-  GameNotificationPopup
+  GameNotificationPopup,
 };

@@ -13,7 +13,7 @@ class KibitzChatApp extends Component {
     const { gameId, isKibitz } = this.props;
 
     if (text) {
-      Meteor.call("kibitz", "kibitz", gameId, isKibitz, text, err => {
+      Meteor.call("kibitz", "kibitz", gameId, isKibitz, text, (err) => {
         if (err) {
           log.error(err);
         }
@@ -31,15 +31,15 @@ class KibitzChatApp extends Component {
         childChatTexts={childChatTexts}
         user={Meteor.user()}
         chats={chats}
-        onMessage={text => this.handleMessage(text)}
+        onMessage={(text) => this.handleMessage(text)}
       />
     );
   }
 }
 
-export default withTracker(props => {
+export default withTracker((props) => {
   return {
     chats: Chat.find({ id: props.gameId }).fetch(),
-    childChatTexts: ChildChatTexts.find().fetch()
+    childChatTexts: ChildChatTexts.find().fetch(),
   };
 })(KibitzChatApp);
