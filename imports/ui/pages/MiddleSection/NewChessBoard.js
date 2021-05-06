@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import ChessBoard from "chessboard";
+import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js";
 
@@ -17,6 +18,7 @@ class NewChessBoard extends Component {
       smallSize: 500,
       fen: null,
       lastMove: null,
+      premoveColor: "#6e009e",
     };
   }
 
@@ -37,9 +39,63 @@ class NewChessBoard extends Component {
     });
   };
 
+  getArrowsDependOnPremove = (premove, prevPremove) => {
+    const { arrows, premoveColor } = this.state;
+
+    if (!premove && prevPremove) {
+      let equalIndex;
+      const isExists = arrows.some((element, index) => {
+        const isEqual =
+          element.piece.to === prevPremove.to && element.piece.from === prevPremove.from;
+
+        if (isEqual) {
+          equalIndex = index;
+        }
+
+        return isEqual;
+      });
+
+      if (isExists) {
+        arrows.splice(equalIndex, 1);
+      }
+
+      this.setState({ arrows: [...arrows] });
+    }
+
+    if (!prevPremove && premove) {
+      arrows.push({ piece: { from: premove.from, to: premove.to }, color: premoveColor });
+      this.setState({ arrows: [...arrows] });
+    }
+
+    if (prevPremove && premove) {
+      let equalIndex;
+      const isExists = arrows.some((element, index) => {
+        const isEqual =
+          element.piece.to === prevPremove.to && element.piece.from === prevPremove.from;
+
+        if (isEqual) {
+          equalIndex = index;
+        }
+
+        return isEqual;
+      });
+
+      if (isExists) {
+        arrows.splice(equalIndex, 1);
+      }
+
+      arrows.push({ piece: { from: premove.from, to: premove.to }, color: premoveColor });
+      this.setState({ arrows: [...arrows] });
+    }
+  };
+
   componentDidUpdate(prevProps, prevState) {
-    const { chess } = this.props;
+    const { chess, premove } = this.props;
     const { fen } = this.state;
+
+    if (!isEqual(premove, prevProps.premove)) {
+      this.getArrowsDependOnPremove(premove, prevProps.premove);
+    }
 
     if (fen !== chess.fen()) {
       this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });

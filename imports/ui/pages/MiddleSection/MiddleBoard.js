@@ -177,6 +177,7 @@ class MiddleBoard extends Component {
               onDrop={onDrop}
               onDrawObject={onDrawObject}
               gameStatus={game.status}
+              premove={game.premove}
               blackId={game?.black?.id}
               whiteId={game?.white?.id}
               variations={game.variations}
