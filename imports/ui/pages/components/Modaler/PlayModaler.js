@@ -30,7 +30,7 @@ class PlayModaler extends Component {
     const titleText = this.getTitleText(gameResult);
     const message = clientMessage ? clientMessage.message : "";
 
-    return visible ? (
+    return (
       <Modal
         title={titleText}
         visible={visible}
@@ -84,7 +84,7 @@ class PlayModaler extends Component {
           </div>
         </div>
       </Modal>
-    ) : null;
+    );
   }
 }
 

@@ -77,7 +77,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
     return new Date(b.date) - new Date(a.date);
   });
 
-  return visible ? ( //TODO strange issue, need some actions to resolve
+  return (
     <Modal
       title={translate("myGames")}
       width={1000}
@@ -126,7 +126,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
         )}
       </div>
     </Modal>
-  ) : null;
+  );
 };
 
 export default compose(
