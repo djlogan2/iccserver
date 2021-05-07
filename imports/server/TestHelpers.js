@@ -8,8 +8,8 @@ import { i18n } from "../collections/i18n";
 import { resetDatabase } from "meteor/xolvio:cleaner";
 import { UCI } from "../../server/UCI";
 import { Timestamp } from "../../lib/server/timestamp";
-import { Game } from "../../server/Game";
 import { DynamicRatings } from "../../server/DynamicRatings";
+import { Game } from "../../server/Game";
 import { all_roles, standard_member_roles } from "./userConstants";
 import { Users } from "../collections/users";
 import { Random } from "meteor/random";
@@ -117,8 +117,9 @@ if (Meteor.isTest || Meteor.isAppTest) {
       );
 
       if (!options || options.dynamicratings === undefined || options.dynamicratings !== false) {
+        // fuck fuck fuck fuck fuck fuck fuck
         self.sandbox.replace(
-          DynamicRatings,
+          DynamicRatings.__proto__,
           "getUserRatingsObject",
           self.sandbox.fake.returns({
             bullet: { rating: 1600, need: 0, won: 0, draw: 0, lost: 0, best: 0 },
@@ -127,7 +128,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
         );
 
         self.sandbox.replace(
-          DynamicRatings,
+          DynamicRatings.__proto__,
           "meetsRatingTypeRules",
           self.sandbox.fake.returns(true)
         );

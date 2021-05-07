@@ -72,7 +72,10 @@ const all_fields = {
   username: 1,
   locale: 1,
   createdAt: 1,
-  emails: 1,
+  emails: {
+    address: 1,
+    verified: 1,
+  },
   newguy: 1,
   services: {
     password: {

@@ -19,14 +19,14 @@ const log = new Logger("server/GamePublisher_js");
 
 const fields = {
   _id: [0, 1, 2, 3, 4, 5, 6, 7],
-  analysis: [4, 5],
+  analysis: [4],
   arrows: [2, 3, 4, 5, 6],
   black: [0, 1, 2, 3, 4, 5, 6, 7],
   circles: [2, 3, 4, 5, 6],
   clocks: [0, 1, 2, 3, 4, 5, 6, 7],
   computer_variations: [2, 3, 4, 5],
   deny_chat: [4, 5, 6],
-  deny_requests: [4, 5, 6],
+  deny_requests: [4],
   examiners: [3, 4, 5, 6],
   fen: [0, 1, 2, 3, 4, 5, 6],
   // isolation_group: [0, 1, 2, 3, 4, 5, 6, 7],
@@ -50,7 +50,7 @@ const fields = {
   tomove: [0, 1, 2, 3, 4, 5, 6, 7],
   variations: [0, 1, 2, 3, 4, 5, 6],
   white: [0, 1, 2, 3, 4, 5, 6, 7],
-  wild: [0, 1, 2, 3, 4, 5, 6, 7]
+  wild: [0, 1, 2, 3, 4, 5, 6, 7],
 };
 
 class GamePublisher {
@@ -68,7 +68,7 @@ class GamePublisher {
     this.oldType = { ...this.newType };
 
     this.newType = {
-      data: { ...this.oldType.data }
+      data: { ...this.oldType.data },
     };
 
     if ("white" in rec) {
@@ -97,39 +97,56 @@ class GamePublisher {
       !this.newType.player ||
       this.newType.data.color === this.newType.data.tomove;
     if ("analysis" in rec) {
-      this.newType.analysis = rec.analysis.some(an => an.id === this.userId);
+      this.newType.analysis = rec.analysis.some((an) => an.id === this.userId);
     } else
       this.newType.analysis = this.oldType.analysis === undefined ? true : this.oldType.analysis;
     if ("observers" in rec) {
-      this.newType.observer = rec.observers.some(ob => ob.id === this.userId);
+      this.newType.observer = rec.observers.some((ob) => ob.id === this.userId);
     } else this.newType.observer = this.oldType.observer || false;
 
-    if (this.newType.played && this.newType.player && !this.newType.tomove) this.newType.type = 0;
-    else if (this.newType.played && this.newType.player && !!this.newType.tomove)
-      this.newType.type = 1;
-    else if (this.newType.played && this.newType.observer) this.newType.type = 2;
-    else if (!this.newType.played && !this.newType.private && this.newType.observer)
-      this.newType.type = 3;
-    else if (!this.newType.played && this.newType.private && this.newType.owner)
-      this.newType.type = 4;
-    else if (
-      !this.newType.played &&
-      this.newType.private &&
-      this.newType.observer &&
-      this.newType.analysis
-    )
-      this.newType.type = 5;
-    else if (
-      !this.newType.played &&
-      this.newType.private &&
-      this.newType.observer &&
-      !this.newType.analysis
-    )
-      this.newType.type = 6;
-    else this.newType.type = 7;
+    if (this.newType.played) {
+      if (this.newType.player) {
+        if (this.newType.tomove) {
+          this.newType.type = 1;
+        } else {
+          this.newType.type = 0;
+        }
+      } else {
+        if (this.newType.observer) {
+          this.newType.type = 2;
+        } else {
+          this.newType.type = 7;
+        }
+      }
+    } else {
+      if (this.newType.private) {
+        if (this.newType.owner) {
+          this.newType.type = 4;
+        } else {
+          if (this.newType.observer) {
+            if (this.newType.analysis) {
+              this.newType.type = 5;
+            } else {
+              this.newType.type = 6;
+            }
+          } else {
+            this.newType.type = 7;
+          }
+        }
+      } else {
+        if (this.newType.observer) {
+          this.newType.type = 3;
+        } else {
+          this.newType.type = 7;
+        }
+      }
+    }
   }
 
   getUserFields() {
+    this.authorizedFields = [];
+    this.addedFields = [];
+    this.deletedFields = [];
     for (const k in fields) {
       if (fields[k].indexOf(this.newType.type) !== -1) {
         this.authorizedFields.push(k);

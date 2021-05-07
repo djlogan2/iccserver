@@ -9,6 +9,51 @@ import { Picker } from "meteor/meteorhacks:picker";
 //import { HTTP } from "meteor/http";
 //import ssh2 from "ssh2";
 
+
+class Instance {
+  constructor() {
+    this.instance_collection = new Mongo.Collection("aws_stockfish_instances");
+    this.engine_collection = new Mongo.Collection("aws_stockfish_engines");
+    this.my_ip = process.env.MY_IP_ADDRESS;
+    this.my_port = process.env.MY_PORT;
+    this.spot_fleet_id = "sfr-f70183ef-0954-44dc-83d5-53c10d83067e";
+    this.ec2 = new AWS.EC2();
+    this.sns = new AWS.SNS();
+    this.sns_topic = {};
+    this.registerTopics();
+    this.initialInstanceLoad();
+    // this.engine_promises = {};
+    // this.intervalWait = 60000;
+    // this.events = new EventEmitter();
+    // this.waiting_allocations = [];
+    // this.allocation_requested = 0;
+  }
+
+  registerTopics() {
+
+  }
+
+  initialInstanceLoad() {
+
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //const log = new Logger("server/AnalysisEngine_js");
 const log = { debug: msg => console.log("D: " + msg), error: msg => console.log("E: " + msg) };
 

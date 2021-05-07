@@ -6,7 +6,7 @@ import { Game } from "./Game";
 describe("Game status field in user record", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-  const statii = ["none", "playing_local", "playing_legacy", "observing", "examining"];
+  const statii = ["none", "playing_local", /*"playing_legacy", */ "observing", "examining"];
   const gameends = [
     "draw",
     "adjourn",

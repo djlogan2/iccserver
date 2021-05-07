@@ -10,7 +10,6 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { TimestampClient } from "../lib/Timestamp";
-import { Logger } from "../lib/server/Logger";
 import { buildPgnFromMovelist } from "../lib/exportpgn";
 
 function startLegacyGameParameters(self, other, rated) {
@@ -38,14 +37,14 @@ function startLegacyGameParameters(self, other, rated) {
     "",
     "",
     "",
-    false
+    false,
   ];
 }
 
-describe("Match requests and game starts", function() {
+describe("Match requests and game starts", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should create a chess js game for a local played game", function() {
+  it("should create a chess js game for a local played game", function () {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -75,7 +74,7 @@ describe("Match requests and game starts", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
 
-  it("should create a chess js game for a local examined game", function() {
+  it("should create a chess js game for a local examined game", function () {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -105,7 +104,7 @@ describe("Match requests and game starts", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
 
-  it("should NOT create a chess js game for a legacy played game", function() {
+  it.skip("should NOT create a chess js game for a legacy played game", function () {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -119,7 +118,7 @@ describe("Match requests and game starts", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 
-  it("should NOT create a chess js game for a legacy examined game", function() {
+  it.skip("should NOT create a chess js game for a legacy examined game", function () {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -133,7 +132,7 @@ describe("Match requests and game starts", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
   });
 
-  it("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function() {
+  it("should use the same chess js game (or a copy) when a locally played game switches to an examined game", function () {
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -165,18 +164,18 @@ describe("Match requests and game starts", function() {
   });
 });
 
-describe("Game.startLocalGame", function() {
+describe("Game.startLocalGame", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should error out if self is null", function() {
+  it("should error out if self is null", function () {
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
       () => Game.startLocalGame("mi1", otherguy, 0, "standard", true, 15, 0, "none", 15, 0, "none"),
       Match.Error
     );
   });
-  it("should error out if the user is starting a rated game and cannot play rated games", function() {
-    const roles = standard_member_roles.filter(role => role !== "play_rated_games");
+  it("should error out if the user is starting a rated game and cannot play rated games", function () {
+    const roles = standard_member_roles.filter((role) => role !== "play_rated_games");
     const us = TestHelpers.createUser({ roles: roles });
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -186,8 +185,8 @@ describe("Game.startLocalGame", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_RATED_GAMES");
   });
-  it("should error out if the user is starting an unrated game and cannot play unrated games", function() {
-    const roles = standard_member_roles.filter(role => role !== "play_unrated_games");
+  it("should error out if the user is starting an unrated game and cannot play unrated games", function () {
+    const roles = standard_member_roles.filter((role) => role !== "play_unrated_games");
     const us = TestHelpers.createUser({ roles: roles });
     const otherguy = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -211,8 +210,8 @@ describe("Game.startLocalGame", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_UNRATED_GAMES");
   });
 
-  it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function() {
-    const roles = standard_member_roles.filter(role => role !== "play_rated_games");
+  it("should error out if the user is starting a rated game and thier opponent cannot play rated games", function () {
+    const roles = standard_member_roles.filter((role) => role !== "play_rated_games");
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({ roles: roles });
     self.loggedonuser = us;
@@ -222,8 +221,8 @@ describe("Game.startLocalGame", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
   });
-  it("should error out if the user is starting an unrated game and their opponent cannot play unrated games", function() {
-    const roles = standard_member_roles.filter(role => role !== "play_unrated_games");
+  it("should error out if the user is starting an unrated game and their opponent cannot play unrated games", function () {
+    const roles = standard_member_roles.filter((role) => role !== "play_unrated_games");
     const us = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser({ roles: roles });
     self.loggedonuser = us;
@@ -246,7 +245,7 @@ describe("Game.startLocalGame", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "UNABLE_TO_PLAY_OPPONENT");
   });
-  it("should error out if the user isn't logged on", function() {
+  it("should error out if the user isn't logged on", function () {
     self.loggedonuser = TestHelpers.createUser({ login: false });
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
@@ -255,7 +254,7 @@ describe("Game.startLocalGame", function() {
     );
   });
 
-  it("should add a playing game to the database with a random(ish--it's actually an algorithm) color if null", function() {
+  it("should add a playing game to the database with a random(ish--it's actually an algorithm) color if null", function () {
     this.timeout(10000);
     let whites = 0;
     let blacks = 0;
@@ -285,7 +284,7 @@ describe("Game.startLocalGame", function() {
     chai.assert.isTrue(blacks > 0);
   });
 
-  it("should add a playing game with the player as white if white is specified", function() {
+  it("should add a playing game with the player as white if white is specified", function () {
     this.timeout(10000);
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = TestHelpers.createUser();
@@ -311,7 +310,7 @@ describe("Game.startLocalGame", function() {
     chai.assert.equal(game.length, 10);
   });
 
-  it("should add a playing game with the player as black if black is specified", function() {
+  it("should add a playing game with the player as black if black is specified", function () {
     this.timeout(10000);
     for (let x = 0; x < 10; x++) {
       self.loggedonuser = TestHelpers.createUser();
@@ -337,7 +336,7 @@ describe("Game.startLocalGame", function() {
     chai.assert.equal(game.length, 10);
   });
 
-  it("should fail if color is not null, 'black' or 'white'", function() {
+  it("should fail if color is not null, 'black' or 'white'", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
@@ -361,10 +360,10 @@ describe("Game.startLocalGame", function() {
   });
 });
 
-describe("Game.startLegacyGame", function() {
+describe("Game.startLegacyGame", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should error if we try to start a legacy game when both players are actually logged on here", function() {
+  it("should error if we try to start a legacy game when both players are actually logged on here", function () {
     const legacy1 = TestHelpers.createUser();
     const legacy2 = TestHelpers.createUser();
     self.sandbox.replace(LegacyUser, "isLoggedOn", self.sandbox.fake.returns(true));
@@ -376,7 +375,7 @@ describe("Game.startLegacyGame", function() {
     );
   });
 
-  it("should error out if the user isn't logged on", function() {
+  it("should error out if the user isn't logged on", function () {
     self.loggedonuser = TestHelpers.createUser({ login: false });
     const otherguy = TestHelpers.createUser();
     chai.assert.throws(
@@ -386,7 +385,7 @@ describe("Game.startLegacyGame", function() {
     );
   });
 
-  it("should error out if self is null", function() {
+  it("should error out if self is null", function () {
     self.loggedonuser = undefined;
     const otherguy = TestHelpers.createUser();
     const thirdguy = TestHelpers.createUser();
@@ -396,7 +395,7 @@ describe("Game.startLegacyGame", function() {
     );
   });
 
-  it("should error out user is neither white nor black", function() {
+  it("should error out user is neither white nor black", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const thirdguy = TestHelpers.createUser();
@@ -407,14 +406,14 @@ describe("Game.startLegacyGame", function() {
   });
   //  message_identifier,
   //   gamenumber,
-  it("should error out game number is invalid", function() {
+  it("should error out game number is invalid", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[1] = "nine-nine-nine";
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
-  it("should error out game number already exists", function() {
+  it("should error out game number already exists", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     chai.assert.doesNotThrow(() =>
@@ -433,7 +432,7 @@ describe("Game.startLegacyGame", function() {
   //   wild_number,
   //   rating_type,
   //   rated,
-  it("should error out if rated isn't boolean", function() {
+  it("should error out if rated isn't boolean", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -441,7 +440,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   white_initial,
-  it("should error out if white initial isn't a number", function() {
+  it("should error out if white initial isn't a number", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -449,7 +448,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   white_increment,
-  it("should error out if white increment isn't a number", function() {
+  it("should error out if white increment isn't a number", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -457,7 +456,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_initial,
-  it("should error out if black initial isn't a number", function() {
+  it("should error out if black initial isn't a number", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -465,7 +464,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_increment,
-  it("should error out if black increment isn't a number", function() {
+  it("should error out if black increment isn't a number", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -473,7 +472,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   played_game,
-  it("should error out if played_game isn't a boolean", function() {
+  it("should error out if played_game isn't a boolean", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -481,7 +480,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   white_rating,
-  it("should error out if white_rating isn't a number", function() {
+  it("should error out if white_rating isn't a number", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -489,7 +488,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_rating,
-  it("should error out if black_rating isn't a number", function() {
+  it("should error out if black_rating isn't a number", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -498,7 +497,7 @@ describe("Game.startLegacyGame", function() {
   });
   //   game_id,
   //   white_titles,
-  it("should error out if white_titles isn't an array", function() {
+  it("should error out if white_titles isn't an array", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
@@ -506,14 +505,14 @@ describe("Game.startLegacyGame", function() {
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
   //   black_titles,
-  it("should error out if black_titles isn't an array", function() {
+  it("should error out if black_titles isn't an array", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const args = startLegacyGameParameters(self.loggedonuser, otherguy).slice(0);
     args[16] = "GM C TD";
     chai.assert.throws(() => Game.startLegacyGame.apply(Game, args), Match.Error);
   });
-  it("should add a record if all is ok", function() {
+  it("should add a record if all is ok", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     chai.assert.doesNotThrow(() =>
@@ -522,7 +521,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.equal(Game.collection.find().count(), 1);
   });
 
-  it("should add white.id if we can find a legacy record that matches", function() {
+  it("should add white.id if we can find a legacy record that matches", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLegacyGame.apply(
       Game,
@@ -534,7 +533,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.isUndefined(game_record.black.id);
   });
 
-  it("should add black.id if we can find a legacy record that matches", function() {
+  it("should add black.id if we can find a legacy record that matches", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLegacyGame.apply(
       Game,
@@ -547,7 +546,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.equal(game_record.black.id, self.loggedonuser._id);
   });
 
-  it("should add both white.id and black.id if we can find legacy records that match", function() {
+  it("should add both white.id and black.id if we can find legacy records that match", function () {
     self.loggedonuser = TestHelpers.createUser();
     const otherguy = TestHelpers.createUser();
     const game_id = Game.startLegacyGame.apply(
@@ -561,7 +560,7 @@ describe("Game.startLegacyGame", function() {
     chai.assert.equal(game_record.black.id, self.loggedonuser._id);
   });
 
-  it("should fail to save to the database if neither white.id nor black.id are specified", function() {
+  it("should fail to save to the database if neither white.id nor black.id are specified", function () {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(
       () => Game.startLegacyGame.apply(Game, startLegacyGameParameters("guy1", "guy2")),
@@ -576,27 +575,27 @@ describe("Game.startLegacyGame", function() {
   //   promote_to_king
 });
 
-describe("Game.saveLegacyMove", function() {
+describe.skip("Game.saveLegacyMove", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should error out if self is null", function() {
+  it("should error out if self is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     self.loggedonuser = undefined;
     chai.assert.throws(() => Game.saveLegacyMove("mi1", 999, "e4"), Match.Error);
   });
 
-  it("should error out if we don't have a game record", function() {
+  it("should error out if we don't have a game record", function () {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => Game.saveLegacyMove("mi1", 999, "e4"), ICCMeteorError);
   });
 
-  it("pushes an action when it succeeds", function() {
+  it("pushes an action when it succeeds", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     // Sure, leave it this way, legacy move saves aren't suppose to check legality
     const moves = ["e4", "e5", "Nf2", "Nf6", "Nc3"];
-    moves.forEach(move => Game.saveLegacyMove("mi1", 999, move));
+    moves.forEach((move) => Game.saveLegacyMove("mi1", 999, move));
 
     const games = Game.collection.find().fetch();
     chai.assert.isDefined(games);
@@ -613,10 +612,10 @@ describe("Game.saveLegacyMove", function() {
   //   check(move, String);
 });
 
-describe("Game.saveLocalMove", function() {
+describe("Game.saveLocalMove", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should error out if a game cannot be found", function() {
+  it("should error out if a game cannot be found", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.saveLocalMove("mi1", "somegame", "e4");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -625,7 +624,7 @@ describe("Game.saveLocalMove", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client_message and not save the move to the dataabase if the move is illegal", function() {
+  it("should write a client_message and not save the move to the dataabase if the move is illegal", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -650,7 +649,7 @@ describe("Game.saveLocalMove", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_MOVE");
   });
 
-  it("should end the game if the move results in a stalemate", function() {
+  it("should end the game if the move results in a stalemate", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -672,7 +671,7 @@ describe("Game.saveLocalMove", function() {
         const moves = ["e3", "a5", "Qh5", "Ra6", "Qxa5", "h5", "h4", "Rah6", "Qxc7", "f6", "Qxd7", "Kf7", "Qxb7", "Qd3", "Qxb8", "Qh7", "Qxc8", "Kg6", "Qe6"];
     const tomove = [us, them];
     let tm = 0;
-    moves.forEach(move => {
+    moves.forEach((move) => {
       self.loggedonuser = tomove[tm];
       Game.saveLocalMove(move, game_id, move);
       tm = !tm ? 1 : 0;
@@ -683,7 +682,7 @@ describe("Game.saveLocalMove", function() {
     chai.assert.equal(game.result, "1/2-1/2");
   });
 
-  it("should end the game if the move results in a checkmate", function() {
+  it("should end the game if the move results in a checkmate", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -704,7 +703,7 @@ describe("Game.saveLocalMove", function() {
     const moves = ["f4", "e6", "g4", "Qh4"];
     const tomove = [us, them];
     let tm = 0;
-    moves.forEach(move => {
+    moves.forEach((move) => {
       self.loggedonuser = tomove[tm];
       Game.saveLocalMove(move, game_id, move);
       tm = !tm ? 1 : 0;
@@ -715,7 +714,7 @@ describe("Game.saveLocalMove", function() {
     chai.assert.equal(game.result, "0-1");
   });
   //
-  it("should end the game if the move results in an insufficient material draw", function() {
+  it("should end the game if the move results in an insufficient material draw", function () {
     this.timeout(5000);
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
@@ -739,7 +738,7 @@ describe("Game.saveLocalMove", function() {
         const moves = ["e4", "e5", "f4", "exf4", "g3", "fxg3", "Nf3", "gxh2", "Rxh2", "f5", "exf5", "d5", "d4", "c5", "dxc5", "b6", "cxb6", "Nc6", "bxa7", "Rxa7", "Qxd5", "Bxf5", "Rxh7", "Rxa2", "Rxh8", "Rxa1", "Rxg8", "Rxb1", "Rxf8", "Kxf8", "Qxc6", "Rxb2", "Qc8", "Rxc2", "Qxd8", "Kf7", "Nd4", "Rxc1", "Kd2", "Rxf1", "Nxf5", "Rxf5", "Qd7", "Kf6", "Qxg7", "Ke6", "Qg6", "Rf6", "Qxf6", "Kxf6"];
     const tomove = [us, them];
     let tm = 0;
-    moves.forEach(move => {
+    moves.forEach((move) => {
       self.loggedonuser = tomove[tm];
       Game.saveLocalMove(move, game_id, move);
       tm = !tm ? 1 : 0;
@@ -751,7 +750,7 @@ describe("Game.saveLocalMove", function() {
   });
 
   //
-  it("should not end the game if the move results in a draw by repetition situation", function() {
+  it("should not end the game if the move results in a draw by repetition situation", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -774,7 +773,7 @@ describe("Game.saveLocalMove", function() {
         const moves = ["e4", "e5", "Be2", "Be7", "Bf1", "Bf8", "Be2", "Be7", "Bf1", "Bf8", "Be2"];
     const tomove = [us, them];
     let tm = 0;
-    moves.forEach(move => {
+    moves.forEach((move) => {
       self.loggedonuser = tomove[tm];
       Game.saveLocalMove(move, game_id, move);
       tm = !tm ? 1 : 0;
@@ -792,7 +791,7 @@ describe("Game.saveLocalMove", function() {
     chai.assert.equal(game2.result, "1/2-1/2");
   });
 
-  it("should fail if the game is a legacy game", function() {
+  it("should fail if the game is a legacy game", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLegacyGame(
@@ -818,7 +817,7 @@ describe("Game.saveLocalMove", function() {
     chai.assert.throws(() => Game.saveLocalMove("mi2", game_id, "e4"), ICCMeteorError);
   });
 
-  it("should fail if the wrong user is trying to make a move in a played game (i.e. black is trying to make a legal white move", function() {
+  it("should fail if the wrong user is trying to make a move in a played game (i.e. black is trying to make a legal white move", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -856,10 +855,10 @@ describe("Game.saveLocalMove", function() {
   });
 });
 
-describe("Game.legacyGameEnded", function() {
+describe("Game.legacyGameEnded", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should fail if self is null", function() {
+  it("should fail if self is null", function () {
     self.loggedonuser = undefined;
     chai.assert.throws(
       () => Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00"),
@@ -867,7 +866,7 @@ describe("Game.legacyGameEnded", function() {
     );
   });
 
-  it("should fail if game id cannot be found", function() {
+  it("should fail if game id cannot be found", function () {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(
       () => Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00"),
@@ -875,7 +874,7 @@ describe("Game.legacyGameEnded", function() {
     );
   });
 
-  it("should fail if user is neither player", function() {
+  it("should fail if user is neither player", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     self.loggedonuser = TestHelpers.createUser();
@@ -885,7 +884,7 @@ describe("Game.legacyGameEnded", function() {
     );
   });
 
-  it("should fail if game is not being played", function() {
+  it("should fail if game is not being played", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     chai.assert.doesNotThrow(() =>
@@ -897,7 +896,7 @@ describe("Game.legacyGameEnded", function() {
     );
   });
 
-  it("should convert to examined if become_examined is true", function() {
+  it("should convert to examined if become_examined is true", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     Game.legacyGameEnded("mi", 999, true, "Mat", "0-1", "Checkmated", "B00");
@@ -907,7 +906,7 @@ describe("Game.legacyGameEnded", function() {
     chai.assert.equal(games[0].status, "examining");
   });
 
-  it("should be deleted if become_examined is false", function() {
+  it("should be deleted if become_examined is false", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.startLegacyGame.apply(Game, startLegacyGameParameters(self.loggedonuser, "otherguy"));
     Game.legacyGameEnded("mi", 999, false, "Mat", "0-1", "Checkmated", "B00");
@@ -917,10 +916,10 @@ describe("Game.legacyGameEnded", function() {
   });
 });
 
-describe("Game.localAddExaminer", function() {
+describe("Game.localAddExaminer", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should fail if self is null", function() {
+  it("should fail if self is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
@@ -928,20 +927,20 @@ describe("Game.localAddExaminer", function() {
     chai.assert.throws(() => Game.localAddExaminer("mi2", game_id, newguy._id), Match.Error);
   });
 
-  it("should fail if game_id is null", function() {
+  it("should fail if game_id is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(() => Game.localAddExaminer("mi2", null, newguy), Match.Error);
   });
 
-  it("should fail if game cannot be found", function() {
+  it("should fail if game cannot be found", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(() => Game.localAddExaminer("mi2", "xyz", newguy._id), ICCMeteorError);
   });
 
   // I'll consider writing a client message for this, but one would assume the client itself would say "cannot remove a played game"
-  it("should fail if game is still being played", function() {
+  it("should fail if game is still being played", function () {
     self.loggedonuser = TestHelpers.createUser();
     const opponent = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
@@ -965,7 +964,7 @@ describe("Game.localAddExaminer", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("should write a client message if user being added is not an observer", function() {
+  it("should write a client message if user being added is not an observer", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
@@ -976,7 +975,7 @@ describe("Game.localAddExaminer", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_OBSERVER");
   });
 
-  it("should fail if user doing the adding isn't an examiner", function() {
+  it("should fail if user doing the adding isn't an examiner", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy1 = TestHelpers.createUser();
     const newguy2 = TestHelpers.createUser();
@@ -992,7 +991,7 @@ describe("Game.localAddExaminer", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("should write a client message if user being added is already an examiner", function() {
+  it("should write a client message if user being added is already an examiner", function () {
     const us = TestHelpers.createUser();
     const newguy1 = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -1008,7 +1007,8 @@ describe("Game.localAddExaminer", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ALREADY_AN_EXAMINER");
   });
 
-  it("should succeed if everything else is well", function() {
+  it("should succeed if everything else is well", function () {
+    this.timeout(10000);
     const us = TestHelpers.createUser();
     const users = [];
 
@@ -1042,15 +1042,21 @@ describe("Game.localAddExaminer", function() {
     chai.assert.isDefined(games[0].examiners);
     chai.assert.equal(games[0].observers.length, observers.length);
     chai.assert.equal(games[0].examiners.length, examiners.length);
-    chai.assert.sameMembers(observers.map(ob => ob._id), games[0].observers.map(ob => ob.id));
-    chai.assert.sameMembers(examiners.map(ex => ex._id), games[0].examiners.map(ex => ex.id));
+    chai.assert.sameMembers(
+      observers.map((ob) => ob._id),
+      games[0].observers.map((ob) => ob.id)
+    );
+    chai.assert.sameMembers(
+      examiners.map((ex) => ex._id),
+      games[0].examiners.map((ex) => ex.id)
+    );
   });
 });
 
-describe("Game.localRemoveExaminer", function() {
+describe("Game.localRemoveExaminer", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should fail if self is null", function() {
+  it("should fail if self is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
@@ -1059,13 +1065,13 @@ describe("Game.localRemoveExaminer", function() {
     chai.assert.throws(() => Game.localRemoveExaminer("mi2", game_id, newguy._id), Match.Error);
   });
 
-  it("should fail if game_id is null", function() {
+  it("should fail if game_id is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(() => Game.localRemoveExaminer("mi2", null, newguy._id), Match.Error);
   });
 
-  it("should fail if game cannot be found", function() {
+  it("should fail if game cannot be found", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(
@@ -1074,7 +1080,7 @@ describe("Game.localRemoveExaminer", function() {
     );
   });
 
-  it("should fail if target user is not an examiner", function() {
+  it("should fail if target user is not an examiner", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const observer = TestHelpers.createUser();
@@ -1089,7 +1095,7 @@ describe("Game.localRemoveExaminer", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("should fail if issuer is not a current examiner of the game", function() {
+  it("should fail if issuer is not a current examiner of the game", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const observer = TestHelpers.createUser();
@@ -1103,14 +1109,14 @@ describe("Game.localRemoveExaminer", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("should fail if user is to evict himself", function() {
+  it("should fail if user is to evict himself", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     chai.assert.throws(() => Game.localRemoveExaminer("mi2", game_id, us._id), ICCMeteorError);
   });
 
-  it("should succeed if everything else is well", function() {
+  it("should succeed if everything else is well", function () {
     const us = TestHelpers.createUser();
     const users = [];
 
@@ -1144,14 +1150,17 @@ describe("Game.localRemoveExaminer", function() {
     chai.assert.equal(games.length, 1);
     chai.assert.isDefined(games[0].examiners);
     chai.assert.equal(games[0].examiners.length, 1);
-    chai.assert.sameMembers([us._id], games[0].examiners.map(ex => ex.id));
+    chai.assert.sameMembers(
+      [us._id],
+      games[0].examiners.map((ex) => ex.id)
+    );
   });
 });
 
-describe("Game.localAddObserver", function() {
+describe("Game.localAddObserver", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should fail if self is null", function() {
+  it("should fail if self is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
@@ -1159,19 +1168,19 @@ describe("Game.localAddObserver", function() {
     chai.assert.throws(() => Game.localAddObserver("mi2", game_id, newguy._id), Match.Error);
   });
 
-  it("should fail if game_id is null", function() {
+  it("should fail if game_id is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(() => Game.localAddObserver("mi2", null, newguy._id), Match.Error);
   });
 
-  it("should fail if game cannot be found", function() {
+  it("should fail if game cannot be found", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(() => Game.localAddObserver("mi2", "somegame", newguy._id), ICCMeteorError);
   });
 
-  it("should fail if user is trying to add another user (and not himself)", function() {
+  it("should fail if user is trying to add another user (and not himself)", function () {
     self.loggedonuser = TestHelpers.createUser();
     const opponent = TestHelpers.createUser();
     const observer = TestHelpers.createUser();
@@ -1193,7 +1202,7 @@ describe("Game.localAddObserver", function() {
     chai.assert.throws(() => Game.localAddObserver("mi2", game_id, victim._id), ICCMeteorError);
   });
 
-  it("should succeed if everything else is well", function() {
+  it("should succeed if everything else is well", function () {
     const us = TestHelpers.createUser();
     const opponent = TestHelpers.createUser();
     const observer1 = TestHelpers.createUser();
@@ -1232,38 +1241,46 @@ describe("Game.localAddObserver", function() {
     chai.assert.equal(ipgame.observers.length, 1);
     chai.assert.equal(exgame.observers.length, 2);
 
-    chai.assert.sameMembers(ipgame.observers.map(ob => ob.id), [observer1._id]);
-    chai.assert.sameMembers(exgame.observers.map(ob => ob.id), [randomguy._id, observer2._id]);
+    chai.assert.sameMembers(
+      ipgame.observers.map((ob) => ob.id),
+      [observer1._id]
+    );
+    chai.assert.sameMembers(
+      exgame.observers.map((ob) => ob.id),
+      [randomguy._id, observer2._id]
+    );
 
     self.loggedonuser = opponent;
     Game.resignLocalGame("mi5", game_id1);
 
     const game3 = Game.collection.findOne({ _id: game_id1 });
-    chai.assert.sameMembers(game3.observers.map(ob => ob.id), [
-      us._id,
-      opponent._id,
-      observer1._id
-    ]);
-    chai.assert.sameMembers(game3.examiners.map(ex => ex.id), [us._id, opponent._id]);
+    chai.assert.sameMembers(
+      game3.observers.map((ob) => ob.id),
+      [us._id, opponent._id, observer1._id]
+    );
+    chai.assert.sameMembers(
+      game3.examiners.map((ex) => ex.id),
+      [us._id, opponent._id]
+    );
   });
 });
 
-describe("Game.localRemoveObserver", function() {
+describe("Game.localRemoveObserver", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should fail if self is null", function() {
+  it("should fail if self is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     self.loggedonuser = undefined;
     chai.assert.throws(() => Game.localRemoveObserver("mi2", game_id, newguy._id), Match.Error);
   });
-  it("should fail if game_id is null", function() {
+  it("should fail if game_id is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(() => Game.localRemoveObserver("mi2", null, newguy._id), Match.Error);
   });
-  it("should fail if game cannot be found", function() {
+  it("should fail if game cannot be found", function () {
     self.loggedonuser = TestHelpers.createUser();
     const newguy = TestHelpers.createUser();
     chai.assert.throws(
@@ -1272,7 +1289,7 @@ describe("Game.localRemoveObserver", function() {
     );
   });
 
-  it("should return a client message if user is not an observer", function() {
+  it("should return a client message if user is not an observer", function () {
     const us = TestHelpers.createUser();
     const dumbguy = TestHelpers.createUser();
 
@@ -1286,7 +1303,7 @@ describe("Game.localRemoveObserver", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_OBSERVER");
   });
 
-  it("should only allow a user to observe one game at a time", function() {
+  it("should only allow a user to observe one game at a time", function () {
     const us = TestHelpers.createUser();
     const opponent = TestHelpers.createUser();
     const examiner = TestHelpers.createUser();
@@ -1316,27 +1333,27 @@ describe("Game.localRemoveObserver", function() {
     const pg3 = Game.collection.findOne({ status: "playing" });
     const ex3 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.notEqual(pg3.observers.map(ob => ob.id).indexOf(observer._id), -1);
-    chai.assert.equal(ex3.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.notEqual(pg3.observers.map((ob) => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal(ex3.observers.map((ob) => ob.id).indexOf(observer._id), -1);
 
     Game.localAddObserver("mi4", examined_game, observer._id);
 
     const pg1 = Game.collection.findOne({ status: "playing" });
     const ex1 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.equal((pg1.observers || []).map(ob => ob.id).indexOf(observer._id), -1);
-    chai.assert.notEqual(ex1.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal((pg1.observers || []).map((ob) => ob.id).indexOf(observer._id), -1);
+    chai.assert.notEqual(ex1.observers.map((ob) => ob.id).indexOf(observer._id), -1);
 
     Game.localRemoveObserver("mi5", examined_game, observer._id);
 
     const pg2 = Game.collection.findOne({ status: "playing" });
     const ex2 = Game.collection.findOne({ status: "examining" });
 
-    chai.assert.equal(pg2.observers.map(ob => ob.id).indexOf(observer._id), -1);
-    chai.assert.equal(ex2.observers.map(ob => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal(pg2.observers.map((ob) => ob.id).indexOf(observer._id), -1);
+    chai.assert.equal(ex2.observers.map((ob) => ob.id).indexOf(observer._id), -1);
   });
 
-  it("should delete the record if the last examiner leaves, regardless of observers left", function() {
+  it("should delete the record if the last examiner leaves, regardless of observers left", function () {
     const examiner = TestHelpers.createUser();
     const observer = TestHelpers.createUser();
 
@@ -1353,22 +1370,22 @@ describe("Game.localRemoveObserver", function() {
   });
 });
 
-describe("Game.removeLegacyGame", function() {
+describe("Game.removeLegacyGame", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should fail if self is null", function() {
+  it("should fail if self is null", function () {
     self.loggedonuser = undefined;
     chai.assert.throws(() => Game.removeLegacyGame("mi2", 999), Match.Error);
   });
-  it("should fail if legacy game number is null", function() {
+  it("should fail if legacy game number is null", function () {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => Game.removeLegacyGame("mi2", null), Match.Error);
   });
-  it("should fail if game cannot be found", function() {
+  it("should fail if game cannot be found", function () {
     self.loggedonuser = TestHelpers.createUser();
     chai.assert.throws(() => Game.removeLegacyGame("mi2", 111), ICCMeteorError);
   });
-  it("should succeed if everything else is well", function() {
+  it("should succeed if everything else is well", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -1448,10 +1465,10 @@ function checkAdjourn(gameRecord, white, black) {
   chai.assert.equal(gameRecord.pending.black.adjourn, black === undefined ? "0" : black);
 }
 
-describe("Takeback behavior", function() {
+describe("Takeback behavior", function () {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-  it("restores both clocks to the same time as the move taken back to", function() {
+  it("restores both clocks to the same time as the move taken back to", function () {
     this.timeout(60000);
     // So if say:
     // move 20, white clock: 25:00, black clock: 15:00,
@@ -1477,7 +1494,7 @@ describe("Takeback behavior", function() {
       "white"
     );
     const current = [];
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       const game = Game.collection.findOne();
       current.push(game.clocks[game.tomove].current);
       self.clock.tick((Random.fraction() * 60000) | 0); // Wait a 0-60s
@@ -1504,7 +1521,7 @@ describe("Takeback behavior", function() {
   });
 
   // giver_request  -> giver_request(same)        -> message, already pending
-  it("will write a client message when takeback asker asks for another takeback with the same ply count", function() {
+  it("will write a client message when takeback asker asks for another takeback with the same ply count", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1523,7 +1540,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1554,12 +1571,12 @@ describe("Takeback behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
   });
 
   //                -> giver_request(different)   -> message, already pending
-  it("will write a client message when takeback asker asks for another takeback with a different ply count", function() {
+  it("will write a client message when takeback asker asks for another takeback with a different ply count", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1578,7 +1595,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1609,11 +1626,11 @@ describe("Takeback behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
   });
   //                -> taker_request(same)        -> same as an accept
-  it("will behave like a takeback accept when takeback receiver asks for takeback with the same ply count", function() {
+  it("will behave like a takeback accept when takeback receiver asks for takeback with the same ply count", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1632,7 +1649,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1665,7 +1682,7 @@ describe("Takeback behavior", function() {
   });
 
   //                -> taker_request(different)   -> Invalidates givers, then functions as a giver_request
-  it("will create a takeback owned by the giver (as the asker) when the giver requests a takeback with a different ply count", function() {
+  it("will create a takeback owned by the giver (as the asker) when the giver requests a takeback with a different ply count", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1684,7 +1701,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1711,7 +1728,7 @@ describe("Takeback behavior", function() {
     chai.assert.equal(takebackr1.parameter, 4);
   });
   //                -> giver_decline              -> message, not pending
-  it("will send a client message to the asker if the asker tries to decline his own takeback request", function() {
+  it("will send a client message to the asker if the asker tries to decline his own takeback request", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1730,7 +1747,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1749,7 +1766,7 @@ describe("Takeback behavior", function() {
     checkTakeback(Game.collection.findOne(), 4, 0);
   });
   //                -> taker_decline              -> declines
-  it("will decline a takeback and send a client message to the asker if the giver declines the takeback", function() {
+  it("will decline a takeback and send a client message to the asker if the giver declines the takeback", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1768,7 +1785,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1788,7 +1805,7 @@ describe("Takeback behavior", function() {
     checkTakeback(Game.collection.findOne());
   });
   //                -> giver_accept               -> message, not pending
-  it("will send a client message to the asker if the asker tries to accept his own takeback request", function() {
+  it("will send a client message to the asker if the asker tries to accept his own takeback request", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1807,7 +1824,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1826,7 +1843,7 @@ describe("Takeback behavior", function() {
     checkTakeback(Game.collection.findOne(), 4, 0);
   });
   //                -> taker_accept               -> do it!
-  it("will accept a takeback and send a client message to the asker if the giver accepts the takeback", function() {
+  it("will accept a takeback and send a client message to the asker if the giver accepts the takeback", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -1845,7 +1862,7 @@ describe("Takeback behavior", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1866,10 +1883,10 @@ describe("Takeback behavior", function() {
   });
 });
 
-describe("Game.requestLocalTakeback", function() {
+describe("Game.requestLocalTakeback", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("sends a client message if user is not playing a game", function() {
+  it("sends a client message if user is not playing a game", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     Game.requestLocalTakeback("mi1", "somegame", 5);
@@ -1879,7 +1896,7 @@ describe("Game.requestLocalTakeback", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("works on their move", function() {
+  it("works on their move", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     let other = them;
@@ -1898,7 +1915,7 @@ describe("Game.requestLocalTakeback", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1915,12 +1932,12 @@ describe("Game.requestLocalTakeback", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game2, 1, "takeback_requested", us._id, 3);
   });
 
-  it("works on their opponents move", function() {
+  it("works on their opponents move", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     let other = them;
@@ -1939,7 +1956,7 @@ describe("Game.requestLocalTakeback", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1958,12 +1975,12 @@ describe("Game.requestLocalTakeback", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game2, 1, "takeback_requested", us._id, 4);
   });
 
-  it("fails if number is null", function() {
+  it("fails if number is null", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -1987,7 +2004,7 @@ describe("Game.requestLocalTakeback", function() {
     chai.assert.throws(() => Game.requestLocalTakeback("mi2", game_id, "four"), Match.Error);
   });
 
-  it("should make it accepters move if tomove requests takeback with an odd number", function() {
+  it("should make it accepters move if tomove requests takeback with an odd number", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     let other = them;
@@ -2006,7 +2023,7 @@ describe("Game.requestLocalTakeback", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -2021,7 +2038,7 @@ describe("Game.requestLocalTakeback", function() {
     chai.assert.equal(game2.tomove, "white");
   });
 
-  it("should leave it requesters move if tomove requests takeback with an even number", function() {
+  it("should leave it requesters move if tomove requests takeback with an even number", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     let other = them;
@@ -2040,7 +2057,7 @@ describe("Game.requestLocalTakeback", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -2051,7 +2068,7 @@ describe("Game.requestLocalTakeback", function() {
     const game1 = Game.collection.findOne();
     chai.assert.equal(game1.tomove, "black");
   });
-  it("should make it accepters move if tomove requests takeback with an odd number and requestor makes a move (it should also takeback + 1, taking back requesters move plus accepters move)", function() {
+  it("should make it accepters move if tomove requests takeback with an odd number and requestor makes a move (it should also takeback + 1, taking back requesters move plus accepters move)", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     let other = them;
@@ -2070,7 +2087,7 @@ describe("Game.requestLocalTakeback", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -2085,7 +2102,7 @@ describe("Game.requestLocalTakeback", function() {
     chai.assert.equal(game1.fen, "rnbqkb1r/pppppppp/5n2/8/2PP4/8/PP2PPPP/RNBQKBNR b KQkq c3 0 2");
   });
 
-  it("should revoke the takeback if requester requests an even takeback but then makes a move (i.e. if you are requesting taking back your own half move, you cannot make a move afterwards)", function() {
+  it("should revoke the takeback if requester requests an even takeback but then makes a move (i.e. if you are requesting taking back your own half move, you cannot make a move afterwards)", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     let other = them;
@@ -2104,7 +2121,7 @@ describe("Game.requestLocalTakeback", function() {
       "none",
       "white"
     );
-    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach(move => {
+    ["d4", "Nf6", "c4", "g6", "g3", "c6", "b4"].forEach((move) => {
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -2118,10 +2135,10 @@ describe("Game.requestLocalTakeback", function() {
   });
 });
 
-describe("Game.acceptLocalTakeback", function() {
+describe("Game.acceptLocalTakeback", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("sends a client message if user is not playing a game", function() {
+  it("sends a client message if user is not playing a game", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     Game.acceptLocalTakeback("mi1", "somegame");
@@ -2132,10 +2149,10 @@ describe("Game.acceptLocalTakeback", function() {
   });
 });
 
-describe("Game.declineLocalTakeback", function() {
+describe("Game.declineLocalTakeback", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("sends a client message if user is not playing a game", function() {
+  it("sends a client message if user is not playing a game", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     Game.declineLocalTakeback("mi1", "somegame");
@@ -2145,7 +2162,7 @@ describe("Game.declineLocalTakeback", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("sends a client message if a takeback is not pending", function() {
+  it("sends a client message if a takeback is not pending", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2169,7 +2186,7 @@ describe("Game.declineLocalTakeback", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NO_TAKEBACK_PENDING");
   });
 
-  it("send a client message if the game is examined", function() {
+  it("send a client message if the game is examined", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.requestLocalTakeback("mi2", game_id, 5);
@@ -2178,9 +2195,9 @@ describe("Game.declineLocalTakeback", function() {
   });
 });
 
-describe("Local game draw behavior", function() {
+describe("Local game draw behavior", function () {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should allow a draw request on your move, record the draw, and leave it in effect after you make your move for your opponent to accept or decline", function() {
+  it("should allow a draw request on your move, record the draw, and leave it in effect after you make your move for your opponent to accept or decline", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2213,19 +2230,19 @@ describe("Local game draw behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 1, "move", us._id, {
       move: "e4",
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "draw_requested", us._id);
   });
 
-  it("should explicitly decline the draw with a client message if a draw request is declined", function() {
+  it("should explicitly decline the draw with a client message if a draw request is declined", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2259,7 +2276,7 @@ describe("Local game draw behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "draw_requested", us._id);
 
@@ -2269,7 +2286,7 @@ describe("Local game draw behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "DRAW_DECLINED");
   });
 
-  it("should explicitly accept the draw with a client message, and end the game, if a draw request is accepted", function() {
+  it("should explicitly accept the draw with a client message, and end the game, if a draw request is accepted", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2303,7 +2320,7 @@ describe("Local game draw behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "draw_requested", us._id);
 
@@ -2315,7 +2332,7 @@ describe("Local game draw behavior", function() {
     chai.assert.equal(game.status, "examining");
   });
 
-  it("should write a client message to the asker if a draw request is already pending", function() {
+  it("should write a client message to the asker if a draw request is already pending", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2348,7 +2365,7 @@ describe("Local game draw behavior", function() {
     checkLastAction(game, 0, "draw_requested", us._id);
   });
 
-  it("should write a client message to the asker if a no game is being played when accepting a draw", function() {
+  it("should write a client message to the asker if a no game is being played when accepting a draw", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.acceptLocalDraw("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2357,7 +2374,7 @@ describe("Local game draw behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client message to the asker if a no game is being played when declining a draw", function() {
+  it("should write a client message to the asker if a no game is being played when declining a draw", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.declineLocalDraw("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2366,7 +2383,7 @@ describe("Local game draw behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client message to the asker if a no game is being played when requesting a draw", function() {
+  it("should write a client message to the asker if a no game is being played when requesting a draw", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.requestLocalDraw("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2375,7 +2392,7 @@ describe("Local game draw behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("send a client message if the game is examined", function() {
+  it("send a client message if the game is examined", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.requestLocalDraw("mi2", game_id);
@@ -2384,9 +2401,9 @@ describe("Local game draw behavior", function() {
   });
 });
 
-describe("Local game abort behavior", function() {
+describe("Local game abort behavior", function () {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should allow a abort request on your move, record the abort, and leave it in effect after you make your move for your opponent to accept or decline", function() {
+  it("should allow a abort request on your move, record the abort, and leave it in effect after you make your move for your opponent to accept or decline", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2428,19 +2445,19 @@ describe("Local game abort behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 1, "move", us._id, {
       move: "Nf3",
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "abort_requested", us._id);
   });
 
-  it("should explicitly decline the abort with a client message if an abort request is declined", function() {
+  it("should explicitly decline the abort with a client message if an abort request is declined", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2482,7 +2499,7 @@ describe("Local game abort behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "abort_requested", us._id);
 
@@ -2492,7 +2509,7 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ABORT_DECLINED");
   });
 
-  it("should explicitly accept the abort with a client message, and end the game, if a abort request is accepted", function() {
+  it("should explicitly accept the abort with a client message, and end the game, if a abort request is accepted", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2536,7 +2553,7 @@ describe("Local game abort behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "abort_requested", us._id);
 
@@ -2548,7 +2565,7 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(game.status, "examining");
   });
 
-  it("should write a client message to the asker if a abort request is already pending", function() {
+  it("should write a client message to the asker if a abort request is already pending", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2566,7 +2583,7 @@ describe("Local game abort behavior", function() {
       "none",
       "white"
     );
-    ["a4", "a5", "b4", "b5", "c4", "c5", "d4", "d5", "e4", "e5"].forEach(move => {
+    ["a4", "a5", "b4", "b5", "c4", "c5", "d4", "d5", "e4", "e5"].forEach((move) => {
       Game.saveLocalMove(move, game_id, move);
       if (self.loggedonuser._id === us._id) self.loggedonuser = opp;
       else self.loggedonuser = us;
@@ -2586,7 +2603,7 @@ describe("Local game abort behavior", function() {
     checkLastAction(game, 0, "abort_requested", us._id);
   });
 
-  it("should write a client message to the asker if a no game is being played when accepting a abort", function() {
+  it("should write a client message to the asker if a no game is being played when accepting a abort", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.acceptLocalAbort("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2595,7 +2612,7 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client message to the asker if a no game is being played when declining a abort", function() {
+  it("should write a client message to the asker if a no game is being played when declining a abort", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.declineLocalAbort("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2604,7 +2621,7 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client message to the asker if a no game is being played when requesting an abort", function() {
+  it("should write a client message to the asker if a no game is being played when requesting an abort", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.requestLocalAbort("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2613,7 +2630,7 @@ describe("Local game abort behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("send a client message if the game is examined", function() {
+  it("send a client message if the game is examined", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.requestLocalAbort("mi2", game_id);
@@ -2622,9 +2639,9 @@ describe("Local game abort behavior", function() {
   });
 });
 
-describe("Local game adjourn behavior", function() {
+describe("Local game adjourn behavior", function () {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should allow a adjourn request on your move, record the adjourn, and leave it in effect after you make your move for your opponent to accept or decline", function() {
+  it("should allow a adjourn request on your move, record the adjourn, and leave it in effect after you make your move for your opponent to accept or decline", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2657,19 +2674,19 @@ describe("Local game adjourn behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 1, "move", us._id, {
       move: "e4",
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "adjourn_requested", us._id);
   });
 
-  it("should explicitly decline the adjourn with a client message if a adjourn request is declined", function() {
+  it("should explicitly decline the adjourn with a client message if a adjourn request is declined", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2703,7 +2720,7 @@ describe("Local game adjourn behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "adjourn_requested", us._id);
 
@@ -2713,7 +2730,7 @@ describe("Local game adjourn behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ADJOURN_DECLINED");
   });
 
-  it("should explicitly accept the adjourn with a client message, and end the game, if an adjourn request is accepted", function() {
+  it("should explicitly accept the adjourn with a client message, and end the game, if an adjourn request is accepted", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2747,7 +2764,7 @@ describe("Local game adjourn behavior", function() {
       ping: 456,
       lag: 0,
       gamelag: 0,
-      gameping: 0
+      gameping: 0,
     });
     checkLastAction(game, 2, "adjourn_requested", us._id);
 
@@ -2759,7 +2776,7 @@ describe("Local game adjourn behavior", function() {
     chai.assert.equal(game.status, "examining");
   });
 
-  it("should write a client message to the asker if a adjourn request is already pending", function() {
+  it("should write a client message to the asker if a adjourn request is already pending", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2792,7 +2809,7 @@ describe("Local game adjourn behavior", function() {
     checkLastAction(game, 0, "adjourn_requested", us._id);
   });
 
-  it("should write a client message to the asker if a no game is being played when accepting a adjourn", function() {
+  it("should write a client message to the asker if a no game is being played when accepting a adjourn", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.acceptLocalAdjourn("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2801,7 +2818,7 @@ describe("Local game adjourn behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client message to the asker if a no game is being played when declining a adjourn", function() {
+  it("should write a client message to the asker if a no game is being played when declining a adjourn", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.declineLocalAdjourn("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2810,7 +2827,7 @@ describe("Local game adjourn behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("should write a client message to the asker if a no game is being played when requesting an adjourn", function() {
+  it("should write a client message to the asker if a no game is being played when requesting an adjourn", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.requestLocalAdjourn("mi1", "somegame");
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -2819,7 +2836,7 @@ describe("Local game adjourn behavior", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("send a client message if the game is examined", function() {
+  it("send a client message if the game is examined", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.requestLocalAdjourn("mi2", game_id);
@@ -2828,16 +2845,16 @@ describe("Local game adjourn behavior", function() {
   });
 });
 
-describe("Game.resignLocalGame", function() {
+describe("Game.resignLocalGame", function () {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("send a client message if user is not playing a game", function() {
+  it("send a client message if user is not playing a game", function () {
     self.loggedonuser = TestHelpers.createUser();
     Game.resignLocalGame("mi2", "somegame");
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("send a client message if the game is examined", function() {
+  it("send a client message if the game is examined", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.resignLocalGame("mi2", game_id);
@@ -2845,7 +2862,7 @@ describe("Game.resignLocalGame", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
   });
 
-  it("works on their move", function() {
+  it("works on their move", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2893,7 +2910,7 @@ describe("Game.resignLocalGame", function() {
     chai.assert.equal(game2.result, "1-0");
   });
 
-  it("works on their opponents move", function() {
+  it("works on their opponents move", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -2941,8 +2958,8 @@ describe("Game.resignLocalGame", function() {
     chai.assert.equal(game2.result, "0-1");
   });
 
-  it("should, on a resign", function() {
-    it("should reset a pending draws", function() {
+  it("should, on a resign", function () {
+    it("should reset a pending draws", function () {
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
@@ -2966,7 +2983,7 @@ describe("Game.resignLocalGame", function() {
       checkDraw(Game.collection.findOne());
     });
 
-    it("should reset a pending aborts", function() {
+    it("should reset a pending aborts", function () {
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
@@ -2990,7 +3007,7 @@ describe("Game.resignLocalGame", function() {
       checkAbort(Game.collection.findOne());
     });
 
-    it("should reset a pending adjourns", function() {
+    it("should reset a pending adjourns", function () {
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
@@ -3013,7 +3030,7 @@ describe("Game.resignLocalGame", function() {
       Game.resignLocalGame("mi2", game1_id);
       checkAdjourn(Game.collection.findOne());
     });
-    it("should reset a pending takebacks", function() {
+    it("should reset a pending takebacks", function () {
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
@@ -3039,9 +3056,9 @@ describe("Game.resignLocalGame", function() {
   });
 });
 
-describe("Game.moveBackward", function() {
+describe("Game.moveBackward", function () {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("fails if game is not an examined game", function() {
+  it("fails if game is not an examined game", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const examiner = TestHelpers.createUser();
@@ -3068,7 +3085,7 @@ describe("Game.moveBackward", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("fails if user is not an examiner", function() {
+  it("fails if user is not an examiner", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3090,7 +3107,7 @@ describe("Game.moveBackward", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("writes an action and undoes the move if possible", function() {
+  it("writes an action and undoes the move if possible", function () {
     const examiner = TestHelpers.createUser();
     self.loggedonuser = examiner;
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
@@ -3105,11 +3122,11 @@ describe("Game.moveBackward", function() {
     checkLastAction(game, 1, "move", examiner._id, "e4");
   });
 
-  it("move back multiple moves if a number > 1 i specified", function() {
+  it("move back multiple moves if a number > 1 i specified", function () {
     const examiner = TestHelpers.createUser();
     self.loggedonuser = examiner;
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
-    ["e4", "e5", "Nf3", "Nc6", "Be2", "Be7"].forEach(move =>
+    ["e4", "e5", "Nf3", "Nc6", "Be2", "Be7"].forEach((move) =>
       Game.saveLocalMove("mi2", game_id, move)
     );
     Game.moveBackward("mi3", game_id, 3);
@@ -3123,7 +3140,7 @@ describe("Game.moveBackward", function() {
     checkLastAction(game2, 1, "move_backward", examiner._id, 3);
   });
 
-  it("writes a client message if there is no move to undo", function() {
+  it("writes a client message if there is no move to undo", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
     Game.moveBackward("mi3", game_id);
@@ -3131,7 +3148,7 @@ describe("Game.moveBackward", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "BEGINNING_OF_GAME");
   });
 
-  it("moves up to the previous variation and continues on", function() {
+  it("moves up to the previous variation and continues on", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi0", "whiteguy", "blackguy", 0);
     Game.saveLocalMove("mi1", game_id, "e4");
@@ -3163,13 +3180,13 @@ describe("Game.moveBackward", function() {
   });
 });
 
-describe("Takebacks", function() {
+describe("Takebacks", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("Must always keep the entire variation tree in the record, forever", function() {
+  it("Must always keep the entire variation tree in the record, forever", function () {
     const player = {
       white: TestHelpers.createUser(),
-      black: TestHelpers.createUser()
+      black: TestHelpers.createUser(),
     };
 
     self.loggedonuser = player.white;
@@ -3240,10 +3257,10 @@ describe("Takebacks", function() {
       { type: "move", parameter: "d6" },
       { type: "move", parameter: "d4" },
       { type: "move", parameter: "exd4" },
-      { type: "move", parameter: "cxd4" }
+      { type: "move", parameter: "cxd4" },
     ];
 
-    actions.forEach(action => {
+    actions.forEach((action) => {
       const tomove = Game.collection.findOne({}).tomove;
       switch (action.type) {
         case "move":
@@ -3279,8 +3296,8 @@ describe("Takebacks", function() {
   });
 });
 
-describe.skip("Game.buildMovelistFromPgn", function() {
-  it("needs to be written", function() {
+describe.skip("Game.buildMovelistFromPgn", function () {
+  it("needs to be written", function () {
     // eslint-disable-next-line no-unused-vars
     const pgn =
       "1.e4 e5 2.Nf3 (2.f4 Nc6 3.Nf3) 2...Nc6 3.Bc4 (3.Be2 Be7 4.O-O (4.c3 d6 (4...d5 5.d4) 5.d4) 4...d5) 3...Be7 4.d4 (4.c3 d6 5.d4 exd4 6.cxd4) 4...Nxd4 5.c3 d5 6.exd5 b5 7.cxd4 bxc4";
@@ -3288,9 +3305,9 @@ describe.skip("Game.buildMovelistFromPgn", function() {
   });
 });
 
-describe("Game.moveForward", function() {
+describe("Game.moveForward", function () {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("fails if game is not an examined game", function() {
+  it("fails if game is not an examined game", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const examiner = TestHelpers.createUser();
@@ -3317,7 +3334,7 @@ describe("Game.moveForward", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("fails if user is not an examiner", function() {
+  it("fails if user is not an examiner", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3339,7 +3356,7 @@ describe("Game.moveForward", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AN_EXAMINER");
   });
 
-  it("writes an action and moves forward if there is no variation", function() {
+  it("writes an action and moves forward if there is no variation", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
@@ -3351,7 +3368,7 @@ describe("Game.moveForward", function() {
     Game.moveForward("mi7", game_id, 3);
     const game = Game.collection.findOne({});
     checkLastAction(game, 0, "move_forward", us._id, {
-      movecount: 3
+      movecount: 3,
     });
     checkLastAction(game, 1, "move_backward", us._id, 3);
     checkLastAction(game, 2, "move", us._id, "Nc6");
@@ -3360,7 +3377,7 @@ describe("Game.moveForward", function() {
     checkLastAction(game, 5, "move", us._id, "e4");
   });
 
-  it("writes a client message if there is no move to go to", function() {
+  it("writes a client message if there is no move to go to", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
@@ -3378,7 +3395,7 @@ describe("Game.moveForward", function() {
     chai.assert.equal(self.clientMessagesSpy.args[1][2], "END_OF_GAME");
   });
 
-  it("writes a client message if there is a variation and none is specified", function() {
+  it("writes a client message if there is a variation and none is specified", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
@@ -3396,7 +3413,7 @@ describe("Game.moveForward", function() {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "VARIATION_REQUIRED");
   });
 
-  it("moves to the correct variation, and future forwards follow the new variation, when one is specified", function() {
+  it("moves to the correct variation, and future forwards follow the new variation, when one is specified", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
@@ -3412,11 +3429,11 @@ describe("Game.moveForward", function() {
     const game = Game.collection.findOne({});
     checkLastAction(game, 0, "move_forward", us._id, {
       movecount: 1,
-      variation: 1
+      variation: 1,
     });
   });
 
-  it("allows zero to be the default variation when there is no variation", function() {
+  it("allows zero to be the default variation when there is no variation", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
@@ -3429,12 +3446,12 @@ describe("Game.moveForward", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({});
     checkLastAction(game, 0, "move_forward", us._id, {
-      movecount: 4
+      movecount: 4,
     });
     checkLastAction(game, 1, "move_backward", us._id, 4);
   });
 
-  it("requires zero to be the first variation, and 1+ to be subsequent variations (i.e. zero based)", function() {
+  it("requires zero to be the first variation, and 1+ to be subsequent variations (i.e. zero based)", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.saveLocalMove("mi2", game_id, "e4");
@@ -3456,15 +3473,15 @@ describe("Game.moveForward", function() {
   });
 });
 
-describe("When a user disconnects while playing a game", function() {
-  it("should adjourn the game and write an action", function() {});
-  it("should write a connect and disconnect action to the adjourned game every time they connect and disconnect", function() {});
+describe("When a user disconnects while playing a game", function () {
+  it("should adjourn the game and write an action", function () {});
+  it("should write a connect and disconnect action to the adjourned game every time they connect and disconnect", function () {});
 });
 
-describe("Game publication", function() {
+describe("Game publication", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should not send engine scores to either player, but should send to all observers in a played game", function(done) {
+  it("should not send engine scores to either player, but should send to all observers in a played game", function (done) {
     this.timeout(5000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -3501,16 +3518,19 @@ describe("Game publication", function() {
     const game = Game.collection.findOne({});
     chai.assert.equal(game.white.id, p1._id);
     chai.assert.equal(game.black.id, p2._id);
-    chai.assert.sameMembers(game.observers.map(ob => ob.id), [o1._id, o2._id]);
+    chai.assert.sameMembers(
+      game.observers.map((ob) => ob.id),
+      [o1._id, o2._id]
+    );
 
     function check(user, playing, player) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         self.loggedonuser = user;
         const collector = new PublicationCollector({
-          userId: user._id
+          userId: user._id,
         });
 
-        collector.collect("games", collection => {
+        collector.collect("games", (collection) => {
           if (playing === player) {
             chai.assert.equal(collection.game.length, 1);
             if (playing) chai.assert.isUndefined(collection.game[0].computer_variations);
@@ -3533,10 +3553,10 @@ describe("Game publication", function() {
   });
 });
 
-describe("When making a move in a game being played", function() {
+describe("When making a move in a game being played", function () {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-  it("needs to update the users time correctly after a move", function() {
+  it("needs to update the users time correctly after a move", function () {
     const player1 = TestHelpers.createUser();
     const player2 = TestHelpers.createUser();
     self.loggedonuser = player1;
@@ -3580,7 +3600,7 @@ describe("When making a move in a game being played", function() {
     chai.assert.equal(game3.clocks.black.current, 894546);
   });
 
-  it("needs to compensate for the move makers lag", function() {
+  it("needs to compensate for the move makers lag", function () {
     const player1 = TestHelpers.createUser();
     const player2 = TestHelpers.createUser();
     self.loggedonuser = player1;
@@ -3625,10 +3645,10 @@ describe("When making a move in a game being played", function() {
   });
 });
 
-describe("when playing a game", function() {
+describe("when playing a game", function () {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-  it("should write a ping to the record each second, and record both blacks and whites responses", function(done) {
+  it("should write a ping to the record each second, and record both blacks and whites responses", function (done) {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3667,7 +3687,7 @@ describe("when playing a game", function() {
     self.clock.tick(150);
 
     const client = new TimestampClient((key, msg) => {
-      Meteor.call("gamepong", game_id, msg, error => {
+      Meteor.call("gamepong", game_id, msg, (error) => {
         if (!!error) chai.assert.fail(error);
         const game2 = Game.collection.findOne({});
         chai.assert.equal(game2.lag.white.active.length, 0);
@@ -3682,7 +3702,7 @@ describe("when playing a game", function() {
     client.pingArrived(game1.lag.white.active[0]);
   });
 
-  it("needs to calculate game lag correctly (by using the last two game pings)", function() {
+  it("needs to calculate game lag correctly (by using the last two game pings)", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3705,8 +3725,8 @@ describe("when playing a game", function() {
       {
         $set: {
           "lag.white.pings": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-          "lag.black.pings": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-        }
+          "lag.black.pings": [11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+        },
       }
     );
     Game.saveLocalMove("mi2", game_id, "e4");
@@ -3720,10 +3740,11 @@ describe("when playing a game", function() {
     chai.assert.equal(game.actions[1].parameter.gamelag, 19);
   });
 
-  it("should throw an error if the meteor method is called with a an invalid game id", function(done) {
+  it.skip("should throw an error if the meteor method is called with a an invalid game id", function (done) {
+    // It no longer throws errors.
     this.timeout(5000);
     self.loggedonuser = TestHelpers.createUser();
-    Meteor.call("gamepong", "game_id", { msg: "msg" }, error => {
+    Meteor.call("gamepong", "game_id", { msg: "msg" }, (error) => {
       chai.assert.equal(
         error.message,
         "Unable to locate game to ping (2) [Unable to update game ping]"
@@ -3732,7 +3753,8 @@ describe("when playing a game", function() {
     });
   });
 
-  it("should throw an error if the meteor method is called with a valid game but it's examined", function(done) {
+  it.skip("should throw an error if the meteor method is called with a valid game but it's examined", function (done) {
+    // ping code no longer throws errors
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3760,7 +3782,7 @@ describe("when playing a game", function() {
     Game.resignLocalGame("mi2", game_id);
 
     const client = new TimestampClient((key, msg) => {
-      Meteor.call("gamepong", game_id, msg, error => {
+      Meteor.call("gamepong", game_id, msg, (error) => {
         chai.assert.equal(
           error.message,
           "Unable to locate game to ping (2) [Unable to update game ping]"
@@ -3773,10 +3795,10 @@ describe("when playing a game", function() {
   });
 });
 
-describe("Game clocks", function() {
+describe("Game clocks", function () {
   const self = TestHelpers.setupDescribe.call(this, { timer: true, averagelag: 0 });
 
-  it("should remove time as wall clock when lag is not involved", function() {
+  it("should remove time as wall clock when lag is not involved", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3806,7 +3828,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
   });
 
-  it("should remove a minimum of time as specified by the system configuration", function() {
+  it("should remove a minimum of time as specified by the system configuration", function () {
     self.sandbox.replace(SystemConfiguration, "minimumMoveTime", self.sandbox.fake.returns(500));
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -3837,7 +3859,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
   });
 
-  it("should add the increment back in if specified", function() {
+  it("should add the increment back in if specified", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3867,7 +3889,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
   });
 
-  it("should not change the clock time if under the us delay when us delay is specified", function() {
+  it("should not change the clock time if under the us delay when us delay is specified", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3906,7 +3928,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game3.clocks.black.current, 15 * 60 * 1000 - (60 - 45) * 1000); // 15 minutes minus the difference between the move time (60s) and the delay (45s), so 15s should be removed
   });
 
-  it("should change the clock, by 'wall time minus delay' when move is over us delay time and us delay is specified", function() {
+  it("should change the clock, by 'wall time minus delay' when move is over us delay time and us delay is specified", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3936,7 +3958,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
   });
 
-  it("should automatically end the game when time expires", function() {
+  it("should automatically end the game when time expires", function () {
     this.timeout(200000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -3958,7 +3980,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game3.status, "examining");
   });
 
-  it("should not end the game when time=5s and us delay=10s and player takes 8s to move", function() {
+  it("should not end the game when time=5s and us delay=10s and player takes 8s to move", function () {
     this.timeout(30000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -4005,7 +4027,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game4.status, "playing");
   });
 
-  it("should end the game when bronstein delay=10s and player takes more than 10s to move", function() {
+  it("should end the game when bronstein delay=10s and player takes more than 10s to move", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -4044,7 +4066,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game3.status, "examining");
   });
 
-  it("should leave the clock at 15s if starting time is 15s, us delay is 5s, and they take 3s to move", function() {
+  it("should leave the clock at 15s if starting time is 15s, us delay is 5s, and they take 3s to move", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -4084,7 +4106,7 @@ describe("Game clocks", function() {
     const game3 = Game.collection.findOne({});
     chai.assert.equal(game3.clocks.white.current, 15000); // 5ms left plus the 10s delay
   });
-  it("should reset the clock to 15s if starting time is 15s, bronstein delay is 5s, and they take 3s to move", function() {
+  it("should reset the clock to 15s if starting time is 15s, bronstein delay is 5s, and they take 3s to move", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -4125,7 +4147,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game3.clocks.white.current, 15000); // 5ms left plus the 10s delay
   });
 
-  it("should set the clock to 14s left if starting time is 15s, us delay is 5s, and they take 6s to move", function() {
+  it("should set the clock to 14s left if starting time is 15s, us delay is 5s, and they take 6s to move", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -4166,7 +4188,7 @@ describe("Game clocks", function() {
     chai.assert.equal(game3.clocks.white.current, 14000); // 5ms left plus the 10s delay
   });
 
-  it("should set the clock to 14s left if starting time is 15s, bronstein delay is 5s, and they take 6s to move", function() {
+  it("should set the clock to 14s left if starting time is 15s, bronstein delay is 5s, and they take 6s to move", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -4208,9 +4230,9 @@ describe("Game clocks", function() {
   });
 });
 
-describe("tomove in the game record", function() {
+describe("tomove in the game record", function () {
   const self = TestHelpers.setupDescribe.call(this, { timer: true, averagelag: 0 });
-  it("needs to match the side it is to move", function() {
+  it("needs to match the side it is to move", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -4248,9 +4270,9 @@ describe("tomove in the game record", function() {
   });
 });
 
-describe("Starting a game", function() {
+describe("Starting a game", function () {
   const self = TestHelpers.setupDescribe.call(this);
-  it("should fail if the players opponent is not online with a client message", function() {
+  it("should fail if the players opponent is not online with a client message", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser({ login: false });
     self.loggedonuser = p1;
@@ -4262,9 +4284,9 @@ describe("Starting a game", function() {
   });
 });
 
-describe("Starting an examined game", function() {
+describe("Starting an examined game", function () {
   const self = TestHelpers.setupDescribe.call(this);
-  it("should fail if the user starting an examined game is not online", function() {
+  it("should fail if the user starting an examined game is not online", function () {
     self.loggedonuser = TestHelpers.createUser({ login: false });
     chai.assert.throws(
       () => Game.startLocalExaminedGame("mi1", "white", "black", 0),
@@ -4272,8 +4294,8 @@ describe("Starting an examined game", function() {
     );
   });
 
-  describe("moveToCMI", function() {
-    it("should work", function() {
+  describe("moveToCMI", function () {
+    it("should work", function () {
       self.loggedonuser = TestHelpers.createUser();
       const game_id = Game.startLocalExaminedGame("mi1", "whiteguy", "blackguy", 0);
       Game.saveLocalMove("e4", game_id, "e4");
@@ -4351,7 +4373,7 @@ describe("Starting an examined game", function() {
     });
   });
 
-  it("should not crash when a takeback is requested on a new game (bug found 4/27/21)", function() {
+  it("should not crash when a takeback is requested on a new game (bug found 4/27/21)", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;

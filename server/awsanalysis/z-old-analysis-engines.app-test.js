@@ -202,7 +202,7 @@ class FakeEc2 {
   }
 }
 
-describe("AnalysisEngines", function() {
+describe.skip("AnalysisEngines", function() {
   let sandbox;
   beforeEach(function(done) {
     sandbox = sinon.createSandbox();

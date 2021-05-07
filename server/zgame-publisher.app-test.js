@@ -14,22 +14,22 @@ import GamePublisher from "./GamePublisher";
 // all = anyone not in the above categories
 //
 
-describe("GamePublisher", function() {
+describe("GamePublisher", function () {
   //const self = TestHelpers.setupDescribe.call(this);
   // updateUserType(rec)
   // type = 0   <- Player, not to move
   const tests1 = random100([
     { white: { id: "user1" } },
     { status: "playing" },
-    { tomove: "black" }
+    { tomove: "black" },
   ]);
-  it("should set type = 0 when played game sent in in total", function() {
+  it("should set type = 0 when played game sent in in total", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({ white: { id: "user1" }, status: "playing", tomove: "black" });
     chai.assert.equal(gamePublisher.newType.type, 0);
   });
 
-  tests1.forEach(test => {
+  tests1.forEach((test) => {
     it(
       "should set type = 0 when played game sent in one field at a time: " + JSON.stringify(test),
       () => {
@@ -42,7 +42,7 @@ describe("GamePublisher", function() {
     );
   });
   // type = 1   <- Player, to move
-  it("should set type = 1 when played game sent in in total", function() {
+  it("should set type = 1 when played game sent in in total", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({ white: { id: "user1" }, status: "playing", tomove: "white" });
     chai.assert.equal(gamePublisher.newType.type, 1);
@@ -51,9 +51,9 @@ describe("GamePublisher", function() {
   const tests2 = random100([
     { white: { id: "user1" } },
     { status: "playing" },
-    { tomove: "white" }
+    { tomove: "white" },
   ]);
-  tests2.forEach(test => {
+  tests2.forEach((test) => {
     it(
       "should set type = 1 when played game sent in one field at a time: " + JSON.stringify(test),
       () => {
@@ -65,7 +65,7 @@ describe("GamePublisher", function() {
       }
     );
   });
-  it.skip("sigh", function(done) {
+  it.skip("sigh", function (done) {
     this.timeout(5000000);
     const test = new Mongo.Collection("test");
     const handle = test.find().observeChanges({
@@ -77,7 +77,7 @@ describe("GamePublisher", function() {
       },
       removed(id) {
         console.log("removed: " + id);
-      }
+      },
     });
     const id = test.insert({ yea: "dome", my_bogus_array: [] });
     let iter = 0;
@@ -92,7 +92,7 @@ describe("GamePublisher", function() {
         case "del":
           const oldguy = Random.choice(current);
           test.update({ _id: id }, { $pull: { my_bogus_array: { guy: oldguy } } });
-          current = current.filter(e => e !== oldguy);
+          current = current.filter((e) => e !== oldguy);
           break;
       }
       if (++iter === 5000) {
@@ -103,13 +103,13 @@ describe("GamePublisher", function() {
     }, 250);
   });
   // type = 2   <- Observer of a game being played
-  it("should set type = 2 when played game sent in in total", function() {
+  it("should set type = 2 when played game sent in in total", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({
       white: { id: "user3" },
       status: "playing",
       tomove: "white",
-      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }]
+      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }],
     });
     chai.assert.equal(gamePublisher.newType.type, 2);
   });
@@ -118,9 +118,9 @@ describe("GamePublisher", function() {
     { white: { id: "user3" } },
     { status: "playing" },
     { tomove: "white" },
-    { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] }
+    { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] },
   ]);
-  tests3.forEach(test => {
+  tests3.forEach((test) => {
     it(
       "should set type = 2 when played game sent in one field at a time: " + JSON.stringify(test),
       () => {
@@ -134,13 +134,13 @@ describe("GamePublisher", function() {
     );
   });
   // type = 3   <- Observer of a public examined game
-  it("should set type = 3 when examined game sent in in total", function() {
+  it("should set type = 3 when examined game sent in in total", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({
       white: { id: "user3" },
       status: "examine",
       tomove: "white",
-      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }]
+      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }],
     });
     chai.assert.equal(gamePublisher.newType.type, 3);
   });
@@ -149,9 +149,9 @@ describe("GamePublisher", function() {
     { white: { id: "user3" } },
     { status: "examine" },
     { tomove: "white" },
-    { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] }
+    { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] },
   ]);
-  tests4.forEach(test => {
+  tests4.forEach((test) => {
     it(
       "should set type = 3 when examined game sent in one field at a time: " + JSON.stringify(test),
       () => {
@@ -165,7 +165,7 @@ describe("GamePublisher", function() {
     );
   });
   // type = 4   <- Owner of a private examined game
-  it("should set type = 4 when examined private game sent in in total", function() {
+  it("should set type = 4 when examined private game sent in in total", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({
       white: { id: "user3" },
@@ -173,7 +173,7 @@ describe("GamePublisher", function() {
       tomove: "white",
       private: true,
       owner: "user1",
-      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }]
+      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }],
     });
     chai.assert.equal(gamePublisher.newType.type, 4);
   });
@@ -184,9 +184,9 @@ describe("GamePublisher", function() {
     { tomove: "white" },
     { private: true },
     { owner: "user1" },
-    { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] }
+    { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] },
   ]);
-  tests5.forEach(test => {
+  tests5.forEach((test) => {
     it(
       "should set type = 4 when examined private game sent in one field at a time: " +
         JSON.stringify(test),
@@ -203,7 +203,7 @@ describe("GamePublisher", function() {
     );
   });
   // type = 5   <- Observer of a private examined game with analysis
-  it("should set type = 4 when examined private game sent in in total", function() {
+  it("should set type = 4 when examined private game sent in in total", function () {
     this.timeout(500000);
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({
@@ -213,7 +213,7 @@ describe("GamePublisher", function() {
       private: true,
       owner: "user9",
       analysis: [{ id: "user4" }, { id: "user1" }, { id: "user6" }],
-      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }]
+      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }],
     });
     chai.assert.equal(gamePublisher.newType.type, 5);
   });
@@ -225,9 +225,9 @@ describe("GamePublisher", function() {
     { private: true },
     { owner: "user9" },
     { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] },
-    { analysis: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] }
+    { analysis: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] },
   ]);
-  tests6.forEach(test => {
+  tests6.forEach((test) => {
     it(
       "should set type = 5 when examined private game sent in one field at a time: " +
         JSON.stringify(test),
@@ -245,7 +245,7 @@ describe("GamePublisher", function() {
     );
   });
   // type = 6   <- Observer of a private examined game without analysis
-  it("should set type = 6 when examined private game sent in in total", function() {
+  it("should set type = 6 when examined private game sent in in total", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({
       white: { id: "user3" },
@@ -254,7 +254,7 @@ describe("GamePublisher", function() {
       private: true,
       owner: "user9",
       analysis: [{ id: "user4" }, { id: "user6" }],
-      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }]
+      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }],
     });
     chai.assert.equal(gamePublisher.newType.type, 6);
   });
@@ -266,9 +266,9 @@ describe("GamePublisher", function() {
     { private: true },
     { owner: "user9" },
     { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] },
-    { analysis: [{ id: "user4" }, { id: "user6" }] }
+    { analysis: [{ id: "user4" }, { id: "user6" }] },
   ]);
-  tests7.forEach(test => {
+  tests7.forEach((test) => {
     it(
       "should set type = 6 when examined private game sent in one field at a time: " +
         JSON.stringify(test),
@@ -286,7 +286,7 @@ describe("GamePublisher", function() {
     );
   });
   // type = 7   <- None of the above
-  it("should set type = 7 when examined private game sent in in total", function() {
+  it("should set type = 7 when examined private game sent in in total", function () {
     const gamePublisher = new GamePublisher({}, "userA");
     gamePublisher.updateUserType({
       white: { id: "user3" },
@@ -295,7 +295,7 @@ describe("GamePublisher", function() {
       private: true,
       owner: "user9",
       analysis: [{ id: "user4" }, { id: "user6" }],
-      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }]
+      observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }],
     });
     chai.assert.equal(gamePublisher.newType.type, 7);
   });
@@ -307,9 +307,9 @@ describe("GamePublisher", function() {
     { private: true },
     { owner: "user9" },
     { observers: [{ id: "user4" }, { id: "user1" }, { id: "user6" }] },
-    { analysis: [{ id: "user4" }, { id: "user6" }] }
+    { analysis: [{ id: "user4" }, { id: "user6" }] },
   ]);
-  tests8.forEach(test => {
+  tests8.forEach((test) => {
     it("should set type = 7 when none of the above: " + JSON.stringify(test), () => {
       const gamePublisher = new GamePublisher({}, "userA");
       gamePublisher.updateUserType(test[0]);
@@ -359,8 +359,8 @@ describe("GamePublisher", function() {
     return retarray;
   }
   // getUserFields()
-  it("should set the authorized fields correctly for type 0", function() {
-    this.timeout(500000);
+  it("should set the authorized fields correctly for type 0", function () {
+    // NOT to move -- HAS premove
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 7 };
     gamePublisher.newType = { type: 0 };
@@ -370,12 +370,14 @@ describe("GamePublisher", function() {
       "_id",
       "startTime",
       "fen",
-      "premove"
+      "premove",
     ]);
     chai.assert.includeMembers(gamePublisher.deletedFields, ["result"]);
     chai.assert.includeMembers(gamePublisher.addedFields, ["fen", "premove"]);
   });
-  it("should set the authorized fields correctly for type 1", function() {
+
+  it("should set the authorized fields correctly for type 1", function () {
+    // IS to move -- DOES NOT HAVE premove
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 7 };
     gamePublisher.newType = { type: 1 };
@@ -384,9 +386,29 @@ describe("GamePublisher", function() {
     chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["premove"]);
     chai.assert.includeMembers(gamePublisher.authorizedFields, ["_id", "startTime", "fen"]);
     chai.assert.includeMembers(gamePublisher.deletedFields, ["result"]);
-    chai.assert.includeMembers(gamePublisher.addedFields, ["fen", "premove"]);
+    chai.assert.includeMembers(gamePublisher.addedFields, ["fen"]);
   });
-  it("should set the authorized fields correctly for type 2", function() {
+
+  it("should handle premove specifically", function () {
+    const gamePublisher = new GamePublisher({}, "user1");
+    gamePublisher.oldType = { type: null };
+    gamePublisher.newType = { type: 0 };
+    gamePublisher.getUserFields();
+    chai.assert.includeMembers(gamePublisher.authorizedFields, ["premove"]);
+    chai.assert.includeMembers(gamePublisher.addedFields, ["premove"]);
+    gamePublisher.oldType = { type: 0 };
+    gamePublisher.newType = { type: 1 };
+    gamePublisher.getUserFields();
+    chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["premove"]);
+    chai.assert.includeMembers(gamePublisher.deletedFields, ["premove"]);
+    gamePublisher.oldType = { type: 1 };
+    gamePublisher.newType = { type: 0 };
+    gamePublisher.getUserFields();
+    chai.assert.includeMembers(gamePublisher.authorizedFields, ["premove"]);
+    chai.assert.includeMembers(gamePublisher.addedFields, ["premove"]);
+  });
+
+  it("should set the authorized fields correctly for type 2", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 7 };
     gamePublisher.newType = { type: 2 };
@@ -396,10 +418,10 @@ describe("GamePublisher", function() {
       "_id",
       "startTime",
       "fen",
-      "computer_variations"
+      "computer_variations",
     ]);
   });
-  it("should set the authorized fields correctly for type 3", function() {
+  it("should set the authorized fields correctly for type 3", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 7 };
     gamePublisher.newType = { type: 3 };
@@ -410,10 +432,10 @@ describe("GamePublisher", function() {
       "startTime",
       "fen",
       "computer_variations",
-      "examiners"
+      "examiners",
     ]);
   });
-  it("should set the authorized fields correctly for type 4", function() {
+  it("should set the authorized fields correctly for type 4", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 7 };
     gamePublisher.newType = { type: 4 };
@@ -425,10 +447,10 @@ describe("GamePublisher", function() {
       "fen",
       "computer_variations",
       "examiners",
-      "deny_chat"
+      "deny_chat",
     ]);
   });
-  it("should set the authorized fields correctly for type 5", function() {
+  it("should set the authorized fields correctly for type 5", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 7 };
     gamePublisher.newType = { type: 5 };
@@ -439,10 +461,10 @@ describe("GamePublisher", function() {
       "startTime",
       "fen",
       "computer_variations",
-      "examiners"
+      "examiners",
     ]);
   });
-  it("should set the authorized fields correctly for type 6", function() {
+  it("should set the authorized fields correctly for type 6", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 7 };
     gamePublisher.newType = { type: 6 };
@@ -452,11 +474,11 @@ describe("GamePublisher", function() {
       "_id",
       "startTime",
       "fen",
-      "examiners"
+      "examiners",
     ]);
     chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["computer_variations"]);
   });
-  it("should set the authorized fields correctly for type 7", function() {
+  it("should set the authorized fields correctly for type 7", function () {
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 0 };
     gamePublisher.newType = { type: 7 };
@@ -466,20 +488,26 @@ describe("GamePublisher", function() {
     chai.assert.notIncludeMembers(gamePublisher.authorizedFields, ["variations", "fen"]);
   });
   // copyAuthorizedFields(rec)
-  it("should copy authorized fields from input to output", function() {
+  it("should copy authorized fields from input to output", function () {
     const date = new Date();
     const orig = {
       startTime: date,
       fen: "ppPPppPP",
       white: { id: "x", username: "y" },
-      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+      observers: [
+        { id: "1", username: "o1" },
+        { id: "2", username: "o2" },
+      ],
     };
     const expected_copy_1 = { startTime: date, white: { id: "x", username: "y" } };
     const expected_copy_2 = {
       startTime: date,
       fen: "ppPPppPP",
       white: { id: "x", username: "y" },
-      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+      observers: [
+        { id: "1", username: "o1" },
+        { id: "2", username: "o2" },
+      ],
     };
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 0 };
@@ -494,13 +522,16 @@ describe("GamePublisher", function() {
     chai.assert.deepEqual(newrec2, expected_copy_2);
   });
   // nullDeletedFields(rec)
-  it("should copy authorized fields from input to output", function() {
+  it("should copy authorized fields from input to output", function () {
     const date = new Date();
     const orig = {
       startTime: date,
       fen: "ppPPppPP",
       white: { id: "x", username: "y" },
-      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+      observers: [
+        { id: "1", username: "o1" },
+        { id: "2", username: "o2" },
+      ],
     };
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.oldType = { type: 0 };
@@ -511,20 +542,26 @@ describe("GamePublisher", function() {
     chai.assert.isUndefined(newrec.observers);
   });
   // addNewFields(id, rec)
-  it("should leave any fields in the original record alone, and copy any new fields from a database lookup", function() {
+  it("should leave any fields in the original record alone, and copy any new fields from a database lookup", function () {
     this.timeout(500000);
     const date = new Date();
     const id = Random.id();
     const orig = {
       startTime: date,
       white: { id: "x", username: "y" },
-      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+      observers: [
+        { id: "1", username: "o1" },
+        { id: "2", username: "o2" },
+      ],
     };
     const expected_copy_2 = {
       startTime: date,
       fen: "ppPPppPP",
       white: { id: "x", username: "y" },
-      observers: [{ id: "1", username: "o1" }, { id: "2", username: "o2" }]
+      observers: [
+        { id: "1", username: "o1" },
+        { id: "2", username: "o2" },
+      ],
     };
     const gamePublisher = new GamePublisher(
       {
@@ -533,7 +570,7 @@ describe("GamePublisher", function() {
           chai.assert.isDefined(modifier.fields.fen);
           chai.assert.isUndefined(modifier.fields.observers);
           return { fen: "ppPPppPP" };
-        }
+        },
       },
       "user1"
     );
@@ -543,14 +580,14 @@ describe("GamePublisher", function() {
     const newrec1 = gamePublisher.addNewFields(id, orig);
     chai.assert.deepEqual(newrec1, expected_copy_2);
   });
-  it("should not look up a record in the database if there NOT any left over added fields", function() {
+  it("should not look up a record in the database if there NOT any left over added fields", function () {
     chai.assert.fail("do me");
   });
   // getUpdatedRecord(id, rec)
-  it("should not null deleted fields if the type does not change", function() {
+  it("should not null deleted fields if the type does not change", function () {
     chai.assert.fail("do me");
   });
-  it("should not add fields if the type does not change", function() {
+  it("should not add fields if the type does not change", function () {
     chai.assert.fail("do me");
   });
 });
