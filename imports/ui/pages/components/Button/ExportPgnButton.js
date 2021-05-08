@@ -6,7 +6,7 @@ import { translate } from "../../../HOCs/translate";
 const styles = {
   pgnIcon: {
     width: "25px",
-    height: "25px"
+    height: "25px",
   },
   pgnButton: {
     display: "block",
@@ -14,12 +14,12 @@ const styles = {
     width: "30px",
     "&:hover": {
       backgroundColor: "#2a9bdc",
-      borderRadius: "3px"
+      borderRadius: "3px",
     },
     "&:focus": {
-      outline: "1px solid rgba(0, 0, 0, .3)"
-    }
-  }
+      outline: "1px solid rgba(0, 0, 0, .3)",
+    },
+  },
 };
 
 const ExportPgnButton = ({ id, translate, classes, src }) => (
@@ -28,7 +28,4 @@ const ExportPgnButton = ({ id, translate, classes, src }) => (
   </a>
 );
 
-export default compose(
-  translate("Common.gameListModal"),
-  injectSheet(styles)
-)(ExportPgnButton);
+export default compose(translate("Common.gameListModal"), injectSheet(styles))(ExportPgnButton);

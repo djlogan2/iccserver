@@ -7,7 +7,7 @@ import { RESOURCE_EDITOR } from "../../../constants/resourceConstants";
 
 const log = new Logger("client/MoveListComponent");
 
-let handleError = error => {
+let handleError = (error) => {
   if (error) {
     log.error(error);
   }
@@ -24,7 +24,7 @@ class MoveListComponent extends Component {
       action: "action",
       examinAction: "action",
       gameRequest: props.gameRequest,
-      isexamin: true
+      isexamin: true,
     };
   }
 
@@ -58,7 +58,7 @@ class MoveListComponent extends Component {
     let movedata = this.moves;
     let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
     for (let i = 0; i <= slicemoves.length; i++) {
-      Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc, err => {
+      Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc, (err) => {
         if (err) {
           debugger;
         }
@@ -69,7 +69,7 @@ class MoveListComponent extends Component {
   moveAutoForward = () => {
     clearInterval(this.intervalID);
 
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return { toggle: !prevState.toggle };
     });
 
@@ -80,7 +80,7 @@ class MoveListComponent extends Component {
       if (remainMove === 0 || !toggle) {
         clearInterval(this.intervalID);
 
-        this.setState(prevState => {
+        this.setState((prevState) => {
           return { toggle: !prevState.toggle };
         });
       } else {
@@ -93,7 +93,7 @@ class MoveListComponent extends Component {
     clearInterval(this.intervalID);
   }
 
-  handleChange = e => {
+  handleChange = (e) => {
     const { examineAction } = this.props;
 
     this.setState({ examinAction: e.target.value });
@@ -106,7 +106,7 @@ class MoveListComponent extends Component {
     examineAction("newoppent");
   }
 
-  _takeBackAction = number => {
+  _takeBackAction = (number) => {
     Meteor.call("requestTakeback", this.message_identifier, this.gameId, number);
   };
 
@@ -153,7 +153,7 @@ class MoveListComponent extends Component {
       gameRequest.challenger_color_request
     );
   };
-  handleChangeSecond = event => {
+  handleChangeSecond = (event) => {
     let action = event.target.value;
     this.setState({ action: "action" });
     switch (action) {
@@ -254,9 +254,9 @@ class MoveListComponent extends Component {
         (Meteor.userId() === game.white.id || Meteor.userId() === game.black.id)
       )
         status = "playing";
-      else if (!!game.examiners && game.examiners.some(ex => ex.id === Meteor.userId()))
+      else if (!!game.examiners && game.examiners.some((ex) => ex.id === Meteor.userId()))
         status = "examining";
-      else if (game.observers.some(ex => ex.id === Meteor.userId())) status = "observing";
+      else if (game.observers.some((ex) => ex.id === Meteor.userId())) status = "observing";
       this.message_identifier = "server:game:" + this.gameId;
       let string = this.buildPgnFromMovelist(game.variations.movelist);
 
@@ -321,7 +321,7 @@ class MoveListComponent extends Component {
       background: "#f1f1f1",
       borderRadius: "5px",
       margin: "5px",
-      padding: "6px 25px"
+      padding: "6px 25px",
     });
 
     return (
@@ -399,7 +399,7 @@ class MoveListComponent extends Component {
                       border: "1px #9c9c9c solid",
                       padding: "6px 3px",
                       borderRadius: "5px",
-                      marginTop: "7px"
+                      marginTop: "7px",
                     }}
                     value={this.state.action}
                   >
@@ -468,7 +468,7 @@ class MoveListComponent extends Component {
                       padding: "6px 3px",
                       borderRadius: "5px",
                       marginTop: "7px",
-                      width: "150px"
+                      width: "150px",
                     }}
                     value={this.state.examinAction}
                     onChange={this.handleChange}

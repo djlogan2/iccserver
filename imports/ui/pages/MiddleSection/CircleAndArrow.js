@@ -13,7 +13,7 @@ export default class CircleAndArrow extends Component {
             height: "100%",
             position: "fixed",
             top: 0,
-            pointerEvents: "none"
+            pointerEvents: "none",
           }}
         />
         <div id="circle-and-line-template" style={{ display: "none" }}>
@@ -65,7 +65,7 @@ export default class CircleAndArrow extends Component {
     var handledRightClick = false;
     var color = "#15781B";
     //below is the code for showing and hiding arrows
-    $("#" + currentObject.props.chardBoardName).mousedown(function(ev) {
+    $("#" + currentObject.props.chardBoardName).mousedown(function (ev) {
       if (ev.which === 3) {
         if (handledRightClick) {
           return;
@@ -117,7 +117,7 @@ export default class CircleAndArrow extends Component {
       }
     });
 
-    $(document).mouseup(function(event) {
+    $(document).mouseup(function (event) {
       handleMouseMove = false;
       handledRightClick = false;
       if (event.which !== 3) {
@@ -128,7 +128,7 @@ export default class CircleAndArrow extends Component {
       }
     });
 
-    $("#" + currentObject.props.chardBoardName).mousemove(function(event) {
+    $("#" + currentObject.props.chardBoardName).mousemove(function (event) {
       if (handleMouseMove) {
         var target = event.target;
         if (!$(event.target).attr(currentObject.props.squareId)) {
@@ -151,10 +151,10 @@ export default class CircleAndArrow extends Component {
       }
     });
 
-    $(document).on("contextmenu", function(event) {
+    $(document).on("contextmenu", function (event) {
       event.preventDefault();
     });
-    $("body").keydown(function(event) {
+    $("body").keydown(function (event) {
       if (event.altKey || event.shiftKey || event.ctrlKey) {
         if (event.altKey && event.shiftKey) {
           color = "red";

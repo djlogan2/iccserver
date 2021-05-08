@@ -19,7 +19,7 @@ export default class FallenSoldierSquare extends React.Component {
 
     const imageSide = {
       width: h,
-      height: w
+      height: w,
     };
 
     const imageStyle = {
@@ -29,7 +29,7 @@ export default class FallenSoldierSquare extends React.Component {
       borderRadius: "3px",
       color: "#fff",
       backgroundColor: "none",
-      position: "relative"
+      position: "relative",
     };
 
     const countStyle = {
@@ -42,7 +42,7 @@ export default class FallenSoldierSquare extends React.Component {
       border: "#fff solid 1px",
       top: "-4px",
       left: "-3px",
-      position: "absolute"
+      position: "absolute",
     };
 
     const notcountStyle = {
@@ -53,7 +53,7 @@ export default class FallenSoldierSquare extends React.Component {
       padding: "2px",
       top: "-4px",
       left: "-3px",
-      position: "absolute"
+      position: "absolute",
     };
 
     const spanStyle = count ? countStyle : notcountStyle;

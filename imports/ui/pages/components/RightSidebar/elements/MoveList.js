@@ -16,7 +16,7 @@ export default class MoveList extends Component {
       action: "action",
       examinAction: "action",
       gameRequest: props.gameRequest,
-      isexamin: true
+      isexamin: true,
     };
   }
 
@@ -123,7 +123,7 @@ export default class MoveList extends Component {
       background: "#f1f1f1",
       borderRadius: "5px",
       margin: "5px",
-      padding: "6px 25px"
+      padding: "6px 25px",
     });
 
     return (

@@ -15,7 +15,7 @@ class MatchUserComponent extends TrackerReact(Component) {
     super(props);
     this.state = {
       subscription: {
-        loggedOnUsers: Meteor.subscribe("loggedOnUsers")
+        loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
       },
       user: null,
       userId: null,
@@ -26,7 +26,7 @@ class MatchUserComponent extends TrackerReact(Component) {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     };
   }
 
@@ -44,7 +44,7 @@ class MatchUserComponent extends TrackerReact(Component) {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     });
   };
 
@@ -52,27 +52,27 @@ class MatchUserComponent extends TrackerReact(Component) {
     this.setState({ user, userId });
   };
 
-  handleChangeMinute = time => {
+  handleChangeMinute = (time) => {
     this.setState({ time });
   };
 
-  handleChangeSecond = inc => {
+  handleChangeSecond = (inc) => {
     this.setState({ inc });
   };
 
-  handleChangeGameType = ratingType => {
+  handleChangeGameType = (ratingType) => {
     this.setState({ ratingType });
   };
 
-  handleIncOrDelayTypeChange = incOrdelayType => {
+  handleIncOrDelayTypeChange = (incOrdelayType) => {
     this.setState({ incOrdelayType });
   };
 
-  handleChangeColor = color => {
+  handleChangeColor = (color) => {
     this.setState({ color });
   };
 
-  handleRatedChange = rated => {
+  handleRatedChange = (rated) => {
     this.setState({ rated });
   };
 
@@ -86,7 +86,7 @@ class MatchUserComponent extends TrackerReact(Component) {
       time,
       inc,
       incOrdelayType,
-      color: stateColor
+      color: stateColor,
     } = this.state;
 
     const color = stateColor === "random" ? null : stateColor;
@@ -117,12 +117,12 @@ class MatchUserComponent extends TrackerReact(Component) {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: "random"
+      color: "random",
     });
   };
 
   toggleHover() {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return { hover: !prevState.hover };
     });
   }
@@ -142,7 +142,7 @@ class MatchUserComponent extends TrackerReact(Component) {
     const localUsers = Meteor.users.find({ _id: { $ne: Meteor.userId() } }).fetch();
     const legacyUsers = legacyUsersC.find({}).fetch();
     //  const _userdata = localUsers.map(user => user.username);
-    let userdata = localUsers.concat(legacyUsers.map(user => user.username + "(L)"));
+    let userdata = localUsers.concat(legacyUsers.map((user) => user.username + "(L)"));
     const userdata2 = ["User-1", "User-2", "User-3", "User-4"];
     //  userdata.sort();
     // this.rating=this.getDynamicRatings();
@@ -240,7 +240,7 @@ class MatchUserComponent extends TrackerReact(Component) {
                   border: "0px",
                   color: "#fff",
                   padding: "10px 20px",
-                  borderRadius: "6px"
+                  borderRadius: "6px",
                 }}
               >
                 {translate("createChallangeLink")}

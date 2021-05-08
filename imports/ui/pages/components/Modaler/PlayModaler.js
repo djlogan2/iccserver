@@ -9,7 +9,7 @@ class PlayModaler extends Component {
     Meteor.call("acknowledge.client.message", clientMessage._id);
   };
 
-  getTitleText = gameResult => {
+  getTitleText = (gameResult) => {
     const { translate } = this.props;
 
     switch (gameResult) {

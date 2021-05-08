@@ -202,7 +202,7 @@ class FakeEc2 {
   }
 }
 
-describe.only("AnalysisEngines", function() {
+describe.skip("AnalysisEngines", function() {
   let sandbox;
   beforeEach(function(done) {
     sandbox = sinon.createSandbox();
@@ -247,7 +247,7 @@ describe.only("AnalysisEngines", function() {
     }
   }
 
-  it.only("should set an existing engine record busy, assign our ID, and return the engine ID when one is available", function() {
+  it("should set an existing engine record busy, assign our ID, and return the engine ID when one is available", function() {
     this.timeout(500000);
     sandbox.replace(AnalysisEngines, "intervalWait", 1);
     sandbox.spy(AnalysisEngines.instance_collection);

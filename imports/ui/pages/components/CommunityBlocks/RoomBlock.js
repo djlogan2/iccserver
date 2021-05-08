@@ -20,7 +20,7 @@ const RoomBlock = translate("Community")(
       onAdd(roomName, isPrivate);
     };
 
-    const handleKeyDown = itemId => event => {
+    const handleKeyDown = (itemId) => (event) => {
       if (event.key === KEY_ENTER) {
         onChange(itemId);
       }
@@ -38,7 +38,7 @@ const RoomBlock = translate("Community")(
             onOk={handleOk}
             onCancel={handleCancel}
           >
-            <Input value={roomName} onChange={e => setRoomName(e.target.value)} />
+            <Input value={roomName} onChange={(e) => setRoomName(e.target.value)} />
           </Modal>
           <Button
             onClick={openRightBlock}
@@ -50,7 +50,7 @@ const RoomBlock = translate("Community")(
         </div>
 
         <ul className="room-block__list">
-          {list.map(item => {
+          {list.map((item) => {
             let itemClasses =
               activeRoom === item._id
                 ? "room-block__list-item room-block__list-item--active"

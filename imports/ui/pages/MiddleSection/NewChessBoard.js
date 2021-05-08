@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import ChessBoard from "chessboard";
+import { isEqual } from "lodash";
+import { getBoardSquares } from "../../../utils/utils";
+import Chess from "chess.js";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -14,7 +17,8 @@ class NewChessBoard extends Component {
       showLegalMoves: true,
       smallSize: 500,
       fen: null,
-      lastMove: null
+      lastMove: null,
+      premoveColor: "#6e009e",
     };
   }
 
@@ -31,20 +35,74 @@ class NewChessBoard extends Component {
 
   updateWindowSize = () => {
     this.setState({
-      key: Date.now()
+      key: Date.now(),
     });
   };
 
+  getArrowsDependOnPremove = (premove, prevPremove) => {
+    const { arrows, premoveColor } = this.state;
+
+    if (!premove && prevPremove) {
+      let equalIndex;
+      const isExists = arrows.some((element, index) => {
+        const isEqual =
+          element.piece.to === prevPremove.to && element.piece.from === prevPremove.from;
+
+        if (isEqual) {
+          equalIndex = index;
+        }
+
+        return isEqual;
+      });
+
+      if (isExists) {
+        arrows.splice(equalIndex, 1);
+      }
+
+      this.setState({ arrows: [...arrows] });
+    }
+
+    if (!prevPremove && premove) {
+      arrows.push({ piece: { from: premove.from, to: premove.to }, color: premoveColor });
+      this.setState({ arrows: [...arrows] });
+    }
+
+    if (prevPremove && premove) {
+      let equalIndex;
+      const isExists = arrows.some((element, index) => {
+        const isEqual =
+          element.piece.to === prevPremove.to && element.piece.from === prevPremove.from;
+
+        if (isEqual) {
+          equalIndex = index;
+        }
+
+        return isEqual;
+      });
+
+      if (isExists) {
+        arrows.splice(equalIndex, 1);
+      }
+
+      arrows.push({ piece: { from: premove.from, to: premove.to }, color: premoveColor });
+      this.setState({ arrows: [...arrows] });
+    }
+  };
+
   componentDidUpdate(prevProps, prevState) {
-    const { chess } = this.props;
+    const { chess, premove } = this.props;
     const { fen } = this.state;
+
+    if (!isEqual(premove, prevProps.premove)) {
+      this.getArrowsDependOnPremove(premove, prevProps.premove);
+    }
 
     if (fen !== chess.fen()) {
       this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
     }
   }
 
-  getColorFromEvent = event => {
+  getColorFromEvent = (event) => {
     if (event.altKey && event.shiftKey) {
       return "#d40000";
     } else if (event.altKey && event.ctrlKey) {
@@ -54,7 +112,7 @@ class NewChessBoard extends Component {
     }
   };
 
-  handleUpdateCircles = circle => {
+  handleUpdateCircles = (circle) => {
     const { gameStatus } = this.props;
     const { circles } = this.state;
 
@@ -88,11 +146,11 @@ class NewChessBoard extends Component {
   getLegalMoves = () => {
     const { chess } = this.props;
     const moves = {};
-    ["a", "b", "c", "d", "e", "f", "g", "h"].forEach(rank => {
+    ["a", "b", "c", "d", "e", "f", "g", "h"].forEach((rank) => {
       for (let file = 1; file <= 8; file++) {
         const legal = chess
           .moves({ square: rank + file, verbose: true })
-          .map(verbose => verbose.to);
+          .map((verbose) => verbose.to);
         if (!!legal && !!legal.length) moves[rank + file] = legal;
       }
     });
@@ -102,20 +160,40 @@ class NewChessBoard extends Component {
   handleMove = (move, promotion) => {
     const { onDrop, chess } = this.props;
 
-    const lastMove = chess.move(move[0] + move[1] + promotion, { sloppy: true });
+    const isCurrentTurn = this.isCurrentTurn();
 
-    const history = chess.history();
-    const moves = history[history.length - 1];
+    if (isCurrentTurn) {
+      const lastMove = chess.move(move[0] + move[1] + promotion, { sloppy: true });
 
-    onDrop({ move: moves });
+      const history = chess.history();
+      const moves = history[history.length - 1];
 
-    this.setState({
-      lastMove,
-      legalMoves: this.getLegalMoves()
-    });
+      onDrop({ move: moves });
+
+      this.setState({
+        lastMove,
+        legalMoves: this.getLegalMoves(),
+      });
+    } else {
+      const temp = new Chess.Chess(chess.fen());
+      const moves = temp.moves();
+      let found = false;
+      for (let x = 0; !found && x < moves.length; x++) {
+        temp.move(moves[x]);
+        const result = temp.move(move[0] + move[1] + promotion, { sloppy: true });
+        if (!!result) {
+          const history = temp.history();
+          const moves = history[history.length - 1];
+
+          onDrop({ move: moves });
+          return;
+        }
+        temp.undo();
+      }
+    }
   };
 
-  handleUpdateArrows = arrow => {
+  handleUpdateArrows = (arrow) => {
     const { gameStatus } = this.props;
     const { arrows } = this.state;
 
@@ -147,7 +225,7 @@ class NewChessBoard extends Component {
     this.setState({ arrows: [...arrows] });
   };
 
-  haveLegalMoves = () => {
+  isCurrentTurn = () => {
     const { chess, whiteId, blackId, gameStatus } = this.props;
     const userId = Meteor.userId();
 
@@ -172,7 +250,7 @@ class NewChessBoard extends Component {
   render() {
     const { orientation, chess } = this.props;
     const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize, key } = this.state;
-    const hasLegalMoves = this.haveLegalMoves();
+    const isCurrentTurn = this.isCurrentTurn();
 
     const lastMove = this.getLastMove();
 
@@ -182,18 +260,18 @@ class NewChessBoard extends Component {
         raf={{ inside: false, vertical: "bottom", horizontal: "right" }}
         styles={{
           wrapper: {
-            backgroundColor: "#292929"
+            backgroundColor: "#292929",
           },
           files: {
-            color: "white"
+            color: "white",
           },
           ranks: {
-            color: "white"
+            color: "white",
           },
           promotion: {
-            backgroundColor: "#a8a8a8"
+            backgroundColor: "#a8a8a8",
           },
-          lastMove: "5px solid #3CFF33"
+          lastMove: "5px solid #3CFF33",
         }}
         lastMove={lastMove}
         showLastMove
@@ -201,7 +279,7 @@ class NewChessBoard extends Component {
         fen={chess.fen()}
         boardSquares={{
           light: { default: "#FFFFFF", active: "#9c9c9c" },
-          dark: { default: "#1565c0", active: "#1255A1" }
+          dark: { default: "#1565c0", active: "#1255A1" },
         }}
         pieceImages={{
           bB: "images/chesspieces/bB.png",
@@ -215,16 +293,16 @@ class NewChessBoard extends Component {
           wN: "images/chesspieces/wN.png",
           wP: "images/chesspieces/wP.png",
           wQ: "images/chesspieces/wQ.png",
-          wR: "images/chesspieces/wR.png"
+          wR: "images/chesspieces/wR.png",
         }}
-        movable={hasLegalMoves ? legalMoves : {}}
+        movable={isCurrentTurn ? legalMoves : () => getBoardSquares()}
         circles={circles}
         arrows={arrows}
-        onUpdateCircles={circle => this.handleUpdateCircles(circle)}
-        onUpdateArrows={arrow => this.handleUpdateArrows(arrow)}
+        onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
+        onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
         onMove={(move, promotion) => this.handleMove(move, promotion)}
         smartMoves={smartMoves}
-        showLegalMoves={showLegalMoves}
+        showLegalMoves={isCurrentTurn && showLegalMoves}
         smallSize={smallSize}
         promotionPieces={["q", "n", "b", "r"]}
         accessibilityPieces={{
@@ -241,7 +319,7 @@ class NewChessBoard extends Component {
           wQ: "White queen",
           wK: "White king",
           emptySquare: "Empty square",
-          legalMoves: "Legal moves: "
+          legalMoves: "Legal moves: ",
         }}
       />
     );

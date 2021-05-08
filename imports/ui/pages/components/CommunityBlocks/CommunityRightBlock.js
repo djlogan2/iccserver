@@ -16,7 +16,7 @@ const CommunityRightBlock = translate("Community")(
             </Button>
           </div>
           <ul className="room-block__list">
-            {roomList.map(item => {
+            {roomList.map((item) => {
               let itemClasses =
                 activeRoom === item._id
                   ? "room-block__list-item room-block__list-item--active"

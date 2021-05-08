@@ -13,7 +13,7 @@ class Player extends Component {
       Playermsg,
       color,
       FallenSoldiers,
-      translate
+      translate,
     } = this.props;
 
     const userPicture = cssManager.userPicture(side * 0.08);
@@ -28,7 +28,7 @@ class Player extends Component {
       position: "absolute",
       top: "50%",
       right: "10px",
-      transform: "translateY(-50%)"
+      transform: "translateY(-50%)",
     });
 
     return (
@@ -38,7 +38,7 @@ class Player extends Component {
           display: "inline-block",
           marginTop: "5px",
           marginBottom: "5px",
-          position: "relative"
+          position: "relative",
         }}
       >
         <div style={{ width: side * 0.45, display: "inline-block", position: "relative" }}>
@@ -50,7 +50,7 @@ class Player extends Component {
                 maxWidth: side * 0.25,
                 wordBreak: "break-word",
                 verticalAlign: "middle",
-                marginTop: "5px"
+                marginTop: "5px",
               }}
             >
               <p
@@ -60,7 +60,7 @@ class Player extends Component {
                   fontWeight: "600",
                   marginRight: "15px",
                   display: "block",
-                  width: "100%"
+                  width: "100%",
                 }}
               >
                 {playerData.name} ({playerData.rating})
@@ -71,7 +71,7 @@ class Player extends Component {
               <span
                 style={{
                   color: turnColor,
-                  fontSize: side * 0.019
+                  fontSize: side * 0.019,
                 }}
               >
                 {Playermsg}
@@ -84,7 +84,7 @@ class Player extends Component {
             width: side * 0.35,
             display: "inline-block",
             verticalAlign: "top",
-            marginTop: "5px"
+            marginTop: "5px",
           }}
         >
           <FallenSoldier

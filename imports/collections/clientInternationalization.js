@@ -4,17 +4,14 @@ import { check, Match } from "meteor/check";
 
 const mongoClientInternationalization = new Mongo.Collection("client_internationalization");
 
-Meteor.publish("clientInternationalization", function(locale) {
+Meteor.publish("clientInternationalization", function (locale) {
   check(locale, Match.OneOf(String, null));
 
   const options = {
-    locale: null
+    locale: null,
   };
 
-  const acceptLanguage = locale
-    .split(/[,;]/)[0]
-    .toLocaleLowerCase()
-    .replace("_", "-");
+  const acceptLanguage = locale.split(/[,;]/)[0].toLocaleLowerCase().replace("_", "-");
 
   if (!this.userId) {
     options.locale = acceptLanguage;

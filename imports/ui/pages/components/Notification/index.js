@@ -5,7 +5,7 @@ import { Meteor } from "meteor/meteor";
 const renderNotification = ({ title, action, cssManager, gameId, classes, translate }) => {
   const key = `notification-${action}-${gameId}`;
 
-  const responseHandler = actionType => {
+  const responseHandler = (actionType) => {
     switch (action) {
       case "takeBack":
         takeBack(actionType, gameId);
@@ -82,7 +82,7 @@ const renderNotification = ({ title, action, cssManager, gameId, classes, transl
     closeIcon: () => null,
     style: { height: "55px", backgroundColor: "#800000", color: "#fff" },
     message: renderTitle(),
-    description: null
+    description: null,
   });
 };
 

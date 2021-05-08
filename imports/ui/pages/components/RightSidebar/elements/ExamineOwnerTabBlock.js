@@ -6,11 +6,11 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
     return () => {
       let call = "localAddObserver";
 
-      if (!!game.examiners && game.examiners.some(ex => ex.id === Meteor.userId())) {
+      if (!!game.examiners && game.examiners.some((ex) => ex.id === Meteor.userId())) {
         call = "localAddExaminer";
       }
 
-      Meteor.call(call, call, game_id, id_to_add, error => {
+      Meteor.call(call, call, game_id, id_to_add, (error) => {
         if (error) {
           console.error(error);
         }
@@ -21,12 +21,12 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
   const handleRemoveExaminer = (game_id, id_to_remove) => {
     let call = "localRemoveObserver";
 
-    if (!!game.examiners && game.examiners.some(ex => ex.id === Meteor.userId())) {
+    if (!!game.examiners && game.examiners.some((ex) => ex.id === Meteor.userId())) {
       call = "localRemoveExaminer";
     }
 
     return () => {
-      Meteor.call(call, call, game_id, id_to_remove, error => {
+      Meteor.call(call, call, game_id, id_to_remove, (error) => {
         if (error) {
           console.error(error);
         }
@@ -43,9 +43,9 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
           </span>
         </div>
         <ul className="examine-owner-tab-block__list">
-          {game.observers.map(observerItem => {
+          {game.observers.map((observerItem) => {
             const isExaminer = game.examiners.filter(
-              examinerItem => examinerItem.id === observerItem.id
+              (examinerItem) => examinerItem.id === observerItem.id
             ).length;
 
             return (
@@ -78,7 +78,7 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
         </span>
       </div>
       <ul className="examine-owner-tab-block__list">
-        {game.observers.map(observerItem => {
+        {game.observers.map((observerItem) => {
           return (
             <li key={observerItem.username} className="examine-owner-tab-block__list-item">
               {observerItem.username}

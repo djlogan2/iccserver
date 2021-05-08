@@ -34,19 +34,19 @@ class PersonalChatApp extends Component {
         childChatTexts={childChatTexts}
         user={Meteor.user()}
         chats={this.props.chats}
-        onMessage={text => this.handleChat(text)}
+        onMessage={(text) => this.handleChat(text)}
       />
     );
   }
 }
 
-export default withTracker(props => {
+export default withTracker((props) => {
   return {
     opponent: Meteor.users.findOne({ _id: props.opponentId }),
     childChatTexts: ChildChatTexts.find().fetch(),
     chats: Chat.find({
       type: "private",
-      $or: [{ id: props.opponentId }, { "issuer.id": props.opponentId }]
-    }).fetch()
+      $or: [{ id: props.opponentId }, { "issuer.id": props.opponentId }],
+    }).fetch(),
   };
 })(PersonalChatApp);

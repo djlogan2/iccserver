@@ -12,7 +12,7 @@ import {
   DynamicRatingsCollection,
   Game,
   GameRequestCollection,
-  mongoCss
+  mongoCss,
 } from "../../../api/client/collections";
 import { TimestampClient } from "../../../../lib/Timestamp";
 import { findRatingObject } from "../../../../lib/ratinghelpers";
@@ -26,13 +26,12 @@ import {
   gameSeekAutoAccept,
   gameSeekIsRated,
   maxRating,
-  minRating
+  minRating,
 } from "../../../constants/gameConstants";
 
-const clientCollection = new Mongo.Collection("client_collection");
 const log = new Logger("client/Play_js");
 
-let handleError = error => {
+let handleError = (error) => {
   if (error) {
     log.error("handleError", error);
   }
@@ -50,7 +49,7 @@ class Play extends Component {
 
     this.state = {
       gameType: null,
-      gameData: null
+      gameData: null,
     };
   }
 
@@ -76,18 +75,18 @@ class Play extends Component {
     Meteor.call("drawCircle", "DrawCircle", inGame._id, square, color, size, handleError);
   };
 
-  removeCircle = square => {
+  removeCircle = (square) => {
     const { inGame } = this.props;
 
     Meteor.call("removeCircle", "RemoveCircle", inGame._id, square, handleError);
   };
 
-  _pieceSquareDragStop = raf => {
+  _pieceSquareDragStop = (raf) => {
     const { inGame } = this.props;
     Meteor.call("addGameMove", "gameMove", inGame._id, raf.move, handleError);
   };
 
-  _boardFromMongoMessages = game => {
+  _boardFromMongoMessages = (game) => {
     if (!game.fen) {
       return;
     }
@@ -124,7 +123,7 @@ class Play extends Component {
     const history = this._boardfallensolder.history({ verbose: true });
     const position = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
+      b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
     };
 
     return history.reduce((accumulator, move) => {
@@ -156,7 +155,7 @@ class Play extends Component {
     return ClientMessagesCollection.findOne({ client_identifier: id });
   }
 
-  genOptions = gameData => {
+  genOptions = (gameData) => {
     const friendId = Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
 
     const color = Meteor.userId() === gameData.white.id ? "black" : "white";
@@ -183,7 +182,7 @@ class Play extends Component {
         blackIncrementOrDelay,
         blackIncrementOrDelayType,
         skillLevel,
-        color
+        color,
       } = gameData;
       this.handleBotPlay({
         wildNumber,
@@ -195,7 +194,7 @@ class Play extends Component {
         blackIncrementOrDelay,
         blackIncrementOrDelayType,
         skillLevel,
-        color
+        color,
       });
     } else {
       this.initFriendRematch();
@@ -220,7 +219,7 @@ class Play extends Component {
       time: 14,
       inc: 1,
       incOrdelayType: "inc",
-      color: null
+      color: null,
     };
 
     const { color, initial, incrementOrDelayType, incrementOrDelay, rated } = options;
@@ -255,7 +254,7 @@ class Play extends Component {
     );
   };
 
-  handleBotPlay = gameData => {
+  handleBotPlay = (gameData) => {
     const {
       wildNumber,
       ratingType,
@@ -266,7 +265,7 @@ class Play extends Component {
       blackIncrementOrDelay,
       blackIncrementOrDelayType,
       skillLevel,
-      color
+      color,
     } = gameData;
 
     Meteor.call(
@@ -287,7 +286,7 @@ class Play extends Component {
     this.setState({ gameData, gameType: "startBotGame" });
   };
 
-  handleSeekPlay = gameData => {
+  handleSeekPlay = (gameData) => {
     const { wildNumber, initial, incrementOrDelay, incrementOrDelayType, color } = gameData;
 
     const ratingType = findRatingObject(
@@ -328,7 +327,7 @@ class Play extends Component {
 
     let capture = {
       w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
-      b: { p: 0, n: 0, b: 0, r: 0, q: 0 }
+      b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
     };
 
     const css = new CssManager(systemCss.systemCss, systemCss.userCss);
@@ -399,7 +398,7 @@ export default compose(
       child_chat_texts: Meteor.subscribe("child_chat_texts"),
       users: Meteor.subscribe("loggedOnUsers"),
       importedGame: Meteor.subscribe("imported_games"),
-      dynamic_ratings: Meteor.subscribe("DynamicRatings")
+      dynamic_ratings: Meteor.subscribe("DynamicRatings"),
     };
 
     return {
@@ -416,37 +415,37 @@ export default compose(
           {
             $and: [
               { status: "playing" },
-              { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
-            ]
+              { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] },
+            ],
           },
           {
             $and: [
               { status: "examining" },
-              { $or: [{ "observers.id": Meteor.userId() }, { owner: Meteor.userId() }] }
-            ]
-          }
-        ]
+              { $or: [{ "observers.id": Meteor.userId() }, { owner: Meteor.userId() }] },
+            ],
+          },
+        ],
       }),
 
       gameRequest: GameRequestCollection.findOne(
         {
           $or: [
             {
-              challenger_id: Meteor.userId()
+              challenger_id: Meteor.userId(),
             },
             {
-              receiver_id: Meteor.userId()
+              receiver_id: Meteor.userId(),
             },
-            { type: "seek" }
-          ]
+            { type: "seek" },
+          ],
         },
         {
-          sort: { create_date: -1 }
+          sort: { create_date: -1 },
         }
       ),
 
       systemCss: mongoCss.findOne(),
-      userClientMessages: ClientMessagesCollection.find().fetch()
+      userClientMessages: ClientMessagesCollection.find().fetch(),
     };
   }),
   injectSheet(dynamicPlayNotifierStyles),
@@ -457,8 +456,8 @@ const game_timestamps = {};
 Game.find({
   $and: [
     { status: "playing" },
-    { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] }
-  ]
+    { $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }] },
+  ],
 }).observeChanges({
   added(id, game) {
     let color;
@@ -467,9 +466,7 @@ Game.find({
     if (!color) throw new Meteor.Error("Unable to discern which color we are");
     game_timestamps[id] = {
       color,
-      timestamp: new TimestampClient((_, msg) =>
-        Meteor.call("gamepong", id, msg)
-      )
+      timestamp: new TimestampClient((_, msg) => Meteor.call("gamepong", id, msg)),
     };
   },
   changed(id, fields) {
@@ -483,7 +480,7 @@ Game.find({
         log.error("Unable to find timestamp for played game", id);
         return;
       }
-      fields.lag[game_timestamps[id].color].active.forEach(ping =>
+      fields.lag[game_timestamps[id].color].active.forEach((ping) =>
         game_timestamps[id].timestamp.pingArrived(ping)
       );
     }
@@ -498,5 +495,5 @@ Game.find({
         delete game_timestamps[id];
       }
     }
-  }
+  },
 });

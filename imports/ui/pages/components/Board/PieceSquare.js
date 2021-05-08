@@ -72,39 +72,39 @@ export default class PieceSquare extends Square {
   mouseDown = () => {
     this.props.onMouseDown({
       rank: this.props.rank,
-      file: this.props.file
+      file: this.props.file,
     });
   };
 
   mouseUp = () => {
     this.props.onMouseUp({
       rank: this.props.rank,
-      file: this.props.file
+      file: this.props.file,
     });
   };
-  onClickHandler = event => {
+  onClickHandler = (event) => {
     this.props.pieceDrawCicle(event, {
       rank: this.props.rank,
-      file: this.props.file
+      file: this.props.file,
     });
   };
-  dragStop = event => {
+  dragStop = (event) => {
     this.props.onDrop({
       rank: this.props.rank,
       file: this.props.file,
-      piece: this.props.piece
+      piece: this.props.piece,
     });
   };
 
   /**Image drag and drop */
 
   //function called when drag starts
-  dragStart = theEvent => {
+  dragStart = (theEvent) => {
     theEvent.dataTransfer.setData("Text", theEvent.target.id);
     this.props.onDragStart({
       rank: this.props.rank,
       file: this.props.file,
-      piece: this.props.piece
+      piece: this.props.piece,
     });
   };
 
@@ -125,18 +125,18 @@ export default class PieceSquare extends Square {
           width: this.props.side,
           height: this.props.side,
           position: "relative",
-          float: "left"
+          float: "left",
         }}
         onMouseDown={this.mouseDown}
-        onMouseUp={e => this.mouseUp(e)}
+        onMouseUp={(e) => this.mouseUp(e)}
         //  onDragStart={this.dragStart}
         //  onDrop={this.dragStop}
-        onContextMenu={e => this.onClickHandler(e)}
-        onClick={e => this.onClickHandler(e)}
+        onContextMenu={(e) => this.onClickHandler(e)}
+        onClick={(e) => this.onClickHandler(e)}
       >
         <div
           draggable="true"
-          onDragOver={event => event.preventDefault()}
+          onDragOver={(event) => event.preventDefault()}
           style={squareStyle}
           onDragStart={this.dragStart}
           onDrop={this.dragStop}
@@ -149,7 +149,7 @@ export default class PieceSquare extends Square {
               width: "100%",
               border: "0px",
               outline: "none",
-              height: "100%"
+              height: "100%",
             }}
           />
         </div>

@@ -7,7 +7,7 @@ import { get } from "lodash";
 import {
   all_roles,
   fields_viewable_by_account_owner,
-  standard_member_roles
+  standard_member_roles,
 } from "../server/userConstants";
 import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
@@ -35,9 +35,9 @@ Meteor.publishComposite("developer_loggedon_users", {
       find(user) {
         if (!Users.isAuthorized(user, "developer")) return this.ready();
         return LoggedOnUsers.find();
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 
 Meteor.publishComposite("developer_all_users", {
@@ -49,36 +49,36 @@ Meteor.publishComposite("developer_all_users", {
       find(user) {
         if (!Users.isAuthorized(user, "developer")) return this.ready();
         return Meteor.users.find();
-      }
+      },
     },
     {
       find(user) {
         if (!Users.isAuthorized(user, "developer")) return this.ready();
         return Meteor.roleAssignment.find();
-      }
+      },
     },
     {
       find(user) {
         if (!Users.isAuthorized(user, "developer")) return this.ready();
         return Meteor.roles.find();
-      }
+      },
     },
     {
       find(user) {
         if (!Users.isAuthorized(user, "developer")) return this.ready();
         return LogonHistory.find();
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 
 Meteor.users.deny({
   update() {
     return true;
-  }
+  },
 });
 
-Meteor.publish(null, function() {
+Meteor.publish(null, function () {
   if (!this._session) return this.ready();
 
   if (!this.userId) {
@@ -87,19 +87,20 @@ Meteor.publish(null, function() {
   }
   return [
     Meteor.users.find({ _id: this.userId }, { fields: fields_viewable_by_account_owner }),
-    Meteor.roleAssignment.find({ "user._id": this.userId })
+    Meteor.roleAssignment.find({ "user._id": this.userId }),
   ];
 });
 
 export const default_settings = {
-  autoaccept: true
+  autoaccept: true,
+  premove: false,
 };
 
-Accounts.onCreateUser(function(options, user) {
+Accounts.onCreateUser(function (options, user) {
   if (options.profile) {
     user.profile = {
       firstname: options.profile.firstname || "?",
-      lastname: options.profile.lastname || "?"
+      lastname: options.profile.lastname || "?",
     };
 
     if (
@@ -110,7 +111,7 @@ Accounts.onCreateUser(function(options, user) {
         username: options.profile.legacy.username,
         validated: false,
         password: encrypt(options.profile.legacy.password),
-        autologin: true
+        autologin: true,
       };
   }
 
@@ -128,7 +129,7 @@ Accounts.onCreateUser(function(options, user) {
   return user;
 });
 
-Users.sendClientMessage = function(who, message_identifier, what) {
+Users.sendClientMessage = function (who, message_identifier, what) {
   if (!global._clientMessages) {
     log.error(
       "Trying to send a client message, but the variable is null: who=" +
@@ -143,7 +144,7 @@ Users.sendClientMessage = function(who, message_identifier, what) {
   global._clientMessages.sendMessageToClient(who, message_identifier, what);
 };
 
-Users.setClientStatus = function(message_identifier, user, status) {
+Users.setClientStatus = function (message_identifier, user, status) {
   const self = Meteor.user();
   check(self, Object);
   check(message_identifier, String);
@@ -168,9 +169,9 @@ Users.setClientStatus = function(message_identifier, user, status) {
   Meteor.users.update({ _id: self._id }, { $set: { "status.client": status } });
 };
 
-Users.setBoardProfile = function() {};
+Users.setBoardProfile = function () {};
 
-Users.setGameStatus = function(message_identifier, user, status) {
+Users.setGameStatus = function (message_identifier, user, status) {
   check(message_identifier, String);
   check(user, Match.OneOf(Object, String));
   check(status, String);
@@ -191,21 +192,21 @@ Users.setGameStatus = function(message_identifier, user, status) {
 
 const group_change_hooks = [];
 
-Users.addGroupChangeHook = function(func) {
+Users.addGroupChangeHook = function (func) {
   Meteor.startup(() => {
     group_change_hooks.push(func);
   });
 };
 
-Users.addUserToRoles = function(user, roles, options) {
+Users.addUserToRoles = function (user, roles, options) {
   check(user, Match.OneOf(Object, String));
   check(roles, Match.OneOf(Array, String));
   if (!Array.isArray(roles)) roles = [roles];
 
-  const cc = roles.some(r => r === "child_chat");
-  const cce = roles.some(r => r === "child_chat_exempt");
+  const cc = roles.some((r) => r === "child_chat");
+  const cce = roles.some((r) => r === "child_chat_exempt");
 
-  roles = roles.filter(e => e !== "child_chat" && e !== "child_chat_exempt");
+  roles = roles.filter((e) => e !== "child_chat" && e !== "child_chat_exempt");
 
   if (!!roles.length) Roles.addUsersToRoles(user, roles, options);
 
@@ -213,7 +214,7 @@ Users.addUserToRoles = function(user, roles, options) {
   if (cc || cce) Meteor.users.update({ _id: id }, { $set: { cf: cc ? "c" : "e" } });
 };
 
-Users.removeUserFromRoles = function(user, roles, options) {
+Users.removeUserFromRoles = function (user, roles, options) {
   check(user, Match.OneOf(Object, String));
   check(roles, Match.OneOf(Array, String));
   if (!Array.isArray(roles)) roles = [roles];
@@ -221,7 +222,7 @@ Users.removeUserFromRoles = function(user, roles, options) {
   const cc = roles.indexOf("child_chat");
   const cce = roles.indexOf("child_chat_exempt");
 
-  roles = roles.filter(e => e !== "child_chat" && e !== "child_chat_exempt");
+  roles = roles.filter((e) => e !== "child_chat" && e !== "child_chat_exempt");
 
   if (!!roles.length) Roles.removeUsersFromRoles(user, roles, options);
 
@@ -229,15 +230,15 @@ Users.removeUserFromRoles = function(user, roles, options) {
   if (cc || cce) Meteor.users.update({ _id: id }, { $unset: { cf: 1 } });
 };
 
-Users.isAuthorized = function(user, roles, scope) {
+Users.isAuthorized = function (user, roles, scope) {
   check(user, Match.OneOf(Object, String));
   check(roles, Match.OneOf(Array, String));
   if (!Array.isArray(roles)) roles = [roles];
 
-  const cc = roles.some(r => r === "child_chat");
-  const cce = roles.some(r => r === "child_chat_exempt");
+  const cc = roles.some((r) => r === "child_chat");
+  const cce = roles.some((r) => r === "child_chat_exempt");
 
-  if (cc || cce) roles = roles.filter(e => e !== "child_chat" && e !== "child_chat_exempt");
+  if (cc || cce) roles = roles.filter((e) => e !== "child_chat" && e !== "child_chat_exempt");
 
   if (Roles.userIsInRole(user, ["developer"], scope)) return !cc;
 
@@ -248,7 +249,7 @@ Users.isAuthorized = function(user, roles, scope) {
   return cce && !!Meteor.users.findOne({ _id: id, cf: "e" }).count();
 };
 
-Users.listIsolationGroups = function(message_identifier) {
+Users.listIsolationGroups = function (message_identifier) {
   const self = Meteor.user();
   check(self, Object);
   check(message_identifier, String);
@@ -260,13 +261,13 @@ Users.listIsolationGroups = function(message_identifier) {
   // Of course this doesn't work.
   // return Meteor.users.distinct("isolation_group");
   const groups = [];
-  Meteor.users.find({}, { fields: { isolation_group: 1 } }).forEach(result => {
+  Meteor.users.find({}, { fields: { isolation_group: 1 } }).forEach((result) => {
     if (groups.indexOf(result.isolation_group) === -1) groups.push(result.isolation_group);
   });
   return groups;
 };
 
-Users.listUsers = function(message_identifier, offset, count, searchString) {
+Users.listUsers = function (message_identifier, offset, count, searchString) {
   const self = Meteor.user();
   check(self, Object);
   check(message_identifier, String);
@@ -282,7 +283,7 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
     ratings: 1,
     settings: 1,
     status: 1,
-    username: 1
+    username: 1,
   };
   let selector = {};
   let authorized = Users.isAuthorized(self, "list_users");
@@ -299,7 +300,7 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
       "i"
     );
     const searchpart = {
-      $or: [{ username: escapedSearchString }, { "emails.address": escapedSearchString }]
+      $or: [{ username: escapedSearchString }, { "emails.address": escapedSearchString }],
     };
     if (!!Object.keys(selector).length) selector = { $and: [selector, searchpart] };
     else selector = searchpart;
@@ -309,11 +310,11 @@ Users.listUsers = function(message_identifier, offset, count, searchString) {
     userList: Meteor.users
       .find(selector, { skip: offset, limit: count, fields: fields, sort: { username: 1 } })
       .fetch(),
-    totalCount: Meteor.users.find(selector).count()
+    totalCount: Meteor.users.find(selector).count(),
   };
 };
 
-Users.deleteUser = function(message_identifier, userId) {
+Users.deleteUser = function (message_identifier, userId) {
   const self = Meteor.user();
   check(self, Object);
   check(message_identifier, String);
@@ -336,7 +337,7 @@ Users.deleteUser = function(message_identifier, userId) {
   Meteor.users.remove({ _id: userId });
 };
 
-Users.addRole = function(message_identifier, user, role, scope) {
+Users.addRole = function (message_identifier, user, role, scope) {
   check(message_identifier, String);
   check(user, String);
   check(role, String);
@@ -359,7 +360,7 @@ Users.addRole = function(message_identifier, user, role, scope) {
   Users.addUserToRoles(user, role, scope);
 };
 
-Users.removeRole = function(message_identifier, user, role, scope) {
+Users.removeRole = function (message_identifier, user, role, scope) {
   check(message_identifier, String);
   check(user, String);
   check(role, String);
@@ -385,7 +386,7 @@ Users.removeRole = function(message_identifier, user, role, scope) {
 // TODO: This really should come out. Once we the mail server running, we need to simply
 //       allow users to send reset emails to users. Two disparate users should really never
 //       know the password to the same account.
-Users.setOtherPassword = function(message_identifier, user_id, new_password) {
+Users.setOtherPassword = function (message_identifier, user_id, new_password) {
   const self = Meteor.user();
   check(self, Object);
   check(message_identifier, String);
@@ -416,7 +417,7 @@ Users.setOtherPassword = function(message_identifier, user_id, new_password) {
   Accounts.setPassword(user_id, new_password);
 };
 
-Users.setOtherIsolationGroup = function(message_identifier, user_id, new_isolation_group) {
+Users.setOtherIsolationGroup = function (message_identifier, user_id, new_isolation_group) {
   const self = Meteor.user();
   check(self, Object);
   check(message_identifier, String);
@@ -447,7 +448,7 @@ Users.setOtherIsolationGroup = function(message_identifier, user_id, new_isolati
   Meteor.users.update({ _id: user_id }, { $set: { isolation_group: new_isolation_group } });
 };
 
-Users.setOtherUsername = function(message_identifier, user_id, new_username) {
+Users.setOtherUsername = function (message_identifier, user_id, new_username) {
   const self = Meteor.user();
   check(self, Object);
   check(message_identifier, String);
@@ -478,7 +479,7 @@ Users.setOtherUsername = function(message_identifier, user_id, new_username) {
   Accounts.setUsername(user_id, new_username);
 };
 
-Users.updateCurrentUsername = function(message_identifier, username) {
+Users.updateCurrentUsername = function (message_identifier, username) {
   const self = Meteor.user();
 
   check(self, Object);
@@ -498,7 +499,7 @@ Users.updateCurrentUsername = function(message_identifier, username) {
   }
 };
 
-Users.updateCurrentEmail = function(message_identifier, email) {
+Users.updateCurrentEmail = function (message_identifier, email) {
   const self = Meteor.user();
 
   check(self, Object);
@@ -520,18 +521,18 @@ Users.updateCurrentEmail = function(message_identifier, email) {
   }
 };
 
-Users.getConnectionFromUser = function(user_id) {
+Users.getConnectionFromUser = function (user_id) {
   const lou = LoggedOnUsers.findOne({ user_id: user_id });
   if (!lou) return;
   return lou.connection_id;
 };
 
-Users.tryLogout = function(connectionId) {
+Users.tryLogout = function (connectionId) {
   LogonHistory.update(
     { connection_id: connectionId },
     {
       $set: { logoff_date: new Date() },
-      $unset: { connection_id: 1 }
+      $unset: { connection_id: 1 },
     },
     { multi: true }
   );
@@ -546,16 +547,16 @@ Users.tryLogout = function(connectionId) {
   }
 };
 
-Users.checkLoggedOnUsers = function(connection_id_array) {
+Users.checkLoggedOnUsers = function (connection_id_array) {
   const dt = new Date();
   dt.setMinutes(dt.getMinutes() - 5);
   LoggedOnUsers.find({
     $and: [
       { connection_id: { $exists: true } },
       { connection_id: { $nin: connection_id_array } },
-      { logon_date: { $lt: dt } }
-    ]
-  }).forEach(balu => {
+      { logon_date: { $lt: dt } },
+    ],
+  }).forEach((balu) => {
     log.error(
       "Bad logged on user record for connection " + balu.connection_id + ", user " + balu.user_id
     );
@@ -563,7 +564,7 @@ Users.checkLoggedOnUsers = function(connection_id_array) {
   });
 };
 
-Users.developerEmailUpdate = function(user_id, op, email, verified) {
+Users.developerEmailUpdate = function (user_id, op, email, verified) {
   const self = Meteor.user();
   check(self, Object);
   check(user_id, String);
@@ -594,7 +595,7 @@ Users.developerEmailUpdate = function(user_id, op, email, verified) {
   }
 };
 
-Users.developerUserUpdate = function(client_state) {
+Users.developerUserUpdate = function (client_state) {
   const self = Meteor.user();
   check(self, Object);
   check(client_state, Object);
@@ -628,7 +629,7 @@ Users.developerUserUpdate = function(client_state) {
   }
 };
 
-Users.developerUpdateRole = function(user_id, role, type) {
+Users.developerUpdateRole = function (user_id, role, type) {
   const self = Meteor.user();
   check(self, Object);
   check(user_id, String);
@@ -662,7 +663,7 @@ Users.developerUpdateRole = function(user_id, role, type) {
 
 Users.events = statusEvents;
 
-Meteor.startup(function() {
+Meteor.startup(function () {
   const users = Meteor.users
     .find({ isolation_group: { $exists: false } }, { fields: { _id: 1 } })
     .fetch();
@@ -676,19 +677,19 @@ Meteor.startup(function() {
   );
 
   if (!Meteor.isTest && !Meteor.isAppTest) {
-    UserStatus.events.on("connectionLogin", fields => {
+    UserStatus.events.on("connectionLogin", (fields) => {
       const loginCount = LoggedOnUsers.find({ user_id: fields.userId }).count();
       LoggedOnUsers.upsert(
         {
           user_id: fields.userId,
-          connection_id: fields.connectionId
+          connection_id: fields.connectionId,
         },
         {
           $set: {
             ip_address: fields.ipAddr,
             logon_date: fields.loginTime,
-            userAgent: fields.userAgent
-          }
+            userAgent: fields.userAgent,
+          },
         }
       );
       LogonHistory.upsert(
@@ -699,15 +700,15 @@ Meteor.startup(function() {
             connection_id: fields.connectionId,
             ip_address: fields.ipAddr,
             logon_date: fields.loginTime,
-            userAgent: fields.userAgent
-          }
+            userAgent: fields.userAgent,
+          },
         }
       );
 
       if (!loginCount) statusEvents.emit("userLogin", { userId: fields.userId });
     });
 
-    UserStatus.events.on("connectionLogout", fields => {
+    UserStatus.events.on("connectionLogout", (fields) => {
       Users.tryLogout(fields.connectionId);
     });
     // UserStatus.events.on("connectionIdle", fields => {
@@ -731,13 +732,13 @@ Meteor.startup(function() {
     //   );
     // });
   }
-  all_roles.forEach(role => {
+  all_roles.forEach((role) => {
     Roles.createRole(role, { unlessExists: true });
     Roles.createRole("set_role_" + role, { unlessExists: true });
   });
 });
 
-Accounts.validateLoginAttempt(function(params) {
+Accounts.validateLoginAttempt(function (params) {
   // params.type = service name
   // params.allowed = t/f
   // params.user
@@ -767,7 +768,7 @@ Accounts.validateLoginAttempt(function(params) {
   //
   if (params.user.newguy) {
     const isolation_group_by_host = ConfigurationParametersByHost.findOne({
-      host: params.connection.httpHeaders.host
+      host: params.connection.httpHeaders.host,
     });
     const isolation_group = (isolation_group_by_host || {}).isolation_group || "public";
     const child_chat = isolation_group_by_host?.child_chat;
@@ -800,7 +801,7 @@ Accounts.validateLoginAttempt(function(params) {
         if (user) {
           // Only allow token reuse if user has the resume token in their stored resume tokens, and also that it is the only token
           const tokenReuseAllowed =
-            user?.services?.resume?.loginTokens?.find(token => token.hashedToken === hash) &&
+            user?.services?.resume?.loginTokens?.find((token) => token.hashedToken === hash) &&
             user?.services?.resume?.loginTokens?.length === 1;
           // If token reuse is not allowed, we should remove all existing tokens to log out other clients
           if (!tokenReuseAllowed) {
@@ -825,8 +826,8 @@ Accounts.validateLoginAttempt(function(params) {
         connection_id: params?.connection?.id,
         ip_address: params?.connection?.httpHeaders["x-forwarded-for"],
         logon_date: new Date(),
-        userAgent: params?.connection?.httpHeaders["user-agent"]
-      }
+        userAgent: params?.connection?.httpHeaders["user-agent"],
+      },
     }
   );
   return true;
@@ -846,5 +847,5 @@ Meteor.methods({
   listIsolationGroups: Users.listIsolationGroups,
   developer_user_update: Users.developerUserUpdate,
   developer_email_update: Users.developerEmailUpdate,
-  developer_update_role: Users.developerUpdateRole
+  developer_update_role: Users.developerUpdateRole,
 });

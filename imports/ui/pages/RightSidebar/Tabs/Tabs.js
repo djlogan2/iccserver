@@ -11,11 +11,11 @@ class Tabs extends Component {
     this.state = {
       activeTab: this.props.children[df].props.label,
       onHover: "",
-      hoverOut: ""
+      hoverOut: "",
     };
   }
 
-  onClickTabItem = activeTab => {
+  onClickTabItem = (activeTab) => {
     this.setState({ activeTab });
   };
 
@@ -23,7 +23,7 @@ class Tabs extends Component {
     const {
       onClickTabItem,
       props: { children, cssManager },
-      state: { activeTab, onHover, hoverOut }
+      state: { activeTab, onHover, hoverOut },
     } = this;
 
     let { tabName } = this.props;
@@ -31,7 +31,7 @@ class Tabs extends Component {
     return (
       <div style={cssManager.tab()}>
         <ol style={cssManager.tabList(tabName)}>
-          {children.map(child => {
+          {children.map((child) => {
             let { label, imgsrc, hoverSrc } = child.props;
             if (
               (label === activeTab && tabName === "bottom") ||
@@ -55,7 +55,7 @@ class Tabs extends Component {
           })}
         </ol>
         <div style={cssManager.tabContent()}>
-          {children.map(child => {
+          {children.map((child) => {
             if (child.props.label !== activeTab) return undefined;
             return child.props.children;
           })}
@@ -68,7 +68,7 @@ class Tabs extends Component {
 Tabs.propTypes = {
   children: PropTypes.instanceOf(Array).isRequired,
   cssManager: PropTypes.object.isRequired,
-  defultactive: PropTypes.number
+  defultactive: PropTypes.number,
 };
 
 export default Tabs;

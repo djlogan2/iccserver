@@ -18,7 +18,7 @@ const actionSchema = new SimpleSchema({
   time: {
     type: Date,
     autoValue: function() {
-      return new Date();
+      return new Date()
     }
   },
   issuer: String,
@@ -70,13 +70,29 @@ export const PlayedGameSchema = new SimpleSchema({
   startTime: {
     type: Date,
     autoValue: function() {
-      return new Date();
+      if (this.isInsert) return new Date();
+      else if (this.isUpsert) {
+        return { $setOnInsert: new Date() };
+      } else {
+        this.unset();
+        return undefined;
+      }
     }
   },
   pending: PendingSchema,
   fen: String,
   startingfen: { type: String, required: false },
   tomove: String,
+  premove: { type: Object, required: false },
+  //{ color: 'b', from: 'g8', to: 'f6', flags: 'n', piece: 'n', san: 'Nf6' }
+  "premove.color": String,
+  "premove.from": String,
+  "premove.to": String,
+  "premove.flags": String,
+  "premove.piece": String,
+  "premove.san": String,
+  "premove.promotion": { type: String, required: false },
+  "premove.message_identifier": String,
   legacy_game_number: {
     type: Number,
     required: false,

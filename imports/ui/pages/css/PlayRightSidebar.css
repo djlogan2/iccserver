@@ -4,6 +4,25 @@
     height: 100vh;
 }
 
+.ant-tabs {
+    height: 100%;
+}
+.ant-tabs-content-holder {
+    height: inherit;
+}
+
+.ant-tabs-content-top {
+    height: inherit;
+}
+
+.ant-tabs-card {
+    height: 100%;
+}
+
+.ant-tabs-tabpane {
+    height: calc(100% - 50px);
+}
+
 .play-right-sidebar__top {
     display: flex;
     flex-direction: column;

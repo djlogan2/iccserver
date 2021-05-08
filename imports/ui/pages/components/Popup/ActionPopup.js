@@ -65,7 +65,7 @@ export default class ActionPopup extends Component {
             mozBoxShadow: "#949392 3px 2px 4px 0px",
             boxShadow: "#949392 3px 2px 4px 0px",
             borderRadius: "4px",
-            padding: "10px 15px"
+            padding: "10px 15px",
           }}
         >
           <img

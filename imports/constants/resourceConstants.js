@@ -15,7 +15,7 @@ export const labelsToResources = {
   uploadpgn: RESOURCE_UPLOAD_PGN,
   play: RESOURCE_PLAY,
   examine: RESOURCE_EXAMINE,
-  users: RESOURCE_USERS
+  users: RESOURCE_USERS,
 };
 
 export const labelMyGame = "mygame";

@@ -1,11 +1,12 @@
 import {
-  RESOURCE_COMMUNITY, RESOURCE_CUSTOMIZABLE_BOARD,
+  RESOURCE_COMMUNITY,
+  RESOURCE_CUSTOMIZABLE_BOARD,
   RESOURCE_EDITOR,
   RESOURCE_EXAMINE,
   RESOURCE_HOME,
   RESOURCE_PLAY,
   RESOURCE_PROFILE,
-  RESOURCE_USERS
+  RESOURCE_USERS,
 } from "../../constants/resourceConstants";
 
 import Home from "../../ui/pages/Home";
@@ -22,53 +23,53 @@ const routesWithRoles = [
   {
     roles: [],
     component: Home,
-    path: "/"
+    path: "/",
   },
   {
     roles: [],
     component: Home,
-    path: RESOURCE_HOME
+    path: RESOURCE_HOME,
   },
   {
     roles: ["play_rated_games", "play_unrated_games"],
     component: Play,
-    path: RESOURCE_PLAY
+    path: RESOURCE_PLAY,
   },
   {
     roles: [],
     component: Editor,
-    path: RESOURCE_EDITOR
+    path: RESOURCE_EDITOR,
   },
   {
     roles: [],
     component: Examine,
-    path: RESOURCE_EXAMINE
+    path: RESOURCE_EXAMINE,
   },
   {
     roles: [],
     component: Community,
-    path: RESOURCE_COMMUNITY
+    path: RESOURCE_COMMUNITY,
   },
   {
     roles: [],
     component: UserProfile,
-    path: RESOURCE_PROFILE
+    path: RESOURCE_PROFILE,
   },
   {
     roles: ["list_users"],
     component: UsersList,
-    path: RESOURCE_USERS
+    path: RESOURCE_USERS,
   },
   {
     roles: ["list_users"],
     component: UserEdit,
-    path: `${RESOURCE_USERS}/:username`
+    path: `${RESOURCE_USERS}/:username`,
   },
   {
     roles: [],
     component: CustomizableBoard,
-    path: RESOURCE_CUSTOMIZABLE_BOARD
-  }
+    path: RESOURCE_CUSTOMIZABLE_BOARD,
+  },
 ];
 
 export default routesWithRoles;

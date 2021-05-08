@@ -19,7 +19,7 @@ class ExaminActionPopup extends Component {
       padding: "20px",
       textAlign: "center",
       border: "1px solid #ccc",
-      boxShadow: "#0000004d"
+      boxShadow: "#0000004d",
     };
     if (action === "complain") {
       return (

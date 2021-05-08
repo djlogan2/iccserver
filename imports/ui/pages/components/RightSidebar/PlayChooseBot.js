@@ -3,6 +3,8 @@ import { Button, Form, InputNumber, Radio } from "antd";
 import { translate } from "../../../HOCs/translate";
 import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection } from "../../../../api/client/collections";
+import { compose } from "redux";
+import { withTracker } from "meteor/react-meteor-data";
 
 class PlayChooseBot extends Component {
   constructor(props) {
@@ -14,7 +16,7 @@ class PlayChooseBot extends Component {
       incrementOrDelayType: "inc",
       initial: 15,
       incrementOrDelay: 0,
-      ratingType: "none"
+      ratingType: "none",
     };
   }
 
@@ -22,26 +24,26 @@ class PlayChooseBot extends Component {
     this.updateRating();
   }
 
-  handleChangeDifficulty = e => {
+  handleChangeDifficulty = (e) => {
     this.setState({
-      difficulty: e.target.value
+      difficulty: e.target.value,
     });
   };
 
-  handleChangeColor = e => {
+  handleChangeColor = (e) => {
     this.setState({
-      color: e.target.value
+      color: e.target.value,
     });
   };
 
-  handleChangeIncrementOrDelayType = e => {
+  handleChangeIncrementOrDelayType = (e) => {
     this.setState({
-      incrementOrDelayType: e.target.value
+      incrementOrDelayType: e.target.value,
     });
   };
 
-  handleChange = inputName => {
-    return number => {
+  handleChange = (inputName) => {
+    return (number) => {
       const newState = {};
       newState[inputName] = number;
 
@@ -79,24 +81,22 @@ class PlayChooseBot extends Component {
       incrementOrDelayType,
       initial,
       incrementOrDelay,
-      skillLevel: difficulty
+      skillLevel: difficulty,
     });
   };
 
   render() {
-    const { onClose, translate } = this.props;
+    const { onClose, translate, ratings } = this.props;
     const {
       initial,
       incrementOrDelay,
       difficulty,
       incrementOrDelayType,
       color,
-      ratingType
+      ratingType,
     } = this.state;
 
-    const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(
-      DynamicRatingsCollection.find().fetch()
-    );
+    const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(ratings);
 
     return (
       <div className="play-friend">
@@ -114,7 +114,7 @@ class PlayChooseBot extends Component {
           layout="vertical"
           initialValues={{
             initial,
-            incrementOrDelay
+            incrementOrDelay,
           }}
         >
           <Form.Item label={translate("difficulty")} name="difficulty">
@@ -201,4 +201,11 @@ class PlayChooseBot extends Component {
   }
 }
 
-export default translate("Play.PlayChooseBot")(PlayChooseBot);
+export default compose(
+  withTracker(() => {
+    return {
+      ratings: DynamicRatingsCollection.find().fetch(),
+    };
+  }),
+  translate("Play.PlayChooseBot")
+)(PlayChooseBot);

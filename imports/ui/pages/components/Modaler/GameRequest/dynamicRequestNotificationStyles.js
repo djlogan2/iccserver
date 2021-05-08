@@ -1,44 +1,44 @@
 import { get } from "lodash";
 
 export const dynamicRequestNotificationsStyles = {
-  mainDiv: props => {
+  mainDiv: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.mainDiv;
   },
-  imageAvatar: props => {
+  imageAvatar: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.imageAvatar;
   },
-  detailsDiv: props => {
+  detailsDiv: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.detailsDiv;
   },
-  actionsDiv: props => {
+  actionsDiv: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.actionsDiv;
   },
-  declineButton: props => {
+  declineButton: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.declineButton;
   },
-  acceptButton: props => {
+  acceptButton: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.acceptButton;
   },
-  divTitle: props => {
+  divTitle: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.divTitle;
   },
-  cancelSeekButton: props => {
+  cancelSeekButton: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.cancelSeekButton;
   },
-  seekSearchDiv: props => {
+  seekSearchDiv: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.seekSearchDiv;
   },
-  gameSeekSearchingDiv: props => {
+  gameSeekSearchingDiv: (props) => {
     const css = get(props, "challengeNotificationCss.challengeNotificationCss", {});
     return css.gameSeekSearchingDiv;
-  }
+  },
 };

@@ -9,13 +9,13 @@ export default class ChatApp extends Component {
 
     this.state = {
       inputValue: "",
-      messageList: []
+      messageList: [],
     };
   }
 
-  handleChange = text => {
+  handleChange = (text) => {
     this.setState({
-      inputValue: text
+      inputValue: text,
     });
   };
 
@@ -27,7 +27,7 @@ export default class ChatApp extends Component {
 
     this.setState({
       inputValue: "",
-      messageList: [...messageList, newMessage]
+      messageList: [...messageList, newMessage],
     });
 
     onMessage(newMessage.text);

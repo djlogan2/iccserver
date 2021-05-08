@@ -26,12 +26,12 @@ class LeftSidebar extends Component {
     this.state = {
       visible: false,
       gameList: [],
-      isMyGamesModal: false
+      isMyGamesModal: false,
     };
   }
 
   toggleMenu = () => {
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return { visible: !prevState.visible };
     });
   };
@@ -41,17 +41,17 @@ class LeftSidebar extends Component {
 
     this.setState({
       gameList,
-      isMyGamesModal: true
+      isMyGamesModal: true,
     });
   };
 
   loadGameList = () => {
     return GameHistoryCollection.find({
-      $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }]
+      $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }],
     });
   };
 
-  handleRedirect = resource => {
+  handleRedirect = (resource) => {
     const { history } = this.props;
     history.push(resource);
 
@@ -60,7 +60,7 @@ class LeftSidebar extends Component {
       "set_client_status",
       Meteor.userId(),
       resource.substring(1),
-      err => {
+      (err) => {
         if (err) {
           log.error(err);
         }
@@ -71,7 +71,7 @@ class LeftSidebar extends Component {
   handleLogout = () => {
     const { history } = this.props;
 
-    Meteor.logout(err => {
+    Meteor.logout((err) => {
       if (err) {
         log.error(`Error while logging out: ${err}`);
       } else {
@@ -158,7 +158,7 @@ export default compose(
   translate("Common.leftSideBar"),
   withTracker(() => {
     return {
-      leftSideBarCss: mongoCss.findOne()
+      leftSideBarCss: mongoCss.findOne(),
     };
   }),
   injectSheet(dynamicLeftSideBarStyles)

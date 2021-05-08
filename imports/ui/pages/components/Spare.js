@@ -2,7 +2,7 @@ import React from "react";
 import { get } from "lodash";
 
 const Spare = ({ onDropStart }) => {
-  const mouseDown = e => {
+  const mouseDown = (e) => {
     const pieceEl = get(e, "target.children[0]");
 
     const color = pieceEl.getAttribute("datacolor");

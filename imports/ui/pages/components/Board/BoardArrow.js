@@ -95,7 +95,7 @@ export default class BoardArrow extends React.Component {
           pointerEvents: "none",
           zIndex: 3,
           width: this.props.size,
-          height: this.props.size
+          height: this.props.size,
         }}
         width={this.props.size}
         height={this.props.size}

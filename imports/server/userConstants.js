@@ -39,7 +39,7 @@ export const all_roles = [
   "set_other_username",
   "set_other_isolation_group",
   "change_username",
-  "change_email"
+  "change_email",
 ];
 
 export const standard_member_roles = [
@@ -56,7 +56,7 @@ export const standard_member_roles = [
   "room_chat",
   "join_room",
   "personal_chat",
-  "create_private_room"
+  "create_private_room",
 ];
 
 export const fields_viewable_by_account_owner = {
@@ -72,7 +72,7 @@ export const fields_viewable_by_account_owner = {
   "profile.lastname": 1,
   "profile.legacy.username": 1,
   "profile.legacy.autologin": 1,
-  cf: 1
+  cf: 1,
 };
 
 export const viewable_logged_on_user_fields = {
@@ -85,5 +85,5 @@ export const viewable_logged_on_user_fields = {
   "status.lastLogin.date": 1,
   "status.lastActivity": 1,
   "status.idle": 1,
-  cf: 1
+  cf: 1,
 };

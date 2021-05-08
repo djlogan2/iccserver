@@ -29,7 +29,7 @@ class CustomizableBoard extends Component {
       wrapperColor: "#292929",
       promotionColor: "#a8a8a8",
       filesColor: "#ffffff",
-      ranksColor: "#ffffff"
+      ranksColor: "#ffffff",
     };
   }
 
@@ -37,7 +37,7 @@ class CustomizableBoard extends Component {
     return "#fafafa";
   };
 
-  handleUpdateCircles = circle => {
+  handleUpdateCircles = (circle) => {
     const { circles } = this.state;
 
     circle.color = this.getColorFromEvent(circle.event);
@@ -65,11 +65,11 @@ class CustomizableBoard extends Component {
 
   getLegalMoves = () => {
     const moves = {};
-    ["a", "b", "c", "d", "e", "f", "g", "h"].forEach(rank => {
+    ["a", "b", "c", "d", "e", "f", "g", "h"].forEach((rank) => {
       for (let file = 1; file <= 8; file++) {
         const legal = this.chess
           .moves({ square: rank + file, verbose: true })
-          .map(verbose => verbose.to);
+          .map((verbose) => verbose.to);
         if (!!legal && !!legal.length) moves[rank + file] = legal;
       }
     });
@@ -81,7 +81,7 @@ class CustomizableBoard extends Component {
     this.setState({ legalMoves: this.getLegalMoves(), fen: this.chess.fen() });
   };
 
-  handleUpdateArrows = arrow => {
+  handleUpdateArrows = (arrow) => {
     const { arrows } = this.state;
 
     arrow.color = this.getColorFromEvent(arrow.event);
@@ -108,7 +108,7 @@ class CustomizableBoard extends Component {
     this.setState({ arrows: [...arrows] });
   };
 
-  handleModalUpdate = newStateProperties => {
+  handleModalUpdate = (newStateProperties) => {
     this.setState({ ...newStateProperties });
   };
 
@@ -129,7 +129,7 @@ class CustomizableBoard extends Component {
       wrapperColor,
       promotionColor,
       filesColor,
-      ranksColor
+      ranksColor,
     } = this.state;
 
     return (
@@ -141,7 +141,7 @@ class CustomizableBoard extends Component {
             fen={fen}
             boardSquares={{
               light: { ...boardColorsLight },
-              dark: { ...boardColorsDark }
+              dark: { ...boardColorsDark },
             }}
             pieceImages={{
               bB: "images/chesspieces/bB.png",
@@ -155,27 +155,27 @@ class CustomizableBoard extends Component {
               wN: "images/chesspieces/wN.png",
               wP: "images/chesspieces/wP.png",
               wQ: "images/chesspieces/wQ.png",
-              wR: "images/chesspieces/wR.png"
+              wR: "images/chesspieces/wR.png",
             }}
             styles={{
               wrapper: {
-                backgroundColor: wrapperColor
+                backgroundColor: wrapperColor,
               },
               files: {
-                color: filesColor
+                color: filesColor,
               },
               ranks: {
-                color: ranksColor
+                color: ranksColor,
               },
               promotion: {
-                backgroundColor: promotionColor
-              }
+                backgroundColor: promotionColor,
+              },
             }}
             movable={legalMoves}
             circles={circles}
             arrows={arrows}
-            onUpdateCircles={circle => this.handleUpdateCircles(circle)}
-            onUpdateArrows={arrow => this.handleUpdateArrows(arrow)}
+            onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
+            onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
             onMove={(move, promotion) => this.handleMove(move, promotion)}
             smartMoves={smartMoves}
             showLegalMoves={showLegalMoves}
@@ -194,7 +194,7 @@ class CustomizableBoard extends Component {
               wB: "White bishop",
               wQ: "White queen",
               wK: "White king",
-              emptySquare: "Empty square"
+              emptySquare: "Empty square",
             }}
           />
           <PropertiesModal

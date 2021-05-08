@@ -18,6 +18,7 @@ import { Users } from "../imports/collections/users";
 import { Parser } from "./pgn/pgnparser";
 //import { Awsmanager } from "./awsmanager";
 import { exportGameObjectToPGN } from "../lib/exportpgn";
+import GamePublisher from "./GamePublisher";
 
 export const GameHistory = {};
 
@@ -98,197 +99,51 @@ class Game {
       this.collection = _self.GameCollection;
     }
 
-    function gamesWeArePlaying(user) {
-      return _self.GameCollection.find(
+    Meteor.publish("games", function() {
+      const self = this;
+      const gamePublishers = {};
+      const games_handle = _self.GameCollection.find(
         {
-          $and: [
-            { isolation_group: user.isolation_group },
-            { status: "playing" },
-            { $or: [{ "white.id": user._id }, { "black.id": user._id }] }
+          $or: [
+            { "white.id": this.userId },
+            { "black.id": this.userId },
+            { "observers.id": this.userId },
+            { owner: this.userId }
           ]
         },
-        {
-          fields: {
-            black: 1,
-            clocks: 1,
-            fen: 1,
-            lag: 1,
-            observers: 1,
-            pending: 1,
-            rated: 1,
-            rating_type: 1,
-            startTime: 1,
-            status: 1,
-            tomove: 1,
-            variations: 1,
-            white: 1,
-            wild: 1
+        { fields: { lag: 0 } }
+      ).observeChanges({
+        added(id, fields) {
+          //log.debug("" + self.userId + " added, id=" + id + ", fields=" + JSON.stringify(fields));
+          gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
+          const rec = gamePublishers[id].getUpdatedRecord(id, fields);
+          if (!!rec) {
+            self.added("game", id, rec);
+            self.ready();
           }
-        }
-      );
-    }
-
-    function gamesWeOwn(user) {
-      return _self.GameCollection.find({ owner: user._id }, { fields: { actions: 0 } });
-    }
-
-    function examineWithAnalysis(user) {
-      return _self.GameCollection.find(
-        {
-          $and: [
-            { isolation_group: user.isolation_group },
-            { "observers.id": user._id },
-            { owner: { $ne: user._id } },
-            {
-              $or: [{ status: "playing" }, { private: { $ne: true } }, { "analysis.id": user._id }]
-            }
-          ]
         },
-        {
-          fields: {
-            deny_chat: 0,
-            deny_requests: 0,
-            requestors: 0,
-            analysis: 0,
-            actions: 0
+        changed(id, fields) {
+          //log.debug("" + self.userId + " changed, id=" + id + ", fields=" + JSON.stringify(fields));
+          if (!gamePublishers[id])
+            gamePublishers[id] = new GamePublisher(_self.GameCollection, self.userId);
+          const rec = gamePublishers[id].getUpdatedRecord(id, fields);
+          if (!!rec) {
+            self.changed("game", id, rec);
+            self.ready();
           }
-        }
-      );
-    }
-
-    function examineWithoutAnalysis(user) {
-      return _self.GameCollection.find(
-        {
-          $and: [
-            { isolation_group: user.isolation_group },
-            { "observers.id": user._id },
-            { owner: { $ne: user._id } },
-            { private: true },
-            { "analysis.id": { $ne: user._id } }
-          ]
         },
-        {
-          fields: {
-            deny_chat: 0,
-            deny_requests: 0,
-            requestors: 0,
-            computer_variations: 0,
-            analysis: 0,
-            actions: 0
-          }
+        removed(id) {
+          //log.debug("" + self.userId + " removed, id=" + id);
+          delete gamePublishers[id];
+          self.removed("game", id);
+          self.ready();
         }
-      );
-    }
-
-    function allGames(user) {
-      if (user.status.game === "playing") return _self.GameCollection.find({ _id: "none" });
-      return _self.GameCollection.find(
-        {
-          $and: [
-            { isolation_group: user.isolation_group },
-            {
-              $or: [
-                { status: "examining" },
-                {
-                  $and: [{ "white.id": { $ne: user._id } }, { "black.id": { $ne: user._id } }]
-                }
-              ]
-            },
-            { "observers.id": { $ne: user._id } },
-            { owner: { $ne: user._id } },
-            { private: { $ne: true } }
-          ]
-        },
-        {
-          fields: {
-            startTime: 1,
-            result: 1,
-            status2: 1,
-            private: 1,
-            tomove: 1,
-            wild: 1,
-            rating_type: 1,
-            rated: 1,
-            status: 1,
-            clocks: 1,
-            white: 1,
-            black: 1
-          }
-        }
-      );
-    }
-
-    const attempts = [gamesWeArePlaying, gamesWeOwn, examineWithAnalysis, examineWithoutAnalysis];
-
-    function userRecord() {
-      return Meteor.users.find({ _id: this.userId, "status.online": true });
-    }
-
-    //
-    // OK, since we are currently in a "single game" system, the easy fix to publish/publishComposite
-    // not returning record data correctly is to simply assume that there will always be only one
-    // record for which we care about, and simply return that.
-    //
-    Meteor.publishComposite("games", [
-      {
-        find: userRecord,
-        children: [
-          {
-            find(user) {
-              for (let i = 0; i < attempts.length; i++) {
-                const cursor = attempts[i](user);
-                if (!!cursor.count()) return cursor;
-              }
-              return _self.GameCollection.find({ _id: "0" });
-            }
-          }
-        ]
-      }
-    ]);
-    /*
-    Meteor.publishComposite("games", [
-      {
-        find: userRecord,
-        children: [
-          {
-            find: gamesWeArePlaying
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: gamesWeOwn
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: examineWithAnalysis
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: examineWithoutAnalysis
-          }
-        ]
-      },
-      {
-        find: userRecord,
-        children: [
-          {
-            find: allGames
-          }
-        ]
-      }
-    ]);
-     */
+      });
+      this.onStop(() => {
+        games_handle.stop();
+      });
+      this.ready();
+    });
   }
 
   getAndCheck(self, message_identifier, game_id) {
@@ -1100,13 +955,13 @@ class Game {
 
     const newtm = game.tomove === "white" ? "black" : "white";
     const chess = new Chess.Chess(game.fen);
-    chess.move(move);
+    const cmove = chess.move(move);
     const newfen = chess.fen();
 
     const result = this.GameCollection.update(
       { _id: game._id, status: game.status },
       {
-        $push: { actions: { type: "move", issuer: "legacy", parameter: move } },
+        $push: { actions: { type: "move", issuer: "legacy", parameter: move, ...cmove } },
         $set: { variations: variation, tomove: newtm, fen: newfen }
       }
     );
@@ -1138,7 +993,29 @@ class Game {
     this.internalSaveLocalMove(self, message_identifier, game_id, move);
   }
 
-  internalSaveLocalMove(self, message_identifier, game_id, move) {
+  internalSaveLocalPremove(message_identifier, game, move) {
+    const chessObject = active_games[game._id];
+    const temp = new Chess.Chess(chessObject.fen());
+    const moves = temp.moves();
+    let found = false;
+    for (let x = 0; !found && x < moves.length; x++) {
+      temp.move(moves[x]);
+      const result = temp.move(move, { sloppy: true });
+      if (!!result) {
+        result.message_identifier = message_identifier;
+        this.GameCollection.update(
+          { _id: game._id, status: "playing" },
+          { $set: { premove: result } }
+        );
+        return;
+      }
+      temp.undo();
+    }
+    ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", move);
+    // TODO: Do we delete the premove in this case?
+  }
+
+  internalSaveLocalMove(self, message_identifier, game_id, move, is_premove) {
     const game = this.getAndCheck(self, message_identifier, game_id);
 
     if (!game) return;
@@ -1153,11 +1030,13 @@ class Game {
             "Unable to make local move",
             "Computer is trying to make an illegal move"
           );
-        ClientMessages.sendMessageToClient(
-          Meteor.user(),
-          message_identifier,
-          "COMMAND_INVALID_NOT_YOUR_MOVE"
-        );
+        if (!self.settings.premove)
+          ClientMessages.sendMessageToClient(
+            Meteor.user(),
+            message_identifier,
+            "COMMAND_INVALID_NOT_YOUR_MOVE"
+          );
+        else this.internalSaveLocalPremove(message_identifier, game, move);
         return;
       }
     } else if (game.examiners.map(e => e.id).indexOf(self._id) === -1) {
@@ -1168,25 +1047,38 @@ class Game {
     //chess.move('Nf6')
     // // -> { color: 'b', from: 'g8', to: 'f6', flags: 'n', piece: 'n', san: 'Nf6' }
     const result = chessObject.move(move);
+    const bw = self._id === game.white.id ? "white" : "black";
+    const otherbw = bw === "white" ? "black" : "white";
+
     if (!result) {
       ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
+      if (is_premove)
+        this.startMoveTimer(
+          game_id,
+          self._id,
+          (game.clocks[bw].inc_or_delay | 0) * 1000,
+          game.clocks[bw].delaytype,
+          game.clocks[bw].current
+        );
       return;
     }
 
-    this.endMoveTimer(game_id);
+    if (!is_premove) this.endMoveTimer(game_id);
 
     const setobject = { fen: chessObject.fen() };
 
     const unsetobject = {};
     let gamelag = 0;
     let gameping = 0;
-    const bw = self._id === game.white.id ? "white" : "black";
-    const otherbw = bw === "white" ? "black" : "white";
     this.addMoveToMoveList(
       variation,
       move,
       game.status === "playing" ? game.clocks[bw].current : null,
-      result.piece, result.color, result.from, result.to, result.promotion
+      result.piece,
+      result.color,
+      result.from,
+      result.to,
+      result.promotion
     );
 
     if (game.status === "playing") {
@@ -1240,7 +1132,7 @@ class Game {
         gamelag = this.calculateGameLag(game.lag[bw]) | 0;
         gameping = game.lag[bw].pings.slice(-1) | 0;
 
-        let used = timenow - game.clocks[bw].starttime + gamelag;
+        let used = timenow - game.clocks[bw].starttime - gamelag;
         let addback = 0;
 
         if (game.clocks[bw].delaytype !== "none") {
@@ -1263,6 +1155,8 @@ class Game {
           if (!opponentlag) opponentlag = 0;
         }
 
+        // Editors note: This will ensure that there is a minimum amount of time drop
+        // when the user premoves.
         if (used <= SystemConfiguration.minimumMoveTime())
           used = SystemConfiguration.minimumMoveTime();
         setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
@@ -1287,6 +1181,9 @@ class Game {
     setobject.variations = variation;
     setobject.tomove = otherbw;
     setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
+    const premove = game.premove;
+
+    if (!!premove) unsetobject.premove = 1;
 
     if (setobject.result) {
       if (game.white.id !== "computer")
@@ -1315,13 +1212,24 @@ class Game {
         setobject.status2
       );
     } else if (game.status === "playing")
-      this.startMoveTimer(
-        game_id,
-        otherbw,
-        (game.clocks[otherbw].inc_or_delay | 0) * 1000,
-        game.clocks[otherbw].delaytype,
-        game.clocks[otherbw].current
-      );
+      if (!!premove) {
+        const otherguy = Meteor.users.findOne({ _id: game[otherbw].id });
+        this.internalSaveLocalMove(
+          otherguy,
+          game.premove.message_identifier,
+          game._id,
+          premove.san,
+          true
+        );
+      } else {
+        this.startMoveTimer(
+          game_id,
+          otherbw,
+          (game.clocks[otherbw].inc_or_delay | 0) * 1000,
+          game.clocks[otherbw].delaytype,
+          game.clocks[otherbw].current
+        );
+      }
   }
 
   //	There are three outcome codes, given in the following order:
@@ -1738,6 +1646,11 @@ class Game {
         "User is not either player"
       );
 
+    if (!game.variations.cmi) {
+      // beginning of game
+      ClientMessages.sendMessageToClient(self, message_identifier, "TAKEBACK_BEGINNING_OF_GAME");
+      return;
+    }
     //
     // If other player has a matching takeback requested, go ahead
     // and treat this as an accepted takeback.
@@ -3954,6 +3867,32 @@ class Game {
 }
 
 if (!global._gameObject) {
+  /*
+
+  This adds log.debug() messages to the top of every game method
+
+  Object.getOwnPropertyNames(Game.prototype).forEach(k => {
+    if (typeof Game.prototype[k] === "function") {
+      Game.prototype["debug_" + k] = Game.prototype[k];
+      Game.prototype[k] = function() {
+        let msg = k + "(";
+        let comma = "";
+        for (let x = 0; x < arguments.length; x++) {
+          msg += comma;
+          comma = ",";
+          if (typeof arguments[x] === "object") {
+            msg += JSON.stringify(arguments[x]);
+          } else {
+            msg += "" + arguments[x];
+          }
+        }
+        msg += ")";
+        log.debug(msg);
+        return Game.prototype["debug_" + k].apply(this, arguments);
+      };
+    }
+  });
+   */
   global._gameObject = new Game();
 }
 

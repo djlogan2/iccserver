@@ -3,6 +3,17 @@
     margin-bottom: 0 !important;
 }
 
+.ant-tabs {
+    height: inherit;
+}
+.ant-tabs-content-holder {
+    height: inherit;
+}
+
+.ant-tabs-content-top {
+    height: inherit;
+}
+
 .examine .ant-tabs.ant-tabs-small .ant-tabs-card-bar .ant-tabs-tab {
     display: flex;
     flex-grow: 1;
@@ -11,10 +22,12 @@
     border: none;
     border-radius: 0;
 }
+
 .examine .ant-tabs.ant-tabs-card .ant-tabs-card-bar .ant-tabs-tab-active {
-    border-top: 3px solid#1565C0;
+    border-top: 3px solid #1565C0;
     color: #1565C0;
 }
+
 .examine .ant-tabs-nav {
     display: flex;
     width: 100%;

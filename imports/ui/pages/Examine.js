@@ -11,7 +11,7 @@ import {
   ClientMessagesCollection,
   Game,
   ImportedGameCollection,
-  mongoCss
+  mongoCss,
 } from "../../api/client/collections";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
@@ -19,7 +19,7 @@ import { defaultCapture } from "../../constants/gameConstants";
 
 const log = new Logger("client/Examine_js");
 
-let handleError = error => {
+let handleError = (error) => {
   if (error) {
     log.error(error);
   }
@@ -38,7 +38,7 @@ class Examine extends Component {
     this.state = {
       fileData: null,
       importedGames: [],
-      isImportedGamesModal: false
+      isImportedGamesModal: false,
     };
   }
 
@@ -54,7 +54,7 @@ class Examine extends Component {
     Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
   };
 
-  handleDraw = objectList => {
+  handleDraw = (objectList) => {
     const { game } = this.props;
 
     if (!game) return;
@@ -64,25 +64,25 @@ class Examine extends Component {
     const circleList = objectList.filter(({ orig, mouseSq }) => orig === mouseSq);
     const arrowList = objectList.filter(({ orig, mouseSq }) => orig !== mouseSq);
 
-    const circlesToAdd = circleList.filter(circle => {
-      let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
+    const circlesToAdd = circleList.filter((circle) => {
+      let index = circles.findIndex((circleItem) => circleItem.square === circle.orig);
       return index === -1;
     });
 
-    const circlesToRemove = circleList.filter(circle => {
-      let index = circles.findIndex(circleItem => circleItem.square === circle.orig);
+    const circlesToRemove = circleList.filter((circle) => {
+      let index = circles.findIndex((circleItem) => circleItem.square === circle.orig);
       return index !== -1;
     });
 
-    const arrowsToAdd = arrowList.filter(arrow => {
-      const index = arrows.findIndex(arrowItem => {
+    const arrowsToAdd = arrowList.filter((arrow) => {
+      const index = arrows.findIndex((arrowItem) => {
         return arrowItem.from === arrow.orig && arrowItem.to === arrow.dest;
       });
       return index === -1;
     });
 
-    const arrowsToRemove = arrowList.filter(arrow => {
-      const index = arrows.findIndex(arrowItem => {
+    const arrowsToRemove = arrowList.filter((arrow) => {
+      const index = arrows.findIndex((arrowItem) => {
         return arrowItem.from === arrow.orig && arrowItem.to === arrow.dest;
       });
       return index !== -1;
@@ -106,7 +106,7 @@ class Examine extends Component {
   };
 
   drawCircles = (gameId, list) => {
-    list.forEach(item => {
+    list.forEach((item) => {
       const { brush, orig } = item;
       const size = 1; // hardcode
 
@@ -115,7 +115,7 @@ class Examine extends Component {
   };
 
   removeCircles = (gameId, list) => {
-    list.forEach(item => {
+    list.forEach((item) => {
       const { orig } = item;
 
       Meteor.call("removeCircle", "RemoveCircle", gameId, orig, handleError);
@@ -123,7 +123,7 @@ class Examine extends Component {
   };
 
   drawArrows = (gameId, list) => {
-    list.forEach(item => {
+    list.forEach((item) => {
       const { brush, mouseSq, orig } = item;
       const size = 1; // hardcode
 
@@ -132,14 +132,14 @@ class Examine extends Component {
   };
 
   removeArrows = (gameId, list) => {
-    list.forEach(item => {
+    list.forEach((item) => {
       const { mouseSq, orig } = item;
 
       Meteor.call("removeArrow", "RemoveArrow", gameId, orig, mouseSq, handleError);
     });
   };
 
-  _pieceSquareDragStop = raf => {
+  _pieceSquareDragStop = (raf) => {
     const { game } = this.props;
 
     if (!game) {
@@ -150,26 +150,26 @@ class Examine extends Component {
     Meteor.call("addGameMove", "gameMove", game._id, raf.move);
   };
 
-  handleObserveUser = userId => {
+  handleObserveUser = (userId) => {
     const { game } = this.props;
 
     if (game) {
       this.setState({ leaving_game: game._id });
     }
 
-    Meteor.call("observeUser", "observeUser", userId, err => {
+    Meteor.call("observeUser", "observeUser", userId, (err) => {
       if (err) {
         log.error(err);
       }
     });
   };
 
-  handleUnObserveUser = userId => {
+  handleUnObserveUser = (userId) => {
     const { game } = this.props;
     this.setState({ leaving_game: null });
 
     if (game) {
-      Meteor.call("unObserveUser", "unObserveUser", userId, game._id, err => {
+      Meteor.call("unObserveUser", "unObserveUser", userId, game._id, (err) => {
         if (err) {
           log.error(err);
         }
@@ -180,7 +180,7 @@ class Examine extends Component {
   _boardFromMongoMessages(game) {
     let position = {
       w: { p: 8, n: 2, b: 2, r: 2, q: 1 },
-      b: { p: 8, n: 2, b: 2, r: 2, q: 1 }
+      b: { p: 8, n: 2, b: 2, r: 2, q: 1 },
     };
 
     const shortfen = game.fen.split(" ")[0];
@@ -209,17 +209,17 @@ class Examine extends Component {
     return ClientMessagesCollection.findOne({
       $or: [
         { client_identifier: "matchRequest" },
-        { $and: [{ to: Meteor.userId() }, { client_identifier: id }] }
-      ]
+        { $and: [{ to: Meteor.userId() }, { client_identifier: id }] },
+      ],
     });
   }
 
-  handlePgnUpload = fileData => {
+  handlePgnUpload = (fileData) => {
     this.setState({ fileData });
   };
 
   componentDidUpdate(prevProps) {
-    const { importedGames = [], game } = this.props;
+    const { importedGames = [] } = this.props;
     const { fileData } = this.state;
 
     if (
@@ -228,17 +228,17 @@ class Examine extends Component {
       !areArraysOfObectsEqual(importedGames, prevProps.importedGames)
     ) {
       const copyOfImportedGames = fileData
-        ? importedGames.filter(game => game.fileRef === fileData._id)
+        ? importedGames.filter((game) => game.fileRef === fileData._id)
         : importedGames;
       this.setState({
         importedGames: copyOfImportedGames,
-        isImportedGamesModal: !!fileData
+        isImportedGamesModal: !!fileData,
       });
     }
 
-    if (!game && prevProps.game) {
-      this.initExamine();
-    }
+    // if (!game && prevProps.game) {
+    //   this.initExamine();
+    // }
   }
 
   renderObserver() {
@@ -249,7 +249,7 @@ class Examine extends Component {
       _id: "bogus",
       fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
       white: { id: "bogus", name: "White", rating: 1600 },
-      black: { id: "bogus", name: "White", rating: 1600 }
+      black: { id: "bogus", name: "White", rating: 1600 },
     };
 
     const css = new CssManager(systemCss.systemCss, systemCss.userCss);
@@ -286,7 +286,7 @@ class Examine extends Component {
     this.setState({
       importedGames,
       fileData: null,
-      isImportedGamesModal: true
+      isImportedGamesModal: true,
     });
   };
 
@@ -308,7 +308,7 @@ class Examine extends Component {
       return <Loading />;
     }
 
-    if (!game.examiners || !game.examiners.some(user => user.id === Meteor.userId())) {
+    if (!game.examiners || !game.examiners.some((user) => user.id === Meteor.userId())) {
       return this.renderObserver();
     }
 
@@ -350,7 +350,8 @@ export default withTracker(() => {
     child_chat_texts: Meteor.subscribe("child_chat_texts"),
     game: Meteor.subscribe("games"),
     importedGame: Meteor.subscribe("imported_games"),
-    users: Meteor.subscribe("loggedOnUsers")
+    users: Meteor.subscribe("loggedOnUsers"),
+    dynamic_ratings: Meteor.subscribe("DynamicRatings"),
   };
 
   return {
@@ -358,6 +359,6 @@ export default withTracker(() => {
     game: Game.findOne({ "observers.id": Meteor.userId() }),
     allUsers: Meteor.users.find().fetch(),
     importedGames: ImportedGameCollection.find().fetch(),
-    systemCss: mongoCss.findOne()
+    systemCss: mongoCss.findOne(),
   };
 })(Examine);

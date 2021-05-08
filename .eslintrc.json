@@ -22,6 +22,10 @@
   "globals": {
     "BigInt": true
   },
+  "ignorePatterns": [
+    "**/*.app-test.js",
+    "imports/server/TestHelpers.js"
+  ],
   "rules": {
     "no-console": "warn"
   }

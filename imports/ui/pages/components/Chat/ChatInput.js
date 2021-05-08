@@ -4,12 +4,12 @@ import { translate } from "../../../HOCs/translate";
 
 export default translate("Community.ChatInput")(
   ({ value, onChange, onMessage, translate, disabled }) => {
-    const handleSubmit = e => {
+    const handleSubmit = (e) => {
       e.preventDefault();
       this.input.focus();
       onMessage();
     };
-    const handleChange = e => {
+    const handleChange = (e) => {
       e.preventDefault();
       onChange(e.target.value);
     };
@@ -19,7 +19,7 @@ export default translate("Community.ChatInput")(
         <form className="chat-input" onSubmit={handleSubmit}>
           <Input
             disabled={disabled}
-            ref={el => (this.input = el)}
+            ref={(el) => (this.input = el)}
             value={value}
             onChange={handleChange}
             placeholder={translate("yourMessage")}

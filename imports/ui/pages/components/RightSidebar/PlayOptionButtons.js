@@ -8,13 +8,13 @@ import {
   fiveMinutesSeekOptions,
   tenMinutesSeekOptions,
   twentyMinutesSeekOptions,
-  twentyFiveMinutesSeekOptions
+  twentyFiveMinutesSeekOptions,
 } from "../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import {
   ROLE_PLAY_RATED_GAMES,
-  ROLE_PLAY_UNRATED_GAMES
+  ROLE_PLAY_UNRATED_GAMES,
 } from "../../../../constants/rolesConstants";
 
 class PlayOptionButtons extends Component {
@@ -24,10 +24,10 @@ class PlayOptionButtons extends Component {
       handlePlayWithFriend,
       handlePlayComputer,
       handlePlaySeek,
-      currentRoles
+      currentRoles,
     } = this.props;
 
-    const roles = currentRoles.map(role => role.role._id);
+    const roles = currentRoles.map((role) => role.role._id);
     const isRatedGames = roles.includes(ROLE_PLAY_RATED_GAMES);
     const isUnratedGames = roles.includes(ROLE_PLAY_UNRATED_GAMES);
 
@@ -91,7 +91,7 @@ class PlayOptionButtons extends Component {
 export default compose(
   withTracker(() => {
     return {
-      currentRoles: Meteor.roleAssignment.find().fetch()
+      currentRoles: Meteor.roleAssignment.find().fetch(),
     };
   }),
   translate("Play.PlayBlock")

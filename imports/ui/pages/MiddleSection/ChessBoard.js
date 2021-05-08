@@ -19,7 +19,7 @@ export default class ChessBoard extends PureComponent {
     this.state = {
       shapes: [],
       pendingMove: null,
-      selectVisible: false
+      selectVisible: false,
     };
 
     this.deleyedHandleResize = _.debounce(this.handleResize, 300);
@@ -67,7 +67,7 @@ export default class ChessBoard extends PureComponent {
     const move = this.chess.move({
       from,
       to,
-      promotion: "x"
+      promotion: "x",
     });
 
     if (move) {
@@ -81,11 +81,11 @@ export default class ChessBoard extends PureComponent {
   draggable = () => {
     if (this.props.gameStatus === "playing" || this.props.gameStatus === "examining") {
       return {
-        enabled: true
+        enabled: true,
       };
     } else {
       return {
-        enabled: false
+        enabled: false,
       };
     }
   };
@@ -93,25 +93,25 @@ export default class ChessBoard extends PureComponent {
   getShapes = () => {
     const { arrows = [], circles = [] } = this.props;
 
-    const arrowList = arrows.map(arrowItem => {
+    const arrowList = arrows.map((arrowItem) => {
       return {
         brush: arrowItem.color,
         dest: arrowItem.to,
         mouseSq: arrowItem.to,
         orig: arrowItem.from,
         pos: [],
-        snapToValidMove: true
+        snapToValidMove: true,
       };
     });
 
-    const circleList = circles.map(arrowItem => {
+    const circleList = circles.map((arrowItem) => {
       return {
         brush: arrowItem.color,
         dest: undefined,
         mouseSq: arrowItem.square,
         orig: arrowItem.square,
         pos: [],
-        snapToValidMove: true
+        snapToValidMove: true,
       };
     });
 
@@ -121,7 +121,7 @@ export default class ChessBoard extends PureComponent {
   updateShapes = () => {
     this.setState(
       {
-        shapes: this.getShapes()
+        shapes: this.getShapes(),
       },
       () => {
         this.chessground.cg.setAutoShapes(this.state.shapes);
@@ -129,14 +129,14 @@ export default class ChessBoard extends PureComponent {
     );
   };
 
-  handleDrawObject = list => {
+  handleDrawObject = (list) => {
     const { onDrawObject } = this.props;
     const { shapes } = this.state;
 
     onDrawObject(list);
 
     const objItem = list[0];
-    let newShapes = shapes.filter(shape => {
+    let newShapes = shapes.filter((shape) => {
       // cirle
       // if (shape.orig !== objItem.orig) {
       return shape.orig !== objItem.orig || shape.mouseSq !== objItem.mouseSq;
@@ -148,7 +148,7 @@ export default class ChessBoard extends PureComponent {
 
     this.setState(
       {
-        shapes: [...newShapes]
+        shapes: [...newShapes],
       },
       () => {
         this.chessground.cg.setAutoShapes(shapes);
@@ -161,10 +161,10 @@ export default class ChessBoard extends PureComponent {
 
     const dests = [];
 
-    this.chess.SQUARES.forEach(s => {
+    this.chess.SQUARES.forEach((s) => {
       const ms = this.chess.moves({ square: s, verbose: true });
       if (ms.length) {
-        dests.push([s, ms.map(m => m.to)]);
+        dests.push([s, ms.map((m) => m.to)]);
       }
     });
 
@@ -177,7 +177,7 @@ export default class ChessBoard extends PureComponent {
       color,
       free: false,
       showDests: true,
-      dests: new Map(dests)
+      dests: new Map(dests),
     };
   }
 
@@ -197,7 +197,7 @@ export default class ChessBoard extends PureComponent {
     return this.chess.turn() === "w" ? "white" : "black";
   }
 
-  promotion = e => {
+  promotion = (e) => {
     const { onDrop } = this.props;
     const { pendingMove } = this.state;
 
@@ -216,16 +216,10 @@ export default class ChessBoard extends PureComponent {
   };
 
   render() {
-    const { fen, onDrawObject, width, height, orientation } = this.props;
-    const { shapes, selectVisible } = this.state;
+    const { fen } = this.props;
+    const { selectVisible } = this.state;
 
     this.chess.load(fen);
-
-    const drawable = {
-      shapes,
-      enabled: !!onDrawObject,
-      onChange: this.handleDrawObject
-    };
 
     const color = this.chess.turn();
 
@@ -275,5 +269,5 @@ ChessBoard.defaultProps = {
   height: 100,
   fen: "",
   orientation: "w",
-  gameStatus: "none"
+  gameStatus: "none",
 };

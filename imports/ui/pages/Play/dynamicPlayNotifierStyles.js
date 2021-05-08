@@ -1,36 +1,36 @@
 import { get } from "lodash";
 
 export const dynamicPlayNotifierStyles = {
-  notification: props => {
+  notification: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.notification;
   },
-  titleText: props => {
+  titleText: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.titleText;
   },
-  titleIcon: props => {
+  titleIcon: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.titleIcon;
   },
-  titleDiv: props => {
+  titleDiv: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.titleDiv;
   },
-  descriptionButton: props => {
+  descriptionButton: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.descriptionButton;
   },
-  checkedIcon: props => {
+  checkedIcon: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.checkedIcon;
   },
-  closeIcon: props => {
+  closeIcon: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.closeIcon;
   },
-  mainDiv: props => {
+  mainDiv: (props) => {
     const css = get(props, "systemCss.playNotificationsCss", {});
     return css.mainDiv;
-  }
+  },
 };

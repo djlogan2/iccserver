@@ -17,11 +17,12 @@ export default function firstRunUsers() {
       password: "administrator",
       profile: {
         firstname: "Default",
-        lastname: "Administrator"
+        lastname: "Administrator",
       },
       settings: {
-        autoaccept: false
-      }
+        autoaccept: false,
+        premove: false,
+      },
     });
     Roles.addUsersToRoles(id, "administrator");
     Roles.addUsersToRoles(id, standard_member_roles);
@@ -40,12 +41,13 @@ export default function firstRunUsers() {
             username: "uiuxtest" + x,
             password: "iccserver" + x,
             autologin: true,
-            validated: true
-          }
+            validated: true,
+          },
         },
         settings: {
-          autoaccept: true
-        }
+          autoaccept: true,
+          premove: false,
+        },
       });
       Users.addUserToRoles(idx, standard_member_roles);
       Users.addUserToRoles(idx, "legacy_login");

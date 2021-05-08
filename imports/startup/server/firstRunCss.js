@@ -28,7 +28,7 @@ export default function firstRunCSS() {
       challengeNotificationCss,
       profileCss,
       userManagementCss,
-      commandsCss
+      commandsCss,
     });
   }
 }

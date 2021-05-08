@@ -7,7 +7,7 @@ import { RESOURCE_EXPORT_PGN_GAME } from "../../../constants/resourceConstants";
 import { ImportedGameCollection } from "../../../api/client/collections";
 
 class PGN extends Component {
-  changeFilehandler = event => {
+  changeFilehandler = (event) => {
     const { uploadPgn } = this.props;
     const file = event.target.files[0];
 
@@ -15,7 +15,7 @@ class PGN extends Component {
       const msFile = new FS.File(file);
       msFile.creatorId = Meteor.userId();
 
-      const confirm = ImportedGameCollection.insert(msFile, err => {
+      const confirm = ImportedGameCollection.insert(msFile, (err) => {
         if (err) {
           console.error("Upload PGN error: " + err);
         }
@@ -54,7 +54,7 @@ class PGN extends Component {
             id="files"
             style={{ visibility: "hidden" }}
             type="file"
-            onChange={e => this.changeFilehandler(e)}
+            onChange={(e) => this.changeFilehandler(e)}
           />
         </div>
       </div>

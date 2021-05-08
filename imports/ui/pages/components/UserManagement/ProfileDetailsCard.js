@@ -15,11 +15,11 @@ class ProfileDetailsCard extends Component {
 
     this.state = {
       username: "",
-      email: ""
+      email: "",
     };
   }
 
-  handleInputChange = property => event => {
+  handleInputChange = (property) => (event) => {
     this.setState({ [property]: event.target.value });
   };
 
@@ -28,24 +28,24 @@ class ProfileDetailsCard extends Component {
     const { username, email } = this.state;
 
     if (username) {
-      Meteor.call("updateCurrentUsername", "update_current_username", username, err => {
+      Meteor.call("updateCurrentUsername", "update_current_username", username, (err) => {
         if (!err) {
           notification.open({
             message: translate("notifications.usernameChanged"),
             description: null,
-            duration: 5
+            duration: 5,
           });
         }
       });
     }
 
     if (email && /^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_-]+).([a-zA-Z0-9_\-.]+)$/g.test(email)) {
-      Meteor.call("updateCurrentEmail", "update_current_email", email, err => {
+      Meteor.call("updateCurrentEmail", "update_current_email", email, (err) => {
         if (!err) {
           notification.open({
             message: translate("notifications.emailChanged"),
             description: null,
-            duration: 5
+            duration: 5,
           });
         }
       });
@@ -61,7 +61,9 @@ class ProfileDetailsCard extends Component {
         <div className={classes.mainDiv}>
           <div className={classes.avatarChangeDiv}>
             <img src="images/avatar.png" alt="logo" className={classes.avatar} />
-            <Button disabled type="primary">{translate("uploadNewAvatar")}</Button>
+            <Button disabled type="primary">
+              {translate("uploadNewAvatar")}
+            </Button>
           </div>
           <div className={classes.changeUsernameDiv}>
             <div className={classes.formUsernameDiv}>
@@ -89,7 +91,7 @@ class ProfileDetailsCard extends Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
     };
   }),
   translate("Profile.ProfileDetailsCard"),

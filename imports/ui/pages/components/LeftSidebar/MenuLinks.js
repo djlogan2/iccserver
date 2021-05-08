@@ -6,7 +6,7 @@ import {
   labelLogout,
   labelMyGame,
   labelsToResources,
-  RESOURCE_LOGIN
+  RESOURCE_LOGIN,
 } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import _ from "lodash";
@@ -37,14 +37,14 @@ class MenuLinks extends Component {
     this.lagging = () => {
       this.setState({ lagging: this.state.lagging + 1 });
     };
-    this.sendingPingResult = result => {
+    this.sendingPingResult = (result) => {
       if (this.pings.length >= 60) this.pings.shift();
       this.pings.push(result.delay);
       const average = this.pings.reduce((sum, val) => sum + val, 0) / this.pings.length;
       this.setState({
         lastping: result.delay,
         averageping: average,
-        lagging: 0
+        lagging: 0,
       });
     };
   }
@@ -61,7 +61,7 @@ class MenuLinks extends Component {
   logout = () => {
     const { history } = this.props;
 
-    Meteor.logout(err => {
+    Meteor.logout((err) => {
       if (err) {
       } else {
         history.push(RESOURCE_LOGIN);
@@ -69,7 +69,7 @@ class MenuLinks extends Component {
     });
   };
 
-  handleClick = label => {
+  handleClick = (label) => {
     const { handleRedirect, onMyGames, onLogout } = this.props;
 
     if (labelsToResources.hasOwnProperty(label)) {
@@ -155,17 +155,17 @@ class MenuLinks extends Component {
     );
   };
 
-  getSidebar = linksArray => {
+  getSidebar = (linksArray) => {
     const { history, visible, translate, classes, currentRoles } = this.props;
 
-    const availableRoutes = currentRoles.map(role => role?.role?._id);
+    const availableRoutes = currentRoles.map((role) => role?.role?._id);
 
-    const cf = Meteor.user().cf;
+    const cf = Meteor.user()?.cf;
     const isChildChat = cf && cf.indexOf("c") !== -1 && cf.indexOf("e") === -1;
 
     return (
       <ul className={classes.rowStyle}>
-        {linksArray.map(link => {
+        {linksArray.map((link) => {
           const isActive = _.get(history, "location.pathname") === `/${link.link}`;
 
           const suitableRoles = [];
@@ -181,7 +181,7 @@ class MenuLinks extends Component {
           if (!link.roles || !link.roles.length) {
             suitableRoles.push("");
           } else {
-            link.roles.forEach(role => {
+            link.roles.forEach((role) => {
               if (availableRoutes.includes(role)) suitableRoles.push(role);
             });
           }
@@ -225,7 +225,7 @@ export default compose(
   withTracker(() => {
     return {
       menuLinksCss: mongoCss.findOne(),
-      currentRoles: Meteor.roleAssignment.find().fetch()
+      currentRoles: Meteor.roleAssignment.find().fetch(),
     };
   }),
   injectSheet(dynamicMenuLinksStyles)

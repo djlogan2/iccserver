@@ -1,31 +1,31 @@
 import { get } from "lodash";
 
 export const dynamicLeftSideBarStyles = {
-  mainDiv: props => {
+  mainDiv: (props) => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.mainDiv;
   },
-  sidebarUserImg: props => {
+  sidebarUserImg: (props) => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.sidebarUserImg;
   },
-  sidebarUserImgFliphed: props => {
+  sidebarUserImgFliphed: (props) => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.sidebarUserImgFliphed;
   },
   fliphSidebarUserImg: {
-    marginTop: "6rem"
+    marginTop: "6rem",
   },
-  sidebarUsername: props => {
+  sidebarUsername: (props) => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.sidebarUsername;
   },
-  sidebarUsernameNone: props => {
+  sidebarUsernameNone: (props) => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.sidebarUsernameNone;
   },
-  statusLabel: props => {
+  statusLabel: (props) => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.statusLabel;
-  }
+  },
 };

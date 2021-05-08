@@ -7,7 +7,7 @@ class ExamineRightSidebar extends Component {
     super(props);
 
     this.state = {
-      gameRequest: props.gameRequest
+      gameRequest: props.gameRequest,
     };
   }
 
@@ -29,7 +29,7 @@ class ExamineRightSidebar extends Component {
       cssManager,
       flip,
       onPgnUpload,
-      onImportedGames
+      onImportedGames,
     } = this.props;
     const { gameRequest } = this.state;
 

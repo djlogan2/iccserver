@@ -6,7 +6,7 @@ class CustomColorPicker extends React.Component {
     super(props);
 
     this.state = {
-      isOpen: false
+      isOpen: false,
     };
   }
 
@@ -31,7 +31,7 @@ class CustomColorPicker extends React.Component {
             borderRadius: "1px",
             boxShadow: "0 0 0 1px rgba(0,0,0,.1)",
             display: "inline-block",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
           onClick={this.handleOpen}
         >
@@ -47,11 +47,11 @@ class CustomColorPicker extends React.Component {
                 top: "0px",
                 right: "0px",
                 bottom: "0px",
-                left: "0px"
+                left: "0px",
               }}
               onClick={this.handleClose}
             />
-            <SketchPicker color={color} onChange={color => onChange(color)} />
+            <SketchPicker color={color} onChange={(color) => onChange(color)} />
           </div>
         ) : null}
       </div>

@@ -9,7 +9,7 @@ import {
   renderStatus,
   renderOnline,
   renderButtonEdit,
-  renderEmail
+  renderEmail,
 } from "./renderListUtils";
 import { translate } from "../../../HOCs/translate";
 import injectSheet from "react-jss";
@@ -26,7 +26,7 @@ class UsersList extends Component {
     super(props);
     this.state = {
       usersList: [],
-      usersCount: 0
+      usersCount: 0,
     };
   }
 
@@ -42,7 +42,7 @@ class UsersList extends Component {
     });
   };
 
-  handleRowClick = row => {
+  handleRowClick = (row) => {
     const { history } = this.props;
     history.push(`${RESOURCE_USERS}/${row.username}`);
   };
@@ -51,7 +51,7 @@ class UsersList extends Component {
     const { history, translate, classes, roles } = this.props;
     const { usersList } = this.state;
 
-    const scope = roles.find(element => {
+    const scope = roles.find((element) => {
       if (element?.role?.id === ROLE_LIST_USERS) {
         return !!element.scope ? element.scope : null;
       }
@@ -65,10 +65,10 @@ class UsersList extends Component {
           <Table
             dataSource={usersList}
             className={classes.listTable}
-            onRow={row => ({
+            onRow={(row) => ({
               onClick: () => {
                 this.handleRowClick(row);
-              }
+              },
             })}
           >
             <ColumnGroup title={translate("userInfo")}>
@@ -110,7 +110,7 @@ export default compose(
   withTracker(() => {
     return {
       css: mongoCss.findOne(),
-      roles: Meteor.roleAssignment.find().fetch()
+      roles: Meteor.roleAssignment.find().fetch(),
     };
   }),
   withRouter,

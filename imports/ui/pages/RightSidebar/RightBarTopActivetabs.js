@@ -15,7 +15,7 @@ class RightBarTopActivetabs extends Component {
       startGameExamine,
       gameRequest,
       examineAction,
-      currentGame
+      currentGame,
     } = this.props;
 
     return (

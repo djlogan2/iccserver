@@ -9,6 +9,7 @@ import { translate } from "../../../HOCs/translate";
 import PlayBlock from "./PlayBlock";
 import ObserveBlock from "./ObserveBlock";
 import { gameComputerId } from "../../../../constants/gameConstants";
+
 const { TabPane } = Tabs;
 
 class PlayRightSidebar extends Component {
@@ -68,33 +69,31 @@ class PlayRightSidebar extends Component {
       cssManager,
       RightSidebarData,
       flip,
-      translate
+      translate,
     } = this.props;
-
-    const topClasses = this.isPlaying()
-      ? "play-right-sidebar__top play-right-sidebar__top--small"
-      : "play-right-sidebar__top";
 
     return (
       <div className="play-right-sidebar">
-        <Tabs className={topClasses} defaultActiveKey="play" size="small" type="card">
-          <TabPane tab={translate("tabs.playTab")} key="play">
-            <PlayBlock
-              game={game}
-              onBotPlay={onBotPlay}
-              onSeekPlay={onSeekPlay}
-              usersToPlayWith={usersToPlayWith}
-              sentRequests={sentRequests}
-              onChooseFriend={onChooseFriend}
-              cssManager={cssManager}
-              RightSidebarData={RightSidebarData}
-              flip={flip}
-            />
-          </TabPane>
-          <TabPane tab={translate("tabs.observeTab")} key="observe">
-            <ObserveBlock />
-          </TabPane>
-        </Tabs>
+        <div id="top-div" style={{ flex: 1 }}>
+          <Tabs defaultActiveKey="play" size="small" type="card">
+            <TabPane tab={translate("tabs.playTab")} key="play">
+              <PlayBlock
+                game={game}
+                onBotPlay={onBotPlay}
+                onSeekPlay={onSeekPlay}
+                usersToPlayWith={usersToPlayWith}
+                sentRequests={sentRequests}
+                onChooseFriend={onChooseFriend}
+                cssManager={cssManager}
+                RightSidebarData={RightSidebarData}
+                flip={flip}
+              />
+            </TabPane>
+            <TabPane tab={translate("tabs.observeTab")} key="observe">
+              <ObserveBlock />
+            </TabPane>
+          </Tabs>
+        </div>
         {game && this.renderBottom()}
       </div>
     );

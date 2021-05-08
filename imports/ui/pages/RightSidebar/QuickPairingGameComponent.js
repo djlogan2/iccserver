@@ -5,34 +5,34 @@ export default class QuickPairingGameComponent extends React.Component {
 
     this.buttons = [
       {
-        label: "10 Min"
+        label: "10 Min",
       },
       {
-        label: "5 Min"
+        label: "5 Min",
       },
       {
-        label: "3 Min"
+        label: "3 Min",
       },
       {
-        label: "1 Min"
+        label: "1 Min",
       },
       {
-        label: "15 | 10"
+        label: "15 | 10",
       },
       {
-        label: "3 | 2"
-      },
-
-      {
-        label: "2 | 1"
+        label: "3 | 2",
       },
 
       {
-        label: "More"
-      }
+        label: "2 | 1",
+      },
+
+      {
+        label: "More",
+      },
     ];
   }
-  handleClick = minut => {
+  handleClick = (minut) => {
     alert(minut);
   };
   render() {
@@ -47,7 +47,7 @@ export default class QuickPairingGameComponent extends React.Component {
             padding: "7px 10px",
             border: "none",
             color: "#FFF",
-            borderRadius: "5px"
+            borderRadius: "5px",
           }}
         >
           {btn.label}
@@ -69,7 +69,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               5 Min
@@ -83,7 +83,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               10 Min
@@ -97,7 +97,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               3 Min
@@ -111,7 +111,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               1 Min
@@ -127,7 +127,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               15|10 Min
@@ -141,7 +141,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               3|2 Min
@@ -155,7 +155,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               2|1 Min
@@ -169,7 +169,7 @@ export default class QuickPairingGameComponent extends React.Component {
                 padding: "7px 10px",
                 border: "none",
                 color: "#FFF",
-                borderRadius: "5px"
+                borderRadius: "5px",
               }}
             >
               More

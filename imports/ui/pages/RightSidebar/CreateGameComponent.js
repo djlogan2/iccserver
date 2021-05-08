@@ -8,7 +8,7 @@ export default class CreateGameComponent extends React.Component {
     super(props);
     this.state = {
       error: null,
-      trial: 0
+      trial: 0,
     };
   }
 
