@@ -1,7 +1,10 @@
 import React from "react";
+import { Logger } from "../../../../lib/client/Logger";
 
+const logger = new Logger("FallenSoldierSquare_js");
 export default class FallenSoldierSquare extends React.Component {
   render() {
+    logger.debug("Test me here");
     const { side, cssManager, color, piece } = this.props;
     let { count } = this.props;
 
