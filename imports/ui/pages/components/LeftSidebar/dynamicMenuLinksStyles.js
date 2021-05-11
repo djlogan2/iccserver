@@ -21,4 +21,8 @@ export const dynamicMenuLinksStyles = {
     const css = get(props, "menuLinksCss.menuLinksCss", {});
     return css.rowStyle;
   },
+  topMenuLinks: (props) => {
+    const css = get(props, "menuLinksCss.menuLinksCss", {});
+    return css.topMenuLinks;
+  },
 };

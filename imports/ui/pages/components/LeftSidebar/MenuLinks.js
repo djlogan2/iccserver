@@ -53,6 +53,7 @@ class MenuLinks extends Component {
     serverTS().events.on("sendingPingResult", this.sendingPingResult);
     serverTS().events.on("lagFunc", this.lagging);
   }
+
   componentWillUnmount() {
     serverTS().events.removeListener("sendingPingResult", this.sendingPingResult);
     serverTS().events.removeListener("lagFunc", this.lagging);
@@ -211,8 +212,10 @@ class MenuLinks extends Component {
 
     return (
       <div className={classes.menuLinks}>
-        {this.getSidebar(links)}
-        {this.getSidebar(sidebarBottom)}
+        <div className={classes.topMenuLinks}>
+          {this.getSidebar(links)}
+          {this.getSidebar(sidebarBottom)}
+        </div>
         {this.connectionStatus()}
       </div>
     );

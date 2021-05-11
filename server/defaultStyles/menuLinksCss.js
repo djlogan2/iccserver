@@ -5,25 +5,31 @@ const menuLinksCss = {
     flexDirection: "column",
     justifyContent: "space-between",
     flexGrow: 1,
-    marginTop: "46px"
+    marginTop: "46px",
+  },
+  topMenuLinks: {
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    justifyContent: "space-between",
   },
   menuLinkItem: {
     display: "flex",
     marginBottom: "14px",
-    width: "100%"
+    width: "100%",
   },
   menuItemText: {
-    width: "100%"
+    width: "100%",
   },
   acitve: {
-    backgroundColor: "#2a9bdc"
+    backgroundColor: "#2a9bdc",
   },
   rowStyle: {
     paddingLeft: 0,
     listStyle: "none",
     marginTop: 0,
-    marginBottom: "1em"
-  }
+    marginBottom: "1em",
+  },
 };
 
 export default menuLinksCss;
