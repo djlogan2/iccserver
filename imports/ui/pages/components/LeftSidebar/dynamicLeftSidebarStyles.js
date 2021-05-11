@@ -28,4 +28,36 @@ export const dynamicLeftSideBarStyles = {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.statusLabel;
   },
+  imageLogo: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.imageLogo;
+  },
+  fliphImageLogo: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.fliphImageLogo;
+  },
+  burgerButton: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.burgerButton;
+  },
+  fliphBurgerButton: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.fliphBurgerButton;
+  },
+  sidebarUser: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.sidebarUser;
+  },
+  fliphSidebarUser: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.fliphSidebarUser;
+  },
+  sidebar: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.sidebar;
+  },
+  fliphSidebar: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.fliphSidebar;
+  },
 };

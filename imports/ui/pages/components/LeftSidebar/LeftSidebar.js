@@ -20,7 +20,6 @@ const log = new Logger("client/LeftSidebar_js");
 
 class LeftSidebar extends Component {
   constructor(props) {
-    log.trace("LeftSidebar constructor", props);
     super(props);
 
     this.state = {
@@ -93,7 +92,7 @@ class LeftSidebar extends Component {
     const gameStatus = get(currentUser, "status.game");
 
     return (
-      <div className={visible ? "sidebar left device-menu fliph" : "sidebar left device-menu"}>
+      <div className={classNames("sidebar", "left", "device-menu", !!visible && "fliph")}>
         <GameListModal
           isImported={false}
           visible={isMyGamesModal}
@@ -103,14 +102,17 @@ class LeftSidebar extends Component {
         <img
           src={visible ? "/images/JHU_logo_sm_small.png" : "/images/JHU_logo_sm.png"}
           alt={translate("logo")}
-          className="sidebar__img_logo"
+          className={classNames(classes.imageLogo, !!visible && classes.fliphImageLogo)}
         />
         <button
-          className="sidebar__burger-btn"
+          className={classNames(classes.burgerButton, !!visible && classes.fliphBurgerButton)}
           title={translate("burgerButton")}
           onClick={this.toggleMenu}
         />
-        <div className="sidebar__user" onClick={() => this.handleRedirect(RESOURCE_PROFILE)}>
+        <div
+          className={classNames(classes.sidebarUser, !!visible && classes.fliphSidebarUser)}
+          onClick={() => this.handleRedirect(RESOURCE_PROFILE)}
+        >
           <img
             src="/images/avatar.png"
             alt={translate("userAvatar")}
