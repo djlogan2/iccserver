@@ -10,6 +10,7 @@ import challengeNotificationCss from "../../../server/defaultStyles/challengeNot
 import profileCss from "../../../server/defaultStyles/profileCss";
 import userManagementCss from "../../../server/defaultStyles/userManagementCss";
 import commandsCss from "../../../server/defaultStyles/commandsCss";
+import homeCss from "../../../server/defaultStyles/homeCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -29,6 +30,7 @@ export default function firstRunCSS() {
       profileCss,
       userManagementCss,
       commandsCss,
+      homeCss,
     });
   }
 }

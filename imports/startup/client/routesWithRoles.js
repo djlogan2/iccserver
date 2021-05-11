@@ -9,7 +9,7 @@ import {
   RESOURCE_USERS,
 } from "../../constants/resourceConstants";
 
-import Home from "../../ui/pages/Home";
+import Home from "../../ui/pages/Home/Home";
 import Play from "../../ui/pages/Play/Play";
 import Editor from "../../ui/pages/Editor";
 import Examine from "../../ui/pages/Examine";
