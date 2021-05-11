@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import AppWrapper from "./AppWrapper";
+import AppWrapper from "./AppWrapper/AppWrapper";
 import PlayRightSidebar from "./RightSidebar/PlayRightSidebar";
 import "./../css/ChessBoard";
 import "./../css/leftsidebar";

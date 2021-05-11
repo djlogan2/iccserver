@@ -1,7 +1,7 @@
 import React from "react";
 import { Spin, Space, Col } from "antd";
 
-import AppWrapper from "./AppWrapper";
+import AppWrapper from "./AppWrapper/AppWrapper";
 
 export default ({ isPure }) => {
   if (isPure) {

@@ -3,7 +3,7 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
 
-import AppWrapper from "../AppWrapper";
+import AppWrapper from "../AppWrapper/AppWrapper";
 import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 import { Col, Space, Spin } from "antd";

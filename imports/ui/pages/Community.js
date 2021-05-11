@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import AppWrapper from "../pages/components/AppWrapper";
+import AppWrapper from "./components/AppWrapper/AppWrapper";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 

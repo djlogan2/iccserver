@@ -3,7 +3,7 @@ import { Table } from "antd";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
 
-import AppWrapper from "../AppWrapper";
+import AppWrapper from "../AppWrapper/AppWrapper";
 import {
   renderRating,
   renderStatus,

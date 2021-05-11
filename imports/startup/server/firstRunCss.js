@@ -13,6 +13,7 @@ import commandsCss from "../../../server/defaultStyles/commandsCss";
 import homeCss from "../../../server/defaultStyles/homeCss";
 import loginPageCss from "../../../server/defaultStyles/loginPageCss";
 import signupPageCss from "../../../server/defaultStyles/signupPageCss";
+import appWrapperCss from "../../../server/defaultStyles/appWrapper";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -35,6 +36,7 @@ export default function firstRunCSS() {
       homeCss,
       loginPageCss,
       signupPageCss,
+      appWrapperCss,
     });
   }
 }

@@ -4,7 +4,7 @@ import ChessBoard from "chessboard";
 import "chessboard/dist/index.css";
 
 import Chess from "chess.js";
-import AppWrapper from "../components/AppWrapper";
+import AppWrapper from "../components/AppWrapper/AppWrapper";
 import PropertiesModal from "./PropertiesModal";
 
 class CustomizableBoard extends Component {

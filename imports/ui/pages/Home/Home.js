@@ -1,6 +1,6 @@
 import React from "react";
 import { compose } from "redux";
-import AppWrapper from "../components/AppWrapper";
+import AppWrapper from "../components/AppWrapper/AppWrapper";
 import { mongoCss } from "../../../api/client/collections";
 import { withTracker } from "meteor/react-meteor-data";
 import { translate } from "../../HOCs/translate";

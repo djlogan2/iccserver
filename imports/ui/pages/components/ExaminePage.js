@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import AppWrapper from "./AppWrapper";
+import AppWrapper from "./AppWrapper/AppWrapper";
 import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar";
 import "./../css/ChessBoard";
 import "./../css/leftsidebar";

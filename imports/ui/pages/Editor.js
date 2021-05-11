@@ -13,7 +13,7 @@ import Loading from "../pages/components/Loading";
 import BoardWrapper from "./components/BoardWrapper";
 import { Logger } from "../../../lib/client/Logger";
 
-import AppWrapper from "./components/AppWrapper";
+import AppWrapper from "./components/AppWrapper/AppWrapper";
 import { getBoardSquares, isReadySubscriptions } from "../../utils/utils";
 import ChessBoard, { PiecesSidebar } from "chessboard";
 
