@@ -61,7 +61,6 @@ class LoginPage extends Component {
     const { translate, classes } = this.props;
     const { error } = this.state;
 
-    console.log(classes);
     return (
       <div className={classes.modalShow}>
         <div className="modal-dialog">

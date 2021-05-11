@@ -1,10 +1,15 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { Accounts } from "meteor/accounts-base";
+import { compose } from "redux";
 import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_LOGIN } from "../../../../constants/resourceConstants";
 import { formSourceEmail, formSourcePassword, formSourceUsername } from "../authConstants";
 import { translate } from "../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const log = new Logger("client/SignUpPage_js");
 
@@ -41,24 +46,24 @@ class SignupPage extends Component {
   };
 
   render() {
-    const { translate } = this.props;
+    const { translate, classes } = this.props;
     const { error } = this.state;
 
     return (
-      <div className="modal show">
+      <div className={classes.modalShow}>
         <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h1 className="text-center">{translate("signup")}</h1>
+          <div className={classes.modalContent}>
+            <div className={classes.modalHeader}>
+              <h1 className={classes.textCenter}>{translate("signup")}</h1>
             </div>
-            <div className="modal-body">
+            <div className={classes.modalBody}>
               {error && <div className="alert alert-danger fade in">{error}</div>}
               <form
                 id="sign-up-form"
                 className="form col-md-12 center-block"
                 onSubmit={this.signUp}
               >
-                <div className="form-group">
+                <div className={classes.formGroup}>
                   <input
                     type="text"
                     id="signup-name"
@@ -67,7 +72,7 @@ class SignupPage extends Component {
                     onChange={this.onChangeFormValue(formSourceUsername)}
                   />
                 </div>
-                <div className="form-group">
+                <div className={classes.formGroup}>
                   <input
                     type="email"
                     id="signup-email"
@@ -76,7 +81,7 @@ class SignupPage extends Component {
                     onChange={this.onChangeFormValue(formSourceEmail)}
                   />
                 </div>
-                <div className="form-group">
+                <div className={classes.formGroup}>
                   <input
                     type="password"
                     id="signup-password"
@@ -85,7 +90,7 @@ class SignupPage extends Component {
                     onChange={this.onChangeFormValue(formSourcePassword)}
                   />
                 </div>
-                <div className="form-group">
+                <div className={classes.formGroup}>
                   <input
                     type="submit"
                     id="login-button"
@@ -93,8 +98,8 @@ class SignupPage extends Component {
                     value={translate("submit")}
                   />
                 </div>
-                <div className="form-group">
-                  <p className="text-center">
+                <div className={classes.formGroup}>
+                  <p className={classes.textCenter}>
                     {translate("haveAccount")}
                     <Link to={RESOURCE_LOGIN}>{translate("loginHere")}</Link>
                   </p>
@@ -109,4 +114,12 @@ class SignupPage extends Component {
   }
 }
 
-export default translate("Common.signupForm")(SignupPage);
+export default compose(
+  translate("Common.signupForm"),
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(SignupPage);
