@@ -1,78 +1,76 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
-import { Logger } from "../../../../lib/client/Logger";
-import { RESOURCE_HOME, RESOURCE_SIGN_UP } from "../../../constants/resourceConstants";
-import { formSourceEmail, formSourcePassword } from "./authConstants";
-import { translate } from "../../HOCs/translate";
+import { Accounts } from "meteor/accounts-base";
+import { Logger } from "../../../../../lib/client/Logger";
+import { RESOURCE_LOGIN } from "../../../../constants/resourceConstants";
+import { formSourceEmail, formSourcePassword, formSourceUsername } from "../authConstants";
+import { translate } from "../../../HOCs/translate";
 
-const log = new Logger("client/LoginPage_js");
+const log = new Logger("client/SignUpPage_js");
 
-class LoginPage extends Component {
+class SignupPage extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       error: "",
-      isAuthenticated: Meteor.userId() !== null,
       email: null,
-      password: null
+      username: null,
+      password: null,
     };
   }
 
-  componentDidMount() {
-    const { isAuthenticated } = this.state;
-
-    if (isAuthenticated) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_HOME);
-    }
-  }
-
-  onChangeFormValue = value => event => {
+  onChangeFormValue = (value) => (event) => {
     this.setState({ [value]: event.target.value });
   };
 
-  login = e => {
+  signUp = (e) => {
     e.preventDefault();
 
     const { history } = this.props;
-    const { email, password } = this.state;
+    const { email, username, password } = this.state;
 
-    Meteor.loginWithPassword(email, password, err => {
+    Accounts.createUser({ email, username, password }, (err) => {
       if (err) {
-        log.error("Error occurs on Login: " + err);
-
-        this.setState({
-          error: err.reason //"Email and Password not match"
-        });
+        log.error("Error occurs on Sign up: " + err);
+        this.setState({ error: err.reason });
       } else {
-        history.push(RESOURCE_HOME);
+        history.push(RESOURCE_LOGIN);
       }
     });
   };
 
   render() {
-    const { error } = this.state;
     const { translate } = this.props;
+    const { error } = this.state;
 
     return (
       <div className="modal show">
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
-              <h1 className="text-center">
-                <div>{translate("login")}</div>
-              </h1>
+              <h1 className="text-center">{translate("signup")}</h1>
             </div>
             <div className="modal-body">
               {error && <div className="alert alert-danger fade in">{error}</div>}
-              <form id="login-form" className="form col-md-12 center-block" onSubmit={this.login}>
+              <form
+                id="sign-up-form"
+                className="form col-md-12 center-block"
+                onSubmit={this.signUp}
+              >
+                <div className="form-group">
+                  <input
+                    type="text"
+                    id="signup-name"
+                    className="form-control input-lg"
+                    placeholder={translate("name")}
+                    onChange={this.onChangeFormValue(formSourceUsername)}
+                  />
+                </div>
                 <div className="form-group">
                   <input
                     type="email"
-                    id="login-email"
+                    id="signup-email"
                     className="form-control input-lg"
                     placeholder={translate("email")}
                     onChange={this.onChangeFormValue(formSourceEmail)}
@@ -81,24 +79,24 @@ class LoginPage extends Component {
                 <div className="form-group">
                   <input
                     type="password"
-                    id="login-password"
+                    id="signup-password"
                     className="form-control input-lg"
                     placeholder={translate("password")}
                     onChange={this.onChangeFormValue(formSourcePassword)}
                   />
                 </div>
-                <div className="form-group text-center">
+                <div className="form-group">
                   <input
                     type="submit"
                     id="login-button"
-                    className="btn btn-primary btn-lg btn-block"
+                    className="btn btn-lg btn-primary btn-block"
                     value={translate("submit")}
                   />
                 </div>
-                <div className="form-group text-center">
+                <div className="form-group">
                   <p className="text-center">
-                    {translate("haveNoAccount")}
-                    <Link to={RESOURCE_SIGN_UP}>{translate("registerHere")}</Link>
+                    {translate("haveAccount")}
+                    <Link to={RESOURCE_LOGIN}>{translate("loginHere")}</Link>
                   </p>
                 </div>
               </form>
@@ -111,4 +109,4 @@ class LoginPage extends Component {
   }
 }
 
-export default translate("Common.loginForm")(LoginPage);
+export default translate("Common.signupForm")(SignupPage);

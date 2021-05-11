@@ -20,11 +20,11 @@ class App extends React.Component {
       i18n.addTranslations(updateLocale(i18nTranslate.locale), i18nTranslate.i18n);
 
       i18n.setOptions({
-        defaultLocale: updateLocale(i18nTranslate.locale)
+        defaultLocale: updateLocale(i18nTranslate.locale),
       });
     }
 
-    const availableRoutes = currentRoles.map(role => role?.role?._id);
+    const availableRoutes = currentRoles.map((role) => role?.role?._id);
 
     return isReady ? (
       <Routes currentRoles={availableRoutes} />
@@ -45,14 +45,14 @@ export default compose(
     const subscriptions = {
       gameRequests: Meteor.subscribe("game_requests"),
       gameHistory: Meteor.subscribe("game_history"),
-      clientInternationalization: Meteor.subscribe("clientInternationalization", lang)
+      clientInternationalization: Meteor.subscribe("clientInternationalization", lang),
     };
 
     return {
       isReady: isReadySubscriptions(subscriptions),
       i18nTranslate: ClientInternationalizationCollection.findOne(),
       cssStyles: mongoCss.find().fetch(),
-      currentRoles: Meteor.roleAssignment.find().fetch()
+      currentRoles: Meteor.roleAssignment.find().fetch(),
     };
   }),
   injectSheet(defaultAppStyles)
