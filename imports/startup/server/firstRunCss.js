@@ -11,6 +11,7 @@ import profileCss from "../../../server/defaultStyles/profileCss";
 import userManagementCss from "../../../server/defaultStyles/userManagementCss";
 import commandsCss from "../../../server/defaultStyles/commandsCss";
 import homeCss from "../../../server/defaultStyles/homeCss";
+import loginPageCss from "../../../server/defaultStyles/loginPageCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -31,6 +32,7 @@ export default function firstRunCSS() {
       userManagementCss,
       commandsCss,
       homeCss,
+      loginPageCss,
     });
   }
 }
