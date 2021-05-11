@@ -3,7 +3,6 @@ import { get } from "lodash";
 export const dynamicStyles = {
   sidebar: (props) => {
     const css = get(props, "css.communityCss", {});
-    console.log(props.css);
     return css.sidebar;
   },
   messenger: (props) => {
