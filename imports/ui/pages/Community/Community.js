@@ -1,17 +1,23 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import AppWrapper from "./components/AppWrapper/AppWrapper";
+import AppWrapper from "../components/AppWrapper/AppWrapper";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
+import { Logger } from "../../../../lib/client/Logger";
 
-import MessengerWithData from "./components/Chat/Messenger";
-import { Rooms } from "../../api/client/collections";
-import RoomBlock from "./components/CommunityBlocks/RoomBlock";
-import CommunityRightBlock from "./components/CommunityBlocks/CommunityRightBlock";
-import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
-import Loading from "./components/Loading";
-import { RESOURCE_HOME } from "../../constants/resourceConstants";
+import MessengerWithData from "../components/Chat/Messenger";
+import { mongoCss, Rooms } from "../../../api/client/collections";
+import RoomBlock from "../components/CommunityBlocks/RoomBlock";
+import CommunityRightBlock from "../components/CommunityBlocks/CommunityRightBlock";
+import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
+import Loading from "../components/Loading";
+import { RESOURCE_HOME } from "../../../constants/resourceConstants";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
+import classNames from "classnames";
+
+const log = new Logger("client/Community_js");
 
 class Community extends Component {
   constructor(props) {
@@ -36,7 +42,7 @@ class Community extends Component {
   handleAdd = (roomName, isPrivate) => {
     Meteor.call("createRoom", "createRoom", roomName, isPrivate, (error) => {
       if (error) {
-        console.log(error);
+        log.error(error);
       }
     });
   };
@@ -84,7 +90,7 @@ class Community extends Component {
     if (newMessage.text) {
       Meteor.call("writeToRoom", "writeToRoom", roomId, newMessage.text, (err) => {
         if (err) {
-          console.error(err);
+          log.error(err);
         }
       });
     }
@@ -111,7 +117,7 @@ class Community extends Component {
   };
 
   render() {
-    const { allRooms, notMyRooms, isReady, history } = this.props;
+    const { allRooms, notMyRooms, isReady, history, classes } = this.props;
     const { isRightMenu, activeRoom, isModal } = this.state;
 
     const cf = Meteor.user().cf;
@@ -126,7 +132,7 @@ class Community extends Component {
 
     return (
       <AppWrapper>
-        <div className="community__sidebar">
+        <div className={classes.sidebar}>
           <RoomBlock
             isModal={isModal}
             activeRoom={activeRoom}
@@ -138,13 +144,12 @@ class Community extends Component {
           />
         </div>
         <div
-          className="community__messenger"
-          style={{ maxWidth: !!isRightMenu ? "calc(100% - 505px)" : "calc(100% - 291px)" }}
+          className={classNames(classes.messenger, !!isRightMenu && classes.messengerWithRightMenu)}
         >
           {this.renderMessenger()}
         </div>
         {!!isRightMenu && (
-          <div className="community__right-block" style={{ maxWidth: "214px" }}>
+          <div className={classes.rightBlock}>
             <CommunityRightBlock
               activeRoom={activeRoom}
               roomList={notMyRooms}
@@ -169,8 +174,10 @@ export default compose(
 
     return {
       isReady: isReadySubscriptions(subscriptions),
+      css: mongoCss.findOne(),
       allRooms: Rooms.find().fetch(),
       notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
     };
-  })
+  }),
+  injectSheet(dynamicStyles)
 )(Community);

@@ -14,6 +14,7 @@ import homeCss from "../../../server/defaultStyles/homeCss";
 import loginPageCss from "../../../server/defaultStyles/loginPageCss";
 import signupPageCss from "../../../server/defaultStyles/signupPageCss";
 import appWrapperCss from "../../../server/defaultStyles/appWrapper";
+import communityCss from "../../../server/defaultStyles/communityCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -37,6 +38,7 @@ export default function firstRunCSS() {
       loginPageCss,
       signupPageCss,
       appWrapperCss,
+      communityCss,
     });
   }
 }
