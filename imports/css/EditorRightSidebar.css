@@ -75,33 +75,33 @@
     border: none;
 }
 .editor-right-sidebar__btn--starting-pos {
-    background: url('images/starting-position.svg');
+    background: url('../../public/images/starting-position.svg');
     background-repeat: no-repeat;
     background-position: left center;
 }
 .editor-right-sidebar__btn--starting-pos:hover, .editor-right-sidebar__btn--starting-pos:active, .editor-right-sidebar__btn--starting-pos:focus {
-    background: url('images/starting-position.svg');
+    background: url('../../public/images/starting-position.svg');
     background-repeat: no-repeat;
     background-position: left center;
 }
 .editor-right-sidebar__btn--clear {
-    background: url('images/clear.svg');
+    background: url('../../public/images/clear.svg');
     background-repeat: no-repeat;
     background-position: left center;
 }
 .editor-right-sidebar__btn--clear:hover, .editor-right-sidebar__btn--clear:active, .editor-right-sidebar__btn--clear:focus {
-    background: url('images/clear.svg');
+    background: url('../../public/images/clear.svg');
     background-repeat: no-repeat;
     background-position: left center;
 }
 .editor-right-sidebar__btn--flip {
-    background: url('images/flip.svg');
+    background: url('../../public/images/flip.svg');
     background-repeat: no-repeat;
     background-position: left center;
 
 }
 .editor-right-sidebar__btn--flip:hover, .editor-right-sidebar__btn--flip:active, .editor-right-sidebar__btn--flip:focus {
-    background: url('images/flip.svg');
+    background: url('../../public/images/flip.svg');
     background-repeat: no-repeat;
     background-position: left center;
 }

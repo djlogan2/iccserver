@@ -3,9 +3,9 @@ import _ from "lodash";
 import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper/AppWrapper";
 import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar";
-import "./../css/ChessBoard";
-import "./../css/leftsidebar";
-import "./../css/RightSidebar";
+import "../../../../imports/css/ChessBoard";
+import "../../../../imports/css/leftsidebar";
+import "../../../../imports/css/RightSidebar";
 
 import { Col } from "antd";
 

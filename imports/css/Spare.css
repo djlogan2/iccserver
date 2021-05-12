@@ -29,7 +29,7 @@
 }
 
 .spare piece.trash {
-    background: url('images/close_24px.svg');
+    background: url('../../public/images/close_24px.svg');
     background-repeat: no-repeat;
     background-position: center;
 }

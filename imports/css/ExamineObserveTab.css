@@ -53,7 +53,7 @@
   line-height: 19px;
 }
 .examine-observer-tab-block__list-item__move-pieces-btn {
-  background: url(images/move-icon.svg);
+  background: url(../../public/images/move-icon.svg);
   background-repeat: no-repeat;
   background-position: center;
   border: 0;
@@ -63,7 +63,7 @@
 }
 
 .examine-observer-tab-block__list-item__move-pieces-btn--active {
-  background: url(images/move-icon-active.svg);
+  background: url(../../public/images/move-icon-active.svg);
   background-repeat: no-repeat;
   background-position: center;
   border: 0;

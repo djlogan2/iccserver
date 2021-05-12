@@ -2,9 +2,9 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper/AppWrapper";
 import PlayRightSidebar from "./RightSidebar/PlayRightSidebar";
-import "./../css/ChessBoard";
-import "./../css/leftsidebar";
-import "./../css/RightSidebar";
+import "../../../../imports/css/ChessBoard";
+import "../../../../imports/css/leftsidebar";
+import "../../../../imports/css/RightSidebar";
 
 import { Col } from "antd";
 

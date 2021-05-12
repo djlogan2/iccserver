@@ -4,7 +4,7 @@ import { withRouter } from "react-router-dom";
 import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 
-import "../../css/EditorRightSidebar.css";
+import "../../../../../imports/css/EditorRightSidebar.css";
 import { RESOURCE_EXAMINE } from "../../../../constants/resourceConstants";
 
 class EditorRightSidebar extends Component {

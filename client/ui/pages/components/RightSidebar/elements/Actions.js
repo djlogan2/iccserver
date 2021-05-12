@@ -2,7 +2,7 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
 
-import "../../../css/Actions.css";
+import "../../../../../../imports/css/Actions.css";
 
 import { translate } from "../../../../HOCs/translate";
 import { RESOURCE_EDITOR } from "../../../../../constants/resourceConstants";
