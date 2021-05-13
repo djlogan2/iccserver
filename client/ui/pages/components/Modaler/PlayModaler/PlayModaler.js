@@ -1,6 +1,11 @@
 import React, { Component } from "react";
 import { Button, Modal } from "antd";
-import { translate } from "../../../HOCs/translate";
+import { compose } from "redux";
+import { translate } from "../../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 class PlayModaler extends Component {
   handleCancel = () => {
@@ -20,42 +25,49 @@ class PlayModaler extends Component {
       case "1/2-1/2":
         return translate("gameDrawn");
       default:
-        return translate("unknownResult") + gameResult;
+        return gameResult;
     }
   };
 
   render() {
-    const { clientMessage, gameResult, userName, opponentName, translate, visible } = this.props;
-
-    const titleText = this.getTitleText(gameResult);
-    const message = clientMessage ? clientMessage.message : "";
+    const {
+      classes,
+      clientMessage,
+      gameResult,
+      userName,
+      opponentName,
+      translate,
+      visible,
+      onExamine,
+      onRematch,
+    } = this.props;
 
     return (
       <Modal
-        title={titleText}
+        title={this.getTitleText(gameResult)}
         visible={visible}
         onOk={this.handleCancel}
         onCancel={this.handleCancel}
         footer={null}
       >
-        <div className="play-modal">
-          <div className="play-modal__main">
-            <div className="play-modal__user-one">
+        <div>
+          <div className={classes.main}>
+            <div className={classes.userOne}>
               <img
-                className="play-modal__user-img"
-                src="images/player-img-top.png"
+                className={classes.userImg}
+                src="../../../../../../public/images/player-img-top.png"
                 alt={translate("userImage")}
               />
               <p className="play-modal__user-name">{userName}</p>
             </div>
             <div className="play-modal__main-center">
               <span className="play-modal__game-short-status">{gameResult}</span>
-              <p className="play-modal__game-status">{message}</p>
+              <p className="play-modal__game-status">{clientMessage?.message || ""}</p>
             </div>
             <div className="play-modal__user-two">
               <img
                 className="play-modal__user-img"
-                src="images/player-img-top.png"
+                src="../../../../../../public/images/player-img-top.png"
                 alt={translate("userImage")}
               />
               <p className="play-modal__user-name">{opponentName}</p>
@@ -65,7 +77,7 @@ class PlayModaler extends Component {
             <Button
               type="primary"
               onClick={() => {
-                this.props.onRematch();
+                onRematch();
                 this.handleCancel();
               }}
               className="play-modal__btn play-modal__btn--primary"
@@ -74,7 +86,7 @@ class PlayModaler extends Component {
             </Button>
             <Button
               onClick={() => {
-                this.props.onExamine();
+                onExamine();
                 this.handleCancel();
               }}
               className="play-modal__btn"
@@ -88,4 +100,12 @@ class PlayModaler extends Component {
   }
 }
 
-export default translate("Play.PlayModaler")(PlayModaler);
+export default compose(
+  translate("Play.PlayModaler"),
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(PlayModaler);

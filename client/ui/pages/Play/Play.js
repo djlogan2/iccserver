@@ -5,7 +5,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../../lib/client/Logger";
 import CssManager from "../components/Css/CssManager";
 import Loading from "../components/Loading";
-import PlayModaler from "../components/Modaler/PlayModaler";
+import PlayModaler from "../components/Modaler/PlayModaler/PlayModaler";
 import Chess from "chess.js";
 import {
   ClientMessagesCollection,
@@ -31,7 +31,7 @@ import {
 
 const log = new Logger("client/Play_js");
 
-let handleError = (error) => {
+const handleError = (error) => {
   if (error) {
     log.error("handleError", error);
   }
@@ -40,12 +40,9 @@ let handleError = (error) => {
 class Play extends Component {
   constructor(props) {
     super(props);
-    // log.trace("Play constructor", props);
-    this.userId = null;
     // You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
-    this.userpending = null;
 
     this.state = {
       gameType: null,
@@ -142,18 +139,9 @@ class Play extends Component {
     history.push(RESOURCE_EXAMINE);
   };
 
-  getCoordinatesToRank(square) {
-    const file = square.square.charAt(0);
-    const rank = parseInt(square.square.charAt(1));
-    const fileNumber = ["a", "b", "c", "d", "e", "f", "g", "h"];
-    const fileNo = fileNumber.indexOf(file);
-
-    return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
-  }
-
-  clientMessages(id) {
+  clientMessages = (id) => {
     return ClientMessagesCollection.findOne({ client_identifier: id });
-  }
+  };
 
   genOptions = (gameData) => {
     const friendId = Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
@@ -344,17 +332,12 @@ class Play extends Component {
     let userColor;
     let result;
 
-    const gamemessage = this.clientMessages(this.message_identifier);
-    const visible = !!gamemessage && !!inGame && inGame.status === "examining";
+    const gameMessage = this.clientMessages(this.message_identifier);
+    const visible = !!gameMessage && !!inGame && inGame.status === "examining";
     if (visible) {
       result = inGame.result;
 
       userColor = inGame.white.name === Meteor.user().username ? "white" : "black";
-
-      if (!userColor) {
-        log.error("userColor is missing");
-      }
-
       opponentName = userColor === "white" ? inGame.black.name : inGame.white.name;
     }
 
@@ -363,7 +346,7 @@ class Play extends Component {
         <PlayModaler
           visible={visible}
           gameResult={result}
-          clientMessage={gamemessage}
+          clientMessage={gameMessage}
           opponentName={opponentName}
           userName={!!Meteor.userId() ? Meteor.user().username : "Logged Out"}
           onRematch={this.handleRematch}
