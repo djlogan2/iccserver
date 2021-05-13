@@ -1,44 +1,65 @@
-import React, { useState } from "react";
+import React, { Component } from "react";
 import { Button, Input, Modal } from "antd";
+import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 import { KEY_ENTER } from "../../../../constants/systemConstants";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./roomBlockDynamicStyles";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../imports/api/client/collections";
+import classNames from "classnames";
 
-const RoomBlock = translate("Community")(
-  ({ activeRoom, list, onChange, onAdd, openRightBlock, translate, isModal, handleCloseModal }) => {
-    const [roomName, setRoomName] = useState("");
-    const [isPrivate] = useState(true);
-
-    const handleCancel = () => {
-      setRoomName("");
-      handleCloseModal();
+class RoomBlock extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      roomName: "",
+      iPrivate: true,
     };
+  }
 
-    const handleOk = () => {
-      setRoomName("");
-      handleCloseModal();
+  handleCancel = () => {
+    const { handleCloseModal } = this.props;
 
-      onAdd(roomName, isPrivate);
-    };
+    handleCloseModal();
+    this.setState({ roomName: "" });
+  };
 
-    const handleKeyDown = (itemId) => (event) => {
-      if (event.key === KEY_ENTER) {
-        onChange(itemId);
-      }
-    };
+  handleOk = () => {
+    const { onAdd, handleCloseModal } = this.props;
+    const { roomName, isPrivate } = this.state;
+    handleCloseModal();
+
+    onAdd(roomName, isPrivate);
+
+    this.setState({ roomName: "" });
+  };
+
+  handleKeyDown = (itemId) => (event) => {
+    const { onChange } = this.props;
+
+    if (event.key === KEY_ENTER) {
+      onChange(itemId);
+    }
+  };
+
+  render() {
+    const { activeRoom, list, onChange, openRightBlock, translate, isModal, classes } = this.props;
+    const { roomName } = this.state;
 
     return (
-      <div className="room-block">
-        <div className="room-block__head">
-          <h2 className="room-block__title">
+      <div className={classes.roomBlock}>
+        <div className={classes.roomBlockHead}>
+          <h2 className={classes.roomBlockTitle}>
             {translate("RoomBlock.rooms", { rooms: list.length })}
           </h2>
           <Modal
             title={translate("RoomBlock.title")}
             visible={!!isModal}
-            onOk={handleOk}
-            onCancel={handleCancel}
+            onOk={this.handleOk}
+            onCancel={this.handleCancel}
           >
-            <Input value={roomName} onChange={(e) => setRoomName(e.target.value)} />
+            <Input value={roomName} onChange={(e) => this.setState({ roomName: e.target.value })} />
           </Modal>
           <Button
             onClick={openRightBlock}
@@ -49,12 +70,9 @@ const RoomBlock = translate("Community")(
           </Button>
         </div>
 
-        <ul className="room-block__list">
+        <ul className={classes.roomBlockList}>
           {list.map((item) => {
-            let itemClasses =
-              activeRoom === item._id
-                ? "room-block__list-item room-block__list-item--active"
-                : "room-block__list-item";
+            let isActive = activeRoom === item._id;
             return (
               <li
                 role="button"
@@ -64,8 +82,11 @@ const RoomBlock = translate("Community")(
                   onChange(item._id);
                 }}
                 key={item._id}
-                className={itemClasses}
-                onKeyDown={handleKeyDown(item._id)}
+                className={classNames(
+                  classes.roomBlockListItem,
+                  isActive && classes.roomBlockListItemActive
+                )}
+                onKeyDown={this.handleKeyDown(item._id)}
               >
                 {item.name}
               </li>
@@ -75,6 +96,14 @@ const RoomBlock = translate("Community")(
       </div>
     );
   }
-);
+}
 
-export default RoomBlock;
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  translate("Community"),
+  injectSheet(dynamicStyles)
+)(RoomBlock);
