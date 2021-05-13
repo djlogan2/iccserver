@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal } from "antd";
-import { withRouter } from "react-router";
+import { withRouter } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { Table } from "antd";
 import injectSheet from "react-jss";

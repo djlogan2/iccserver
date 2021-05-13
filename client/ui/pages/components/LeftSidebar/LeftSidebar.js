@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { withRouter } from "react-router";
+import { withRouter } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { compose } from "redux";
 import injectSheet from "react-jss";

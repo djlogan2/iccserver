@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
 import { compose } from "redux";
+import { Link, withRouter } from "react-router-dom";
 
 import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_HOME, RESOURCE_SIGN_UP } from "../../../../constants/resourceConstants";

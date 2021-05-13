@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import { withRouter } from "react-router";
+import { withRouter } from "react-router-dom";
 import { links, sidebarBottom } from "../../hardcode.json";
 import {
   labelLogout,
