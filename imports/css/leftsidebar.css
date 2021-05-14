@@ -33,12 +33,12 @@
     height: 5rem;
     margin-top: 1rem;
     margin-left: 1rem;
-    background: url('../../public/images/logo-white-lg.png');
+    background: url('images/logo-white-lg.png');
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
     /* for presentation */
-    background: url('../../public/images/JHU_logo_sm.png');
+    background: url('images/JHU_logo_sm.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -99,7 +99,7 @@
 }
 
 .sidebar__burger-btn {
-    background: url('../../public/images/menu-button-of-three-lines.svg') no-repeat;
+    background: url('images/menu-button-of-three-lines.svg') no-repeat;
     background-position: center;
     background-size: contain;
     border: none;

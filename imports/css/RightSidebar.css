@@ -11,7 +11,7 @@
 
 .right-section .panel-title a.minus.collapsed {
 	position: relative;
-	background: url('../../public/images/pluse-icon.png') no-repeat left center;
+	background: url('images/pluse-icon.png') no-repeat left center;
 	width: 24px;
 	display: inline-block;
 	vertical-align: top;
@@ -19,7 +19,7 @@
 
 .right-section .panel-title a {
 	position: relative;
-	background: url(../../public/images/minus-icon.png) no-repeat left center;
+	background: url(images/minus-icon.png) no-repeat left center;
 	width: 23px;
 	display: inline-block;
 	vertical-align: top;

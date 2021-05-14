@@ -55,7 +55,7 @@ class PlayModaler extends Component {
             <div className={classes.userOne}>
               <img
                 className={classes.userImg}
-                src="../../../../../../public/images/player-img-top.png"
+                src="images/player-img-top.png"
                 alt={translate("userImage")}
               />
               <p className="play-modal__user-name">{userName}</p>
@@ -67,7 +67,7 @@ class PlayModaler extends Component {
             <div className="play-modal__user-two">
               <img
                 className="play-modal__user-img"
-                src="../../../../../../public/images/player-img-top.png"
+                src="images/player-img-top.png"
                 alt={translate("userImage")}
               />
               <p className="play-modal__user-name">{opponentName}</p>
