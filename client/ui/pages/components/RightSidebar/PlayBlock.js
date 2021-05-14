@@ -86,7 +86,7 @@ class PlayBlock extends Component {
       sentRequests,
       flip,
       cssManager,
-      RightSidebarData,
+      moveList,
       actionData,
       startGameExamine,
       gameRequest,
@@ -157,7 +157,7 @@ class PlayBlock extends Component {
         >
           <GameHistory
             cssManager={cssManager}
-            game={RightSidebarData.MoveList}
+            game={moveList}
             actionData={actionData}
             startGameExamine={startGameExamine}
             gameRequest={gameRequest}

@@ -40,7 +40,7 @@ const handleError = (error) => {
 class Play extends Component {
   constructor(props) {
     super(props);
-    // You need to quit using Chess.chess() and start using the data from the game record.
+
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
 
@@ -139,7 +139,7 @@ class Play extends Component {
     history.push(RESOURCE_EXAMINE);
   };
 
-  clientMessages = (id) => {
+  getClientMessage = (id) => {
     return ClientMessagesCollection.findOne({ client_identifier: id });
   };
 
@@ -332,7 +332,7 @@ class Play extends Component {
     let userColor;
     let result;
 
-    const gameMessage = this.clientMessages(this.message_identifier);
+    const gameMessage = this.getClientMessage(this.message_identifier);
     const visible = !!gameMessage && !!inGame && inGame.status === "examining";
     if (visible) {
       result = inGame.result;
@@ -342,7 +342,7 @@ class Play extends Component {
     }
 
     return (
-      <div className="examine">
+      <div>
         <PlayModaler
           visible={visible}
           gameResult={result}
@@ -365,7 +365,6 @@ class Play extends Component {
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
-          ref="main_page"
         />
       </div>
     );

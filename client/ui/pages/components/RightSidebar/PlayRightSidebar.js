@@ -8,7 +8,7 @@ import { translate } from "../../../HOCs/translate";
 
 import PlayBlock from "./PlayBlock";
 import ObserveBlock from "./ObserveBlock";
-import { gameComputerId } from "../../../../constants/gameConstants";
+import { gameComputerId, gameStatusPlaying } from "../../../../constants/gameConstants";
 
 const { TabPane } = Tabs;
 
@@ -53,7 +53,7 @@ class PlayRightSidebar extends Component {
 
     return (
       game &&
-      game.status === "playing" &&
+      game.status === gameStatusPlaying &&
       (Meteor.userId() === game.white.id || Meteor.userId() === game.black.id)
     );
   };
@@ -67,7 +67,7 @@ class PlayRightSidebar extends Component {
       sentRequests,
       onChooseFriend,
       cssManager,
-      RightSidebarData,
+      moveList,
       flip,
       translate,
     } = this.props;
@@ -85,7 +85,7 @@ class PlayRightSidebar extends Component {
                 sentRequests={sentRequests}
                 onChooseFriend={onChooseFriend}
                 cssManager={cssManager}
-                RightSidebarData={RightSidebarData}
+                moveList={moveList}
                 flip={flip}
               />
             </TabPane>

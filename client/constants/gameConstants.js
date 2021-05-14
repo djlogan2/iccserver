@@ -3,6 +3,13 @@ export const defaultCapture = {
   b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
 };
 
+export const gameObserveDefault = {
+  _id: "bogus",
+  fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+  white: { id: "bogus", name: "White", rating: 1600 },
+  black: { id: "bogus", name: "White", rating: 1600 },
+};
+
 export const oneMinuteSeekOptions = {
   color: "random",
   initial: 1,
@@ -64,6 +71,9 @@ export const gameStatusObserving = "observing";
 
 export const colorWhite = "white";
 export const colorBlack = "black";
+
+export const colorWhiteLetter = "w";
+export const colorBlackLetter = "b";
 
 export const ratedGame = "rated";
 export const nonRatedGame = "non-rated";

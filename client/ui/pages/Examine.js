@@ -7,15 +7,10 @@ import CssManager from "./components/Css/CssManager";
 import Loading from "./components/Loading";
 import GameListModal from "./components/Modaler/GameListModal";
 import Chess from "../../../node_modules/chess.js/chess";
-import {
-  ClientMessagesCollection,
-  Game,
-  ImportedGameCollection,
-  mongoCss,
-} from "../../../imports/api/client/collections";
+import { Game, ImportedGameCollection, mongoCss } from "../../../imports/api/client/collections";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
-import { defaultCapture } from "../../constants/gameConstants";
+import { defaultCapture, gameObserveDefault } from "../../constants/gameConstants";
 
 const log = new Logger("client/Examine_js");
 
@@ -29,11 +24,7 @@ class Examine extends Component {
   constructor(props) {
     super(props);
 
-    this.userId = null;
-    // TODO: You need to quit using Chess.chess() and start using the data from the game record.
     this._board = new Chess.Chess();
-    this._boardfallensolder = new Chess.Chess();
-    this.userpending = null;
 
     this.state = {
       fileData: null,
@@ -142,11 +133,6 @@ class Examine extends Component {
   _pieceSquareDragStop = (raf) => {
     const { game } = this.props;
 
-    if (!game) {
-      log.error("How are we dropping pieces on a non-examined game?");
-      return;
-    }
-
     Meteor.call("addGameMove", "gameMove", game._id, raf.move);
   };
 
@@ -177,43 +163,6 @@ class Examine extends Component {
     }
   };
 
-  _boardFromMongoMessages(game) {
-    let position = {
-      w: { p: 8, n: 2, b: 2, r: 2, q: 1 },
-      b: { p: 8, n: 2, b: 2, r: 2, q: 1 },
-    };
-
-    const shortfen = game.fen.split(" ")[0];
-    let i = shortfen.length;
-
-    while (i--) {
-      let pc = shortfen.charAt(i);
-      let color = pc > "A" ? "w" : "b";
-      pc = pc.toLowerCase();
-      position[color][pc]--;
-    }
-
-    return position;
-  }
-
-  getCoordinatesToRank(square) {
-    const file = square.square.charAt(0);
-    const rank = parseInt(square.square.charAt(1));
-    const fileNumber = ["a", "b", "c", "d", "e", "f", "g", "h"];
-    const fileNo = fileNumber.indexOf(file);
-
-    return { rank: rank - 1, file: fileNo, lineWidth: square.size, color: square.color };
-  }
-
-  clientMessages(id) {
-    return ClientMessagesCollection.findOne({
-      $or: [
-        { client_identifier: "matchRequest" },
-        { $and: [{ to: Meteor.userId() }, { client_identifier: id }] },
-      ],
-    });
-  }
-
   handlePgnUpload = (fileData) => {
     this.setState({ fileData });
   };
@@ -235,49 +184,6 @@ class Examine extends Component {
         isImportedGamesModal: !!fileData,
       });
     }
-
-    // if (!game && prevProps.game) {
-    //   this.initExamine();
-    // }
-  }
-
-  renderObserver() {
-    const { systemCss, allUsers, game: gameFromProps } = this.props;
-    const { isImportedGamesModal, importedGames } = this.state;
-
-    const game = gameFromProps || {
-      _id: "bogus",
-      fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
-      white: { id: "bogus", name: "White", rating: 1600 },
-      black: { id: "bogus", name: "White", rating: 1600 },
-    };
-
-    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
-
-    return (
-      <div className="examine">
-        <GameListModal
-          isImported={true}
-          visible={isImportedGamesModal}
-          gameList={importedGames}
-          onClose={() => {
-            this.setState({ isImportedGamesModal: false });
-          }}
-        />
-        <ExaminePage
-          cssManager={css}
-          allUsers={allUsers}
-          board={this._board}
-          observeUser={this.handleObserveUser}
-          unObserveUser={this.handleUnObserveUser}
-          onPgnUpload={this.handlePgnUpload}
-          capture={defaultCapture}
-          game={game}
-          onDrop={this._pieceSquareDragStop}
-          ref="main_page"
-        />
-      </div>
-    );
   }
 
   handleImportedGames = () => {
@@ -294,29 +200,25 @@ class Examine extends Component {
     const { allUsers, isReady, game, systemCss } = this.props;
     const { isImportedGamesModal, importedGames, leaving_game } = this.state;
 
-    if (!isReady) {
-      return <Loading />;
-    }
+    let fullGame = { ...game };
 
-    if (!game) {
+    if (!isReady || !game || game._id === leaving_game) {
       if (!leaving_game) {
         this.initExamine();
       }
 
       return <Loading />;
-    } else if (game._id === leaving_game) {
-      return <Loading />;
     }
 
     if (!game.examiners || !game.examiners.some((user) => user.id === Meteor.userId())) {
-      return this.renderObserver();
+      fullGame = game || gameObserveDefault;
     }
 
     const css = new CssManager(systemCss.systemCss, systemCss.userCss);
     this._board.load(game.fen);
 
     return (
-      <div className="examine">
+      <div>
         <GameListModal
           isImported={true}
           visible={isImportedGamesModal}
@@ -333,11 +235,10 @@ class Examine extends Component {
           unObserveUser={this.handleUnObserveUser}
           onPgnUpload={this.handlePgnUpload}
           capture={defaultCapture}
-          game={game}
+          game={fullGame}
           onImportedGames={this.handleImportedGames}
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
-          ref="main_page"
         />
       </div>
     );

@@ -25,7 +25,7 @@ class ExamineRightSidebar extends Component {
       allUsers,
       observeUser,
       unObserveUser,
-      RightSidebarData,
+      moveList,
       cssManager,
       flip,
       onPgnUpload,
@@ -40,7 +40,7 @@ class ExamineRightSidebar extends Component {
           allUsers={allUsers}
           observeUser={observeUser}
           unObserveUser={unObserveUser}
-          RightBarTopData={RightSidebarData}
+          moveList={moveList}
           cssManager={cssManager}
           flip={flip}
           gameRequest={gameRequest}

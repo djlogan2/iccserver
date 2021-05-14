@@ -19,7 +19,7 @@ class ExamineSidebarTop extends Component {
     super(props);
 
     this.state = {
-      moveOrPlay: "move"
+      moveOrPlay: "move",
     };
   }
 
@@ -74,13 +74,13 @@ class ExamineSidebarTop extends Component {
   renderMove() {
     const {
       cssManager,
-      RightBarTopData,
+      moveList,
       flip,
       actionData,
       startGameExamine,
       gameRequest,
       examineAction,
-      game
+      game,
     } = this.props;
 
     return (
@@ -90,14 +90,14 @@ class ExamineSidebarTop extends Component {
           height: "calc(100% - 50px)",
           display: "flex",
           flexDirection: "column",
-          marginTop: "10px"
+          marginTop: "10px",
         }}
       >
         <div style={{ display: "flex", flexDirection: "column", flexGrow: "1" }}>
           <Actions playComputer={this.playComputer} />
           <GameHistory
             cssManager={cssManager}
-            game={RightBarTopData.MoveList}
+            game={moveList}
             flip={flip}
             actionData={actionData}
             startGameExamine={startGameExamine}

@@ -7,6 +7,11 @@ import Chess from "../../../../node_modules/chess.js/chess";
 import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
 import "./ChessBoard";
+import {
+  colorBlackLetter,
+  gameStatusExamining,
+  gameStatusPlaying,
+} from "../../../constants/gameConstants";
 
 class MiddleBoard extends Component {
   constructor(props) {
@@ -17,8 +22,8 @@ class MiddleBoard extends Component {
     this.state = {
       fen: this.chess.fen(),
       top: props.top,
-      white: props.MiddleBoardData.white,
-      black: props.MiddleBoardData.black,
+      white: props.playersInfo.white,
+      black: props.playersInfo.black,
       height: 500,
       width: 1000,
     };
@@ -74,15 +79,7 @@ class MiddleBoard extends Component {
   };
 
   render() {
-    const {
-      translate,
-      game,
-      capture,
-      MiddleBoardData,
-      cssManager,
-      onDrawObject,
-      onDrop,
-    } = this.props;
+    const { translate, game, capture, playersInfo, cssManager, onDrawObject, onDrop } = this.props;
     const { top } = this.state;
 
     if (!!game && !game.fen) {
@@ -119,9 +116,9 @@ class MiddleBoard extends Component {
     let botPlayermsg;
     let color;
 
-    if (game && game.status === "playing") {
-      if (MiddleBoardData.black.id === Meteor.userId()) {
-        if (this.chess.turn() === "b") {
+    if (game && game.status === gameStatusPlaying) {
+      if (playersInfo.black.id === Meteor.userId()) {
+        if (this.chess.turn() === colorBlackLetter) {
           botPlayermsg = translate("yourturn");
           color = "#4cd034";
         } else {
@@ -139,14 +136,14 @@ class MiddleBoard extends Component {
       }
     }
 
-    if (!!game && (game.status === "examining" || game.status === "playing")) {
+    if (!!game && (game.status === gameStatusExamining || game.status === gameStatusPlaying)) {
       this.chess.load(game.fen);
     } else {
       this.chess.load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
 
-    const isUserPlaying = !!game && game.status === "playing";
-    const isUserExamining = !!game && game.status === "examining";
+    const isUserPlaying = !!game && game.status === gameStatusPlaying;
+    const isUserExamining = !!game && game.status === gameStatusExamining;
 
     const isPlayingOrExamining = isUserPlaying || isUserExamining;
 
