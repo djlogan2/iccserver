@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Game, GameHistoryCollection, mongoCss } from "../../../imports/api/client/collections.js";
-import Chess from "../../../node_modules/chess.js/chess";
+import Chess from "chess.js/chess";
 //import Chessground from "react-chessground";
 import FenParser from "@chess-fu/fen-parser";
 import { Col } from "antd";

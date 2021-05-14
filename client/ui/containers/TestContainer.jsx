@@ -4,7 +4,7 @@ import RankSquare from "../pages/components/Board/RankSquare";
 import FileSquare from "../pages/components/Board/FileSquare";
 import Board from "../pages/components/Board/Board";
 import CssManager from "../pages/components/Css/TestContainerCssManager";
-import Chess from "../../../node_modules/chess.js/chess";
+import Chess from "chess.js/chess";
 import MoveListComponent from "../pages/RightSidebar/MoveListComponent";
 import { Meteor } from "meteor/meteor";
 import TrackerReact from "meteor/ultimatejs:tracker-react";

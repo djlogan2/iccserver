@@ -2,13 +2,15 @@ import React, { Component } from "react";
 import Player from "./Player";
 import BlackPlayerClock from "./BlackPlayerClock";
 import { Meteor } from "meteor/meteor";
-import Chess from "../../../../node_modules/chess.js/chess";
+import Chess from "chess.js/chess";
 
 import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
 import "./ChessBoard";
 import {
+  boardBaseFen,
   colorBlackLetter,
+  colorWhiteLetter,
   gameStatusExamining,
   gameStatusPlaying,
 } from "../../../constants/gameConstants";
@@ -20,12 +22,7 @@ class MiddleBoard extends Component {
     this.chess = new Chess.Chess();
 
     this.state = {
-      fen: this.chess.fen(),
       top: props.top,
-      white: props.playersInfo.white,
-      black: props.playersInfo.black,
-      height: 500,
-      width: 1000,
     };
   }
 
@@ -44,7 +41,7 @@ class MiddleBoard extends Component {
   switchSides = () => {
     const { top } = this.state;
 
-    const newTop = top === "w" ? "b" : "w";
+    const newTop = top === colorWhiteLetter ? colorBlackLetter : colorWhiteLetter;
     this.setState({ top: newTop });
   };
 
@@ -54,28 +51,13 @@ class MiddleBoard extends Component {
     return Math.min(height / 1.3, width / 2.5);
   };
 
-  calcSize = () => {
-    const { width, height } = this.props;
-
-    return Math.min(height / 1.3, width / 2.5);
-  };
-
-  getTopPlayerData = () => {
+  getPlayersData = () => {
     const { game } = this.props;
     const { top } = this.state;
 
-    if (game) {
-      return top === "w" ? game.white : game.black;
-    }
-  };
-
-  getBottomPlayerData = () => {
-    const { game } = this.props;
-    const { top } = this.state;
-
-    if (game) {
-      return top === "b" ? game.white : game.black;
-    }
+    return top === colorWhiteLetter
+      ? { topPlayer: game?.white, bottomPlayer: game?.black }
+      : { topPlayer: game?.black, bottomPlayer: game?.white };
   };
 
   render() {
@@ -90,14 +72,11 @@ class MiddleBoard extends Component {
       this.chess.load(game.fen);
     }
 
-    let boardsize = this.calcBoardSize();
-    let size = this.calcSize();
+    const boardSize = this.calcBoardSize();
+    const { topPlayer, bottomPlayer } = this.getPlayersData();
 
-    const topPlayer = this.getTopPlayerData();
-    const bottomPlayer = this.getBottomPlayerData();
-
-    const topPlayertime = top === "w" ? "white" : "black";
-    const bottomPlayertime = top === "b" ? "white" : "black";
+    const topPlayerTime = top === "w" ? "white" : "black";
+    const bottomPlayerTime = top === "b" ? "white" : "black";
 
     const topPlayerFallenSoldier = top === "w" ? capture.b : capture.w;
     const bottomPlayerFallenSoldier = top === "b" ? capture.b : capture.w;
@@ -126,7 +105,7 @@ class MiddleBoard extends Component {
           color = "#fff";
         }
       } else {
-        if (this.chess.turn() === "w") {
+        if (this.chess.turn() === colorWhiteLetter) {
           botPlayermsg = translate("yourturn");
           color = "#4cd034";
         } else {
@@ -139,35 +118,33 @@ class MiddleBoard extends Component {
     if (!!game && (game.status === gameStatusExamining || game.status === gameStatusPlaying)) {
       this.chess.load(game.fen);
     } else {
-      this.chess.load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      this.chess.load(boardBaseFen);
     }
 
-    const isUserPlaying = !!game && game.status === gameStatusPlaying;
-    const isUserExamining = !!game && game.status === gameStatusExamining;
-
-    const isPlayingOrExamining = isUserPlaying || isUserExamining;
+    const isPlayingOrExamining =
+      !!game?.status && (game.status === gameStatusPlaying || game.status === gameStatusExamining);
 
     return (
-      <div style={{ width: size }}>
+      <div style={{ width: boardSize }}>
         {isPlayingOrExamining && (
           <Player
             playerData={topPlayer}
             cssManager={cssManager}
-            side={size}
+            side={boardSize}
             color={tc}
             turnColor={color}
             FallenSoldiers={topPlayerFallenSoldier}
-            Playermsg={topPlayermsg}
+            message={topPlayermsg}
           />
         )}
 
-        <BlackPlayerClock game={game} color={topPlayertime} side={size} />
+        <BlackPlayerClock game={game} color={topPlayerTime} side={boardSize} />
         {game && (
-          <div style={{ width: boardsize, height: boardsize }}>
+          <div style={{ width: boardSize, height: boardSize }}>
             <NewChessBoard
               chess={this.chess}
-              height={boardsize}
-              width={boardsize}
+              height={boardSize}
+              width={boardSize}
               arrows={game.arrows}
               circles={game.circles}
               orientation={boardtop}
@@ -186,14 +163,14 @@ class MiddleBoard extends Component {
           <Player
             playerData={bottomPlayer}
             cssManager={cssManager}
-            side={size}
+            side={boardSize}
             color={bc}
             turnColor={color}
             FallenSoldiers={bottomPlayerFallenSoldier}
             Playermsg={botPlayermsg}
           />
         )}
-        <BlackPlayerClock game={game} color={bottomPlayertime} side={size} />
+        <BlackPlayerClock game={game} color={bottomPlayerTime} side={boardSize} />
       </div>
     );
   }

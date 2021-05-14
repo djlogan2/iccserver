@@ -10,6 +10,8 @@ export const gameObserveDefault = {
   black: { id: "bogus", name: "White", rating: 1600 },
 };
 
+export const boardBaseFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 export const oneMinuteSeekOptions = {
   color: "random",
   initial: 1,

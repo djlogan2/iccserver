@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import ChessBoard from "chessboard";
 import "chessboard/dist/index.css";
 
-import Chess from "../../../../node_modules/chess.js/chess";
+import Chess from "chess.js/chess";
 import AppWrapper from "../components/AppWrapper/AppWrapper";
 import PropertiesModal from "./PropertiesModal";
 

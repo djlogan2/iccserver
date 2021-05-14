@@ -6,7 +6,7 @@ import { Logger } from "../../../lib/client/Logger";
 import CssManager from "./components/Css/CssManager";
 import Loading from "./components/Loading";
 import GameListModal from "./components/Modaler/GameListModal";
-import Chess from "../../../node_modules/chess.js/chess";
+import Chess from "chess.js/chess";
 import { Game, ImportedGameCollection, mongoCss } from "../../../imports/api/client/collections";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
@@ -203,7 +203,7 @@ class Examine extends Component {
     let fullGame = { ...game };
 
     if (!isReady || !game || game._id === leaving_game) {
-      if (!leaving_game) {
+      if (!leaving_game && !game && isReady) {
         this.initExamine();
       }
 

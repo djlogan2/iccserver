@@ -10,7 +10,7 @@ class Player extends Component {
       side,
       playerData,
       turnColor,
-      Playermsg,
+      message,
       color,
       FallenSoldiers,
       translate,
@@ -74,7 +74,7 @@ class Player extends Component {
                   fontSize: side * 0.019,
                 }}
               >
-                {Playermsg}
+                {message}
               </span>
             </div>
           </div>

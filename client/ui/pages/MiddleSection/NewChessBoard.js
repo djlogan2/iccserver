@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
-import Chess from "../../../../node_modules/chess.js/chess";
+import Chess from "chess.js/chess";
 
 class NewChessBoard extends Component {
   constructor(props) {

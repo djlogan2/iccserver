@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import _ from "lodash";
 import { Modal } from "antd";
 
-import Chess from "../../../../node_modules/chess.js/chess";
+import Chess from "chess.js/chess";
 //import Chessground from "react-chessground";
 import "chessboard/dist/index.css";
 import "../../../../imports/css/developmentboard.css";

@@ -44,7 +44,6 @@ class ExamineRightSidebar extends Component {
           cssManager={cssManager}
           flip={flip}
           gameRequest={gameRequest}
-          ref="right_bar_top"
         />
         <ExamineRightSidebarBottom
           game={game}
