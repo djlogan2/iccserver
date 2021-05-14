@@ -58,29 +58,29 @@ class PlayModaler extends Component {
                 src="images/player-img-top.png"
                 alt={translate("userImage")}
               />
-              <p className="play-modal__user-name">{userName}</p>
+              <p className={classes.username}>{userName}</p>
             </div>
-            <div className="play-modal__main-center">
-              <span className="play-modal__game-short-status">{gameResult}</span>
-              <p className="play-modal__game-status">{clientMessage?.message || ""}</p>
+            <div className={classes.mainCenter}>
+              <span>{gameResult}</span>
+              <p>{clientMessage?.message || ""}</p>
             </div>
-            <div className="play-modal__user-two">
+            <div className={classes.userTwo}>
               <img
-                className="play-modal__user-img"
+                className={classes.userImg}
                 src="images/player-img-top.png"
                 alt={translate("userImage")}
               />
-              <p className="play-modal__user-name">{opponentName}</p>
+              <p className={classes.username}>{opponentName}</p>
             </div>
           </div>
-          <div className="play-modal__btn-block">
+          <div className={classes.buttonBlock}>
             <Button
               type="primary"
               onClick={() => {
                 onRematch();
                 this.handleCancel();
               }}
-              className="play-modal__btn play-modal__btn--primary"
+              className={classes.buttonPrimary}
             >
               {translate("rematch")}
             </Button>
@@ -89,7 +89,6 @@ class PlayModaler extends Component {
                 onExamine();
                 this.handleCancel();
               }}
-              className="play-modal__btn"
             >
               {translate("examine")}
             </Button>
