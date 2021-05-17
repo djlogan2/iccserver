@@ -1,21 +1,29 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Game, GameHistoryCollection, mongoCss } from "../../../imports/api/client/collections.js";
+import {
+  Game,
+  GameHistoryCollection,
+  mongoCss,
+} from "../../../../imports/api/client/collections.js";
 import Chess from "chess.js/chess";
+import { compose } from "redux";
 //import Chessground from "react-chessground";
 import FenParser from "@chess-fu/fen-parser";
 import { Col } from "antd";
 
-import CssManager from "./components/Css/CssManager";
-import EditorRightSidebar from "./components/RightSidebar/EditorRightSidebar";
-import Loading from "./components/Loading";
-import BoardWrapper from "./components/BoardWrapper";
-import { Logger } from "../../../lib/client/Logger";
+import CssManager from "../components/Css/CssManager";
+import EditorRightSidebar from "../components/RightSidebar/EditorRightSidebar";
+import Loading from "../components/Loading";
+import BoardWrapper from "../components/BoardWrapper";
+import { Logger } from "../../../../lib/client/Logger";
 
-import AppWrapper from "./components/AppWrapper/AppWrapper";
-import { getBoardSquares, isReadySubscriptions } from "../../utils/utils";
+import AppWrapper from "../components/AppWrapper/AppWrapper";
+import { getBoardSquares, isReadySubscriptions } from "../../../utils/utils";
 import ChessBoard, { PiecesSidebar } from "chessboard";
+import { colorBlack, colorWhite } from "../../../constants/gameConstants";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const log = new Logger("client/Editor_js");
 
@@ -35,23 +43,7 @@ class Editor extends Component {
     if (props.isReady && props.examineGame) {
       this.setInitial();
     }
-
-    this.pendingMove = null;
   }
-
-  componentDidMount() {
-    window.addEventListener("resize", this.handleResize);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.handleResize);
-  }
-
-  handleResize = () => {
-    if (!!this.chessground) {
-      this.chessground.cg.redrawAll();
-    }
-  };
 
   setInitial = () => {
     const { examineGame } = this.props;
@@ -101,19 +93,10 @@ class Editor extends Component {
     });
   };
 
-  handleDropStart = (piece, e) => {
-    log.debug("Editor::handleDropStart", piece);
-
-    if (!!this.chessground) {
-      this.chessground.cg.dragNewPiece(piece, e, true);
-    }
-  };
-
   handleCastling = (white, black) => {
     const { examineGame } = this.props;
 
     log.debug("Editor::handleCastling", [white, black]);
-    // 'k', 'q', 'kq'
     Meteor.call(
       "setCastling",
       "setCastling",
@@ -152,10 +135,9 @@ class Editor extends Component {
 
   handleFlip = () => {
     log.debug("Editor::handleFlip");
-
     this.setState((prevState) => {
       return {
-        orientation: prevState.orientation === "white" ? "black" : "white",
+        orientation: prevState.orientation === colorWhite ? colorBlack : colorWhite,
       };
     });
   };
@@ -187,10 +169,6 @@ class Editor extends Component {
     log.debug("Editor::calcBoardSize");
 
     return Math.min(window.innerHeight / 1.3, window.innerWidth / 2.5);
-  };
-
-  updateChessground = (element) => {
-    this.chessground = element;
   };
 
   handleUpdateArrows = (arrow) => {
@@ -317,37 +295,27 @@ class Editor extends Component {
   };
 
   render() {
-    const { isReady, systemCss, examineGame } = this.props;
+    const { isReady, systemCss, examineGame, classes } = this.props;
     const { whiteCastling, blackCastling, orientation, arrows, circles, edit } = this.state;
 
-    if (!isReady) {
+    if (!isReady || !examineGame) {
       return <Loading />;
     }
 
     const css = new CssManager(systemCss.systemCss, systemCss.userCss);
-
-    if (this.chessground) {
-      this.chessground.cg.state.viewOnly = false;
-    }
-
-    if (!examineGame) {
-      log.error("Editor_js LOADING");
-      return <Loading />;
-    }
-
-    const baordSize = this.calcBoardSize();
+    const boardSize = this.calcBoardSize();
 
     return (
-      <AppWrapper className="editor" cssManager={css}>
-        <Col span={14} className="editor__main">
+      <AppWrapper cssManager={css}>
+        <Col span={14} className={classes.main}>
           <BoardWrapper>
-            <div style={{ width: "100%", height: baordSize }}>
+            <div style={{ width: "100%", height: boardSize }}>
               <ChessBoard
                 raf={{
                   inside: false,
                   vertical: "bottom",
                   horizontal: "right",
-                }} // where is either an object or a string
+                }}
                 styles={{
                   wrapper: {
                     backgroundColor: "#292929",
@@ -414,7 +382,7 @@ class Editor extends Component {
             </div>
           </BoardWrapper>
         </Col>
-        <Col span={10} className="editor-right-sidebar-wrapper">
+        <Col span={10} className={classes.rightSideBarWrapper}>
           <PiecesSidebar
             pieceImages={{
               bB: "images/chesspieces/bB.png",
@@ -430,7 +398,7 @@ class Editor extends Component {
               wQ: "images/chesspieces/wQ.png",
               wR: "images/chesspieces/wR.png",
             }}
-            size={baordSize / 12}
+            size={boardSize / 12}
             onAdd={this.handleAdd}
             style={{
               backgroundColor: "#c7cbd5",
@@ -455,20 +423,23 @@ class Editor extends Component {
   }
 }
 
-export default withTracker(() => {
-  const subscriptions = {
-    chats: Meteor.subscribe("chat"),
-    game: Meteor.subscribe("games"),
-    importedGame: Meteor.subscribe("imported_games"),
-    users: Meteor.subscribe("loggedOnUsers"),
-  };
+export default compose(
+  withTracker(() => {
+    const subscriptions = {
+      chats: Meteor.subscribe("chat"),
+      game: Meteor.subscribe("games"),
+      importedGame: Meteor.subscribe("imported_games"),
+      users: Meteor.subscribe("loggedOnUsers"),
+    };
 
-  return {
-    isReady: isReadySubscriptions(subscriptions),
-    examineGame: Game.findOne({ "examiners.id": Meteor.userId() }),
-    gameHistory: GameHistoryCollection.find({
-      $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }],
-    }).fetch(),
-    systemCss: mongoCss.findOne(),
-  };
-})(Editor);
+    return {
+      isReady: isReadySubscriptions(subscriptions),
+      examineGame: Game.findOne({ "examiners.id": Meteor.userId() }),
+      gameHistory: GameHistoryCollection.find({
+        $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }],
+      }).fetch(),
+      systemCss: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(Editor);

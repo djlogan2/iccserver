@@ -17,19 +17,7 @@ class Player extends Component {
     } = this.props;
 
     const userPicture = cssManager.userPicture(side * 0.08);
-    Object.assign(userPicture, { display: "inline-block", float: "left" });
-
     const tagLine = cssManager.tagLine();
-    Object.assign(tagLine, { marginTop: "5px", float: "left" });
-
-    const userFlag = cssManager.userFlag(side * 0.07);
-    Object.assign(userFlag, {
-      float: "left",
-      position: "absolute",
-      top: "50%",
-      right: "10px",
-      transform: "translateY(-50%)",
-    });
 
     return (
       <div
@@ -42,8 +30,12 @@ class Player extends Component {
         }}
       >
         <div style={{ width: side * 0.45, display: "inline-block", position: "relative" }}>
-          <img style={userPicture} src="images/player-img-top.png" alt={translate("userPicture")} />
-          <div style={tagLine}>
+          <img
+            style={{ display: "inline-block", float: "left", ...userPicture }}
+            src="images/player-img-top.png"
+            alt={translate("userPicture")}
+          />
+          <div style={{ marginTop: "5px", float: "left", ...tagLine }}>
             <div
               style={{
                 display: "inline-block",

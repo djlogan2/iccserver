@@ -1,16 +1,16 @@
 import React, { Component } from "react";
-import ExaminePage from "./components/ExaminePage";
+import ExaminePage from "../components/ExaminePage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Logger } from "../../../lib/client/Logger";
-import CssManager from "./components/Css/CssManager";
-import Loading from "./components/Loading";
-import GameListModal from "./components/Modaler/GameListModal";
+import { Logger } from "../../../../lib/client/Logger";
+import CssManager from "../components/Css/CssManager";
+import Loading from "../components/Loading";
+import GameListModal from "../components/Modaler/GameListModal";
 import Chess from "chess.js/chess";
-import { Game, ImportedGameCollection, mongoCss } from "../../../imports/api/client/collections";
-import { areArraysOfObectsEqual, isReadySubscriptions } from "../../utils/utils";
-import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
-import { defaultCapture, gameObserveDefault } from "../../constants/gameConstants";
+import { Game, ImportedGameCollection, mongoCss } from "../../../../imports/api/client/collections";
+import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
+import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
+import { defaultCapture, gameObserveDefault } from "../../../constants/gameConstants";
 
 const log = new Logger("client/Examine_js");
 
