@@ -2,19 +2,25 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { Tabs } from "antd";
 import { get } from "lodash";
-import KibitzChatApp from "../Chat/KibitzChatApp";
-import PersonalChatApp from "../Chat/PersonalChatApp";
-import { translate } from "../../../HOCs/translate";
+import { compose } from "redux";
 
-import PlayBlock from "./PlayBlock";
-import ObserveBlock from "./ObserveBlock";
-import { gameComputerId, gameStatusPlaying } from "../../../../constants/gameConstants";
+import KibitzChatApp from "../../Chat/KibitzChatApp";
+import PersonalChatApp from "../../Chat/PersonalChatApp";
+import { translate } from "../../../../HOCs/translate";
+
+import PlayBlock from "../PlayBlock";
+import ObserveBlock from "../ObserveBlock";
+import { gameComputerId, gameStatusPlaying } from "../../../../../constants/gameConstants";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const { TabPane } = Tabs;
 
 class PlayRightSidebar extends Component {
   renderBottom = () => {
-    const { game, translate } = this.props;
+    const { game, translate, classes } = this.props;
 
     const isPlaying = this.isPlaying();
 
@@ -27,7 +33,7 @@ class PlayRightSidebar extends Component {
       const isPlayersWhite = Meteor.userId() === whiteId;
 
       return (
-        <Tabs className="play-right-sidebar__bottom" defaultActiveKey="1" size="small" type="card">
+        <Tabs className={classes.bottom} defaultActiveKey="1" size="small" type="card">
           <TabPane tab={translate("bottomTabs.chatTab")} key="chat">
             <PersonalChatApp disabled={isBotPlay} opponentId={isPlayersWhite ? blackId : whiteId} />
           </TabPane>
@@ -61,6 +67,7 @@ class PlayRightSidebar extends Component {
   render() {
     const {
       game,
+      classes,
       onBotPlay,
       onSeekPlay,
       usersToPlayWith,
@@ -73,8 +80,8 @@ class PlayRightSidebar extends Component {
     } = this.props;
 
     return (
-      <div className="play-right-sidebar">
-        <div id="top-div" style={{ flex: 1 }}>
+      <div className={classes.main}>
+        <div className={classes.flexDiv}>
           <Tabs defaultActiveKey="play" size="small" type="card">
             <TabPane tab={translate("tabs.playTab")} key="play">
               <PlayBlock
@@ -100,4 +107,12 @@ class PlayRightSidebar extends Component {
   }
 }
 
-export default translate("Play.PlayRightSidebar")(PlayRightSidebar);
+export default compose(
+  translate("Play.PlayRightSidebar"),
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(PlayRightSidebar);
