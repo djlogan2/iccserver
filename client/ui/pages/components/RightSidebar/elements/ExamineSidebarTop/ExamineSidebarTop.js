@@ -1,16 +1,20 @@
 import React, { Component } from "react";
 import { Tabs } from "antd";
-import GameHistory from "./GameHistory";
-import ExamineObserveTab from "./ExamineObserveTab";
-import { ExamineGameControlBlock } from "./GameControlBlock";
-import { translate } from "../../../../HOCs/translate";
-import PlayChooseBot from "../PlayChooseBot";
+import GameHistory from "../GameHistory";
+import ExamineObserveTab from "../ExamineObserveTab";
+import { ExamineGameControlBlock } from "../GameControlBlock";
+import { translate } from "../../../../../HOCs/translate";
+import PlayChooseBot from "../../PlayChooseBot";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
-import Actions from "./Actions";
-import GameCommandsBlock from "../../GameCommandsBlock/GameCommandsBlock";
+import { RESOURCE_PLAY } from "../../../../../../constants/resourceConstants";
+import Actions from "../Actions";
+import GameCommandsBlock from "../../../GameCommandsBlock/GameCommandsBlock";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const { TabPane } = Tabs;
 
@@ -73,27 +77,20 @@ class ExamineSidebarTop extends Component {
 
   renderMove() {
     const {
+      game,
+      flip,
+      classes,
       cssManager,
       moveList,
-      flip,
       actionData,
       startGameExamine,
       gameRequest,
       examineAction,
-      game,
     } = this.props;
 
     return (
-      <div
-        id="test-div"
-        style={{
-          height: "calc(100% - 50px)",
-          display: "flex",
-          flexDirection: "column",
-          marginTop: "10px",
-        }}
-      >
-        <div style={{ display: "flex", flexDirection: "column", flexGrow: "1" }}>
+      <div className={classes.renderMoveWrapper}>
+        <div className={classes.renderMove}>
           <Actions playComputer={this.playComputer} />
           <GameHistory
             cssManager={cssManager}
@@ -112,12 +109,12 @@ class ExamineSidebarTop extends Component {
   }
 
   render() {
-    const { translate, game, allUsers, observeUser, unObserveUser } = this.props;
+    const { translate, game, allUsers, observeUser, unObserveUser, classes } = this.props;
     const { moveOrPlay } = this.state;
 
     return (
-      <Tabs className="examine-sidebar-top" defaultActiveKey="game" size="small" type="card">
-        <TabPane tab={translate("game")} key="game" style={{ height: "100%" }}>
+      <Tabs className={classes.main} defaultActiveKey="game" size="small" type="card">
+        <TabPane tab={translate("game")} key="game" className={classes.tabPlane}>
           {moveOrPlay === "play" && this.renderPlay()}
           {moveOrPlay === "move" && this.renderMove()}
         </TabPane>
@@ -134,4 +131,13 @@ class ExamineSidebarTop extends Component {
   }
 }
 
-export default compose(translate("Common.rightBarTop"), withRouter)(ExamineSidebarTop);
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles),
+  translate("Common.rightBarTop"),
+  withRouter
+)(ExamineSidebarTop);
