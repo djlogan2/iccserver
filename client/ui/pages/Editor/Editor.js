@@ -13,7 +13,7 @@ import FenParser from "@chess-fu/fen-parser";
 import { Col } from "antd";
 
 import CssManager from "../components/Css/CssManager";
-import EditorRightSidebar from "../components/RightSidebar/EditorRightSidebar";
+import EditorRightSidebar from "../components/RightSidebar/EditorRightSidebar/EditorRightSidebar";
 import Loading from "../components/Loading";
 import BoardWrapper from "../components/BoardWrapper";
 import { Logger } from "../../../../lib/client/Logger";

@@ -2,10 +2,15 @@ import React, { Component } from "react";
 import { Button, Checkbox, Input, Radio } from "antd";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-import { translate } from "../../../HOCs/translate";
+import { translate } from "../../../../HOCs/translate";
 
-import "../../../../../imports/css/EditorRightSidebar.css";
-import { RESOURCE_EXAMINE } from "../../../../constants/resourceConstants";
+import "../../../../../../imports/css/EditorRightSidebar.css";
+import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
+import classNames from "classnames";
 
 class EditorRightSidebar extends Component {
   constructor(props) {
@@ -47,7 +52,17 @@ class EditorRightSidebar extends Component {
   };
 
   render() {
-    const { color, onStartPosition, onClear, onFlip, onFen, fen, translate, history } = this.props;
+    const {
+      color,
+      onStartPosition,
+      onClear,
+      onFlip,
+      onFen,
+      fen,
+      translate,
+      history,
+      classes,
+    } = this.props;
     const { whiteCastling, blackCastling } = this.state;
 
     const whiteOptions = [
@@ -60,20 +75,16 @@ class EditorRightSidebar extends Component {
     ];
 
     return (
-      <div className="editor-right-sidebar">
-        <div className="editor-right-sidebar__head">
-          <Button
-            className="editor-right-sidebar__back-btn"
-            onClick={() => history.push(RESOURCE_EXAMINE)}
-          >
+      <div className={classes.main}>
+        <div className={classes.head}>
+          <Button className={classes.backButton} onClick={() => history.push(RESOURCE_EXAMINE)}>
             {translate("backToPlay")}
           </Button>
-          <h2 className="editor-right-sidebar__title">{translate("boardSetUp")}</h2>
+          <h2 className={classes.title}>{translate("boardSetUp")}</h2>
         </div>
-        <div className="editor-right-sidebar__content">
-          <div className="editor-right-sidebar__color-block">
+        <div className={classes.content}>
+          <div className={classes.colorBlock}>
             <Radio.Group
-              className="editor-right-sidebar__select"
               initialValues="w"
               value={color}
               buttonStyle="solid"
@@ -83,25 +94,23 @@ class EditorRightSidebar extends Component {
               <Radio.Button value="b">{translate("blackToPlay")}</Radio.Button>
             </Radio.Group>
           </div>
-          <div className="editor-right-sidebar__castling">
-            <h3 className="editor-right-sidebar__name"> {translate("castling")}</h3>
-            <div className="editor-right-sidebar__castling-wrap">
-              <div className="editor-right-sidebar__block">
-                <h3 className="editor-right-sidebar__check-name">{translate("white")}</h3>
+          <div className={classes.castling}>
+            <h3 className={classes.name}> {translate("castling")}</h3>
+            <div className={classes.castlingWrap}>
+              <div className={classes.block}>
+                <h3 className={classes.checkName}>{translate("white")}</h3>
                 <Checkbox.Group
                   title={translate("whiteCastling")}
-                  className="editor-right-sidebar__checkbox-list"
                   options={whiteOptions}
                   value={whiteCastling}
                   name="white"
                   onChange={(data) => this.handleCastling("white", data)}
                 />
               </div>
-              <div className="editor-right-sidebar__block">
-                <h3 className="editor-right-sidebar__check-name">{translate("black")}</h3>
+              <div className={classes.block}>
+                <h3 className={classes.checkName}>{translate("black")}</h3>
                 <Checkbox.Group
                   title={translate("blackCastling")}
-                  className="editor-right-sidebar__checkbox-list"
                   options={blackOptions}
                   value={blackCastling}
                   name="black"
@@ -111,28 +120,22 @@ class EditorRightSidebar extends Component {
             </div>
           </div>
 
-          <div className="editor-right-sidebar__btn-list">
+          <div className={classes.buttonList}>
             <Button
-              className="editor-right-sidebar__btn editor-right-sidebar__btn--starting-pos"
+              className={classNames(classes.button, classes.buttonStartingPos)}
               onClick={onStartPosition}
             >
               {translate("startingPosition")}
             </Button>
-            <Button
-              className="editor-right-sidebar__btn editor-right-sidebar__btn--clear"
-              onClick={onClear}
-            >
+            <Button className={classNames(classes.button, classes.buttonClear)} onClick={onClear}>
               {translate("clearBoard")}
             </Button>
-            <Button
-              className="editor-right-sidebar__btn editor-right-sidebar__btn--flip"
-              onClick={onFlip}
-            >
+            <Button className={classNames(classes.button, classes.buttonFlip)} onClick={onFlip}>
               {translate("flipBoard")}
             </Button>
           </div>
-          <div className="editor-right-sidebar__fen-block">
-            <h3 className="editor-right-sidebar__name"> {translate("fen")}</h3>
+          <div className={classes.fenBlock}>
+            <h3 className={classes.name}> {translate("fen")}</h3>
             <Input
               onChange={(e) => onFen(e.target.value)}
               value={fen}
@@ -145,4 +148,13 @@ class EditorRightSidebar extends Component {
   }
 }
 
-export default compose(translate("Editor.EditorRightSidebar"), withRouter)(EditorRightSidebar);
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles),
+  translate("Editor.EditorRightSidebar"),
+  withRouter
+)(EditorRightSidebar);
