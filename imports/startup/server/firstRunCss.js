@@ -19,6 +19,7 @@ import communityBlockCss from "../../../server/defaultStyles/communityBlockCss";
 import communityRightBlockCss from "../../../server/defaultStyles/communityRightBlockCss";
 import playModalCss from "../../../server/defaultStyles/playModalCss";
 import playRightSideBarCss from "../../../server/defaultStyles/playRightSideBarCss";
+import chatAppCss from "../../../server/defaultStyles/chatAppCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -47,6 +48,7 @@ export default function firstRunCSS() {
       communityRightBlockCss,
       playModalCss,
       playRightSideBarCss,
+      chatAppCss,
     });
   }
 }

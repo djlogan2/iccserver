@@ -1,9 +1,15 @@
 import React, { Component } from "react";
-import ChatInput from "./ChatInput";
-import ChildChatInput from "./ChildChatInput";
-import MessageItem from "./MessageItem";
+import { compose } from "redux";
 
-export default class ChatApp extends Component {
+import ChatInput from "../ChatInput";
+import ChildChatInput from "../ChildChatInput";
+import MessageItem from "../MessageItem";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
+
+class ChatApp extends Component {
   constructor(props) {
     super(props);
 
@@ -34,13 +40,13 @@ export default class ChatApp extends Component {
   };
 
   render() {
-    const { chats, childChat, childChatTexts, disabled } = this.props;
+    const { chats, childChat, childChatTexts, disabled, classes } = this.props;
     const { inputValue } = this.state;
 
     return (
-      <div className="chat-app">
-        <div className="chat-app__list-wrap">
-          <div className="chat-app__message-list">
+      <div className={classes.main}>
+        <div className={classes.listWrap}>
+          <div className={classes.messageList}>
             {chats.map((chatItem, i) => (
               <MessageItem
                 key={`message-${i}`}
@@ -50,7 +56,7 @@ export default class ChatApp extends Component {
             ))}
           </div>
         </div>
-        <div className="chat-app__input-bar">
+        <div className={classes.inputBar}>
           {childChat ? (
             <ChildChatInput
               disabled={disabled}
@@ -72,3 +78,12 @@ export default class ChatApp extends Component {
     );
   }
 }
+
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(ChatApp);
