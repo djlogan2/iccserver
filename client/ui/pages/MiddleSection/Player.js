@@ -58,7 +58,6 @@ class Player extends Component {
                 {playerData.name} ({playerData.rating})
               </p>
             </div>
-
             <div style={{ position: "absolute", bottom: "0", paddingRight: "40px" }}>
               <span
                 style={{
@@ -83,7 +82,7 @@ class Player extends Component {
             cssManager={cssManager}
             side={side * 0.35}
             color={color}
-            FallenSoldiers={FallenSoldiers}
+            soldiers={FallenSoldiers}
           />
         </div>
       </div>
