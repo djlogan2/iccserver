@@ -22,6 +22,7 @@ import playRightSideBarCss from "../../../server/defaultStyles/playRightSideBarC
 import chatAppCss from "../../../server/defaultStyles/chatAppCss";
 import editorCss from "../../../server/defaultStyles/editorCss";
 import editorRightSidebarCss from "../../../server/defaultStyles/editorRightSidebarCss";
+import examineRightSidebarCss from "../../../server/defaultStyles/examineRightSidebarCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -53,6 +54,7 @@ export default function firstRunCSS() {
       chatAppCss,
       editorCss,
       editorRightSidebarCss,
+      examineRightSidebarCss,
     });
   }
 }

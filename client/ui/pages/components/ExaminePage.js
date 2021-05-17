@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper/AppWrapper";
-import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar";
+import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar/ExamineRightSidebar";
 import "../../../../imports/css/ChessBoard";
 import "../../../../imports/css/leftsidebar";
 import "../../../../imports/css/RightSidebar";

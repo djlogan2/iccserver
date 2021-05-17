@@ -1,6 +1,12 @@
 import React, { Component } from "react";
-import ExamineSidebarTop from "./elements/ExamineSidebarTop";
-import ExamineRightSidebarBottom from "./elements/ExamineRightSidebarBottom";
+import { compose } from "redux";
+
+import ExamineSidebarTop from "../elements/ExamineSidebarTop";
+import ExamineRightSidebarBottom from "../elements/ExamineRightSidebarBottom";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 class ExamineRightSidebar extends Component {
   constructor(props) {
@@ -22,6 +28,7 @@ class ExamineRightSidebar extends Component {
   render() {
     const {
       game,
+      classes,
       allUsers,
       observeUser,
       unObserveUser,
@@ -34,7 +41,7 @@ class ExamineRightSidebar extends Component {
     const { gameRequest } = this.state;
 
     return (
-      <div className="examine-right-sidebar">
+      <div className={classes.main}>
         <ExamineSidebarTop
           game={game}
           allUsers={allUsers}
@@ -55,4 +62,11 @@ class ExamineRightSidebar extends Component {
   }
 }
 
-export default ExamineRightSidebar;
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(ExamineRightSidebar);
