@@ -1,16 +1,24 @@
 import React, { Component } from "react";
 import { Button, Checkbox, Input, Radio } from "antd";
 import { withRouter } from "react-router-dom";
+import { withTracker } from "meteor/react-meteor-data";
 import { compose } from "redux";
-import { translate } from "../../../../HOCs/translate";
+import injectSheet from "react-jss";
+import classNames from "classnames";
 
+import { translate } from "../../../../HOCs/translate";
 import "../../../../../../imports/css/EditorRightSidebar.css";
 import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
-import classNames from "classnames";
+import {
+  blackCastlingOptions,
+  colorBlack,
+  colorBlackLetter,
+  colorWhite,
+  colorWhiteLetter,
+  whiteCastlingOptions,
+} from "../../../../../constants/gameConstants";
 
 class EditorRightSidebar extends Component {
   constructor(props) {
@@ -37,13 +45,13 @@ class EditorRightSidebar extends Component {
     }
   };
 
-  convertCastling(castlingValue) {
+  convertCastling = (castlingValue) => {
     if (castlingValue.length) {
       return castlingValue.join("");
     }
 
     return "";
-  }
+  };
 
   handleColor = (e) => {
     const { onColorChange } = this.props;
@@ -65,15 +73,6 @@ class EditorRightSidebar extends Component {
     } = this.props;
     const { whiteCastling, blackCastling } = this.state;
 
-    const whiteOptions = [
-      { label: "0-0", value: "K" },
-      { label: "0-0-0", value: "Q" },
-    ];
-    const blackOptions = [
-      { label: "0-0", value: "k" },
-      { label: "0-0-0", value: "q" },
-    ];
-
     return (
       <div className={classes.main}>
         <div className={classes.head}>
@@ -84,14 +83,9 @@ class EditorRightSidebar extends Component {
         </div>
         <div className={classes.content}>
           <div className={classes.colorBlock}>
-            <Radio.Group
-              initialValues="w"
-              value={color}
-              buttonStyle="solid"
-              onChange={this.handleColor}
-            >
-              <Radio.Button value="w">{translate("whiteToPlay")}</Radio.Button>
-              <Radio.Button value="b">{translate("blackToPlay")}</Radio.Button>
+            <Radio.Group initialValues={colorWhiteLetter} value={color} onChange={this.handleColor}>
+              <Radio.Button value={colorWhiteLetter}>{translate("whiteToPlay")}</Radio.Button>
+              <Radio.Button value={colorBlackLetter}>{translate("blackToPlay")}</Radio.Button>
             </Radio.Group>
           </div>
           <div className={classes.castling}>
@@ -101,20 +95,20 @@ class EditorRightSidebar extends Component {
                 <h3 className={classes.checkName}>{translate("white")}</h3>
                 <Checkbox.Group
                   title={translate("whiteCastling")}
-                  options={whiteOptions}
+                  options={whiteCastlingOptions}
                   value={whiteCastling}
-                  name="white"
-                  onChange={(data) => this.handleCastling("white", data)}
+                  name={colorWhite}
+                  onChange={(data) => this.handleCastling(colorWhite, data)}
                 />
               </div>
               <div className={classes.block}>
                 <h3 className={classes.checkName}>{translate("black")}</h3>
                 <Checkbox.Group
                   title={translate("blackCastling")}
-                  options={blackOptions}
+                  options={blackCastlingOptions}
                   value={blackCastling}
-                  name="black"
-                  onChange={(data) => this.handleCastling("black", data)}
+                  name={colorBlack}
+                  onChange={(data) => this.handleCastling(colorBlack, data)}
                 />
               </div>
             </div>

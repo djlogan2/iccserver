@@ -3,6 +3,16 @@ export const defaultCapture = {
   b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
 };
 
+export const whiteCastlingOptions = [
+  { label: "0-0", value: "K" },
+  { label: "0-0-0", value: "Q" },
+];
+
+export const blackCastlingOptions = [
+  { label: "0-0", value: "k" },
+  { label: "0-0-0", value: "q" },
+];
+
 export const gameObserveDefault = {
   _id: "bogus",
   fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
