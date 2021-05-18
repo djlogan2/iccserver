@@ -5,25 +5,17 @@ import injectSheet from "react-jss";
 import i18n from "meteor/universe:i18n";
 import "antd/dist/antd.css";
 
-import "../imports/css/developmentboard.css";
-import "../imports/css/Spare.css";
-import "../imports/css/Editor.css";
 import "../imports/css/GameHistory.css";
 import "../imports/css/Examine.css";
 import "../imports/css/ExamineSidebarTop.css";
-import "../imports/css/ChatApp.css";
 import "../imports/css/FenPgn.css";
 import "../imports/css/Loading.css";
 
-import "../imports/css/ExamineRightSidebar.css";
 import "../imports/css/ExamineObserveTab.css";
 
 import "../imports/css/PlayFriend.css";
 import "../imports/css/PlayRightSidebar.css";
 import "../imports/css/GameControlBlock.css";
-
-import "../imports/css/Community.css";
-import "../imports/css/Messenger.css";
 
 import { Routes } from "./routes/routes.js";
 import { withTracker } from "meteor/react-meteor-data";

@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { compose } from "redux";
 
-import ChatInput from "../ChatInput";
-import ChildChatInput from "../ChildChatInput";
+import ChatInput from "../ChatInput/ChatInput";
+import ChildChatInput from "../ChildChatInput/ChildChatInput";
 import MessageItem from "../MessageItem/MessageItem";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";

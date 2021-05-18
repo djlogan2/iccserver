@@ -7,7 +7,6 @@ import injectSheet from "react-jss";
 import classNames from "classnames";
 
 import { translate } from "../../../../HOCs/translate";
-import "../../../../../../imports/css/EditorRightSidebar.css";
 import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import { dynamicStyles } from "./dynamicStyles";

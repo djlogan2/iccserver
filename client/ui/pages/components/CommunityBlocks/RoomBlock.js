@@ -64,7 +64,7 @@ class RoomBlock extends Component {
           <Button
             onClick={openRightBlock}
             title={translate("RoomBlock.plusTitle")}
-            className="room-block__plus"
+            className={classes.roomBlockPlus}
           >
             {translate("RoomBlock.plus")}
           </Button>

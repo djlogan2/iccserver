@@ -5,9 +5,7 @@ import { Modal } from "antd";
 import Chess from "chess.js/chess";
 //import Chessground from "react-chessground";
 import "chessboard/dist/index.css";
-import "../../../../imports/css/developmentboard.css";
 //import "react-chessground/dist/styles/chessground.css";
-import "../../../../imports/css/Theme.css";
 import { areArraysOfObectsEqual } from "../../../utils/utils";
 
 export default class ChessBoard extends PureComponent {
