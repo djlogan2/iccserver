@@ -3,7 +3,6 @@ import { get } from "lodash";
 export const dynamicStyles = {
   main: (props) => {
     const css = get(props, "css.playFriendOptionsCss", {});
-    console.log(css);
     return css.main;
   },
   head: (props) => {
