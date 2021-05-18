@@ -1,8 +1,14 @@
 import React from "react";
 import { Button } from "antd";
-import { translate } from "../../../HOCs/translate";
+import { compose } from "redux";
+import { translate } from "../../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const PlayWithFriend = ({
+  classes,
   onClose,
   onChoose,
   onCancel,
@@ -13,15 +19,15 @@ const PlayWithFriend = ({
   const receiverIds = sentRequests.map((req) => req.receiver_id);
 
   return (
-    <div className="play-friend">
-      <div className="play-friend__head">
-        <h2 className="play-friend__name-title">{translate("PLAY_WITH_FRIEND")}</h2>
+    <div className={classes.main}>
+      <div className={classes.head}>
+        <h2 className={classes.nameTitle}>{translate("PLAY_WITH_FRIEND")}</h2>
         <Button onClick={onClose}>{translate("BACK")}</Button>
       </div>
-      <h3 className="play-friend__header">{translate("FRIENDS")}</h3>
-      <ul className="play-friend__list">
+      <h3 className={classes.header}>{translate("FRIENDS")}</h3>
+      <ul className={classes.list}>
         {usersToPlayWith.map((userItem) => (
-          <li key={userItem.username} className="play-friend__list-item">
+          <li key={userItem.username} className={classes.listItem}>
             {userItem.username}
             {receiverIds.includes(userItem._id) ? (
               <Button
@@ -47,4 +53,12 @@ const PlayWithFriend = ({
   );
 };
 
-export default translate("Play.PlayWithFriend")(PlayWithFriend);
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles),
+  translate("Play.PlayWithFriend")
+)(PlayWithFriend);

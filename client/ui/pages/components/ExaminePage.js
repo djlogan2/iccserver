@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper/AppWrapper";
 import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar/ExamineRightSidebar";
 import "../../../../imports/css/leftsidebar";
-import "../../../../imports/css/RightSidebar";
 
 import { Col } from "antd";
 

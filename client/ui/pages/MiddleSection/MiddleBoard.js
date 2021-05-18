@@ -98,7 +98,7 @@ class MiddleBoard extends Component {
     let botPlayermsg;
     let color;
 
-    if (game.status === gameStatusPlaying) {
+    if (game && game.status === gameStatusPlaying) {
       if (playersInfo.black.id === Meteor.userId()) {
         if (this.chess.turn() === colorBlackLetter) {
           botPlayermsg = translate("yourturn");

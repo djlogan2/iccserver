@@ -29,6 +29,7 @@ import messengerCss from "../../../server/defaultStyles/messengerCss";
 import messageItemCss from "../../../server/defaultStyles/messageItemCss";
 import chatInputCss from "../../../server/defaultStyles/chatInputCss";
 import childChatInputCss from "../../../server/defaultStyles/childChatInputCss";
+import playWithFriendCss from "../../../server/defaultStyles/playWithFriendCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -67,6 +68,7 @@ export default function firstRunCSS() {
       messageItemCss,
       chatInputCss,
       childChatInputCss,
+      playWithFriendCss,
     });
   }
 }

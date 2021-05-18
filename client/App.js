@@ -12,7 +12,7 @@ import "../imports/css/FenPgn.css";
 import "../imports/css/Loading.css";
 
 import "../imports/css/ExamineObserveTab.css";
-
+import "../imports/css/ExamineRightSidebar.css";
 import "../imports/css/PlayFriend.css";
 import "../imports/css/PlayRightSidebar.css";
 import "../imports/css/GameControlBlock.css";
