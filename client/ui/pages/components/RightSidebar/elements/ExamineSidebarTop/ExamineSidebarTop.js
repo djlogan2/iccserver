@@ -9,7 +9,7 @@ import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
 import { RESOURCE_PLAY } from "../../../../../../constants/resourceConstants";
-import Actions from "../Actions";
+import Actions from "../Actions/Actions";
 import GameCommandsBlock from "../../../GameCommandsBlock/GameCommandsBlock";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";

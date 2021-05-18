@@ -6,7 +6,7 @@ import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { Logger } from "../../../../lib/client/Logger";
 
-import MessengerWithData from "../components/Chat/Messenger";
+import MessengerWithData from "../components/Chat/Messenger/Messenger";
 import { mongoCss, Rooms } from "../../../../imports/api/client/collections";
 import RoomBlock from "../components/CommunityBlocks/RoomBlock";
 import CommunityRightBlock from "../components/CommunityBlocks/CommunityRightBlock";

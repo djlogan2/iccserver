@@ -8,7 +8,6 @@ import "antd/dist/antd.css";
 import "../imports/css/developmentboard.css";
 import "../imports/css/Spare.css";
 import "../imports/css/Editor.css";
-import "../imports/css/AppWrapper.css";
 import "../imports/css/GameHistory.css";
 import "../imports/css/Examine.css";
 import "../imports/css/ExamineSidebarTop.css";

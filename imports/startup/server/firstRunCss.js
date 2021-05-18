@@ -24,6 +24,8 @@ import editorCss from "../../../server/defaultStyles/editorCss";
 import editorRightSidebarCss from "../../../server/defaultStyles/editorRightSidebarCss";
 import examineRightSidebarCss from "../../../server/defaultStyles/examineRightSidebarCss";
 import examineSidebarTopCss from "../../../server/defaultStyles/examineSidebarTopCss";
+import actionsCss from "../../../server/defaultStyles/actionsCss";
+import messengerCss from "../../../server/defaultStyles/messengerCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -57,6 +59,8 @@ export default function firstRunCSS() {
       editorRightSidebarCss,
       examineRightSidebarCss,
       examineSidebarTopCss,
+      actionsCss,
+      messengerCss,
     });
   }
 }
