@@ -4,7 +4,7 @@ import GameHistory from "../GameHistory";
 import ExamineObserveTab from "../ExamineObserveTab";
 import { ExamineGameControlBlock } from "../GameControlBlock";
 import { translate } from "../../../../../HOCs/translate";
-import PlayChooseBot from "../../PlayChooseBot";
+import PlayChooseBot from "../../PlayChooseBot/PlayChooseBot";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";

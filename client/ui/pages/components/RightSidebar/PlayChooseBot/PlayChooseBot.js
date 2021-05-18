@@ -1,10 +1,18 @@
 import React, { Component } from "react";
 import { Button, Form, InputNumber, Radio } from "antd";
-import { translate } from "../../../HOCs/translate";
-import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../lib/ratinghelpers";
-import { DynamicRatingsCollection } from "../../../../../imports/api/client/collections";
+import { translate } from "../../../../HOCs/translate";
+import {
+  findRatingObject,
+  getMaxInitialAndIncOrDelayTime,
+} from "../../../../../../lib/ratinghelpers";
+import {
+  DynamicRatingsCollection,
+  mongoCss,
+} from "../../../../../../imports/api/client/collections";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 class PlayChooseBot extends Component {
   constructor(props) {
@@ -86,7 +94,7 @@ class PlayChooseBot extends Component {
   };
 
   render() {
-    const { onClose, translate, ratings } = this.props;
+    const { onClose, translate, ratings, classes } = this.props;
     const {
       initial,
       incrementOrDelay,
@@ -99,18 +107,17 @@ class PlayChooseBot extends Component {
     const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(ratings);
 
     return (
-      <div className="play-friend">
-        <div className="play-friend__head">
-          <h2 className="play-friend__name-title">{translate("playWithComputer")}</h2>
+      <div className={classes.main}>
+        <div className={classes.head}>
+          <h2 className={classes.nameTitle}>{translate("playWithComputer")}</h2>
           <div>
-            <Button type="primary" style={{ marginRight: "5px" }} onClick={this.handlePlay}>
+            <Button type="primary" className={classes.startGameButton} onClick={this.handlePlay}>
               {translate("startTheGame")}
             </Button>
             <Button onClick={onClose}>{translate("back")}</Button>
           </div>
         </div>
         <Form
-          className="play-bot__form"
           layout="vertical"
           initialValues={{
             initial,
@@ -161,7 +168,7 @@ class PlayChooseBot extends Component {
               <Radio.Button value="us">{translate("control.us")}</Radio.Button>
               <Radio.Button value="bronstein">{translate("control.bronstein")}</Radio.Button>
             </Radio.Group>
-            <div className="play-right-sidebar__inc-deley-wrap">
+            <div className={classes.incDelayWrap}>
               <Form.Item
                 label={translate("initial")}
                 name="initial"
@@ -205,7 +212,9 @@ export default compose(
   withTracker(() => {
     return {
       ratings: DynamicRatingsCollection.find().fetch(),
+      css: mongoCss.findOne(),
     };
   }),
+  injectSheet(dynamicStyles),
   translate("Play.PlayChooseBot")
 )(PlayChooseBot);
