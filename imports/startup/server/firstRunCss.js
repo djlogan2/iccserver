@@ -26,6 +26,7 @@ import examineRightSidebarCss from "../../../server/defaultStyles/examineRightSi
 import examineSidebarTopCss from "../../../server/defaultStyles/examineSidebarTopCss";
 import actionsCss from "../../../server/defaultStyles/actionsCss";
 import messengerCss from "../../../server/defaultStyles/messengerCss";
+import messageItemCss from "../../../server/defaultStyles/messageItemCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -61,6 +62,7 @@ export default function firstRunCSS() {
       examineSidebarTopCss,
       actionsCss,
       messengerCss,
+      messageItemCss,
     });
   }
 }

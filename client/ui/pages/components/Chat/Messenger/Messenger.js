@@ -1,7 +1,7 @@
 import React from "react";
 import { compose } from "redux";
 import ChatInput from "../ChatInput";
-import MessageItem from "../MessageItem";
+import MessageItem from "../MessageItem/MessageItem";
 import { withTracker } from "meteor/react-meteor-data";
 import { Chat, mongoCss } from "../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
