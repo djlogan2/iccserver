@@ -1,15 +1,23 @@
 import React, { Component } from "react";
-import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../lib/ratinghelpers";
-import { DynamicRatingsCollection } from "../../../../../imports/api/client/collections";
+import {
+  findRatingObject,
+  getMaxInitialAndIncOrDelayTime,
+} from "../../../../../../lib/ratinghelpers";
+import {
+  DynamicRatingsCollection,
+  mongoCss,
+} from "../../../../../../imports/api/client/collections";
 import { Button, Form, InputNumber, Radio, Switch } from "antd";
-import { translate } from "../../../HOCs/translate";
+import { translate } from "../../../../HOCs/translate";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import {
   ROLE_PLAY_RATED_GAMES,
   ROLE_PLAY_UNRATED_GAMES,
-} from "../../../../constants/rolesConstants";
+} from "../../../../../constants/rolesConstants";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 class PlayFriendOptions extends Component {
   constructor(props) {
@@ -93,7 +101,7 @@ class PlayFriendOptions extends Component {
   };
 
   render() {
-    const { onClose, translate } = this.props;
+    const { onClose, translate, classes } = this.props;
     const {
       rated,
       initial,
@@ -110,13 +118,12 @@ class PlayFriendOptions extends Component {
     );
 
     return (
-      <div className="play-friend">
-        <div className="play-friend__head">
-          <h2 className="play-friend__name-title">{translate("createGame")}</h2>
+      <div className={classes.main}>
+        <div className={classes.head}>
+          <h2 className={classes.nameTitle}>{translate("createGame")}</h2>
           <Button onClick={onClose}>{translate("BACK")}</Button>
         </div>
         <Form
-          className="play-bot__form"
           layout="vertical"
           initialValues={{
             initial,
@@ -135,7 +142,7 @@ class PlayFriendOptions extends Component {
               <Radio.Button value="us">{translate("control.us")}</Radio.Button>
               <Radio.Button value="bronstein">{translate("control.bronstein")}</Radio.Button>
             </Radio.Group>
-            <div className="play-right-sidebar__inc-deley-wrap">
+            <div className={classes.incDelayWrap}>
               <Form.Item
                 label={translate("initial")}
                 name="initial"
@@ -196,7 +203,9 @@ export default compose(
   withTracker(() => {
     return {
       currentRoles: Meteor.roleAssignment.find().fetch(),
+      css: mongoCss.findOne(),
     };
   }),
+  injectSheet(dynamicStyles),
   translate("Play.PlayFriendOptions")
 )(PlayFriendOptions);
