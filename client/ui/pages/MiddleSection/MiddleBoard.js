@@ -88,11 +88,11 @@ class MiddleBoard extends Component {
     const { topPlayer, bottomPlayer } = this.getPlayersData();
     const { topFallenSoliders, bottomFallenSoliders } = this.getFallenSoliders();
 
-    const topPlayerTime = top === "w" ? "white" : "black";
-    const bottomPlayerTime = top === "b" ? "white" : "black";
+    const topPlayerTime = top === colorWhiteLetter ? colorWhite : colorBlack;
+    const bottomPlayerTime = top === colorBlackLetter ? colorWhite : colorBlack;
 
-    const tc = top === "w" ? "b" : "w";
-    const bc = top === "b" ? "b" : "w";
+    const tc = top === colorWhiteLetter ? colorBlackLetter : colorWhiteLetter;
+    const bc = top === colorBlackLetter ? colorBlackLetter : colorWhiteLetter;
 
     let topPlayermsg;
     let botPlayermsg;
