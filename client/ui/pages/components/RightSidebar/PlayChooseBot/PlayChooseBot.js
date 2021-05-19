@@ -190,7 +190,7 @@ class PlayChooseBot extends Component {
               >
                 <InputNumber
                   name="incrementOrDelay"
-                  min={1}
+                  min={0}
                   max={maxIncOrDelayValue}
                   disabled={incrementOrDelayType === "none"}
                   value={incrementOrDelay}
