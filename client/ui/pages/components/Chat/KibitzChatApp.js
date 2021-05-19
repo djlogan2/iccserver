@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import ChatApp from "./ChatApp";
+import ChatApp from "./ChatApp/ChatApp";
 import { withTracker } from "meteor/react-meteor-data";
 
 import { Chat, ChildChatTexts } from "../../../../../imports/api/client/collections";

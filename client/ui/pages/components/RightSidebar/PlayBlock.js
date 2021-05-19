@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import PlayFriendOptions from "./PlayFriendOptions";
-import PlayWithFriend from "./PlayWithFriend";
-import PlayChooseBot from "./PlayChooseBot";
+import PlayFriendOptions from "./PlayFriendOptions/PlayFriendOptions";
+import PlayWithFriend from "./PlayWithFriend/PlayWithFriend";
+import PlayChooseBot from "./PlayChooseBot/PlayChooseBot";
 import GameHistory from "./elements/GameHistory";
 import { GameControlBlock } from "./elements/GameControlBlock";
 import {

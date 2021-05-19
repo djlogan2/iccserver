@@ -1,11 +1,8 @@
 import React, { Component } from "react";
-import _ from "lodash";
 import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper/AppWrapper";
-import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar";
-import "../../../../imports/css/ChessBoard";
+import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar/ExamineRightSidebar";
 import "../../../../imports/css/leftsidebar";
-import "../../../../imports/css/RightSidebar";
 
 import { Col } from "antd";
 
@@ -22,17 +19,15 @@ export default class ExaminePage extends Component {
       height: window.innerHeight,
       switchSides: Date.now(),
     };
-
-    this.delayedUpdateDimensions = _.debounce(this.updateDimensions, 100);
   }
 
   componentDidMount() {
     this.updateDimensions();
-    window.addEventListener("resize", this.delayedUpdateDimensions);
+    window.addEventListener("resize", this.updateDimensions);
   }
 
   componentWillUnmount() {
-    window.removeEventListener("resize", this.delayedUpdateDimensions);
+    window.removeEventListener("resize", this.updateDimensions);
   }
 
   updateDimensions = () => {

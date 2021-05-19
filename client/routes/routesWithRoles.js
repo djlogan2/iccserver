@@ -11,8 +11,8 @@ import {
 
 import Home from "../ui/pages/Home/Home";
 import Play from "../ui/pages/Play/Play";
-import Editor from "../ui/pages/Editor";
-import Examine from "../ui/pages/Examine";
+import Editor from "../ui/pages/Editor/Editor";
+import Examine from "../ui/pages/Examine/Examine";
 import Community from "../ui/pages/Community/Community";
 import UserProfile from "../ui/pages/components/UserManagement/UserProfile";
 import UsersList from "../ui/pages/components/Users/UsersList";

@@ -29,4 +29,8 @@ export const dynamicStyles = {
     const css = get(props, "css.communityBlockCss", {});
     return css.roomBlockCreateButton;
   },
+  roomBlockPlus: (props) => {
+    const css = get(props, "css.communityBlockCss", {});
+    return css.roomBlockPlus;
+  },
 };

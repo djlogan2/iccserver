@@ -1,5 +1,17 @@
 const leftSideBarCss = {
   type: "leftSideBar",
+  main: {
+    display: "flex",
+    flexDirection: "column",
+    flexShrink: 0,
+    width: "170px",
+    zIndex: 999,
+    height: "100%",
+    minHeight: "100vh",
+    backgroundColor: "#1565c0",
+    transition: "all 0.5s ease-in-out",
+    position: "relative",
+  },
   sidebarUserImg: {
     width: "3.2rem",
     height: "3.2rem",

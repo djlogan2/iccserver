@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ChatApp from "./ChatApp";
+import ChatApp from "./ChatApp/ChatApp";
 import { withTracker } from "meteor/react-meteor-data";
 import { Chat, ChildChatTexts } from "../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
@@ -21,7 +21,7 @@ class PersonalChatApp extends Component {
   }
 
   render() {
-    const { childChatTexts, disabled, opponent } = this.props;
+    const { childChatTexts, disabled, opponent, chats } = this.props;
 
     const cc1 = (Meteor.user().cf || "") + (opponent?.cf || "");
 
@@ -29,11 +29,11 @@ class PersonalChatApp extends Component {
 
     return (
       <ChatApp
+        chats={chats}
         disabled={disabled}
+        user={Meteor.user()}
         childChat={childChat}
         childChatTexts={childChatTexts}
-        user={Meteor.user()}
-        chats={this.props.chats}
         onMessage={(text) => this.handleChat(text)}
       />
     );

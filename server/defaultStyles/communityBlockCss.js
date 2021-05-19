@@ -43,6 +43,21 @@ const communityBlockCss = {
     width: "80%",
     left: "10%",
   },
+  roomBlockPlus: {
+    border: "none",
+    background: "none",
+    fontSize: "2rem",
+    lineHeight: "2rem",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingRight: 0,
+    paddingLeft: 0,
+    "&:hover": {
+      outline: "1px solid rgba(0, 0, 0, .3) !important",
+      backgroundColor: "transparent",
+      color: "#000000",
+    },
+  },
 };
 
 export default communityBlockCss;

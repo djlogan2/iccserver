@@ -8,6 +8,8 @@ import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
 import "./ChessBoard";
 import {
+  colorWhite,
+  colorBlack,
   boardBaseFen,
   colorBlackLetter,
   colorWhiteLetter,
@@ -60,8 +62,18 @@ class MiddleBoard extends Component {
       : { topPlayer: game?.black, bottomPlayer: game?.white };
   };
 
+  getFallenSoliders = () => {
+    const { capture } = this.props;
+    const { top } = this.state;
+
+    return {
+      topFallenSoliders: top === colorWhiteLetter ? capture.b : capture.w,
+      bottomFallenSoliders: top === colorBlackLetter ? capture.b : capture.w,
+    };
+  };
+
   render() {
-    const { translate, game, capture, playersInfo, cssManager, onDrawObject, onDrop } = this.props;
+    const { translate, game, playersInfo, cssManager, onDrawObject, onDrop } = this.props;
     const { top } = this.state;
 
     if (!!game && !game.fen) {
@@ -74,22 +86,13 @@ class MiddleBoard extends Component {
 
     const boardSize = this.calcBoardSize();
     const { topPlayer, bottomPlayer } = this.getPlayersData();
+    const { topFallenSoliders, bottomFallenSoliders } = this.getFallenSoliders();
 
     const topPlayerTime = top === "w" ? "white" : "black";
     const bottomPlayerTime = top === "b" ? "white" : "black";
 
-    const topPlayerFallenSoldier = top === "w" ? capture.b : capture.w;
-    const bottomPlayerFallenSoldier = top === "b" ? capture.b : capture.w;
     const tc = top === "w" ? "b" : "w";
     const bc = top === "b" ? "b" : "w";
-
-    let boardtop;
-
-    if (top === "w") {
-      boardtop = "black";
-    } else {
-      boardtop = "white";
-    }
 
     let topPlayermsg;
     let botPlayermsg;
@@ -133,7 +136,7 @@ class MiddleBoard extends Component {
             side={boardSize}
             color={tc}
             turnColor={color}
-            FallenSoldiers={topPlayerFallenSoldier}
+            FallenSoldiers={topFallenSoliders}
             message={topPlayermsg}
           />
         )}
@@ -147,7 +150,7 @@ class MiddleBoard extends Component {
               width={boardSize}
               arrows={game.arrows}
               circles={game.circles}
-              orientation={boardtop}
+              orientation={top === colorWhiteLetter ? colorBlack : colorWhite}
               onDrop={onDrop}
               onDrawObject={onDrawObject}
               gameStatus={game.status}
@@ -166,7 +169,7 @@ class MiddleBoard extends Component {
             side={boardSize}
             color={bc}
             turnColor={color}
-            FallenSoldiers={bottomPlayerFallenSoldier}
+            FallenSoldiers={bottomFallenSoliders}
             Playermsg={botPlayermsg}
           />
         )}

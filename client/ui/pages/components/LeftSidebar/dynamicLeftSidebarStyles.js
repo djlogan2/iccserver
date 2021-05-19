@@ -1,6 +1,10 @@
 import { get } from "lodash";
 
 export const dynamicLeftSideBarStyles = {
+  main: (props) => {
+    const css = get(props, "leftSideBarCss.leftSideBarCss", {});
+    return css.main;
+  },
   mainDiv: (props) => {
     const css = get(props, "leftSideBarCss.leftSideBarCss", {});
     return css.mainDiv;

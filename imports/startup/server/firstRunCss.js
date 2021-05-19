@@ -18,6 +18,20 @@ import communityCss from "../../../server/defaultStyles/communityCss";
 import communityBlockCss from "../../../server/defaultStyles/communityBlockCss";
 import communityRightBlockCss from "../../../server/defaultStyles/communityRightBlockCss";
 import playModalCss from "../../../server/defaultStyles/playModalCss";
+import playRightSideBarCss from "../../../server/defaultStyles/playRightSideBarCss";
+import chatAppCss from "../../../server/defaultStyles/chatAppCss";
+import editorCss from "../../../server/defaultStyles/editorCss";
+import editorRightSidebarCss from "../../../server/defaultStyles/editorRightSidebarCss";
+import examineRightSidebarCss from "../../../server/defaultStyles/examineRightSidebarCss";
+import examineSidebarTopCss from "../../../server/defaultStyles/examineSidebarTopCss";
+import actionsCss from "../../../server/defaultStyles/actionsCss";
+import messengerCss from "../../../server/defaultStyles/messengerCss";
+import messageItemCss from "../../../server/defaultStyles/messageItemCss";
+import chatInputCss from "../../../server/defaultStyles/chatInputCss";
+import childChatInputCss from "../../../server/defaultStyles/childChatInputCss";
+import playWithFriendCss from "../../../server/defaultStyles/playWithFriendCss";
+import playFriendOptionsCss from "../../../server/defaultStyles/playFriendOptionsCss";
+import playChooseBotCss from "../../../server/defaultStyles/playChooseBotCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -45,6 +59,20 @@ export default function firstRunCSS() {
       communityBlockCss,
       communityRightBlockCss,
       playModalCss,
+      playRightSideBarCss,
+      chatAppCss,
+      editorCss,
+      editorRightSidebarCss,
+      examineRightSidebarCss,
+      examineSidebarTopCss,
+      actionsCss,
+      messengerCss,
+      messageItemCss,
+      chatInputCss,
+      childChatInputCss,
+      playWithFriendCss,
+      playFriendOptionsCss,
+      playChooseBotCss,
     });
   }
 }

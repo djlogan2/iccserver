@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import AppWrapper from "./AppWrapper/AppWrapper";
-import PlayRightSidebar from "./RightSidebar/PlayRightSidebar";
-import "../../../../imports/css/ChessBoard";
+import PlayRightSidebar from "./RightSidebar/PlayRightSidebar/PlayRightSidebar";
 import "../../../../imports/css/leftsidebar";
-import "../../../../imports/css/RightSidebar";
 
 import { Col } from "antd";
 
