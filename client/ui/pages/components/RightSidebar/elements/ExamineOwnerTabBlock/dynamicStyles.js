@@ -7,11 +7,15 @@ export const dynamicStyles = {
   },
   head: (props) => {
     const css = get(props, "css.examineOwnerTabBlockCss", {});
+    return css.head;
+  },
+  list: (props) => {
+    const css = get(props, "css.examineOwnerTabBlockCss", {});
     return css.list;
   },
   listItem: (props) => {
     const css = get(props, "css.examineOwnerTabBlockCss", {});
-    return css.renderMoveWrapper;
+    return css.listItem;
   },
   movePiecesButton: (props) => {
     const css = get(props, "css.examineOwnerTabBlockCss", {});
