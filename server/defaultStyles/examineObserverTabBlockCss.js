@@ -1,0 +1,65 @@
+const examineObserverTabBlockCss = {
+  type: "examineObserverTabBlock",
+  container: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  head: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  name: {
+    display: "flex",
+    alignItems: "center",
+  },
+  nameImg: {
+    display: "flex",
+    background: "grey",
+    width: "3.6rem",
+    height: "3.6rem",
+    borderRadius: "50%",
+    marginRight: "1rem",
+  },
+  nameTitle: {
+    padding: 0,
+    margin: 0,
+    fontFamily: "Roboto, sans-serif",
+    fontStyle: "normal",
+    fontWeight: 500,
+    fontSize: "1.6rem",
+    lineHeight: "1.9rem",
+  },
+  list: {
+    padding: 0,
+    margin: 0,
+  },
+  ownerListItem: {
+    padding: ".8rem 0",
+    margin: 0,
+    borderBottom: "1px solid rgba(91, 103, 133, 0.5)",
+    listStyle: "none",
+    fontFamily: "Roboto, sans-serif",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    fontSize: "1.6rem",
+    lineHeight: "1.9rem",
+    color: "#000000",
+    textTransform: "capitalize",
+  },
+  observerListItem: {
+    display: "flex",
+    padding: ".8rem 0",
+    margin: 0,
+    borderBottom: "1px solid rgba(91, 103, 133, 0.5)",
+    listStyle: "none",
+    fontFamily: "Roboto, sans-serif",
+    fontStyle: "normal",
+    fontWeight: "normal",
+    fontSize: "16px",
+    lineHeight: "19px",
+  },
+};
+
+export default examineObserverTabBlockCss;

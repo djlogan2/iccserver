@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import { AutoComplete, Button } from "antd";
 import { get } from "lodash";
-import { translate } from "../../../../HOCs/translate";
-import ExamineObserverTabBlock from "./ExamineObserverTabBlock";
-import ExamineOwnerTabBlock from "./ExamineOwnerTabBlock/ExamineOwnerTabBlock";
+import { translate } from "../../../../../HOCs/translate";
+import ExamineObserverTabBlock from "../ExamineObserverTabBlock/ExamineObserverTabBlock";
+import ExamineOwnerTabBlock from "../ExamineOwnerTabBlock/ExamineOwnerTabBlock";
 
 class ExamineObserveTab extends Component {
   constructor(props) {
