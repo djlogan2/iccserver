@@ -3,7 +3,7 @@ import { AutoComplete, Button } from "antd";
 import { get } from "lodash";
 import { translate } from "../../../../HOCs/translate";
 import ExamineObserverTabBlock from "./ExamineObserverTabBlock";
-import ExamineOwnerTabBlock from "./ExamineOwnerTabBlock";
+import ExamineOwnerTabBlock from "./ExamineOwnerTabBlock/ExamineOwnerTabBlock";
 
 class ExamineObserveTab extends Component {
   constructor(props) {

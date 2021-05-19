@@ -13,6 +13,8 @@ const loginPageCss = {
   },
   modalDialog: {
     position: "relative",
+    width: "auto",
+    margin: "10px",
   },
   modalContent: {
     position: "relative",

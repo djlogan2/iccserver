@@ -33,6 +33,7 @@ import playWithFriendCss from "../../../server/defaultStyles/playWithFriendCss";
 import playFriendOptionsCss from "../../../server/defaultStyles/playFriendOptionsCss";
 import playChooseBotCss from "../../../server/defaultStyles/playChooseBotCss";
 import notFoundCss from "../../../server/defaultStyles/notFoundCss";
+import examineOwnerTabBlockCss from "../../../server/defaultStyles/examineOwnerTabBlockCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -75,6 +76,7 @@ export default function firstRunCSS() {
       playFriendOptionsCss,
       playChooseBotCss,
       notFoundCss,
+      examineOwnerTabBlockCss,
     });
   }
 }

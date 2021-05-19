@@ -1,7 +1,14 @@
 import React from "react";
-import { translate } from "../../../../HOCs/translate";
+import { compose } from "redux";
 
-const ExamineOwnerTabBlock = ({ game, translate }) => {
+import { translate } from "../../../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
+import classNames from "classnames";
+
+const ExamineOwnerTabBlock = ({ game, translate, classes }) => {
   const handleAddExaminer = (game_id, id_to_add) => {
     return () => {
       let call = "localAddObserver";
@@ -36,29 +43,27 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
 
   if (game.owner === Meteor.userId()) {
     return (
-      <div className="examine-owner-tab-block">
-        <div className="examine-owner-tab-block__head">
-          <span className="examine-owner-tab-block__head-right">
-            {translate("observing", { quantity: game.observers.length })}
-          </span>
+      <div className={classes.container}>
+        <div className={classes.head}>
+          <span>{translate("observing", { quantity: game.observers.length })}</span>
         </div>
-        <ul className="examine-owner-tab-block__list">
+        <ul className={classes.list}>
           {game.observers.map((observerItem) => {
             const isExaminer = game.examiners.filter(
               (examinerItem) => examinerItem.id === observerItem.id
             ).length;
 
             return (
-              <li key={observerItem.username} className="examine-owner-tab-block__list-item">
+              <li key={observerItem.username} className={classes.listItem}>
                 {isExaminer ? (
                   <button
                     onClick={handleRemoveExaminer(game._id, observerItem.id)}
-                    className="examine-observer-tab-block__list-item__move-pieces-btn examine-observer-tab-block__list-item__move-pieces-btn--active"
+                    className={classNames(classes.movePiecesButton, classes.movePiecesButtonActive)}
                   />
                 ) : (
                   <button
                     onClick={handleAddExaminer(game._id, observerItem.id)}
-                    className="examine-observer-tab-block__list-item__move-pieces-btn"
+                    className={classes.movePiecesButton}
                   />
                 )}
                 {observerItem.username}
@@ -90,4 +95,12 @@ const ExamineOwnerTabBlock = ({ game, translate }) => {
   );
 };
 
-export default translate("Examine.ExamineOwnerTabBlock")(ExamineOwnerTabBlock);
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles),
+  translate("Examine.ExamineOwnerTabBlock")
+)(ExamineOwnerTabBlock);
