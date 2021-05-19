@@ -17,4 +17,8 @@ export const dynamicStyles = {
     const css = get(props, "css.playFriendOptionsCss", {});
     return css.incDelayWrap;
   },
+  incDelayItem: (props) => {
+    const css = get(props, "css.playFriendOptionsCss", {});
+    return css.incDelayItem;
+  },
 };

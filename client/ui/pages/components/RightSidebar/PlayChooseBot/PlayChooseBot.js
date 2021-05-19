@@ -170,6 +170,7 @@ class PlayChooseBot extends Component {
             </Radio.Group>
             <div className={classes.incDelayWrap}>
               <Form.Item
+                className={classes.incDelayItem}
                 label={translate("initial")}
                 name="initial"
                 rules={[{ required: !(incrementOrDelayType === "none") }]}
@@ -184,6 +185,7 @@ class PlayChooseBot extends Component {
                 />
               </Form.Item>
               <Form.Item
+                className={classes.incDelayItem}
                 label={translate("incrementOrDelay")}
                 name="incrementOrDelay"
                 rules={[{ required: !(incrementOrDelayType === "none") }]}

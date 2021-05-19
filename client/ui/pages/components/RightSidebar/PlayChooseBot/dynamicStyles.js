@@ -21,4 +21,8 @@ export const dynamicStyles = {
     const css = get(props, "css.playChooseBotCss", {});
     return css.incDelayWrap;
   },
+  incDelayItem: (props) => {
+    const css = get(props, "css.playChooseBotCss", {});
+    return css.incDelayItem;
+  },
 };

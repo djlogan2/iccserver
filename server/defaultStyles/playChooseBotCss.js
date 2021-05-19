@@ -27,6 +27,9 @@ const playChooseBotCss = {
     marginRight: "2rem",
     marginBottom: 0,
   },
+  incDelayItem: {
+    flex: 0.5,
+  },
 };
 
 export default playChooseBotCss;
