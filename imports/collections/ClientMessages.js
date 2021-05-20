@@ -146,6 +146,8 @@ const DefinedClientMessagesMap = {
   NOT_AUTHORIZED: {},
   ILLEGAL_GAME: { parameters: ["game_id"] },
   NOT_YOUR_GAME: { parameters: ["game_id"] },
+  GAME_EXAMINING: {},
+  NO_PREMOVE: { parameters: ["game_id"] },
   NOT_PLAYING_OR_EXAMINING: {},
   USER_DECLINED_INVITE: {},
   TOO_MANY_PRIVATE_ROOMS: {},

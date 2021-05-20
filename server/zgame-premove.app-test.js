@@ -126,7 +126,6 @@ describe("premove", function (done) {
     const p3 = TestHelpers.createUser();
 
     self.loggedonuser = p1;
-    // let other = p2;
     const game_id = Game.startLocalGame(
       "mi1",
       p2,
@@ -159,12 +158,67 @@ describe("premove", function (done) {
     chai.assert.equal(self.clientMessagesSpy.args[1][2], "NOT_YOUR_GAME");
   });
 
-  it("1should send a client message if the game id is invalid", () => {
+  it("should send a client message if the game is examined", () => {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
 
     self.loggedonuser = p1;
-    // let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+
+    Game.requestLocalDraw("m2", game_id);
+
+    self.loggedonuser = p2;
+    Game.acceptLocalDraw("m3", game_id);
+    Game.removeLocalPremove("m4", game_id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_EXAMINING");
+  });
+
+  it("should send a client message if there is no premove to cancel", () => {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+
+    Game.removeLocalPremove("m4", game_id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NO_PREMOVE");
+  });
+
+  it("should send a client message if there is no premove to cancel", () => {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+
+    self.loggedonuser = p1;
     const game_id = Game.startLocalGame(
       "mi1",
       p2,
@@ -182,5 +236,11 @@ describe("premove", function (done) {
 
     self.loggedonuser = p2;
     Game.saveLocalMove("m1", game_id, "e5");
-  })
+
+    self.loggedonuser = p1;
+    Game.removeLocalPremove("m4", game_id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_YOUR_PREMOVE");
+  });
 });
