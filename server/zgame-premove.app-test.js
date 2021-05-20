@@ -1,9 +1,9 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Meteor } from "meteor/meteor";
-
 import { Game } from "./Game";
+import { Meteor } from "meteor/meteor";
 import chai from "chai";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
+
 
 describe("premove", function (done) {
   const self = TestHelpers.setupDescribe.apply(this);
