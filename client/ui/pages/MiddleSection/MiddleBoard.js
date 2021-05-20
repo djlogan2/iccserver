@@ -145,6 +145,7 @@ class MiddleBoard extends Component {
         {game && (
           <div style={{ width: boardSize, height: boardSize }}>
             <NewChessBoard
+              gameId={game._id}
               chess={this.chess}
               height={boardSize}
               width={boardSize}

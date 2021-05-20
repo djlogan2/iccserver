@@ -19,6 +19,7 @@ class NewChessBoard extends Component {
       fen: null,
       lastMove: null,
       premoveColor: "#6e009e",
+      premove: false,
     };
   }
 
@@ -41,6 +42,12 @@ class NewChessBoard extends Component {
 
   getArrowsDependOnPremove = (premove, prevPremove) => {
     const { arrows, premoveColor } = this.state;
+
+    if (premove) {
+      this.setState({ premove: true });
+    } else {
+      this.setState({ premove: false });
+    }
 
     if (!premove && prevPremove) {
       let equalIndex;
@@ -247,9 +254,24 @@ class NewChessBoard extends Component {
     }
   };
 
+  handleRemovePremove = () => {
+    const { gameId } = this.props;
+
+    Meteor.call("removeLocalPremove", "removeLocalPremove", gameId);
+  };
+
   render() {
     const { orientation, chess } = this.props;
-    const { legalMoves, circles, arrows, smartMoves, showLegalMoves, smallSize, key } = this.state;
+    const {
+      legalMoves,
+      circles,
+      arrows,
+      smartMoves,
+      showLegalMoves,
+      smallSize,
+      key,
+      premove,
+    } = this.state;
     const isCurrentTurn = this.isCurrentTurn();
 
     const lastMove = this.getLastMove();
@@ -301,7 +323,9 @@ class NewChessBoard extends Component {
         onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
         onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
         onMove={(move, promotion) => this.handleMove(move, promotion)}
+        handleDelete={this.handleRemovePremove}
         smartMoves={smartMoves}
+        edit={premove ? {} : null}
         showLegalMoves={isCurrentTurn && showLegalMoves}
         smallSize={smallSize}
         promotionPieces={["q", "n", "b", "r"]}

@@ -40,20 +40,20 @@ class Game {
     this.ecoCollection = new Mongo.Collection("ecocodes");
     this.GameCollection = new Mongo.Collection("game");
     this.GameCollection.attachSchema(ExaminedGameSchema, {
-      selector: { status: "examining" }
+      selector: { status: "examining" },
     });
 
     this.GameCollection.attachSchema(PlayedGameSchema, {
-      selector: { status: "playing" }
+      selector: { status: "playing" },
     });
     // TODO: Need to adjourn these, not just delete them
     // Meteor.startup(() => _self.GameCollection.remove({}));
 
-    Users.events.on("userLogin", function(fields) {
+    Users.events.on("userLogin", function (fields) {
       const user = Meteor.users.findOne({ _id: fields.userId });
       const owned_game = _self.GameCollection.findOne({ private: true, owner: fields.userId });
       if (!!owned_game) {
-        if (!owned_game.examiners.some(ex => ex.id === fields.userId)) {
+        if (!owned_game.examiners.some((ex) => ex.id === fields.userId)) {
           const rec = { id: user._id, username: user.username };
           _self.GameCollection.update(
             { _id: owned_game._id, status: owned_game.status },
@@ -64,7 +64,7 @@ class Game {
       Users.setGameStatus("server", user, _self.getStatusFromGameCollection(fields.userId));
     });
 
-    Users.events.on("userLogout", function(fields) {
+    Users.events.on("userLogout", function (fields) {
       if (_self.getStatusFromGameCollection(fields.userId) === "none") return;
 
       const doTheLogout = () => {
@@ -84,7 +84,7 @@ class Game {
             Meteor.clearInterval(interval);
             cursor.stop();
           }
-        }
+        },
       });
 
       const interval = Meteor.setInterval(() => {
@@ -99,7 +99,7 @@ class Game {
       this.collection = _self.GameCollection;
     }
 
-    Meteor.publish("games", function() {
+    Meteor.publish("games", function () {
       const self = this;
       const gamePublishers = {};
       const games_handle = _self.GameCollection.find(
@@ -108,8 +108,8 @@ class Game {
             { "white.id": this.userId },
             { "black.id": this.userId },
             { "observers.id": this.userId },
-            { owner: this.userId }
-          ]
+            { owner: this.userId },
+          ],
         },
         { fields: { lag: 0 } }
       ).observeChanges({
@@ -137,7 +137,7 @@ class Game {
           delete gamePublishers[id];
           self.removed("game", id);
           self.ready();
-        }
+        },
       });
       this.onStop(() => {
         games_handle.stop();
@@ -180,7 +180,7 @@ class Game {
         moves.unshift(game.variations.movelist[cmi].move);
         cmi = game.variations.movelist[cmi].prev;
       }
-      moves.forEach(move => active_games[game_id].move(move));
+      moves.forEach((move) => active_games[game_id].move(move));
       // fen = active_games[game_id].fen();
       // this.collection.update({ _id: game._id, status: game.status }, { $set: { fen: fen } });
     }
@@ -403,7 +403,7 @@ class Game {
     if (other_user === "computer") {
       other_user = {
         _id: "computer",
-        username: "Computer"
+        username: "Computer",
       };
       other_user["ratings"] = {};
       other_user.ratings[rating_type] = {
@@ -412,7 +412,7 @@ class Game {
         won: 0,
         draw: 0,
         lost: 0,
-        best: 0
+        best: 0,
       };
     }
 
@@ -429,24 +429,24 @@ class Game {
           draw: "0",
           abort: "0",
           adjourn: "0",
-          takeback: { number: 0, mid: "0" }
+          takeback: { number: 0, mid: "0" },
         },
         black: {
           draw: "0",
           abort: "0",
           adjourn: "0",
-          takeback: { number: 0, mid: "0" }
-        }
+          takeback: { number: 0, mid: "0" },
+        },
       },
       white: {
         id: white._id,
         name: white.username,
-        rating: white.ratings[rating_type].rating
+        rating: white.ratings[rating_type].rating,
       },
       black: {
         id: black._id,
         name: black.username,
-        rating: black.ratings[rating_type].rating
+        rating: black.ratings[rating_type].rating,
       },
       wild: wild_number,
       rating_type: rating_type,
@@ -458,15 +458,15 @@ class Game {
           inc_or_delay: white_increment_or_delay,
           delaytype: white_increment_or_delay_type,
           current: white_initial * 60 * 1000, // milliseconds
-          starttime: chess.turn() === "w" ? new Date().getTime() : 0
+          starttime: chess.turn() === "w" ? new Date().getTime() : 0,
         },
         black: {
           initial: black_initial,
           inc_or_delay: black_increment_or_delay,
           delaytype: black_increment_or_delay_type,
           current: black_initial * 60 * 1000, //milliseconds
-          starttime: chess.turn() === "b" ? new Date().getTime() : 0
-        }
+          starttime: chess.turn() === "b" ? new Date().getTime() : 0,
+        },
       },
       status: "playing",
       actions: [],
@@ -476,13 +476,13 @@ class Game {
       lag: {
         white: {
           active: [],
-          pings: []
+          pings: [],
         },
         black: {
           active: [],
-          pings: []
-        }
-      }
+          pings: [],
+        },
+      },
     };
 
     if (!!examined_game) {
@@ -520,7 +520,7 @@ class Game {
     const existing_game = this.GameCollection.findOne({
       _id: game_id,
       status: "examining",
-      "examiners.id": self._id
+      "examiners.id": self._id,
     });
     if (!existing_game) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
@@ -556,7 +556,7 @@ class Game {
     if (!game_object.clocks)
       game_object.clocks = {
         white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
-        black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+        black: { initial: 1, inc_or_delay: 0, delaytype: "none" },
       };
     if (!game_object.startTime) game_object.startTime = new Date();
     if (!game_object.tomove) game_object.tomove = "w";
@@ -606,7 +606,7 @@ class Game {
     if (!game_object.clocks)
       game_object.clocks = {
         white: { initial: 1, inc_or_delay: 0, delaytype: "none" },
-        black: { initial: 1, inc_or_delay: 0, delaytype: "none" }
+        black: { initial: 1, inc_or_delay: 0, delaytype: "none" },
       };
     if (!game_object.startTime) game_object.startTime = new Date();
     if (!game_object.tomove) game_object.tomove = "white";
@@ -683,11 +683,11 @@ class Game {
       tomove: "white",
       white: {
         name: white_name,
-        rating: 1600
+        rating: 1600,
       },
       black: {
         name: black_name,
-        rating: 1600
+        rating: 1600,
       },
       wild: wild_number,
       status: "examining",
@@ -696,7 +696,7 @@ class Game {
       examiners: [{ id: self._id, username: self.username }],
       analysis: [{ id: self._id, username: self.username }],
       variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
-      computer_variations: []
+      computer_variations: [],
     };
 
     const game_id = this.GameCollection.insert(game);
@@ -782,12 +782,12 @@ class Game {
 
     const whiteuser = Meteor.users.findOne({
       "profile.legacy.username": whitename,
-      "profile.legacy.validated": true
+      "profile.legacy.validated": true,
     });
 
     const blackuser = Meteor.users.findOne({
       "profile.legacy.username": blackname,
-      "profile.legacy.validated": true
+      "profile.legacy.validated": true,
     });
 
     const self = Meteor.user();
@@ -831,7 +831,7 @@ class Game {
     if (
       this.GameCollection.find({
         status: "playing",
-        $or: [{ "white.id": self._id }, { "black.id": self._id }]
+        $or: [{ "white.id": self._id }, { "black.id": self._id }],
       }).count() !== 0
     ) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
@@ -849,11 +849,11 @@ class Game {
       legacy_game_id: game_id,
       white: {
         name: "(L) " + whitename,
-        rating: white_rating
+        rating: white_rating,
       },
       black: {
         name: "(L) " + blackname,
-        rating: black_rating
+        rating: black_rating,
       },
       wild: wild_number,
       rating_type: rating_type,
@@ -864,15 +864,15 @@ class Game {
           inc_or_delay: white_increment,
           delaytype: "inc",
           current: white_initial * 60 * 1000,
-          starttime: 0
+          starttime: 0,
         },
         black: {
           initial: black_initial,
           inc_or_delay: black_increment,
           delaytype: "inc",
           current: black_initial * 60 * 1000,
-          starttime: 0
-        }
+          starttime: 0,
+        },
       },
       status: played_game ? "playing" : "examining",
       result: "*",
@@ -881,14 +881,14 @@ class Game {
           draw: "0",
           abort: "0",
           adjourn: "0",
-          takeback: { number: 0, mid: "0" }
+          takeback: { number: 0, mid: "0" },
         },
         black: {
           draw: "0",
           abort: "0",
           adjourn: "0",
-          takeback: { number: 0, mid: "0" }
-        }
+          takeback: { number: 0, mid: "0" },
+        },
       },
       actions: [],
       variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
@@ -896,13 +896,13 @@ class Game {
       lag: {
         white: {
           active: [],
-          pings: []
+          pings: [],
         },
         black: {
           active: [],
-          pings: []
-        }
-      }
+          pings: [],
+        },
+      },
     };
 
     game.examiners = [];
@@ -962,7 +962,7 @@ class Game {
       { _id: game._id, status: game.status },
       {
         $push: { actions: { type: "move", issuer: "legacy", parameter: move, ...cmove } },
-        $set: { variations: variation, tomove: newtm, fen: newfen }
+        $set: { variations: variation, tomove: newtm, fen: newfen },
       }
     );
     log.debug("saveLegacyMove result", result);
@@ -993,6 +993,36 @@ class Game {
     this.internalSaveLocalMove(self, message_identifier, game_id, move);
   }
 
+  removeLocalPremove(message_identifier, game_id) {
+    check(message_identifier, String);
+    check(game_id, String);
+
+    const self = Meteor.user();
+    check(self, Object);
+
+    const game = this.GameCollection.findOne({ _id: game_id });
+
+    if (!game || !game.premove) {
+      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_GAME", game);
+      return;
+    }
+
+    if (
+      (game.premove.color === "w" && game.white.id !== self._id) ||
+      (game.premove.color === "b" && game.black.id !== self._id)
+    ) {
+      ClientMessages.sendMessageToClient(
+        Meteor.user(),
+        message_identifier,
+        "NOT_YOUR_PREMOVE",
+        game
+      );
+      return;
+    }
+
+    this.internalRemoveLocalPremove(message_identifier, game_id);
+  }
+
   internalSaveLocalPremove(message_identifier, game, move) {
     const chessObject = active_games[game._id];
     const temp = new Chess.Chess(chessObject.fen());
@@ -1013,6 +1043,10 @@ class Game {
     }
     ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", move);
     // TODO: Do we delete the premove in this case?
+  }
+
+  internalRemoveLocalPremove(message_identifier, game_id) {
+    this.GameCollection.update({ _id: game_id, status: "playing" }, { $set: { premove: null } });
   }
 
   internalSaveLocalMove(self, message_identifier, game_id, move, is_premove) {
@@ -1039,7 +1073,7 @@ class Game {
         else this.internalSaveLocalPremove(message_identifier, game, move);
         return;
       }
-    } else if (game.examiners.map(e => e.id).indexOf(self._id) === -1) {
+    } else if (game.examiners.map((e) => e.id).indexOf(self._id) === -1) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -1174,7 +1208,7 @@ class Game {
             lag: Timestamp.averageLag(self._id),
             ping: Timestamp.pingTime(self._id),
             gamelag: gamelag,
-            gameping: gameping
+            gameping: gameping,
           }
         : move;
 
@@ -1193,7 +1227,7 @@ class Game {
     }
 
     const modifier = {
-      $push: { actions: { type: "move", issuer: self._id, parameter: move_parameter } }
+      $push: { actions: { type: "move", issuer: self._id, parameter: move_parameter } },
     };
     if (!!unsetobject && Object.entries(unsetobject).length) modifier.$unset = unsetobject;
     if (!!setobject && Object.entries(setobject).length) modifier.$set = setobject;
@@ -1285,9 +1319,9 @@ class Game {
             status2: 0,
             examiners: [{ id: self._id, username: self.username }],
             observers: [{ id: self._id, username: self.username }],
-            analysis: [{ id: self._id, username: self.username }]
+            analysis: [{ id: self._id, username: self.username }],
           },
-          $unset: { pending: "" }
+          $unset: { pending: "" },
         }
       );
 
@@ -1313,7 +1347,7 @@ class Game {
       );
 
     const game = this.GameCollection.findOne({
-      _id: game_id
+      _id: game_id,
     });
     if (!game)
       throw new ICCMeteorError(
@@ -1322,7 +1356,7 @@ class Game {
         "game id does not exist"
       );
 
-    if (!game.examiners || game.examiners.map(e => e.id).indexOf(self._id) === -1) {
+    if (!game.examiners || game.examiners.map((e) => e.id).indexOf(self._id) === -1) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -1332,13 +1366,13 @@ class Game {
       return;
     } else if (
       !game.private &&
-      (!game.examiners || game.examiners.map(e => e.id).indexOf(self._id) === -1)
+      (!game.examiners || game.examiners.map((e) => e.id).indexOf(self._id) === -1)
     ) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
 
-    if (!game.examiners || !game.examiners.some(e => e.id === id_to_remove)) {
+    if (!game.examiners || !game.examiners.some((e) => e.id === id_to_remove)) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -1367,7 +1401,7 @@ class Game {
         "Unable to find game record"
       );
 
-    if (!game.examiners || game.examiners.map(e => e.id).indexOf(self._id) === -1) {
+    if (!game.examiners || game.examiners.map((e) => e.id).indexOf(self._id) === -1) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -1377,13 +1411,13 @@ class Game {
       return;
     }
 
-    const observer = game.observers && game.observers.find(o => o.id === id_to_add);
+    const observer = game.observers && game.observers.find((o) => o.id === id_to_add);
     if (!observer) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_OBSERVER");
       return;
     }
 
-    if (!!game.examiners && game.examiners.map(e => e.id).indexOf(id_to_add) !== -1) {
+    if (!!game.examiners && game.examiners.map((e) => e.id).indexOf(id_to_add) !== -1) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "ALREADY_AN_EXAMINER");
       return;
     }
@@ -1413,7 +1447,7 @@ class Game {
     check(self, Object);
 
     const game = this.GameCollection.findOne({
-      _id: game_id
+      _id: game_id,
     });
 
     if (!game)
@@ -1423,8 +1457,8 @@ class Game {
         "game id does not exist"
       );
 
-    const requestor = game.requestors && game.requestors.some(r => r.id === id_to_remove);
-    const observer = game.observers && game.observers.some(o => o.id === id_to_remove);
+    const requestor = game.requestors && game.requestors.some((r) => r.id === id_to_remove);
+    const observer = game.observers && game.observers.some((o) => o.id === id_to_remove);
 
     if (!requestor && !observer) {
       if (!server_command)
@@ -1477,7 +1511,7 @@ class Game {
     }
 
     if (delete_game) {
-      game.observers.forEach(obr => Users.setGameStatus("server", obr.id, "none"));
+      game.observers.forEach((obr) => Users.setGameStatus("server", obr.id, "none"));
       this.GameCollection.remove({ _id: game_id });
       delete active_games[game_id];
     } else {
@@ -1488,8 +1522,8 @@ class Game {
             examiners: { id: id_to_remove },
             observers: { id: id_to_remove },
             requestors: { id: id_to_remove },
-            analysis: { id: id_to_remove }
-          }
+            analysis: { id: id_to_remove },
+          },
         }
       );
     }
@@ -1534,8 +1568,8 @@ class Game {
         { status: "examining" },
         { owner: self._id },
         { private: true },
-        { _id: { $ne: game_id } }
-      ]
+        { _id: { $ne: game_id } },
+      ],
     });
 
     if (!!private_game && private_game.observers.length > 1) {
@@ -1550,7 +1584,7 @@ class Game {
     if (game.private) {
       if (self._id === game.owner) {
         let requestor;
-        if (game.requestors) requestor = game.requestors.find(r => r.id === id_to_add);
+        if (game.requestors) requestor = game.requestors.find((r) => r.id === id_to_add);
         if (!requestor) {
           ClientMessages.sendMessageToClient(self, message_identifier, "NOT_A_REQUESTOR");
           return;
@@ -1589,7 +1623,7 @@ class Game {
       );
 
     const updateobject = {
-      $addToSet: { observers: { id: adding_user._id, username: adding_user.username } }
+      $addToSet: { observers: { id: adding_user._id, username: adding_user.username } },
     };
 
     if (!game.private)
@@ -1677,9 +1711,9 @@ class Game {
           actions: {
             type: "takeback_requested",
             issuer: self._id,
-            parameter: number
-          }
-        }
+            parameter: number,
+          },
+        },
       }
     );
   }
@@ -1732,14 +1766,14 @@ class Game {
       "pending.black.takeback": { number: 0, mid: "0" },
       "variations.cmi": variation.cmi,
       "clocks.white.current": clock_reset.white,
-      "clocks.black.current": clock_reset.black
+      "clocks.black.current": clock_reset.black,
     };
 
     this.GameCollection.update(
       { _id: game_id, status: "playing" },
       {
         $push: { actions: action },
-        $set: setobject
+        $set: setobject,
       }
     );
 
@@ -1777,8 +1811,8 @@ class Game {
       {
         $set: setobject,
         $push: {
-          actions: { type: "takeback_declined", issuer: self._id }
-        }
+          actions: { type: "takeback_declined", issuer: self._id },
+        },
       }
     );
 
@@ -1829,19 +1863,19 @@ class Game {
         {
           $addToSet: {
             observers: {
-              $each: examiners
-            }
+              $each: examiners,
+            },
           },
           $push: {
-            actions: { type: "draw", issuer: self._id }
+            actions: { type: "draw", issuer: self._id },
           },
           $unset: { pending: "" },
           $set: {
             status: "examining",
             result: "1/2-1/2",
             status2: status2,
-            examiners: examiners
-          }
+            examiners: examiners,
+          },
         }
       );
       this.updateUserRatings(game, "1/2-1/2", status2);
@@ -1864,7 +1898,7 @@ class Game {
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "draw_requested", issuer: self._id } },
-        $set: setobject
+        $set: setobject,
       }
     );
   }
@@ -1917,20 +1951,20 @@ class Game {
             status: "examining",
             result: "*",
             status2: 37,
-            examiners: examiners
+            examiners: examiners,
           },
           $unset: { pending: "" },
           $addToSet: {
             observers: {
-              $each: examiners
-            }
+              $each: examiners,
+            },
           },
           $push: {
             actions: {
               type: "abort_requested",
-              issuer: self._id
-            }
-          }
+              issuer: self._id,
+            },
+          },
         }
       );
 
@@ -1955,7 +1989,7 @@ class Game {
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "abort_requested", issuer: self._id } },
-        $set: setobject
+        $set: setobject,
       }
     );
   }
@@ -1996,7 +2030,7 @@ class Game {
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "adjourn_requested", issuer: self._id } },
-        $set: setobject
+        $set: setobject,
       }
     );
   }
@@ -2031,20 +2065,20 @@ class Game {
           status: "examining",
           result: "1/2-1/2",
           status2: 13,
-          examiners: examiners
+          examiners: examiners,
         },
         $unset: { pending: "" },
         $addToSet: {
           observers: {
-            $each: examiners
-          }
+            $each: examiners,
+          },
         },
         $push: {
           actions: {
             type: "draw_accepted",
-            issuer: self._id
-          }
-        }
+            issuer: self._id,
+          },
+        },
       }
     );
     Users.setGameStatus(message_identifier, game.white.id, "examining");
@@ -2091,20 +2125,20 @@ class Game {
           status: "examining",
           result: "*",
           status2: 30,
-          examiners: examiners
+          examiners: examiners,
         },
         $unset: { pending: "" },
         $addToSet: {
           observers: {
-            $each: examiners
-          }
+            $each: examiners,
+          },
         },
         $push: {
           actions: {
             type: "abort_accepted",
-            issuer: self._id
-          }
-        }
+            issuer: self._id,
+          },
+        },
       }
     );
 
@@ -2147,20 +2181,20 @@ class Game {
           status: "examining",
           result: "*",
           status2: 24,
-          examiners: examiners
+          examiners: examiners,
         },
         $unset: { pending: "" },
         $addToSet: {
           observers: {
-            $each: examiners
-          }
+            $each: examiners,
+          },
         },
         $push: {
           actions: {
             type: "adjourn_accepted",
-            issuer: self._id
-          }
-        }
+            issuer: self._id,
+          },
+        },
       }
     );
     this.sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "*", 24);
@@ -2186,12 +2220,12 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-    const examiner = game.examiners.find(examiner => examiner.id === self._id);
+    const examiner = game.examiners.find((examiner) => examiner.id === self._id);
     if (!examiner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-    const resultFind = game.circles.find(circle => circle.square === square);
+    const resultFind = game.circles.find((circle) => circle.square === square);
     if (resultFind) {
       resultFind.color = color;
       resultFind.size = size;
@@ -2206,9 +2240,9 @@ class Game {
           actions: {
             type: "draw_circle",
             issuer: self._id,
-            parameter: { square: square, color: color, size: size }
-          }
-        }
+            parameter: { square: square, color: color, size: size },
+          },
+        },
       }
     );
   }
@@ -2231,7 +2265,7 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-    const examiner = game.examiners.find(examiner => examiner.id === self._id);
+    const examiner = game.examiners.find((examiner) => examiner.id === self._id);
     if (!examiner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
@@ -2241,9 +2275,9 @@ class Game {
       { _id: game_id, status: "examining" },
       {
         $push: {
-          actions: { type: "remove_circle", issuer: self._id, parameter: { square: square } }
+          actions: { type: "remove_circle", issuer: self._id, parameter: { square: square } },
         },
-        $pull: { circles: { square: square } }
+        $pull: { circles: { square: square } },
       }
     );
   }
@@ -2269,12 +2303,12 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-    const examiner = game.examiners.find(examiner => examiner.id === self._id);
+    const examiner = game.examiners.find((examiner) => examiner.id === self._id);
     if (!examiner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-    const resultFind = game.arrows.find(arrow => arrow.from === from && arrow.to === to);
+    const resultFind = game.arrows.find((arrow) => arrow.from === from && arrow.to === to);
     if (resultFind) {
       resultFind.color = color;
       resultFind.size = size;
@@ -2289,9 +2323,9 @@ class Game {
           actions: {
             type: "draw_arrow",
             issuer: self._id,
-            parameter: { from: from, to: to, color: color, size: size }
-          }
-        }
+            parameter: { from: from, to: to, color: color, size: size },
+          },
+        },
       }
     );
   }
@@ -2316,12 +2350,12 @@ class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-    const examiner = game.examiners.find(examiner => examiner.id === self._id);
+    const examiner = game.examiners.find((examiner) => examiner.id === self._id);
     if (!examiner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-    const resultFind = game.arrows.find(arrow => arrow.from === from && arrow.to === to);
+    const resultFind = game.arrows.find((arrow) => arrow.from === from && arrow.to === to);
 
     if (!resultFind) {
       return;
@@ -2333,10 +2367,10 @@ class Game {
           actions: {
             type: "remove_arrow",
             issuer: self._id,
-            parameter: { from: from, to: to }
-          }
+            parameter: { from: from, to: to },
+          },
         },
-        $pull: { arrows: { from: from, to: to } }
+        $pull: { arrows: { from: from, to: to } },
       }
     );
   }
@@ -2382,7 +2416,7 @@ class Game {
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "draw_declined", issuer: self._id } },
-        $set: setobject
+        $set: setobject,
       }
     );
 
@@ -2412,7 +2446,7 @@ class Game {
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "abort_declined", issuer: self._id } },
-        $set: setobject
+        $set: setobject,
       }
     );
 
@@ -2442,7 +2476,7 @@ class Game {
       { _id: game_id, status: "playing" },
       {
         $push: { actions: { type: "adjourn_declined", issuer: self._id } },
-        $set: setobject
+        $set: setobject,
       }
     );
 
@@ -2499,19 +2533,19 @@ class Game {
       {
         $addToSet: {
           observers: {
-            $each: examiners
-          }
+            $each: examiners,
+          },
         },
         $push: {
-          actions: { type: action_string, issuer: userId }
+          actions: { type: action_string, issuer: userId },
         },
         $unset: { pending: 1 },
         $set: {
           status: "examining",
           examiners: examiners,
           result: result,
-          status2: reason
-        }
+          status2: reason,
+        },
       }
     );
 
@@ -2577,7 +2611,7 @@ class Game {
     const private_game = this.GameCollection.findOne({
       status: "examining",
       owner: id,
-      private: true
+      private: true,
     });
     if (!private_game) return false;
     return private_game.observers.length > 1;
@@ -2588,7 +2622,7 @@ class Game {
     const id = typeof user_or_id === "object" ? user_or_id._id : user_or_id;
     return (
       this.GameCollection.find({
-        $and: [{ status: "playing" }, { $or: [{ "white.id": id }, { "black.id": id }] }]
+        $and: [{ status: "playing" }, { $or: [{ "white.id": id }, { "black.id": id }] }],
       }).count() !== 0
     );
   }
@@ -2607,10 +2641,10 @@ class Game {
     if (!!new_movelist[new_cmi].variations) {
       const old_variations = new_movelist[new_cmi].variations;
       new_movelist[new_cmi].variations = old_variations
-        .map(oldvarcmi => {
+        .map((oldvarcmi) => {
           return this.rebuildVariationNodes(cmi_to_delete, old_movelist, new_movelist, oldvarcmi);
         })
-        .filter(newvarcmi => !!newvarcmi);
+        .filter((newvarcmi) => !!newvarcmi);
     }
     return new_cmi;
   }
@@ -2634,7 +2668,7 @@ class Game {
     const game = this.GameCollection.findOne({
       _id: game_id,
       status: "examining",
-      "examiners.id": self._id
+      "examiners.id": self._id,
     });
     if (!game) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
@@ -2694,7 +2728,7 @@ class Game {
     // It could go all the way back up to move zero, but it may not.
     //
     let backtrack_to_cmi = variation.cmi;
-    while (!cmilist.some(pcmi => pcmi === backtrack_to_cmi))
+    while (!cmilist.some((pcmi) => pcmi === backtrack_to_cmi))
       backtrack_to_cmi = variation.movelist[backtrack_to_cmi].prev;
 
     //
@@ -2712,7 +2746,7 @@ class Game {
       current_cmi = variation.movelist[current_cmi].prev;
     }
 
-    cmilist.forEach(new_cmi => {
+    cmilist.forEach((new_cmi) => {
       if (!new_cmi) return;
       const result = chessObject.move(variation.movelist[new_cmi].move);
       if (!result) {
@@ -2722,7 +2756,7 @@ class Game {
           new_cmi: new_cmi,
           backtrack_to_cmi: backtrack_to_cmi,
           gamecmi: variation.cmi,
-          move: variation.movelist[new_cmi].move
+          move: variation.movelist[new_cmi].move,
         });
         throw new ICCMeteorError(
           message_identifier,
@@ -2739,15 +2773,15 @@ class Game {
         $set: {
           "variations.cmi": cmi,
           fen: chessObject.fen(),
-          tomove: chessObject.turn() === "w" ? "white" : "black"
+          tomove: chessObject.turn() === "w" ? "white" : "black",
         },
         $push: {
           actions: {
             type: "move_to_fen",
             issuer: self._id,
-            parameter: { cmi: cmi }
-          }
-        }
+            parameter: { cmi: cmi },
+          },
+        },
       }
     );
   }
@@ -2765,7 +2799,7 @@ class Game {
     const game = this.GameCollection.findOne({
       _id: game_id,
       status: "examining",
-      "examiners.id": self._id
+      "examiners.id": self._id,
     });
     if (!game) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
@@ -2822,15 +2856,15 @@ class Game {
         $set: {
           "variations.cmi": variation.cmi,
           fen: chessObject.fen(),
-          tomove: chessObject.turn() === "w" ? "white" : "black"
+          tomove: chessObject.turn() === "w" ? "white" : "black",
         },
         $push: {
           actions: {
             type: "move_forward",
             issuer: self._id,
-            parameter: { movecount: movecount, variation: variation_index }
-          }
-        }
+            parameter: { movecount: movecount, variation: variation_index },
+          },
+        },
       }
     );
   }
@@ -2850,7 +2884,7 @@ class Game {
     const game = this.GameCollection.findOne({
       _id: game_id,
       status: "examining",
-      "examiners.id": self._id
+      "examiners.id": self._id,
     });
 
     if (!game) {
@@ -2890,15 +2924,15 @@ class Game {
         $set: {
           "variations.cmi": variation.cmi,
           fen: active_games[game_id].fen(),
-          tomove: active_games[game_id].turn() === "w" ? "white" : "black"
+          tomove: active_games[game_id].turn() === "w" ? "white" : "black",
         },
         $push: {
           actions: {
             type: "move_backward",
             issuer: self._id,
-            parameter: movecount
-          }
-        }
+            parameter: movecount,
+          },
+        },
       }
     );
   }
@@ -2917,16 +2951,16 @@ class Game {
       { fields: { _id: 1 } }
     )
       .fetch()
-      .forEach(game =>
+      .forEach((game) =>
         this.localRemoveObserver("server", game._id, user_id, server_command, due_to_logout)
       );
   }
 
   localResignAllGames(message_identifier, user_id, reason) {
     const playing = this.GameCollection.find({
-      $and: [{ status: "playing" }, { $or: [{ "white.id": user_id }, { "black.id": user_id }] }]
+      $and: [{ status: "playing" }, { $or: [{ "white.id": user_id }, { "black.id": user_id }] }],
     }).fetch();
-    playing.forEach(game => this._resignLocalGame("server", game, user_id, reason));
+    playing.forEach((game) => this._resignLocalGame("server", game, user_id, reason));
   }
 
   exportToPGN(id) {
@@ -2966,7 +3000,7 @@ class Game {
         move: move,
         smith: { piece, color, from, to, promotion },
         prev: variation_object.cmi,
-        current: current
+        current: current,
       });
 
       if (!variation_object.movelist[variation_object.cmi].variations) {
@@ -3005,9 +3039,9 @@ class Game {
           $set: {
             fen: fen,
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
-          $push: { actions: { type: "clearboard", issuer: self._id } }
+          $push: { actions: { type: "clearboard", issuer: self._id } },
         }
       );
     }
@@ -3032,9 +3066,9 @@ class Game {
           $set: {
             fen: fen,
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
-          $push: { actions: { type: "initialposition", issuer: self._id } }
+          $push: { actions: { type: "initialposition", issuer: self._id } },
         }
       );
     }
@@ -3063,9 +3097,9 @@ class Game {
           $set: {
             fen: fen,
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
-          $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } }
+          $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } },
         }
       );
     }
@@ -3100,15 +3134,15 @@ class Game {
           $set: {
             fen: fen,
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
           $push: {
             actions: {
               type: "addpiece",
               issuer: self._id,
-              parameter: { color: color, piece: piece, square: where }
-            }
-          }
+              parameter: { color: color, piece: piece, square: where },
+            },
+          },
         }
       );
     }
@@ -3138,11 +3172,11 @@ class Game {
           $set: {
             fen: fen,
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
           $push: {
-            actions: { type: "removepiece", issuer: self._id, parameter: { square: where } }
-          }
+            actions: { type: "removepiece", issuer: self._id, parameter: { square: where } },
+          },
         }
       );
     }
@@ -3178,9 +3212,9 @@ class Game {
             fen: fen,
             tomove: color === "w" ? "white" : "black",
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
-          $push: { actions: { type: "settomove", issuer: self._id, parameter: { color: color } } }
+          $push: { actions: { type: "settomove", issuer: self._id, parameter: { color: color } } },
         }
       );
     }
@@ -3221,11 +3255,15 @@ class Game {
           $set: {
             fen: fen,
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
           $push: {
-            actions: { type: "setcastling", issuer: self._id, parameter: { castling: fenarray[2] } }
-          }
+            actions: {
+              type: "setcastling",
+              issuer: self._id,
+              parameter: { castling: fenarray[2] },
+            },
+          },
         }
       );
     }
@@ -3267,11 +3305,11 @@ class Game {
           $set: {
             fen: fen,
             variations: { cmi: 0, movelist: [{}], ecocodes: [] },
-            "tags.FEN": fen
+            "tags.FEN": fen,
           },
           $push: {
-            actions: { type: "setenpassant", issuer: self._id, parameter: { piece: where } }
-          }
+            actions: { type: "setenpassant", issuer: self._id, parameter: { piece: where } },
+          },
         }
       );
     }
@@ -3334,8 +3372,8 @@ class Game {
       {
         $set: setobject,
         $push: {
-          actions: { type: "settag", issuer: self._id, parameter: { tag: tag, value: value } }
-        }
+          actions: { type: "settag", issuer: self._id, parameter: { tag: tag, value: value } },
+        },
       }
     );
   }
@@ -3370,7 +3408,7 @@ class Game {
     }
 
     // For now anyway, a new owner must also be an observer at least
-    if (!!new_id && !game.observers.some(e => e.id === new_id)) {
+    if (!!new_id && !game.observers.some((e) => e.id === new_id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
       return;
     }
@@ -3462,7 +3500,7 @@ class Game {
 
     if (!allow_requests && game.requestors !== undefined) {
       updateobject.$unset = { requestors: 1 };
-      game.requestors.forEach(req =>
+      game.requestors.forEach((req) =>
         ClientMessages.sendMessageToClient(req.id, "server:privaterequest:" + game_id, "DENIED?")
       );
     }
@@ -3520,21 +3558,25 @@ class Game {
       return;
     }
 
-    if (!game.private || user_id === game.owner || !game.observers.some(ob => ob.id === user_id)) {
+    if (
+      !game.private ||
+      user_id === game.owner ||
+      !game.observers.some((ob) => ob.id === user_id)
+    ) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_ANALYSIS");
       return;
     }
 
     if (
       (!allow_analysis && !game.analysis) ||
-      (!!game.analysis && allow_analysis === game.analysis.some(a => a.id === user_id))
+      (!!game.analysis && allow_analysis === game.analysis.some((a) => a.id === user_id))
     )
       return; // Already in or not
 
     const updateobject = {};
     if (game.analysis) {
       updateobject[allow_analysis ? "$addToSet" : "$pull"] = {
-        analysis: { id: user_id, username: otherguy.username }
+        analysis: { id: user_id, username: otherguy.username },
       };
     } else if (allow_analysis) {
       updateobject.$set = { analysis: [{ id: user_id, username: otherguy.username }] };
@@ -3565,7 +3607,7 @@ class Game {
     }
 
     let requestor;
-    if (game.requestors) requestor = game.requestors.find(r => r.id === requestor_id);
+    if (game.requestors) requestor = game.requestors.find((r) => r.id === requestor_id);
     if (!requestor) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NO_REQUESTOR");
       return;
@@ -3591,7 +3633,7 @@ class Game {
     }
 
     const game = this.GameCollection.findOne({
-      $or: [{ "white.id": user_id }, { "black.id": user_id }, { "examiners.id": user_id }]
+      $or: [{ "white.id": user_id }, { "black.id": user_id }, { "examiners.id": user_id }],
     });
 
     if (!game) {
@@ -3651,12 +3693,12 @@ class Game {
           //pingresult
           const game = this.GameCollection.findOne({
             _id: game_id,
-            status: "playing"
+            status: "playing",
           });
           if (!game)
             throw new ICCMeteorError("server", "Unable to set ping information", "game not found");
 
-          const item = game.lag[color].active.find(ping => ping.id === msg.id);
+          const item = game.lag[color].active.find((ping) => ping.id === msg.id);
           if (!item) return;
 
           const pushobject = {};
@@ -3735,7 +3777,7 @@ class Game {
         {
           $set: setobject,
           $addToSet: addtosetobject,
-          $unset: { pending: 1, "clocks.white.current": 1, "clocks.black.current": 1 }
+          $unset: { pending: 1, "clocks.white.current": 1, "clocks.black.current": 1 },
         }
       );
       if (game.white.id !== "computer") Users.setGameStatus("server", game.white.id, "examining");
@@ -3754,7 +3796,7 @@ class Game {
   }
 
   testingCleanupMoveTimers() {
-    Object.keys(move_timers).forEach(game_id => {
+    Object.keys(move_timers).forEach((game_id) => {
       Meteor.clearInterval(move_timers[game_id]);
       delete move_timers[game_id];
     });
@@ -3763,14 +3805,14 @@ class Game {
   getStatusFromGameCollection(userId) {
     if (
       !!this.GameCollection.find({
-        $and: [{ status: "playing" }, { $or: [{ "white.id": userId }, { "black.id": userId }] }]
+        $and: [{ status: "playing" }, { $or: [{ "white.id": userId }, { "black.id": userId }] }],
       }).count()
     )
       return "playing";
 
     if (
       !!this.GameCollection.find({
-        $and: [{ status: "examining" }, { $or: [{ owner: userId }, { "examiners.id": userId }] }]
+        $and: [{ status: "examining" }, { $or: [{ owner: userId }, { "examiners.id": userId }] }],
       }).count()
     )
       return "examining";
@@ -3898,7 +3940,7 @@ if (!global._gameObject) {
 
 module.exports.Game = global._gameObject;
 
-GameHistory.savePlayedGame = function(message_identifier, game_id) {
+GameHistory.savePlayedGame = function (message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
   const game = global._gameObject.GameCollection.findOne(game_id);
@@ -3913,7 +3955,7 @@ GameHistory.savePlayedGame = function(message_identifier, game_id) {
   return GameHistoryCollection.insert(game);
 };
 
-GameHistory.examineGame = function(message_identifier, game_id, is_imported_game) {
+GameHistory.examineGame = function (message_identifier, game_id, is_imported_game) {
   check(message_identifier, String);
   //check(game_id, Match.OneOf(String, Object));
   check(is_imported_game, Match.Maybe(Boolean));
@@ -3941,14 +3983,14 @@ GameHistory.examineGame = function(message_identifier, game_id, is_imported_game
   return global._gameObject.startLocalExaminedGameWithObject(message_identifier, hist);
 };
 
-GameHistory.exportToPGN = function(id) {
+GameHistory.exportToPGN = function (id) {
   check(id, String);
   const game = GameHistoryCollection.findOne({ _id: id });
   if (!game) return;
   return exportGameObjectToPGN(game);
 };
 
-GameHistory.search = function(message_identifier, search_parameters, offset, count) {
+GameHistory.search = function (message_identifier, search_parameters, offset, count) {
   const self = Meteor.user();
   check(self, Object);
   check(search_parameters, Object);
@@ -3962,10 +4004,10 @@ GameHistory.search = function(message_identifier, search_parameters, offset, cou
   return GameHistoryCollection.find(search_parameters, { skip: offset, limit: count });
 };
 
-Meteor.publish("game_history", function() {
+Meteor.publish("game_history", function () {
   return GameHistoryCollection.find(
     {
-      $or: [{ "white.id": this.userId }, { "black.id": this.userId }]
+      $or: [{ "white.id": this.userId }, { "black.id": this.userId }],
     },
     { sort: { startTime: -1 }, limit: SystemConfiguration.gameHistoryCount() }
   );
@@ -3979,7 +4021,7 @@ Meteor.startup(() => {
     const content = Assets.getText("eco.txt");
     const variations = { cmi: 0, movelist: [] };
 
-    content.split("\n").forEach(line => {
+    content.split("\n").forEach((line) => {
       line_number++;
       if (line.trim().length) {
         const pieces = line.split(": ");
@@ -3993,7 +4035,7 @@ Meteor.startup(() => {
         try {
           const moves = parseMoves(pieces[2]);
           variations.cmi = 0;
-          moves.forEach(move => {
+          moves.forEach((move) => {
             global._gameObject.addMoveToMoveList(variations, move);
           });
           variations.movelist[variations.cmi].eco = eco;
@@ -4007,7 +4049,7 @@ Meteor.startup(() => {
       }
     });
 
-    variations.movelist.forEach(m => delete m.current);
+    variations.movelist.forEach((m) => delete m.current);
     delete variations.cmi;
 
     global._gameObject.ecoCollection.insert(variations);
@@ -4039,7 +4081,7 @@ Meteor.startup(() => {
   function parseMoves(move_string) {
     const object = {
       moves: [],
-      move_string: move_string
+      move_string: move_string,
     };
     while (true) {
       if (!trim_whitespace(object)) return object.moves;
@@ -4264,5 +4306,5 @@ Meteor.methods({
     global._gameObject.moveToCMI(message_identifier, game_id, cmi),
   // eslint-disable-next-line meteor/audit-argument-checks
   sendCommand: (message_identifier, game_id, command) =>
-    global._gameObject.sendCommand(message_identifier, game_id, command)
+    global._gameObject.sendCommand(message_identifier, game_id, command),
 });
