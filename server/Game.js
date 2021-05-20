@@ -1003,8 +1003,22 @@ class Game {
     const game = this.GameCollection.findOne({ _id: game_id });
 
     if (!game || !game.premove) {
-      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_GAME", game);
+      ClientMessages.sendMessageToClient(
+        Meteor.user(),
+        message_identifier,
+        "ILLEGAL_GAME",
+        game_id
+      );
       return;
+    }
+
+    if (game.white.id !== self._id && game.black.id !== self._id) {
+      ClientMessages.sendMessageToClient(
+        Meteor.user(),
+        message_identifier,
+        "NOT_YOUR_GAME",
+        game._id
+      );
     }
 
     if (
@@ -1015,7 +1029,7 @@ class Game {
         Meteor.user(),
         message_identifier,
         "NOT_YOUR_PREMOVE",
-        game
+        game._id
       );
       return;
     }

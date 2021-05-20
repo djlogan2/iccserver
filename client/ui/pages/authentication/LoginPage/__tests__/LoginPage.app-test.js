@@ -30,7 +30,7 @@ describe("Login Page", () => {
     chai.assert.equal(wrapper.find("Link").length, 1);
   });
 
-  it.only("expects input username changes value the text after click", () => {
+  it("expects input username changes value the text after click", () => {
     const page = wrapper.find(LoginPage);
     console.log(page, 'page1');
     chai.assert.equal(page.find("#login-email").length, 1)

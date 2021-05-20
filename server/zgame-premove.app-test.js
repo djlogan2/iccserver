@@ -1,4 +1,6 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
+import { Meteor } from "meteor/meteor";
+
 import { Game } from "./Game";
 import chai from "chai";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
@@ -107,4 +109,78 @@ describe("premove", function (done) {
       .then(() => checkhaspremove(p1))
       .then(() => finish());
   });
+
+  it("should send a client message if the game id is invalid", () => {
+    self.loggedonuser = TestHelpers.createUser();
+
+    Game.removeLocalPremove("remove_local_premove", "1");
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_GAME");
+  });
+
+  it.only("should send a client message if the issuer is not a player", () => {
+    this.timeout(100000);
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    const p3 = TestHelpers.createUser();
+
+    self.loggedonuser = p1;
+    // let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+
+    self.loggedonuser = p2;
+    Game.saveLocalMove("m1", game_id, "e5");
+
+    self.loggedonuser = p3;
+    Game.removeLocalPremove("remove_local_premove", game_id);
+
+    Game.localAddObserver("m2", game_id, p3._id);
+    Game.removeLocalPremove("remove_local_premove", game_id);
+
+    const game = Game.findOne({});
+    chai.assert.isDefined(game.permove);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_YOUR_GAME");
+    chai.assert.equal(self.clientMessagesSpy.args[1][2], "NOT_YOUR_GAME");
+  });
+
+  it("1should send a client message if the game id is invalid", () => {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+
+    self.loggedonuser = p1;
+    // let other = p2;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      p2,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+
+    self.loggedonuser = p2;
+    Game.saveLocalMove("m1", game_id, "e5");
+  })
 });
