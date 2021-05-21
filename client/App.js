@@ -5,7 +5,6 @@ import injectSheet from "react-jss";
 import i18n from "meteor/universe:i18n";
 import "antd/dist/antd.css";
 
-import "../imports/css/GameHistory.css";
 import "../imports/css/Examine.css";
 import "../imports/css/ExamineSidebarTop.css";
 import "../imports/css/FenPgn.css";

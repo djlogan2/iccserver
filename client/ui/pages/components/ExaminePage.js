@@ -7,7 +7,7 @@ import "../../../../imports/css/leftsidebar";
 import { Col } from "antd";
 
 import MiddleBoard from "../MiddleSection/MiddleBoard";
-import BoardWrapper from "./BoardWrapper";
+import BoardWrapper from "./BoardWrapper/BoardWrapper";
 import { colorBlackLetter, colorWhiteLetter } from "../../../constants/gameConstants";
 
 export default class ExaminePage extends Component {

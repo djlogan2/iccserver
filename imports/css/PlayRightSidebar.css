@@ -1,9 +1,3 @@
-.play-right-sidebar {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
 .ant-tabs {
     height: 100%;
 }
@@ -21,35 +15,6 @@
 
 .ant-tabs-tabpane {
     height: calc(100% - 50px);
-}
-
-.play-right-sidebar__top {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    flex-shrink: 0;
-}
-
-.play-right-sidebar__top--small {
-    max-height: 50vh;
-}
-
-.play-right-sidebar__bottom {
-    display: flex;
-    flex-direction: column;
-    height: 50vh;
-    flex-shrink: 0;
-}
-
-
-.play-right-sidebar__inc-deley-wrap {
-    display: flex;
-    margin-top: 2rem;
-}
-
-.play-right-sidebar__inc-deley-wrap .ant-form-item {
-    margin-right: 2rem;
-    margin-bottom: 0;
 }
 
 .ant-tabs .ant-tabs-top-content {

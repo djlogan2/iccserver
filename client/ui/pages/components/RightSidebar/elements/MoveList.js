@@ -127,7 +127,7 @@ export default class MoveList extends Component {
     });
 
     return (
-      <div className="move-list">
+      <div style={{ background: "#EFF0F3" }}>
         <div style={cssManager.gameMoveList()}>{moveslist}</div>
       </div>
     );

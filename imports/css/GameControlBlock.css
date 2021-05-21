@@ -28,51 +28,6 @@
     margin: auto auto;
 }
 
-.play-modal {
-
-}
-
-.play-modal__user-name {
-    max-width: 150px;
-}
-
-.play-modal__btn-block {
-    display: flex;
-    justify-content: center;
-}
-
-.play-modal__btn-block button {
-    margin-right: 1rem;
-}
-
-.play-modal__user-one, .play-modal__user-two {
-    text-align: center;
-}
-
-.play-modal__main {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    height: 12.5rem;
-}
-
-.play-modal__main-center {
-    padding: 0 6rem;
-    text-align: center;
-}
-
-.play-modal__user-img {
-    width: 3.6rem;
-    height: 3.6rem;
-    border-radius: 50%;
-    margin-bottom: .8rem;
-}
-
-.play-modal__btn--primary {
-    background: #1565C0;
-}
-
 .action-controls {
     display: flex;
 }
