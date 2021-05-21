@@ -36,6 +36,7 @@ import notFoundCss from "../../../server/defaultStyles/notFoundCss";
 import examineOwnerTabBlockCss from "../../../server/defaultStyles/examineOwnerTabBlockCss";
 import examineObserverTabBlockCss from "../../../server/defaultStyles/examineObserverTabBlockCss";
 import boardWrapperCss from "../../../server/defaultStyles/boardWrapperCss";
+import examineObserveTabCss from "../../../server/defaultStyles/examineObserveTabCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -81,6 +82,7 @@ export default function firstRunCSS() {
       examineOwnerTabBlockCss,
       examineObserverTabBlockCss,
       boardWrapperCss,
+      examineObserveTabCss,
     });
   }
 }

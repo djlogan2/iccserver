@@ -23,14 +23,3 @@
     display: flex;
     justify-content: center;
 }
-
-
-.board-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background: #292929;
-    /* padding-top: 5.8rem; */
-    /* padding-left: 5.8rem; */
-}

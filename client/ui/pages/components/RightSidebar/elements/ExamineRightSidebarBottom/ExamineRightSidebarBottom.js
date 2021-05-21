@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import KibitzChatApp from "../../Chat/KibitzChatApp";
-import FenPgn from "./FenPgn";
+import KibitzChatApp from "../../../Chat/KibitzChatApp";
+import FenPgn from "../FenPgn";
 import { Tabs } from "antd";
-import { translate } from "../../../../HOCs/translate";
+import { translate } from "../../../../../HOCs/translate";
 
 const { TabPane } = Tabs;
 

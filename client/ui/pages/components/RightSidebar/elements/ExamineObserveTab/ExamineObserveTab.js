@@ -1,9 +1,15 @@
 import React, { Component } from "react";
 import { AutoComplete, Button } from "antd";
 import { get } from "lodash";
+import { compose } from "redux";
+
 import { translate } from "../../../../../HOCs/translate";
 import ExamineObserverTabBlock from "../ExamineObserverTabBlock/ExamineObserverTabBlock";
 import ExamineOwnerTabBlock from "../ExamineOwnerTabBlock/ExamineOwnerTabBlock";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 class ExamineObserveTab extends Component {
   constructor(props) {
@@ -33,7 +39,7 @@ class ExamineObserveTab extends Component {
   };
 
   getList = () => {
-    const { allUsers, translate } = this.props;
+    const { allUsers, translate, classes } = this.props;
     const { searchValue } = this.state;
 
     const userList = allUsers
@@ -50,7 +56,7 @@ class ExamineObserveTab extends Component {
       return {
         value: name,
         label: (
-          <div className="observe-search__option" key={`${name}-${i}`}>
+          <div className={classes.observeSearch} key={`${name}-${i}`}>
             {name}
             <Button value={name} onClick={this.handleObserve}>
               {translate("observe")}
@@ -62,14 +68,14 @@ class ExamineObserveTab extends Component {
   };
 
   render() {
-    const { game, unObserveUser, translate } = this.props;
+    const { game, unObserveUser, translate, classes } = this.props;
 
     const options = this.getList();
     const isObserving = Meteor.user().status.game === "observing";
     const isShowing = Meteor.user().status.game === "examining" && game.observers.length;
 
     return (
-      <div className="examine-observer-tab">
+      <div className={classes.container}>
         {(!isShowing && !isObserving) ||
           (isShowing && game.observers.length === 1 && (
             <AutoComplete
@@ -86,4 +92,12 @@ class ExamineObserveTab extends Component {
   }
 }
 
-export default translate("Examine.ExamineObserveTab")(ExamineObserveTab);
+export default compose(
+  translate("Examine.ExamineObserveTab"),
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(ExamineObserveTab);

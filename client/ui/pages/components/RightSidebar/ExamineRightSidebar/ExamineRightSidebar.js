@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { compose } from "redux";
 
 import ExamineSidebarTop from "../elements/ExamineSidebarTop/ExamineSidebarTop";
-import ExamineRightSidebarBottom from "../elements/ExamineRightSidebarBottom";
+import ExamineRightSidebarBottom from "../elements/ExamineRightSidebarBottom/ExamineRightSidebarBottom";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
