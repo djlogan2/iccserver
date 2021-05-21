@@ -1,17 +1,22 @@
 import React, { Component } from "react";
+import { compose } from "redux";
 import KibitzChatApp from "../../../Chat/KibitzChatApp";
 import FenPgn from "../FenPgn";
 import { Tabs } from "antd";
 import { translate } from "../../../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const { TabPane } = Tabs;
 
 class ExamineRightSidebarBottom extends Component {
   render() {
-    const { game, onPgnUpload, translate, onImportedGames } = this.props;
+    const { game, onPgnUpload, translate, onImportedGames, classes } = this.props;
 
     return (
-      <Tabs className="examine-right-sidebar-bottom" defaultActiveKey="1" size="small" type="card">
+      <Tabs className={classes.container} defaultActiveKey="1" size="small" type="card">
         <TabPane tab={translate("tabs.chat")} key="chat">
           <KibitzChatApp isKibitz={true} gameId={game._id} />
         </TabPane>
@@ -19,11 +24,19 @@ class ExamineRightSidebarBottom extends Component {
           <FenPgn game={game} onPgnUpload={onPgnUpload} onImportedGames={onImportedGames} />
         </TabPane>
         <TabPane tab={translate("tabs.games")} key="games">
-          <div className="examine-sidebar-game">{translate("workInProgress")}</div>
+          <div className={classes.game}>{translate("workInProgress")}</div>
         </TabPane>
       </Tabs>
     );
   }
 }
 
-export default translate("Examine.ExamineRightSidebarBottom")(ExamineRightSidebarBottom);
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles),
+  translate("Examine.ExamineRightSidebarBottom")
+)(ExamineRightSidebarBottom);
