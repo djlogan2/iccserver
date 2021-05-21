@@ -11,7 +11,7 @@ import {
   PLAY_STATUS_WITH_FRIEND,
   PLAY_STATUS_CHOOSE_BOT,
 } from "../../../../constants/playStatusConstants";
-import PlayOptionButtons from "./PlayOptionButtons";
+import PlayOptionButtons from "./PlayOptionButtons/PlayOptionButtons";
 import GameCommandsBlock from "../GameCommandsBlock/GameCommandsBlock";
 
 class PlayBlock extends Component {

@@ -1,8 +1,3 @@
-.examine-right-sidebar-bottom {
-    display: flex;
-    flex-direction: column;
-    height: 50vh;
-}
 .examine-right-sidebar-bottom .ant-tabs-top-content {
     display: flex;
     flex-grow: 1;
@@ -14,12 +9,4 @@
 
 .examine-right-sidebar-bottom .ant-tabs-tabpane.ant-tabs-tabpane-inactive {
     display: none !important;
-}
-
-/* .examine-right-sidebar-bottom .ant-tabs.ant-tabs-card .ant-tabs-card-content > .ant-tabs-tabpane-inactive {
-    display: none !important;
-} */
-.examine-sidebar-game {
-    display: flex;
-    justify-content: center;
 }
