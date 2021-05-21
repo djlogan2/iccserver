@@ -9,7 +9,7 @@ import PersonalChatApp from "../../Chat/PersonalChatApp";
 import { translate } from "../../../../HOCs/translate";
 
 import PlayBlock from "../PlayBlock";
-import ObserveBlock from "../ObserveBlock";
+import ObserveBlock from "../ObserveBlock/ObserveBlock";
 import { gameComputerId, gameStatusPlaying } from "../../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
