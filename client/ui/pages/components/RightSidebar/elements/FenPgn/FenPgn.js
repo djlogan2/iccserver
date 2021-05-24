@@ -2,12 +2,17 @@ import React, { Component } from "react";
 import { Button, Input, notification } from "antd";
 import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
+import { compose } from "redux";
 
 import { translate } from "../../../../../HOCs/translate";
 
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { ImportedPgnFiles } from "../../../../../../../lib/client/importpgnfiles";
 import { exportGameObjectToPGN } from "../../../../../../../lib/exportpgn";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const log = new Logger("client/FenPgn_js");
 
@@ -99,12 +104,12 @@ class FenPgn extends Component {
   };
 
   render() {
-    const { translate, game, onImportedGames } = this.props;
+    const { translate, game, onImportedGames, classes } = this.props;
     const { pgn } = this.state;
 
     return (
-      <div className="fen-png">
-        <div className="fen-png__content">
+      <div className={classes.main}>
+        <div className={classes.content}>
           <label>{translate("fen")}</label>
           <Input
             value={game.fen}
@@ -120,13 +125,13 @@ class FenPgn extends Component {
             placeholder="1. f3 d6 2. e4 Nf6 3. Nh3 Nxe4"
           />
         </div>
-        <div className="fen-pgn__bottom">
+        <div className={classes.bottom}>
           <a href={"export/pgn/game/" + game._id}>
             <Button className="fen-pgn__button" type="primary">
               {translate("pgnExport")}
             </Button>
           </a>
-          <Button className="fen-pgn__button" type="primary" onClick={onImportedGames}>
+          <Button className={classes.bottom} type="primary" onClick={onImportedGames}>
             {translate("importedGames")}
           </Button>
           <label
@@ -154,4 +159,12 @@ class FenPgn extends Component {
   }
 }
 
-export default translate("Examine.FenPgn")(FenPgn);
+export default compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles),
+  translate("Examine.FenPgn")
+)(FenPgn);

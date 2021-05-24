@@ -256,7 +256,6 @@ const EnhancedLocationControls = translate("Common.rightBarTop")(LocationControl
 const GameControlBlock = compose(
   withTracker(() => {
     return {
-      currentRoles: Meteor.roleAssignment.find().fetch(),
       css: mongoCss.findOne(),
     };
   }),
@@ -273,7 +272,6 @@ const GameControlBlock = compose(
 const ExamineGameControlBlock = compose(
   withTracker(() => {
     return {
-      currentRoles: Meteor.roleAssignment.find().fetch(),
       css: mongoCss.findOne(),
     };
   }),
