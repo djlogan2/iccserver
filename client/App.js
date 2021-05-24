@@ -9,7 +9,6 @@ import "../imports/css/FenPgn.css";
 import "../imports/css/Loading.css";
 
 import "../imports/css/PlayRightSidebar.css";
-import "../imports/css/GameControlBlock.css";
 
 import { Routes } from "./routes/routes.js";
 import { withTracker } from "meteor/react-meteor-data";
