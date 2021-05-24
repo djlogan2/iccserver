@@ -1,9 +1,14 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
+import { compose } from "redux";
 
-import { Logger } from "../../../../../../lib/client/Logger";
-import { translate } from "../../../../HOCs/translate";
+import { Logger } from "../../../../../../../lib/client/Logger";
+import { translate } from "../../../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const log = new Logger("client/GameControlBlock");
 
@@ -83,65 +88,65 @@ class LocationControls extends Component {
   };
 
   render() {
-    const { flip, translate } = this.props;
+    const { flip, translate, classes } = this.props;
 
     const disabled = this.detectMoveListFill();
 
     return (
-      <div className="location-controls">
+      <div className={classes.locationControls}>
         <button
           title={translate("moveBackwardBeginning")}
           onClick={this.moveBackwordBeginning}
-          className="location-controls__item"
+          className={classes.locationControlItem}
           disabled={disabled}
         >
           <img
             src="images/navigation-start.svg"
             alt={translate("moveBackwardBeginning")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
         <button
           title={translate("moveBackward")}
           onClick={this.moveBackword}
-          className="location-controls__item"
+          className={classes.locationControlItem}
           disabled={disabled}
         >
           <img
             src="images/navigation-back.svg"
             alt={translate("moveBackward")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
         <button
           title={translate("moveForward")}
           onClick={this.moveForward}
-          className="location-controls__item"
+          className={classes.locationControlItem}
           disabled={disabled}
         >
           <img
             src="images/navigation-next.svg"
             alt={translate("moveForward")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
         <button
           title={translate("moveForwardEnd")}
           onClick={this.moveForwardEnd}
-          className="location-controls__item"
+          className={classes.locationControlItem}
           disabled={disabled}
         >
           <img
             src="images/navigation-end.svg"
             alt={translate("moveForwardEnd")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
-        <button title={translate("flip")} onClick={flip} className="location-controls__item">
+        <button title={translate("flip")} onClick={flip} className={classes.locationControlItem}>
           <img
             src="images/navigation-flip.svg"
             alt={translate("flip")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
       </div>
@@ -181,63 +186,63 @@ class ActionControls extends Component {
   };
 
   render() {
-    const { translate } = this.props;
+    const { translate, classes } = this.props;
 
     return (
-      <div className="action-controls">
+      <div className={classes.actionControls}>
         <button
           title={translate("takeBack")}
           onClick={this.handleTakeback}
-          className="action-controls__item"
+          className={classes.actionControlsItem}
         >
           <img
             src="images/navigation-takeback.svg"
             alt={translate("takeBack")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
         <button
           title={translate("resign")}
           onClick={this.handleResign}
-          className="action-controls__item"
+          className={classes.actionControlsItem}
         >
           <img
             src="images/navigation-resign.svg"
             alt={translate("resign")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
         <button
           title={translate("draw")}
           onClick={this.handleDraw}
-          className="action-controls__item"
+          className={classes.actionControlsItem}
         >
           <img
             src="images/navigation-draw.svg"
             alt={translate("draw")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
         <button
           title={translate("adjourn")}
           onClick={this.handleAdjorn}
-          className="action-controls__item"
+          className={classes.actionControlsItem}
         >
           <img
             src="images/navigation-adjourn.svg"
             alt={translate("adjourn")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
         <button
           title={translate("abort")}
           onClick={this.handleAbort}
-          className="action-controls__item"
+          className={classes.actionControlsItem}
         >
           <img
             src="images/navigation-abort.svg"
             alt={translate("abort")}
-            className="location-controls__item__image"
+            className={classes.locationControlsItemImage}
           />
         </button>
       </div>
@@ -248,21 +253,37 @@ class ActionControls extends Component {
 const EnhacnedActionControls = translate("Common.rightBarTop")(ActionControls);
 const EnhancedLocationControls = translate("Common.rightBarTop")(LocationControls);
 
-const GameControlBlock = ({ game, flip }) => {
+const GameControlBlock = compose(
+  withTracker(() => {
+    return {
+      currentRoles: Meteor.roleAssignment.find().fetch(),
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(({ game, flip, classes }) => {
   return (
-    <div className="game-control-block">
-      <EnhancedLocationControls game={game} flip={flip} />
-      <EnhacnedActionControls game={game} />
+    <div className={classes.container}>
+      <EnhancedLocationControls game={game} flip={flip} classes={classes} />
+      <EnhacnedActionControls game={game} classes={classes} />
     </div>
   );
-};
+});
 
-const ExamineGameControlBlock = ({ game, flip }) => {
+const ExamineGameControlBlock = compose(
+  withTracker(() => {
+    return {
+      currentRoles: Meteor.roleAssignment.find().fetch(),
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(({ game, flip, classes }) => {
   return (
-    <div className="game-control-block">
-      <EnhancedLocationControls game={game} flip={flip} />
+    <div className={classes.container}>
+      <EnhancedLocationControls game={game} flip={flip} classes={classes} />
     </div>
   );
-};
+});
 
 export { GameControlBlock, ExamineGameControlBlock };

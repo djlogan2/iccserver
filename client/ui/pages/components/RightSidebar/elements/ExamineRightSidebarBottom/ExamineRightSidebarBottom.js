@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { compose } from "redux";
 import KibitzChatApp from "../../../Chat/KibitzChatApp";
-import FenPgn from "../FenPgn";
+import FenPgn from "../FenPgn/FenPgn";
 import { Tabs } from "antd";
 import { translate } from "../../../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";

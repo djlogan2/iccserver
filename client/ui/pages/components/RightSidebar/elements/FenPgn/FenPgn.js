@@ -3,11 +3,11 @@ import { Button, Input, notification } from "antd";
 import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
 
-import { translate } from "../../../../HOCs/translate";
+import { translate } from "../../../../../HOCs/translate";
 
-import { Logger } from "../../../../../../lib/client/Logger";
-import { ImportedPgnFiles } from "../../../../../../lib/client/importpgnfiles";
-import { exportGameObjectToPGN } from "../../../../../../lib/exportpgn";
+import { Logger } from "../../../../../../../lib/client/Logger";
+import { ImportedPgnFiles } from "../../../../../../../lib/client/importpgnfiles";
+import { exportGameObjectToPGN } from "../../../../../../../lib/exportpgn";
 
 const log = new Logger("client/FenPgn_js");
 
