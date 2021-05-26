@@ -1,7 +1,8 @@
 const examineSidebarTopCss = {
   type: "examineSidebarTop",
   main: {
-    marginBottom: "0 !important",
+    height: "calc(50vh - 10px)",
+    marginBottom: "10px !important",
   },
   tabPlane: {
     height: "100%",

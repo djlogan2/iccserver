@@ -62,9 +62,55 @@ export default class MoveList extends Component {
     }
   };
 
+  handleClick = (element) => {
+    // console.log(element);
+  };
+
+  constructMoveList = () => {
+    const { game } = this.props;
+
+    if (game?.variations?.movelist) {
+      // console.log(game.variations.movelist);
+      const moves = { 0: [] };
+
+      let currentVariation = 0;
+      let currentIndex = Number(game.variations.movelist["0"].variations[0]);
+      while (true) {
+        // console.log(1234, game);
+        if (!game.variations.movelist[currentIndex]) {
+          // console.log(12345);
+          break;
+        }
+
+        // console.log(game.variations.movelist[currentIndex].variations, currentIndex);
+        if (
+          !game.variations.movelist[currentIndex].variations ||
+          game.variations.movelist[currentIndex].variations.length === 1
+        ) {
+          moves[currentVariation].push(game.variations.movelist[currentIndex]);
+          currentIndex = get(
+            game,
+            `variations.movelist[${currentIndex}].variations[0]`,
+            currentIndex + 1
+          );
+          // console.log(123456, currentIndex);
+        } else if (game.variations.movelist[currentIndex].variations.length > 1) {
+          // console.log(1234567);
+          break;
+        } else {
+          // console.log(123456789, game.variations.movelist[currentIndex].variations);
+        }
+      }
+
+      // console.log(moves);
+    }
+  };
+
   render() {
     const { game, cssManager } = this.props;
     const { cmi } = this.state;
+
+    this.constructMoveList();
 
     if (!!game) {
       this.message_identifier = "server:game:" + this.gameId;
@@ -113,7 +159,10 @@ export default class MoveList extends Component {
       return (
         <span key={index}>
           {!!ind && <b>{ind}</b>}
-          <span style={movestyle}> {mv}</span>
+          <span
+            onClick={() => this.handleClick(mv)}
+            style={{ ...movestyle, cursor: "pointer" }}
+          >{` ${mv}`}</span>
         </span>
       );
     });
