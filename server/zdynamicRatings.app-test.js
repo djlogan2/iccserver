@@ -1,6 +1,6 @@
 import chai from "chai";
 import { DynamicRatings } from "./DynamicRatings";
-import { Game } from "./Game";
+//import { Game } from "./Game";
 import { GameRequests } from "./GameRequest";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Meteor } from "meteor/meteor";

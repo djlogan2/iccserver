@@ -4,7 +4,7 @@ import { Mongo } from "meteor/mongo";
 import { Match, check } from "meteor/check";
 import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
 import { ClientMessages } from "../imports/collections/ClientMessages";
-import { Game } from "./Game";
+//import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
 import { ICCMeteorError } from "../lib/server/ICCMeteorError";
 import { DynamicRatings } from "./DynamicRatings";

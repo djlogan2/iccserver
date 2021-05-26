@@ -1,13 +1,13 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Game } from "./Game";
-import { Meteor } from "meteor/meteor";
+//import { Game } from "./Game";
+//import { Meteor } from "meteor/meteor";
 import chai from "chai";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
 
 describe("premove", function (done) {
   const self = TestHelpers.setupDescribe.apply(this);
-  it("should do something", function () {
+  it("should update the database and otherwise function correctly when done correctly", function () {
     let p1 = {
       user: TestHelpers.createUser(),
       subscription_updates: 0
@@ -119,8 +119,7 @@ describe("premove", function (done) {
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "ILLEGAL_GAME");
   });
 
-  it.only("should send a client message if the issuer is not a player", () => {
-    this.timeout(100000);
+  it("should send a client message if the issuer is not a player", () => {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     const p3 = TestHelpers.createUser();

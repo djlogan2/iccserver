@@ -1,6 +1,6 @@
 import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Game } from "./Game";
+//import { Game } from "./Game";
 
 describe("When two players are examining a game", function() {
   const self = TestHelpers.setupDescribe.apply(this);

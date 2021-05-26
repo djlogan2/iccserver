@@ -1,4 +1,4 @@
-import { Game, GameHistory } from "./Game";
+import { GameHistory } from "./Game";
 import { Picker } from "meteor/meteorhacks:picker";
 
 Picker.route("/export/pgn/:collection/:_id", function(params, req, res) {

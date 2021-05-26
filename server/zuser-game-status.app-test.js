@@ -1,7 +1,7 @@
 import chai from "chai";
 import { Meteor } from "meteor/meteor";
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Game } from "./Game";
+//import { Game } from "./Game";
 
 describe("Game status field in user record", function() {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });

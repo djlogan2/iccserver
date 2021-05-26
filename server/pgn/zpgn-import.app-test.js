@@ -1,7 +1,7 @@
 import chai from "chai";
 import { TestHelpers } from "../../imports/server/TestHelpers";
 import { Parser } from "./pgnparser";
-import { Game } from "../Game";
+//import { Game } from "../Game";
 
 
 describe("PGN Import", function() {

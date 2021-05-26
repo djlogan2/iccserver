@@ -3933,7 +3933,7 @@ class Game {
   }
 }
 
-if (!global._gameObject) {
+if (!global.Game) {
   /*
 
   This adds log.debug() messages to the top of every game method
@@ -3960,15 +3960,13 @@ if (!global._gameObject) {
     }
   });
    */
-  global._gameObject = new Game();
+  global.Game = new Game();
 }
-
-module.exports.Game = global._gameObject;
 
 GameHistory.savePlayedGame = function (message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
-  const game = global._gameObject.GameCollection.findOne(game_id);
+  const game = global.Game.GameCollection.findOne(game_id);
   if (!game)
     throw new ICCMeteorError(
       message_identifier,
@@ -3999,13 +3997,13 @@ GameHistory.examineGame = function (message_identifier, game_id, is_imported_gam
       "Unable to find game"
     );
 
-  if (global._gameObject.isPlayingGame(self._id)) {
+  if (global.Game.isPlayingGame(self._id)) {
     ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_PLAYING");
     return;
   }
 
-  global._gameObject.localUnobserveAllGames(message_identifier, self._id);
-  return global._gameObject.startLocalExaminedGameWithObject(message_identifier, hist);
+  global.Game.localUnobserveAllGames(message_identifier, self._id);
+  return global.Game.startLocalExaminedGameWithObject(message_identifier, hist);
 };
 
 GameHistory.exportToPGN = function (id) {
@@ -4061,7 +4059,7 @@ Meteor.startup(() => {
           const moves = parseMoves(pieces[2]);
           variations.cmi = 0;
           moves.forEach((move) => {
-            global._gameObject.addMoveToMoveList(variations, move);
+            global.Game.addMoveToMoveList(variations, move);
           });
           variations.movelist[variations.cmi].eco = eco;
           variations.movelist[variations.cmi].name = name;
@@ -4077,7 +4075,7 @@ Meteor.startup(() => {
     variations.movelist.forEach((m) => delete m.current);
     delete variations.cmi;
 
-    global._gameObject.ecoCollection.insert(variations);
+    global.Game.ecoCollection.insert(variations);
     return variations;
   }
 
@@ -4117,7 +4115,7 @@ Meteor.startup(() => {
     }
   }
 
-  this.tree = global._gameObject.ecoCollection.findOne();
+  this.tree = global.Game.ecoCollection.findOne();
   if (!this.tree) this.tree = initialLoad();
 });
 
@@ -4128,7 +4126,7 @@ Meteor.methods({
     check(pong, Object);
     check(user, Object);
     if (!game_pings[game_id]) return;
-    const game = global._gameObject.GameCollection.findOne(
+    const game = global.Game.GameCollection.findOne(
       { _id: game_id, status: "playing" },
       { fields: { "white.id": 1 } }
     );
@@ -4142,55 +4140,55 @@ Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   requestTakeback: (message_identifier, game_id, number) =>
     LegacyUser.requestTakeback(message_identifier, game_id, number),
-  // global._gameObject.requestLocalTakeback(message_identifier, game_id, number),
+  // global.Game.requestLocalTakeback(message_identifier, game_id, number),
   // eslint-disable-next-line meteor/audit-argument-checks
   acceptTakeBack: (message_identifier, game_id) =>
     LegacyUser.acceptTakeback(message_identifier, game_id),
-  // global._gameObject.acceptLocalTakeback(message_identifier, game_id),
+  // global.Game.acceptLocalTakeback(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineTakeback: (message_identifier, game_id) =>
     LegacyUser.declineTakeback(message_identifier, game_id),
-  // global._gameObject.declineLocalTakeback(message_identifier, game_id),
+  // global.Game.declineLocalTakeback(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   resignGame: (message_identifier, game_id) => LegacyUser.resignGame(message_identifier, game_id),
-  // global._gameObject.resignLocalGame(message_identifier, game_id),
+  // global.Game.resignLocalGame(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   requestToDraw: (message_identifier, game_id) =>
     LegacyUser.requestToDraw(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   acceptDraw: (message_identifier, game_id) => LegacyUser.acceptDraw(message_identifier, game_id),
-  // global._gameObject.acceptLocalDraw(message_identifier, game_id),
+  // global.Game.acceptLocalDraw(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineDraw: (message_identifier, game_id) => LegacyUser.declineDraw(message_identifier, game_id),
-  // global._gameObject.declineLocalDraw(message_identifier, game_id),
+  // global.Game.declineLocalDraw(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   requestToAbort: (message_identifier, game_id) =>
     LegacyUser.requestToAbort(message_identifier, game_id),
-  // global._gameObject.requestLocalAbort(message_identifier, game_id),
+  // global.Game.requestLocalAbort(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   acceptAbort: (message_identifier, game_id) => LegacyUser.acceptAbort(message_identifier, game_id),
-  // global._gameObject.acceptLocalAbort(message_identifier, game_id),
+  // global.Game.acceptLocalAbort(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineAbort: (message_identifier, game_id) =>
-    global._gameObject.declineLocalAbort(message_identifier, game_id),
+    global.Game.declineLocalAbort(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   requestToAdjourn: (message_identifier, game_id) =>
     LegacyUser.requestToAdjourn(message_identifier, game_id),
-  //  global._gameObject.requestLocalAdjourn(message_identifier, game_id),
+  //  global.Game.requestLocalAdjourn(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   acceptAdjourn: (message_identifier, game_id) =>
     LegacyUser.acceptAdjourn(message_identifier, game_id),
-  // global._gameObject.acceptLocalAdjourn(message_identifier, game_id),
+  // global.Game.acceptLocalAdjourn(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   declineAdjourn: (message_identifier, game_id) =>
     LegacyUser.declineAdjourn(message_identifier, game_id),
-  // global._gameObject.declineLocalAdjourn(message_identifier, game_id),
+  // global.Game.declineLocalAdjourn(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   drawCircle: (message_identifier, game_id, square, color, size) =>
-    global._gameObject.drawCircle(message_identifier, game_id, square, color, size),
+    global.Game.drawCircle(message_identifier, game_id, square, color, size),
   // eslint-disable-next-line meteor/audit-argument-checks
   removeCircle: (message_identifier, game_id, square) =>
-    global._gameObject.removeCircle(message_identifier, game_id, square),
+    global.Game.removeCircle(message_identifier, game_id, square),
   // eslint-disable-next-line meteor/audit-argument-checks
   startBotGame: (
     // eslint-disable-next-line meteor/audit-argument-checks
@@ -4218,7 +4216,7 @@ Meteor.methods({
     // eslint-disable-next-line meteor/audit-argument-checks
     examined_game_id
   ) =>
-    global._gameObject.startBotGame(
+    global.Game.startBotGame(
       message_identifier,
       wild_number,
       rating_type,
@@ -4234,7 +4232,7 @@ Meteor.methods({
     ),
   // eslint-disable-next-line meteor/audit-argument-checks
   startLocalExaminedGame: (message_identifier, white_name, black_name, wild_number) =>
-    global._gameObject.startLocalExaminedGame(
+    global.Game.startLocalExaminedGame(
       message_identifier,
       white_name,
       black_name,
@@ -4242,13 +4240,13 @@ Meteor.methods({
     ),
   // eslint-disable-next-line meteor/audit-argument-checks
   importPGNIntoExaminedGame: (message_identifier, game_id, pgntext) =>
-    global._gameObject.importPGNIntoExaminedGame(message_identifier, game_id, pgntext),
+    global.Game.importPGNIntoExaminedGame(message_identifier, game_id, pgntext),
   // eslint-disable-next-line meteor/audit-argument-checks
   moveBackward: (message_identifier, game_id, move_count) =>
-    global._gameObject.moveBackward(message_identifier, game_id, move_count),
+    global.Game.moveBackward(message_identifier, game_id, move_count),
   // eslint-disable-next-line meteor/audit-argument-checks
   moveForward: (message_identifier, game_id, move_count, variation_index) =>
-    global._gameObject.moveForward(message_identifier, game_id, move_count, variation_index),
+    global.Game.moveForward(message_identifier, game_id, move_count, variation_index),
   // eslint-disable-next-line meteor/audit-argument-checks
   searchGameHistory: (message_identifier, game_id, offset, count) =>
     GameHistory.search(message_identifier, game_id, offset, count),
@@ -4257,79 +4255,79 @@ Meteor.methods({
     GameHistory.examineGame(message_identifier, game_id, is_imported_game),
   // eslint-disable-next-line meteor/audit-argument-checks
   clearBoard: (message_identifier, game_id) =>
-    global._gameObject.clearBoard(message_identifier, game_id),
+    global.Game.clearBoard(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   setStartingPosition: (message_identifier, game_id) =>
-    global._gameObject.setStartingPosition(message_identifier, game_id),
+    global.Game.setStartingPosition(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   loadFen: (message_identifier, game_id, fen_string) =>
-    global._gameObject.loadFen(message_identifier, game_id, fen_string),
+    global.Game.loadFen(message_identifier, game_id, fen_string),
   // eslint-disable-next-line meteor/audit-argument-checks
   addPiece: (message_identifier, game_id, color, piece, where) =>
-    global._gameObject.addPiece(message_identifier, game_id, color, piece, where),
+    global.Game.addPiece(message_identifier, game_id, color, piece, where),
   // eslint-disable-next-line meteor/audit-argument-checks
   removePiece: (message_identifier, game_id, where) =>
-    global._gameObject.removePiece(message_identifier, game_id, where),
+    global.Game.removePiece(message_identifier, game_id, where),
   // eslint-disable-next-line meteor/audit-argument-checks
   setToMove: (message_identifier, game_id, color) =>
-    global._gameObject.setToMove(message_identifier, game_id, color),
+    global.Game.setToMove(message_identifier, game_id, color),
   // eslint-disable-next-line meteor/audit-argument-checks
   setCastling: (message_identifier, game_id, white, black) =>
-    global._gameObject.setCastling(message_identifier, game_id, white, black),
+    global.Game.setCastling(message_identifier, game_id, white, black),
   // eslint-disable-next-line meteor/audit-argument-checks
   setEnPassant: (message_identifier, game_id, where) =>
-    global._gameObject.setEnPassant(message_identifier, game_id, where),
+    global.Game.setEnPassant(message_identifier, game_id, where),
   // eslint-disable-next-line meteor/audit-argument-checks
   setTag: (message_identifier, game_id, tag, value) =>
-    global._gameObject.setTag(message_identifier, game_id, tag, value),
+    global.Game.setTag(message_identifier, game_id, tag, value),
   // eslint-disable-next-line meteor/audit-argument-checks
   changeOwner: (message_identifier, game_id, new_id) =>
-    global._gameObject.changeOwner(message_identifier, game_id, new_id),
+    global.Game.changeOwner(message_identifier, game_id, new_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   setPrivate: (message_identifier, game_id, is_private) =>
-    global._gameObject.setPrivate(message_identifier, game_id, is_private),
+    global.Game.setPrivate(message_identifier, game_id, is_private),
   // eslint-disable-next-line meteor/audit-argument-checks
   allowRequests: (message_identifier, game_id, allow_requests) =>
-    global._gameObject.allowRequests(message_identifier, game_id, allow_requests),
+    global.Game.allowRequests(message_identifier, game_id, allow_requests),
   // eslint-disable-next-line meteor/audit-argument-checks
   allowChat: (message_identifier, game_id, allow_chat) =>
-    global._gameObject.allowChat(message_identifier, game_id, allow_chat),
+    global.Game.allowChat(message_identifier, game_id, allow_chat),
   // eslint-disable-next-line meteor/audit-argument-checks
   allowAnalysis: (message_identifier, game_id, user_id, allow_analysis) =>
-    global._gameObject.allowAnalysis(message_identifier, game_id, user_id, allow_analysis),
+    global.Game.allowAnalysis(message_identifier, game_id, user_id, allow_analysis),
   // eslint-disable-next-line meteor/audit-argument-checks
   localDenyObserver: (message_identifier, game_id, requestor_id) =>
-    global._gameObject.localDenyObserver(message_identifier, game_id, requestor_id),
+    global.Game.localDenyObserver(message_identifier, game_id, requestor_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   localAddExaminer: (message_identifier, game_id, id_to_add) =>
-    global._gameObject.localAddExaminer(message_identifier, game_id, id_to_add),
+    global.Game.localAddExaminer(message_identifier, game_id, id_to_add),
   // eslint-disable-next-line meteor/audit-argument-checks
   localRemoveExaminer: (message_identifier, game_id, id_to_remove) =>
-    global._gameObject.localAddExaminer(message_identifier, game_id, id_to_remove),
+    global.Game.localAddExaminer(message_identifier, game_id, id_to_remove),
   // eslint-disable-next-line meteor/audit-argument-checks
   localAddObserver: (message_identifier, game_id, id_to_add) =>
-    global._gameObject.localAddObserver(message_identifier, game_id, id_to_add),
+    global.Game.localAddObserver(message_identifier, game_id, id_to_add),
   // eslint-disable-next-line meteor/audit-argument-checks
   localUnobserveAllGames: (message_identifier, user_id) =>
-    global._gameObject.localUnobserveAllGames(message_identifier, user_id, false, false),
+    global.Game.localUnobserveAllGames(message_identifier, user_id, false, false),
   // eslint-disable-next-line meteor/audit-argument-checks
   observeUser: (message_identifier, user_id) =>
-    global._gameObject.observeUser(message_identifier, user_id),
+    global.Game.observeUser(message_identifier, user_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   unObserveUser: (message_identifier, user_id, game_id) =>
-    global._gameObject.unObserveUser(message_identifier, user_id, game_id),
+    global.Game.unObserveUser(message_identifier, user_id, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
-  exportToPGN: (message_identifier, game_id) => global._gameObject.exportToPGN(game_id),
+  exportToPGN: (message_identifier, game_id) => global.Game.exportToPGN(game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   drawArrow: (message_identifier, game_id, from, to, color, size) =>
-    global._gameObject.drawArrow(message_identifier, game_id, from, to, color, size),
+    global.Game.drawArrow(message_identifier, game_id, from, to, color, size),
   // eslint-disable-next-line meteor/audit-argument-checks
   removeArrow: (message_identifier, game_id, from, to) =>
-    global._gameObject.removeArrow(message_identifier, game_id, from, to),
+    global.Game.removeArrow(message_identifier, game_id, from, to),
   // eslint-disable-next-line meteor/audit-argument-checks
   moveToCMI: (message_identifier, game_id, cmi) =>
-    global._gameObject.moveToCMI(message_identifier, game_id, cmi),
+    global.Game.moveToCMI(message_identifier, game_id, cmi),
   // eslint-disable-next-line meteor/audit-argument-checks
   sendCommand: (message_identifier, game_id, command) =>
-    global._gameObject.sendCommand(message_identifier, game_id, command),
+    global.Game.sendCommand(message_identifier, game_id, command),
 });

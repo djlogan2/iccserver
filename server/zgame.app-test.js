@@ -1,6 +1,6 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Game } from "./Game";
-import { Meteor } from "meteor/meteor";
+//import { Game } from "./Game";
+//import { Meteor } from "meteor/meteor";
 import { Random } from "meteor/random";
 import { Match } from "meteor/check";
 import chai from "chai";

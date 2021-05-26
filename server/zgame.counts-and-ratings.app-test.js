@@ -8,7 +8,7 @@
 //     };
 import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Game, GameHistory } from "./Game";
+import { GameHistory } from "./Game";
 
 describe("Game counts and ratings", function() {
   const self = TestHelpers.setupDescribe.apply(this);

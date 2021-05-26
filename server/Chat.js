@@ -1,6 +1,5 @@
 import { Mongo } from "meteor/mongo";
 import { check, Match } from "meteor/check";
-import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../imports/collections/users";
 import { ClientMessages } from "../imports/collections/ClientMessages";

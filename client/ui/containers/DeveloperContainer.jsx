@@ -21,7 +21,7 @@ const columns = [
 
   { title: "Server Min/Avg/Max/Last", dataIndex: "s_ping", key: "key" },
 
-  { title: "Client Min/Avg/Max/Last", dataIndex: "c_ping", key: "key" }
+  { title: "Client Min/Avg/Max/Last", dataIndex: "c_ping", key: "key" },
 ];
 
 class DeveloperContainer extends Component {
@@ -29,9 +29,9 @@ class DeveloperContainer extends Component {
     table
       .find()
       .fetch()
-      .forEach(table_rec => {
+      .forEach((table_rec) => {
         if (!usefunction || usefunction(table_rec)) {
-          let td = tabledata.find(td_rec => {
+          let td = tabledata.find((td_rec) => {
             return findfunction(table_rec, td_rec) ? td_rec : null;
           });
           if (!td) {
@@ -54,20 +54,25 @@ class DeveloperContainer extends Component {
         const s_last60 = table_rec.server_pings.slice(
           Math.max(table_rec.server_pings.length - 60, 0)
         );
-        td_rec.s_ping =
-          "" +
-          s_last60.reduce((prev, cur) => {
-            return prev === null || prev > cur ? cur : prev;
-          }, null);
+        const min = s_last60.reduce((prev, cur) => {
+          return prev === null || prev > cur ? cur : prev;
+        }, null);
+
+        let avg = 0;
         if (!!s_last60.length)
-          td_rec.s_ping +=
-            " / " + Math.round(s_last60.reduce((a, b) => a + b, 0) / s_last60.length);
-        td_rec.s_ping +=
-          " / " +
-          s_last60.reduce((prev, cur) => {
-            return prev === null || prev < cur ? cur : prev;
-          }, null);
-        td_rec.s_ping += " / " + s_last60.splice(-1);
+          avg = Math.round(s_last60.reduce((a, b) => a + b, 0) / s_last60.length);
+
+        const max = s_last60.reduce((prev, cur) => {
+          return prev === null || prev < cur ? cur : prev;
+        }, null);
+
+        const last = s_last60.splice(-1);
+
+        td_rec.s_ping = (
+          <span>
+            {min} / <span style={{ fontSize: "150%" }}>{avg}</span> / {max} / {last}
+          </span>
+        );
 
         const c_last60 = table_rec.client_pings.slice(
           Math.max(table_rec.client_pings.length - 60, 0)
@@ -86,7 +91,6 @@ class DeveloperContainer extends Component {
             return prev === null || prev < cur ? cur : prev;
           }, null);
         td_rec.c_ping += " / " + c_last60.splice(-1);
-
 
         td_rec.last = date.format(table_rec.last, "YYYY-MM-DD HH:mm:ss");
         td_rec.connection_id = table_rec.connection_id;
@@ -131,8 +135,8 @@ class DeveloperContainer extends Component {
     Meteor.users
       .find()
       .fetch()
-      .forEach(user => {
-        let td_records = tabledata.filter(td => {
+      .forEach((user) => {
+        let td_records = tabledata.filter((td) => {
           return td.user_id === user._id ? td : null;
         });
         if (!td_records.length && user.status.online) {
@@ -141,7 +145,7 @@ class DeveloperContainer extends Component {
           td_records.push(td_rec);
         }
         if (!!td_records) {
-          td_records.forEach(td_rec => {
+          td_records.forEach((td_rec) => {
             if (user?.status?.lastActivity) {
               let dif = new Date().getTime() - user.status.lastActivity.getTime();
               td_rec.idle = this.xxx(dif);
@@ -173,12 +177,12 @@ export default withTracker(() => {
   const subscriptions = {
     developer_pingtable: Meteor.subscribe("developer_pingtable"),
     developer_loggedon_users: Meteor.subscribe("developer_loggedon_users"),
-    deveoper_all_users: Meteor.subscribe("developer_all_users")
+    deveoper_all_users: Meteor.subscribe("developer_all_users"),
   };
 
   return {
     isReady: isReadySubscriptions(subscriptions),
     pingt: pingtable.find().fetch(),
-    loggedonu: loggedon_users.find().fetch()
+    loggedonu: loggedon_users.find().fetch(),
   };
 })(DeveloperContainer);

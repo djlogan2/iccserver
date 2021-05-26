@@ -1,6 +1,6 @@
 //clearboard, initial_position, add_piece, remove_piece, move_piece, change_tomove, castling, en_passant, white/black_names, setting pgn tags
 import { TestHelpers } from "../imports/server/TestHelpers";
-import { Game } from "./Game";
+//import { Game } from "./Game";
 import chai from "chai";
 
 function checkLastAction(gamerecord, reverse_index, type, issuer, parameter) {

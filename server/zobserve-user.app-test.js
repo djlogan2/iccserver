@@ -1,6 +1,6 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
-import { Game } from "./Game";
+//import { Game } from "./Game";
 import { Users } from "../imports/collections/users";
 
 describe("Observing a user", function() {

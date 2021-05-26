@@ -1,7 +1,7 @@
 import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Chat } from "./Chat";
-import { Game } from "./Game";
+//import { Game } from "./Game";
 import { Users } from "../imports/collections/users";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 
