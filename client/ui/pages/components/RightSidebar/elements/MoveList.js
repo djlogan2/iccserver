@@ -110,7 +110,7 @@ export default class MoveList extends Component {
     const { game, cssManager } = this.props;
     const { cmi } = this.state;
 
-    this.constructMoveList();
+    // this.constructMoveList();
 
     if (!!game) {
       this.message_identifier = "server:game:" + this.gameId;
