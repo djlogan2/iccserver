@@ -117,7 +117,7 @@ class DeveloperContainer extends Component {
     if (!ms) return "";
 
     if (ms < 1000) return "<0s";
-    let ims = ms;
+    let ims;
 
     ims = ms / 1000; // # of seconds
     if (ims < 60) return "" + Math.floor(ims) + "s";
@@ -131,6 +131,7 @@ class DeveloperContainer extends Component {
     ims /= 24;
     return "" + Math.round(ims) + "d";
   }
+
   do_all_users(tabledata) {
     Meteor.users
       .find()
