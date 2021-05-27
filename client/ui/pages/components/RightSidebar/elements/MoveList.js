@@ -3,6 +3,9 @@ import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
 
 import buildPgn from "../../../helpers/build-pgn";
+import { Logger } from "../../../../../../lib/client/Logger";
+
+const log = new Logger("client/MoveList_js");
 
 export default class MoveList extends Component {
   constructor(props) {
@@ -36,7 +39,11 @@ export default class MoveList extends Component {
   }
 
   moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex);
+    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex, (err) => {
+      if (err) {
+        log.error(err);
+      }
+    });
   };
 
   moveBackword = () => {

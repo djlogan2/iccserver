@@ -67,10 +67,19 @@ class Community extends Component {
     const { activeRoom } = this.state;
 
     if (activeRoom) {
-      Meteor.call("leaveRoom", "leaveRoom", activeRoom);
+      Meteor.call("leaveRoom", "leaveRoom", activeRoom, (err) => {
+        if (err) {
+          log.error(err);
+        }
+      });
     }
 
-    Meteor.call("joinRoom", "joinRoom", roomId);
+    Meteor.call("joinRoom", "joinRoom", roomId, (err) => {
+      if (err) {
+        log.error(err);
+      }
+    });
+
     this.setState({ activeRoom: roomId });
   };
 
