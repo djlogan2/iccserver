@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper/AppWrapper";
 import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar/ExamineRightSidebar";
 import "../../../../imports/css/leftsidebar";
@@ -99,7 +98,3 @@ export default class ExaminePage extends Component {
     );
   }
 }
-
-ExaminePage.propTypes = {
-  username: PropTypes.string,
-};
