@@ -305,7 +305,7 @@ class Play extends Component {
   };
 
   render() {
-    const { isReady, gameRequest, inGame, usersToPlayWith, sentRequests } = this.props;
+    const { isReady, gameRequest, inGame } = this.props;
 
     if (!isReady) {
       return <Loading />;
@@ -356,8 +356,6 @@ class Play extends Component {
           cssManager={css}
           capture={capture}
           game={inGame}
-          usersToPlayWith={usersToPlayWith}
-          sentRequests={sentRequests}
           board={this._board}
           onChooseFriend={this.handleChooseFriend}
           onBotPlay={this.handleBotPlay}
@@ -386,12 +384,6 @@ export default compose(
     return {
       isReady: isReadySubscriptions(subscriptions),
 
-      usersToPlayWith: Meteor.users
-        .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
-        .fetch(),
-
-      sentRequests: GameRequestCollection.find({ challenger_id: Meteor.userId() }).fetch(),
-
       inGame: Game.findOne({
         $or: [
           {
@@ -408,7 +400,6 @@ export default compose(
           },
         ],
       }),
-
       gameRequest: GameRequestCollection.findOne(
         {
           $or: [
@@ -425,7 +416,6 @@ export default compose(
           sort: { create_date: -1 },
         }
       ),
-
       systemCss: mongoCss.findOne(),
       userClientMessages: ClientMessagesCollection.find().fetch(),
     };
@@ -435,6 +425,7 @@ export default compose(
 )(Play);
 
 const game_timestamps = {};
+
 Game.find({
   $and: [
     { status: "playing" },

@@ -55,8 +55,6 @@ export default class PlayPage extends Component {
       onDrop,
       onDrawObject,
       onRemoveCircle,
-      usersToPlayWith,
-      sentRequests,
       onChooseFriend,
       onBotPlay,
       onSeekPlay,
@@ -86,8 +84,6 @@ export default class PlayPage extends Component {
         <Col span={10}>
           <PlayRightSidebar
             game={game}
-            usersToPlayWith={usersToPlayWith}
-            sentRequests={sentRequests}
             onChooseFriend={onChooseFriend}
             onBotPlay={onBotPlay}
             onSeekPlay={onSeekPlay}

@@ -82,8 +82,6 @@ class PlayBlock extends Component {
   render() {
     const {
       game,
-      usersToPlayWith,
-      sentRequests,
       flip,
       cssManager,
       moveList,
@@ -127,8 +125,6 @@ class PlayBlock extends Component {
           onClose={() => {
             this.setState({ status: PLAY_STATUS_NONE });
           }}
-          usersToPlayWith={usersToPlayWith}
-          sentRequests={sentRequests}
           onChoose={this.handleChooseFriend}
           onCancel={this.handleCancelFriend}
         />
