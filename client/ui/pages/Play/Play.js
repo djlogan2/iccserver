@@ -375,7 +375,6 @@ export default compose(
   withTracker(() => {
     const subscriptions = {
       game: Meteor.subscribe("games"),
-      game_requests: Meteor.subscribe("game_requests"),
       chats: Meteor.subscribe("chat"),
       child_chat_texts: Meteor.subscribe("child_chat_texts"),
       users: Meteor.subscribe("loggedOnUsers"),
