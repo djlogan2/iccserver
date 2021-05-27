@@ -8,7 +8,7 @@ import KibitzChatApp from "../../Chat/KibitzChatApp";
 import PersonalChatApp from "../../Chat/PersonalChatApp";
 import { translate } from "../../../../HOCs/translate";
 
-import PlayBlock from "../PlayBlock";
+import PlayBlock from "../PlayBlock/PlayBlock";
 import ObserveBlock from "../ObserveBlock/ObserveBlock";
 import { gameComputerId, gameStatusPlaying } from "../../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
