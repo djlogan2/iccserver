@@ -10,6 +10,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import { Meteor } from "meteor/meteor";
 
 class ExamineObserveTab extends Component {
   constructor(props) {
@@ -97,6 +98,7 @@ export default compose(
   withTracker(() => {
     return {
       css: mongoCss.findOne(),
+      allUsers: Meteor.users.find().fetch(),
     };
   }),
   injectSheet(dynamicStyles)

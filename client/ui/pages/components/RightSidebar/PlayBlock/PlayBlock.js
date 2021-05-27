@@ -1,18 +1,18 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import PlayFriendOptions from "./PlayFriendOptions/PlayFriendOptions";
-import PlayWithFriend from "./PlayWithFriend/PlayWithFriend";
-import PlayChooseBot from "./PlayChooseBot/PlayChooseBot";
-import GameHistory from "./elements/GameHistory";
-import { GameControlBlock } from "./elements/GameControlBlock/GameControlBlock";
+import PlayFriendOptions from "../PlayFriendOptions/PlayFriendOptions";
+import PlayWithFriend from "../PlayWithFriend/PlayWithFriend";
+import PlayChooseBot from "../PlayChooseBot/PlayChooseBot";
+import GameHistory from "../elements/GameHistory";
+import { GameControlBlock } from "../elements/GameControlBlock/GameControlBlock";
 import {
   PLAY_STATUS_NONE,
   PLAY_STATUS_FRIEND_OPTIONS,
   PLAY_STATUS_WITH_FRIEND,
   PLAY_STATUS_CHOOSE_BOT,
-} from "../../../../constants/playStatusConstants";
-import PlayOptionButtons from "./PlayOptionButtons/PlayOptionButtons";
-import GameCommandsBlock from "../GameCommandsBlock/GameCommandsBlock";
+} from "../../../../../constants/playStatusConstants";
+import PlayOptionButtons from "../PlayOptionButtons/PlayOptionButtons";
+import GameCommandsBlock from "../../GameCommandsBlock/GameCommandsBlock";
 
 class PlayBlock extends Component {
   constructor(props) {
@@ -82,8 +82,6 @@ class PlayBlock extends Component {
   render() {
     const {
       game,
-      usersToPlayWith,
-      sentRequests,
       flip,
       cssManager,
       moveList,
@@ -127,8 +125,6 @@ class PlayBlock extends Component {
           onClose={() => {
             this.setState({ status: PLAY_STATUS_NONE });
           }}
-          usersToPlayWith={usersToPlayWith}
-          sentRequests={sentRequests}
           onChoose={this.handleChooseFriend}
           onCancel={this.handleCancelFriend}
         />

@@ -33,11 +33,11 @@ class EditorRightSidebar extends Component {
     const { onCastling } = this.props;
     const { blackCastling, whiteCastling } = this.state;
 
-    if (color === "white") {
+    if (color === colorWhite) {
       this.setState({ whiteCastling: value });
 
       onCastling(this.convertCastling(value), this.convertCastling(blackCastling));
-    } else if (color === "black") {
+    } else if (color === colorBlack) {
       this.setState({ blackCastling: value });
 
       onCastling(this.convertCastling(whiteCastling), this.convertCastling(value));

@@ -1,11 +1,7 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import {
-  Game,
-  GameHistoryCollection,
-  mongoCss,
-} from "../../../../imports/api/client/collections.js";
+import { Game, mongoCss } from "../../../../imports/api/client/collections.js";
 import Chess from "chess.js/chess";
 import { compose } from "redux";
 //import Chessground from "react-chessground";
@@ -435,9 +431,6 @@ export default compose(
     return {
       isReady: isReadySubscriptions(subscriptions),
       examineGame: Game.findOne({ "examiners.id": Meteor.userId() }),
-      gameHistory: GameHistoryCollection.find({
-        $or: [{ "white.id": Meteor.userId() }, { "black.id": Meteor.userId() }],
-      }).fetch(),
       systemCss: mongoCss.findOne(),
     };
   }),

@@ -3,9 +3,10 @@ import { Button } from "antd";
 import { compose } from "redux";
 import { translate } from "../../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../../imports/api/client/collections";
+import { GameRequestCollection, mongoCss } from "../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import { Meteor } from "meteor/meteor";
 
 const PlayWithFriend = ({
   classes,
@@ -57,6 +58,10 @@ export default compose(
   withTracker(() => {
     return {
       css: mongoCss.findOne(),
+      usersToPlayWith: Meteor.users
+        .find({ $and: [{ _id: { $ne: Meteor.userId() } }, { "status.game": { $ne: "playing" } }] })
+        .fetch(),
+      sentRequests: GameRequestCollection.find({ challenger_id: Meteor.userId() }).fetch(),
     };
   }),
   injectSheet(dynamicStyles),

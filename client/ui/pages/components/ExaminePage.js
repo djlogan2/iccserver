@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import AppWrapper from "./AppWrapper/AppWrapper";
 import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar/ExamineRightSidebar";
 import "../../../../imports/css/leftsidebar";
@@ -55,7 +54,6 @@ export default class ExaminePage extends Component {
       capture,
       onDrop,
       onDrawObject,
-      allUsers,
       observeUser,
       unObserveUser,
       gameRequest,
@@ -86,7 +84,6 @@ export default class ExaminePage extends Component {
         <Col span={10}>
           <ExamineRightSidebar
             game={game}
-            allUsers={allUsers}
             observeUser={observeUser}
             unObserveUser={unObserveUser}
             cssManager={cssManager}
@@ -101,7 +98,3 @@ export default class ExaminePage extends Component {
     );
   }
 }
-
-ExaminePage.propTypes = {
-  username: PropTypes.string,
-};
