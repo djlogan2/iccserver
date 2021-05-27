@@ -55,7 +55,6 @@ export default class ExaminePage extends Component {
       capture,
       onDrop,
       onDrawObject,
-      allUsers,
       observeUser,
       unObserveUser,
       gameRequest,
@@ -86,7 +85,6 @@ export default class ExaminePage extends Component {
         <Col span={10}>
           <ExamineRightSidebar
             game={game}
-            allUsers={allUsers}
             observeUser={observeUser}
             unObserveUser={unObserveUser}
             cssManager={cssManager}

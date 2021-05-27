@@ -109,7 +109,7 @@ class ExamineSidebarTop extends Component {
   }
 
   render() {
-    const { translate, game, allUsers, observeUser, unObserveUser, classes } = this.props;
+    const { translate, game, observeUser, unObserveUser, classes } = this.props;
     const { moveOrPlay } = this.state;
 
     return (
@@ -121,7 +121,6 @@ class ExamineSidebarTop extends Component {
         <TabPane tab={translate("observe")} key="observe">
           <ExamineObserveTab
             game={game}
-            allUsers={allUsers}
             observeUser={observeUser}
             unObserveUser={unObserveUser}
           />

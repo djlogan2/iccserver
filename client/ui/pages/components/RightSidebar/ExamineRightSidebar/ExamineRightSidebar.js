@@ -29,7 +29,6 @@ class ExamineRightSidebar extends Component {
     const {
       game,
       classes,
-      allUsers,
       observeUser,
       unObserveUser,
       moveList,
@@ -44,7 +43,6 @@ class ExamineRightSidebar extends Component {
       <div className={classes.main}>
         <ExamineSidebarTop
           game={game}
-          allUsers={allUsers}
           observeUser={observeUser}
           unObserveUser={unObserveUser}
           moveList={moveList}

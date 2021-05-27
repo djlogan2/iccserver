@@ -197,7 +197,7 @@ class Examine extends Component {
   };
 
   render() {
-    const { allUsers, isReady, game, systemCss } = this.props;
+    const { isReady, game, systemCss } = this.props;
     const { isImportedGamesModal, importedGames, leaving_game } = this.state;
 
     let fullGame = { ...game };
@@ -229,7 +229,6 @@ class Examine extends Component {
         />
         <ExaminePage
           cssManager={css}
-          allUsers={allUsers}
           board={this._board}
           observeUser={this.handleObserveUser}
           unObserveUser={this.handleUnObserveUser}
@@ -258,7 +257,6 @@ export default withTracker(() => {
   return {
     isReady: isReadySubscriptions(subscriptions),
     game: Game.findOne({ "observers.id": Meteor.userId() }),
-    allUsers: Meteor.users.find().fetch(),
     importedGames: ImportedGameCollection.find().fetch(),
     systemCss: mongoCss.findOne(),
   };
