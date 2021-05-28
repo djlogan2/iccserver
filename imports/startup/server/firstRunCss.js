@@ -42,6 +42,7 @@ import examineRightSidebarBottomCss from "../../../server/defaultStyles/examineR
 import playOptionButtonsCss from "../../../server/defaultStyles/playOptionButtonsCss";
 import gameControlBlockCss from "../../../server/defaultStyles/gameControlBlockCss";
 import fenPgnCss from "../../../server/defaultStyles/fenPgnCss";
+import mugshotCss from "../../../server/defaultStyles/mugshotCss";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
@@ -93,6 +94,7 @@ export default function firstRunCSS() {
       playOptionButtonsCss,
       gameControlBlockCss,
       fenPgnCss,
+      mugshotCss,
     });
   }
 }

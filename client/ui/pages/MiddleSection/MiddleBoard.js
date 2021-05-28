@@ -16,6 +16,7 @@ import {
   gameStatusExamining,
   gameStatusPlaying,
 } from "../../../constants/gameConstants";
+import Mugshot from "../components/Mugshot/Mugshot";
 
 class MiddleBoard extends Component {
   constructor(props) {
@@ -143,7 +144,7 @@ class MiddleBoard extends Component {
 
         <BlackPlayerClock game={game} color={topPlayerTime} side={boardSize} />
         {game && (
-          <div style={{ width: boardSize, height: boardSize }}>
+          <div style={{ width: "100%", height: boardSize }}>
             <NewChessBoard
               gameId={game._id}
               chess={this.chess}
@@ -160,6 +161,15 @@ class MiddleBoard extends Component {
               whiteId={game?.white?.id}
               variations={game.variations}
             />
+            <div
+              style={{
+                position: "relative",
+                top: -boardSize / 2,
+                left: boardSize / 2 + 20,
+              }}
+            >
+              <Mugshot orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
+            </div>
           </div>
         )}
 
