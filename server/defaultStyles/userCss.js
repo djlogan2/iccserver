@@ -5,21 +5,21 @@ const userCss = {
     all: {
       display: "inline-block",
       marginTop: "10px",
-      marginLeft: "10px"
-    }
+      marginLeft: "10px",
+    },
   },
   userName: {
     all: {
       color: "#fff",
       fontSize: "18px",
       fontWeight: "600",
-      marginRight: "15px"
-    }
+      marginRight: "15px",
+    },
   },
   flags: {
     all: "images/user-flag.png",
     in: "images/india.png",
-    us: "images/user-flag.png"
+    us: "images/user-flag.png",
   },
   clock: {
     all: {
@@ -35,81 +35,80 @@ const userCss = {
       width: "93px",
       background: "#333333",
       fontWeight: "700",
-      position: "absolute"
+      position: "absolute",
     },
     alert: {
-      color: "red"
-    }
+      color: "red",
+    },
   },
   userFlag: {
-    all: {}
+    all: {},
   },
   userPicture: {
     all: {
       display: "inline-block",
-      borderRadius: "50%"
-    }
+    },
   },
   clockMain: {
-    all: {}
+    all: {},
   },
   square: {
     all: {},
 
     w: {
-      backgroundColor: "#fff"
+      backgroundColor: "#fff",
     },
     b: {
-      backgroundColor: "#1565c0"
-    }
+      backgroundColor: "#1565c0",
+    },
   },
   external_rank: {
     all: {
       float: "left",
       position: "relative",
-      color: "white"
-    }
+      color: "white",
+    },
   },
   external_file: {
     all: {
       float: "left",
       position: "relative",
-      color: "white"
-    }
+      color: "white",
+    },
   },
   internal_rank_and_file: {
     all: {
       position: "absolute",
-      zIndex: 3
+      zIndex: 3,
     },
     color: {
       w: {
-        color: "red"
+        color: "red",
       },
       b: {
-        color: "white"
-      }
+        color: "white",
+      },
     },
     position: {
       tl: {
         top: 0,
-        left: 0
+        left: 0,
       },
       tr: {
         top: 0,
         right: 0,
-        textAlign: "right"
+        textAlign: "right",
       },
       bl: {
         bottom: 0,
-        left: 0
+        left: 0,
       },
       br: {
         bottom: 0,
         right: 0,
-        textAlign: "right"
-      }
-    }
+        textAlign: "right",
+      },
+    },
   },
   pieces: {
     w: {
@@ -118,7 +117,7 @@ const userCss = {
       n: "https://upload.wikimedia.org/wikipedia/commons/7/70/Chess_nlt45.svg",
       q: "https://upload.wikimedia.org/wikipedia/commons/1/15/Chess_qlt45.svg",
       k: "https://upload.wikimedia.org/wikipedia/commons/4/42/Chess_klt45.svg",
-      p: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg"
+      p: "https://upload.wikimedia.org/wikipedia/commons/4/45/Chess_plt45.svg",
     },
     b: {
       r: "https://upload.wikimedia.org/wikipedia/commons/f/ff/Chess_rdt45.svg",
@@ -126,8 +125,8 @@ const userCss = {
       n: "https://upload.wikimedia.org/wikipedia/commons/e/ef/Chess_ndt45.svg",
       q: "https://upload.wikimedia.org/wikipedia/commons/4/47/Chess_qdt45.svg",
       k: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chess_kdt45.svg",
-      p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg"
-    }
+      p: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Chess_pdt45.svg",
+    },
   },
   fallendpieces: {
     all: {},
@@ -142,7 +141,7 @@ const userCss = {
 
       k: "images/fallenpieces/wK.png",
 
-      p: "images/fallenpieces/wP.png"
+      p: "images/fallenpieces/wP.png",
     },
     b: {
       r: "images/fallenpieces/bR.png",
@@ -155,9 +154,9 @@ const userCss = {
 
       k: "images/fallenpieces/bK.png",
 
-      p: "images/fallenpieces/bP.png"
-    }
-  }
+      p: "images/fallenpieces/bP.png",
+    },
+  },
 };
 
 export default userCss;
