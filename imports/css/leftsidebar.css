@@ -212,6 +212,15 @@
     line-height: 2.2rem;
 }
 
+.ant-notification-notice-closable .ant-notification-notice-message {
+    width: 100%;
+    padding-right: 0;
+}
+
+.ant-notification-notice-closable .ant-notification-notice-message {
+    padding-right: 0;
+}
+
 .fliph.sidebar.left.device-menu ul li span {
     line-height: 1.2rem;
     font-size: 1.2rem;
