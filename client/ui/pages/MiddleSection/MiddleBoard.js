@@ -3,7 +3,6 @@ import Player from "./Player";
 import BlackPlayerClock from "./BlackPlayerClock";
 import { Meteor } from "meteor/meteor";
 import Chess from "chess.js/chess";
-import { get } from "lodash";
 
 import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
@@ -59,8 +58,9 @@ class MiddleBoard extends Component {
     if (id) return Meteor.users.findOne({ _id: id })?.locale;
   };
 
-  isEditable = (id) => {
-    return !id;
+  isEditable = (status) => {
+    console.log(status);
+    return status === gameStatusExamining;
   };
 
   getPlayersData = () => {
@@ -72,24 +72,24 @@ class MiddleBoard extends Component {
           topPlayer: {
             ...game?.white,
             locale: this.getLocale(game?.white?.id),
-            editable: this.isEditable(game?.white?.id),
+            editable: this.isEditable(game.status),
           },
           bottomPlayer: {
             ...game?.black,
             locale: this.getLocale(game?.black?.id),
-            editable: this.isEditable(game?.black?.id),
+            editable: this.isEditable(game.status),
           },
         }
       : {
           topPlayer: {
             ...game?.black,
             locale: this.getLocale(game?.black?.id),
-            editable: this.isEditable(game?.black?.id),
+            editable: this.isEditable(game.status),
           },
           bottomPlayer: {
             ...game?.white,
             locale: this.getLocale(game?.white?.id),
-            editable: this.isEditable(game?.white?.id),
+            editable: this.isEditable(game.status),
           },
         };
   };
@@ -163,6 +163,7 @@ class MiddleBoard extends Component {
       <div style={{ width: boardSize }}>
         {isPlayingOrExamining && (
           <Player
+            gameId={game?._id}
             playerData={topPlayer}
             cssManager={cssManager}
             side={boardSize}

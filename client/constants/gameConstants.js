@@ -87,6 +87,9 @@ export const colorBlack = "black";
 export const colorWhiteLetter = "w";
 export const colorBlackLetter = "b";
 
+export const colorWhiteUpper = "White";
+export const colorBlackUpper = "Black";
+
 export const ratedGame = "rated";
 export const nonRatedGame = "non-rated";
 

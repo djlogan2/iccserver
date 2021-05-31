@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { Input, Button } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 
@@ -6,6 +6,11 @@ import FallenSoldier from "./FallenSoldier";
 
 import { translate } from "../../HOCs/translate";
 import CustomImage from "../components/CustomImage/CustomImage";
+import {
+  colorBlackUpper,
+  colorWhiteLetter,
+  colorWhiteUpper,
+} from "../../../constants/gameConstants";
 
 class Player extends Component {
   constructor(props) {
@@ -31,10 +36,21 @@ class Player extends Component {
     this.setState({ name: event.target.value });
   };
 
-  handleUpdate = () => {
-    console.log("got it!");
+  getColorByLetter = (letter) => {
+    return letter === colorWhiteLetter ? colorWhiteUpper : colorBlackUpper;
+  };
 
-    this.setState({ edit: false });
+  handleUpdate = () => {
+    const { gameId, color } = this.props;
+    const { name } = this.state;
+
+    Meteor.call("setTag", "set_tag", gameId, this.getColorByLetter(color), name, (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        this.setState({ edit: false });
+      }
+    });
   };
 
   render() {
