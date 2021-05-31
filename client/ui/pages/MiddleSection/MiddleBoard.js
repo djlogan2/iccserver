@@ -59,7 +59,6 @@ class MiddleBoard extends Component {
   };
 
   isEditable = (status) => {
-    console.log(status);
     return status === gameStatusExamining;
   };
 
@@ -72,24 +71,24 @@ class MiddleBoard extends Component {
           topPlayer: {
             ...game?.white,
             locale: this.getLocale(game?.white?.id),
-            editable: this.isEditable(game.status),
+            editable: this.isEditable(game?.status),
           },
           bottomPlayer: {
             ...game?.black,
             locale: this.getLocale(game?.black?.id),
-            editable: this.isEditable(game.status),
+            editable: this.isEditable(game?.status),
           },
         }
       : {
           topPlayer: {
             ...game?.black,
             locale: this.getLocale(game?.black?.id),
-            editable: this.isEditable(game.status),
+            editable: this.isEditable(game?.status),
           },
           bottomPlayer: {
             ...game?.white,
             locale: this.getLocale(game?.white?.id),
-            editable: this.isEditable(game.status),
+            editable: this.isEditable(game?.status),
           },
         };
   };
