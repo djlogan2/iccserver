@@ -19,6 +19,12 @@ class Player extends Component {
     const userPicture = cssManager.userPicture(side * 0.08);
     const tagLine = cssManager.tagLine();
 
+    const { locale } = playerData;
+    const flagName = !!locale ? locale.slice(-2) : "us";
+
+    const image = new Image();
+    image.src = `images/flags/${flagName}.png`;
+
     return (
       <div
         style={{
@@ -71,7 +77,7 @@ class Player extends Component {
           </div>
           <img
             style={{ display: "inline-block", float: "left", borderRadius: "50%", ...userPicture }}
-            src="images/usflag.png"
+            src={!!image.width ? `images/flags/${flagName}.png` : `images/flags/us.png`}
             alt={translate("userPicture")}
           />
         </div>

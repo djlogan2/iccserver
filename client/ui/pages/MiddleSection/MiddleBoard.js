@@ -54,13 +54,23 @@ class MiddleBoard extends Component {
     return Math.min(height / 1.3, width / 2.5);
   };
 
+  getLocale = (id) => {
+    if (id) return Meteor.users.findOne({ _id: id })?.locale;
+  };
+
   getPlayersData = () => {
     const { game } = this.props;
     const { top } = this.state;
 
     return top === colorWhiteLetter
-      ? { topPlayer: game?.white, bottomPlayer: game?.black }
-      : { topPlayer: game?.black, bottomPlayer: game?.white };
+      ? {
+          topPlayer: { ...game?.white, locale: this.getLocale(game?.white?.id) },
+          bottomPlayer: { ...game?.black, locale: this.getLocale(game?.black?.id) },
+        }
+      : {
+          topPlayer: { ...game?.black, locale: this.getLocale(game?.black?.id) },
+          bottomPlayer: { ...game?.white, locale: this.getLocale(game?.white?.id) },
+        };
   };
 
   getFallenSoliders = () => {
