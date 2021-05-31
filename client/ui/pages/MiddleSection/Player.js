@@ -1,9 +1,41 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
+import { Input, Button } from "antd";
+import { CheckOutlined } from "@ant-design/icons";
+
 import FallenSoldier from "./FallenSoldier";
 
 import { translate } from "../../HOCs/translate";
 
 class Player extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      edit: false,
+      name: props.playerData.name,
+    };
+  }
+
+  handleEdit = () => {
+    const {
+      playerData: { editable },
+    } = this.props;
+
+    if (editable) {
+      this.setState({ edit: true });
+    }
+  };
+
+  handleChange = (event) => {
+    this.setState({ name: event.target.value });
+  };
+
+  handleUpdate = () => {
+    console.log("got it!");
+
+    this.setState({ edit: false });
+  };
+
   render() {
     const {
       cssManager,
@@ -15,6 +47,7 @@ class Player extends Component {
       FallenSoldiers,
       translate,
     } = this.props;
+    const { edit, name } = this.state;
 
     const userPicture = cssManager.userPicture(side * 0.08);
     const tagLine = cssManager.tagLine();
@@ -51,18 +84,37 @@ class Player extends Component {
                 marginTop: "5px",
               }}
             >
-              <p
-                style={{
-                  color: "#fff",
-                  fontSize: side * 0.022,
-                  fontWeight: "600",
-                  marginRight: "15px",
-                  display: "block",
-                  width: "100%",
-                }}
-              >
-                {playerData.name} ({playerData.rating})
-              </p>
+              {!edit ? (
+                <p
+                  style={{
+                    color: "#fff",
+                    fontSize: side * 0.022,
+                    fontWeight: "600",
+                    marginRight: "15px",
+                    display: "block",
+                    width: "100%",
+                  }}
+                  onDoubleClick={this.handleEdit}
+                >
+                  {name} ({playerData.rating})
+                </p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "row", marginRight: "15px" }}>
+                  <Input
+                    style={{
+                      fontSize: side * 0.022,
+                      fontWeight: "600",
+                      marginRight: "15px",
+                      display: "block",
+                      flex: 1,
+                    }}
+                    value={name}
+                    onChange={this.handleChange}
+                    placeholder="Username"
+                  />
+                  <Button type="primary" onClick={this.handleUpdate} icon={<CheckOutlined />} />
+                </div>
+              )}
             </div>
             <div style={{ position: "absolute", bottom: "0", paddingRight: "40px" }}>
               <span

@@ -3,6 +3,7 @@ import Player from "./Player";
 import BlackPlayerClock from "./BlackPlayerClock";
 import { Meteor } from "meteor/meteor";
 import Chess from "chess.js/chess";
+import { get } from "lodash";
 
 import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
@@ -58,18 +59,38 @@ class MiddleBoard extends Component {
     if (id) return Meteor.users.findOne({ _id: id })?.locale;
   };
 
+  isEditable = (id) => {
+    return !id;
+  };
+
   getPlayersData = () => {
     const { game } = this.props;
     const { top } = this.state;
 
     return top === colorWhiteLetter
       ? {
-          topPlayer: { ...game?.white, locale: this.getLocale(game?.white?.id) },
-          bottomPlayer: { ...game?.black, locale: this.getLocale(game?.black?.id) },
+          topPlayer: {
+            ...game?.white,
+            locale: this.getLocale(game?.white?.id),
+            editable: this.isEditable(game?.white?.id),
+          },
+          bottomPlayer: {
+            ...game?.black,
+            locale: this.getLocale(game?.black?.id),
+            editable: this.isEditable(game?.black?.id),
+          },
         }
       : {
-          topPlayer: { ...game?.black, locale: this.getLocale(game?.black?.id) },
-          bottomPlayer: { ...game?.white, locale: this.getLocale(game?.white?.id) },
+          topPlayer: {
+            ...game?.black,
+            locale: this.getLocale(game?.black?.id),
+            editable: this.isEditable(game?.black?.id),
+          },
+          bottomPlayer: {
+            ...game?.white,
+            locale: this.getLocale(game?.white?.id),
+            editable: this.isEditable(game?.white?.id),
+          },
         };
   };
 
