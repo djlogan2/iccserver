@@ -5,6 +5,7 @@ import { CheckOutlined } from "@ant-design/icons";
 import FallenSoldier from "./FallenSoldier";
 
 import { translate } from "../../HOCs/translate";
+import CustomImage from "../components/CustomImage/CustomImage";
 
 class Player extends Component {
   constructor(props) {
@@ -54,9 +55,6 @@ class Player extends Component {
 
     const { locale } = playerData;
     const flagName = !!locale ? locale.slice(-2) : "us";
-
-    const image = new Image();
-    image.src = `images/flags/${flagName}.png`;
 
     return (
       <div
@@ -127,9 +125,10 @@ class Player extends Component {
               </span>
             </div>
           </div>
-          <img
+          <CustomImage
             style={{ display: "inline-block", float: "left", borderRadius: "50%", ...userPicture }}
-            src={!!image.width ? `images/flags/${flagName}.png` : `images/flags/us.png`}
+            src={`images/flags/${flagName}.png`}
+            supportSrc="images/flags/us.png"
             alt={translate("userPicture")}
           />
         </div>
