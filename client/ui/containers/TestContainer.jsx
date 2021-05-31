@@ -26,8 +26,8 @@ class TestContainer extends TrackerReact(React.Component) {
       options: [],
       subscription: {
         loggedOnUsers: Meteor.subscribe("loggedOnUsers"),
-        legacyUsers: Meteor.subscribe("legacyUsers")
-      }
+        legacyUsers: Meteor.subscribe("legacyUsers"),
+      },
     };
   }
 
@@ -74,7 +74,7 @@ class TestContainer extends TrackerReact(React.Component) {
     }
   }
 
-  partialUserListOnChange = e => {
+  partialUserListOnChange = (e) => {
     Meteor.call("getPartialUsernames", e.target.value, (error, result) => {
       this.setState({ options: result });
     });
@@ -82,7 +82,7 @@ class TestContainer extends TrackerReact(React.Component) {
 
   renderUserList() {
     const localUsers = Meteor.users.find({}).fetch();
-    const children = this.state.options.map(opt => (
+    const children = this.state.options.map((opt) => (
       <tr>
         <td>{opt}</td>
       </tr>
@@ -99,9 +99,9 @@ class TestContainer extends TrackerReact(React.Component) {
         </table>
         <table>
           <tbody>
-            {localUsers.map(user => (
+            {localUsers.map((user) => (
               <tr>
-                {Object.keys(user).map(k => (
+                {Object.keys(user).map((k) => (
                   <td>{JSON.stringify(user[k])}</td>
                 ))}
               </tr>
@@ -125,12 +125,12 @@ class TestContainer extends TrackerReact(React.Component) {
     this.setState({ draw_rank_and_file: this.nextRAF()[0] });
   };
 
-  circleLineWidthChange = event => {
+  circleLineWidthChange = (event) => {
     this._circle.lineWidth = event.target.value;
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
 
-  circleColorChange = event => {
+  circleColorChange = (event) => {
     this._circle.color = event.target.value;
     this.refs.board.setCircleParameters(this._circle.lineWidth, this._circle.color);
   };
@@ -145,7 +145,7 @@ class TestContainer extends TrackerReact(React.Component) {
       "External top left",
       "External top right",
       "External bottom left",
-      "External bottom right"
+      "External bottom right",
     ];
 
     if (!this.state.draw_rank_and_file) return [values[0], texts[0]];
@@ -162,7 +162,7 @@ class TestContainer extends TrackerReact(React.Component) {
     return <MoveListComponent moves={moveList} />;
   }
 
-  _pieceSquareDragStop = raf => {
+  _pieceSquareDragStop = (raf) => {
     this.setState({ from: raf.from, to: raf.to });
   };
 

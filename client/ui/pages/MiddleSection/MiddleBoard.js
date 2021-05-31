@@ -16,7 +16,7 @@ import {
   gameStatusExamining,
   gameStatusPlaying,
 } from "../../../constants/gameConstants";
-import Mugshot from "../components/Mugshot/Mugshot";
+import Mugshot from "../components/Analysis/Analysis";
 
 class MiddleBoard extends Component {
   constructor(props) {
