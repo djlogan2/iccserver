@@ -22,6 +22,14 @@ class Player extends Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    const { playerData } = this.props;
+
+    if (playerData?.name !== prevProps?.playerData?.name) {
+      this.setState({ name: playerData?.name });
+    }
+  }
+
   handleEdit = () => {
     const {
       playerData: { editable },
