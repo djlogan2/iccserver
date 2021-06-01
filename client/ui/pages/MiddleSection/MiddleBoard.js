@@ -206,6 +206,7 @@ class MiddleBoard extends Component {
 
         {isPlayingOrExamining && (
           <Player
+            gameId={game?._id}
             playerData={bottomPlayer}
             cssManager={cssManager}
             side={boardSize}
