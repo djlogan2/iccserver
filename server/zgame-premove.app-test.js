@@ -110,6 +110,25 @@ describe("premove", function (done) {
       .then(() => finish());
   });
 
+  it("should work with this specific case that Ruy was having trouble with (bug report 6-2-21)", function(){
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
+    Game.saveLocalMove("mi2", game_id, "e4");
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi3", game_id, "e5");
+    self.loggedonuser = p1;
+    Game.saveLocalMove("mi4", game_id, "Nf3");
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi5", game_id, "d5");
+    self.loggedonuser = p1;
+    Game.saveLocalMove("mi6", game_id, "Nxe5");
+    Game.saveLocalMove("mi7", game_id,"exd5"); // The premove
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    const game = Game.GameCollection.findOne();
+    chai.assert.isDefined(game.premove);
+  });
   it("should send a client message if the game id is invalid", () => {
     self.loggedonuser = TestHelpers.createUser();
 
