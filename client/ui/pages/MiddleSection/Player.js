@@ -52,13 +52,15 @@ class Player extends Component {
     const { gameId, color } = this.props;
     const { name } = this.state;
 
-    Meteor.call("setTag", "set_tag", gameId, this.getColorByLetter(color), name, (err) => {
-      if (err) {
-        console.log(err);
-      } else {
-        this.setState({ edit: false });
-      }
-    });
+    if (gameId) {
+      Meteor.call("setTag", "set_tag", gameId, this.getColorByLetter(color), name, (err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          this.setState({ edit: false });
+        }
+      });
+    }
   };
 
   render() {
