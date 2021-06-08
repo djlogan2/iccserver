@@ -37,7 +37,6 @@ class Game {
   constructor() {
     const _self = this;
 
-    this.ecoCollection = new Mongo.Collection("ecocodes");
     this.GameCollection = new Mongo.Collection("game");
     this.GameCollection.attachSchema(ExaminedGameSchema, {
       selector: { status: "examining" },
@@ -561,9 +560,8 @@ class Game {
     if (!game_object.startTime) game_object.startTime = new Date();
     if (!game_object.tomove) game_object.tomove = "w";
     if (!game_object.actions) game_object.actions = [];
-    if (!game_object.variations) game_object.variations = { movelist: [{}], ecocodes: [] };
+    if (!game_object.variations) game_object.variations = { movelist: [{}] };
     if (!game_object.variations.cmi) game_object.variations.cmi = 0;
-    if (!game_object.variations.ecocodes) game_object.variations.ecocodes = [];
 
     function mongoReplacementModifier(keep, change) {
       var $unset = {};
@@ -611,9 +609,8 @@ class Game {
     if (!game_object.startTime) game_object.startTime = new Date();
     if (!game_object.tomove) game_object.tomove = "white";
     if (!game_object.actions) game_object.actions = [];
-    if (!game_object.variations) game_object.variations = { movelist: [{}], ecocodes: [] };
+    if (!game_object.variations) game_object.variations = { movelist: [{}] };
     if (!game_object.variations.cmi) game_object.variations.cmi = 0;
-    if (!game_object.variations.ecocodes) game_object.variations.ecocodes = [];
 
     game_object.examiners = [{ id: self._id, username: self.username }];
     game_object.observers = [{ id: self._id, username: self.username }];
@@ -695,7 +692,7 @@ class Game {
       observers: [{ id: self._id, username: self.username }],
       examiners: [{ id: self._id, username: self.username }],
       analysis: [{ id: self._id, username: self.username }],
-      variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
+      variations: { hmtb: 0, cmi: 0, movelist: [{}] },
       computer_variations: [],
     };
 
@@ -891,7 +888,7 @@ class Game {
         },
       },
       actions: [],
-      variations: { hmtb: 0, cmi: 0, movelist: [{}], ecocodes: [] },
+      variations: { hmtb: 0, cmi: 0, movelist: [{}] },
       computer_variations: [],
       lag: {
         white: {
@@ -2863,7 +2860,7 @@ class Game {
           throw new ICCMeteorError(
             message_identifier,
             "Unable to movr forward",
-            "Somehow we have an illegal move in the variation tree"
+            "Somehow we have an illegal move in the variation treee"
           );
       }
       vi = undefined;
@@ -3063,7 +3060,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: { actions: { type: "clearboard", issuer: self._id } },
@@ -3090,7 +3087,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: { actions: { type: "initialposition", issuer: self._id } },
@@ -3121,7 +3118,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } },
@@ -3158,7 +3155,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: {
@@ -3196,7 +3193,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: {
@@ -3236,7 +3233,7 @@ class Game {
           $set: {
             fen: fen,
             tomove: color === "w" ? "white" : "black",
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: { actions: { type: "settomove", issuer: self._id, parameter: { color: color } } },
@@ -3279,7 +3276,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: {
@@ -3329,7 +3326,7 @@ class Game {
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}], ecocodes: [] },
+            variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
           $push: {
@@ -3361,7 +3358,7 @@ class Game {
         if (game.fen === active_games[game_id].fen()) return;
         setobject.fen = active_games[game_id].fen();
         setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
-        setobject.variations = { cmi: 0, movelist: [{}], ecocodes: [] };
+        setobject.variations = { cmi: 0, movelist: [{}] };
         break;
       case "White":
         if (game.white.name === value) return;
@@ -4038,87 +4035,6 @@ Meteor.publish("game_history", function () {
 
 GameHistory.collection = GameHistoryCollection;
 
-Meteor.startup(() => {
-  function initialLoad() {
-    let line_number = 0;
-    const content = Assets.getText("eco.txt");
-    const variations = { cmi: 0, movelist: [] };
-
-    content.split("\n").forEach((line) => {
-      line_number++;
-      if (line.trim().length) {
-        const pieces = line.split(": ");
-        if (pieces.length !== 3)
-          throw new Meteor.Error(
-            "Unable to load ECO codes",
-            "Line " + line_number + " has a syntax error"
-          );
-        const eco = pieces[0];
-        const name = pieces[1];
-        try {
-          const moves = parseMoves(pieces[2]);
-          variations.cmi = 0;
-          moves.forEach((move) => {
-            global.Game.addMoveToMoveList(variations, move);
-          });
-          variations.movelist[variations.cmi].eco = eco;
-          variations.movelist[variations.cmi].name = name;
-        } catch (e) {
-          throw new Meteor.Error(
-            "Unable to load ECO codes",
-            "Line " + line_number + " has an error: " + e.toString()
-          );
-        }
-      }
-    });
-
-    variations.movelist.forEach((m) => delete m.current);
-    delete variations.cmi;
-
-    global.Game.ecoCollection.insert(variations);
-    return variations;
-  }
-
-  function trim_whitespace(object) {
-    if (!object.move_string || !object.move_string.length) return false;
-    object.move_string = object.move_string.trim();
-    return true;
-  }
-
-  function trim_move_number(object) {
-    if (!object.move_string || !object.move_string.length) return false;
-    object.move_sring = object.move_string.replace("\\d+.s*(.*)", "$1");
-    return true;
-  }
-
-  function get_move(object) {
-    if (!object.move_string || !object.move_string.length) return false;
-    const found = object.move_string.match(
-      "((([RQKBN]?[a-h]?[1-8]?x?[a-h][1-8](=[RQBN])?)|O-O(?:-O)?)[+#]?)(.*)"
-    );
-    object.moves.push(found[1]);
-    object.move_string = found[5];
-    return true;
-  }
-
-  function parseMoves(move_string) {
-    const object = {
-      moves: [],
-      move_string: move_string,
-    };
-    while (true) {
-      if (!trim_whitespace(object)) return object.moves;
-      if (!trim_move_number(object)) return object.moves;
-      if (!get_move(object)) return object.moves;
-      if (!trim_whitespace(object)) return object.moves;
-      if (!get_move(object)) return object.moves;
-    }
-  }
-
-  this.tree = global.Game.ecoCollection.findOne();
-  if (!this.tree) this.tree = initialLoad();
-});
-
 Meteor.methods({
   gamepong(game_id, pong) {
     const user = Meteor.user();
@@ -4232,12 +4148,7 @@ Meteor.methods({
     ),
   // eslint-disable-next-line meteor/audit-argument-checks
   startLocalExaminedGame: (message_identifier, white_name, black_name, wild_number) =>
-    global.Game.startLocalExaminedGame(
-      message_identifier,
-      white_name,
-      black_name,
-      wild_number
-    ),
+    global.Game.startLocalExaminedGame(message_identifier, white_name, black_name, wild_number),
   // eslint-disable-next-line meteor/audit-argument-checks
   importPGNIntoExaminedGame: (message_identifier, game_id, pgntext) =>
     global.Game.importPGNIntoExaminedGame(message_identifier, game_id, pgntext),
@@ -4254,8 +4165,7 @@ Meteor.methods({
   examineGame: (message_identifier, game_id, is_imported_game) =>
     GameHistory.examineGame(message_identifier, game_id, is_imported_game),
   // eslint-disable-next-line meteor/audit-argument-checks
-  clearBoard: (message_identifier, game_id) =>
-    global.Game.clearBoard(message_identifier, game_id),
+  clearBoard: (message_identifier, game_id) => global.Game.clearBoard(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   setStartingPosition: (message_identifier, game_id) =>
     global.Game.setStartingPosition(message_identifier, game_id),

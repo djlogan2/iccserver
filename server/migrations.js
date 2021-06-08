@@ -337,6 +337,14 @@ Meteor.startup(() => {
     }
   });
 
+  Migrations.add({
+    version: "0.3.30_1",
+    name: "Remove ecocodes from game_history collection",
+    run: () => {
+      GameHistory.collection.update({}, { $unset: { "variations.ecocodes": "" } });
+    },
+  });
+
   Migrations.unlock();
 
   Migrations.migrateTo("latest");

@@ -23,11 +23,12 @@ import current_release from "../imports/startup/release";
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
 import firstRunClientInternationalization from "../imports/startup/server/firstRunClientInternationalization";
+import firstRunEcocodes from "../imports/startup/server/firstRunEcocodes";
 
 const log = new Logger("server/main_js");
 
 if (!Meteor.isTest && !Meteor.isAppTest) {
-  const bound = Meteor.bindEnvironment(callback => {
+  const bound = Meteor.bindEnvironment((callback) => {
     callback();
   });
 
@@ -92,6 +93,7 @@ Meteor.startup(() => {
   firstRunCSS();
   firstRunUsers();
   firstRunClientInternationalization();
+  firstRunEcocodes();
 
   Meteor.methods({
     current_release: () => current_release.current_release.release,
