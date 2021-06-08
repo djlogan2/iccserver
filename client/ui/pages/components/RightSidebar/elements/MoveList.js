@@ -4,6 +4,7 @@ import { get } from "lodash";
 
 import buildPgn from "../../../helpers/build-pgn";
 import { Logger } from "../../../../../../lib/client/Logger";
+import { colorBlackLetter, colorWhiteLetter } from "../../../../../constants/gameConstants";
 
 const log = new Logger("client/MoveList_js");
 
@@ -12,6 +13,7 @@ export default class MoveList extends Component {
     super(props);
 
     this.cmi = 0;
+    this.newString = [];
 
     this.state = {
       cmi: 0,
@@ -69,110 +71,102 @@ export default class MoveList extends Component {
     }
   };
 
-  handleClick = (element) => {
-    // console.log(element);
-  };
-
-  constructMoveList = () => {
+  handleClick = (cmi) => {
     const { game } = this.props;
 
-    if (game?.variations?.movelist) {
-      // console.log(game.variations.movelist);
-      const moves = { 0: [] };
-
-      let currentVariation = 0;
-      let currentIndex = Number(game.variations.movelist["0"].variations[0]);
-      while (true) {
-        // console.log(1234, game);
-        if (!game.variations.movelist[currentIndex]) {
-          // console.log(12345);
-          break;
-        }
-
-        // console.log(game.variations.movelist[currentIndex].variations, currentIndex);
-        if (
-          !game.variations.movelist[currentIndex].variations ||
-          game.variations.movelist[currentIndex].variations.length === 1
-        ) {
-          moves[currentVariation].push(game.variations.movelist[currentIndex]);
-          currentIndex = get(
-            game,
-            `variations.movelist[${currentIndex}].variations[0]`,
-            currentIndex + 1
-          );
-          // console.log(123456, currentIndex);
-        } else if (game.variations.movelist[currentIndex].variations.length > 1) {
-          // console.log(1234567);
-          break;
-        } else {
-          // console.log(123456789, game.variations.movelist[currentIndex].variations);
-        }
+    Meteor.call("moveToCMI", "moveToCMI", game._id, cmi, (err) => {
+      if (err) {
+        console.log(err);
       }
+    });
+  };
 
-      // console.log(moves);
+  addToNewString = (element, index, cmi, activeCmi) => {
+    const styles = {
+      cursor: "pointer",
+      color: cmi === activeCmi ? "#660000" : "#000000",
+    };
+
+    if (element.smith.color === colorWhiteLetter) {
+      this.newString.push(
+        <span style={styles} onClick={() => this.handleClick(cmi)}>
+          <b>{index}.</b>
+          {element.move}{" "}
+        </span>
+      );
+    } else {
+      this.newString.push(
+        <span style={styles} onClick={() => this.handleClick(cmi)}>
+          {element.move}{" "}
+        </span>
+      );
     }
+  };
+
+  recursiveMoveList = (moveList, currentMoveElement, currentIndex, cmi) => {
+    const currentColor = get(moveList[currentMoveElement], "smith.color", null);
+    if (
+      !moveList[currentMoveElement].variations ||
+      !moveList[currentMoveElement].variations.length
+    ) {
+      this.addToNewString(moveList[currentMoveElement], currentIndex, currentMoveElement, cmi);
+      return;
+    }
+
+    if (moveList[currentMoveElement].variations.length === 1) {
+      this.addToNewString(moveList[currentMoveElement], currentIndex, currentMoveElement, cmi);
+      this.recursiveMoveList(
+        moveList,
+        moveList[currentMoveElement].variations[0],
+        currentColor === colorBlackLetter ? currentIndex + 1 : currentIndex,
+        cmi
+      );
+    } else if (moveList[currentMoveElement].variations.length > 1) {
+      this.addToNewString(moveList[currentMoveElement], currentIndex, currentMoveElement, cmi);
+
+      moveList[currentMoveElement].variations.forEach((el, index) => {
+        if (index) {
+          this.newString.push(<>(</>);
+        }
+
+        this.recursiveMoveList(
+          moveList,
+          el,
+          currentColor === colorBlackLetter ? currentIndex + 1 : currentIndex,
+          cmi
+        );
+
+        if (index) {
+          this.newString.push(<>)</>);
+        }
+      });
+    }
+  };
+
+  generateMoveList = () => {
+    const { game } = this.props;
+    const moveList = get(game, "variations.movelist", []);
+    const cmi = get(game, "variations.cmi", 1);
+
+    if (!moveList.length || moveList.length === 1) return;
+    this.newString = [];
+
+    let currentIndex = 1;
+
+    this.recursiveMoveList(moveList, currentIndex, 1, cmi);
   };
 
   render() {
     const { game, cssManager } = this.props;
-    const { cmi } = this.state;
-
-    // this.constructMoveList();
 
     if (!!game) {
       this.message_identifier = "server:game:" + this.gameId;
       this.gameId = game._id;
     }
 
-    let string = !!game.variations ? buildPgn(game.variations.movelist) : "";
-    let chunks = string.split("|");
-    chunks.splice(-1, 1);
-
-    this.cmi = chunks.length;
-
-    this.moves = [];
-    this.moves.push({ idc: 0, idx: 0, move: "" });
-
-    for (let i = 0; i < chunks.length; i++) {
-      let ch = chunks[i].split("*-");
-      this.moves.push({ idc: parseInt(ch[0]), idx: parseInt(ch[1]), move: ch[2] });
+    if (game?.variations?.movelist?.length) {
+      this.generateMoveList();
     }
-
-    /*End of code */
-    let cnt = 1;
-    let ind = "";
-    this.currentindex = 0;
-
-    let moveslist = this.moves.map((move, index) => {
-      const mv = move.move;
-      const idx = move.idx;
-
-      if (index % 2 === 0) {
-        ind = "";
-      } else {
-        ind = " " + cnt + ".";
-        cnt++;
-      }
-      let style = { color: "black" };
-      let movestyle;
-      if (cmi === idx) {
-        Object.assign(style, { color: "#904f4f", fontWeight: "bold", fontSize: "15px" });
-        movestyle = style;
-        this.currentindex = index;
-      } else {
-        movestyle = style;
-      }
-
-      return (
-        <span key={index}>
-          {!!ind && <b>{ind}</b>}
-          <span
-            onClick={() => this.handleClick(mv)}
-            style={{ ...movestyle, cursor: "pointer" }}
-          >{` ${mv}`}</span>
-        </span>
-      );
-    });
 
     const btnstyle = cssManager.buttonStyle();
     Object.assign(btnstyle, {
@@ -184,7 +178,7 @@ export default class MoveList extends Component {
 
     return (
       <div style={{ background: "#EFF0F3" }}>
-        <div style={cssManager.gameMoveList()}>{moveslist}</div>
+        <div style={cssManager.gameMoveList()}>{this.newString.map((el) => el)}</div>
       </div>
     );
   }
