@@ -4232,12 +4232,7 @@ Meteor.methods({
     ),
   // eslint-disable-next-line meteor/audit-argument-checks
   startLocalExaminedGame: (message_identifier, white_name, black_name, wild_number) =>
-    global.Game.startLocalExaminedGame(
-      message_identifier,
-      white_name,
-      black_name,
-      wild_number
-    ),
+    global.Game.startLocalExaminedGame(message_identifier, white_name, black_name, wild_number),
   // eslint-disable-next-line meteor/audit-argument-checks
   importPGNIntoExaminedGame: (message_identifier, game_id, pgntext) =>
     global.Game.importPGNIntoExaminedGame(message_identifier, game_id, pgntext),
@@ -4254,8 +4249,7 @@ Meteor.methods({
   examineGame: (message_identifier, game_id, is_imported_game) =>
     GameHistory.examineGame(message_identifier, game_id, is_imported_game),
   // eslint-disable-next-line meteor/audit-argument-checks
-  clearBoard: (message_identifier, game_id) =>
-    global.Game.clearBoard(message_identifier, game_id),
+  clearBoard: (message_identifier, game_id) => global.Game.clearBoard(message_identifier, game_id),
   // eslint-disable-next-line meteor/audit-argument-checks
   setStartingPosition: (message_identifier, game_id) =>
     global.Game.setStartingPosition(message_identifier, game_id),
