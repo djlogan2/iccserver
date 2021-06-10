@@ -129,7 +129,7 @@ class Community extends Component {
     const { allRooms, notMyRooms, isReady, history, classes } = this.props;
     const { isRightMenu, activeRoom, isModal } = this.state;
 
-    const cf = Meteor.user().cf;
+    const cf = Meteor.user()?.cf;
 
     if (cf && cf.indexOf("c") !== -1 && cf.indexOf("e") === -1) {
       history.push(RESOURCE_HOME);

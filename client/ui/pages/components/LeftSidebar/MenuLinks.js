@@ -50,13 +50,13 @@ class MenuLinks extends Component {
   }
 
   componentDidMount() {
-    serverTS().events.on("sendingPingResult", this.sendingPingResult);
-    serverTS().events.on("lagFunc", this.lagging);
+    serverTS()?.events?.on("sendingPingResult", this.sendingPingResult);
+    serverTS()?.events?.on("lagFunc", this.lagging);
   }
 
   componentWillUnmount() {
-    serverTS().events.removeListener("sendingPingResult", this.sendingPingResult);
-    serverTS().events.removeListener("lagFunc", this.lagging);
+    serverTS()?.events?.removeListener("sendingPingResult", this.sendingPingResult);
+    serverTS()?.events?.removeListener("lagFunc", this.lagging);
   }
 
   logout = () => {

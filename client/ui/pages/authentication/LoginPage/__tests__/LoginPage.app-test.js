@@ -6,7 +6,6 @@ import { configure, mount } from "enzyme";
 import { Router } from "react-router-dom";
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 
-configure({ adapter: new Adapter() });
 describe("Login Page", () => {
   const history = createBrowserHistory();
   const newUsername = "username1";
