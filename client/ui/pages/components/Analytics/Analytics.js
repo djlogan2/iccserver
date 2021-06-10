@@ -7,7 +7,7 @@ import { colorWhite } from "../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../imports/api/client/collections";
 
-class Mugshot extends Component {
+class Analytics extends Component {
   render() {
     const { orientation, css } = this.props;
 
@@ -33,4 +33,4 @@ export default compose(
       css: mongoCss.findOne(),
     };
   })
-)(Mugshot);
+)(Analytics);

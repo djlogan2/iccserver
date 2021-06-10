@@ -34,9 +34,12 @@ export default compose(
           disabled={disabled}
           ref={(el) => (this.select = el)}
         >
-          {childChatTexts.map((chatItem) => (
-            <Option value={chatItem._id}>{chatItem.text}</Option>
-          ))}
+          {childChatTexts &&
+            childChatTexts.map((chatItem) => (
+              <Option value={chatItem._id} key={chatItem._id}>
+                {chatItem.text}
+              </Option>
+            ))}
         </Select>
         <Button htmlType="submit">{translate("send")}</Button>
       </form>
