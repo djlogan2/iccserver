@@ -17,6 +17,6 @@
     </option>
   </component>
   <component name="JavaScriptSettings">
-    <option name="languageLevel" value="JSX" />
+    <option name="languageLevel" value="FLOW" />
   </component>
 </project>

@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import ChatApp from "./ChatApp/ChatApp";
+import ChatApp from "../ChatApp/ChatApp";
 import { withTracker } from "meteor/react-meteor-data";
-import { Chat, ChildChatTexts } from "../../../../../imports/api/client/collections";
-import { Logger } from "../../../../../lib/client/Logger";
+import { Chat, ChildChatTexts } from "../../../../../../imports/api/client/collections";
+import { Logger } from "../../../../../../lib/client/Logger";
 
 const log = new Logger("client/PersonalChatApp_js");
 
@@ -23,7 +23,7 @@ class PersonalChatApp extends Component {
   render() {
     const { childChatTexts, disabled, opponent, chats } = this.props;
 
-    const cc1 = (Meteor.user().cf || "") + (opponent?.cf || "");
+    const cc1 = (Meteor.user()?.cf || "") + (opponent?.cf || "");
 
     const childChat = cc1.indexOf("c") !== -1 && cc1.indexOf("e") === -1;
 

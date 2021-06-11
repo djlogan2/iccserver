@@ -4,8 +4,8 @@ import { Tabs } from "antd";
 import { get } from "lodash";
 import { compose } from "redux";
 
-import KibitzChatApp from "../../Chat/KibitzChatApp";
-import PersonalChatApp from "../../Chat/PersonalChatApp";
+import KibitzChatApp from "../../Chat/KibitzChatApp/KibitzChatApp";
+import PersonalChatApp from "../../Chat/PersonalChatApp/PersonalChatApp";
 import { translate } from "../../../../HOCs/translate";
 
 import PlayBlock from "../PlayBlock/PlayBlock";
