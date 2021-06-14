@@ -16,6 +16,6 @@ describe("AppWrapper component", () => {
   );
 
   it("should render", () => {
-    chai.assert.equal(component);
+    chai.assert.isDefined(component);
   });
 });

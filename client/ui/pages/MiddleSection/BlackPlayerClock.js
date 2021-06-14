@@ -69,7 +69,7 @@ export default class BlackPlayerClock extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (!props.game) return;
+    if (!props.game) return {};
     const running = props.game.status === "playing" && props.game.tomove === props.color;
     const now = running ? getMilliseconds() : 0;
     let pcurrent;
