@@ -159,7 +159,7 @@ class MenuLinks extends Component {
   getSidebar = (linksArray) => {
     const { history, visible, translate, classes, currentRoles } = this.props;
 
-    const availableRoutes = currentRoles.map((role) => role?.role?._id);
+    const availableRoutes = currentRoles?.map((role) => role?.role?._id) || [];
 
     const cf = Meteor.user()?.cf;
     const isChildChat = cf && cf.indexOf("c") !== -1 && cf.indexOf("e") === -1;

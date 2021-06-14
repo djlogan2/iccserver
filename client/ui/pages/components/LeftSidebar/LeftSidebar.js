@@ -84,7 +84,7 @@ class LeftSidebar extends Component {
   };
 
   render() {
-    const { examineAction, translate, classes } = this.props;
+    const { translate, classes } = this.props;
     const { visible, isMyGamesModal, gameList } = this.state;
 
     const currentUser = Meteor.user();
@@ -145,7 +145,6 @@ class LeftSidebar extends Component {
         </div>
         <MenuLinks
           visible={visible}
-          examineAction={examineAction}
           handleRedirect={this.handleRedirect}
           onLogout={this.handleLogout}
           onMyGames={this.handleMyGames}

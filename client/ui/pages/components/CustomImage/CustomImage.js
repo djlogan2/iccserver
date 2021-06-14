@@ -16,9 +16,10 @@ class CustomImage extends React.Component {
   };
 
   render() {
+    const { supportSrc, ...rest } = this.props;
     const { src } = this.state;
 
-    return <img onError={this.handleError} src={src} {...this.props} />;
+    return <img onError={this.handleError} src={src} {...rest} />;
   }
 }
 
