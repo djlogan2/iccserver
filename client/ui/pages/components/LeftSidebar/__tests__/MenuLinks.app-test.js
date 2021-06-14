@@ -7,6 +7,7 @@ import { Router } from "react-router-dom";
 import MenuLinks from "../MenuLinks";
 
 describe("MenuLinks component", () => {
+  const mockProps = {visible: true, };
   const history = createBrowserHistory();
   const wrapper = mount(
     <Router history={history}>
