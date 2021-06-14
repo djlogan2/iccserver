@@ -4,18 +4,18 @@ import { mount } from "enzyme";
 import { createBrowserHistory } from "history";
 import { Router } from "react-router-dom";
 
-import MenuLinks from "../MenuLinks";
+import AppWrapper from "../AppWrapper";
 
-describe("MenuLinks component", () => {
-  const mockProps = {visible: true};
+describe("AppWrapper component", () => {
   const history = createBrowserHistory();
-  const wrapper = mount(
+
+  const component = mount(
     <Router history={history}>
-      <MenuLinks {...mockProps} />
+      <AppWrapper />
     </Router>
   );
 
   it("should render", () => {
-    chai.assert.isDefined(wrapper);
+    chai.assert.equal(component);
   });
 });

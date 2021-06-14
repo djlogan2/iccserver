@@ -44,7 +44,7 @@ class AppWrapper extends Component {
       history.push(RESOURCE_PLAY);
     }
 
-    if (!Meteor.userId()) {
+    if (!Meteor.userId() && !Meteor.isAppTest) {
       const { history } = this.props;
 
       history.push(RESOURCE_LOGIN);
