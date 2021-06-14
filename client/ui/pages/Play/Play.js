@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../../lib/client/Logger";
 import CssManager from "../components/Css/CssManager";
-import Loading from "../components/Loading";
+import Loading from "../components/Loading/Loading";
 import PlayModaler from "../components/Modaler/PlayModaler/PlayModaler";
 import Chess from "chess.js";
 import {

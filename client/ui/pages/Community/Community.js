@@ -11,7 +11,7 @@ import { mongoCss, Rooms } from "../../../../imports/api/client/collections";
 import RoomBlock from "../components/CommunityBlocks/RoomBlock";
 import CommunityRightBlock from "../components/CommunityBlocks/CommunityRightBlock";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
-import Loading from "../components/Loading";
+import Loading from "../components/Loading/Loading";
 import { RESOURCE_HOME } from "../../../constants/resourceConstants";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
