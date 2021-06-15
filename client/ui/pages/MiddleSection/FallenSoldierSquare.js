@@ -15,7 +15,7 @@ export default class FallenSoldierSquare extends React.Component {
       count = null;
     }
 
-    const peiceImage = cssManager.fSquareStyle(color, piece);
+    const peiceImage = cssManager?.fSquareStyle(color, piece);
 
     const imageSide = {
       width: h,

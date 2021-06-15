@@ -2,9 +2,8 @@ import React from "react";
 import chai from "chai";
 import { createBrowserHistory } from "history";
 import LoginPage from "../LoginPage";
-import { configure, mount } from "enzyme";
+import { mount } from "enzyme";
 import { Router } from "react-router-dom";
-import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
 
 describe("Login Page", () => {
   const history = createBrowserHistory();
@@ -57,21 +56,24 @@ describe("Login Page", () => {
       },
     });
 
-    // const passwordInput = page.find("#login-password");
-    //
-    // passwordInput.simulate("focus");
-    // passwordInput.simulate("change", {
-    //   target: { value: newPassword, name: "password" },
-    // });
-    // passwordInput.simulate('keyDown', {
-    //   which: 27,
-    //   target: {
-    //     blur() {
-    //       // Needed since <EditableText /> calls target.blur()
-    //       passwordInput.simulate('blur');
-    //     },
-    //   },
-    // });
+    const passwordInput = page.find("#login-password");
+
+    passwordInput.simulate("focus");
+    passwordInput.simulate("change", {
+      target: { value: newPassword, name: "password" },
+    });
+    passwordInput.simulate('keyDown', {
+      which: 27,
+      target: {
+        blur() {
+          // Needed since <EditableText /> calls target.blur()
+          passwordInput.simulate('blur');
+        },
+      },
+    });
+
+    const form = page.find("form").first();
+    form.simulate("submit");
 
     // console.log(page.instance().state, "input : ", usernameInput.props().value);
     // chai.assert.equal(page.state("email"), newUsername);
