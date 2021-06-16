@@ -27,7 +27,7 @@ class LoginPage extends Component {
   }
 
   componentDidMount() {
-    if (!!Meteor.userId()) {
+    if (Meteor.userId() && !Meteor.isAppTest) {
       const { history } = this.props;
 
       history.push(RESOURCE_HOME);

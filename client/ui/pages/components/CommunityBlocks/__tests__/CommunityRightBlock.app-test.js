@@ -4,7 +4,7 @@ import { mount } from "enzyme";
 import CommunityRightBlock from "../CommunityRightBlock";
 
 describe("CimmunityRightBlock component", () => {
-  const mockProps = { activeRoom: "fake_id", roomList: [{ id: "fake_id", name: "fake" }], onChange: () => null };
+  const mockProps = { activeRoom: "fake_id", roomList: [{ _id: "fake_id", name: "fake" }], onChange: () => null };
   const component = mount(<CommunityRightBlock {...mockProps} />);
 
   it("should render", () => {
