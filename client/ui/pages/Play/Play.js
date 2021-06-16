@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../../lib/client/Logger";
 import CssManager from "../components/Css/CssManager";
-import Loading from "../components/Loading";
+import Loading from "../components/Loading/Loading";
 import PlayModaler from "../components/Modaler/PlayModaler/PlayModaler";
 import Chess from "chess.js";
 import {
@@ -51,7 +51,7 @@ class Play extends Component {
   }
 
   componentDidMount() {
-    if (!Meteor.userId()) {
+    if (!Meteor.userId() && !Meteor.isAppTest) {
       const { history } = this.props;
 
       history.push(RESOURCE_LOGIN);
@@ -59,7 +59,7 @@ class Play extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!Meteor.userId()) {
+    if (!Meteor.userId() && !Meteor.isAppTest) {
       const { history } = this.props;
 
       history.push(RESOURCE_LOGIN);
@@ -318,7 +318,7 @@ class Play extends Component {
       b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
     };
 
-    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
+    const css = new CssManager(systemCss?.systemCss, systemCss?.userCss);
     if (!!gameRequest) {
       this.message_identifier = "server:game:" + gameRequest._id;
     }

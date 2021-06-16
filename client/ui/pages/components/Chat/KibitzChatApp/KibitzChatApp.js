@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
-import ChatApp from "./ChatApp/ChatApp";
+import ChatApp from "../ChatApp/ChatApp";
 import { withTracker } from "meteor/react-meteor-data";
 
-import { Chat, ChildChatTexts } from "../../../../../imports/api/client/collections";
-import { Logger } from "../../../../../lib/client/Logger";
+import { Chat, ChildChatTexts } from "../../../../../../imports/api/client/collections";
+import { Logger } from "../../../../../../lib/client/Logger";
 
 const log = new Logger("client/PersonalChatApp_js");
 
@@ -27,7 +27,7 @@ class KibitzChatApp extends Component {
     return (
       <ChatApp
         disabled={disabled}
-        childChat={Meteor.user().cf === "c"}
+        childChat={Meteor.user()?.cf === "c"}
         childChatTexts={childChatTexts}
         user={Meteor.user()}
         chats={chats}

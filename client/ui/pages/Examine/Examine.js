@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../../lib/client/Logger";
 import CssManager from "../components/Css/CssManager";
-import Loading from "../components/Loading";
+import Loading from "../components/Loading/Loading";
 import GameListModal from "../components/Modaler/GameListModal";
 import Chess from "chess.js/chess";
 import { Game, ImportedGameCollection, mongoCss } from "../../../../imports/api/client/collections";
@@ -34,7 +34,7 @@ class Examine extends Component {
   }
 
   componentDidMount() {
-    if (!Meteor.userId()) {
+    if (!Meteor.userId() && !Meteor.isAppTest) {
       const { history } = this.props;
 
       history.push(RESOURCE_LOGIN);
@@ -214,7 +214,7 @@ class Examine extends Component {
       fullGame = game || gameObserveDefault;
     }
 
-    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
+    const css = new CssManager(systemCss?.systemCss || {}, systemCss?.userCss || {});
     this._board.load(game.fen);
 
     return (

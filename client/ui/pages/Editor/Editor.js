@@ -10,7 +10,7 @@ import { Col } from "antd";
 
 import CssManager from "../components/Css/CssManager";
 import EditorRightSidebar from "../components/RightSidebar/EditorRightSidebar/EditorRightSidebar";
-import Loading from "../components/Loading";
+import Loading from "../components/Loading/Loading";
 import BoardWrapper from "../components/BoardWrapper/BoardWrapper";
 import { Logger } from "../../../../lib/client/Logger";
 
@@ -298,7 +298,7 @@ class Editor extends Component {
       return <Loading />;
     }
 
-    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
+    const css = new CssManager(systemCss?.systemCss || {}, systemCss?.userCss || {});
     const boardSize = this.calcBoardSize();
 
     return (

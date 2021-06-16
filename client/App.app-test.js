@@ -5,7 +5,7 @@ import chai from "chai";
 import { mount } from "enzyme";
 import App from "./App";
 
-describe("App", () => {
+describe("App component", () => {
   const history = createBrowserHistory();
 
   it("renders correctly", () => {

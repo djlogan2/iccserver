@@ -28,35 +28,38 @@ class MenuLinks extends Component {
     super(props);
     this.state = { lastping: 0, averageping: 0, lagging: 0 };
     this.pings = [];
+  }
+
+  lagging = () => {
+    this.setState((state) => ({ lagging: state.lagging + 1 }));
+  };
+
+  sendingPingResult = (result) => {
+    if (this.pings.length >= 60) this.pings.shift();
+    this.pings.push(result.delay);
+    const average = this.pings.reduce((sum, val) => sum + val, 0) / this.pings.length;
+    this.setState({
+      lastping: result.delay,
+      averageping: average,
+      lagging: 0,
+    });
+  };
+
+  componentDidMount() {
     Meteor.call("current_release", (error, result) => {
       this.setState({ current_release: result });
     });
     Meteor.call("current_commit", (error, result) => {
       this.setState({ current_commit: result });
     });
-    this.lagging = () => {
-      this.setState({ lagging: this.state.lagging + 1 });
-    };
-    this.sendingPingResult = (result) => {
-      if (this.pings.length >= 60) this.pings.shift();
-      this.pings.push(result.delay);
-      const average = this.pings.reduce((sum, val) => sum + val, 0) / this.pings.length;
-      this.setState({
-        lastping: result.delay,
-        averageping: average,
-        lagging: 0,
-      });
-    };
-  }
 
-  componentDidMount() {
-    serverTS().events.on("sendingPingResult", this.sendingPingResult);
-    serverTS().events.on("lagFunc", this.lagging);
+    serverTS()?.events?.on("sendingPingResult", this.sendingPingResult);
+    serverTS()?.events?.on("lagFunc", this.lagging);
   }
 
   componentWillUnmount() {
-    serverTS().events.removeListener("sendingPingResult", this.sendingPingResult);
-    serverTS().events.removeListener("lagFunc", this.lagging);
+    serverTS()?.events?.removeListener("sendingPingResult", this.sendingPingResult);
+    serverTS()?.events?.removeListener("lagFunc", this.lagging);
   }
 
   logout = () => {
@@ -159,7 +162,7 @@ class MenuLinks extends Component {
   getSidebar = (linksArray) => {
     const { history, visible, translate, classes, currentRoles } = this.props;
 
-    const availableRoutes = currentRoles.map((role) => role?.role?._id);
+    const availableRoutes = currentRoles?.map((role) => role?.role?._id) || [];
 
     const cf = Meteor.user()?.cf;
     const isChildChat = cf && cf.indexOf("c") !== -1 && cf.indexOf("e") === -1;

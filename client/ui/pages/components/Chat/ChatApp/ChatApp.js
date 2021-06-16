@@ -47,13 +47,14 @@ class ChatApp extends Component {
       <div className={classes.main}>
         <div className={classes.listWrap}>
           <div className={classes.messageList}>
-            {chats.map((chatItem, i) => (
-              <MessageItem
-                key={`message-${i}`}
-                name={chatItem.issuer.username}
-                text={chatItem.what}
-              />
-            ))}
+            {chats &&
+              chats.map((chatItem, i) => (
+                <MessageItem
+                  key={`message-${i}`}
+                  name={chatItem.issuer.username}
+                  text={chatItem.what}
+                />
+              ))}
           </div>
         </div>
         <div className={classes.inputBar}>

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
 
-import buildPgn from "../../../helpers/build-pgn";
 import { Logger } from "../../../../../../lib/client/Logger";
 import { colorBlackLetter, colorWhiteLetter } from "../../../../../constants/gameConstants";
 
