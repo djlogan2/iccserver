@@ -10,6 +10,7 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { PlayedGameSchema } from "./PlayedGameSchema";
 import { GameHistorySchema } from "./GameHistorySchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
+import { EcoSchema } from "./EcoSchema";
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { Timestamp } from "../lib/server/timestamp";
 import { TimestampServer } from "../lib/Timestamp";
@@ -29,14 +30,17 @@ const move_timers = {};
 const GameHistoryCollection = new Mongo.Collection("game_history");
 export const ImportedGameCollection = new Mongo.Collection("imported_games");
 GameHistoryCollection.attachSchema(GameHistorySchema);
+export var EcoCollection = new Mongo.Collection("ecocodes");
+EcoCollection.attachSchema(EcoSchema);
 
 const log = new Logger("server/Game_js");
 let pinglog = new Logger("server/Game::ping");
 
-class Game {
+export class Game {
   constructor() {
     const _self = this;
 
+    this.ecoCollection = EcoCollection;
     this.GameCollection = new Mongo.Collection("game");
     this.GameCollection.attachSchema(ExaminedGameSchema, {
       selector: { status: "examining" },
@@ -2859,7 +2863,7 @@ class Game {
         if (!result)
           throw new ICCMeteorError(
             message_identifier,
-            "Unable to movr forward",
+            "Unable to move forward",
             "Somehow we have an illegal move in the variation treee"
           );
       }

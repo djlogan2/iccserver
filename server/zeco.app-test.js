@@ -1,62 +1,63 @@
 import { TestHelpers } from "../imports/server/TestHelpers";
-//import { Game } from "./Game";
+import { EcoCollection } from "./Game";
 import chai from "chai";
+import { forEach } from "async";
 
-describe.skip("ECO codes", function(done) {
-  const self = TestHelpers.setupDescribe.apply(this);
-  it("should add eco index and associated eco information to each new move in game play", function() {
-    Game.waitForECOCodes(
-      Meteor.bindEnvironment(() => {
-        const us = TestHelpers.createUser();
-        const them = TestHelpers.createUser();
-        self.loggedonuser = us;
-        const game_id = Game.startLocalGame(
-          "mi1",
-          them,
-          0,
-          "standard",
-          true,
-          15,
-          0,
-          "none",
-          15,
-          0,
-          "none",
-          "white"
-        );
-        // eslint-disable-next-line prettier/prettier
-      const moves1 = ["d4", "Nf6", "c4", "g6", "Nc3", "d5", "Nf3", "Bg7"];
-        // eslint-disable-next-line prettier/prettier
-      const moves2 = ["cxd5", "Nxd5", "e4", "Nxc3", "bxc3", "Bg7", "Bc4", "c5", "Ne2", "O-O", "O-O", "Nc6", "Be3", "cxd4", "cxd4", "Bg4", "f3", "Na5", "Bd3"];
+describe.only("ecocodes", function(){
+  describe("moveForward", function(){
+    const self = TestHelpers.setupDescribe.apply(this);
+    it("should perform a lookup if there is no eco information (and save it if it exists)", function() {
+      chai.assert.fail("do me");
+    });
 
-        const tomove = [us, them];
-        let tm = 0;
-
-        moves1.forEach(move => {
-          self.loggedonuser = tomove[tm];
-          Game.saveLocalMove(move, game_id, move);
-          tm = !tm ? 1 : 0;
-        });
-
-        self.loggedonuser = tomove[tm];
-        Game.requestLocalTakeback("mi2", game_id, 2);
-        tm = !tm ? 1 : 0;
-
-        self.loggedonuser = tomove[tm];
-        Game.acceptLocalTakeback("mi2", game_id);
-        tm = !tm ? 1 : 0;
-
-        moves2.forEach(move => {
-          self.loggedonuser = tomove[tm];
-          Game.saveLocalMove(move, game_id, move);
-          tm = !tm ? 1 : 0;
-        });
-
-        const game = Game.collection.findOne();
-        done();
-      })
-    );
+    it("should NOT perform a lookup if there IS eco information", function() {
+      chai.assert.fail("do me");
+    });
   });
-
-  it("should add eco index and associated eco information to each new move in an examined game", function() {});
+  describe.skip("moveBackward", function() {
+    it("should perform a lookup if there is no eco information (and save it if it exists)", function() {
+      chai.assert.fail("do me");
+    });
+    it("should NOT perform a lookup if there IS eco information", function() {
+      chai.assert.fail("do me");
+    });
+  });
+  describe.skip("loadFen", function() {
+    it("should perform a lookup and add eco info to node 0 if there is an opening match", function() {
+      chai.assert.fail("do me");
+    });
+  });
+  describe.skip("setTag", function() {
+    chai.assert.fail("do me");
+  });
+  describe.skip("moveToCMI", function() {
+    it("should perform a lookup if there is no eco information (and save it if it exists)", function() {
+      chai.assert.fail("do me");
+    })
+    it("should NOT perform a lookup if there IS eco information", function() {
+      chai.assert.fail("do me");
+    })
+  });
+  describe.skip("saveLocalMove", function() {
+    it("should not save a code/name until it gets its first eco match in any node", function() {
+      chai.assert.fail("do me");
+    });
+    it("should store the same code/name as previous node if there is no match", function() {
+      chai.assert.fail("do me");
+    });
+    it("should store new code/name when it gets a new match", function() {
+      chai.assert.fail("do me");
+    });
+    it("should arrive at the same code/name with transposed moves", function() {
+      chai.assert.fail("do me");
+    });
+  });
+  describe.skip("exportToPGN", function() {
+    chai.assert.fail("do me");
+  });
+  it.skip("should not be saved to the game_history collection", function() {
+    chai.assert.fail("do me");
+  });
 });
+
+

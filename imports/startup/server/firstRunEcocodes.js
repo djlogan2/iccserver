@@ -1,21 +1,23 @@
 import Chess from "chess.js";
 import { EcoSchema } from "../../../server/EcoSchema";
 import { Mongo } from "meteor/mongo";
+import { EcoCollection } from "../../../server/Game";
 
 export default function firstRunEcocodes() {
-  if (!global.ecoCollection) initialLoad();
+  if (!EcoCollection.findOne()) initialLoad();
 }
 
 function initialLoad() {
-  if (!global.ecoCollection) {
-    global.ecoCollection = new Mongo.Collection("ecocodes");
-    global.ecoCollection.attachSchema(EcoSchema);
+  if (!EcoCollection) {
+    EcoCollection = new Mongo.Collection("ecocodes");
+    EcoCollection.attachSchema(EcoSchema);
   }
   const content = Assets.getText("eco.txt");
-  const variations = { cmi: 0, movelist: [] };
   let chess = Chess.Chess();
 
-  content.split("\n").forEach((line, line_number) => {
+  let line_number = 0;
+  content.split("\n").forEach((line) => {
+    line_number++;
     if (line.trim().length) {
       const pieces = line.split(": ");
       if (pieces.length !== 3)
@@ -27,17 +29,12 @@ function initialLoad() {
       const name = pieces[1];
       try {
         const moves = parseMoves(pieces[2]);
-        variations.cmi = 0;
         moves.forEach((move) => {
           chess.move(move);
-          global.Game.addMoveToMoveList(variations, move);
         });
         let fen = chess.fen();
         chess.reset();
-        variations.movelist[variations.cmi].fen = fen;
-        variations.movelist[variations.cmi].eco = eco;
-        variations.movelist[variations.cmi].name = name;
-        variations.movelist[variations.cmi].wild = 0;
+        EcoCollection.insert({ name: name, eco: eco, fen: fen, wild: 0 });
       } catch (e) {
         throw new Meteor.Error(
           "Unable to load ECO codes",
@@ -46,21 +43,6 @@ function initialLoad() {
       }
     }
   });
-
-  variations.movelist.forEach((m) => {
-    delete m.current;
-    delete m.variations;
-    delete m.prev;
-    delete m.move;
-    delete m.smith;
-    if (m.fen) {
-      global.ecoCollection.insert(m);
-    }
-  });
-  delete variations.cmi;
-
-  // global.Game.ecoCollection.insert(variations);
-  // return variations;
 }
 
 function trim_whitespace(object) {
