@@ -16,6 +16,6 @@ describe("utils functions", () => {
   });
 
   it("should check getLang function", () => {
-    chai.assert.equal(getLang(), "en-US");
+    chai.assert.equal(getLang(), navigator.language);
   });
 });
