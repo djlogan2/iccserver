@@ -214,7 +214,7 @@ class Examine extends Component {
       fullGame = game || gameObserveDefault;
     }
 
-    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
+    const css = new CssManager(systemCss?.systemCss || {}, systemCss?.userCss || {});
     this._board.load(game.fen);
 
     return (

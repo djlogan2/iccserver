@@ -1,3 +1,5 @@
+import { get } from "lodash";
+
 /**
  * CssManager
  */
@@ -75,15 +77,13 @@ export default class CssManager {
     return style;
   }
   imagePiecesize(side) {
-    var style = { width: side, height: side };
-    return style;
+    return { width: side, height: side };
   }
   fSquareStyle(squareColor, piece) {
     /*if (this._boardStyle.fsquare.all) Object.assign(style, this._boardStyle.fsquare.all);
     Object.assign(style, this._boardStyle.fsquare[squareColor]); */
     if (!!piece && !!squareColor) {
-      var style = this._boardStyle.fallendpieces[squareColor][piece];
-      return style;
+      return get(this._boardStyle, `fallendpieces.${squareColor}.${piece}`, {});
     }
   }
 
@@ -109,7 +109,7 @@ export default class CssManager {
 
   tagLine() {
     var style = {};
-    Object.assign(style, this._boardStyle.tagLine.all);
+    Object.assign(style, this._boardStyle?.tagLine?.all);
     return style;
   }
 
@@ -132,7 +132,7 @@ export default class CssManager {
   }
   userPicture(side) {
     var style = { width: side, height: side };
-    Object.assign(style, this._boardStyle.userPicture.all);
+    Object.assign(style, this._boardStyle?.userPicture?.all);
     return style;
   }
   clockMain(side) {
@@ -165,8 +165,8 @@ export default class CssManager {
 
   buttonStyle(buttonName) {
     var style = {};
-    if (this._systemStyle.button.all) Object.assign(style, this._systemStyle.button.all);
-    Object.assign(style, this._systemStyle.button[buttonName]);
+    if (this._systemStyle?.button?.all) Object.assign(style, this._systemStyle.button.all);
+    Object.assign(style, get(this._systemStyle, `button.${buttonName}`));
     return style;
   }
 
@@ -188,7 +188,7 @@ export default class CssManager {
   }
   gameMoveList() {
     var style = {};
-    Object.assign(style, this._systemStyle.gameMoveList.all);
+    Object.assign(style, this._systemStyle?.gameMoveList?.all);
     return style;
   }
   gameButtonMove() {

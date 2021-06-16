@@ -30,4 +30,10 @@ describe("Community component", () => {
   it("should render", () => {
     chai.assert.isDefined(component);
   });
+
+  // it("should open modal", () => {
+  //   const community = component.find(Community);
+  //   chai.assert.equal(component.find(Community).length, 1);
+  //   community.setState({ isRightMenu: true });
+  // });
 });

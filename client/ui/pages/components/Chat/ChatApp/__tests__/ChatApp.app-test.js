@@ -32,4 +32,12 @@ describe("ChatApp component", () => {
     chai.assert.equal(component1.find(ChatInput).length, 0);
     chai.assert.equal(component1.find(ChildChatInput).length, 1);
   });
+  //
+  // it("should call handleChange function", () => {
+  //   component.instance().handleChange("fake_text");
+  // });
+  //
+  // it("should call handleMessage function", () => {
+  //   component.instance().handleMessage();
+  // })
 });

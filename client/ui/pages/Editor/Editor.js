@@ -298,7 +298,7 @@ class Editor extends Component {
       return <Loading />;
     }
 
-    const css = new CssManager(systemCss.systemCss, systemCss.userCss);
+    const css = new CssManager(systemCss?.systemCss || {}, systemCss?.userCss || {});
     const boardSize = this.calcBoardSize();
 
     return (
