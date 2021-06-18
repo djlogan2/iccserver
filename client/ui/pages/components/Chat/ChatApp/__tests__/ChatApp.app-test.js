@@ -9,6 +9,7 @@ describe("ChatApp component", () => {
   const mockProps = {
     chats: [{ issuer: { username: "test" }, what: "message" }],
     childChat: false,
+    onMessage: () => null,
   };
 
   const component = mount(<ChatApp {...mockProps} />);
@@ -19,6 +20,9 @@ describe("ChatApp component", () => {
   it("should have Chat input and no Child Chat Input", () => {
     chai.assert.equal(component.find(ChatInput).length, 1);
     chai.assert.equal(component.find(ChildChatInput).length, 0);
+
+    component.find("Input").simulate("change", { target: { value: "new_value" } });
+    component.find("form").simulate("submit");
   });
 
   it("should have Child Chat Input and no Chat input", () => {
@@ -32,12 +36,4 @@ describe("ChatApp component", () => {
     chai.assert.equal(component1.find(ChatInput).length, 0);
     chai.assert.equal(component1.find(ChildChatInput).length, 1);
   });
-  //
-  // it("should call handleChange function", () => {
-  //   component.instance().handleChange("fake_text");
-  // });
-  //
-  // it("should call handleMessage function", () => {
-  //   component.instance().handleMessage();
-  // })
 });

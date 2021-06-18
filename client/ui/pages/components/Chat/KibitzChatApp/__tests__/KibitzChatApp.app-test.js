@@ -11,7 +11,10 @@ describe("KibitzChatApp component", () => {
     chai.assert.isDefined(component);
   });
 
-  it("should have ChatApp", () => {
+  it("should have ChatApp and simulate actions", () => {
     chai.assert.equal(component.find(ChatApp).length, 1);
+
+    component.find("Input").simulate("change", { target: { value: "new_value" } });
+    component.find("form").simulate("submit");
   });
 });

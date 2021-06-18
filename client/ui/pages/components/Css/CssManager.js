@@ -133,23 +133,22 @@ export default class CssManager {
   //This css code for Right sidebar
   settingIcon() {
     var style = {};
-    Object.assign(style, this._systemStyle.settingIcon.all);
+    Object.assign(style, this._systemStyle?.settingIcon?.all);
     return style;
   }
   rightTopContent() {
     var style = {};
-    Object.assign(style, this._systemStyle.rightTopContent.all);
+    Object.assign(style, this._systemStyle?.rightTopContent?.all);
     return style;
   }
   rightBottomContent() {
     var style = {};
-    Object.assign(style, this._systemStyle.rightBottomContent.all);
+    Object.assign(style, this._systemStyle?.rightBottomContent?.all);
     return style;
   }
 
   buttonBackgroundImage(imageName) {
-    var style = this._systemStyle.buttonBackgroundImage[imageName];
-    return style;
+    return get(this._systemStyle, `buttonBackgroundImage.${imageName}`, {});
   }
 
   buttonStyle(buttonName) {
@@ -161,18 +160,18 @@ export default class CssManager {
 
   chatContent() {
     var style = {};
-    Object.assign(style, this._systemStyle.chatContent.all);
+    Object.assign(style, this._systemStyle?.chatContent?.all);
     return style;
   }
   inputBoxStyle(inputBoxName) {
     var style = {};
-    if (this._systemStyle.InputBox.all) Object.assign(style, this._systemStyle.InputBox.all);
-    Object.assign(style, this._systemStyle.InputBox[inputBoxName]);
+    if (this._systemStyle?.InputBox?.all) Object.assign(style, this._systemStyle.InputBox.all);
+    Object.assign(style, get(this._systemStyle, `InputBox.${inputBoxName}`, {}));
     return style;
   }
   chatSendButton() {
     var style = {};
-    Object.assign(style, this._systemStyle.chatSendButton.all);
+    Object.assign(style, this._systemStyle?.chatSendButton?.all);
     return style;
   }
   gameMoveList() {
@@ -182,69 +181,69 @@ export default class CssManager {
   }
   gameButtonMove() {
     var style = {};
-    Object.assign(style, this._systemStyle.gameButtonMove.all);
+    Object.assign(style, this._systemStyle?.gameButtonMove?.all);
     return style;
   }
   gameTopHeader() {
     var style = {};
-    Object.assign(style, this._systemStyle.gameTopHeader.all);
+    Object.assign(style, this._systemStyle?.gameTopHeader?.all);
     return style;
   }
   //LeftSideBarComponent MenuLink li
   showLg() {
     var style = {};
-    Object.assign(style, this._systemStyle.showLg.all);
+    Object.assign(style, this._systemStyle?.showLg?.all);
     return style;
   }
   pullRight() {
     var style = {};
-    Object.assign(style, this._systemStyle.pullRight.all);
+    Object.assign(style, this._systemStyle?.pullRight?.all);
     return style;
   }
   drawSection() {
     var style = {};
-    Object.assign(style, this._systemStyle.drawSection.all);
+    Object.assign(style, this._systemStyle?.drawSection?.all);
     return style;
   }
   drawSectionList() {
     var style = {};
-    Object.assign(style, this._systemStyle.drawSectionList.all);
+    Object.assign(style, this._systemStyle?.drawSectionList?.all);
     return style;
   }
   tab() {
     var style = {};
-    Object.assign(style, this._systemStyle.tab.all);
+    Object.assign(style, this._systemStyle?.tab?.all);
     return style;
   }
   tabList(tabName) {
     var style = {};
-    if (this._systemStyle.tab.all) Object.assign(style, this._systemStyle.tabList.all);
-    Object.assign(style, this._systemStyle.tabList[tabName]);
+    if (this._systemStyle?.tab?.all) Object.assign(style, this._systemStyle.tabList.all);
+    Object.assign(style, get(this._systemStyle, `tabList.${tabName}`, {}));
     return style;
   }
   tabContent() {
     var style = {};
-    Object.assign(style, this._systemStyle.tabContent.all);
+    Object.assign(style, this._systemStyle?.tabContent?.all);
     return style;
   }
   tabSeparator() {
     var style = {};
-    Object.assign(style, this._systemStyle.tabSeparator.all);
+    Object.assign(style, this._systemStyle?.tabSeparator?.all);
     return style;
   }
   subTabHeader() {
     var style = {};
-    Object.assign(style, this._systemStyle.subTabHeader.all);
+    Object.assign(style, this._systemStyle?.subTabHeader?.all);
     return style;
   }
   matchUserScroll() {
     var style = {};
-    Object.assign(style, this._systemStyle.matchUserScroll.all);
+    Object.assign(style, this._systemStyle?.matchUserScroll?.all);
     return style;
   }
   matchUserButton() {
     var style = {};
-    Object.assign(style, this._systemStyle.matchUserButton.all);
+    Object.assign(style, this._systemStyle?.matchUserButton?.all);
     return style;
   }
   tabListItem(tabActive, liName) {
@@ -258,7 +257,7 @@ export default class CssManager {
         tabActive === "Match User")
     ) {
       const style = { cursor: "pointer" };
-      Object.assign(style, this._systemStyle.tabListItem1.all);
+      Object.assign(style, this._systemStyle?.tabListItem1?.all);
       return style;
     } else {
       const style = { cursor: "pointer" };
@@ -271,9 +270,9 @@ export default class CssManager {
         if (tabActive === "Game History") tabActive = "GameHistory";
         if (tabActive === "Adjourned Game") tabActive = "AdjournedGame";
 
-        Object.assign(style, this._systemStyle.tabListItem[tabActive]);
+        Object.assign(style, get(this._systemStyle, `tabListItem.${tabActive}`, {}));
       }
-      Object.assign(style, this._systemStyle.tabListItem.all);
+      Object.assign(style, this._systemStyle?.tabListItem?.all);
       if (
         liName === "FEN/PGN" ||
         liName === "Examiner" ||
@@ -290,19 +289,19 @@ export default class CssManager {
   /**This style for gameseek and match Request user form */
   formMain() {
     var style = {};
-    Object.assign(style, this._systemStyle.formMain.all);
+    Object.assign(style, this._systemStyle?.formMain?.all);
     return style;
   }
   formMainHalf() {
     var style = {};
-    Object.assign(style, this._systemStyle.formMainHalf.all);
+    Object.assign(style, this._systemStyle?.formMainHalf?.all);
     return style;
   }
   formLabelStyle(labelname) {
     var style = {};
-    if (this._systemStyle.formLabelStyle.all)
+    if (this._systemStyle?.formLabelStyle?.all)
       Object.assign(style, this._systemStyle.formLabelStyle.all);
-    Object.assign(style, this._systemStyle.formLabelStyle[labelname]);
+    Object.assign(style, get(this._systemStyle, `formLabelStyle${labelname}`, {}));
     return style;
   }
 
@@ -310,29 +309,29 @@ export default class CssManager {
 
   TabIcon(tabName) {
     var style = {};
-    if (this._systemStyle.TabIcon.all) Object.assign(style, this._systemStyle.TabIcon.all);
-    Object.assign(style, this._systemStyle.TabIcon[tabName]);
+    if (this._systemStyle?.TabIcon?.all) Object.assign(style, this._systemStyle.TabIcon.all);
+    Object.assign(style, get(this._systemStyle, `TabIcon.${tabName}`, {}));
     return style;
   }
   spanStyle(spanName) {
     var style = {};
-    if (this._systemStyle.span.all) Object.assign(style, this._systemStyle.span.all);
-    Object.assign(style, this._systemStyle.span[spanName]);
+    if (this._systemStyle?.span?.all) Object.assign(style, this._systemStyle.span.all);
+    Object.assign(style, get(this._systemStyle, `span.${spanName}`, {}));
     return style;
   }
   challengeContent() {
     var style = {};
-    Object.assign(style, this._systemStyle.challengeContent.all);
+    Object.assign(style, this._systemStyle?.challengeContent?.all);
     return style;
   }
   competitionsListItem() {
     var style = {};
-    Object.assign(style, this._systemStyle.competitionsListItem.all);
+    Object.assign(style, this._systemStyle?.competitionsListItem?.all);
     return style;
   }
   tournamentContent() {
     var style = {};
-    Object.assign(style, this._systemStyle.tournamentContent.all);
+    Object.assign(style, this._systemStyle?.tournamentContent?.all);
     return style;
   }
 
@@ -356,28 +355,27 @@ export default class CssManager {
    * @param which Position of the text
    * @param color Color of the square
    */
-  internalRankAndFileStyle(which, color, side) {
+  internalRankAndFileStyle(which, color) {
     const style = {}; // width: side, height: side };
 
-    if (this._boardStyle.internal_rank_and_file.all)
+    if (this._boardStyle?.internal_rank_and_file?.all)
       Object.assign(style, this._boardStyle.internal_rank_and_file.all);
 
-    Object.assign(style, this._boardStyle.internal_rank_and_file.color[color]);
-    Object.assign(style, this._boardStyle.internal_rank_and_file.position[which]);
+    Object.assign(style, get(this._boardStyle, `internal_rank_and_file.color.${color}`, {}));
+    Object.assign(style, get(this._boardStyle, `internal_rank_and_file.position.${which}`, {}));
 
     return style;
   }
 
   /**
    *
-   * @param which Position of the text
-   * @param color Color of the square
+   * @param side
    */
 
   externalFileStyle(side) {
     const style = { width: side, height: side / 5 };
 
-    if (this._boardStyle.external_file.all)
+    if (this._boardStyle?.external_file?.all)
       Object.assign(style, this._boardStyle.external_file.all);
 
     return style;
@@ -385,7 +383,7 @@ export default class CssManager {
   externalRankStyle(side) {
     const style = { width: side / 5, height: side };
 
-    if (this._boardStyle.external_rank.all)
+    if (this._boardStyle?.external_rank?.all)
       Object.assign(style, this._boardStyle.external_rank.all);
 
     return style;

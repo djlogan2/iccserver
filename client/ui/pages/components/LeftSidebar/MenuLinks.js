@@ -198,6 +198,7 @@ class MenuLinks extends Component {
                   "menulink__item",
                   !!isActive ? classes.active : ""
                 )}
+                id={link.label}
                 onClick={() => this.handleClick(link.label)}
               >
                 <img src={link.src} alt={link.label} />
