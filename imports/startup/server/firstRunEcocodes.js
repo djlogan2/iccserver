@@ -2,9 +2,10 @@ import Chess from "chess.js";
 import { EcoSchema } from "../../../server/EcoSchema";
 import { Mongo } from "meteor/mongo";
 import { EcoCollection } from "../../../server/Game";
+import { Meteor } from "meteor/meteor";
 
 export default function firstRunEcocodes() {
-  if (!EcoCollection.findOne()) initialLoad();
+  if (!Meteor.isTest && !Meteor.isAppTest && !EcoCollection.findOne()) initialLoad();
 }
 
 function initialLoad() {
