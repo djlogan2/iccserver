@@ -11,15 +11,11 @@ export default class CssManager {
   }
   /**
    *
-   * @param squareColor 'b' or 'w' for the color of the square
-   * @param piece null, or the piece that's on the square
-   * @param color null, or the color of the piece that's on the square
-   * @param side The number of pixels on the side of a square
+   * @param height
    */
-  parentPopup(height, width) {
-    //var style = { width: width, height: height };
-    var style = { height: height };
-    Object.assign(style, this._systemStyle.parentDivPopupMainPage);
+  parentPopup(height) {
+    const style = { height };
+    Object.assign(style, this._systemStyle?.parentDivPopupMainPage);
     return style;
   }
   outerPopupMain() {
@@ -33,7 +29,8 @@ export default class CssManager {
     return style;
   }
   drawActionSection() {
-    var style = {
+    //Object.assign(style, this._systemStyle.drawActionSection);
+    return {
       height: "auto",
       width: "auto",
       alignItems: "center",
@@ -42,38 +39,36 @@ export default class CssManager {
       color: "blue",
       padding: "2px 10px",
     };
-    //Object.assign(style, this._systemStyle.drawActionSection);
-    return style;
   }
   drawSectionButton() {
     var style = {};
-    Object.assign(style, this._systemStyle.drawSectionButton);
+    Object.assign(style, this._systemStyle?.drawSectionButton);
     return style;
   }
   moveListParent() {
     var style = {};
-    Object.assign(style, this._systemStyle.moveListParent);
+    Object.assign(style, this._systemStyle?.moveListParent);
     return style;
   }
   gameMoveStyle() {
     var style = {};
-    Object.assign(style, this._systemStyle.gameMoveStyle);
+    Object.assign(style, this._systemStyle?.gameMoveStyle);
     return style;
   }
   toggleMenuHeight() {
     var style = {};
-    Object.assign(style, this._systemStyle.toggleMenuHeight);
+    Object.assign(style, this._systemStyle?.toggleMenuHeight);
     return style;
   }
   innerPopupMain() {
     var style = {};
-    Object.assign(style, this._systemStyle.innerPopupMainPage);
+    Object.assign(style, this._systemStyle?.innerPopupMainPage);
     return style;
   }
   squareStyle(squareColor, side) {
     var style = { width: side, height: side };
-    if (this._boardStyle.square.all) Object.assign(style, this._boardStyle.square.all);
-    Object.assign(style, this._boardStyle.square[squareColor]);
+    if (this._boardStyle?.square?.all) Object.assign(style, this._boardStyle.square.all);
+    Object.assign(style, get(this._boardStyle, `square.${squareColor}`));
     return style;
   }
   imagePiecesize(side) {
@@ -88,22 +83,16 @@ export default class CssManager {
   }
 
   imagePeice(piece, color) {
-    var style;
-    if (piece !== undefined && color !== undefined) {
-      style = this._boardStyle.pieces[color][piece];
-      return style;
+    var style = {};
+    if (piece && color) {
+      style = get(this._boardStyle, `pieces.${color}.${piece}`, {});
     }
+
+    return style;
   }
   flags(country) {
-    /*
-    var style = {};
-    if (this._boardStyle.flags.all)
-      Object.assign(style, this._boardStyle.flags.all);
-    Object.assign(style, this._boardStyle.flags[country]);
-    return style;*/
     var style;
-    if (this._boardStyle.flags.all) style = this._boardStyle.flags.all;
-    style = this._boardStyle.flags[country];
+    style = get(this._boardStyle, `flags.${country}`, {});
     return style;
   }
 
@@ -115,19 +104,19 @@ export default class CssManager {
 
   userName() {
     var style = {};
-    Object.assign(style, this._boardStyle.userName.all);
+    Object.assign(style, this._boardStyle?.userName?.all);
     return style;
   }
 
   clock(time) {
     var style = {};
-    Object.assign(style, this._boardStyle.clock.all);
-    if (time <= 10) Object.assign(style, this._boardStyle.clock.alert);
+    Object.assign(style, this._boardStyle?.clock?.all);
+    if (time <= 10) Object.assign(style, this._boardStyle?.clock?.alert);
     return style;
   }
   userFlag(side) {
     var style = { maxWidth: side, height: "auto", marginLeft: "10px" };
-    Object.assign(style, this._boardStyle.userFlag.all);
+    Object.assign(style, this._boardStyle?.userFlag?.all);
     return style;
   }
   userPicture(side) {
@@ -137,7 +126,7 @@ export default class CssManager {
   }
   clockMain(side) {
     var style = { width: side, height: side };
-    Object.assign(style, this._boardStyle.clockMain.all);
+    Object.assign(style, this._boardStyle?.clockMain?.all);
     return style;
   }
 

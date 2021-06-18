@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
 
-export default class BlackPlayerClock extends Component {
+export default class getMillisecondsBlackPlayerClock extends Component {
   constructor(props) {
     super(props);
 

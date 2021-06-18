@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import AppWrapper from "./AppWrapper/AppWrapper";
 import PlayRightSidebar from "./RightSidebar/PlayRightSidebar/PlayRightSidebar";
-import "../../../../imports/css/leftsidebar";
+import "../../../../imports/css/leftsidebar.css";
 
 import { Col } from "antd";
 

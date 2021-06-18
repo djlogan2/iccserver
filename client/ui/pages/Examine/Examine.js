@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ExaminePage from "../components/ExaminePage";
+import ExaminePage from "../components/ExaminePage/ExaminePage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../../lib/client/Logger";

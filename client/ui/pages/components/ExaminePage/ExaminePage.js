@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import AppWrapper from "./AppWrapper/AppWrapper";
-import ExamineRightSidebar from "./RightSidebar/ExamineRightSidebar/ExamineRightSidebar";
-import "../../../../imports/css/leftsidebar";
+import AppWrapper from "../AppWrapper/AppWrapper";
+import ExamineRightSidebar from "../RightSidebar/ExamineRightSidebar/ExamineRightSidebar";
+import "../../../../../imports/css/leftsidebar.css";
 
 import { Col } from "antd";
 
-import MiddleBoard from "../MiddleSection/MiddleBoard";
-import BoardWrapper from "./BoardWrapper/BoardWrapper";
-import { colorBlackLetter, colorWhiteLetter } from "../../../constants/gameConstants";
+import MiddleBoard from "../../MiddleSection/MiddleBoard";
+import BoardWrapper from "../BoardWrapper/BoardWrapper";
+import { colorBlackLetter, colorWhiteLetter } from "../../../../constants/gameConstants";
 
 export default class ExaminePage extends Component {
   constructor(props) {
