@@ -96,10 +96,12 @@ class SecurityCard extends Component {
         <div className={classes.editMainCardDiv}>
           {!!error && <p className={classes.errorTitle}>{error}</p>}
           <Input.Password
+            id="new-password-input"
             onChange={this.handleChange(NEW_PASSWORD_PROPERTY)}
             placeholder={translate("newPassword")}
           />
           <Input.Password
+            id="confirm-password-input"
             onChange={this.handleChange(CONFIRM_PASSWORD_PROPERTY)}
             placeholder={translate("confirmPassword")}
           />
