@@ -16,6 +16,8 @@ if (!process.env.AWS_ACCESS_KEY_ID) {
 }
 
 const lambda = new AWS.Lambda();
+const debug = Meteor.bindEnvironment((msg) => log.debug(msg));
+const error = Meteor.bindEnvironment((msg) => log.error(msg));
 
 function awsDoIt(game) {
   return new Promise((resolve, reject) => {
@@ -36,9 +38,9 @@ function awsDoIt(game) {
           wtime: wtime,
           btime: btime,
           winc: game.clocks.white.inc_or_delay,
-          binc: game.clocks.black.inc_or_delay
-        }
-      })
+          binc: game.clocks.black.inc_or_delay,
+        },
+      }),
     };
     const start = new Date();
     lambda.invoke(params, (err, data) => {
@@ -46,13 +48,30 @@ function awsDoIt(game) {
         reject(err);
         return;
       }
+
+      if (!data || !data.Payload) {
+        error("game=" + game._id + ":'data or its payload is null', payload=" + data)
+        reject("data or its Payload is null");
+        return;
+      }
       const payload = JSON.parse(data.Payload);
+      if (!payload || !payload.body) {
+        error("game=" + game._id + ":'payload or its body is null', payload=" + data)
+        reject("payload or its body is null");
+        return;
+      }
       const body = JSON.parse(payload.body);
+      if (!body) {
+        error("game=" + game._id + ":'body is null', payload=" + data);
+        reject("body is null");
+        return;
+      }
       const end = new Date();
       const server_time = end - start;
-      const computer_start = Date.parse(body.timing.start);
-      const computer_end = Date.parse(body.timing.end);
-      const lambda_time = computer_end - computer_start;
+      // const computer_start = Date.parse(body.timing.start);
+      // const computer_end = Date.parse(body.timing.end);
+      // const lambda_time = computer_end - computer_start;
+      //
       // You can use time_diff/2 for lag if you wish
       //const time_diff = server_time - lambda_time;
       resolve(body.results);
@@ -60,7 +79,7 @@ function awsDoIt(game) {
   });
 }
 
-const playGameMove = Meteor.bindEnvironment(game_id => {
+const playGameMove = Meteor.bindEnvironment((game_id) => {
   const game = Game.GameCollection.findOne({ _id: game_id });
   if (!game) return;
   if (game.white.id === "computer" && game.tomove !== "white") return;
@@ -92,7 +111,7 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
     return;
   }
 
-  awsDoIt(game).then(result => {
+  awsDoIt(game).then((result) => {
     const chess = new Chess.Chess(game.fen);
     const cmove = chess.move(result.bestmove, { sloppy: true });
     Game.internalSaveLocalMove(
@@ -106,7 +125,10 @@ const playGameMove = Meteor.bindEnvironment(game_id => {
 
 function watchForComputerGames() {
   Game.GameCollection.find({
-    $and: [{ status: "playing" }, { $or: [{ "white.id": "computer" }, { "black.id": "computer" }] }]
+    $and: [
+      { status: "playing" },
+      { $or: [{ "white.id": "computer" }, { "black.id": "computer" }] },
+    ],
   }).observeChanges({
     added(id, fields) {
       playGameMove(id);
@@ -114,7 +136,7 @@ function watchForComputerGames() {
     changed(id, fields) {
       if (!fields.fen) return; // A move had to have been made
       playGameMove(id);
-    }
+    },
   });
 }
 
