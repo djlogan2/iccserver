@@ -12,7 +12,7 @@ export default class MoveList extends Component {
     super(props);
 
     this.cmi = 0;
-    this.newString = [];
+    this.moveListRow = [];
 
     this.state = {
       cmi: 0,
@@ -87,14 +87,14 @@ export default class MoveList extends Component {
     };
 
     if (element.smith.color === colorWhiteLetter) {
-      this.newString.push(
+      this.moveListRow.push(
         <span style={styles} onClick={() => this.handleClick(cmi)}>
           <b>{index}.</b>
           {element.move}{" "}
         </span>
       );
     } else {
-      this.newString.push(
+      this.moveListRow.push(
         <span style={styles} onClick={() => this.handleClick(cmi)}>
           {element.move}{" "}
         </span>
@@ -102,7 +102,7 @@ export default class MoveList extends Component {
     }
   };
 
-  recursiveMoveList = (moveList, currentMoveElement, currentIndex, cmi) => {
+  recursiveMoveListRow = (moveList, currentMoveElement, currentIndex, cmi) => {
     const currentColor = get(moveList[currentMoveElement], "smith.color", null);
     if (
       !moveList[currentMoveElement].variations ||
@@ -114,7 +114,7 @@ export default class MoveList extends Component {
 
     if (moveList[currentMoveElement].variations.length === 1) {
       this.addToNewString(moveList[currentMoveElement], currentIndex, currentMoveElement, cmi);
-      this.recursiveMoveList(
+      this.recursiveMoveListRow(
         moveList,
         moveList[currentMoveElement].variations[0],
         currentColor === colorBlackLetter ? currentIndex + 1 : currentIndex,
@@ -125,10 +125,10 @@ export default class MoveList extends Component {
 
       moveList[currentMoveElement].variations.forEach((el, index) => {
         if (index) {
-          this.newString.push(<>(</>);
+          this.moveListRow.push(<>(</>);
         }
 
-        this.recursiveMoveList(
+        this.recursiveMoveListRow(
           moveList,
           el,
           currentColor === colorBlackLetter ? currentIndex + 1 : currentIndex,
@@ -136,7 +136,7 @@ export default class MoveList extends Component {
         );
 
         if (index) {
-          this.newString.push(<>)</>);
+          this.moveListRow.push(<>)</>);
         }
       });
     }
@@ -148,11 +148,11 @@ export default class MoveList extends Component {
     const cmi = get(game, "variations.cmi", 1);
 
     if (!moveList.length || moveList.length === 1) return;
-    this.newString = [];
+    this.moveListRow = [];
 
     let currentIndex = 1;
 
-    this.recursiveMoveList(moveList, currentIndex, 1, cmi);
+    this.recursiveMoveListRow(moveList, currentIndex, 1, cmi);
   };
 
   render() {
@@ -177,7 +177,7 @@ export default class MoveList extends Component {
 
     return (
       <div style={{ background: "#EFF0F3" }}>
-        <div style={cssManager.gameMoveList()}>{this.newString.map((el) => el)}</div>
+        <div style={cssManager.gameMoveList()}>{this.moveListRow.map((el) => el)}</div>
       </div>
     );
   }
