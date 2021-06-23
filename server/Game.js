@@ -160,12 +160,6 @@ export class Game {
         ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
-    game.variations.movelist.forEach((move) => {
-      move.eco = {
-        name: "",
-        code: "",
-      };
-    });
 
     if (game.legacy_game_number)
       throw new ICCMeteorError(message_identifier, "Found a legacy game record");
@@ -188,10 +182,6 @@ export class Game {
       while (cmi !== 0) {
         moves.unshift(game.variations.movelist[cmi].move);
         cmi = game.variations.movelist[cmi].prev;
-        game.variations.movelist[cmi].eco = {
-          name: "",
-          code: "",
-        };
       }
       moves.forEach((move) => active_games[game_id].move(move));
       // fen = active_games[game_id].fen();
@@ -497,7 +487,10 @@ export class Game {
         },
       },
     };
-
+    game.variations.movelist[0].eco = {
+      name: "",
+      code: "",
+    };
     if (!!examined_game) {
       game.tags = { FEN: examined_game.fen };
     }
@@ -644,6 +637,14 @@ export class Game {
     }
 
     delete game_object._id; // For safety
+    if (!game_object.variations.movelist.eco) {
+      game_object.variations.movelist.forEach((move) => {
+        move.eco = {
+          name: "",
+          code: "",
+        };
+      });
+    }
     const game_id = this.GameCollection.insert(game_object);
     Users.setGameStatus("server", self._id, "examining");
     active_games[game_id] = chess;
@@ -709,6 +710,12 @@ export class Game {
       variations: { hmtb: 0, cmi: 0, movelist: [{}] },
       computer_variations: [],
     };
+    game.variations.movelist.forEach((move) => {
+      move.eco = {
+        name: "",
+        code: "",
+      };
+    });
 
     const game_id = this.GameCollection.insert(game);
     Users.setGameStatus(message_identifier, self, "examining");
@@ -2870,16 +2877,7 @@ export class Game {
         variation.cmi = variation.movelist[variation.cmi].variations[vi || 0];
         const forwardmove = variation.movelist[variation.cmi];
         const result = chessObject.move(forwardmove.move);
-        if (!move.eco.name) {
-          if (move.eco.name || move.eco.name === "") {
-            let ecoRecord = this.ecoCollection.findOne({
-              fen: chessObject.fen(),
-            });
-            move.eco.name = ecoRecord[1];
-            move.eco.code = ecoRecord[2];
-          }
-        } else {
-        }
+        this.load_eco(chessObject, variation);
 
         if (!result)
           throw new ICCMeteorError(
@@ -3049,10 +3047,6 @@ export class Game {
         smith: { piece, color, from, to, promotion },
         prev: variation_object.cmi,
         current: current,
-        eco: {
-          name: "",
-          code: "",
-        },
       });
 
       if (!variation_object.movelist[variation_object.cmi].variations) {
@@ -3062,27 +3056,37 @@ export class Game {
       }
       variation_object.cmi = newi;
     }
-
+    let chess_obj = new Chess.Chess();
+    variation_object.movelist.forEach((move) => {
+      chess_obj.move(move.move);
+    });
+    this.load_eco(chess_obj, variation_object);
     return !exists;
   }
 
   recursive_eco(chess_obj, movelist, cmi) {
-    if (!!movelist[cmi].eco && !!movelist[cmi].eco.name && !!movelist[cmi].eco.code)
-      return movelist[cmi].eco;
-    if (cmi === 0) {
+    if (!cmi) {
+      // Only times we will enter here are when the previous node is node 0 or
+      // We started on node 0 and are passing in an undefined cmi.
+      movelist[0].eco = { // Setting Node 0 specifically in case cmi is undefined.
+        name: "NO_ECO",
+        code: "NO_ECO",
+      };
       return {
         name: "NO_ECO",
         code: "NO_ECO",
       };
     }
-    let fen = chess_obj.fen();
+    if (!!movelist[cmi].eco && !!movelist[cmi].eco.name && !!movelist[cmi].eco.code)
+      return movelist[cmi].eco;
+
     const ecorecord = this.ecoCollection.findOne({
       fen: chess_obj.fen(),
     });
     if (!!ecorecord) {
       let ecoElements = {
         name: ecorecord.name,
-        code: ecorecord.code,
+        code: ecorecord.eco,
       };
       movelist[cmi].eco = ecoElements;
       return ecoElements;
@@ -3094,29 +3098,41 @@ export class Game {
     return movelist[cmi].eco;
   }
 
-  update_eco(chess_obj, movelist) {
+  load_eco(chess_obj, variations) {
     if (
-      !!movelist[movelist.cmi].eco &&
-      !!movelist[movelist.cmi].eco.name &&
-      !!movelist[movelist.cmi].eco.code
+      !!variations.movelist[variations.cmi].eco &&
+      !!variations.movelist[variations.cmi].eco.name &&
+      !!variations.movelist[variations.cmi].eco.code
     )
       return;
+
+    let fen = chess_obj.fen();
     const ecorecord = this.ecoCollection.findOne({
       fen: chess_obj.fen(),
     });
     if (!!ecorecord) {
-      movelist[movelist.cmi].ecoc = ecorecord.code;
+      let ecoElements = {
+        name: ecorecord.name,
+        code: ecorecord.eco,
+      };
+      variations.movelist[variations.cmi].eco = ecoElements;
       return;
     }
-    const prev = movelist[movelist.cmi].prev;
-    if (!!prev && !!movelist[prev].eco) {
-      movelist[movelist.cmi].eco = movelist[prev].eco;
+    const prev = variations.movelist[variations.cmi].prev;
+    if (!!prev && !!variations.movelist[prev].eco) {
+      variations.movelist[variations.cmi].eco = variations.movelist[prev].eco;
       return;
     }
-    const new_chess_obj = new Chess();
-    chess_obj.moves().forEach(new_chess_obj.move);
+    const new_chess_obj = new Chess.Chess();
+    chess_obj.history().forEach((move) => {
+      new_chess_obj.move(move);
+    });
     new_chess_obj.undo();
-    movelist[movelist.cmi].eco = this.recursive_eco(new_chess_obj, movelist, prev);
+    variations.movelist[variations.cmi].eco = this.recursive_eco(
+      new_chess_obj,
+      variations.movelist,
+      prev
+    );
   }
 
   clearBoard(message_identifier, game_id) {
@@ -3189,16 +3205,35 @@ export class Game {
       return;
     }
     const fen = active_games[game_id].fen();
+
+    game.variations.cmi = 0;
+    game.variations.movelist = [{}];
+    game.variations.movelist.forEach((move) => {
+      move.eco = {
+        name: "",
+        code: "",
+      };
+    });
+    this.load_eco(active_games[game_id], game.variations);
     if (game.fen !== fen) {
       this.GameCollection.update(
         { _id: game_id, status: "examining" },
         {
           $set: {
             fen: fen,
-            variations: { cmi: 0, movelist: [{}] },
+            variations: game.variations,
             "tags.FEN": fen,
           },
           $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } },
+        }
+      );
+    } else {
+      this.GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $set: {
+            variations: game.variations,
+          },
         }
       );
     }
@@ -4049,6 +4084,9 @@ GameHistory.savePlayedGame = function (message_identifier, game_id) {
     );
   delete game.variations.hmtb;
   delete game.variations.cmi;
+  game.variations.movelist.forEach((move) => {
+    delete move.eco;
+  });
   return GameHistoryCollection.insert(game);
 };
 
