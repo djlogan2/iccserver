@@ -199,7 +199,9 @@ class MiddleBoard extends Component {
                 left: boardSize / 2 + 20,
               }}
             >
-              <Analytics orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
+              {game && game.status === gameStatusExamining && (
+                <Analytics orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
+              )}
             </div>
           </div>
         )}
