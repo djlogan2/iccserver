@@ -924,6 +924,13 @@ GameRequests.declineMatchRequest = function(message_identifier, game_id) {
   );
 };
 
+This was written back in April, but does NOT have any tests written for it!
+  Server functions MUST ALL have tests!
+  How did I discover this, you ask? This is crashing in production:
+"Exception while invoking method 'cancelMatchRequest' Error: Match error: Match error: MATCH_CANCELED is not known to ClientMessages\n" +
+"    at check (packages/check/match.js:36:17)"
+Had the unit tests been written, this crash would not be occurring in production
+
 GameRequests.cancelMatchRequest = function(message_identifier, receiver_id) {
   check(message_identifier, String);
   check(receiver_id, String);
