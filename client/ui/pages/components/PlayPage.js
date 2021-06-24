@@ -43,7 +43,7 @@ export default class PlayPage extends Component {
   getTop = () => {
     const { game } = this.props;
 
-    return game?.white?.id === Meteor.userId() ? colorBlackLetter : colorWhiteLetter;
+    return game?.black?.id === Meteor.userId() ? colorWhiteLetter : colorBlackLetter;
   };
 
   render() {

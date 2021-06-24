@@ -142,7 +142,12 @@ class LocationControls extends Component {
             className={classes.locationControlsItemImage}
           />
         </button>
-        <button title={translate("flip")} onClick={flip} className={classes.locationControlItem}>
+        <button
+          id="flip-button"
+          title={translate("flip")}
+          onClick={flip}
+          className={classes.locationControlItem}
+        >
           <img
             src="images/navigation-flip.svg"
             alt={translate("flip")}

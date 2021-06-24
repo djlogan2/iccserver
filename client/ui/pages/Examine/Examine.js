@@ -42,7 +42,18 @@ class Examine extends Component {
   }
 
   initExamine = () => {
-    Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
+    Meteor.call(
+      "startLocalExaminedGame",
+      "startlocalExaminedGame",
+      "Mr white",
+      "Mr black",
+      0,
+      (err) => {
+        if (err) {
+          log.error(err);
+        }
+      }
+    );
   };
 
   handleDraw = (objectList) => {
