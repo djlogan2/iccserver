@@ -16,9 +16,9 @@ const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({
   create_date: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   isolation_group: String,
   type: String,
@@ -42,15 +42,15 @@ const LocalSeekSchema = new SimpleSchema({
       const array = this.field("matchingusers").value;
       if (!array) return 0;
       else return array.length;
-    }
-  }
+    },
+  },
 });
 const LegacyMatchSchema = {
   create_date: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   isolation_group: String,
   type: String,
@@ -75,17 +75,17 @@ const LegacyMatchSchema = {
   challenger_color_request: {
     type: String,
     optional: true,
-    allowedValues: ["white", "black"]
+    allowedValues: ["white", "black"],
   },
   challenger_id: { type: String, optional: true },
-  receiver_id: { type: String, optional: true }
+  receiver_id: { type: String, optional: true },
 };
 const LocalMatchSchema = {
   create_date: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   isolation_group: String,
   type: String,
@@ -115,19 +115,19 @@ const LocalMatchSchema = {
   challenger_color_request: {
     type: String,
     allowedValues: ["white", "black"],
-    optional: true
+    optional: true,
   },
   assess_loss: Number,
   assess_draw: Number,
   assess_win: Number,
-  fancy_time_control: { type: String, optional: true }
+  fancy_time_control: { type: String, optional: true },
 };
 const LegacySeekSchema = {
   create_date: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   isolation_group: String,
   type: String,
@@ -146,19 +146,19 @@ const LegacySeekSchema = {
   minrating: Number,
   maxrating: Number,
   autoaccept: Boolean,
-  formula: { type: String, optional: true }
+  formula: { type: String, optional: true },
 };
 GameRequestCollection.attachSchema(LocalSeekSchema, {
-  selector: { type: "seek" }
+  selector: { type: "seek" },
 });
 GameRequestCollection.attachSchema(LocalMatchSchema, {
-  selector: { type: "match" }
+  selector: { type: "match" },
 });
 GameRequestCollection.attachSchema(LegacyMatchSchema, {
-  selector: { type: "legacymatch" }
+  selector: { type: "legacymatch" },
 });
 GameRequestCollection.attachSchema(LegacySeekSchema, {
-  selector: { type: "legacyseek" }
+  selector: { type: "legacyseek" },
 });
 
 const log = new Logger("server/GameRequest_js");
@@ -166,7 +166,7 @@ const log = new Logger("server/GameRequest_js");
 export const GameRequests = {};
 GameRequests.collection = GameRequestCollection;
 
-GameRequests.addLegacyGameSeek = function(
+GameRequests.addLegacyGameSeek = function (
   message_identifier,
   index,
   name,
@@ -223,14 +223,14 @@ GameRequests.addLegacyGameSeek = function(
         minrating: minrating,
         maxrating: maxrating,
         autoaccept: autoaccept,
-        formula: formula
-      }
+        formula: formula,
+      },
     }
   );
   if (upsertReturn.numberAffected === 1) return upsertReturn.insertedId;
 };
 
-GameRequests.addLocalGameSeek = function(
+GameRequests.addLocalGameSeek = function (
   message_identifier,
   wild,
   rating_type,
@@ -320,7 +320,7 @@ GameRequests.addLocalGameSeek = function(
     inc_or_delay: inc_or_delay,
     delaytype: inc_or_delay_type,
     rated: rated,
-    autoaccept: autoaccept || false
+    autoaccept: autoaccept || false,
   };
 
   if (!!color) game.color = color;
@@ -341,9 +341,9 @@ GameRequests.addLocalGameSeek = function(
           time: time,
           inc_or_delay: inc_or_delay,
           inc_or_delay_type: inc_or_delay_type,
-          rated: rated
-        }
-      }
+          rated: rated,
+        },
+      },
     }
   );
 
@@ -356,7 +356,7 @@ GameRequests.addLocalGameSeek = function(
     inc_or_delay: inc_or_delay,
     delaytype: inc_or_delay_type,
     rated: rated,
-    matchingusers: self._id
+    matchingusers: self._id,
   }).fetch();
 
   if (!!other_seeks.length) {
@@ -372,15 +372,15 @@ GameRequests.addLocalGameSeek = function(
   let matchingusers = [];
   if (!!users) {
     matchingusers = users
-      .filter(user => seekMatchesUser(message_identifier, user, game))
-      .map(user => user._id);
+      .filter((user) => seekMatchesUser(message_identifier, user, game))
+      .map((user) => user._id);
   }
   game.matchingusers = matchingusers || [];
 
   return GameRequestCollection.insert(game);
 };
 
-GameRequests.removeLegacySeek = function(message_identifier, seek_index, reason_code) {
+GameRequests.removeLegacySeek = function (message_identifier, seek_index, reason_code) {
   check(message_identifier, String);
   check(seek_index, Number);
   check(reason_code, Number);
@@ -396,7 +396,7 @@ GameRequests.removeLegacySeek = function(message_identifier, seek_index, reason_
   GameRequestCollection.remove({ _id: request._id });
 };
 
-GameRequests.removeGameSeek = function(message_identifier, seek_id) {
+GameRequests.removeGameSeek = function (message_identifier, seek_id) {
   const self = Meteor.user();
   check(message_identifier, String);
   check(seek_id, String);
@@ -418,7 +418,7 @@ GameRequests.removeGameSeek = function(message_identifier, seek_id) {
   GameRequestCollection.remove({ _id: seek_id });
 };
 
-GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
+GameRequests.acceptGameSeek = function (message_identifier, seek_id) {
   const self = Meteor.user();
   check(self, Object);
   check(seek_id, String);
@@ -474,7 +474,7 @@ GameRequests.acceptGameSeek = function(message_identifier, seek_id) {
 //
 //-----------------------------------------------------------------------------
 //
-GameRequests.addLegacyMatchRequest = function(
+GameRequests.addLegacyMatchRequest = function (
   message_identifier,
   challenger_name,
   challenger_rating,
@@ -521,12 +521,12 @@ GameRequests.addLegacyMatchRequest = function(
 
   const challenger_user = Meteor.users.findOne({
     "profile.legacy.username": challenger_name,
-    "profile.legacy.validated": true
+    "profile.legacy.validated": true,
   });
 
   const receiver_user = Meteor.users.findOne({
     "profile.legacy.username": receiver_name,
-    "profile.legacy.validated": true
+    "profile.legacy.validated": true,
   });
 
   if (challenger_user && challenger_user._id === self._id) challenger_or_receiver = true;
@@ -561,7 +561,7 @@ GameRequests.addLegacyMatchRequest = function(
     challenger_inc: challenger_inc,
     receiver_time: receiver_time,
     receiver_inc: receiver_inc,
-    challenger_color_request: challenger_color_request
+    challenger_color_request: challenger_color_request,
   };
 
   if (challenger_color_request) record.challenger_color_request = challenger_color_request;
@@ -576,7 +576,7 @@ function established(rating_object) {
   return rating_object.won + rating_object.draw + rating_object.lost >= 20;
 }
 
-GameRequests.addLocalMatchRequest = function(
+GameRequests.addLocalMatchRequest = function (
   message_identifier,
   receiver_user,
   wild_number,
@@ -766,7 +766,7 @@ GameRequests.addLocalMatchRequest = function(
     assess_loss: assess.loss,
     assess_draw: assess.draw,
     assess_win: assess.win,
-    fancy_time_control: fancy_time_control
+    fancy_time_control: fancy_time_control,
   };
 
   if (!is_it_adjourned)
@@ -784,16 +784,16 @@ GameRequests.addLocalMatchRequest = function(
             receiver_time: receiver_time,
             receiver_inc_or_delay: receiver_inc_or_delay,
             receiver_delaytype: receiver_inc_or_delay_type,
-            challenger_color_request: challenger_color_request
-          }
-        }
+            challenger_color_request: challenger_color_request,
+          },
+        },
       }
     );
 
   return GameRequestCollection.insert(record);
 };
 
-GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
+GameRequests.acceptMatchRequest = function (message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
 
@@ -898,7 +898,7 @@ GameRequests.acceptMatchRequest = function(message_identifier, game_id) {
   return started_id;
 };
 
-GameRequests.declineMatchRequest = function(message_identifier, game_id) {
+GameRequests.declineMatchRequest = function (message_identifier, game_id) {
   check(message_identifier, String);
   check(game_id, String);
   const self = Meteor.user();
@@ -924,14 +924,7 @@ GameRequests.declineMatchRequest = function(message_identifier, game_id) {
   );
 };
 
-This was written back in April, but does NOT have any tests written for it!
-  Server functions MUST ALL have tests!
-  How did I discover this, you ask? This is crashing in production:
-"Exception while invoking method 'cancelMatchRequest' Error: Match error: Match error: MATCH_CANCELED is not known to ClientMessages\n" +
-"    at check (packages/check/match.js:36:17)"
-Had the unit tests been written, this crash would not be occurring in production
-
-GameRequests.cancelMatchRequest = function(message_identifier, receiver_id) {
+GameRequests.cancelMatchRequest = function (message_identifier, receiver_id) {
   check(message_identifier, String);
   check(receiver_id, String);
   const self = Meteor.user();
@@ -961,7 +954,7 @@ GameRequests.cancelMatchRequest = function(message_identifier, receiver_id) {
   );
 };
 
-GameRequests.removeLegacyMatchRequest = function(
+GameRequests.removeLegacyMatchRequest = function (
   message_identifier,
   challenger_name,
   receiver_name,
@@ -993,14 +986,14 @@ GameRequests.removeLegacyMatchRequest = function(
       "User is neither challenger nor receiver of removed match (2)"
     );
   const result = GameRequestCollection.remove({
-    $and: [{ challenger: challenger_name }, { receiver: receiver_name }]
+    $and: [{ challenger: challenger_name }, { receiver: receiver_name }],
   });
 
   if (!result)
     throw new ICCMeteorError(message_identifier, "No legacy match record found to remove");
 
   ClientMessages.sendMessageToClient(self, message_identifier, "LEGACY_MATCH_REMOVED", [
-    explanation_string
+    explanation_string,
   ]);
 };
 
@@ -1012,7 +1005,7 @@ Meteor.methods({
   cancelMatchRequest: GameRequests.cancelMatchRequest,
   createLocalGameSeek: GameRequests.addLocalGameSeek,
   acceptLocalGameSeek: GameRequests.acceptGameSeek,
-  removeGameSeek: GameRequests.removeGameSeek
+  removeGameSeek: GameRequests.removeGameSeek,
 });
 
 function seekMatchesUser(message_identifier, user, seek) {
@@ -1035,7 +1028,7 @@ function seekMatchesUser(message_identifier, user, seek) {
 }
 
 Meteor.publishComposite("game_requests", {
-  find: function() {
+  find: function () {
     return Meteor.users.find(
       { _id: this.userId, "status.online": true, "status.game": { $ne: "playing" } },
       { fields: { "status.game": 1, isolation_group: 1 } }
@@ -1053,20 +1046,20 @@ Meteor.publishComposite("game_requests", {
                   { challenger_id: user._id },
                   { receiver_id: user._id },
                   { owner: user._id },
-                  { matchingusers: user._id }
-                ]
+                  { matchingusers: user._id },
+                ],
               },
-              { isolation_group: user.isolation_group }
-            ]
+              { isolation_group: user.isolation_group },
+            ],
           },
           { fields: { matchingusers: 0 } }
         );
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 
-GameRequests.removeUserFromAllSeeks = function(userId) {
+GameRequests.removeUserFromAllSeeks = function (userId) {
   check(userId, String);
   GameRequestCollection.update(
     { type: "seek", matchingusers: userId },
@@ -1076,7 +1069,7 @@ GameRequests.removeUserFromAllSeeks = function(userId) {
   GameRequestCollection.remove({ type: "seek", owner: userId });
 };
 
-GameRequests.updateAllUserSeeks = function(message_identifier, user) {
+GameRequests.updateAllUserSeeks = function (message_identifier, user) {
   check(message_identifier, String);
   check(user, Match.OneOf(Object, String));
 
@@ -1091,10 +1084,10 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
   GameRequestCollection.find({
     type: "seek",
     isolation_group: user.isolation_group,
-    owner: { $ne: user._id }
+    owner: { $ne: user._id },
   })
     .fetch()
-    .forEach(seek => {
+    .forEach((seek) => {
       const matches = seekMatchesUser(message_identifier, user, seek);
       const alreadymatches = seek.matchingusers.indexOf(user._id) !== -1;
       if (matches !== alreadymatches) {
@@ -1121,44 +1114,44 @@ GameRequests.updateAllUserSeeks = function(message_identifier, user) {
     .find({
       isolation_group: user.isolation_group,
       "status.online": true,
-      "status.game": { $ne: "playing" }
+      "status.game": { $ne: "playing" },
     })
     .fetch();
 
   const update = {};
-  GameRequestCollection.find({ type: "seek", owner: user._id }).forEach(seek => {
+  GameRequestCollection.find({ type: "seek", owner: user._id }).forEach((seek) => {
     update.$addToSet = everybody
       .filter(
-        user =>
-          !seek.matchingusers.some(u => u === user) &&
+        (user) =>
+          !seek.matchingusers.some((u) => u === user) &&
           seekMatchesUser(message_identifier, user, seek)
       )
-      .map(user => user._id);
+      .map((user) => user._id);
     update.$pull = everybody
       .filter(
-        user =>
-          seek.matchingusers.some(u => u === user) &&
+        (user) =>
+          seek.matchingusers.some((u) => u === user) &&
           !seekMatchesUser(message_identifier, user, seek)
       )
-      .map(user => user._id);
+      .map((user) => user._id);
 
     GameRequestCollection.update({ _id: seek._id, type: seek.type }, update);
   });
 };
 
-GameRequests.removeAllUserMatches = function(userId, loggedOff) {
+GameRequests.removeAllUserMatches = function (userId, loggedOff) {
   check(userId, String);
   check(loggedOff, Boolean);
 
   if (loggedOff) {
     GameRequestCollection.find(
       {
-        receiver_id: userId
+        receiver_id: userId,
       },
       { challenger_id: 1 }
     )
       .fetch()
-      .forEach(match => {
+      .forEach((match) => {
         ClientMessages.sendMessageToClient(
           match.challenger_id,
           "matchRequest",
@@ -1168,17 +1161,17 @@ GameRequests.removeAllUserMatches = function(userId, loggedOff) {
   }
 
   GameRequestCollection.remove({
-    $or: [{ challenger_id: userId }, { receiver_id: userId }]
+    $or: [{ challenger_id: userId }, { receiver_id: userId }],
   });
 };
 
-Users.events.on("userLogin", function(fields) {
+Users.events.on("userLogin", function (fields) {
   GameRequests.removeAllUserMatches(fields.userId, false);
   GameRequests.removeUserFromAllSeeks(fields.userId);
   GameRequests.updateAllUserSeeks("server", fields.userId);
 });
 
-Users.events.on("userLogout", function(fields) {
+Users.events.on("userLogout", function (fields) {
   GameRequests.removeAllUserMatches(fields.userId, true);
   GameRequests.removeUserFromAllSeeks(fields.userId);
 });
@@ -1197,7 +1190,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
   GameRequests.seekMatchesUser = seekMatchesUser;
 }
 
-Meteor.startup(function() {
+Meteor.startup(function () {
   Users.addGroupChangeHook(groupChangeHook);
 });
 
@@ -1218,6 +1211,6 @@ Singular.addTask(() => {
           GameRequests.updateAllUserSeeks("server", id);
         }
       }
-    }
+    },
   });
 });
