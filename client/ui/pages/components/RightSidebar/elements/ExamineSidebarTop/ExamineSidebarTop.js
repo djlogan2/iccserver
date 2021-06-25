@@ -95,7 +95,6 @@ class ExamineSidebarTop extends Component {
           <GameHistory
             cssManager={cssManager}
             game={moveList}
-            flip={flip}
             actionData={actionData}
             startGameExamine={startGameExamine}
             gameRequest={gameRequest}

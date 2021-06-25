@@ -3,7 +3,7 @@ import chai from "chai";
 import { mount } from "enzyme";
 import CommunityRightBlock from "../CommunityRightBlock";
 
-describe("CimmunityRightBlock component", () => {
+describe("CommunityRightBlock component", () => {
   const mockProps = { activeRoom: "fake_id", roomList: [{ _id: "fake_id", name: "fake" }], onChange: () => null };
   const component = mount(<CommunityRightBlock {...mockProps} />);
 

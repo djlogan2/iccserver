@@ -16,7 +16,7 @@ import {
   gameStatusExamining,
   gameStatusPlaying,
 } from "../../../constants/gameConstants";
-import Mugshot from "../components/Analytics/Analytics";
+import Analytics from "../components/Analytics/Analytics";
 
 class MiddleBoard extends Component {
   constructor(props) {
@@ -199,7 +199,9 @@ class MiddleBoard extends Component {
                 left: boardSize / 2 + 20,
               }}
             >
-              <Mugshot orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
+              {game && game.status === gameStatusExamining && (
+                <Analytics orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
+              )}
             </div>
           </div>
         )}

@@ -328,27 +328,17 @@ class Play extends Component {
       capture = this._boardFromMongoMessages(inGame);
     }
 
-    let opponentName;
-    let userColor;
-    let result;
-
     const gameMessage = this.getClientMessage(this.message_identifier);
     const visible = !!gameMessage && !!inGame && inGame.status === "examining";
-    if (visible) {
-      result = inGame.result;
-
-      userColor = inGame.white.name === Meteor.user().username ? "white" : "black";
-      opponentName = userColor === "white" ? inGame.black.name : inGame.white.name;
-    }
 
     return (
       <div>
         <PlayModaler
           visible={visible}
-          gameResult={result}
+          gameResult={inGame?.result}
           clientMessage={gameMessage}
-          opponentName={opponentName}
-          userName={!!Meteor.userId() ? Meteor.user().username : "Logged Out"}
+          whitePlayerUsername={inGame?.white?.name}
+          blackPlayerUsername={inGame?.black?.name}
           onRematch={this.handleRematch}
           onExamine={this.handleExamine}
         />

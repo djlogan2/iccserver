@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import AppWrapper from "./AppWrapper/AppWrapper";
 import PlayRightSidebar from "./RightSidebar/PlayRightSidebar/PlayRightSidebar";
-import "../../../../imports/css/leftsidebar";
+import "../../../../imports/css/leftsidebar.css";
 
 import { Col } from "antd";
 
@@ -43,7 +43,7 @@ export default class PlayPage extends Component {
   getTop = () => {
     const { game } = this.props;
 
-    return game?.white?.id === Meteor.userId() ? colorBlackLetter : colorWhiteLetter;
+    return game?.black?.id === Meteor.userId() ? colorWhiteLetter : colorBlackLetter;
   };
 
   render() {

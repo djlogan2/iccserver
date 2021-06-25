@@ -17,13 +17,13 @@ describe("CustomColorPicker component", () => {
   });
 
   it("should have SketchPicker", () => {
-    component.setState({ isOpen: true }, () => {
-      chai.assert.equal(component.find(SketchPicker).length, 1);
-    });
-  });
+    component.find("div#open-scetch-picker").simulate("click");
+    chai.assert.equal(component.find(SketchPicker).length, 1);
 
-  it("should change color picker color", () => {
-    const picker = component.find(SketchPicker).first();
+    const picker = component.find(SketchPicker);
     picker.simulate("change", { target: { value: "#ffffff" } });
+    
+    component.find("div#close-scetch-picker").simulate("click");
+    chai.assert.equal(component.find(SketchPicker).length, 0);
   });
 });

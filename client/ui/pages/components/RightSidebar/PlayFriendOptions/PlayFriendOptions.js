@@ -121,7 +121,9 @@ class PlayFriendOptions extends Component {
       <div className={classes.main}>
         <div className={classes.head}>
           <h2 className={classes.nameTitle}>{translate("createGame")}</h2>
-          <Button onClick={onClose}>{translate("BACK")}</Button>
+          <Button id="back-button" onClick={onClose}>
+            {translate("BACK")}
+          </Button>
         </div>
         <Form
           layout="vertical"

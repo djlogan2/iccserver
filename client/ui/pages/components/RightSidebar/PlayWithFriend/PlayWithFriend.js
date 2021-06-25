@@ -23,7 +23,9 @@ const PlayWithFriend = ({
     <div className={classes.main}>
       <div className={classes.head}>
         <h2 className={classes.nameTitle}>{translate("PLAY_WITH_FRIEND")}</h2>
-        <Button onClick={onClose}>{translate("BACK")}</Button>
+        <Button id="back-button" onClick={onClose}>
+          {translate("BACK")}
+        </Button>
       </div>
       <h3 className={classes.header}>{translate("FRIENDS")}</h3>
       <ul className={classes.list}>

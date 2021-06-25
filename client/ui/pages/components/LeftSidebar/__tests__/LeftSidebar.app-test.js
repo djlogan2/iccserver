@@ -1,19 +1,100 @@
 import React from "react";
+import { Meteor } from "meteor/meteor";
 import chai from "chai";
+import sinon from "sinon";
 import { mount } from "enzyme";
 import { createBrowserHistory } from "history";
 import { Router } from "react-router-dom";
 import LeftSidebar from "../LeftSidebar";
 
 describe("LeftSidebar component", () => {
-  const history = createBrowserHistory();
-  const wrapper = mount(
-    <Router history={history}>
-      <LeftSidebar />
-    </Router>
-  );
+  const currentUser = {
+    username: "test",
+    email: "test@test.com",
+    _id: "fake_id",
+    status: { game: "none" },
+  };
+
+  beforeEach(() => {
+    sinon.stub(Meteor, "user");
+    Meteor.user.returns(currentUser);
+
+    sinon.stub(Meteor, "userId");
+    Meteor.userId.returns(currentUser._id);
+
+    sinon.stub(Meteor, "logout");
+    Meteor.logout.returns();
+  });
+
+  afterEach(() => {
+    Meteor.user.restore();
+    Meteor.userId.restore();
+    Meteor.logout.restore();
+  });
 
   it("should render", () => {
+    const history = createBrowserHistory();
+    const wrapper = mount(
+      <Router history={history}>
+        <LeftSidebar />
+      </Router>
+    );
+
     chai.assert.isDefined(wrapper);
+  });
+
+  it("should fliph", () => {
+    const history = createBrowserHistory();
+    const wrapper = mount(
+      <Router history={history}>
+        <LeftSidebar />
+      </Router>
+    );
+
+    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+    const button = wrapper.find("button");
+    button.simulate("click");
+  });
+
+  it("should redirect to profile", () => {
+    const history = createBrowserHistory();
+    const wrapper = mount(
+      <Router history={history}>
+        <LeftSidebar />
+      </Router>
+    );
+
+    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+    const div = wrapper.find("#profile-redirect");
+    div.simulate("click");
+  });
+
+  it("should logout", () => {
+    const history = createBrowserHistory();
+    const wrapper = mount(
+      <Router history={history}>
+        <LeftSidebar />
+      </Router>
+    );
+
+    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+    const div = wrapper.find("a#logout");
+    div.simulate("click");
+  });
+
+  it("should open my games dialog", () => {
+    const history = createBrowserHistory();
+    const wrapper = mount(
+      <Router history={history}>
+        <LeftSidebar />
+      </Router>
+    );
+
+    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+    const div = wrapper.find("a#mygame");
+    div.simulate("click");
+
+    chai.assert.equal(wrapper.find("Modal").length, 1);
+    wrapper.find("Modal").simulate("cancel");
   });
 });

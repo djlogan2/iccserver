@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import ExaminePage from "../components/ExaminePage";
+import ExaminePage from "../components/ExaminePage/ExaminePage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
 import { Logger } from "../../../../lib/client/Logger";
@@ -42,7 +42,18 @@ class Examine extends Component {
   }
 
   initExamine = () => {
-    Meteor.call("startLocalExaminedGame", "startlocalExaminedGame", "Mr white", "Mr black", 0);
+    Meteor.call(
+      "startLocalExaminedGame",
+      "startlocalExaminedGame",
+      "Mr white",
+      "Mr black",
+      0,
+      (err) => {
+        if (err) {
+          log.error(err);
+        }
+      }
+    );
   };
 
   handleDraw = (objectList) => {
@@ -167,8 +178,8 @@ class Examine extends Component {
     this.setState({ fileData });
   };
 
-  componentDidUpdate(prevProps) {
-    const { importedGames = [] } = this.props;
+  componentDidUpdate(prevProps, prevState) {
+    const { importedGames = [], game } = this.props;
     const { fileData } = this.state;
 
     if (
@@ -183,6 +194,10 @@ class Examine extends Component {
         importedGames: copyOfImportedGames,
         isImportedGamesModal: !!fileData,
       });
+    }
+
+    if (!game && prevState.leaving_game) {
+      this.setState({ leaving_game: null });
     }
   }
 

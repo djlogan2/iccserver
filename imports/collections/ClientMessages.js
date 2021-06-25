@@ -47,6 +47,7 @@ const DefinedClientMessagesMap = {
   TAKEBACK_ACCEPTED: {},
   TAKEBACK_DECLINED: {},
   MATCH_DECLINED: {},
+  MATCH_CANCELED: {},
   DRAW_DECLINED: {},
   DRAW_ALREADY_PENDING: {},
   ABORT_DECLINED: {},

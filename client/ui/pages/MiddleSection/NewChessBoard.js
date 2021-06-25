@@ -9,7 +9,6 @@ class NewChessBoard extends Component {
     super(props);
 
     this.state = {
-      key: Date.now(),
       legalMoves: this.getLegalMoves(),
       circles: [],
       arrows: [],
@@ -25,20 +24,9 @@ class NewChessBoard extends Component {
 
   componentDidMount() {
     const { chess } = this.props;
-    window.addEventListener("resize", this.updateWindowSize);
 
     this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
   }
-
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.updateWindowSize);
-  }
-
-  updateWindowSize = () => {
-    this.setState({
-      key: Date.now(),
-    });
-  };
 
   getArrowsDependOnPremove = (premove, prevPremove) => {
     const { arrows, premoveColor } = this.state;
@@ -269,7 +257,6 @@ class NewChessBoard extends Component {
       smartMoves,
       showLegalMoves,
       smallSize,
-      key,
       premove,
     } = this.state;
     const isCurrentTurn = this.isCurrentTurn();
@@ -278,7 +265,6 @@ class NewChessBoard extends Component {
 
     return (
       <ChessBoard
-        key={key}
         raf={{ inside: false, vertical: "bottom", horizontal: "right" }}
         styles={{
           wrapper: {

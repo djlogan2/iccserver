@@ -76,10 +76,16 @@ class PlayOptionButtons extends Component {
           </Button>
         </div>
         <div className={classes.bottom}>
-          <Button onClick={handlePlayWithFriend} className={classes.buttonBig} block>
+          <Button
+            id="play-with-friend-button"
+            onClick={handlePlayWithFriend}
+            className={classes.buttonBig}
+            block
+          >
             {translate("playWithFriend")}
           </Button>
           <Button
+            id="play-with-computer-button"
             onClick={handlePlayComputer}
             className={isUnratedGames ? classes.buttonBig : classes.buttonBigDisabled}
             block

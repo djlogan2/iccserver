@@ -110,6 +110,7 @@ class LeftSidebar extends Component {
           onClick={this.toggleMenu}
         />
         <div
+          id="profile-redirect"
           className={classNames(classes.sidebarUser, !!visible && classes.fliphSidebarUser)}
           onClick={() => this.handleRedirect(RESOURCE_PROFILE)}
         >
