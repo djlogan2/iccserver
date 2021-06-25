@@ -487,10 +487,6 @@ export class Game {
         },
       },
     };
-    game.variations.movelist[0].eco = {
-      name: "",
-      code: "",
-    };
     if (!!examined_game) {
       game.tags = { FEN: examined_game.fen };
     }
@@ -3068,7 +3064,8 @@ export class Game {
     if (!cmi) {
       // Only times we will enter here are when the previous node is node 0 or
       // We started on node 0 and are passing in an undefined cmi.
-      movelist[0].eco = { // Setting Node 0 specifically in case cmi is undefined.
+      movelist[0].eco = {
+        // Setting Node 0 specifically in case cmi is undefined. // TODO this needs to be changed and have tests modified accordingly
         name: "NO_ECO",
         code: "NO_ECO",
       };
@@ -3225,15 +3222,6 @@ export class Game {
             "tags.FEN": fen,
           },
           $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } },
-        }
-      );
-    } else {
-      this.GameCollection.update(
-        { _id: game_id, status: "examining" },
-        {
-          $set: {
-            variations: game.variations,
-          },
         }
       );
     }
