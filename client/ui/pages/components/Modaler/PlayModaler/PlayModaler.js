@@ -34,8 +34,8 @@ class PlayModaler extends Component {
       classes,
       clientMessage,
       gameResult,
-      userName,
-      opponentName,
+      whitePlayerUsername,
+      blackPlayerUsername,
       translate,
       visible,
       onExamine,
@@ -58,7 +58,7 @@ class PlayModaler extends Component {
                 src="images/player-img-top.png"
                 alt={translate("userImage")}
               />
-              <p className={classes.username}>{userName}</p>
+              <p className={classes.username}>{whitePlayerUsername}</p>
             </div>
             <div className={classes.mainCenter}>
               <span>{gameResult}</span>
@@ -70,7 +70,7 @@ class PlayModaler extends Component {
                 src="images/player-img-top.png"
                 alt={translate("userImage")}
               />
-              <p className={classes.username}>{opponentName}</p>
+              <p className={classes.username}>{blackPlayerUsername}</p>
             </div>
           </div>
           <div className={classes.buttonBlock}>
