@@ -178,8 +178,8 @@ class Examine extends Component {
     this.setState({ fileData });
   };
 
-  componentDidUpdate(prevProps) {
-    const { importedGames = [] } = this.props;
+  componentDidUpdate(prevProps, prevState) {
+    const { importedGames = [], game } = this.props;
     const { fileData } = this.state;
 
     if (
@@ -194,6 +194,10 @@ class Examine extends Component {
         importedGames: copyOfImportedGames,
         isImportedGamesModal: !!fileData,
       });
+    }
+
+    if (!game && prevState.leaving_game) {
+      this.setState({ leaving_game: null });
     }
   }
 
