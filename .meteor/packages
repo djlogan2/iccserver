@@ -25,7 +25,6 @@ universe:i18n
 
 johanbrook:publication-collector
 xolvio:cleaner
-hwillson:stub-collections
 lmieulet:meteor-coverage
 omega:json-protocol
 reywood:publish-composite
@@ -39,3 +38,5 @@ react-meteor-data
 aldeed:collection2
 zodern:profile-require
 patelutsav:meteor-migrations
+dburles:factory
+hwillson:stub-collections

@@ -1,12 +1,7 @@
 import SimpleSchema from "simpl-schema";
 
 const actionSchema = new SimpleSchema({
-  time: {
-    type: Date,
-    autoValue: function() {
-      return new Date();
-    }
-  },
+  time: { type: Date, required: true },
   issuer: String,
   type: {
     type: String,
@@ -35,25 +30,25 @@ const actionSchema = new SimpleSchema({
       "abort_accepted",
       "abort_declined",
       "move_backward",
-      "move_forward"
-    ]
+      "move_forward",
+    ],
   },
   parameter: {
     type: SimpleSchema.oneOf(String, Number, Object),
-    optional: true
+    optional: true,
   },
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
   "parameter.move": { type: String, required: false },
-  "parameter.what": { type: String, required: false }
+  "parameter.what": { type: String, required: false },
 });
 
 export const GameHistorySchema = new SimpleSchema({
   startTime: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   result: String,
   status2: Number,
@@ -65,24 +60,24 @@ export const GameHistorySchema = new SimpleSchema({
       white: new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
-        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] }
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
       }),
       black: new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
-        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] }
-      })
-    })
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
+      }),
+    }),
   },
   white: new SimpleSchema({
     name: String,
     id: String,
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
   }),
   black: new SimpleSchema({
     name: String,
     id: String,
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
   }),
   tags: { type: Object, required: false, blackbox: true },
   actions: [actionSchema],
@@ -115,5 +110,5 @@ export const GameHistorySchema = new SimpleSchema({
   "computer_variations.$.$.score.unit": String,
   "computer_variations.$.$.score.value": Number,
   "computer_variations.$.$.pv": String,
-  "computer_variations.$.$.multipv": Number
+  "computer_variations.$.$.multipv": Number,
 });
