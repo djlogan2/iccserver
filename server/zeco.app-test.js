@@ -327,8 +327,8 @@ describe.only("ecocodes", function(){
       chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, {name:"King's Indian Attack", code:"A08"});
     })
   });
-  describe.skip("moveForward", function(){
-    it("should load an eco code with an eco entry for each node visited by moveForward", function() {
+  describe.only("moveForward", function(){
+    it.only("should load an eco code with an eco entry for each node visited by moveForward", function() {
       this.timeout(500000000);
 
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
@@ -396,14 +396,44 @@ describe.only("ecocodes", function(){
         chai.assert.fail("Game collection doesn't exist");
       }
 
+      // Check if moveForward loads eco information into each node since all nodes should have been visited.
       game2.variations.movelist.forEach((move) => {
         chai.assert.isDefined(move.eco, "movelist.eco should be saved to the database");
         chai.assert.isDefined(move.eco.name, "movelist.eco.name should be saved to the database");
         chai.assert.isDefined(move.eco.code, "movelist.eco.code should be saved to the database");
       });
       chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "King's Indian Attack", code: "A08" });
+
+      Game.moveBackward("mi1", game_id, 3);
+
+      game.variations.movelist.forEach((move) => {
+        move.eco = { name: "", code: "" };
+      })
+      Game.GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $set: {
+            "variations.movelist": game.variations.movelist,
+          },
+        }
+      );
+      Game.moveForward("mi1", game_id, 3);
+
+      // Check if moveForward loaded eco information ONLY in the last 3 nodes of the movelist tree.
+      let game3 = Game.GameCollection.findOne({game_id: this.game_id});
+      game3.variations.movelist.forEach((move, index) => {
+        chai.assert.isDefined(move.eco);
+        if (index < 3) {
+          chai.assert.isUndefined(move.eco.name);
+          chai.assert.isUndefined(move.eco.code);
+        } else {
+          chai.assert.isDefined(move.eco.name);
+          chai.assert.isDefined(move.eco.code);
+        }
+      });
+      chai.assert.deepEqual(game3.variations.movelist[game3.variations.cmi].eco, { name: "King's Indian Attack", code: "A08" });
     });
-    it("should not load an eco code without an eco entry for each node visited by moveForward", function() {
+    it.only("should not load an eco code without an eco entry for each node visited by moveForward", function() {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
       let code = "A07";
