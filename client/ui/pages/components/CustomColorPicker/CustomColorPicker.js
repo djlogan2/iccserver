@@ -25,6 +25,7 @@ class CustomColorPicker extends React.Component {
     return (
       <div>
         <div
+          id="open-scetch-picker"
           style={{
             padding: "5px",
             background: "#fff",
@@ -42,6 +43,7 @@ class CustomColorPicker extends React.Component {
         {isOpen ? (
           <div style={{ position: "absolute", zIndex: "2" }}>
             <div
+              id="close-scetch-picker"
               style={{
                 position: "fixed",
                 top: "0px",
