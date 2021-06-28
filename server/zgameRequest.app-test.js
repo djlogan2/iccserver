@@ -1438,7 +1438,7 @@ describe("GameRequests.cancelMatchRequest", function () {
     }, Match.Error);
   });
 
-  it.only("should delete this record and send a client message to the challenger upon a successful request", function () {
+  it("should delete this record and send a client message to the challenger upon a successful request", function () {
     const challenger = TestHelpers.createUser();
     const receiver = TestHelpers.createUser();
     self.loggedonuser = challenger;

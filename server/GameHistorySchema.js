@@ -1,12 +1,7 @@
 import SimpleSchema from "simpl-schema";
 
 const actionSchema = new SimpleSchema({
-  time: {
-    type: Date,
-    autoValue: function () {
-      return new Date();
-    },
-  },
+  time: { type: Date, required: true },
   issuer: String,
   type: {
     type: String,
