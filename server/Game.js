@@ -2805,7 +2805,7 @@ export class Game {
         );
       }
     });
-
+    this.load_eco(chessObject, variation); //FIXME: might not work
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
@@ -2813,6 +2813,7 @@ export class Game {
           "variations.cmi": cmi,
           fen: chessObject.fen(),
           tomove: chessObject.turn() === "w" ? "white" : "black",
+          "variations.movelist": variation.movelist,
         },
         $push: {
           actions: {
