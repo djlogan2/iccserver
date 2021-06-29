@@ -2805,7 +2805,7 @@ export class Game {
         );
       }
     });
-    this.load_eco(chessObject, variation); //FIXME: might not work
+    this.load_eco(chessObject, variation);
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
