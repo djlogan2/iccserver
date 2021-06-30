@@ -285,6 +285,7 @@ class NewChessBoard extends Component {
         showLastMove
         perspective={orientation}
         fen={chess.fen()}
+        isHovering={true}
         boardSquares={{
           light: { default: "#FFFFFF", active: "#9c9c9c" },
           dark: { default: "#1565c0", active: "#1255A1" },
