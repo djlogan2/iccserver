@@ -17,7 +17,9 @@ class PersonalChatApp extends Component {
 
     if (text) {
       Meteor.call("writeToUser", "writeToUser", opponentId, text, (err) => {
-        log.error(err);
+        if (err) {
+          log.error(err);
+        }
       });
     }
   }
