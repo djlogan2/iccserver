@@ -932,7 +932,7 @@ describe.only("ecocodes", function(){
       Game.resignLocalGame("mi2", game_id);
       const game = Game.getAndCheck(self.loggedonuser,"mi1", game_id);
       if (!game) {
-        chai.asset.fail("Game does not exist");
+        chai.assert.fail("Game does not exist");
       }
       // load fen
 
@@ -995,7 +995,7 @@ describe.only("ecocodes", function(){
             { "variations.movelist" : game.variations.movelist },
         });
 
-      // check that eco code changed
+      // check that eco code and name changed
       const collection = Game.GameCollection.findOne({_id: game_id});
       chai.assert.equal(collection.variations.movelist.length, 6, "movelist isn't 6 long after moves");
       chai.assert.deepEqual(collection.variations.movelist[4].eco,no_eco, "eco code wasn't no_eco on move 4");
