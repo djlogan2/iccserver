@@ -2804,13 +2804,14 @@ export class Game {
           "Internal server error"
         );
       }
+      this.load_eco(chessObject, variation);
     });
-
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: {
           "variations.cmi": cmi,
+          "variations.movelist": variation.movelist,
           fen: chessObject.fen(),
           tomove: chessObject.turn() === "w" ? "white" : "black",
         },
@@ -2949,6 +2950,7 @@ export class Game {
     const variation = game.variations;
 
     for (let x = 0; x < movecount; x++) {
+      this.load_eco(active_games[game_id], variation);
       const undone = active_games[game_id].undo();
       const current = variation.movelist[variation.cmi];
       if (undone.san !== current.move)
@@ -2965,6 +2967,7 @@ export class Game {
       {
         $set: {
           "variations.cmi": variation.cmi,
+          "variations.movelist": variation.movelist,
           fen: active_games[game_id].fen(),
           tomove: active_games[game_id].turn() === "w" ? "white" : "black",
         },
