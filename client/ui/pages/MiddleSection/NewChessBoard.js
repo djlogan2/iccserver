@@ -3,6 +3,7 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
+import { colorBlackLetter, colorWhiteLetter } from "../../../constants/gameConstants";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -93,7 +94,7 @@ class NewChessBoard extends Component {
     }
 
     if (fen !== chess.fen()) {
-      this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
+      this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen(), lastMove: null });
     }
   }
 
@@ -163,7 +164,9 @@ class NewChessBoard extends Component {
       const history = chess.history();
       const moves = history[history.length - 1];
 
-      onDrop({ move: moves });
+      if (moves) {
+        onDrop({ move: moves });
+      }
 
       this.setState({
         lastMove,
@@ -228,11 +231,11 @@ class NewChessBoard extends Component {
       return true;
     }
 
-    if (userId === whiteId && chess.turn() === "w") {
+    if (userId === whiteId && chess.turn() === colorWhiteLetter) {
       return true;
     }
 
-    return userId === blackId && chess.turn() === "b";
+    return userId === blackId && chess.turn() === colorBlackLetter;
   };
 
   getLastMove = () => {
@@ -258,10 +261,11 @@ class NewChessBoard extends Component {
       showLegalMoves,
       smallSize,
       premove,
+      lastMove,
     } = this.state;
     const isCurrentTurn = this.isCurrentTurn();
 
-    const lastMove = this.getLastMove();
+    const updatedLastMove = lastMove || this.getLastMove();
 
     return (
       <ChessBoard
@@ -281,7 +285,7 @@ class NewChessBoard extends Component {
           },
           lastMove: "5px solid #3CFF33",
         }}
-        lastMove={lastMove}
+        lastMove={updatedLastMove}
         showLastMove
         perspective={orientation}
         fen={chess.fen()}
