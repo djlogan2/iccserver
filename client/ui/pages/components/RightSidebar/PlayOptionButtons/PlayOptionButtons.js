@@ -8,7 +8,7 @@ import {
   fiveMinutesSeekOptions,
   tenMinutesSeekOptions,
   twentyMinutesSeekOptions,
-  twentyFiveMinutesSeekOptions,
+  twentyFiveMinutesSeekOptions, fifteenMinutesSeekOptions
 } from "../../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
@@ -64,9 +64,9 @@ class PlayOptionButtons extends Component {
           </Button>
           <Button
             className={classes.topButton}
-            onClick={() => handlePlaySeek(twentyMinutesSeekOptions)}
+            onClick={() => handlePlaySeek(fifteenMinutesSeekOptions)}
           >
-            {translate("seekButtons.twentyMinutes")}
+            {translate("seekButtons.fifteenMinutes")}
           </Button>
           <Button
             className={classes.topButton}
