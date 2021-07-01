@@ -485,8 +485,8 @@ describe.only("ecocodes", function(){
       })
     });
   });
-  describe.skip("moveBackward", function() {
-    it("should load an eco code with an eco entry for each node visited by moveBackward", function() {
+  describe.only("moveBackward", function() {
+    it.only("should load an eco code with an eco entry for each node visited by moveBackward", function() {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
       let code = "A07";
@@ -574,8 +574,94 @@ describe.only("ecocodes", function(){
       chai.assert.deepEqual(game3.variations.movelist[cmi - 1].eco, { name: "King's Indian Attack", code: "A07" });
       chai.assert.deepEqual(game3.variations.movelist[cmi].eco, { name: "King's Indian Attack", code: "A08" });
     });
-    it.skip("should not load an eco code without an eco entry for each node visited by moveBackward", function() {
-      chai.assert.fail("do me");
+    it.only("should not load an eco code without an eco entry for each node visited by moveBackward", function() {
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      let name = "King's Indian Attack";
+      let code = "A07";
+      let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
+      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
+      let name2 = "King's Indian Attack";
+      let code2 = "A08";
+      let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game_id = Game.startLocalGame(
+        "moveForwardTestGameStart",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+      );
+      // eslint-disable-next-line prettier/prettier
+      const moves1 = ["Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8"];
+
+      const tomove = [us, them];
+      let tm = 0;
+      moves1.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id, move);
+        tm = !tm ? 1 : 0;
+      });
+
+      Game.resignLocalGame("moveForwardTestGameEnd", game_id);
+
+      const game = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
+      if (!game) {
+        chai.assert.fail("Game does not exist");
+      }
+      const cmi = game.variations.cmi;
+      // Check that moveBackward works for all moves in movelist
+      game.variations.movelist.forEach((move) => {
+        delete move.eco;
+      });
+      Game.GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $set:
+            {
+              "variations.movelist": game.variations.movelist,
+            }
+        }
+      );
+      Game.moveBackward("mi1", game_id, moves1.length);
+      const game2 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
+
+      game2.variations.movelist.forEach((move) => {
+        chai.assert.isDefined(move.eco);
+        chai.assert.isDefined(move.eco.name);
+        chai.assert.isDefined(move.eco.code);
+      });
+      chai.assert.deepEqual(game2.variations.movelist[cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+
+      Game.moveForward("mi1", game_id, moves1.length);
+      // Check that moveBackward works for some moves in movelist
+      game.variations.movelist.forEach((move) => {
+        delete move.eco;
+      });
+      Game.GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $set:
+            {
+              "variations.movelist": game.variations.movelist,
+            }
+        }
+      );
+      Game.moveBackward("mi1", game_id, 3);
+      const game3 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
+      game3.variations.movelist.forEach((move) => {
+        chai.assert.deepEqual(move.eco, { name: "NO_ECO", code: "NO_ECO" });
+      })
     });
   });
   describe.skip("loadFen", function() {
