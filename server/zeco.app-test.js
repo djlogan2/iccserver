@@ -4,11 +4,11 @@ import chai from "chai";
 import Chess from "chess.js"
 import { GameHistory} from "./Game";
 
-describe.only("ecocodes", function(){
+describe("ecocodes", function(){
   this.timeout(5000000000);
   const self = TestHelpers.setupDescribe.apply(this);
 
-  describe.skip("recursive_eco", function() {
+  describe("recursive_eco", function() {
     it("should return an eco code if the node already has one", function() {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
@@ -167,7 +167,7 @@ describe.only("ecocodes", function(){
       });
     });
   });
-  describe.skip("load_eco", function() {
+  describe("load_eco", function() {
     this.timeout(5000000000);
 
     it("should return an eco code if the node already has one", function () {
@@ -325,7 +325,7 @@ describe.only("ecocodes", function(){
       chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, {name:"King's Indian Attack", code:"A08"});
     })
   });
-  describe.skip("moveForward", function(){
+  describe("moveForward", function(){
     it("should load an eco code with an eco entry for each node visited by moveForward", function() {
       this.timeout(500000000);
 
@@ -485,8 +485,8 @@ describe.only("ecocodes", function(){
       })
     });
   });
-  describe.only("moveBackward", function() {
-    it.only("should load an eco code with an eco entry for each node visited by moveBackward", function() {
+  describe("moveBackward", function() {
+    it("should load an eco code with an eco entry for each node visited by moveBackward", function() {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
       let code = "A07";
@@ -574,7 +574,7 @@ describe.only("ecocodes", function(){
       chai.assert.deepEqual(game3.variations.movelist[cmi - 1].eco, { name: "King's Indian Attack", code: "A07" });
       chai.assert.deepEqual(game3.variations.movelist[cmi].eco, { name: "King's Indian Attack", code: "A08" });
     });
-    it.only("should not load an eco code without an eco entry for each node visited by moveBackward", function() {
+    it("should not load an eco code without an eco entry for each node visited by moveBackward", function() {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
       let code = "A07";
@@ -664,7 +664,7 @@ describe.only("ecocodes", function(){
       })
     });
   });
-  describe.skip("loadFen", function() {
+  describe("loadFen", function() {
     this.timeout(50000000000);
     it("should not load an eco code for a starting board fen for a game with no moves", function() {
       this.timeout(500000000);
@@ -681,7 +681,7 @@ describe.only("ecocodes", function(){
 
       const player = TestHelpers.createUser();
       self.loggedonuser = player
-      const game_id = Game.startLocalGame("loadFen_test1_startGame", player, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("loadFen_test1_startGame", player, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
       // check node
       Game.resignLocalGame("loadFen_test1_resignGame", game_id);
       const game = Game.GameCollection.findOne({status: "examining", _id: game_id});
@@ -764,7 +764,7 @@ describe.only("ecocodes", function(){
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
-      const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
 
       const moves1 = ["Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8"];
       let chess_obj = new Chess.Chess();
@@ -794,7 +794,7 @@ describe.only("ecocodes", function(){
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
-      const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
 
       const moves1 = ["Nf3", "Nf6", "Ng1", "Ng8"];
       let chess_obj = new Chess.Chess();
@@ -930,7 +930,7 @@ describe.only("ecocodes", function(){
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
-      const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
       const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"];
       let chess_obj = new Chess.Chess();
       const tomove = [us, them];
@@ -969,7 +969,7 @@ describe.only("ecocodes", function(){
 
       const player = TestHelpers.createUser();
       self.loggedonuser = player
-      const game_id = Game.startLocalGame("loadFen_test1_startGame", player, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("loadFen_test1_startGame", player, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
       // check node
       Game.resignLocalGame("loadFen_test1_resignGame", game_id);
       const game = Game.GameCollection.findOne({status: "examining", _id: game_id});
@@ -1003,7 +1003,7 @@ describe.only("ecocodes", function(){
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us;
-      const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
 
       const moves1 = ["Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8"];
       let chess_obj = new Chess.Chess();
@@ -1030,13 +1030,13 @@ describe.only("ecocodes", function(){
       chai.assert.deepEqual(game2.variations.movelist[0].eco, { name: "King's Indian Attack", code: "A07" });
     });
   });
-  describe.skip("setTag", function() {
+  describe("setTag", function() {
     it("should do stuff", function() {
       chai.assert.fail("do me");
     });
   });
-  describe.only("moveToCMI", function() {
-    it.only("should perform a lookup if there is no eco information (and save it if it exists)", function() {
+  describe("moveToCMI", function() {
+    it("should perform a lookup if there is no eco information (and save it if it exists)", function() {
       // Update ECO code collection for later
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
@@ -1052,7 +1052,7 @@ describe.only("ecocodes", function(){
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us
-      const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
       let game  = Game.getAndCheck(self.loggedonuser, "mi1", game_id);
       Game.resignLocalGame("mi1", game_id);
       // assume starts with undefined eco info
@@ -1091,7 +1091,7 @@ describe.only("ecocodes", function(){
       chai.assert.equal(collection2.variations.movelist.length, 6, "movelist failed to update to opening");
       chai.assert.deepEqual(collection2.variations.movelist[4].eco,our_eco, "eco code wasn't specified eco on move 3");
     });
-    it.only("should NOT perform a lookup if there IS eco information", function() {
+    it("should NOT perform a lookup if there IS eco information", function() {
       // Update ECO code collection for later
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
@@ -1107,7 +1107,7 @@ describe.only("ecocodes", function(){
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us
-      const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc");
+      const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc","white");
       let game  = Game.getAndCheck(self.loggedonuser, "mi1", game_id);
       Game.resignLocalGame("mi1", game_id);
       // assume starts with undefined eco info
@@ -1146,7 +1146,7 @@ describe.only("ecocodes", function(){
       chai.assert.notDeepEqual(collection2.variations.movelist[4].eco.name, name2, "changed name when already have an eco");
     });
   });
-  describe.skip("saveLocalMove", function() {
+  describe("saveLocalMove", function() {
     it("should not save a code/name until it gets its first eco match in any node", function() {
       chai.assert.fail("do me");
     });
@@ -1160,9 +1160,48 @@ describe.only("ecocodes", function(){
       chai.assert.fail("do me");
     });
   });
-  describe.skip("exportToPGN", function() {
-    it("should do stuff", function() {
-      chai.assert.fail("do me");
+  describe("exportToPGN", function() {
+    it("should provide the eco in the pgn equal to the last node's eco", function() {
+      this.timeout(500000);
+      // Provide a game instance
+      // we add an eco code entry
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      let name = "King's Indian Attack";
+      let code = "A07";
+      let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
+      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
+      let name2 = "King's Indian Attack";
+      let code2 = "A08";
+      let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
+      const our_eco = {name: name2, code: code2};
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
+      // Actually create the game
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us
+      let game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
+      // Have a given eco code
+      const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"];
+      let chess_obj = new Chess.Chess();
+      const tomove = [us, them];
+      let tm = 0;
+      // make moves to the nearby eco code
+      let index = 0;
+      moves1.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id, move);
+        chess_obj.move(move);
+        tm = !tm ? 1 : 0;
+        index += 1;
+      });
+      // Produce a PGN with given eco name and code
+
+      const our_pgn = Game.exportToPGN(game_id).pgn.split('\n');
+      const eco_name_index = 6;
+      const eco_index = 7;
+      chai.assert.equal(our_pgn[eco_name_index], "[Opening " + our_eco.name + "]", "eco name wasn't in pgn string");
+      chai.assert.equal(our_pgn[eco_index], "[ECO " + our_eco.code + "]", "eco code wasn't in pgn string");
     });
   });
   it("should not be saved to the game_history collection", function() {
