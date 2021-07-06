@@ -41,7 +41,7 @@ class LocationControls extends Component {
   moveBackwordBeginning = () => {
     const { game } = this.props;
 
-    Meteor.call("moveToCMI", "moveToCMI", game._id, 0);
+    Meteor.call("moveToCMI", "moveToCMI", game._id, 0, handleError);
   };
 
   moveBackword = () => {
@@ -78,7 +78,7 @@ class LocationControls extends Component {
       !!game.variations.movelist[cmi].variations.length
     )
       cmi = game.variations.movelist[cmi].variations[0];
-    Meteor.call("moveToCMI", "moveToCMI", game._id, cmi);
+    Meteor.call("moveToCMI", "moveToCMI", game._id, cmi, handleError);
   };
 
   detectMoveListFill = () => {

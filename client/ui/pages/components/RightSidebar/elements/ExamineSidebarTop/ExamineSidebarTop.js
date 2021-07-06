@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Tabs } from "antd";
-import GameHistory from "../GameHistory";
+import GameHistory from "../GameHistory/GameHistory";
 import ExamineObserveTab from "../ExamineObserveTab/ExamineObserveTab";
 import { ExamineGameControlBlock } from "../GameControlBlock/GameControlBlock";
 import { translate } from "../../../../../HOCs/translate";

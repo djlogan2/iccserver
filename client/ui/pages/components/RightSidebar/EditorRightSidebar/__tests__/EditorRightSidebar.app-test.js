@@ -7,10 +7,11 @@ import EditorRightSidebar from "../EditorRightSidebar";
 
 describe("EditorRightSidebar component", () => {
   const history = createBrowserHistory();
+  const mockProps = { whiteCastling: [], blackCastling: [], onCastling: () => null };
 
   const component = mount(
     <Router history={history}>
-      <EditorRightSidebar />
+      <EditorRightSidebar {...mockProps} />
     </Router>
   );
 

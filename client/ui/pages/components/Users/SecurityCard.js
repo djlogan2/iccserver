@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import { Button, Card, Input, AutoComplete } from "antd";
+import { AutoComplete, Button, Card, Input } from "antd";
 import { Meteor } from "meteor/meteor";
 import { compose } from "redux";
 
 import {
   CONFIRM_PASSWORD_PROPERTY,
   ISOLATION_GROUP_PROPERTY,
-  NEW_PASSWORD_PROPERTY,
+  NEW_PASSWORD_PROPERTY
 } from "../../../../constants/systemConstants";
 import { translate } from "../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
@@ -112,7 +112,7 @@ class SecurityCard extends Component {
             placeholder={translate("isolationGroup")}
             onChange={this.handleAutocompleteChange(ISOLATION_GROUP_PROPERTY)}
           />
-          <Button type="primary" onClick={this.handleClick}>
+          <Button id="update-password" type="primary" onClick={this.handleClick}>
             {translate("update")}
           </Button>
         </div>

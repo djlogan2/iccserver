@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
 
-import { Logger } from "../../../../../../lib/client/Logger";
-import { colorBlackLetter, colorWhiteLetter } from "../../../../../constants/gameConstants";
+import { Logger } from "../../../../../../../lib/client/Logger";
+import { colorBlackLetter, colorWhiteLetter } from "../../../../../../constants/gameConstants";
 
 const log = new Logger("client/MoveList_js");
 
@@ -16,16 +16,11 @@ export default class MoveList extends Component {
 
     this.state = {
       cmi: 0,
-      toggle: false,
-      action: "action",
-      examinAction: "action",
-      gameRequest: props.gameRequest,
-      isexamin: true,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    const { game, gameRequest } = this.props;
+    const { game } = this.props;
 
     const prevCmi = get(game, "variations.cmi");
     const cmi = get(nextProps, "game.variations.cmi");
@@ -33,42 +28,7 @@ export default class MoveList extends Component {
     if (cmi && prevCmi !== cmi) {
       this.setState({ cmi });
     }
-
-    if (!!gameRequest && nextProps.gameRequest !== gameRequest && gameRequest.type === "match") {
-      this.setState({ gameRequest });
-    }
   }
-
-  moveBackwordBeginning = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, this.currentindex, (err) => {
-      if (err) {
-        log.error(err);
-      }
-    });
-  };
-
-  moveBackword = () => {
-    Meteor.call("moveBackward", "MoveBackward", this.gameId, 1);
-  };
-
-  moveForward = () => {
-    const ind = this.currentindex + 1;
-    let idc = 0;
-
-    if (ind <= this.cmi) {
-      idc = this.moves[ind].idc;
-    }
-
-    Meteor.call("moveForward", "MoveForward", this.gameId, 1, idc);
-  };
-
-  moveForwardEnd = () => {
-    let movedata = this.moves;
-    let slicemoves = movedata.slice(this.currentindex + 1, movedata.length);
-    for (let i = 0; i <= slicemoves.length; i++) {
-      Meteor.call("moveForward", "MoveForward", this.gameId, 1, slicemoves[i].idc);
-    }
-  };
 
   handleClick = (cmi) => {
     const { game } = this.props;

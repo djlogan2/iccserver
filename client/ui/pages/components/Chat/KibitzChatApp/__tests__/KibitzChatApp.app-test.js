@@ -20,13 +20,28 @@ describe("KibitzChatApp component", () => {
   });
 
   it("should render", () => {
-    const component = mount(<KibitzChatApp />);
+    const mockProps = {
+      childChatTexts: [{ _id: "HELLO", text: "Hello" }],
+      chats: [{ issuer: { username: "test" }, what: "message" }],
+      disabled: false,
+      gameId: "fake_game_id",
+      isKibitz: true,
+    };
+    const component = mount(<KibitzChatApp {...mockProps} />);
 
     chai.assert.isDefined(component);
   });
 
   it("should have ChatApp and simulate actions", () => {
-    const component = mount(<KibitzChatApp />);
+    const mockProps = {
+      childChatTexts: [{ _id: "HELLO", text: "Hello" }],
+      chats: [{ issuer: { username: "test" }, what: "message" }],
+      disabled: false,
+      gameId: "fake_game_id",
+      isKibitz: true,
+    };
+
+    const component = mount(<KibitzChatApp {...mockProps} />);
 
     chai.assert.equal(component.find(ChatApp).length, 1);
 
