@@ -98,7 +98,6 @@ describe("PlayBlock component", () => {
         variations: {
           cmi: 0,
           movelist: [{}],
-          ecocodes: [],
         },
         white: {
           name: "Mr white",

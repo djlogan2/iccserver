@@ -1154,6 +1154,8 @@ export class Game {
       result.promotion
     );
 
+    this.load_eco(chessObject, variation);
+
     if (game.status === "playing") {
       if (
         active_games[game_id].in_draw() &&
@@ -2804,8 +2806,8 @@ export class Game {
           "Internal server error"
         );
       }
-      this.load_eco(chessObject, variation);
     });
+    this.load_eco(chessObject, variation);
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
@@ -3051,15 +3053,10 @@ export class Game {
       if (!variation_object.movelist[variation_object.cmi].variations) {
         variation_object.movelist[variation_object.cmi].variations = [newi];
       } else {
-        variation_object.movelist[variation_object.cmi].variations.push(newi);
+        variation_object.movelist[variation_object.cmi].variations.unshift(newi);
       }
       variation_object.cmi = newi;
     }
-    let chess_obj = new Chess.Chess();
-    variation_object.movelist.forEach((move) => {
-      chess_obj.move(move.move);
-    });
-    this.load_eco(chess_obj, variation_object);
     return !exists;
   }
 

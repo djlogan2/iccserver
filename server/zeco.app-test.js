@@ -5,7 +5,6 @@ import Chess from "chess.js"
 import { GameHistory} from "./Game";
 
 describe("ecocodes", function(){
-  this.timeout(5000000000);
   const self = TestHelpers.setupDescribe.apply(this);
 
   describe("recursive_eco", function() {
@@ -168,8 +167,6 @@ describe("ecocodes", function(){
     });
   });
   describe("load_eco", function() {
-    this.timeout(5000000000);
-
     it("should return an eco code if the node already has one", function () {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
@@ -327,8 +324,6 @@ describe("ecocodes", function(){
   });
   describe("moveForward", function(){
     it("should load an eco code with an eco entry for each node visited by moveForward", function() {
-      this.timeout(500000000);
-
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
       let code = "A07";
@@ -665,9 +660,7 @@ describe("ecocodes", function(){
     });
   });
   describe("loadFen", function() {
-    this.timeout(50000000000);
     it("should not load an eco code for a starting board fen for a game with no moves", function() {
-      this.timeout(500000000);
       // Create game with new board
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
@@ -779,7 +772,7 @@ describe("ecocodes", function(){
       Game.resignLocalGame("mi2", game_id);
       const game = Game.getAndCheck(self.loggedonuser,"mi1", game_id);
       if (!game) {
-        chai.asset.fail("Game does not exist");
+        chai.assert.fail("Game does not exist");
       }
       // load fen
 
@@ -1031,7 +1024,7 @@ describe("ecocodes", function(){
     });
   });
   describe("setTag", function() {
-    it("should do stuff", function() {
+    it.skip("should do stuff?", function() {
       chai.assert.fail("do me");
     });
   });
@@ -1048,19 +1041,21 @@ describe("ecocodes", function(){
       let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
       const our_eco = {name: name, code: code};
       Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
       // Create a game
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
       self.loggedonuser = us
-      const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
-      let game  = Game.getAndCheck(self.loggedonuser, "mi1", game_id);
-      Game.resignLocalGame("mi1", game_id);
-      // assume starts with undefined eco info
-      const no_eco = {name: "NO_ECO", code: "NO_ECO"};
+      const game_id = Game.startLocalGame("moveToCMI_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
+      let game  = Game.GameCollection.findOne({ _id: game_id });
+      Game.resignLocalGame("moveToCMI_test1_resignGame", game_id);
+
+      // Assume we start with undefined eco info
       chai.assert.isUndefined(game.variations.movelist[0].eco, "Game doesn't start with undefined  eco");
       chai.assert.equal(game.variations.movelist.length,1, "Game doesn't start with undefined  eco");
+
       // make moves to a nearby eco code
-      const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"];
+      const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"]; // name: "King's Indian Attack | code: "A08"
       let chess_obj = new Chess.Chess();
       const tomove = [us, them];
       let tm = 0;
@@ -1077,14 +1072,14 @@ describe("ecocodes", function(){
       });
       Game.GameCollection.update(
         {_id: game_id, status: "examining"},
-        { $set: 
+        { $set:
             { "variations.movelist" : game.variations.movelist },
         });
 
       // check that eco code and name changed
       const collection = Game.GameCollection.findOne({_id: game_id});
       chai.assert.equal(collection.variations.movelist.length, 6, "movelist isn't 6 long after moves");
-      chai.assert.deepEqual(collection.variations.movelist[4].eco,no_eco, "eco code wasn't no_eco on move 4");
+      chai.assert.isUndefined(collection.variations.movelist[4].eco);
       // do moveToCMI and check lookup
       Game.moveToCMI("mi1", game_id, 4);
       const collection2 = Game.GameCollection.findOne({_id: game_id});
@@ -1103,6 +1098,7 @@ describe("ecocodes", function(){
       let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
       const our_eco = {name: name, code: code};
       Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
       // Create a game
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
@@ -1110,11 +1106,247 @@ describe("ecocodes", function(){
       const game_id = Game.startLocalGame("loadFen_test1_startGame", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc","white");
       let game  = Game.getAndCheck(self.loggedonuser, "mi1", game_id);
       Game.resignLocalGame("mi1", game_id);
+
       // assume starts with undefined eco info
-      const no_eco = {name: "NO_ECO", code: "NO_ECO"};
       chai.assert.isUndefined(game.variations.movelist[0].eco, "Game doesn't start with undefined  eco");
       chai.assert.equal(game.variations.movelist.length,1, "Game doesn't start with undefined  eco");
+
       // make moves to a nearby eco code
+      const moves1 = ["Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8", "Nf3", "Nf6", "Ng1", "Ng8"];
+
+      let chess_obj = new Chess.Chess();
+      const tomove = [us, them];
+      let tm = 0;
+      moves1.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id, move);
+        chess_obj.move(move);
+        tm = !tm ? 1 : 0;
+      });
+
+      // check that eco code didn't change
+      game = Game.GameCollection.findOne({_id: game_id});
+      game.variations.movelist.forEach((move) => {
+        delete move.eco;
+      });
+      Game.GameCollection.update(
+        {_id: game_id, status: "examining"},
+        { $set:
+            { "variations.movelist" : game.variations.movelist },
+        });
+
+      Game.moveToCMI("mi1", game_id, 4);
+      //check that new eco is updated
+      const game2 = Game.GameCollection.findOne({_id: game_id});
+      for(let i = 0; i < 5; i++) {
+        chai.assert.deepEqual(game2.variations.movelist[i].eco, { name: "NO_ECO", code: "NO_ECO" });
+      }
+    });
+  });
+  describe("saveLocalMove", function() {
+    it("should not save a code/name until it gets its first eco match in any node", function() {
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      let name = "King's Indian Attack";
+      let code = "A07";
+      let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
+      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
+      let name2 = "King's Indian Attack";
+      let code2 = "A08";
+      let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game_id = Game.startLocalGame(
+        "moveForwardTestGameStart",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+      );
+
+      // eslint-disable-next-line prettier/prettier
+      let chess_obj = new Chess.Chess();
+      let result = chess_obj.move("Nf3");
+      chai.assert.isDefined(result, "Move should be legal");
+      Game.saveLocalMove("mi1", game_id, "Nf3");
+      let game = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+
+      result = chess_obj.move("d5");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = them;
+      Game.saveLocalMove("mi2", game_id, "d5");
+      let game2 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+
+      result = chess_obj.move("g3");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = us;
+      Game.saveLocalMove("mi2", game_id, "g3");
+      let game3 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game3.variations.movelist[game3.variations.cmi].eco, { name: "King's Indian Attack", code: "A07" });
+    });
+    it("should store the same code/name as previous node if there is no match", function() {
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      let name = "King's Indian Attack";
+      let code = "A07";
+      let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
+      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
+      let name2 = "King's Indian Attack";
+      let code2 = "A08";
+      let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game_id = Game.startLocalGame(
+        "moveForwardTestGameStart",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+      );
+
+      // eslint-disable-next-line prettier/prettier
+      let chess_obj = new Chess.Chess();
+      let result = chess_obj.move("Nf3");
+      chai.assert.isDefined(result, "Move should be legal");
+      Game.saveLocalMove("mi1", game_id, "Nf3");
+      let game = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+
+      result = chess_obj.move("d5");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = them;
+      Game.saveLocalMove("mi2", game_id, "d5");
+      let game2 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+
+      result = chess_obj.move("g3");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = us;
+      Game.saveLocalMove("mi3", game_id, "g3");
+      let game3 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game3.variations.movelist[game3.variations.cmi].eco, { name: "King's Indian Attack", code: "A07" });
+
+      result = chess_obj.move("c5");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = them;
+      Game.saveLocalMove("mi4", game_id, "c5");
+      let game4 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game4.variations.movelist[game4.variations.cmi].eco, { name: "King's Indian Attack", code: "A07" });
+    });
+    it("should store new code/name when it gets a new match", function() {
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      let name = "King's Indian Attack";
+      let code = "A07";
+      let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
+      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
+      let name2 = "King's Indian Attack";
+      let code2 = "A08";
+      let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game_id = Game.startLocalGame(
+        "moveForwardTestGameStart",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+      );
+
+      // eslint-disable-next-line prettier/prettier
+      let chess_obj = new Chess.Chess();
+      let result = chess_obj.move("Nf3");
+      chai.assert.isDefined(result, "Move should be legal");
+      Game.saveLocalMove("mi1", game_id, "Nf3");
+      let game = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+
+      result = chess_obj.move("d5");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = them;
+      Game.saveLocalMove("mi2", game_id, "d5");
+      let game2 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+
+      result = chess_obj.move("g3");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = us;
+      Game.saveLocalMove("mi3", game_id, "g3");
+      let game3 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game3.variations.movelist[game3.variations.cmi].eco, { name: "King's Indian Attack", code: "A07" });
+
+      result = chess_obj.move("c5");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = them;
+      Game.saveLocalMove("mi4", game_id, "c5");
+      let game4 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game4.variations.movelist[game4.variations.cmi].eco, { name: "King's Indian Attack", code: "A07" });
+
+      result = chess_obj.move("Bg2");
+      chai.assert.isDefined(result, "Move should be legal");
+      self.loggedonuser = us;
+      Game.saveLocalMove("mi5", game_id, "Bg2");
+      let game5 = Game.GameCollection.findOne( { _id: game_id });
+      chai.assert.deepEqual(game5.variations.movelist[game5.variations.cmi].eco, { name: "King's Indian Attack", code: "A08" });
+    });
+    it("should arrive at the same code/name with transposed moves", function() {
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      let name = "King's Indian Attack";
+      let code = "A07";
+      let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
+      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
+      let name2 = "King's Indian Attack";
+      let code2 = "A08";
+      let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      const game_id = Game.startLocalGame(
+        "moveForwardTestGameStart",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+      );
+      // eslint-disable-next-line prettier/prettier
       const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"];
       let chess_obj = new Chess.Chess();
       const tomove = [us, them];
@@ -1125,44 +1357,51 @@ describe("ecocodes", function(){
         chess_obj.move(move);
         tm = !tm ? 1 : 0;
       });
-      // check that eco code didn't change
-      const collection = Game.GameCollection.findOne({_id: game_id});
-      chai.assert.equal(collection.variations.movelist.length, 6, "movelist failed to update to opening");
-      chai.assert.deepEqual(collection.variations.movelist[3].eco,our_eco, "eco code wasn't specified eco on move 3");
-      // do moveToCMI and check lookup
-      Game.ecoCollection.remove({});
-      name = "King's Butter Attack";
-      code = "A07";
-      fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
-      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
-      name2 = "King's Butter Attack";
-      code2 = "A08";
-      fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
-      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
-      Game.moveToCMI("mi1", game_id, 4);
-      //check that new eco is updated
-      const collection2 = Game.GameCollection.findOne({_id: game_id});
-      chai.assert.deepEqual(collection2.variations.movelist[4].eco, our_eco, "movetocmi of move 3 of opening failed to not update");
-      chai.assert.notDeepEqual(collection2.variations.movelist[4].eco.name, name2, "changed name when already have an eco");
-    });
-  });
-  describe("saveLocalMove", function() {
-    it("should not save a code/name until it gets its first eco match in any node", function() {
-      chai.assert.fail("do me");
-    });
-    it("should store the same code/name as previous node if there is no match", function() {
-      chai.assert.fail("do me");
-    });
-    it("should store new code/name when it gets a new match", function() {
-      chai.assert.fail("do me");
-    });
-    it("should arrive at the same code/name with transposed moves", function() {
-      chai.assert.fail("do me");
+      Game.resignLocalGame("moveForwardTestGameEnd", game_id);
+      const game = Game.GameCollection.findOne({ status: "examining", _id: game_id });
+
+      if(!game) {
+        chai.assert.fail("Game does not exist");
+      }
+
+      self.loggedonuser = us;
+      const game_id2 = Game.startLocalGame(
+        "moveForwardTestGameStart",
+        them,
+        0,
+        "standard",
+        true,
+        15,
+        0,
+        "none",
+        15,
+        0,
+        "none",
+        "white"
+      );
+      // eslint-disable-next-line prettier/prettier
+      const moves2 = ["g3", "c5", "Nf3", "d5", "Bg2"];
+      chess_obj.reset();
+      tm = 0;
+      moves2.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id2, move);
+        chess_obj.move(move);
+        tm = !tm ? 1 : 0;
+      });
+      Game.resignLocalGame("moveForwardTestGameEnd", game_id2);
+      const transposedGame = Game.GameCollection.findOne({ status: "examining", _id: game_id2 });
+
+      if(!transposedGame) {
+        chai.assert.fail("Game does not exist");
+      }
+
+        chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, transposedGame.variations.movelist[transposedGame.variations.cmi].eco);
     });
   });
   describe("exportToPGN", function() {
     it("should provide the eco in the pgn equal to the last node's eco", function() {
-      this.timeout(500000);
+      this.timeout(5000000);
       // Provide a game instance
       // we add an eco code entry
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
@@ -1312,5 +1551,3 @@ describe("ecocodes", function(){
     });
   });
 });
-
-

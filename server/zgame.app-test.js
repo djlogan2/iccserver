@@ -11,6 +11,7 @@ import { LegacyUser } from "../lib/server/LegacyUsers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { TimestampClient } from "../lib/Timestamp";
 import { buildPgnFromMovelist } from "../lib/exportpgn";
+import Chess from "chess.js";
 
 function startLegacyGameParameters(self, other, rated) {
   if (rated === undefined || rated === null) rated = true;
@@ -1880,6 +1881,52 @@ describe("Takeback behavior", function () {
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "TAKEBACK_ACCEPTED");
     checkTakeback(Game.collection.findOne());
+  });
+
+  it("should place the next move following a take back at the start of the variation instead of the end", function() {
+    this.timeout(5000000);
+    const us = TestHelpers.createUser();
+    const them = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "moveForwardTestGameStart",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+
+    // eslint-disable-next-line prettier/prettier
+    const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"];
+    let chess_obj = new Chess.Chess();
+    const tomove = [us, them];
+    let tm = 0;
+    moves1.forEach(move => {
+      self.loggedonuser = tomove[tm];
+      Game.saveLocalMove(move, game_id, move);
+      chess_obj.move(move);
+      tm = !tm ? 1 : 0;
+    });
+
+    self.loggedonuser = us;
+    chai.assert.doesNotThrow(()=> Game.requestLocalTakeback("mi1", game_id, 1));
+
+    self.loggedonuser = them;
+    chai.assert.doesNotThrow(() => Game.acceptLocalTakeback("mi1", game_id));
+    let game = Game.GameCollection.findOne( { _id: game_id });
+
+    self.loggedonuser = us;
+    Game.saveLocalMove("Nc3", game_id, "Nc3");
+    game = Game.GameCollection.findOne( { _id: game_id });
+    chai.assert.equal(game.variations.movelist[game.variations.movelist[4].variations[0]].move, "Nc3");
+    chai.assert.equal(game.variations.movelist[game.variations.movelist[4].variations[1]].move, "Bg2");
   });
 });
 

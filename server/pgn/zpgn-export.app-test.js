@@ -3680,7 +3680,6 @@ describe("PGN exports", function() {
           current: 3685
         }
       ],
-      ecocodes: []
     },
     white: {
       id: "computer",

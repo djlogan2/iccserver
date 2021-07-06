@@ -58,7 +58,6 @@ describe("NewChessBoard component", () => {
           current: 5929544,
         },
       ],
-      ecocodes: [],
     },
   };
 
