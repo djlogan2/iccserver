@@ -3,6 +3,7 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
+import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -19,68 +20,28 @@ class NewChessBoard extends Component {
       lastMove: null,
       premoveColor: "#6e009e",
       premove: false,
+      premoveArrow: null,
     };
   }
 
   componentDidMount() {
-    const { chess } = this.props;
+    const { chess, premove } = this.props;
 
     this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
+    this.getArrowsDependOnPremove(premove);
   }
 
-  getArrowsDependOnPremove = (premove, prevPremove) => {
-    const { arrows, premoveColor } = this.state;
+  getArrowsDependOnPremove = (premove) => {
+    const { premoveColor } = this.state;
 
     if (premove) {
-      this.setState({ premove: true });
+      console.log(premove);
+      this.setState({
+        premove: true,
+        premoveArrow: { color: premoveColor, piece: { from: premove.from, to: premove.to } },
+      });
     } else {
-      this.setState({ premove: false });
-    }
-
-    if (!premove && prevPremove) {
-      let equalIndex;
-      const isExists = arrows.some((element, index) => {
-        const isEqual =
-          element.piece.to === prevPremove.to && element.piece.from === prevPremove.from;
-
-        if (isEqual) {
-          equalIndex = index;
-        }
-
-        return isEqual;
-      });
-
-      if (isExists) {
-        arrows.splice(equalIndex, 1);
-      }
-
-      this.setState({ arrows: [...arrows] });
-    }
-
-    if (!prevPremove && premove) {
-      arrows.push({ piece: { from: premove.from, to: premove.to }, color: premoveColor });
-      this.setState({ arrows: [...arrows] });
-    }
-
-    if (prevPremove && premove) {
-      let equalIndex;
-      const isExists = arrows.some((element, index) => {
-        const isEqual =
-          element.piece.to === prevPremove.to && element.piece.from === prevPremove.from;
-
-        if (isEqual) {
-          equalIndex = index;
-        }
-
-        return isEqual;
-      });
-
-      if (isExists) {
-        arrows.splice(equalIndex, 1);
-      }
-
-      arrows.push({ piece: { from: premove.from, to: premove.to }, color: premoveColor });
-      this.setState({ arrows: [...arrows] });
+      this.setState({ premove: false, premoveArrow: null });
     }
   };
 
@@ -89,11 +50,11 @@ class NewChessBoard extends Component {
     const { fen } = this.state;
 
     if (!isEqual(premove, prevProps.premove)) {
-      this.getArrowsDependOnPremove(premove, prevProps.premove);
+      this.getArrowsDependOnPremove(premove);
     }
 
     if (fen !== chess.fen()) {
-      this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
+      this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen(), lastMove: null });
     }
   }
 
@@ -154,6 +115,7 @@ class NewChessBoard extends Component {
 
   handleMove = (move, promotion) => {
     const { onDrop, chess } = this.props;
+    const { arrows, premoveColor } = this.state;
 
     const isCurrentTurn = this.isCurrentTurn();
 
@@ -163,7 +125,9 @@ class NewChessBoard extends Component {
       const history = chess.history();
       const moves = history[history.length - 1];
 
-      onDrop({ move: moves });
+      if (moves) {
+        onDrop({ move: moves });
+      }
 
       this.setState({
         lastMove,
@@ -179,6 +143,9 @@ class NewChessBoard extends Component {
         if (!!result) {
           const history = temp.history();
           const moves = history[history.length - 1];
+          this.setState({
+            premoveArrow: { color: premoveColor, piece: { from: move[0], to: move[1] } },
+          });
 
           onDrop({ move: moves });
           return;
@@ -224,15 +191,15 @@ class NewChessBoard extends Component {
     const { chess, whiteId, blackId, gameStatus } = this.props;
     const userId = Meteor.userId();
 
-    if (gameStatus !== "playing") {
+    if (gameStatus !== gameStatusPlaying) {
       return true;
     }
 
-    if (userId === whiteId && chess.turn() === "w") {
+    if (userId === whiteId && chess.turn() === colorWhiteLetter) {
       return true;
     }
 
-    return userId === blackId && chess.turn() === "b";
+    return userId === blackId && chess.turn() === colorBlackLetter;
   };
 
   getLastMove = () => {
@@ -258,10 +225,12 @@ class NewChessBoard extends Component {
       showLegalMoves,
       smallSize,
       premove,
+      lastMove,
+      premoveArrow,
     } = this.state;
     const isCurrentTurn = this.isCurrentTurn();
 
-    const lastMove = this.getLastMove();
+    const updatedLastMove = lastMove || this.getLastMove();
 
     return (
       <ChessBoard
@@ -281,10 +250,11 @@ class NewChessBoard extends Component {
           },
           lastMove: "5px solid #3CFF33",
         }}
-        lastMove={lastMove}
+        lastMove={updatedLastMove}
         showLastMove
         perspective={orientation}
         fen={chess.fen()}
+        isHovering={true}
         boardSquares={{
           light: { default: "#FFFFFF", active: "#9c9c9c" },
           dark: { default: "#1565c0", active: "#1255A1" },
@@ -305,7 +275,7 @@ class NewChessBoard extends Component {
         }}
         movable={isCurrentTurn ? legalMoves : () => getBoardSquares()}
         circles={circles}
-        arrows={arrows}
+        arrows={premoveArrow ? [...arrows, premoveArrow] : arrows}
         onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
         onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
         onMove={(move, promotion) => this.handleMove(move, promotion)}

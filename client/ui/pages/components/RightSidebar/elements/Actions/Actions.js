@@ -25,11 +25,17 @@ const Actions = compose(
     <PrimaryButton
       className={classNames(classes.link, classes.element)}
       type="primary"
+      id="editor-button"
       onClick={() => history.push(RESOURCE_EDITOR)}
     >
       {translate("editor")}
     </PrimaryButton>
-    <PrimaryButton className={classes.element} type="primary" onClick={playComputer}>
+    <PrimaryButton
+      id="play-computer-button"
+      className={classes.element}
+      type="primary"
+      onClick={playComputer}
+    >
       {translate("playComputer")}
     </PrimaryButton>
   </div>

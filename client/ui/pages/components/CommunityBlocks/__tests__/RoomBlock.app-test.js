@@ -9,6 +9,7 @@ describe("RoomBlock component", () => {
     activeRoom: "fake_id",
     isModal: true,
     onChange: () => null,
+    handleCloseModal: () => null,
   };
   const component = mount(<RoomBlock {...mockProps} />);
 
@@ -18,6 +19,8 @@ describe("RoomBlock component", () => {
     component.find("li").simulate("click");
     component.find("li").simulate("keyDown", { key: "Enter" });
     component.find("Input").simulate("change", { target: { value: "new_value" } });
+    component.find("Modal").simulate("submit");
     component.find("Modal").simulate("cancel");
+    chai.assert.equal(component.find("Modal").length, 1);
   });
 });

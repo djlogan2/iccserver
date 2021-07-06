@@ -1,14 +1,8 @@
 import React, { Component } from "react";
 import { Button, Form, InputNumber, Radio } from "antd";
 import { translate } from "../../../../HOCs/translate";
-import {
-  findRatingObject,
-  getMaxInitialAndIncOrDelayTime,
-} from "../../../../../../lib/ratinghelpers";
-import {
-  DynamicRatingsCollection,
-  mongoCss,
-} from "../../../../../../imports/api/client/collections";
+import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
+import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import injectSheet from "react-jss";
@@ -111,7 +105,12 @@ class PlayChooseBot extends Component {
         <div className={classes.head}>
           <h2 className={classes.nameTitle}>{translate("playWithComputer")}</h2>
           <div>
-            <Button type="primary" className={classes.startGameButton} onClick={this.handlePlay}>
+            <Button
+              id="start-the-game-button"
+              type="primary"
+              className={classes.startGameButton}
+              onClick={this.handlePlay}
+            >
               {translate("startTheGame")}
             </Button>
             <Button onClick={onClose}>{translate("back")}</Button>
@@ -178,6 +177,7 @@ class PlayChooseBot extends Component {
                 <InputNumber
                   name="initial"
                   min={1}
+                  id="initial"
                   max={maxInitialValue}
                   disabled={incrementOrDelayType === "none"}
                   value={initial}

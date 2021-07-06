@@ -4,7 +4,7 @@ import date from "date-and-time";
 import { EventEmitter } from "events";
 
 export const SystemConfiguration = {};
-const client_published_settings = ["game_history_count"];
+const client_published_settings = ["game_history_count", "quick_buttons"];
 const SystemConfigurationCollection = new Mongo.Collection("system_configuration");
 
 Meteor.publish(null, () => {
@@ -40,6 +40,23 @@ Meteor.startup(() => {
     },
   });
 });
+
+SystemConfiguration.quickButtons = function () {
+  return lookup("quick_buttons", [
+    {
+      translation_token: "fifteenminutequickbutton",
+      default_en_US: "15 minute",
+      seek: {
+        wild: 0,
+        rating_type: "standard",
+        time: 15,
+        inc_or_delay: 0,
+        inc_or_delay_type: "none",
+        rated: true,
+      },
+    },
+  ]);
+};
 
 SystemConfiguration.seekDefault = function () {
   return lookup("seek_default", {

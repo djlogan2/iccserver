@@ -3,13 +3,13 @@ import { Meteor } from "meteor/meteor";
 import PlayFriendOptions from "../PlayFriendOptions/PlayFriendOptions";
 import PlayWithFriend from "../PlayWithFriend/PlayWithFriend";
 import PlayChooseBot from "../PlayChooseBot/PlayChooseBot";
-import GameHistory from "../elements/GameHistory";
+import GameHistory from "../elements/GameHistory/GameHistory";
 import { GameControlBlock } from "../elements/GameControlBlock/GameControlBlock";
 import {
-  PLAY_STATUS_NONE,
-  PLAY_STATUS_FRIEND_OPTIONS,
-  PLAY_STATUS_WITH_FRIEND,
   PLAY_STATUS_CHOOSE_BOT,
+  PLAY_STATUS_FRIEND_OPTIONS,
+  PLAY_STATUS_NONE,
+  PLAY_STATUS_WITH_FRIEND
 } from "../../../../../constants/playStatusConstants";
 import PlayOptionButtons from "../PlayOptionButtons/PlayOptionButtons";
 import GameCommandsBlock from "../../GameCommandsBlock/GameCommandsBlock";

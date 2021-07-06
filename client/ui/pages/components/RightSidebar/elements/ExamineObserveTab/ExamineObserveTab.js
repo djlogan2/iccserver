@@ -80,6 +80,7 @@ class ExamineObserveTab extends Component {
         {(!isShowing && !isObserving) ||
           (isShowing && game.observers.length === 1 && (
             <AutoComplete
+              id="find-users-input"
               options={options}
               style={{ width: "100%" }}
               onSearch={this.handleSearch}

@@ -3885,6 +3885,7 @@ export class Game {
       setobject.result = color === "white" ? "0-1" : "1-0";
       setobject.status2 = 2;
       setobject.status = "examining";
+      setobject["clocks." + color + ".current"] = 0;
 
       this.endGamePing(game_id);
 
