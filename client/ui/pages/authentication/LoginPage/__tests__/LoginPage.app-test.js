@@ -4,11 +4,23 @@ import { createBrowserHistory } from "history";
 import LoginPage from "../LoginPage";
 import { mount } from "enzyme";
 import { Router } from "react-router-dom";
+import sinon from "sinon";
+import { Meteor } from "meteor/meteor";
 
 describe("Login Page", () => {
   const history = createBrowserHistory();
   const newUsername = "username1";
   const newPassword = "password1";
+
+  beforeEach(() => {
+    sinon.replace(Meteor, "loginWithPassword", (email, password, callback) => {
+        callback("fake_error");
+    });
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
 
   const wrapper = mount(
     <Router history={history}>

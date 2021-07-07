@@ -4,11 +4,23 @@ import { createBrowserHistory } from "history";
 import SignupPage from "../SignupPage";
 import { mount } from "enzyme";
 import { Router } from "react-router-dom";
+import sinon from "sinon";
+import { Accounts } from "meteor/accounts-base";
 
 describe("SignupPage", () => {
   const newUsername = "username1";
   const newEmail = "email1@email.com";
   const newPassword = "password1";
+
+  beforeEach(() => {
+    sinon.replace(Accounts, "createUser", (args, callback) => {
+        callback("fake_error");
+    });
+  });
+
+  afterEach(() => {
+    sinon.restore();
+  });
 
   const history = createBrowserHistory();
   const wrapper = mount(

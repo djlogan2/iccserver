@@ -3,19 +3,16 @@ import { Button } from "antd";
 import { compose } from "redux";
 import { translate } from "../../../../HOCs/translate";
 import {
-  oneMinuteSeekOptions,
-  threeMinutesSeekOptions,
+  fifteenMinutesSeekOptions,
   fiveMinutesSeekOptions,
+  oneMinuteSeekOptions,
   tenMinutesSeekOptions,
-  twentyMinutesSeekOptions,
-  twentyFiveMinutesSeekOptions, fifteenMinutesSeekOptions
+  threeMinutesSeekOptions,
+  twentyFiveMinutesSeekOptions
 } from "../../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import {
-  ROLE_PLAY_RATED_GAMES,
-  ROLE_PLAY_UNRATED_GAMES,
-} from "../../../../../constants/rolesConstants";
+import { ROLE_PLAY_RATED_GAMES, ROLE_PLAY_UNRATED_GAMES } from "../../../../../constants/rolesConstants";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
@@ -39,36 +36,42 @@ class PlayOptionButtons extends Component {
       <div className={classes.container}>
         <div className={isRatedGames ? classes.top : classes.topDisabled}>
           <Button
+            id="one-minute-seek"
             className={classes.topButton}
             onClick={() => handlePlaySeek(oneMinuteSeekOptions)}
           >
             {translate("seekButtons.minute")}
           </Button>
           <Button
+            id="three-minutes-seek"
             className={classes.topButton}
             onClick={() => handlePlaySeek(threeMinutesSeekOptions)}
           >
             {translate("seekButtons.threeMinutes")}
           </Button>
           <Button
+            id="five-minutes-seek"
             className={classes.topButton}
             onClick={() => handlePlaySeek(fiveMinutesSeekOptions)}
           >
             {translate("seekButtons.fiveMinutes")}
           </Button>
           <Button
+            id="ten-minutes-seek"
             className={classes.topButton}
             onClick={() => handlePlaySeek(tenMinutesSeekOptions)}
           >
             {translate("seekButtons.tenMinutes")}
           </Button>
           <Button
+            id="fifteen-minutes-seek"
             className={classes.topButton}
             onClick={() => handlePlaySeek(fifteenMinutesSeekOptions)}
           >
             {translate("seekButtons.fifteenMinutes")}
           </Button>
           <Button
+            id="twenty-five-minutes-seek"
             className={classes.topButton}
             onClick={() => handlePlaySeek(twentyFiveMinutesSeekOptions)}
           >
