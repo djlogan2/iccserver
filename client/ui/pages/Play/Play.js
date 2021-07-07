@@ -410,7 +410,7 @@ export default compose(
     };
   }),
   injectSheet(dynamicPlayNotifierStyles),
-  withPlayNotifier
+
 )(Play);
 
 const game_timestamps = {};

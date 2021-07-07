@@ -3,6 +3,7 @@ import renderNotification from "../pages/components/Notification";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import CssManager from "../pages/components/Css/CssManager";
+import { colorBlack, colorWhite, gameStatusPlaying } from "../../constants/gameConstants";
 
 export const withPlayNotifier = (WrappedComponent) => {
   return class extends React.Component {
@@ -26,8 +27,8 @@ export const withPlayNotifier = (WrappedComponent) => {
 
       const translate = i18n.createTranslator("Common.MainPage");
 
-      if (game && game.pending && game.status === "playing") {
-        const othercolor = Meteor.userId() === game.white.id ? "black" : "white";
+      if (game && game.pending && game.status === gameStatusPlaying) {
+        const othercolor = Meteor.userId() === game.white.id ? colorBlack : colorWhite;
 
         if (game.pending[othercolor].takeback.number !== 0) {
           const moveCount =
