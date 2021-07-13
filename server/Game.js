@@ -635,6 +635,7 @@ export class Game {
     delete game_object._id; // For safety
     if (!game_object.variations.movelist.eco) {
       game_object.variations.movelist.forEach((move) => {
+        // TODO: Wouldn't it be better to 'delete move.eco'?
         move.eco = {
           name: "",
           code: "",
@@ -706,6 +707,9 @@ export class Game {
       variations: { hmtb: 0, cmi: 0, movelist: [{}] },
       computer_variations: [],
     };
+    // TODO: um, line 686 above (const game = {...} CREATES the game object...
+    //       line 707 CREATES the variations sub object...
+    //       Why in the world would you do this? :)
     game.variations.movelist.forEach((move) => {
       move.eco = {
         name: "",
@@ -2952,6 +2956,8 @@ export class Game {
     const variation = game.variations;
 
     for (let x = 0; x < movecount; x++) {
+      // TODO: I think you did great to here. Don't put it in the loop. I don't care about
+      //       the "in between" moves. Put this after the loop like you have done in other places.
       this.load_eco(active_games[game_id], variation);
       const undone = active_games[game_id].undo();
       const current = variation.movelist[variation.cmi];
@@ -3097,17 +3103,20 @@ export class Game {
 
   load_eco(chess_obj, variations) {
     if (
+      // TODO: Look into optional chaining for this too
       !!variations.movelist[variations.cmi].eco &&
       !!variations.movelist[variations.cmi].eco.name &&
       !!variations.movelist[variations.cmi].eco.code
     )
       return;
 
+    // TODO: lint says fen is an unused variable...
     let fen = chess_obj.fen();
     const ecorecord = this.ecoCollection.findOne({
       fen: chess_obj.fen(),
     });
     if (!!ecorecord) {
+      // TODO: Pay attention to lint please...
       let ecoElements = {
         name: ecorecord.name,
         code: ecorecord.eco,
@@ -3205,6 +3214,7 @@ export class Game {
 
     game.variations.cmi = 0;
     game.variations.movelist = [{}];
+    //TODO: hahaha again, huh? game.variations.movelist = [{}] above this, and then the loop below? :)
     game.variations.movelist.forEach((move) => {
       move.eco = {
         name: "",
