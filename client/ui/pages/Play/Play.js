@@ -403,8 +403,7 @@ export default compose(
       userClientMessages: ClientMessagesCollection.find().fetch(),
     };
   }),
-  injectSheet(dynamicPlayNotifierStyles),
-
+  injectSheet(dynamicPlayNotifierStyles)
 )(Play);
 
 const game_timestamps = {};

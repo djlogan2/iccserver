@@ -9,7 +9,6 @@ import PersonalChatApp from "../../Chat/PersonalChatApp/PersonalChatApp";
 import { translate } from "../../../../HOCs/translate";
 
 import PlayBlock from "../PlayBlock/PlayBlock";
-import ObserveBlock from "../ObserveBlock/ObserveBlock";
 import { gameComputerId, gameStatusPlaying } from "../../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
@@ -74,28 +73,20 @@ class PlayRightSidebar extends Component {
       cssManager,
       moveList,
       flip,
-      translate,
     } = this.props;
 
     return (
       <div className={classes.main}>
         <div className={classes.flexDiv}>
-          <Tabs defaultActiveKey="play" size="small" type="card">
-            <TabPane tab={translate("tabs.playTab")} key="play">
-              <PlayBlock
-                game={game}
-                onBotPlay={onBotPlay}
-                onSeekPlay={onSeekPlay}
-                onChooseFriend={onChooseFriend}
-                cssManager={cssManager}
-                moveList={moveList}
-                flip={flip}
-              />
-            </TabPane>
-            <TabPane tab={translate("tabs.observeTab")} key="observe">
-              <ObserveBlock />
-            </TabPane>
-          </Tabs>
+          <PlayBlock
+            game={game}
+            onBotPlay={onBotPlay}
+            onSeekPlay={onSeekPlay}
+            onChooseFriend={onChooseFriend}
+            cssManager={cssManager}
+            moveList={moveList}
+            flip={flip}
+          />
         </div>
         {game && this.renderBottom()}
       </div>
