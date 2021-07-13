@@ -3040,6 +3040,11 @@ export class Game {
     const exists = this.findVariation(move, variation_object.cmi, variation_object.movelist);
 
     if (exists) {
+      variation_object.movelist[variation_object.cmi].variations.splice(
+        variation_object.movelist[variation_object.cmi].variations.indexOf(exists),
+        1
+      );
+      variation_object.movelist[variation_object.cmi].variations.unshift(exists);
       variation_object.cmi = exists;
     } else {
       const newi = variation_object.movelist.length;

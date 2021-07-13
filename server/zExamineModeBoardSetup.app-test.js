@@ -497,7 +497,7 @@ describe("Setting a fen string", function() {
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
-    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{}] });
+    chai.assert.deepEqual(game.variations, { cmi: 0, movelist: [{ "eco" : { name: "NO_ECO", code: "NO_ECO" }}] });
     chai.assert.equal(game.tags.FEN, "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4");
     checkLastAction(game, 0, "loadfen", self.loggedonuser._id, {
       fen: "4rrk1/1b4p1/2p4p/p2pP1q1/Pp1P4/1P2P1PP/4Q1BK/2R1R3 b - - 1 4"

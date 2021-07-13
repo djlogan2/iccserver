@@ -3334,7 +3334,7 @@ describe("Takebacks", function () {
     // I got this from an SCID export of these moves, but removed the whitespace around the parens
     // SCID wrote: ( 1. e4 ) ... and I changed it to (1.e4)
     const expectedpgn =
-      "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. O-O (4. c3 d6 (4. ... d5 5. d4) 5. d4) 4. ... d5) 3. ... Be7 4. d4 (4. c3 d6 5. d4 exd4 6. cxd4) 4. ... Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4";
+      "1. e4 e5 2. Nf3 (2. f4 Nc6 3. Nf3) 2. ... Nc6 3. Bc4 (3. Be2 Be7 4. c3 (4. O-O d5) 4. ... d5 (4. ... d6 5. d4) 5. d4) 3. ... Be7 4. c3 (4. d4 Nxd4 5. c3 d5 6. exd5 b5 7. cxd4 bxc4) 4. ... d6 5. d4 exd4 6. cxd4";
     //const expectedpgn =
     //  "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
     // So Let's not remove the whitespace, and it should match exactly.
@@ -3498,7 +3498,7 @@ describe("Game.moveForward", function () {
     checkLastAction(game, 1, "move_backward", us._id, 4);
   });
 
-  it("requires zero to be the first variation, and 1+ to be subsequent variations (i.e. zero based)", function () {
+  it("requires zero to be the mainline, and 1+ to be subsequent variations (i.e. zero based)", function () {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.saveLocalMove("mi2", game_id, "e4");
@@ -3508,11 +3508,11 @@ describe("Game.moveForward", function () {
     Game.moveBackward("mi6", game_id, 3);
     Game.saveLocalMove("mi7", game_id, "c5");
     Game.moveBackward("mi8", game_id);
-    Game.moveForward("mi9", game_id, 1, 1);
+    Game.moveForward("mi9", game_id, 1, 0);
     Game.saveLocalMove("mi10", game_id, "d4");
     Game.saveLocalMove("mi11", game_id, "c4"); // Will fail if not for the previous c5
     Game.moveBackward("mi12", game_id, 3);
-    Game.moveForward("mi13", game_id, 3, 0);
+    Game.moveForward("mi13", game_id, 3, 1);
     Game.saveLocalMove("mi14", game_id, "c4");
     Game.saveLocalMove("mi15", game_id, "a5");
     Game.saveLocalMove("mi16", game_id, "c5"); // Will fail if we are still on the c5 branch
