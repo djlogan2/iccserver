@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
-import { gameStatusExamining } from "../../../constants/gameConstants";
 
 export default class BlackPlayerClock extends Component {
   constructor(props) {
@@ -168,7 +167,7 @@ export default class BlackPlayerClock extends Component {
     let ms;
     let neg = "";
 
-    let time = current && game.status !== gameStatusExamining ? current : 0;
+    let time = current || 0;
     if (time < 0) {
       neg = "-";
       time = -time;
