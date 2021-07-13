@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
 
-export default class BlackPlayerClock extends Component {
+export default class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
@@ -78,7 +78,7 @@ export default class BlackPlayerClock extends Component {
       const start = running ? props.game.clocks[props.color].starttime : 0;
       pcurrent = props.game.clocks[props.color].current - now + start;
     } else {
-      pcurrent = BlackPlayerClock.timeAfterMove(
+      pcurrent = PlayerClock.timeAfterMove(
         props.game.variations,
         props.game.tomove === props.color
       );
