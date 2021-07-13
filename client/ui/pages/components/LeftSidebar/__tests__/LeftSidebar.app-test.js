@@ -13,6 +13,7 @@ describe("LeftSidebar component", () => {
     email: "test@test.com",
     _id: "fake_id",
     status: { game: "none" },
+    cf: "c",
   };
 
   beforeEach(() => {
@@ -24,12 +25,20 @@ describe("LeftSidebar component", () => {
 
     sinon.stub(Meteor, "logout");
     Meteor.logout.returns();
+
+    sinon.replace(Meteor, "call", (methodName, methodDesc, userId, resource, callback) => {
+      if (methodName === "setClientStatus") {
+        callback("fake_error");
+      }
+    });
   });
 
   afterEach(() => {
     Meteor.user.restore();
     Meteor.userId.restore();
     Meteor.logout.restore();
+
+    sinon.restore();
   });
 
   it("should render", () => {
@@ -96,5 +105,18 @@ describe("LeftSidebar component", () => {
 
     chai.assert.equal(wrapper.find("Modal").length, 1);
     wrapper.find("Modal").simulate("cancel");
+  });
+
+  it("should go to link examine", () => {
+    const history = createBrowserHistory();
+    const wrapper = mount(
+      <Router history={history}>
+        <LeftSidebar />
+      </Router>
+    );
+
+    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+    const div = wrapper.find("a#examine");
+    div.simulate("click");
   });
 });

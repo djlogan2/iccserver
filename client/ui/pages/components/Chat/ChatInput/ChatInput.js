@@ -28,15 +28,18 @@ export default compose(
 
   return (
     <Fragment>
-      <form className={classes.main} onSubmit={handleSubmit}>
+      <form id="chat-form" className={classes.main} onSubmit={handleSubmit}>
         <Input
+          id="chat-input"
           disabled={disabled}
           ref={(el) => (this.input = el)}
           value={value}
           onChange={handleChange}
           placeholder={translate("yourMessage")}
         />
-        <Button htmlType="submit">{translate("send")}</Button>
+        <Button id="send-message" htmlType="submit">
+          {translate("send")}
+        </Button>
       </form>
     </Fragment>
   );

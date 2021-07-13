@@ -16,7 +16,7 @@ import {
   colorBlackLetter,
   colorWhite,
   colorWhiteLetter,
-  whiteCastlingOptions,
+  whiteCastlingOptions
 } from "../../../../../constants/gameConstants";
 
 class EditorRightSidebar extends Component {
@@ -75,14 +75,23 @@ class EditorRightSidebar extends Component {
     return (
       <div className={classes.main}>
         <div className={classes.head}>
-          <Button className={classes.backButton} onClick={() => history.push(RESOURCE_EXAMINE)}>
+          <Button
+            id="back-to-play"
+            className={classes.backButton}
+            onClick={() => history.push(RESOURCE_EXAMINE)}
+          >
             {translate("backToPlay")}
           </Button>
           <h2 className={classes.title}>{translate("boardSetUp")}</h2>
         </div>
         <div className={classes.content}>
           <div className={classes.colorBlock}>
-            <Radio.Group initialValues={colorWhiteLetter} value={color} onChange={this.handleColor}>
+            <Radio.Group
+              id="change-color-radio"
+              initialValues={colorWhiteLetter}
+              value={color}
+              onChange={this.handleColor}
+            >
               <Radio.Button value={colorWhiteLetter}>{translate("whiteToPlay")}</Radio.Button>
               <Radio.Button value={colorBlackLetter}>{translate("blackToPlay")}</Radio.Button>
             </Radio.Group>

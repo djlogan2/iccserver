@@ -54,14 +54,20 @@ class RoomBlock extends Component {
             {translate("RoomBlock.rooms", { rooms: list.length })}
           </h2>
           <Modal
+            id="room-create-modal"
             title={translate("RoomBlock.title")}
             visible={!!isModal}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
           >
-            <Input value={roomName} onChange={(e) => this.setState({ roomName: e.target.value })} />
+            <Input
+              id="room-name"
+              value={roomName}
+              onChange={(e) => this.setState({ roomName: e.target.value })}
+            />
           </Modal>
           <Button
+            id="open-right-block"
             onClick={openRightBlock}
             title={translate("RoomBlock.plusTitle")}
             className={classes.roomBlockPlus}
@@ -81,6 +87,7 @@ class RoomBlock extends Component {
                 onClick={() => {
                   onChange(item._id);
                 }}
+                id={item._id}
                 key={item._id}
                 className={classNames(
                   classes.roomBlockListItem,

@@ -19,11 +19,19 @@ describe("ExamineOwnerTabBlock component", () => {
 
     sinon.stub(Meteor, "userId");
     Meteor.userId.returns(currentUser._id);
+
+    sinon.replace(Meteor, "call", (methodName, methodDesc, gameId, idToAdd, callback) => {
+      if (methodName === "localAddObserver" || methodName === "localAddExaminer") {
+        callback("fake_error");
+      }
+    });
   });
 
   afterEach(() => {
     Meteor.user.restore();
     Meteor.userId.restore();
+
+    sinon.restore();
   });
 
   it("should render with examiner", () => {

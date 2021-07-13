@@ -1,13 +1,13 @@
 import React, { Component } from "react";
-import AppWrapper from "./AppWrapper/AppWrapper";
-import PlayRightSidebar from "./RightSidebar/PlayRightSidebar/PlayRightSidebar";
-import "../../../../imports/css/leftsidebar.css";
+import AppWrapper from "../AppWrapper/AppWrapper";
+import PlayRightSidebar from "../RightSidebar/PlayRightSidebar/PlayRightSidebar";
+import "../../../../../imports/css/leftsidebar.css";
 
 import { Col } from "antd";
 
-import MiddleBoard from "../MiddleSection/MiddleBoard";
-import BoardWrapper from "./BoardWrapper/BoardWrapper";
-import { colorBlackLetter, colorWhiteLetter } from "../../../constants/gameConstants";
+import MiddleBoard from "../../MiddleSection/MiddleBoard";
+import BoardWrapper from "../BoardWrapper/BoardWrapper";
+import { colorBlackLetter, colorWhiteLetter } from "../../../../constants/gameConstants";
 
 export default class PlayPage extends Component {
   constructor(props) {

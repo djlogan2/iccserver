@@ -26,7 +26,9 @@ class CommunityRightBlock extends Component {
             <h2 className={classes.roomBlockTitle}>
               {translate("CommunityRightBlock.allRooms", { rooms: roomList.length })}
             </h2>
-            <Button onClick={onClose}>{translate("CommunityRightBlock.close")}</Button>
+            <Button id="close-right-block" onClick={onClose}>
+              {translate("CommunityRightBlock.close")}
+            </Button>
           </div>
           <ul className={classes.roomBlockList}>
             {roomList.map((item) => {
@@ -49,7 +51,7 @@ class CommunityRightBlock extends Component {
           </ul>
         </div>
         <div className={classes.roomBlockCreateButton}>
-          <Button type="primary" onClick={handleOpenModal} block>
+          <Button id="create-room" type="primary" onClick={handleOpenModal} block>
             {translate("CommunityRightBlock.createRoom")}
           </Button>
         </div>

@@ -2,12 +2,7 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { links, sidebarBottom } from "../../hardcode.json";
-import {
-  labelLogout,
-  labelMyGame,
-  labelsToResources,
-  RESOURCE_LOGIN,
-} from "../../../../constants/resourceConstants";
+import { labelLogout, labelMyGame, labelsToResources } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import _ from "lodash";
 import { Tag, Tooltip } from "antd";
@@ -61,17 +56,6 @@ class MenuLinks extends Component {
     serverTS()?.events?.removeListener("sendingPingResult", this.sendingPingResult);
     serverTS()?.events?.removeListener("lagFunc", this.lagging);
   }
-
-  logout = () => {
-    const { history } = this.props;
-
-    Meteor.logout((err) => {
-      if (err) {
-      } else {
-        history.push(RESOURCE_LOGIN);
-      }
-    });
-  };
 
   handleClick = (label) => {
     const { handleRedirect, onMyGames, onLogout } = this.props;

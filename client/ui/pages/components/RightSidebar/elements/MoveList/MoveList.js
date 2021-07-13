@@ -35,7 +35,7 @@ export default class MoveList extends Component {
 
     Meteor.call("moveToCMI", "moveToCMI", game._id, cmi, (err) => {
       if (err) {
-        console.log(err);
+        log.error(err);
       }
     });
   };
@@ -48,14 +48,22 @@ export default class MoveList extends Component {
 
     if (element.smith.color === colorWhiteLetter) {
       this.moveListRow.push(
-        <span style={styles} onClick={() => this.handleClick(cmi)}>
+        <span
+          key={`${index}-w-${element.move}`}
+          style={styles}
+          onClick={() => this.handleClick(cmi)}
+        >
           <b>{index}.</b>
           {element.move}{" "}
         </span>
       );
     } else {
       this.moveListRow.push(
-        <span style={styles} onClick={() => this.handleClick(cmi)}>
+        <span
+          key={`${index}-b-${element.move}`}
+          style={styles}
+          onClick={() => this.handleClick(cmi)}
+        >
           {element.move}{" "}
         </span>
       );

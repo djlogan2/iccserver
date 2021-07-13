@@ -8,13 +8,13 @@ import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
 import "./ChessBoard";
 import {
-  colorWhite,
-  colorBlack,
   boardBaseFen,
+  colorBlack,
   colorBlackLetter,
+  colorWhite,
   colorWhiteLetter,
   gameStatusExamining,
-  gameStatusPlaying,
+  gameStatusPlaying
 } from "../../../constants/gameConstants";
 import Analytics from "../components/Analytics/Analytics";
 
@@ -98,8 +98,8 @@ class MiddleBoard extends Component {
     const { top } = this.state;
 
     return {
-      topFallenSoliders: top === colorWhiteLetter ? capture.b : capture.w,
-      bottomFallenSoliders: top === colorBlackLetter ? capture.b : capture.w,
+      topFallenSoliders: top === colorWhiteLetter ? capture?.b : capture?.w,
+      bottomFallenSoliders: top === colorBlackLetter ? capture?.b : capture?.w,
     };
   };
 

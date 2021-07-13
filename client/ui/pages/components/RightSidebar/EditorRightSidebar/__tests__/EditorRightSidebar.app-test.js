@@ -7,7 +7,12 @@ import EditorRightSidebar from "../EditorRightSidebar";
 
 describe("EditorRightSidebar component", () => {
   const history = createBrowserHistory();
-  const mockProps = { whiteCastling: [], blackCastling: [], onCastling: () => null };
+  const mockProps = {
+    whiteCastling: [],
+    blackCastling: [],
+    onCastling: () => null,
+    onFen: () => null,
+  };
 
   const component = mount(
     <Router history={history}>
@@ -29,5 +34,15 @@ describe("EditorRightSidebar component", () => {
 
   it("should have 2 radios", () => {
     chai.assert.equal(component.find("Radio").length, 2);
+  });
+
+  it("should simulate actions", () => {
+    const backButton = component.find("Button#back-to-play");
+    chai.assert.equal(backButton.length, 1);
+    backButton.simulate("click");
+
+    const input = component.find("Input");
+    chai.assert.equal(input.length, 1);
+    input.simulate("change", { target: { value: "fake_value" } });
   });
 });

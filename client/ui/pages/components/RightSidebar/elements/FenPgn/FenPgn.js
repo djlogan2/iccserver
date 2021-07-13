@@ -91,7 +91,7 @@ class FenPgn extends Component {
         transport: "http",
         onUploaded: (err, fileRef) => {
           if (err) {
-            console.error(err);
+            log.error(err);
           }
 
           onPgnUpload(fileRef);
@@ -112,6 +112,7 @@ class FenPgn extends Component {
         <div className={classes.content}>
           <label>{translate("fen")}</label>
           <Input
+            id="fen-input"
             value={game.fen}
             onChange={this.handleFenChange}
             placeholder={translate("yourMessage")}
