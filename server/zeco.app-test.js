@@ -1399,8 +1399,8 @@ describe("ecocodes", function(){
         chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, transposedGame.variations.movelist[transposedGame.variations.cmi].eco);
     });
   });
-  describe("exportToPGN", function() {
-    it("should provide the eco in the pgn equal to the last node's eco", function() {
+  describe.only("exportToPGN", function() {
+    it("should send the eco code if we have an eco code already defined", function() {
       this.timeout(5000000);
       // Provide a game instance
       // we add an eco code entry
@@ -1418,7 +1418,7 @@ describe("ecocodes", function(){
       // Actually create the game
       const us = TestHelpers.createUser();
       const them = TestHelpers.createUser();
-      self.loggedonuser = us
+      self.loggedonuser = us;
       let game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
       // Have a given eco code
       const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"];
@@ -1437,11 +1437,42 @@ describe("ecocodes", function(){
       // Produce a PGN with given eco name and code
 
       const our_pgn = Game.exportToPGN(game_id).pgn.split('\n');
-      const eco_name_index = 6;
-      const eco_index = 7;
+      const eco_name_index = our_pgn.findIndex(element => element.includes("[Opening"));
+      const eco_index = our_pgn.findIndex(element => element.includes("[ECO"));
       chai.assert.equal(our_pgn[eco_name_index], "[Opening " + our_eco.name + "]", "eco name wasn't in pgn string");
       chai.assert.equal(our_pgn[eco_index], "[ECO " + our_eco.code + "]", "eco code wasn't in pgn string");
     });
+    it("should not send an eco code if we don't have eco defined", function(){
+      this.timeout(500000);
+      // we DO NOT add an eco code entry
+      // Actually create the game
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      let game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
+      // Have a given eco code
+      const moves1 = ["Nf3", "d5", "g3", "c5", "Bg2"];
+      let chess_obj = new Chess.Chess();
+      const tomove = [us, them];
+      let tm = 0;
+      // make moves for test
+      let index = 0;
+      moves1.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id, move);
+        chess_obj.move(move);
+        tm = !tm ? 1 : 0;
+        index += 1;
+      });
+      // Produce a PGN WITHOUT ANY given eco name and code
+      const our_pgn = Game.exportToPGN(game_id).pgn.split('\n');
+      const eco_name_index = our_pgn.findIndex(element => element.includes("[Opening"));
+      const eco_index = our_pgn.findIndex(element => element.includes("[ECO"));
+      chai.assert.equal(eco_name_index,-1, "opening name format found for no eco code in pgn");
+      chai.assert.equal(eco_index,-1, "eco code format found for no eco code in pgn");
+      chai.assert.isDefined(our_pgn, "pgn wasn't even provided as a text");
+      //pgn doesn't include eco AT ALL
+    })
   });
   it("should not be saved to the game_history collection", function() {
     const us = TestHelpers.createUser();
