@@ -3,6 +3,7 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import chai from "chai";
 import Chess from "chess.js"
 import { GameHistory} from "./Game";
+import { buildPgnFromMovelist } from "../lib/exportpgn";
 
 describe("ecocodes", function(){
   const self = TestHelpers.setupDescribe.apply(this);
@@ -526,7 +527,7 @@ describe("ecocodes", function(){
       if (!game) {
         chai.assert.fail("Game does not exist");
       }
-
+      const cmi = game.variations.cmi;
       // Check that moveBackward works for all moves in movelist
       game.variations.movelist.forEach((move) => {
         delete move.eco;
@@ -543,10 +544,12 @@ describe("ecocodes", function(){
       Game.moveBackward("mi1", game_id, moves1.length);
       const game2 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
 
-      chai.assert.isDefined(game2.variations.movelist[0].eco);
-      chai.assert.isDefined(game2.variations.movelist[0].eco.name);
-      chai.assert.isDefined(game2.variations.movelist[0].eco.code);
-      chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+      game2.variations.movelist.forEach((move) => {
+        chai.assert.isDefined(move.eco);
+        chai.assert.isDefined(move.eco.name);
+        chai.assert.isDefined(move.eco.code);
+      });
+      chai.assert.deepEqual(game2.variations.movelist[cmi].eco, { name: "King's Indian Attack", code: "A08" });
       Game.moveForward("mi1", game_id, moves1.length);
       // Check that moveBackward works for some moves in movelist
       game.variations.movelist.forEach((move) => {
@@ -561,12 +564,12 @@ describe("ecocodes", function(){
             }
         }
       );
-      Game.moveBackward("mi1", game_id, 2);
+      Game.moveBackward("mi1", game_id, 3);
       const game3 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
-      chai.assert.isUndefined(game3.variations.movelist[game3.variations.cmi - 1].eco);
-      chai.assert.deepEqual(game3.variations.movelist[game3.variations.cmi].eco, { name: "King's Indian Attack", code: "A07" });
+      chai.assert.deepEqual(game3.variations.movelist[cmi - 2].eco, { name: "King's Indian Attack", code: "A07" });
+      chai.assert.deepEqual(game3.variations.movelist[cmi - 1].eco, { name: "King's Indian Attack", code: "A07" });
+      chai.assert.deepEqual(game3.variations.movelist[cmi].eco, { name: "King's Indian Attack", code: "A08" });
     });
-
     it("should not load an eco code without an eco entry for each node visited by moveBackward", function() {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
@@ -612,6 +615,7 @@ describe("ecocodes", function(){
       if (!game) {
         chai.assert.fail("Game does not exist");
       }
+      const cmi = game.variations.cmi;
       // Check that moveBackward works for all moves in movelist
       game.variations.movelist.forEach((move) => {
         delete move.eco;
@@ -628,10 +632,12 @@ describe("ecocodes", function(){
       Game.moveBackward("mi1", game_id, moves1.length);
       const game2 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
 
-      chai.assert.isDefined(game2.variations.movelist[0].eco);
-      chai.assert.isDefined(game2.variations.movelist[0].eco.name);
-      chai.assert.isDefined(game2.variations.movelist[0].eco.code);
-      chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+      game2.variations.movelist.forEach((move) => {
+        chai.assert.isDefined(move.eco);
+        chai.assert.isDefined(move.eco.name);
+        chai.assert.isDefined(move.eco.code);
+      });
+      chai.assert.deepEqual(game2.variations.movelist[cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
 
       Game.moveForward("mi1", game_id, moves1.length);
       // Check that moveBackward works for some moves in movelist
@@ -649,10 +655,8 @@ describe("ecocodes", function(){
       );
       Game.moveBackward("mi1", game_id, 3);
       const game3 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
-      game3.variations.movelist.forEach((move, index) => {
-        if (index <= 2) {
-          chai.assert.deepEqual(move.eco, { name: "NO_ECO", code: "NO_ECO" });
-        }
+      game3.variations.movelist.forEach((move) => {
+        chai.assert.deepEqual(move.eco, { name: "NO_ECO", code: "NO_ECO" });
       })
     });
   });
@@ -1396,7 +1400,247 @@ describe("ecocodes", function(){
         chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, transposedGame.variations.movelist[transposedGame.variations.cmi].eco);
     });
   });
-  describe("exportToPGN", function() {
+  describe.only("exportToPGN", function() {
+    it("Should promote pgn variations properly", function(){
+      this.timeout(100000);
+      // Create a game
+      const player = {
+        white: TestHelpers.createUser(),
+        black: TestHelpers.createUser(),
+      };
+      const us = player.white;
+      const them = player.black;
+      self.loggedonuser = us;
+      let game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
+      // Apply moves up to promotion
+      const actions = [
+        { type: "move", parameter: "c4" },
+        { type: "move", parameter: "c5" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "e4" },
+        { type: "move", parameter: "e5" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+      ];
+
+      actions.forEach((action) => {
+        const tomove = Game.collection.findOne({}).tomove;
+        switch (action.type) {
+          case "move":
+            self.loggedonuser = player[tomove];
+            Game.saveLocalMove(action.parameter, game_id, action.parameter);
+            break;
+          case "takeback_requested":
+            self.loggedonuser = player[tomove];
+            Game.requestLocalTakeback("request takeback", game_id, action.parameter);
+            break;
+          case "takeback_accepted":
+            const tbcolor = tomove === "white" ? "black" : "white";
+            self.loggedonuser = player[tbcolor];
+            Game.acceptLocalTakeback("accept takeback", game_id);
+            break;
+          default:
+            chai.assert.fail("Unknown action: " + action);
+        }
+      });
+      // Check pgn
+      const game = Game.collection.findOne({});
+
+      const pgn = buildPgnFromMovelist(game.variations.movelist);
+      const expected_pgn_1 = "1. e4 (1. c4 c5) 1. ... e5";
+      const expected_pgn_2 = "1. Nf3 (1. e4 e5)(1. c4 c5) 1. ... Nc6";
+      const expected_pgn_3 = "1. Nf3 (1. e4 e5)(1. c4 c5) 1. ... d5 (1. ... e5)(1. ... Nc6)";
+      const expected_pgn_4 = "1. Nf3 (1. e4 e5)(1. c4 c5) 1. ... Nc6 (1. ... d5)(1. ... e5)";
+      chai.assert.equal(pgn, expected_pgn_1, "pgn creation failed to be correct before promotion");
+      // apply takeback promotion
+      const actions2 = [
+        { type: "move", parameter: "Nf3" },
+        { type: "move", parameter: "Nc6" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "Nf3" },
+        { type: "move", parameter: "Nc6" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+      ];
+
+      actions2.forEach((action) => {
+        const tomove = Game.collection.findOne({}).tomove;
+        switch (action.type) {
+          case "move":
+            self.loggedonuser = player[tomove];
+            Game.saveLocalMove(action.parameter, game_id, action.parameter);
+            break;
+          case "takeback_requested":
+            self.loggedonuser = player[tomove];
+            Game.requestLocalTakeback("request takeback", game_id, action.parameter);
+            break;
+          case "takeback_accepted":
+            const tbcolor = tomove === "white" ? "black" : "white";
+            self.loggedonuser = player[tbcolor];
+            Game.acceptLocalTakeback("accept takeback", game_id);
+            break;
+          default:
+            chai.assert.fail("Unknown action: " + action);
+        }
+      });
+      // check pgn
+      const game2 = Game.collection.findOne({});
+
+      const pgn2 = buildPgnFromMovelist(game2.variations.movelist);
+      chai.assert.equal(pgn2, expected_pgn_2, "produced duplicates in pgn, redoing mainling shouldn't");
+
+      const actions3 = [
+        { type: "move", parameter: "Nf3" },
+        { type: "move", parameter: "Nc6" },
+        { type: "takeback_requested", parameter: 1 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "e5" },
+        { type: "takeback_requested", parameter: 1 },
+        { type: "takeback_accepted" },
+        { type: "move", parameter: "d5" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+      ];
+
+      actions3.forEach((action) => {
+        const tomove = Game.collection.findOne({}).tomove;
+        switch (action.type) {
+          case "move":
+            self.loggedonuser = player[tomove];
+            Game.saveLocalMove(action.parameter, game_id, action.parameter);
+            break;
+          case "takeback_requested":
+            self.loggedonuser = player[tomove];
+            Game.requestLocalTakeback("request takeback", game_id, action.parameter);
+            break;
+          case "takeback_accepted":
+            const tbcolor = tomove === "white" ? "black" : "white";
+            self.loggedonuser = player[tbcolor];
+            Game.acceptLocalTakeback("accept takeback", game_id);
+            break;
+          default:
+            chai.assert.fail("Unknown action: " + action);
+        }
+      });
+      // check pgn
+      const game3 = Game.collection.findOne({});
+
+      const pgn3 = buildPgnFromMovelist(game3.variations.movelist);
+      chai.assert.equal(pgn3, expected_pgn_3, "produced duplicates in pgn, redoing mainline shouldn't");
+
+      const actions4 = [
+        { type: "move", parameter: "Nf3" },
+        { type: "move", parameter: "Nc6" },
+        { type: "takeback_requested", parameter: 2 },
+        { type: "takeback_accepted" },
+      ];
+
+      actions4.forEach((action) => {
+        const tomove = Game.collection.findOne({}).tomove;
+        switch (action.type) {
+          case "move":
+            self.loggedonuser = player[tomove];
+            Game.saveLocalMove(action.parameter, game_id, action.parameter);
+            break;
+          case "takeback_requested":
+            self.loggedonuser = player[tomove];
+            Game.requestLocalTakeback("request takeback", game_id, action.parameter);
+            break;
+          case "takeback_accepted":
+            const tbcolor = tomove === "white" ? "black" : "white";
+            self.loggedonuser = player[tbcolor];
+            Game.acceptLocalTakeback("accept takeback", game_id);
+            break;
+          default:
+            chai.assert.fail("Unknown action: " + action);
+        }
+      });
+      // check pgn
+      const game4 = Game.collection.findOne({});
+
+      const pgn4 = buildPgnFromMovelist(game4.variations.movelist);
+      chai.assert.equal(pgn4, expected_pgn_4, "produced duplicates in pgn, redoing mainling shouldn't");
+
+
+    });
+    it("should export eco code and name of mainline instead of a variation", function() {
+      this.timeout(5000000);
+      // Provide a game instance
+      // we add an eco code entry
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
+      let name = "King's Indian Attack";
+      let code = "A07";
+      let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
+      Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
+      let name2 = "King's Indian Attack";
+      let code2 = "A08";
+      let fen2 = "rnbqkbnr/pp2pppp/8/2pp4/8/5NP1/PPPPPPBP/RNBQK2R b KQkq - 1 3";
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+      const other_fen = "rnbqkbnr/1pp1pppp/8/p2p4/8/2N2NP1/PPPPPP1P/R1BQKB1R b KQkq - 1 3";
+      const other_name = "something else";
+      const other_code = "some code";
+      Game.ecoCollection.insert({name: other_name, eco: other_code, fen: other_fen, wild:0});
+      const our_eco = {name: name2, code: code2};
+      const wrong_eco = {name: other_name, code: other_code};
+
+      Game.ecoCollection.insert({ name: name2, eco: code2, fen: fen2, wild: 0 });
+
+      // Actually create the game of a large tree
+      const us = TestHelpers.createUser();
+      const them = TestHelpers.createUser();
+      self.loggedonuser = us;
+      let game_id = Game.startLocalGame("mi1", them, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
+      // Have a given eco code
+      const moves1 = ["Nf3", "d5", "g3"];
+      const main_moves = ["c5", "Bg2"];
+      const other_moves = ["a5", "Nc3"];
+      let chess_obj = new Chess.Chess();
+      const tomove = [us, them];
+      let tm = 0;
+      // make moves to the given eco code
+      moves1.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id, move);
+        chess_obj.move(move);
+        tm = !tm ? 1 : 0;
+      });
+      other_moves.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id, move);
+        chess_obj.move(move);
+        tm = !tm ? 1 : 0;
+      });
+      let our_pgn = Game.exportToPGN(game_id).pgn.split('\n');
+      let eco_name_index = our_pgn.findIndex(element => element.includes("[Opening"));
+      let eco_index = our_pgn.findIndex(element => element.includes("[ECO"));
+      chai.assert.equal(our_pgn[eco_name_index], "[Opening " + other_name + "]", "eco name wasn't variation before takeback");
+      chai.assert.equal(our_pgn[eco_index], "[ECO " + other_code + "]", "eco code wasn't variation before takeback");
+      self.loggedonuser = us;
+      Game.requestLocalTakeback("mi1", game_id, 1);
+      self.loggedonuser = them;
+      Game.acceptLocalTakeback("mi1", game_id);
+      Game.requestLocalTakeback("mi1", game_id, 1);
+      self.loggedonuser = us;
+      Game.acceptLocalTakeback("mi1", game_id);
+      main_moves.forEach(move => {
+        self.loggedonuser = tomove[tm];
+        Game.saveLocalMove(move, game_id, move);
+        chess_obj.move(move);
+        tm = !tm ? 1 : 0;
+      });
+      // Produce a PGN with mainline eco name and code
+      our_pgn = Game.exportToPGN(game_id).pgn.split('\n');
+      eco_name_index = our_pgn.findIndex(element => element.includes("[Opening"));
+      eco_index = our_pgn.findIndex(element => element.includes("[ECO"));
+      // Check that mainline was used
+      chai.assert.notDeepEqual(our_pgn[eco_name_index], "[Opening " + wrong_eco.name + "]", "Export pgn gave variation, not mainline econame");
+      chai.assert.notDeepEqual(our_pgn[eco_index], "[ECO " + wrong_eco.code + "]", "Export pgn gave variation, not mainline eco code");
+      chai.assert.equal(our_pgn[eco_name_index], "[Opening " + our_eco.name + "]", "eco name wasn't in pgn string");
+      chai.assert.equal(our_pgn[eco_index], "[ECO " + our_eco.code + "]", "eco code wasn't in pgn string");
+    });
     it("should send the eco code if we have an eco code already defined", function() {
       this.timeout(5000000);
       // Provide a game instance
@@ -1470,7 +1714,6 @@ describe("ecocodes", function(){
       chai.assert.isDefined(our_pgn, "pgn wasn't even provided as a text");
       //pgn doesn't include eco AT ALL
     })
-  });
   it("should not be saved to the game_history collection", function() {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
@@ -1577,5 +1820,6 @@ describe("ecocodes", function(){
       })
       done();
     });
+  });
   });
 });
