@@ -94,19 +94,24 @@ export default class MoveList extends Component {
       moveList[currentMoveElement].variations.forEach((el, index) => {
         if (index) {
           this.moveListRow.push(<>(</>);
-        }
 
-        this.recursiveMoveListRow(
-          moveList,
-          el,
-          currentColor === colorBlackLetter ? currentIndex + 1 : currentIndex,
-          cmi
-        );
+          this.recursiveMoveListRow(
+            moveList,
+            el,
+            currentColor === colorBlackLetter ? currentIndex + 1 : currentIndex,
+            cmi
+          );
 
-        if (index) {
           this.moveListRow.push(<>)</>);
         }
       });
+
+      this.recursiveMoveListRow(
+        moveList,
+        moveList[currentMoveElement].variations[0],
+        currentColor === colorBlackLetter ? currentIndex + 1 : currentIndex,
+        cmi
+      );
     }
   };
 
