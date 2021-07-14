@@ -526,7 +526,7 @@ describe("ecocodes", function(){
       if (!game) {
         chai.assert.fail("Game does not exist");
       }
-      const cmi = game.variations.cmi;
+
       // Check that moveBackward works for all moves in movelist
       game.variations.movelist.forEach((move) => {
         delete move.eco;
@@ -543,12 +543,10 @@ describe("ecocodes", function(){
       Game.moveBackward("mi1", game_id, moves1.length);
       const game2 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
 
-      game2.variations.movelist.forEach((move) => {
-        chai.assert.isDefined(move.eco);
-        chai.assert.isDefined(move.eco.name);
-        chai.assert.isDefined(move.eco.code);
-      });
-      chai.assert.deepEqual(game2.variations.movelist[cmi].eco, { name: "King's Indian Attack", code: "A08" });
+      chai.assert.isDefined(game2.variations.movelist[0].eco);
+      chai.assert.isDefined(game2.variations.movelist[0].eco.name);
+      chai.assert.isDefined(game2.variations.movelist[0].eco.code);
+      chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
       Game.moveForward("mi1", game_id, moves1.length);
       // Check that moveBackward works for some moves in movelist
       game.variations.movelist.forEach((move) => {
@@ -563,12 +561,12 @@ describe("ecocodes", function(){
             }
         }
       );
-      Game.moveBackward("mi1", game_id, 3);
+      Game.moveBackward("mi1", game_id, 2);
       const game3 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
-      chai.assert.deepEqual(game3.variations.movelist[cmi - 2].eco, { name: "King's Indian Attack", code: "A07" });
-      chai.assert.deepEqual(game3.variations.movelist[cmi - 1].eco, { name: "King's Indian Attack", code: "A07" });
-      chai.assert.deepEqual(game3.variations.movelist[cmi].eco, { name: "King's Indian Attack", code: "A08" });
+      chai.assert.isUndefined(game3.variations.movelist[game3.variations.cmi - 1].eco);
+      chai.assert.deepEqual(game3.variations.movelist[game3.variations.cmi].eco, { name: "King's Indian Attack", code: "A07" });
     });
+
     it("should not load an eco code without an eco entry for each node visited by moveBackward", function() {
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
@@ -614,7 +612,6 @@ describe("ecocodes", function(){
       if (!game) {
         chai.assert.fail("Game does not exist");
       }
-      const cmi = game.variations.cmi;
       // Check that moveBackward works for all moves in movelist
       game.variations.movelist.forEach((move) => {
         delete move.eco;
@@ -631,12 +628,10 @@ describe("ecocodes", function(){
       Game.moveBackward("mi1", game_id, moves1.length);
       const game2 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
 
-      game2.variations.movelist.forEach((move) => {
-        chai.assert.isDefined(move.eco);
-        chai.assert.isDefined(move.eco.name);
-        chai.assert.isDefined(move.eco.code);
-      });
-      chai.assert.deepEqual(game2.variations.movelist[cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
+      chai.assert.isDefined(game2.variations.movelist[0].eco);
+      chai.assert.isDefined(game2.variations.movelist[0].eco.name);
+      chai.assert.isDefined(game2.variations.movelist[0].eco.code);
+      chai.assert.deepEqual(game2.variations.movelist[game2.variations.cmi].eco, { name: "NO_ECO", code: "NO_ECO" });
 
       Game.moveForward("mi1", game_id, moves1.length);
       // Check that moveBackward works for some moves in movelist
@@ -654,8 +649,10 @@ describe("ecocodes", function(){
       );
       Game.moveBackward("mi1", game_id, 3);
       const game3 = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
-      game3.variations.movelist.forEach((move) => {
-        chai.assert.deepEqual(move.eco, { name: "NO_ECO", code: "NO_ECO" });
+      game3.variations.movelist.forEach((move, index) => {
+        if (index <= 2) {
+          chai.assert.deepEqual(move.eco, { name: "NO_ECO", code: "NO_ECO" });
+        }
       })
     });
   });
@@ -1399,7 +1396,7 @@ describe("ecocodes", function(){
         chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, transposedGame.variations.movelist[transposedGame.variations.cmi].eco);
     });
   });
-  describe.only("exportToPGN", function() {
+  describe("exportToPGN", function() {
     it("should send the eco code if we have an eco code already defined", function() {
       this.timeout(5000000);
       // Provide a game instance

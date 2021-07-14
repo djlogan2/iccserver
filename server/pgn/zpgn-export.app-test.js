@@ -2,6 +2,7 @@ import chai from "chai";
 import { Parser } from "./pgnparser";
 //import { Game } from "../Game";
 import { TestHelpers } from "../../imports/server/TestHelpers";
+import { buildPgnFromMovelist, exportGameObjectToPGN } from "../../lib/exportpgn";
 
 describe("PGN exports", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -46,6 +47,48 @@ describe("PGN exports", function() {
     const exported_pgn = Game.exportToPGN(game_id);
     //chai.assert.equal(exported_pgn, "");
   });
+
+  it.only("should export the pgn with the variations in the correct order", function() {
+    const us = TestHelpers.createUser({ premove: false });
+    const them = TestHelpers.createUser({ premove: false });
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    Game.saveLocalMove("e4", game_id, "e4");
+    self.loggedonuser = them;
+    Game.saveLocalMove("f5", game_id, "f5");
+    Game.resignLocalGame("resignLocalGame", game_id);
+
+    Game.moveBackward("mi2", game_id, 1);
+    Game.saveLocalMove("c5", game_id, "c5");
+
+    Game.moveBackward("mi3", game_id, 1);
+    Game.saveLocalMove("d5", game_id, "d5");
+
+    Game.moveBackward("mi4", game_id, 1);
+    Game.saveLocalMove("e5", game_id, "e5");
+    const game = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
+    if (!game) {
+      chai.assert.fail("Game does not exist");
+    }
+
+    const pgn = buildPgnFromMovelist(game.variations.movelist);
+    let expectedPgn = "1. e4 e5 (1. ... d5)(1. ... c5)(1. ... f5)"
+    chai.assert.equal(pgn, expectedPgn);
+  });
+  
   const game_record = {
     actions: [
       {

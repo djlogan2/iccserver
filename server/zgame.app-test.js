@@ -819,8 +819,8 @@ describe("Game.saveLocalMove", function () {
   });
 
   it("should fail if the wrong user is trying to make a move in a played game (i.e. black is trying to make a legal white move", function () {
-    const us = TestHelpers.createUser();
-    const them = TestHelpers.createUser();
+    const us = TestHelpers.createUser({ premove: false });
+    const them = TestHelpers.createUser({ premove: false });
     self.loggedonuser = us;
     const game_id = Game.startLocalGame(
       "mi1",

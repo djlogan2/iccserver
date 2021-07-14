@@ -290,6 +290,68 @@ describe("PGN Import", function() {
 
     compareMovelist(0, 0, parser.gamelist[0].variations, game.variations);
   });
+
+  it.only("should import games with variations correctly", function() {
+    const us = TestHelpers.createUser({ premove: false });
+    const them = TestHelpers.createUser({ premove: false });
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    Game.saveLocalMove("e4", game_id, "e4");
+    self.loggedonuser = them;
+    Game.saveLocalMove("f5", game_id, "f5");
+    Game.resignLocalGame("resignLocalGame", game_id);
+
+    Game.moveBackward("mi2", game_id, 1);
+    Game.saveLocalMove("c5", game_id, "c5");
+
+    Game.moveBackward("mi3", game_id, 1);
+    Game.saveLocalMove("d5", game_id, "d5");
+
+    Game.moveBackward("mi4", game_id, 1);
+    Game.saveLocalMove("e5", game_id, "e5");
+    const exportedPgn = Game.exportToPGN(game_id);
+
+    const examined_game_id = Game.startLocalGame(
+      "mi5",
+      them,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    Game.resignLocalGame("mi6", examined_game_id);
+    Game.importPGNIntoExaminedGame("mi6", examined_game_id, exportedPgn.pgn);
+    const game = Game.GameCollection.findOne({ _id: examined_game_id, status: "examining" });
+    if (!game) {
+      chai.assert.fail("Game does not exist");
+    }
+
+    chai.assert.equal(game.variations.movelist.length, 6);
+    chai.assert.equal(game.variations.movelist[1].variations.length, 4);
+    chai.assert.equal(game.variations.movelist[game.variations.movelist[1].variations[0]].move, "e5");
+    chai.assert.equal(game.variations.movelist[game.variations.movelist[1].variations[1]].move, "d5");
+    chai.assert.equal(game.variations.movelist[game.variations.movelist[1].variations[2]].move, "c5");
+    chai.assert.equal(game.variations.movelist[game.variations.movelist[1].variations[3]].move, "f5");
+  })
   /*
   it("should parse a big file correctly in the file processor", function(done) {
     this.timeout(500000);
