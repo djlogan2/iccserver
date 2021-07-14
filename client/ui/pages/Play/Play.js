@@ -22,6 +22,7 @@ import injectSheet from "react-jss";
 import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
 import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
 import { gameSeekAutoAccept, gameSeekIsRated, maxRating, minRating } from "../../../constants/gameConstants";
+import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
 
 const log = new Logger("client/Play_js");
 
@@ -403,7 +404,8 @@ export default compose(
       userClientMessages: ClientMessagesCollection.find().fetch(),
     };
   }),
-  injectSheet(dynamicPlayNotifierStyles)
+  injectSheet(dynamicPlayNotifierStyles),
+  withPlayNotifier
 )(Play);
 
 const game_timestamps = {};
