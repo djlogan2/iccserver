@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Player from "./Player";
-import BlackPlayerClock from "./BlackPlayerClock";
+import PlayerClock from "./PlayerClock";
 import { Meteor } from "meteor/meteor";
 import Chess from "chess.js/chess";
 
@@ -8,13 +8,13 @@ import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
 import "./ChessBoard";
 import {
-  colorWhite,
-  colorBlack,
   boardBaseFen,
+  colorBlack,
   colorBlackLetter,
+  colorWhite,
   colorWhiteLetter,
   gameStatusExamining,
-  gameStatusPlaying,
+  gameStatusPlaying
 } from "../../../constants/gameConstants";
 import Analytics from "../components/Analytics/Analytics";
 
@@ -98,8 +98,8 @@ class MiddleBoard extends Component {
     const { top } = this.state;
 
     return {
-      topFallenSoliders: top === colorWhiteLetter ? capture.b : capture.w,
-      bottomFallenSoliders: top === colorBlackLetter ? capture.b : capture.w,
+      topFallenSoliders: top === colorWhiteLetter ? capture?.b : capture?.w,
+      bottomFallenSoliders: top === colorBlackLetter ? capture?.b : capture?.w,
     };
   };
 
@@ -173,7 +173,7 @@ class MiddleBoard extends Component {
           />
         )}
 
-        <BlackPlayerClock game={game} color={topPlayerTime} side={boardSize} />
+        <PlayerClock game={game} color={topPlayerTime} side={boardSize} />
         {game && (
           <div style={{ width: "100%", height: boardSize }}>
             <NewChessBoard
@@ -218,7 +218,7 @@ class MiddleBoard extends Component {
             Playermsg={botPlayermsg}
           />
         )}
-        <BlackPlayerClock game={game} color={bottomPlayerTime} side={boardSize} />
+        <PlayerClock game={game} color={bottomPlayerTime} side={boardSize} />
       </div>
     );
   }

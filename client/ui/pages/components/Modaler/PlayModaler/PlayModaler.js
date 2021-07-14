@@ -38,7 +38,6 @@ class PlayModaler extends Component {
       blackPlayerUsername,
       translate,
       visible,
-      onExamine,
       onRematch,
     } = this.props;
 
@@ -83,14 +82,6 @@ class PlayModaler extends Component {
               className={classes.buttonPrimary}
             >
               {translate("rematch")}
-            </Button>
-            <Button
-              onClick={() => {
-                onExamine();
-                this.handleCancel();
-              }}
-            >
-              {translate("examine")}
             </Button>
           </div>
         </div>

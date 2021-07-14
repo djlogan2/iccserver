@@ -3,23 +3,23 @@ export const english = {
     appWrapper: {
       gameRequestModal: {
         gameRequest: "Game request",
-        challangerWantsToPlay: "{$challenger} would like to play with you"
-      }
+        challangerWantsToPlay: "{$challenger} would like to play with you",
+      },
     },
     NotFound: {
       notFound: "404 Page not found",
-      mainPage: "Main page"
+      mainPage: "Main page",
     },
     Notifier: {
       accept: "Accept",
       info: "Info",
-      close: "Close"
+      close: "Close",
     },
     Home: {
-      homeImage: "Home image"
+      homeImage: "Home image",
     },
     Player: {
-      userPicture: "User picture"
+      userPicture: "User picture",
     },
     loginForm: {
       login: "Login",
@@ -27,7 +27,7 @@ export const english = {
       password: "Password",
       submit: "Submit",
       haveNoAccount: "Don't have an account? ",
-      registerHere: "Register here"
+      registerHere: "Register here",
     },
     signupForm: {
       signup: "Sign Up",
@@ -36,7 +36,7 @@ export const english = {
       password: "Password",
       submit: "Submit",
       haveAccount: "Already have an account? ",
-      loginHere: "Login here"
+      loginHere: "Login here",
     },
     leftSideBar: {
       noLogin: "Please login",
@@ -48,8 +48,8 @@ export const english = {
         examining: "EX",
         playingTooltip: "Playing",
         examiningTooltip: "Examining",
-        observing: "Observing"
-      }
+        observing: "Observing",
+      },
     },
     gameListModal: {
       myGames: "My Games",
@@ -63,7 +63,7 @@ export const english = {
       resultDrawn: "Drawn",
       resultUnknown: "Unknown",
       playersColumn: "{$white}-vs-{$black}",
-      pgnIconAlt: "PgnDownload"
+      pgnIconAlt: "PgnDownload",
     },
     rightBarTop: {
       game: "Game",
@@ -91,7 +91,7 @@ export const english = {
       moveForwardEnd: "Move forward to the end",
       flip: "Flip",
       inputCommand: "Input command",
-      send: "Send"
+      send: "Send",
     },
     menuLinkLabel: {
       play: "Play",
@@ -108,7 +108,7 @@ export const english = {
       uploadpgn: "Imported PGNs",
       users: "Users",
       last_ping: "Last ping",
-      average_lag: "Average lag"
+      average_lag: "Average lag",
     },
     MoveListComponent: {
       takeBack: "Take Back",
@@ -131,7 +131,7 @@ export const english = {
       flag: "Flag",
       moretime: "Moretime",
       adjourn: "Adjourn",
-      playersColumn: "{$white}-vs-{$black}"
+      playersColumn: "{$white}-vs-{$black}",
     },
     rightBarBottom: {
       chat: "Chat",
@@ -151,14 +151,14 @@ export const english = {
         result: "Result",
         date: "Date",
         status: "Status",
-        playersColumn: "{$white}-vs-{$black}"
+        playersColumn: "{$white}-vs-{$black}",
       },
       FollowCoach: {
         mail: "Mail",
         followers: "Followers",
         sendMessage: "Send message",
-        follow: "Follow"
-      }
+        follow: "Follow",
+      },
     },
     MatchUserSubTab: {
       friends: "Friends",
@@ -167,7 +167,7 @@ export const english = {
       chooseMember: "Option 1 - Choose a Member",
       sendLinkToAnyone: "Option 2 - Send a link for anyone to play",
       tenMin: "10 min",
-      deleteSign: "Delete sign"
+      deleteSign: "Delete sign",
     },
     GameForm: {
       timeControl: "Time Control",
@@ -183,22 +183,22 @@ export const english = {
       white: "White",
       black: "Black",
       random: "Random",
-      submit: "Submit"
+      submit: "Submit",
     },
     GameRequestPopup: {
       accept: "Accept",
-      decline: "Decline"
+      decline: "Decline",
     },
     GamenotificationPopup: {
-      close: "Close"
+      close: "Close",
     },
     GameResignedPopup: {
-      close: "Close"
+      close: "Close",
     },
     ExaminActionPopup: {
       email: "Email",
       complaint: "Complaint",
-      submit: "Submit"
+      submit: "Submit",
     },
     ActionPopup: {},
     MainPage: {
@@ -215,30 +215,30 @@ export const english = {
       pgn: "PGN",
       playersVs: "{$white}-vs-{$black}",
       won: "Won",
-      loss: "Loss"
+      loss: "Loss",
     },
     MiddleBoard: {
       yourturn: "( Your Turn )",
-      waitingforopponent: "( waiting for opponent )"
+      waitingforopponent: "( waiting for opponent )",
     },
     chatBoxMessage: {
       NEW_MESSAGE: "NEW MESSAGE",
       newGame: "NEW GAME",
       deleteSign: "Delete sign",
-      sendSign: "Send sign"
+      sendSign: "Send sign",
     },
     pgnActions: {
       fen: "FEN",
       pgn: "PGN",
       pgnExport: "PGN Export",
-      pgnImport: "PGN Import"
+      pgnImport: "PGN Import",
     },
     Events: {
       fen: "FEN",
       pgn: "PGN",
       pgnExport: "PGN Export",
-      pgnImport: "PGN Import"
-    }
+      pgnImport: "PGN Import",
+    },
   },
   Play: {
     PlayWithFriend: {
@@ -246,7 +246,7 @@ export const english = {
       BACK: "Back",
       FRIENDS: "Friends",
       CHOOSE: "Choose",
-      CANCEL: "Cancel"
+      CANCEL: "Cancel",
     },
     PlayFriendOptions: {
       PLAY_WITH_FRIEND: "Play with friend",
@@ -259,7 +259,7 @@ export const english = {
         inc: "Inc",
         none: "None",
         us: "Us",
-        bronstein: "Bronstein"
+        bronstein: "Bronstein",
       },
       initial: "Initial",
       incrementOrDelay: "Increment or delay",
@@ -268,28 +268,28 @@ export const english = {
         none: "None",
         bullet: "Bullet",
         blitz: "Blitz",
-        standard: "Standard"
+        standard: "Standard",
       },
       color: "Color",
       colors: {
         random: "Random",
         white: "White",
-        black: "Black"
+        black: "Black",
       },
       isRated: "Rated",
-      selectOpponent: "Select opponent"
+      selectOpponent: "Select opponent",
     },
     PlayChooseBot: {
       colors: {
         random: "Random",
         white: "White",
-        black: "Black"
+        black: "Black",
       },
       ratings: {
         none: "None",
         bullet: "Bullet",
         blitz: "Blitz",
-        standard: "Standard"
+        standard: "Standard",
       },
       playWithComputer: "Play with computer",
       back: "Back",
@@ -300,12 +300,12 @@ export const english = {
         inc: "Inc",
         none: "None",
         us: "Us",
-        bronstein: "Bronstein"
+        bronstein: "Bronstein",
       },
       initial: "Initial",
       incrementOrDelay: "Increment or delay",
       ratingType: "Rating type",
-      startTheGame: "Start the game"
+      startTheGame: "Start the game",
     },
     PlaySeek: {
       dialogTitle: "Challenge",
@@ -314,7 +314,7 @@ export const english = {
       accept: "Accept",
       decline: "Decline",
       gameSeekSearching: "Searching for the game...",
-      cancel: "Cancel"
+      cancel: "Cancel",
     },
     PlayModaler: {
       rematch: "Rematch",
@@ -323,7 +323,7 @@ export const english = {
       blackWon: "Black won!",
       gameDrawn: "Game drawn!",
       unknownResult: "Unknown result ",
-      userImage: "User image"
+      userImage: "User image",
     },
     PlayBlock: {
       createGame: "Create a game",
@@ -336,22 +336,22 @@ export const english = {
         tenMinutes: "10 min",
         fifteenMinutes: "15 min",
         twentyMinutes: "20 min",
-        twentyFiveMinutes: "25 min (+10 sec inc)"
-      }
+        twentyFiveMinutes: "25 min (+10 sec inc)",
+      },
     },
     ObserveBlock: {
-      inProgress: "Work in progress"
+      inProgress: "Work in progress",
     },
     PlayRightSidebar: {
       tabs: {
         playTab: "Play",
-        observeTab: "Observe"
+        observeTab: "Observe",
       },
       bottomTabs: {
         chatTab: "Chat",
-        kibitzTab: "Kibitz"
-      }
-    }
+        kibitzTab: "Kibitz",
+      },
+    },
   },
   Editor: {
     EditorRightSidebar: {
@@ -368,30 +368,30 @@ export const english = {
       fen: "FEN",
       insertFen: "Insert FEN here",
       whiteCastling: "White castling",
-      blackCastling: "Black castling"
-    }
+      blackCastling: "Black castling",
+    },
   },
   Examine: {
     ExamineObserveTab: {
       findUsers: "Find user to observe",
-      observe: "Observe"
+      observe: "Observe",
     },
     ExamineObserverTabBlock: {
       observing: "{$quantity} people are observing {$username}'s board",
       unobserve: "Unobserve",
       user: "User",
-      userAvatar: "User avatar"
+      userAvatar: "User avatar",
     },
     ExamineOwnerTabBlock: {
-      observing: "{$quantity} people are observing this board"
+      observing: "{$quantity} people are observing this board",
     },
     ExamineRightSidebarBottom: {
       tabs: {
         chat: "Chat",
         fenPgn: "FEN/PGN",
-        games: "Games"
+        games: "Games",
       },
-      workInProgress: "Work in progress..."
+      workInProgress: "Work in progress...",
     },
     FenPgn: {
       fen: "FEN",
@@ -400,8 +400,8 @@ export const english = {
       pgnImport: "PGN Import",
       pgnExport: "PGN Export",
       pgnSuccessfullyUploaded: "PGN successfully uploaded",
-      importedGames: "Imported games"
-    }
+      importedGames: "Imported games",
+    },
   },
   Community: {
     RoomBlock: {
@@ -409,20 +409,20 @@ export const english = {
       plus: "+",
       title: "Create room",
       plusTitle: "Create new room",
-      joinRoom: "Join room with name {$roomName}"
+      joinRoom: "Join room with name {$roomName}",
     },
     CommunityRightBlock: {
       allRooms: "All rooms",
       close: "Close",
-      createRoom: "Create room"
+      createRoom: "Create room",
     },
     ChildChatInput: {
-      send: "Send"
+      send: "Send",
     },
     ChatInput: {
       send: "Send",
-      yourMessage: "Your message"
-    }
+      yourMessage: "Your message",
+    },
   },
   Profile: {
     ProfileDetailsCard: {
@@ -433,8 +433,8 @@ export const english = {
       update: "Update",
       notifications: {
         usernameChanged: "Username was changed successfully",
-        emailChanged: "E-mail was changed successfully"
-      }
+        emailChanged: "E-mail was changed successfully",
+      },
     },
     SecurityTab: {
       cardTitle: "Security",
@@ -443,13 +443,13 @@ export const english = {
       confirmPassword: "Confirm password",
       updatePassword: "Update password",
       norifications: {
-        passwordChanged: "Password was changed successfully"
+        passwordChanged: "Password was changed successfully",
       },
       validation: {
         allValuesAreRequired: "All values are required",
-        passwordsNotTheSame: "New passwords are not the same"
-      }
-    }
+        passwordsNotTheSame: "New passwords are not the same",
+      },
+    },
   },
   Users: {
     list: {
@@ -466,13 +466,13 @@ export const english = {
       online: "Online",
       game: "Game",
       actions: "Actions",
-      edit: "Edit"
+      edit: "Edit",
     },
     edit: {
       details: {
         cardTitle: "Details",
         username: "Username",
-        update: "Update"
+        update: "Update",
       },
       security: {
         cardTitle: "Security",
@@ -482,9 +482,9 @@ export const english = {
         update: "Update",
         errors: {
           allValuesAreRequired: "All values are required",
-          passwordsNotTheSame: "New passwords are not the same"
-        }
-      }
-    }
-  }
+          passwordsNotTheSame: "New passwords are not the same",
+        },
+      },
+    },
+  },
 };

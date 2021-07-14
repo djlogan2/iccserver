@@ -1,9 +1,9 @@
 // import React from "react";
 // import chai from "chai";
 // import { mount } from "enzyme";
-// import BlackPlayerClock from "../BlackPlayerClock";
+// import PlayerClock from "../PlayerClock";
 //
-// describe("BlackPlayerClock component", () => {
+// describe("PlayerClock component", () => {
 //   const mockProps = {
 //     color: "white",
 //     side: 10,
@@ -54,7 +54,7 @@
 //       wild: 0,
 //     },
 //   };
-//   const component = mount(<BlackPlayerClock {...mockProps} />);
+//   const component = mount(<PlayerClock {...mockProps} />);
 //
 //   it("should render", () => {
 //     chai.assert.isDefined(component);

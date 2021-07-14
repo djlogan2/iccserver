@@ -21,13 +21,13 @@ describe("ExamineRightSidebar component", () => {
     onImportedGames: () => null,
   };
 
-  // const component = mount(
-  //   <Router history={history}>
-  //     <ExamineRightSidebar {...mockProps} />
-  //   </Router>
-  // );
-  //
-  // it("should render", () => {
-  //   chai.assert.isDefined(component);
-  // });
+  const component = mount(
+    <Router history={history}>
+      <ExamineRightSidebar {...mockProps} />
+    </Router>
+  );
+
+  it("should render", () => {
+    chai.assert.isDefined(component);
+  });
 });

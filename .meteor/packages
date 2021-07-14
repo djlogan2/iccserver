@@ -40,4 +40,4 @@ zodern:profile-require
 patelutsav:meteor-migrations
 dburles:factory
 hwillson:stub-collections
-shell-server
+shell-server@0.5.0

@@ -57,11 +57,13 @@ const ExamineOwnerTabBlock = ({ game, translate, classes }) => {
               <li key={observerItem.username} className={classes.listItem}>
                 {isExaminer ? (
                   <button
+                    id="handle-remove-examiner"
                     onClick={handleRemoveExaminer(game._id, observerItem.id)}
                     className={classNames(classes.movePiecesButton, classes.movePiecesButtonActive)}
                   />
                 ) : (
                   <button
+                    id="handle-add-examiner"
                     onClick={handleAddExaminer(game._id, observerItem.id)}
                     className={classes.movePiecesButton}
                   />
@@ -83,7 +85,7 @@ const ExamineOwnerTabBlock = ({ game, translate, classes }) => {
       <ul className={classes.list}>
         {game.observers.map((observerItem) => {
           return (
-            <li key={observerItem.username} className={classes.listItem}>
+            <li key={observerItem.id} className={classes.listItem}>
               {observerItem.username}
             </li>
           );

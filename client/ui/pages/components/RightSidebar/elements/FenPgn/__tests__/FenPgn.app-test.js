@@ -1,18 +1,56 @@
-/*
 import React from "react";
 import chai from "chai";
 import { mount } from "enzyme";
 import FenPgn from "../FenPgn";
+import sinon from "sinon";
+import { Meteor } from "meteor/meteor";
+import { ImportedPgnFiles } from "../../../../../../../../lib/client/importpgnfiles";
 
 describe("FenPgn component", () => {
+  const currentUser = {
+    username: "test",
+    email: "test@test.com",
+    _id: "fake_owner_id",
+    status: { game: "none" },
+  };
+
+  beforeEach(() => {
+    sinon.stub(Meteor, "user");
+    Meteor.user.returns(currentUser);
+
+    sinon.stub(Meteor, "userId");
+    Meteor.userId.returns(currentUser._id);
+
+    sinon.replace(Meteor, "call", (methodName, ...args) => {
+      if (methodName === "loadFen") {
+        args[3]("fake_error");
+      }
+
+      if (methodName === "importPGNIntoExaminedGame") {
+        args[3]("fake_error");
+      }
+    });
+
+    sinon.replace(ImportedPgnFiles, "insert", ({ onUploaded }) => {
+      onUploaded("fake_error", "file_ref");
+    });
+  });
+
+  afterEach(() => {
+    Meteor.user.restore();
+    Meteor.userId.restore();
+
+    sinon.restore();
+  });
+
   const mockProps = {
     game: {
-      _id: "B3ZFHbDPJyQ62DEGR",
+      _id: "KenXNazmbxTtG4Q6f",
       actions: [],
       analysis: [
         {
-          id: "WwbX9ELoQgJFzQHQc",
-          username: "aleks1",
+          id: "fXrs7jxXgc4GrHiJz",
+          username: "IMCY.21.8_EmilyK",
         },
       ],
       arrows: [],
@@ -24,21 +62,21 @@ describe("FenPgn component", () => {
       computer_variations: [],
       examiners: [
         {
-          id: "WwbX9ELoQgJFzQHQc",
-          username: "aleks1",
+          id: "fXrs7jxXgc4GrHiJz",
+          username: "IMCY.21.8_EmilyK",
         },
       ],
       fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      isolation_group: "public",
+      isolation_group: "cty",
       observers: [
         {
-          id: "WwbX9ELoQgJFzQHQc",
-          username: "aleks1",
+          id: "fXrs7jxXgc4GrHiJz",
+          username: "IMCY.21.8_EmilyK",
         },
       ],
-      owner: "WwbX9ELoQgJFzQHQc",
+      owner: "fXrs7jxXgc4GrHiJz",
       result: "*",
-      startTime: { $date: "2021-07-01T13:34:10.608Z" },
+      startTime: new Date(),
       status: "examining",
       tomove: "white",
       variations: {
@@ -53,11 +91,18 @@ describe("FenPgn component", () => {
       wild: 0,
     },
     onImportedGames: () => null,
+    onPgnUpload: () => null,
   };
-  const component = mount(<FenPgn {...mockProps} />);
 
   it("should render", () => {
+    const component = mount(<FenPgn {...mockProps} />);
+
     chai.assert.isDefined(component);
+
+    const inputFile = component.find("input#files");
+    inputFile.simulate("change", { target: { files: ["path_to_file"] } });
+
+    const inputFen = component.find("Input#fen-input");
+    inputFen.simulate("change", { target: { value: "" } });
   });
 });
-*/

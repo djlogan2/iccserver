@@ -3,6 +3,8 @@ import chai from "chai";
 import { mount } from "enzyme";
 import Player from "../Player";
 import CssManager from "../../components/Css/CssManager";
+import sinon from "sinon";
+import { Meteor } from "meteor/meteor";
 
 describe("Player component", () => {
   const css = new CssManager({}, {});
@@ -27,6 +29,38 @@ describe("Player component", () => {
     FallenSoldiers: [],
     gameId: "fake_id",
   };
+
+  const currentUser = {
+    username: "test",
+    email: "test@test.com",
+    _id: "fake_id",
+    status: { game: "none" },
+  };
+
+  beforeEach(() => {
+    sinon.stub(Meteor, "user");
+    Meteor.user.returns(currentUser);
+
+    sinon.stub(Meteor, "userId");
+    Meteor.userId.returns(currentUser._id);
+
+    sinon.stub(Meteor, "logout");
+    Meteor.logout.returns();
+
+    sinon.replace(Meteor, "call", (methodName, methodDesc, gameId, color, name, callback) => {
+      if (methodName === "setTag") {
+        callback("fake_error");
+      }
+    });
+  });
+
+  afterEach(() => {
+    Meteor.user.restore();
+    Meteor.userId.restore();
+    Meteor.logout.restore();
+
+    sinon.restore();
+  });
 
   it("should render", () => {
     const component = mount(<Player {...mockProps} />);
