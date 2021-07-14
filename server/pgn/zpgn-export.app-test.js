@@ -2,7 +2,7 @@ import chai from "chai";
 import { Parser } from "./pgnparser";
 //import { Game } from "../Game";
 import { TestHelpers } from "../../imports/server/TestHelpers";
-import { buildPgnFromMovelist, exportGameObjectToPGN } from "../../lib/exportpgn";
+import { buildPgnFromMovelist} from "../../lib/exportpgn";
 
 describe("PGN exports", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -48,7 +48,7 @@ describe("PGN exports", function() {
     //chai.assert.equal(exported_pgn, "");
   });
 
-  it.only("should export the pgn with the variations in the correct order", function() {
+  it("should export the pgn with the variations in the correct order", function() {
     const us = TestHelpers.createUser({ premove: false });
     const them = TestHelpers.createUser({ premove: false });
     self.loggedonuser = us;
