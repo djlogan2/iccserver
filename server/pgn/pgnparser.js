@@ -24,15 +24,15 @@ export class Parser {
         SEMICOLON: { match: /;/, push: "comment2" },
         SAN: /(?:(?:[RQKBN]?[a-h]?[1-8]?x?[a-h][1-8](?:=[RQBN])?)|O-O(?:-O)?)[+#]?/,
         SYMBOL: /[a-zA-Z0-9_]+/,
-        NL: { match: /\r?\n/, lineBreaks: true }
+        NL: { match: /\r?\n/, lineBreaks: true },
       },
       comment1: {
         C1: { match: /.*?}/, pop: 1 },
-        C1NL: { match: /.*?\r?\n/, lineBreaks: true }
+        C1NL: { match: /.*?\r?\n/, lineBreaks: true },
       },
       comment2: {
-        C2: { match: /.*?\r?\n/, lineBreaks: true, pop: 1 }
-      }
+        C2: { match: /.*?\r?\n/, lineBreaks: true, pop: 1 },
+      },
     });
     this.info = null;
     this.line = 1;
@@ -78,7 +78,7 @@ export class Parser {
       "'";
     const e = new Error(m);
     e.token = token;
-    this.debug.forEach(step => {
+    this.debug.forEach((step) => {
       log.error("parse failed, steps: " + step[0] + " token=" + step[1] + ", value=" + step[2]);
     });
     throw e;
@@ -249,6 +249,7 @@ export class Parser {
       switch (tag) {
         case "White":
           this.gameobject.white.name = this.gameobject.tags[tag];
+          delete this.gameobject.tags.White;
           break;
         case "Black":
           this.gameobject.black.name = this.gameobject.tags[tag];

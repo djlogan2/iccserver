@@ -48,7 +48,7 @@ describe("PGN exports", function() {
     //chai.assert.equal(exported_pgn, "");
   });
 
-  it.only("should export the pgn with the variations in the correct order", function() {
+  it("should export the pgn with the variations in the correct order", function() {
     const us = TestHelpers.createUser({ premove: false });
     const them = TestHelpers.createUser({ premove: false });
     self.loggedonuser = us;

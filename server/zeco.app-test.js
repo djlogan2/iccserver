@@ -1024,11 +1024,6 @@ describe("ecocodes", function(){
       chai.assert.deepEqual(game2.variations.movelist[0].eco, { name: "King's Indian Attack", code: "A07" });
     });
   });
-  describe("setTag", function() {
-    it.skip("should do stuff?", function() {
-      chai.assert.fail("do me");
-    });
-  });
   describe("moveToCMI", function() {
     it("should perform a lookup if there is no eco information (and save it if it exists)", function() {
       // Update ECO code collection for later
@@ -1400,7 +1395,7 @@ describe("ecocodes", function(){
         chai.assert.deepEqual(game.variations.movelist[game.variations.cmi].eco, transposedGame.variations.movelist[transposedGame.variations.cmi].eco);
     });
   });
-  describe.only("exportToPGN", function() {
+  describe("exportToPGN", function() {
     it("Should promote pgn variations properly", function(){
       this.timeout(100000);
       // Create a game
@@ -1569,7 +1564,6 @@ describe("ecocodes", function(){
       this.timeout(5000000);
       // Provide a game instance
       // we add an eco code entry
-      if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       if (!Game.ecoCollection) Game.ecoCollection = new Mongo.Collection("ecocodes");
       let name = "King's Indian Attack";
       let code = "A07";

@@ -291,7 +291,7 @@ describe("PGN Import", function() {
     compareMovelist(0, 0, parser.gamelist[0].variations, game.variations);
   });
 
-  it.only("should import games with variations correctly", function() {
+  it("should import games with variations correctly", function() {
     const us = TestHelpers.createUser({ premove: false });
     const them = TestHelpers.createUser({ premove: false });
     self.loggedonuser = us;
