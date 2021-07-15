@@ -168,7 +168,6 @@ class ActionControls extends Component {
 
   handleResign = () => {
     const { game } = this.props;
-    // resignGame
     Meteor.call("resignGame", "resignGame", game._id, handleError);
   };
 

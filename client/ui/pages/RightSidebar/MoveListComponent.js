@@ -107,23 +107,23 @@ class MoveListComponent extends Component {
   }
 
   _takeBackAction = (number) => {
-    Meteor.call("requestTakeback", this.message_identifier, this.gameId, number);
+    Meteor.call("requestTakeback", "requestTakeback", this.gameId, number);
   };
 
   _drawRequest = () => {
-    Meteor.call("requestToDraw", this.message_identifier, this.gameId);
+    Meteor.call("requestToDraw", "requestToDraw", this.gameId);
   };
 
   _abortRequest = () => {
-    Meteor.call("requestToAbort", this.message_identifier, this.gameId);
+    Meteor.call("requestToAbort", "requestToAbort", this.gameId);
   };
 
   _adjournRequest = () => {
-    Meteor.call("requestToAdjourn", this.message_identifier, this.gameId);
+    Meteor.call("requestToAdjourn", "requestToAdjourn", this.gameId);
   };
 
   _resignGame = () => {
-    Meteor.call("resignGame", this.message_identifier, this.gameId);
+    Meteor.call("resignGame", "resignGame", this.gameId);
   };
 
   _reMatchGame = () => {

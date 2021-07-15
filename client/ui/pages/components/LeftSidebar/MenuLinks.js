@@ -93,7 +93,7 @@ class MenuLinks extends Component {
       <table>
         <tbody>
           <tr>
-            <td>{Meteor.default_connection._lastSessionId}</td>
+            <td>{Meteor.default_connection?._lastSessionId}</td>
           </tr>
           <tr>
             <td>{Meteor.current_release}</td>
