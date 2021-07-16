@@ -1,7 +1,9 @@
+// noinspection DuplicatedCode
+
 import { TestHelpers } from "../imports/server/TestHelpers";
 import chai from "chai";
 import { Parser } from "./pgn/pgnparser";
-
+import Chess from "chess.js";
 
 const pgn =
   '[Event "Waldshut Sen\\Nes"]\n' +
@@ -17,11 +19,10 @@ const pgn =
   '[EventDate "1991.??.??"]\n' +
   "\n*\n";
 
-describe.only("When exporting a pgn", function() {
+describe("When exporting a pgn", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should add tags to the pgn if there are any", function() {
-    this.timeout(3600000);
+  it("should add tags to the pgn if there are any", function () {
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
@@ -42,14 +43,14 @@ describe.only("When exporting a pgn", function() {
     );
     Game.resignLocalGame("mi1", game_id);
 
-
     Game.importPGNIntoExaminedGame("mi1", game_id, pgn);
     const game = Game.GameCollection.findOne({ _id: game_id });
-    chai.assert.isDefined(game.tags);
+    chai.assert.isDefined(game, "Game does not exist");
+    chai.assert.isDefined(game.tags, "No tags in game object");
     const exportedPgn = Game.exportToPGN(game_id);
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(exportedPgn.pgn));
-    for(const tag in game.tags) {
+    for (const tag in game.tags) {
       chai.assert.isDefined(parser.gamelist[0].tags[tag]);
       chai.assert.equal(game.tags[tag], parser.gamelist[0].tags[tag]);
     }
@@ -71,9 +72,10 @@ describe.only("When exporting a pgn", function() {
     Game.resignLocalGame("mi1", game2_id);
     Game.importPGNIntoExaminedGame("mi1", game2_id, exportedPgn.pgn);
     const game2 = Game.GameCollection.findOne({ _id: game2_id });
-    for(const tag in game.tags) {
+    chai.assert.isDefined(game2, "Game 2 does not exist");
+    for (const tag in game2.tags) {
       chai.assert.isDefined(parser.gamelist[0].tags[tag]);
-      chai.assert.equal(game.tags[tag], parser.gamelist[0].tags[tag]);
+      chai.assert.equal(game2.tags[tag], parser.gamelist[0].tags[tag]);
     }
   });
   it("should use the ECO tag for the PGN if the ECO or Opening tag exist instead of the ECO in the movelist", function () {
@@ -82,7 +84,6 @@ describe.only("When exporting a pgn", function() {
     let code = "A07";
     let fen = "rnbqkbnr/ppp1pppp/8/3p4/8/5NP1/PPPPPP1P/RNBQKB1R b KQkq - 0 2";
     Game.ecoCollection.insert({ name: name, eco: code, fen: fen, wild: 0 });
-
 
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
@@ -106,15 +107,24 @@ describe.only("When exporting a pgn", function() {
 
     const moves = ["Nf3", "d5", "g3"];
 
+    let chess_obj = new Chess.Chess();
+    const tomove = [us, them];
+    let tm = 0;
     moves.forEach((move) => {
+      self.loggedonuser = tomove[tm];
+      let result = chess_obj.move(move);
+      chai.assert.isDefined(result, "Illegal move made.");
       Game.saveLocalMove(move, game_id, move);
+      tm = !tm ? 1 : 0;
     });
+
     let exportedPgn = Game.exportToPGN(game_id);
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(exportedPgn.pgn));
     chai.assert.equal(parser.gamelist[0].tags["Opening"], "King's Indian Attack");
     chai.assert.equal(parser.gamelist[0].tags["ECO"], "A07");
     Game.importPGNIntoExaminedGame("mi1", game_id, pgn);
+
     exportedPgn = Game.exportToPGN(game_id);
     chai.assert.doesNotThrow(() => parser.feed(exportedPgn.pgn));
     chai.assert.notEqual(parser.gamelist[1].tags["Opening"], "King's Indian Attack");

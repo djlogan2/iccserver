@@ -3,9 +3,9 @@ import SimpleSchema from "simpl-schema";
 const actionSchema = new SimpleSchema({
   time: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   issuer: String,
   type: {
@@ -53,12 +53,12 @@ const actionSchema = new SimpleSchema({
       "setenpassant",
       "settag",
       "loadfen",
-      "loadpgn"
-    ]
+      "loadpgn",
+    ],
   },
   parameter: {
     type: SimpleSchema.oneOf(String, Number, Object),
-    optional: true
+    optional: true,
   },
   "parameter.movecount": { type: Number, required: false },
   "parameter.variation": { type: Number, required: false },
@@ -81,13 +81,13 @@ const actionSchema = new SimpleSchema({
   "parameter.gameping": { type: Number, required: false },
   "parameter.what": { type: String, required: false },
   "parameter.childChatId": { type: String, required: false }, // DDD: I prefer to have all lower case with optional underscores, so I prefer to have child_chat_id. Also, we need the text, but we don't need the id in the action array
-  "parameter.childChatExemptText": { type: String, required: false }
+  "parameter.childChatExemptText": { type: String, required: false },
 });
 
 export const ExaminedGameSchema = new SimpleSchema({
   startTime: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       if (this.isInsert) return new Date();
       else if (this.isUpsert) {
         return { $setOnInsert: new Date() };
@@ -95,7 +95,7 @@ export const ExaminedGameSchema = new SimpleSchema({
         this.unset();
         return undefined;
       }
-    }
+    },
   },
   isolation_group: String,
   result: { type: String, allowedValues: ["0-1", "1-0", "1/2-1/2", "*", "aborted"] },
@@ -123,10 +123,10 @@ export const ExaminedGameSchema = new SimpleSchema({
         return [
           {
             name: "legacy_game_number and legacy_game_id",
-            type: SimpleSchema.ErrorTypes.REQUIRED
-          }
+            type: SimpleSchema.ErrorTypes.REQUIRED,
+          },
         ];
-    }
+    },
   },
   legacy_game_id: {
     type: String,
@@ -136,10 +136,10 @@ export const ExaminedGameSchema = new SimpleSchema({
         return [
           {
             name: "legacy_game_number and legacy_game_id",
-            type: SimpleSchema.ErrorTypes.REQUIRED
-          }
+            type: SimpleSchema.ErrorTypes.REQUIRED,
+          },
         ];
-    }
+    },
   },
   wild: Number,
   rating_type: { type: String, required: false },
@@ -150,25 +150,25 @@ export const ExaminedGameSchema = new SimpleSchema({
       white: new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
-        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] }
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
       }),
       black: new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
-        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] }
-      })
+        delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
+      }),
     }),
-    required: false
+    required: false,
   },
   white: new SimpleSchema({
     name: String,
     id: { type: String, required: false },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
   }),
   black: new SimpleSchema({
     name: String,
     id: { type: String, required: false },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
   }),
   tags: { type: Object, required: false, blackbox: true },
   circles: { type: Array, defaultValue: [] },
@@ -227,5 +227,5 @@ export const ExaminedGameSchema = new SimpleSchema({
   "computer_variations.$.$.score.unit": String,
   "computer_variations.$.$.score.value": Number,
   "computer_variations.$.$.pv": String,
-  "computer_variations.$.$.multipv": Number
+  "computer_variations.$.$.multipv": Number,
 });

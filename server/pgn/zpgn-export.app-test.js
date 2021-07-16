@@ -2,7 +2,7 @@ import chai from "chai";
 import { Parser } from "./pgnparser";
 //import { Game } from "../Game";
 import { TestHelpers } from "../../imports/server/TestHelpers";
-import { buildPgnFromMovelist, exportGameObjectToPGN } from "../../lib/exportpgn";
+import { buildPgnFromMovelist } from "../../lib/exportpgn";
 
 describe("PGN exports", function() {
   const self = TestHelpers.setupDescribe.apply(this);
@@ -80,9 +80,7 @@ describe("PGN exports", function() {
     Game.moveBackward("mi4", game_id, 1);
     Game.saveLocalMove("e5", game_id, "e5");
     const game = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
-    if (!game) {
-      chai.assert.fail("Game does not exist");
-    }
+    chai.assert.isDefined(game, "Game does not exist");
 
     const pgn = buildPgnFromMovelist(game.variations.movelist);
     let expectedPgn = "1. e4 e5 (1. ... d5)(1. ... c5)(1. ... f5)"

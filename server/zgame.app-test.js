@@ -1884,12 +1884,11 @@ describe("Takeback behavior", function () {
   });
 
   it("should place the next move following a take back at the start of the variation instead of the end", function() {
-    this.timeout(5000000);
     const us = TestHelpers.createUser();
     const them = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLocalGame(
-      "moveForwardTestGameStart",
+      "mi1",
       them,
       0,
       "standard",
@@ -1910,8 +1909,9 @@ describe("Takeback behavior", function () {
     let tm = 0;
     moves1.forEach(move => {
       self.loggedonuser = tomove[tm];
+      let result = chess_obj.move(move);
+      chai.assert.isDefined(result, "Illegal move made");
       Game.saveLocalMove(move, game_id, move);
-      chess_obj.move(move);
       tm = !tm ? 1 : 0;
     });
 
@@ -1925,6 +1925,7 @@ describe("Takeback behavior", function () {
     self.loggedonuser = us;
     Game.saveLocalMove("Nc3", game_id, "Nc3");
     game = Game.GameCollection.findOne( { _id: game_id });
+    chai.assert.isDefined(game, "Game does not exist");
     chai.assert.equal(game.variations.movelist[game.variations.movelist[4].variations[0]].move, "Nc3");
     chai.assert.equal(game.variations.movelist[game.variations.movelist[4].variations[1]].move, "Bg2");
   });

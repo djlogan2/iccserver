@@ -2798,6 +2798,7 @@ export class Game {
         );
       }
     });
+    variation.cmi = cmi;
     this.load_eco(chessObject, variation);
     this.GameCollection.update(
       { _id: game_id, status: "examining" },

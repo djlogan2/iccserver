@@ -341,9 +341,7 @@ describe("PGN Import", function() {
     Game.resignLocalGame("mi6", examined_game_id);
     Game.importPGNIntoExaminedGame("mi6", examined_game_id, exportedPgn.pgn);
     const game = Game.GameCollection.findOne({ _id: examined_game_id, status: "examining" });
-    if (!game) {
-      chai.assert.fail("Game does not exist");
-    }
+    chai.assert.isDefined(game, "Game does not exist");
 
     chai.assert.equal(game.variations.movelist.length, 6);
     chai.assert.equal(game.variations.movelist[1].variations.length, 4);

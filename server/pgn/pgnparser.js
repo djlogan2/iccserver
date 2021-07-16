@@ -249,24 +249,29 @@ export class Parser {
       switch (tag) {
         case "White":
           this.gameobject.white.name = this.gameobject.tags[tag];
-          delete this.gameobject.tags.White;
+          delete this.gameobject.tags[tag];
           break;
         case "Black":
           this.gameobject.black.name = this.gameobject.tags[tag];
+          delete this.gameobject.tags[tag];
           break;
         case "Result":
           this.gameobject.result = this.gameobject.tags[tag];
+          delete this.gameobject.tags[tag];
           break;
         case "WhiteUSCF":
         case "WhiteElo":
           this.gameobject.white.rating = parseInt(this.gameobject.tags[tag]);
+          delete this.gameobject.tags[tag];
           break;
         case "BlackUSCF":
         case "BlackElo":
           this.gameobject.black.rating = parseInt(this.gameobject.tags[tag]);
+          delete this.gameobject.tags[tag];
           break;
         case "Date":
           const newdate = date.parse(this.gameobject.tags[tag], "YYYY.DD.MM");
+          delete this.gameobject.tags[tag];
           if (!this.gameobject.startTime) this.gameobject.startTime = newdate;
           else {
             this.gameobject.startTime.setFullYear(newdate.getFullYear());
@@ -276,6 +281,7 @@ export class Parser {
           break;
         case "Time":
           const newtime = date.parse(this.gameobject.tags[tag], "hh.mm.ss");
+          delete this.gameobject.tags[tag];
           if (!this.gameobject.startTime) {
             this.gameobject.startTime = newtime;
           } else {
