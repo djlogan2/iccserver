@@ -2954,8 +2954,7 @@ export class Game {
         );
       variation.cmi = variation.movelist[variation.cmi].prev;
     }
-    // TODO: I think you did great to here. Don't put it in the loop. I don't care about
-    //       the "in between" moves. Put this after the loop like you have done in other places.
+
     this.load_eco(active_games[game_id], variation);
 
     this.GameCollection.update(
@@ -3064,7 +3063,7 @@ export class Game {
       // Only times we will enter here are when the previous node is node 0 or
       // We started on node 0 and are passing in an undefined cmi.
       movelist[0].eco = {
-        // Setting Node 0 specifically in case cmi is undefined. // TODO this needs to be changed and have tests modified accordingly
+        // Setting Node 0 specifically in case cmi is undefined.
         name: "NO_ECO",
         code: "NO_ECO",
       };
@@ -3096,7 +3095,6 @@ export class Game {
 
   load_eco(chess_obj, variations) {
     if (
-      // TODO: Look into optional chaining for this too
       !!variations.movelist[variations.cmi].eco &&
       !!variations.movelist[variations.cmi].eco.name &&
       !!variations.movelist[variations.cmi].eco.code
