@@ -8,6 +8,7 @@ import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
 import ExportPgnButton from "../Button/ExportPgnButton";
 import { get } from "lodash";
+import date from "date-and-time";
 
 import "./GameListModal.css";
 import { RESOURCE_EXAMINE } from "../../../../constants/resourceConstants";
@@ -67,7 +68,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
       white: gameItem.white.name.replace(/"/g, ""),
       black: gameItem.black.name.replace(/"/g, ""),
       time: null, //time,
-      date: gameItem.startTime,
+      date: date.format(gameItem.startTime, "YYYY-MM-DD HH:mm:ss"),
       is_imported: games.is_imported,
       result: getResultOfGameItem(gameItem),
     }));
@@ -110,7 +111,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
                 }
               />
               <Table.Column title={translate("result")} dataIndex="result" key="result" />
-              <Table.Column title={translate("date")} dataIndex="time" key="time" />
+              <Table.Column title={translate("date")} dataIndex="date" key="time" />
               <Table.Column
                 title={translate("pgn")}
                 dataIndex="pgn"
