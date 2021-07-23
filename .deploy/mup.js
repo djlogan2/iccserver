@@ -1,9 +1,9 @@
 module.exports = {
   servers: {
     one: {
-      host: "18.204.10.150",
-      username: "oleshkoo",
-      pem: "~/.ssh/prod-icc"
+      host: "v2.chessclub.com",
+      username: "deploy",
+      pem: "~/.ssh/deploy_id_rsa"
     }
   },
 
@@ -23,7 +23,7 @@ module.exports = {
     },
 
     env: {
-      ROOT_URL: "http://18.204.10.150",
+      ROOT_URL: "https://v2.chessclub.com",
       MONGO_URL: "mongodb://mongodb/meteor",
       MONGO_OPLOG_URL: "mongodb://mongodb/local"
     },
@@ -42,6 +42,16 @@ module.exports = {
   hooks: {
     'pre.deploy': {
       localCommand: 'echo "export const current_release={\\"release\\":" "\\""`git describe --tag`"\\", \\"commit\\":\\""`git rev-parse HEAD`"\\"}" > ../imports/startup/release.js'
+    },
+    // 'pre.meteor.start': {
+    //   remoteCommand: "sudo chmod -v -R 777 /opt/iccserver"
+    // }
+  },
+  proxy: {
+    domains: "v2.chessclub.com",
+    ssl: {
+      forceSSL: true,
+      letsEncryptEmail: "eng@chessclub.com"
     }
   }
 };

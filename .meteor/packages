@@ -25,12 +25,9 @@ universe:i18n
 
 johanbrook:publication-collector
 xolvio:cleaner
-lmieulet:meteor-coverage
 omega:json-protocol
 reywood:publish-composite
 meteorhacks:picker
-ostrio:files
-http@1.4.2
 alanning:roles
 meteortesting:mocha
 mizzao:user-status
@@ -41,3 +38,6 @@ patelutsav:meteor-migrations
 dburles:factory
 hwillson:stub-collections
 shell-server@0.5.0
+http
+lmieulet:meteor-coverage
+ostrio:files

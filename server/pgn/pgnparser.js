@@ -1,6 +1,7 @@
 import { Logger } from "../../lib/server/Logger";
 import moo from "moo";
 import date from "date-and-time";
+import {Chat} from "../Chat";
 
 const log = new Logger("server/pgnparser_js");
 
