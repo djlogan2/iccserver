@@ -256,4 +256,12 @@ Meteor.methods({
       );
     ClientMessagesCollection.remove({ _id: id });
   },
+  "acknowledge.client.messages": function (ids) {
+    //TODO: add tests!!!
+    check(ids, Array);
+    const rec = ClientMessagesCollection.find({ _id: { $in: ids } });
+    if (!rec)
+      throw new ICCMeteorError("server", "We should not be deleting a nonexistant client messages");
+    ClientMessagesCollection.remove({ _id: { $in: ids } });
+  },
 });
