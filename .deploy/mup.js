@@ -2,8 +2,8 @@ module.exports = {
   servers: {
     one: {
       host: "v2.chessclub.com",
-      username: "deploy",
-      pem: "~/.ssh/deploy_id_rsa"
+      username: "david",
+      pem: "~/.ssh/id_rsa"
     }
   },
 
@@ -23,7 +23,7 @@ module.exports = {
     },
 
     env: {
-      ROOT_URL: "https://v2.chessclub.com",
+      ROOT_URL: "https://v2a.chessclub.com",
       MONGO_URL: "mongodb://mongodb/meteor",
       MONGO_OPLOG_URL: "mongodb://mongodb/local"
     },
@@ -48,7 +48,7 @@ module.exports = {
     // }
   },
   proxy: {
-    domains: "v2.chessclub.com,v2a.chessclub.com,v2b.chessclub.com",
+    domains: "v2a.chessclub.com,v2b.chessclub.com",
     ssl: {
       forceSSL: true,
       letsEncryptEmail: "eng@chessclub.com"
