@@ -46,6 +46,8 @@ export default class MoveList extends Component {
       color: cmi === activeCmi ? "#660000" : "#000000",
     };
 
+    if (!element.smith || !element.smith.color) return;
+
     if (element.smith.color === colorWhiteLetter) {
       this.moveListRow.push(
         <span
