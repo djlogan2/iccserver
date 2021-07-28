@@ -16,7 +16,11 @@ const withClientMessages = (WrappedComponent) => {
     render() {
       const { userClientMessages } = this.props;
 
-      userClientMessages.forEach((clientMessage) => {
+      const filtered = userClientMessages.filter(
+        (message) => message.client_identifier === "matchRequest"
+      );
+
+      filtered.forEach((clientMessage) => {
         this.displayClientMessage(
           clientMessage.message,
           clientMessage.message_identifier,

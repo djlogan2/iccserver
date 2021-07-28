@@ -28,6 +28,7 @@ import {
   minRating,
 } from "../../../constants/gameConstants";
 import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
+import withClientMessages from "../../HOCs/withClientMessages";
 
 const log = new Logger("client/Play_js");
 
@@ -406,10 +407,14 @@ export default compose(
         }
       ),
       systemCss: mongoCss.findOne(),
+      userClientMessages: ClientMessagesCollection.find({
+        to: Meteor.userId(),
+      }).fetch(),
     };
   }),
   injectSheet(dynamicPlayNotifierStyles),
-  withPlayNotifier
+  withPlayNotifier,
+  withClientMessages,
 )(Play);
 
 const game_timestamps = {};
