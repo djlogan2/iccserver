@@ -414,7 +414,7 @@ export default compose(
   }),
   injectSheet(dynamicPlayNotifierStyles),
   withPlayNotifier,
-  withClientMessages,
+  withClientMessages
 )(Play);
 
 const game_timestamps = {};

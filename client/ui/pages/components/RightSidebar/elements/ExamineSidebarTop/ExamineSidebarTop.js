@@ -118,11 +118,7 @@ class ExamineSidebarTop extends Component {
           {moveOrPlay === "move" && this.renderMove()}
         </TabPane>
         <TabPane tab={translate("observe")} key="observe">
-          <ExamineObserveTab
-            game={game}
-            observeUser={observeUser}
-            unObserveUser={unObserveUser}
-          />
+          <ExamineObserveTab game={game} observeUser={observeUser} unObserveUser={unObserveUser} />
         </TabPane>
       </Tabs>
     );
