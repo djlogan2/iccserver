@@ -11,6 +11,3 @@ export const ISOLATION_GROUP_PROPERTY = "isolationGroup";
 
 export const ROLE_DEVELOPER = "developer";
 export const ROLE_LIST_USERS = "list_users";
-
-export const LIST_VIEW_TABLE = "table";
-export const LIST_VIEW_ROW = "row";

@@ -68,7 +68,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
       white: gameItem.white.name.replace(/"/g, ""),
       black: gameItem.black.name.replace(/"/g, ""),
       time: null, //time,
-      date: date.format(gameItem.startTime, "YYYY-MM-DD HH:mm:ss"),
+      date: gameItem?.startTime ? date.format(gameItem.startTime, "YYYY-MM-DD HH:mm:ss") : "",
       is_imported: games.is_imported,
       result: getResultOfGameItem(gameItem),
     }));

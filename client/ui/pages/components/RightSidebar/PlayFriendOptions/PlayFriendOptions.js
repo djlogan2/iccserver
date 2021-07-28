@@ -27,14 +27,16 @@ class PlayFriendOptions extends Component {
     const isRatedGames = roles.includes(ROLE_PLAY_RATED_GAMES);
     const isUnratedGames = roles.includes(ROLE_PLAY_UNRATED_GAMES);
 
+    const matchDefaults = Meteor.user()?.settings?.match_default;
+
     this.state = {
       isRatedGames,
       isUnratedGames,
       color: "random",
-      incrementOrDelayType: "inc",
-      initial: 15,
-      incrementOrDelay: 0,
-      ratingType: "none",
+      incrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
+      initial: matchDefaults?.challenger_time || 15,
+      incrementOrDelay: matchDefaults?.challenger_inc_or_delay || 0,
+      ratingType: matchDefaults?.rating_type || "none",
       rated: isRatedGames,
     };
   }
@@ -130,7 +132,7 @@ class PlayFriendOptions extends Component {
           initialValues={{
             initial,
             incrementOrDelay,
-            color: "random",
+            color,
           }}
         >
           <Form.Item label={translate("timeControl")} name="time-control">
