@@ -15,7 +15,6 @@ import { RESOURCE_LOGIN, RESOURCE_PROFILE } from "../../../../constants/resource
 import { translate } from "../../../HOCs/translate";
 import { dynamicLeftSideBarStyles } from "./dynamicLeftSidebarStyles";
 import { gameStatusNone } from "../../../../constants/gameConstants";
-import ClientMessagesPopover from "../ClientMessagesPopover/ClientMessagesPopover";
 
 const log = new Logger("client/LeftSidebar_js");
 
@@ -145,7 +144,6 @@ class LeftSidebar extends Component {
             </>
           )}
         </div>
-        <ClientMessagesPopover />
         <MenuLinks
           visible={visible}
           handleRedirect={this.handleRedirect}

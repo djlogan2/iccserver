@@ -406,10 +406,6 @@ export default compose(
         }
       ),
       systemCss: mongoCss.findOne(),
-      userClientMessages: ClientMessagesCollection.find({
-        to: Meteor.userId(),
-        // $or: [{ client_identifier: /^requestTo/ }],
-      }).fetch(),
     };
   }),
   injectSheet(dynamicPlayNotifierStyles),
