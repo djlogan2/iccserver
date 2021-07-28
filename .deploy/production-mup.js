@@ -1,7 +1,7 @@
 module.exports = {
   servers: {
     one: {
-      host: "100.25.103.111",
+      host: "ctychess.chessclub.com",
       username: "david",
       pem: "~/.ssh/id_rsa"
     }
@@ -23,7 +23,7 @@ module.exports = {
     },
 
     env: {
-      ROOT_URL: "http://100.25.103.111",
+      ROOT_URL: "https://ctychess.chessclub.com",
       MONGO_URL: "mongodb://mongodb/meteor",
       MONGO_OPLOG_URL: "mongodb://mongodb/local"
     },
@@ -42,6 +42,13 @@ module.exports = {
   hooks: {
     'pre.deploy': {
       localCommand: 'echo "export const current_release={\\"release\\":" "\\""`git describe --tag`"\\", \\"commit\\":\\""`git rev-parse HEAD`"\\"}" > ../imports/startup/release.js'
+    }
+  },
+  proxy: {
+    domains: "ctychess.chessclub.com",
+    ssl: {
+      forceSSL: true,
+      letsEncryptEmail: "eng@chessclub.com"
     }
   }
 };

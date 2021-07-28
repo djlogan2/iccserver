@@ -260,6 +260,22 @@ Meteor.methods({
     //TODO: add tests!!!
     check(ids, Array);
     const rec = ClientMessagesCollection.find({ _id: { $in: ids } });
+    // TODO: So this doesn't really make sense.
+    //       1. find() returns a cursor, so !rec will always be false
+    //       2. It appears what you tried to do was check to see if ANY in the list were valid
+    //          but then crash only if NONE were.
+    //       3. This allows any snot-nosed 12 year old hacker to mess with us.
+    //          What you didn't do was check if any of these ids actually BELONGED to the user.
+    //       As I said in the meeting, I don't believe in this philosophy, I think this function
+    //       shouldn't exist, but if it's going to, maybe do this:
+    //       .remove({ _id: { $in: ids, to: this.userId } });
+    //       or, you could do something like:
+    //             find({ _id: { $in: ids, to: this.userId } }).count() === ids.length
+    //       if any invalid IDs are passed in, they are just ignored, and the hacker can no longer
+    //       delete anyone elses records.
+    //       4. Shouldn't the check() be: check([String]) ?
+    //          The way it is now, hackers could pass in an array of anything. Numbers, objects,
+    //          anything.
     if (!rec)
       throw new ICCMeteorError("server", "We should not be deleting a nonexistant client messages");
     ClientMessagesCollection.remove({ _id: { $in: ids } });

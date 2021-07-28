@@ -48,7 +48,7 @@ module.exports = {
     // }
   },
   proxy: {
-    domains: "v2.chessclub.com",
+    domains: "v2.chessclub.com,v2a.chessclub.com,v2b.chessclub.com",
     ssl: {
       forceSSL: true,
       letsEncryptEmail: "eng@chessclub.com"
