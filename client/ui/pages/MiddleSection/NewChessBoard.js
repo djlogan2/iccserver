@@ -57,7 +57,13 @@ class NewChessBoard extends Component {
     }
 
     if (fen !== chess.fen()) {
-      this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen(), lastMove: null });
+      this.setState({
+        legalMoves: this.getLegalMoves(),
+        fen: chess.fen(),
+        lastMove: null,
+        arrows: [],
+        circles: [],
+      });
     }
   }
 
