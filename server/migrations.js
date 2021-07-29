@@ -346,7 +346,28 @@ Meteor.startup(() => {
       GameHistory.collection.update({}, { $unset: { "variations.ecocodes": 1 } });
     },
   });
+/*
+  Migrations.add({
+    version: "",
+    name: "",
+    run: () => {
+      const chess = new Chess();
 
+
+      function addSmithToMove(variations, cmi) {
+        const move = variations.movelist[cmi];
+        const next = variations.movelist[cmi].variations;
+        const result = chess.move(move.move);
+        variations.movelist[cmi].smith = { piece: result.piece, color: result.color, from: result.from, to: result.to, promotion: result.promotion };
+
+        for(let x = 0 ; x < next.length ; x++) {
+          addSmithToMove(variations, next);
+          chess.undo();
+        }
+      }
+    }
+  });
+*/
   Migrations.unlock();
 
   Migrations.migrateTo("latest");

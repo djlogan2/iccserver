@@ -2,8 +2,7 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 //import { Game } from "../server/Game";
 import chai from "chai";
 
-describe.skip("Starting a game with an valid fen (bug found 4/29/21)", function() {
-  this.timeout(500000);
+describe("Starting a game with an valid fen (bug found 4/29/21)", function() {
   const self = TestHelpers.setupDescribe.apply(this);
   it("should not allow the game to be started", function() {
     const p1 = TestHelpers.createUser();

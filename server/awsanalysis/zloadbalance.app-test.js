@@ -16,7 +16,6 @@ describe("load balancer", function() {
     });
   }
   it("should set a minimum when specified", function(done) {
-    this.timeout(5000000);
     const load_balancer = new ResourceManager({
       create_resource: create,
       destroy_resource: rarray => {},

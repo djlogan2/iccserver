@@ -799,7 +799,6 @@ describe("User management", function() {
       chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
     });
     it("should return a client message if the email change fails", () => {
-      this.timeout(500000);
       const firstguy = TestHelpers.createUser();
       self.loggedonuser = TestHelpers.createUser({ roles: ["change_email"] });
       Meteor.users.update(

@@ -693,7 +693,7 @@ describe("Chats", function() {
   });
 
   it("should publish private chats to both senders and receivers", function(done) {
-    this.timeout(50000);
+    this.timeout(5000);
     const user1 = TestHelpers.createUser({ roles: ["personal_chat"] });
     const user2 = TestHelpers.createUser({ roles: ["personal_chat"] });
     self.loggedonuser = user1;

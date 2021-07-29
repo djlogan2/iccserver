@@ -248,7 +248,6 @@ describe.skip("AnalysisEngines", function() {
   }
 
   it("should set an existing engine record busy, assign our ID, and return the engine ID when one is available", function() {
-    this.timeout(500000);
     sandbox.replace(AnalysisEngines, "intervalWait", 1);
     sandbox.spy(AnalysisEngines.instance_collection);
     sandbox.spy(AnalysisEngines.engine_collection);

@@ -396,3 +396,395 @@ describe("Game.removeArrow", function() {
     chai.assert.equal("d2", record.actions[1].parameter.to, "Failed to record a draw in actions");
   });
 });
+
+describe.only("Deleting arrows on FEN changes", function(){
+
+  const self = TestHelpers.setupDescribe.apply(this);
+
+  it("should delete arrows on a move forward", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.moveBackward("mi3", game, 1);
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+    Game.moveForward("mi5", game, 1);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on a move backward", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.moveBackward("mi3", game, 1);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on a setcmi", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.moveToCMI("mi3", game, 0);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on a savelocalmove", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.saveLocalMove("mi3", game, "e5");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on a loadfen", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.loadFen("mi3", game, "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on a set starting position", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.setStartingPosition("mi3", game);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on add piece", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.addPiece("mi3", game, "w", "p", "d4");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on remove piece", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.removePiece("mi3", game, "e4");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on set to move", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.setToMove("mi3", game, "w");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on set castling", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.setCastling("mi3", game, '', '');
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on set en passant", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.loadFen("mi2", game, "rnbqkbnr/ppppp3/8/7p/5pPP/8/PPPPP3/RNBQKBNR b KQkq - 0 1");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.setEnPassant("mi5", game, "g4");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+
+  it("should delete arrows on set tag if tag is a fen", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawArrow("mi4", game, "e4", "e5", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.arrows);
+    chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
+
+    Game.setTag("mi3", game, "FEN", "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.arrows);
+    chai.assert.equal(game2.arrows.length, 0);
+  });
+});
+
+describe.only("Deleting circles on FEN changes", function(){
+
+  const self = TestHelpers.setupDescribe.apply(this);
+
+  it("should delete circles on a move forward", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.moveBackward("mi3", game, 1);
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+    Game.moveForward("mi5", game, 1);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on a move backward", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.moveBackward("mi3", game, 1);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on a setcmi", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.moveToCMI("mi3", game, 0);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on a savelocalmove", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.saveLocalMove("mi3", game, "e5");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on a loadfen", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.loadFen("mi3", game, "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on a set starting position", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.setStartingPosition("mi3", game);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on add piece", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.addPiece("mi3", game, "w", "p", "d4");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on remove piece", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.removePiece("mi3", game, "e4");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on set to move", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.setToMove("mi3", game, "w");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on set castling", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.setCastling("mi3", game, '', '');
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on set en passant", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.loadFen("mi2", game, "rnbqkbnr/ppppp3/8/7p/5pPP/8/PPPPP3/RNBQKBNR b KQkq - 0 1");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.setEnPassant("mi5", game, "g4");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+
+  it("should delete circles on set tag if tag is a fen", function(){
+    self.loggedonuser = TestHelpers.createUser();
+    const game = Game.startLocalExaminedGame("mi1", "whiteguy", "glackguy", 0);
+    Game.saveLocalMove("mi2", game, "e4");
+    Game.drawCircle("mi4", game, "e4", "red", 3);
+
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.circles);
+    chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
+
+    Game.setTag("mi3", game, "FEN", "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3");
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game2.circles);
+    chai.assert.equal(game2.circles.length, 0);
+  });
+});

@@ -1129,7 +1129,7 @@ export class Game {
 
     if (!is_premove) this.endMoveTimer(game_id);
 
-    const setobject = { fen: chessObject.fen() };
+    const setobject = { fen: chessObject.fen(), arrows: [], circles: [] };
 
     const unsetobject = {};
     let gamelag = 0;
@@ -2681,15 +2681,6 @@ export class Game {
     return new_cmi;
   }
 
-  sendCommand(message_identifier, game_id, command) {
-    check(message_identifier, String);
-    check(game_id, String);
-    check(command, String);
-
-    const self = Meteor.user();
-    check(self, Object);
-  }
-
   moveToCMI(message_identifier, game_id, cmi) {
     check(game_id, String);
     check(cmi, Number);
@@ -2708,28 +2699,6 @@ export class Game {
     }
 
     if (game.cmi === cmi) return;
-    // if (cmi === 0) {
-    //   if (game.tags && !!game.tags.FEN) active_games[game_id].load(game.tags.FEN);
-    //   else active_games[game_id].load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-    //
-    //   this.GameCollection.update(
-    //     { _id: game_id, status: "examining" },
-    //     {
-    //       $set: {
-    //         "variations.cmi": 0,
-    //         fen: active_games[game_id].fen(),
-    //         tomove: active_games[game_id] === "w" ? "white" : "black"
-    //       },
-    //       $push: {
-    //         actions: {
-    //           type: "move_to_fen",
-    //           issuer: self._id,
-    //           parameter: { cmi: 0 }
-    //         }
-    //       }
-    //     }
-    //   );
-    // }
 
     if (!active_games[game_id])
       throw new ICCMeteorError(
@@ -2804,6 +2773,8 @@ export class Game {
       { _id: game_id, status: "examining" },
       {
         $set: {
+          arrows: [],
+          circles: [],
           "variations.cmi": cmi,
           "variations.movelist": variation.movelist,
           fen: chessObject.fen(),
@@ -2890,6 +2861,8 @@ export class Game {
       { _id: game_id, status: "examining" },
       {
         $set: {
+          arrows: [],
+          circles: [],
           "variations.cmi": variation.cmi,
           "variations.movelist": variation.movelist,
           fen: chessObject.fen(),
@@ -2961,6 +2934,8 @@ export class Game {
       { _id: game_id, status: "examining" },
       {
         $set: {
+          arrows: [],
+          circles: [],
           "variations.cmi": variation.cmi,
           "variations.movelist": variation.movelist,
           fen: active_games[game_id].fen(),
@@ -3173,6 +3148,8 @@ export class Game {
         {
           $set: {
             fen: fen,
+            arrows: [],
+            circles: [],
             variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
           },
@@ -3211,6 +3188,8 @@ export class Game {
             fen: fen,
             variations: game.variations,
             "tags.FEN": fen,
+            arrows: [],
+            circles: [],
           },
           $push: { actions: { type: "loadfen", issuer: self._id, parameter: { fen: fen } } },
         }
@@ -3248,6 +3227,8 @@ export class Game {
             fen: fen,
             variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
+            arrows: [],
+            circles: [],
           },
           $push: {
             actions: {
@@ -3286,6 +3267,8 @@ export class Game {
             fen: fen,
             variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
+            arrows: [],
+            circles: [],
           },
           $push: {
             actions: { type: "removepiece", issuer: self._id, parameter: { square: where } },
@@ -3307,6 +3290,7 @@ export class Game {
     }
     const fenarray = active_games[game_id].fen().split(" ");
     fenarray[1] = color;
+    fenarray[3] = "-"; // Remove en passant
     const newfen = fenarray.join(" ");
     const valid = active_games[game_id].validate_fen(newfen).valid;
     if (!valid) {
@@ -3326,6 +3310,8 @@ export class Game {
             tomove: color === "w" ? "white" : "black",
             variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
+            arrows: [],
+            circles: [],
           },
           $push: { actions: { type: "settomove", issuer: self._id, parameter: { color: color } } },
         }
@@ -3351,6 +3337,8 @@ export class Game {
     }
     const fenarray = active_games[game_id].fen().split(" ");
     fenarray[2] = white.toUpperCase() + black;
+    if (!fenarray[2]) fenarray[2] = "-";
+    fenarray[3] = "-"; // Remove en passant
     const newfen = fenarray.join(" ");
     const valid = active_games[game_id].validate_fen(newfen).valid;
     if (!valid) {
@@ -3369,6 +3357,8 @@ export class Game {
             fen: fen,
             variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
+            arrows: [],
+            circles: [],
           },
           $push: {
             actions: {
@@ -3419,6 +3409,8 @@ export class Game {
             fen: fen,
             variations: { cmi: 0, movelist: [{}] },
             "tags.FEN": fen,
+            arrows: [],
+            circles: [],
           },
           $push: {
             actions: { type: "setenpassant", issuer: self._id, parameter: { piece: where } },
@@ -3450,6 +3442,8 @@ export class Game {
         setobject.fen = active_games[game_id].fen();
         setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
         setobject.variations = { cmi: 0, movelist: [{}] };
+        setobject.arrows = [];
+        setobject.circles = [];
         break;
       case "White":
         if (game.white.name === value) return;
@@ -4332,7 +4326,4 @@ Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   moveToCMI: (message_identifier, game_id, cmi) =>
     global.Game.moveToCMI(message_identifier, game_id, cmi),
-  // eslint-disable-next-line meteor/audit-argument-checks
-  sendCommand: (message_identifier, game_id, command) =>
-    global.Game.sendCommand(message_identifier, game_id, command),
 });

@@ -66,7 +66,6 @@ describe("GamePublisher", function () {
     );
   });
   it.skip("sigh", function (done) {
-    this.timeout(5000000);
     const test = new Mongo.Collection("test");
     const handle = test.find().observeChanges({
       added(id, fields) {
@@ -204,7 +203,6 @@ describe("GamePublisher", function () {
   });
   // type = 5   <- Observer of a private examined game with analysis
   it("should set type = 4 when examined private game sent in in total", function () {
-    this.timeout(500000);
     const gamePublisher = new GamePublisher({}, "user1");
     gamePublisher.updateUserType({
       white: { id: "user3" },
@@ -543,7 +541,6 @@ describe("GamePublisher", function () {
   });
   // addNewFields(id, rec)
   it("should leave any fields in the original record alone, and copy any new fields from a database lookup", function () {
-    this.timeout(500000);
     const date = new Date();
     const id = Random.id();
     const orig = {
