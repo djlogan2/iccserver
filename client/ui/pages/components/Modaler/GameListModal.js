@@ -94,7 +94,9 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
               dataSource={formattedGameList}
               pagination={{ position: ["none", "bottomRight"] }}
               onRow={(row) => ({
-                onClick: () => {
+                onClick: (event) => {
+                  if (event.target.tagName === "IMG") return;
+
                   handleSetExaminMode(row.id);
                   onClose();
                 },
