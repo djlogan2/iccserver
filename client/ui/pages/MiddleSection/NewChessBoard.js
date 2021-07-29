@@ -3,7 +3,11 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
-import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
+import {
+  colorBlackLetter,
+  colorWhiteLetter,
+  gameStatusPlaying,
+} from "../../../constants/gameConstants";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -35,7 +39,6 @@ class NewChessBoard extends Component {
     const { premoveColor } = this.state;
 
     if (premove) {
-      console.log(premove);
       this.setState({
         premove: true,
         premoveArrow: { color: premoveColor, piece: { from: premove.from, to: premove.to } },
@@ -72,7 +75,7 @@ class NewChessBoard extends Component {
     const { gameStatus } = this.props;
     const { circles } = this.state;
 
-    if (gameStatus === "playing") {
+    if (gameStatus === gameStatusPlaying) {
       return;
     }
 
@@ -115,7 +118,7 @@ class NewChessBoard extends Component {
 
   handleMove = (move, promotion) => {
     const { onDrop, chess } = this.props;
-    const { arrows, premoveColor } = this.state;
+    const { premoveColor } = this.state;
 
     const isCurrentTurn = this.isCurrentTurn();
 
@@ -130,6 +133,8 @@ class NewChessBoard extends Component {
       }
 
       this.setState({
+        arrows: [],
+        circles: [],
         lastMove,
         legalMoves: this.getLegalMoves(),
       });
@@ -159,7 +164,7 @@ class NewChessBoard extends Component {
     const { gameStatus } = this.props;
     const { arrows } = this.state;
 
-    if (gameStatus === "playing") {
+    if (gameStatus === gameStatusPlaying) {
       return;
     }
 
