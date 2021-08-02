@@ -1,7 +1,7 @@
 module.exports = {
   servers: {
     one: {
-      host: "v2.chessclub.com",
+      host: "v2a.chessclub.com",
       username: "oleshkoo",
       pem: "~/.ssh/prod-icc"
     }
