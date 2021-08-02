@@ -6,37 +6,93 @@ import { Router } from "react-router-dom";
 import EditorRightSidebar from "../EditorRightSidebar";
 
 describe("EditorRightSidebar component", () => {
-  const history = createBrowserHistory();
-  const mockProps = {
-    whiteCastling: [],
-    blackCastling: [],
-    onCastling: () => null,
-    onFen: () => null,
-  };
-
-  const component = mount(
-    <Router history={history}>
-      <EditorRightSidebar {...mockProps} />
-    </Router>
-  );
-
   it("should render", () => {
+    const history = createBrowserHistory();
+    const mockProps = {
+      whiteCastling: [],
+      blackCastling: [],
+      onCastling: () => null,
+      onFen: () => null,
+    };
+
+    const component = mount(
+      <Router history={history}>
+        <EditorRightSidebar {...mockProps} />
+      </Router>
+    );
+
     chai.assert.isDefined(component);
   });
 
   it("should have 4 buttons", () => {
+    const history = createBrowserHistory();
+    const mockProps = {
+      whiteCastling: [],
+      blackCastling: [],
+      onCastling: () => null,
+      onFen: () => null,
+    };
+
+    const component = mount(
+      <Router history={history}>
+        <EditorRightSidebar {...mockProps} />
+      </Router>
+    );
+
     chai.assert.equal(component.find("Button").length, 4);
   });
 
   it("should have 1 input", () => {
+    const history = createBrowserHistory();
+    const mockProps = {
+      whiteCastling: [],
+      blackCastling: [],
+      onCastling: () => null,
+      onFen: () => null,
+    };
+
+    const component = mount(
+      <Router history={history}>
+        <EditorRightSidebar {...mockProps} />
+      </Router>
+    );
+
     chai.assert.equal(component.find("Input").length, 1);
   });
 
   it("should have 2 radios", () => {
+    const history = createBrowserHistory();
+    const mockProps = {
+      whiteCastling: [],
+      blackCastling: [],
+      onCastling: () => null,
+      onFen: () => null,
+    };
+
+    const component = mount(
+      <Router history={history}>
+        <EditorRightSidebar {...mockProps} />
+      </Router>
+    );
+
     chai.assert.equal(component.find("Radio").length, 2);
   });
 
   it("should simulate actions", () => {
+    const history = createBrowserHistory();
+    const mockProps = {
+      whiteCastling: [],
+      blackCastling: [],
+      onCastling: () => null,
+      onFen: () => null,
+    };
+
+    const component = mount(
+      <Router history={history}>
+        <EditorRightSidebar {...mockProps} />
+      </Router>
+    );
+
     const backButton = component.find("Button#back-to-play");
     chai.assert.equal(backButton.length, 1);
     backButton.simulate("click");

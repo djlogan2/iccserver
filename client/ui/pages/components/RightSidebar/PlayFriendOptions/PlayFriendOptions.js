@@ -1,21 +1,12 @@
 import React, { Component } from "react";
-import {
-  findRatingObject,
-  getMaxInitialAndIncOrDelayTime,
-} from "../../../../../../lib/ratinghelpers";
-import {
-  DynamicRatingsCollection,
-  mongoCss,
-} from "../../../../../../imports/api/client/collections";
+import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
+import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
 import { Button, Form, InputNumber, Radio, Switch } from "antd";
 import { translate } from "../../../../HOCs/translate";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import {
-  ROLE_PLAY_RATED_GAMES,
-  ROLE_PLAY_UNRATED_GAMES,
-} from "../../../../../constants/rolesConstants";
+import { ROLE_PLAY_RATED_GAMES, ROLE_PLAY_UNRATED_GAMES } from "../../../../../constants/rolesConstants";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
 
@@ -196,7 +187,7 @@ class PlayFriendOptions extends Component {
               onChange={(rated) => this.setState({ rated })}
             />
           </Form.Item>
-          <Button type="primary" onClick={this.handlePlay}>
+          <Button id="select-opponent-button" type="primary" onClick={this.handlePlay}>
             {translate("selectOpponent")}
           </Button>
         </Form>

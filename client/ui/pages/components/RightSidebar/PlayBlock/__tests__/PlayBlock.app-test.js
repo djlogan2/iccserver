@@ -56,8 +56,20 @@ describe("PlayBlock component", () => {
     chai.assert.equal(component.find("Button#back-button").length, 1);
     component.find("Button#back-button").simulate("click");
 
+    chai.assert.equal(component.find("Button#play-with-friend-button").length, 1);
+    component.find("Button#play-with-friend-button").simulate("click");
+
+    chai.assert.equal(component.find("Button#select-opponent-button").length, 1);
+    component.find("Button#select-opponent-button").simulate("click");
+
+    chai.assert.equal(component.find("Button#back-button").length, 1);
+    component.find("Button#back-button").simulate("click");
+
     chai.assert.equal(component.find("Button#play-with-computer-button").length, 1);
     component.find("Button#play-with-computer-button").simulate("click");
+
+    chai.assert.equal(component.find("Button#back-button").length, 1);
+    component.find("Button#back-button").simulate("click");
   });
 
   it("should render with playing stuff", () => {

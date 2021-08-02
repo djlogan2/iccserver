@@ -113,7 +113,9 @@ class PlayChooseBot extends Component {
             >
               {translate("startTheGame")}
             </Button>
-            <Button onClick={onClose}>{translate("back")}</Button>
+            <Button id="back-button" onClick={onClose}>
+              {translate("back")}
+            </Button>
           </div>
         </div>
         <Form

@@ -95,6 +95,7 @@ class LocationControls extends Component {
     return (
       <div className={classes.locationControls}>
         <button
+          id="move-backward-beginning"
           title={translate("moveBackwardBeginning")}
           onClick={this.moveBackwordBeginning}
           className={classes.locationControlItem}
@@ -107,6 +108,7 @@ class LocationControls extends Component {
           />
         </button>
         <button
+          id="move-backward"
           title={translate("moveBackward")}
           onClick={this.moveBackword}
           className={classes.locationControlItem}
@@ -119,6 +121,7 @@ class LocationControls extends Component {
           />
         </button>
         <button
+          id="move-forward"
           title={translate("moveForward")}
           onClick={this.moveForward}
           className={classes.locationControlItem}
@@ -131,6 +134,7 @@ class LocationControls extends Component {
           />
         </button>
         <button
+          id="move-forward-end"
           title={translate("moveForwardEnd")}
           onClick={this.moveForwardEnd}
           className={classes.locationControlItem}
@@ -195,6 +199,7 @@ class ActionControls extends Component {
     return (
       <div className={classes.actionControls}>
         <button
+          id="take-back"
           title={translate("takeBack")}
           onClick={this.handleTakeback}
           className={classes.actionControlsItem}
@@ -206,6 +211,7 @@ class ActionControls extends Component {
           />
         </button>
         <button
+          id="resign"
           title={translate("resign")}
           onClick={this.handleResign}
           className={classes.actionControlsItem}
@@ -217,6 +223,7 @@ class ActionControls extends Component {
           />
         </button>
         <button
+          id="draw"
           title={translate("draw")}
           onClick={this.handleDraw}
           className={classes.actionControlsItem}
@@ -228,6 +235,7 @@ class ActionControls extends Component {
           />
         </button>
         <button
+          id="adjourn"
           title={translate("adjourn")}
           onClick={this.handleAdjorn}
           className={classes.actionControlsItem}
@@ -239,6 +247,7 @@ class ActionControls extends Component {
           />
         </button>
         <button
+          id="abort"
           title={translate("abort")}
           onClick={this.handleAbort}
           className={classes.actionControlsItem}
