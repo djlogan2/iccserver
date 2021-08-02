@@ -3,11 +3,7 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
-import {
-  colorBlackLetter,
-  colorWhiteLetter,
-  gameStatusPlaying,
-} from "../../../constants/gameConstants";
+import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -78,12 +74,12 @@ class NewChessBoard extends Component {
   };
 
   handleUpdateCircles = (circle) => {
-    const { gameStatus } = this.props;
+    // const { gameStatus } = this.props;
     const { circles } = this.state;
-
-    if (gameStatus === gameStatusPlaying) {
-      return;
-    }
+    //
+    // if (gameStatus === gameStatusPlaying) {
+    //   return;
+    // }
 
     circle.color = this.getColorFromEvent(circle.event);
     delete circle.event;
@@ -167,12 +163,12 @@ class NewChessBoard extends Component {
   };
 
   handleUpdateArrows = (arrow) => {
-    const { gameStatus } = this.props;
+    // const { gameStatus } = this.props;
     const { arrows } = this.state;
 
-    if (gameStatus === gameStatusPlaying) {
-      return;
-    }
+    // if (gameStatus === gameStatusPlaying) {
+    //   return;
+    // }
 
     arrow.color = this.getColorFromEvent(arrow.event);
     delete arrow.event;

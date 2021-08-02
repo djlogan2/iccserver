@@ -27,6 +27,24 @@ describe("Community component", () => {
 
     StubCollections.stub([Chat, Rooms]);
     sinon.stub(Meteor, "subscribe").returns({ subscriptionId: 0, ready: () => true });
+
+    sinon.replace(Meteor, "call", (methodName, ...rest) => {
+      if (methodName === "leaveRoom") {
+        rest[2]("fake_error");
+      }
+
+      if (methodName === "joinRoom") {
+        rest[2]("fake_error");
+      }
+
+      if (methodName === "createRoom") {
+        rest[3]("fake_error");
+      }
+
+      if (methodName === "writeToRoom") {
+        rest[3]("fake_error");
+      }
+    });
   });
 
   afterEach(() => {
@@ -35,6 +53,8 @@ describe("Community component", () => {
 
     StubCollections.restore();
     Meteor.subscribe.restore();
+
+    sinon.restore();
   });
 
   it("should render", () => {
