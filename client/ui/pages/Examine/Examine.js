@@ -217,7 +217,7 @@ class Examine extends Component {
 
     let fullGame = { ...game };
 
-    if (!isReady || !game || game._id === leaving_game) {
+    if (!isReady || !game || !game.fen || game._id === leaving_game) {
       if (!leaving_game && !game && isReady) {
         this.initExamine();
       }
