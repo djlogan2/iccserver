@@ -1,5 +1,5 @@
 import chai from "chai";
-import { templateCollection, Tourney } from "./Tournament";
+import { templateCollection, Tourney } from "./tournament/Tournament";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { Users } from "../imports/collections/users";
 

@@ -2,7 +2,6 @@ import { DynamicRatings } from "./DynamicRatings";
 import { Migrations } from "meteor/patelutsav:meteor-migrations";
 import { Logger } from "../lib/server/Logger";
 import { GameHistory } from "./Game";
-import { templateCollection } from "./Tournament";
 import { english } from "./defaultInternationalization/english";
 import mongoClientInternationalization from "../imports/collections/clientInternationalization";
 import mongoCss from "../imports/collections/css";

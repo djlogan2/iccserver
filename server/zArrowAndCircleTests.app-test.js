@@ -397,7 +397,7 @@ describe("Game.removeArrow", function() {
   });
 });
 
-describe.only("Deleting arrows on FEN changes", function(){
+describe("Deleting arrows on FEN changes", function(){
 
   const self = TestHelpers.setupDescribe.apply(this);
 
@@ -593,7 +593,7 @@ describe.only("Deleting arrows on FEN changes", function(){
   });
 });
 
-describe.only("Deleting circles on FEN changes", function(){
+describe("Deleting circles on FEN changes", function(){
 
   const self = TestHelpers.setupDescribe.apply(this);
 

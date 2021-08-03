@@ -108,8 +108,12 @@ export class Game {
       const games_handle = _self.GameCollection.find(
         {
           $or: [
-            { "white.id": this.userId },
-            { "black.id": this.userId },
+            {
+              $and: [
+                { status: "playing" },
+                { $or: [{ "white.id": this.userId }, { "black.id": this.userId }] },
+              ],
+            },
             { "observers.id": this.userId },
             { owner: this.userId },
           ],
