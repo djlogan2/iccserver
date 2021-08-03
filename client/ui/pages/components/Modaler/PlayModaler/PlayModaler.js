@@ -6,12 +6,15 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import { withRouter } from "react-router-dom";
+import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
 
 class PlayModaler extends Component {
   handleCancel = () => {
-    const { clientMessage } = this.props;
+    const { clientMessage, history } = this.props;
 
     Meteor.call("acknowledge.client.message", clientMessage._id);
+    history.push(RESOURCE_EXAMINE);
   };
 
   getTitleText = (gameResult) => {
@@ -97,5 +100,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  injectSheet(dynamicStyles),
+  withRouter
 )(PlayModaler);
