@@ -18,6 +18,7 @@ import "../lib/server/timestamp";
 import "../server/Chat";
 import "../server/migrations";
 import "../server/clientCollection";
+import "./okendpoint";
 //??
 import current_release from "../imports/startup/release";
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
