@@ -4,6 +4,7 @@ import { get } from "lodash";
 
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { colorBlackLetter, colorWhiteLetter } from "../../../../../../constants/gameConstants";
+import { buildPgnFromMovelist } from "../../../../../../../lib/exportpgn";
 
 const log = new Logger("client/MoveList_js");
 
@@ -138,8 +139,14 @@ export default class MoveList extends Component {
       this.gameId = game._id;
     }
 
+    let moveListString = "";
     if (game?.variations?.movelist?.length) {
-      this.generateMoveList();
+      moveListString = buildPgnFromMovelist(
+        game.variations.movelist,
+        true,
+        game._id,
+        game.variations.cmi
+      );
     }
 
     const btnstyle = cssManager.buttonStyle();
@@ -152,7 +159,7 @@ export default class MoveList extends Component {
 
     return (
       <div style={{ background: "#EFF0F3" }}>
-        <div style={cssManager.gameMoveList()}>{this.moveListRow.map((el) => el)}</div>
+        <div style={cssManager.gameMoveList()}>{moveListString}</div>
       </div>
     );
   }
