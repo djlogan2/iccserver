@@ -4,13 +4,14 @@ import { Logger } from "../lib/server/Logger";
 import { GameHistory } from "./Game";
 import { english } from "./defaultInternationalization/english";
 import mongoClientInternationalization from "../imports/collections/clientInternationalization";
+import clientInternationalization from "../imports/collections/clientInternationalization";
 import mongoCss from "../imports/collections/css";
 import leftSideBarCss from "./defaultStyles/leftSideBarCss";
 import challengeNotificationCss from "./defaultStyles/challengeNotificationCss";
 import profileCss from "./defaultStyles/profileCss";
 import userManagementCss from "./defaultStyles/userManagementCss";
-import clientInternationalization from "../imports/collections/clientInternationalization";
 import commandsCss from "./defaultStyles/commandsCss";
+import { templateCollection } from "./tournament/Tournament";
 
 const log = new Logger("server/migrations");
 
@@ -40,14 +41,14 @@ Meteor.startup(() => {
     log: true,
     logIfLatest: true,
     stopIfOldVersionScriptAdded: true,
-    stopIfOldVersionScriptUpdated: true
+    stopIfOldVersionScriptUpdated: true,
   });
   Migrations.add({
     version: "0.2.0_1",
     name: "Remove rated/unrated from dynamic_ratings table",
     run: () => {
       DynamicRatings.collection.update({}, { $unset: { rated: 1, unrated: 1 } }, { multi: true });
-    }
+    },
   });
   Migrations.add({
     version: "0.2.0_2",
@@ -56,22 +57,22 @@ Meteor.startup(() => {
       const games = GameHistory.collection
         .find({ rated: true }, { sort: { "actions.date": 1 } })
         .fetch();
-      games.forEach(game => Game.updateUserRatings(game, game.result, game.status2));
-    }
+      games.forEach((game) => Game.updateUserRatings(game, game.result, game.status2));
+    },
   });
   Migrations.add({
     version: "0.2.0_3",
     name: "Create index for Template collection",
     run: () => {
       templateCollection.rawCollection().createIndex({ "record.name": 1, "record.scope": 1 });
-    }
+    },
   });
   Migrations.add({
     version: "0.2.0_4",
     name: "Update client i18n for en locales",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -79,7 +80,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.2",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -87,7 +88,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.3",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -95,7 +96,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.4",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -103,7 +104,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.5",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -111,7 +112,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.6",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -119,7 +120,7 @@ Meteor.startup(() => {
     name: "Update client css for left side bar",
     run: () => {
       mongoCss.update({ type: "leftSideBar" }, { $set: leftSideBarCss });
-    }
+    },
   });
 
   Migrations.add({
@@ -127,7 +128,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.7",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -135,7 +136,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.8",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -143,7 +144,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.9",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -154,7 +155,7 @@ Meteor.startup(() => {
         { cssKey: "default" },
         { challengeNotificationCss: challengeNotificationCss }
       );
-    }
+    },
   });
 
   Migrations.add({
@@ -162,7 +163,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.10",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -170,7 +171,7 @@ Meteor.startup(() => {
     name: "Add client css for game status",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { leftSideBarCss: leftSideBarCss });
-    }
+    },
   });
 
   Migrations.add({
@@ -178,7 +179,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.10",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -189,7 +190,7 @@ Meteor.startup(() => {
         { cssKey: "default" },
         { challengeNotificationCss: challengeNotificationCss }
       );
-    }
+    },
   });
 
   Migrations.add({
@@ -197,7 +198,7 @@ Meteor.startup(() => {
     name: "Update client css for profile",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { profileCss: profileCss });
-    }
+    },
   });
 
   Migrations.add({
@@ -205,7 +206,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.11",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -213,7 +214,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.12",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -221,7 +222,7 @@ Meteor.startup(() => {
     name: "Update client css for user management",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { userManagementCss });
-    }
+    },
   });
 
   Migrations.add({
@@ -229,7 +230,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.13",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -237,7 +238,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.14",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -245,7 +246,7 @@ Meteor.startup(() => {
     name: "Update client css for user management",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { userManagementCss });
-    }
+    },
   });
 
   Migrations.add({
@@ -253,7 +254,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.15",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -261,7 +262,7 @@ Meteor.startup(() => {
     name: "Update client css for user management",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { userManagementCss });
-    }
+    },
   });
 
   Migrations.add({
@@ -269,7 +270,7 @@ Meteor.startup(() => {
     name: "Update client css default key",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { $set: { cssKey: "development" } });
-    }
+    },
   });
 
   Migrations.add({
@@ -281,11 +282,11 @@ Meteor.startup(() => {
         {
           $set: {
             "i18n.Common.menuLinkLabel.last_ping": "Last ping",
-            "i18n.Common.menuLinkLabel.average_lag": "Average lag"
-          }
+            "i18n.Common.menuLinkLabel.average_lag": "Average lag",
+          },
         }
       );
-    }
+    },
   });
 
   Migrations.add({
@@ -293,7 +294,7 @@ Meteor.startup(() => {
     name: "Update client css for commands ui",
     run: () => {
       mongoCss.update({ cssKey: "default" }, { commandsCss });
-    }
+    },
   });
 
   Migrations.add({
@@ -301,7 +302,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.16",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -309,7 +310,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.17",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -317,7 +318,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.18",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -325,7 +326,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.19",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -333,7 +334,7 @@ Meteor.startup(() => {
     name: "Update client i18n for en locales v 0.20",
     run: () => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
-    }
+    },
   });
 
   Migrations.add({
@@ -345,7 +346,7 @@ Meteor.startup(() => {
       GameHistory.collection.update({}, { $unset: { "variations.ecocodes": 1 } });
     },
   });
-/*
+  /*
   Migrations.add({
     version: "",
     name: "",
