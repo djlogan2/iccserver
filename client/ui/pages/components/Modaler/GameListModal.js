@@ -1,8 +1,7 @@
 import React from "react";
-import { Modal } from "antd";
+import { Modal, Table } from "antd";
 import { withRouter } from "react-router-dom";
 import { Meteor } from "meteor/meteor";
-import { Table } from "antd";
 import injectSheet from "react-jss";
 import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
@@ -12,6 +11,7 @@ import date from "date-and-time";
 
 import "./GameListModal.css";
 import { RESOURCE_EXAMINE } from "../../../../constants/resourceConstants";
+import { MY_GAMES_MODAL_OPENED } from "../../../../constants/systemConstants";
 
 const styles = {
   table: {
@@ -40,6 +40,7 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
 
     const pathName = get(history, "location.pathname");
 
+    localStorage.setItem(MY_GAMES_MODAL_OPENED, true);
     if (pathName !== RESOURCE_EXAMINE) {
       history.push(RESOURCE_EXAMINE);
     }

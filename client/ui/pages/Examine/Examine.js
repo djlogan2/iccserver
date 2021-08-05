@@ -11,6 +11,7 @@ import { Game, ImportedGameCollection, mongoCss } from "../../../../imports/api/
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
 import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
 import { defaultCapture, gameObserveDefault } from "../../../constants/gameConstants";
+import { MY_GAMES_MODAL_OPENED } from "../../../constants/systemConstants";
 
 const log = new Logger("client/Examine_js");
 
@@ -42,6 +43,11 @@ class Examine extends Component {
   }
 
   initExamine = () => {
+    const myGamesModalOpened = localStorage.getItem(MY_GAMES_MODAL_OPENED);
+    localStorage.removeItem(MY_GAMES_MODAL_OPENED);
+
+    if (myGamesModalOpened) return;
+
     Meteor.call(
       "startLocalExaminedGame",
       "startlocalExaminedGame",

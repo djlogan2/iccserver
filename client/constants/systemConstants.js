@@ -11,3 +11,5 @@ export const ISOLATION_GROUP_PROPERTY = "isolationGroup";
 
 export const ROLE_DEVELOPER = "developer";
 export const ROLE_LIST_USERS = "list_users";
+
+export const MY_GAMES_MODAL_OPENED = "my_games_modal_opened";
