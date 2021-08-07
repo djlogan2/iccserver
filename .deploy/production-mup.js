@@ -44,11 +44,11 @@ module.exports = {
       localCommand: 'echo "export const current_release={\\"release\\":" "\\""`git describe --tag`"\\", \\"commit\\":\\""`git rev-parse HEAD`"\\"}" > ../imports/startup/release.js'
     }
   },
-  // proxy: {
-  //   domains: "v2.chessclub.com,ctychess.chessclub.com",
-  //   ssl: {
-  //     forceSSL: true,
-  //     letsEncryptEmail: "eng@chessclub.com"
-  //   }
-  // }
+  proxy: {
+    domains: "v2.chessclub.com,ctychess.chessclub.com",
+    ssl: {
+      forceSSL: true,
+      letsEncryptEmail: "eng@chessclub.com"
+    }
+  }
 };
