@@ -83,9 +83,9 @@ const ExamineOwnerTabBlock = ({ game, translate, classes }) => {
         <span>{translate("observing", { quantity: game.observers.length })}</span>
       </div>
       <ul className={classes.list}>
-        {game.observers.map((observerItem) => {
+        {game.observers.map((observerItem, key) => {
           return (
-            <li key={observerItem.id} className={classes.listItem}>
+            <li key={key} className={classes.listItem}>
               {observerItem.username}
             </li>
           );

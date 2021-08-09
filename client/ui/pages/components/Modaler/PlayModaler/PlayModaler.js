@@ -77,6 +77,7 @@ class PlayModaler extends Component {
           </div>
           <div className={classes.buttonBlock}>
             <Button
+              id="rematch-button"
               type="primary"
               onClick={() => {
                 onRematch();

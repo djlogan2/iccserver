@@ -10,9 +10,14 @@ describe("withClientMessages HOC", () => {
       <WrappedComponent
         userClientMessages={[
           {
-            _id: "fake_id",
-            message: "fake_message",
+            _id: "fake_id_1",
+            message: "fake_message_1",
             message_identifier: "fake_message_identifier",
+          },
+          {
+            _id: "fake_id_2",
+            message: "fake_message",
+            message_identifier: "matchRequest",
           },
         ]}
       />

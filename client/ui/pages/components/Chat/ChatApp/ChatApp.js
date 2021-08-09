@@ -51,8 +51,8 @@ class ChatApp extends Component {
               chats.map((chatItem, i) => (
                 <MessageItem
                   key={`message-${i}`}
-                  name={chatItem.issuer.username}
-                  text={chatItem.what}
+                  name={chatItem?.issuer?.username}
+                  text={chatItem?.what}
                 />
               ))}
           </div>

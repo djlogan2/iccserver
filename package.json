@@ -52,6 +52,7 @@
     "antd": "^4.15.4",
     "async": "^3.2.0",
     "aws-sdk": "^2.897.0",
+    "axios": "^0.19.2",
     "bcrypt": "^5.0.1",
     "chess.js": "^0.11.0",
     "chessboard": "github:chessclub/v2icc-chessboard",
