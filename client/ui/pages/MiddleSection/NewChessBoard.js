@@ -123,6 +123,7 @@ class NewChessBoard extends Component {
     const { premoveColor } = this.state;
 
     const isCurrentTurn = this.isCurrentTurn();
+    const user = Meteor.user();
 
     if (isCurrentTurn) {
       const lastMove = chess.move(move[0] + move[1] + promotion, { sloppy: true });
@@ -140,7 +141,7 @@ class NewChessBoard extends Component {
         lastMove,
         legalMoves: this.getLegalMoves(),
       });
-    } else {
+    } else if (user?.settings?.premove) {
       const temp = new Chess.Chess(chess.fen());
       const moves = temp.moves();
       let found = false;

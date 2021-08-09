@@ -13,3 +13,8 @@ export const ROLE_DEVELOPER = "developer";
 export const ROLE_LIST_USERS = "list_users";
 
 export const MY_GAMES_MODAL_OPENED = "my_games_modal_opened";
+
+export const NEW_MAIN_LINE_PROPERTY = "new_main_line";
+export const NEW_VARIATION_PROPERTY = "new_variation";
+export const OVERWRITE_PROPERTY = "overwrite";
+export const INSERT_PROPERTY = "insert";
