@@ -315,13 +315,13 @@ describe("PGN Import", function() {
     Game.resignLocalGame("resignLocalGame", game_id);
 
     Game.moveBackward("mi2", game_id, 1);
-    Game.saveLocalMove("c5", game_id, "c5");
+    Game.saveLocalMove("c5", game_id, "c5", {type: "insert", index: 0});
 
     Game.moveBackward("mi3", game_id, 1);
-    Game.saveLocalMove("d5", game_id, "d5");
+    Game.saveLocalMove("d5", game_id, "d5",{type: "insert", index: 0});
 
     Game.moveBackward("mi4", game_id, 1);
-    Game.saveLocalMove("e5", game_id, "e5");
+    Game.saveLocalMove("e5", game_id, "e5",{type: "insert", index: 0});
     const exportedPgn = Game.exportToPGN(game_id);
 
     const examined_game_id = Game.startLocalGame(

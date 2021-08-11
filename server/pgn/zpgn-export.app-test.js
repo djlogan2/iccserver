@@ -72,13 +72,13 @@ describe("PGN exports", function() {
     Game.resignLocalGame("resignLocalGame", game_id);
 
     Game.moveBackward("mi2", game_id, 1);
-    Game.saveLocalMove("c5", game_id, "c5");
+    Game.saveLocalMove("c5", game_id, "c5", {type: "insert", index: 0});
 
     Game.moveBackward("mi3", game_id, 1);
-    Game.saveLocalMove("d5", game_id, "d5");
+    Game.saveLocalMove("d5", game_id, "d5", {type: "insert", index: 0});
 
     Game.moveBackward("mi4", game_id, 1);
-    Game.saveLocalMove("e5", game_id, "e5");
+    Game.saveLocalMove("e5", game_id, "e5", {type: "insert", index: 0});
     const game = Game.GameCollection.findOne({ _id: game_id, status: "examining" });
     chai.assert.isDefined(game, "Game does not exist");
 
@@ -86,7 +86,7 @@ describe("PGN exports", function() {
     let expectedPgn = "1. e4 e5 (1. ... d5)(1. ... c5)(1. ... f5)"
     chai.assert.equal(pgn, expectedPgn);
   });
-  
+
   const game_record = {
     actions: [
       {

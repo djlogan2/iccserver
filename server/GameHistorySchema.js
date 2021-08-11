@@ -31,6 +31,8 @@ const actionSchema = new SimpleSchema({
       "abort_declined",
       "move_backward",
       "move_forward",
+      "premove",
+      "removepremove",
     ],
   },
   parameter: {

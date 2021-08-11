@@ -6,20 +6,20 @@ const OneColorPendingSchema = new SimpleSchema({
   adjourn: String,
   takeback: Object,
   "takeback.number": Number,
-  "takeback.mid": String
+  "takeback.mid": String,
 });
 
 const PendingSchema = new SimpleSchema({
   white: OneColorPendingSchema,
-  black: OneColorPendingSchema
+  black: OneColorPendingSchema,
 });
 
 const actionSchema = new SimpleSchema({
   time: {
     type: Date,
-    autoValue: function() {
-      return new Date()
-    }
+    autoValue: function () {
+      return new Date();
+    },
   },
   issuer: String,
   type: {
@@ -48,12 +48,14 @@ const actionSchema = new SimpleSchema({
       "resign",
       "abort_requested",
       "abort_accepted",
-      "abort_declined"
-    ]
+      "abort_declined",
+      "premove",
+      "removepremove",
+    ],
   },
   parameter: {
     type: SimpleSchema.oneOf(String, Number, Object),
-    optional: true
+    optional: true,
   },
   "parameter.move": { type: String, required: false },
   "parameter.lag": { type: Number, required: false },
@@ -62,14 +64,14 @@ const actionSchema = new SimpleSchema({
   "parameter.gameping": { type: Number, required: false },
   "parameter.what": { type: String, required: false },
   "parameter.childChatId": { type: String, required: false },
-  "parameter.childChatExemptText": { type: String, required: false }
+  "parameter.childChatExemptText": { type: String, required: false },
 });
 
 export const PlayedGameSchema = new SimpleSchema({
   isolation_group: String,
   startTime: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       if (this.isInsert) return new Date();
       else if (this.isUpsert) {
         return { $setOnInsert: new Date() };
@@ -77,7 +79,7 @@ export const PlayedGameSchema = new SimpleSchema({
         this.unset();
         return undefined;
       }
-    }
+    },
   },
   pending: PendingSchema,
   fen: String,
@@ -101,10 +103,10 @@ export const PlayedGameSchema = new SimpleSchema({
         return [
           {
             name: "legacy_game_number and legacy_game_id",
-            type: SimpleSchema.ErrorTypes.REQUIRED
-          }
+            type: SimpleSchema.ErrorTypes.REQUIRED,
+          },
         ];
-    }
+    },
   },
   legacy_game_id: {
     type: String,
@@ -114,10 +116,10 @@ export const PlayedGameSchema = new SimpleSchema({
         return [
           {
             name: "legacy_game_number and legacy_game_id",
-            type: SimpleSchema.ErrorTypes.REQUIRED
-          }
+            type: SimpleSchema.ErrorTypes.REQUIRED,
+          },
         ];
-    }
+    },
   },
   wild: Number,
   rating_type: String,
@@ -129,15 +131,15 @@ export const PlayedGameSchema = new SimpleSchema({
       inc_or_delay: Number,
       delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
       current: SimpleSchema.Integer,
-      starttime: SimpleSchema.Integer
+      starttime: SimpleSchema.Integer,
     }),
     black: new SimpleSchema({
       initial: SimpleSchema.Integer,
       inc_or_delay: Number,
       delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
       current: SimpleSchema.Integer,
-      starttime: SimpleSchema.Integer
-    })
+      starttime: SimpleSchema.Integer,
+    }),
   }),
   white: new SimpleSchema({
     name: String,
@@ -151,9 +153,9 @@ export const PlayedGameSchema = new SimpleSchema({
         if (this.field("legacy_game_number").isSet) set += 1;
         if (set === 5 || set === 3 || set === 6 || set === 7) return;
         return [{ name: "white.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
-      }
+      },
     },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
   }),
   black: new SimpleSchema({
     name: String,
@@ -167,9 +169,9 @@ export const PlayedGameSchema = new SimpleSchema({
         if (this.field("legacy_game_number").isSet) set += 1;
         if (set === 5 || set === 3 || set === 6 || set === 7) return;
         return [{ name: "black.id", type: SimpleSchema.ErrorTypes.REQUIRED }];
-      }
+      },
     },
-    rating: SimpleSchema.Integer
+    rating: SimpleSchema.Integer,
   }),
   skill_level: { type: SimpleSchema.Integer, required: false },
   lag: Object,
@@ -225,5 +227,5 @@ export const PlayedGameSchema = new SimpleSchema({
   "computer_variations.$.$.pv": String,
   "computer_variations.$.$.multipv": Number,
   tags: { type: Object, required: false },
-  "tags.FEN": String
+  "tags.FEN": String,
 });

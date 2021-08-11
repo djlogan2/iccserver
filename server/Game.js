@@ -392,14 +392,15 @@ export class Game {
         return;
       }
 
-      if (!chess.validate_fen(examined_game.fen)) {
-        ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN");
+      const covalid = chess.validate_fen(examined_game.fen);
+      if (!covalid.valid) {
+        ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN", covalid.error);
         return;
       } else chess.load(examined_game.fen);
     }
 
     if (chess.game_over()) {
-      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN");
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_FEN", "Game is over.");
       return;
     }
 
@@ -993,13 +994,14 @@ export class Game {
     return gamelag;
   }
 
-  saveLocalMove(message_identifier, game_id, move) {
+  saveLocalMove(message_identifier, game_id, move, variation) {
     check(message_identifier, String);
     check(game_id, String);
     check(move, String);
     const self = Meteor.user();
     check(self, Object);
-    this.internalSaveLocalMove(self, message_identifier, game_id, move);
+    check(variation, Match.Maybe(Object));
+    this.internalSaveLocalMove(self, message_identifier, game_id, move, false, variation);
   }
 
   removeLocalPremove(message_identifier, game_id) {
@@ -1012,22 +1014,17 @@ export class Game {
     const game = this.GameCollection.findOne({ _id: game_id });
 
     if (!game) {
-      ClientMessages.sendMessageToClient(
-        Meteor.user(),
-        message_identifier,
-        "ILLEGAL_GAME",
-        game_id
-      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "ILLEGAL_GAME", game_id);
       return;
     }
 
     if (!game.premove) {
-      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "NO_PREMOVE", game_id);
+      ClientMessages.sendMessageToClient(self, message_identifier, "NO_PREMOVE");
       return;
     }
 
     if (game.status === "examining") {
-      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "GAME_EXAMINING");
+      ClientMessages.sendMessageToClient(self, message_identifier, "GAME_EXAMINING");
       return;
     }
 
@@ -1045,19 +1042,17 @@ export class Game {
       (game.premove.color === "w" && game.white.id !== self._id) ||
       (game.premove.color === "b" && game.black.id !== self._id)
     ) {
-      ClientMessages.sendMessageToClient(
-        Meteor.user(),
-        message_identifier,
-        "NOT_YOUR_PREMOVE",
-        game._id
-      );
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_YOUR_PREMOVE");
       return;
     }
 
-    this.internalRemoveLocalPremove(message_identifier, game_id);
+    this.GameCollection.update(
+      { _id: game_id, status: "playing" },
+      { $unset: { premove: 1 }, $push: { actions: { issuer: self._id, type: "removepremove" } } }
+    );
   }
 
-  internalSaveLocalPremove(message_identifier, game, move) {
+  internalSaveLocalPremove(message_identifier, self, game, move) {
     const chessObject = active_games[game._id];
     const temp = new Chess.Chess(chessObject.fen());
     const moves = temp.moves();
@@ -1069,7 +1064,10 @@ export class Game {
         result.message_identifier = message_identifier;
         this.GameCollection.update(
           { _id: game._id, status: "playing" },
-          { $set: { premove: result } }
+          {
+            $set: { premove: result },
+            $push: { actions: { issuer: self._id, type: "premove", parameter: move } },
+          }
         );
         return;
       }
@@ -1079,11 +1077,7 @@ export class Game {
     // TODO: Do we delete the premove in this case?
   }
 
-  internalRemoveLocalPremove(message_identifier, game_id) {
-    this.GameCollection.update({ _id: game_id, status: "playing" }, { $set: { premove: null } });
-  }
-
-  internalSaveLocalMove(self, message_identifier, game_id, move, is_premove) {
+  internalSaveLocalMove(self, message_identifier, game_id, move, is_premove, variation_param) {
     const game = this.getAndCheck(self, message_identifier, game_id);
 
     if (!game) return;
@@ -1091,6 +1085,15 @@ export class Game {
     const variation = game.variations;
 
     if (game.status === "playing") {
+      if (variation_param !== undefined)
+        throw new ICCMeteorError(
+          message_identifier,
+          "Variation object is not allowed in internalSaveLocalMove",
+          "Variation objects are not allowed on played games."
+        );
+
+      variation_param = { type: "insert", index: 0 };
+
       const turn_id = chessObject.turn() === "w" ? game.white.id : game.black.id;
       if (self._id !== turn_id) {
         if (self._id === "computer")
@@ -1104,7 +1107,7 @@ export class Game {
             message_identifier,
             "COMMAND_INVALID_NOT_YOUR_MOVE"
           );
-        else this.internalSaveLocalPremove(message_identifier, game, move);
+        else this.internalSaveLocalPremove(message_identifier, self, game, move);
         return;
       }
     } else if (game.examiners.map((e) => e.id).indexOf(self._id) === -1) {
@@ -1138,7 +1141,7 @@ export class Game {
     const unsetobject = {};
     let gamelag = 0;
     let gameping = 0;
-    this.addMoveToMoveList(
+    const client_message = this.addMoveToMoveList(
       variation,
       move,
       game.status === "playing" ? game.clocks[bw].current : null,
@@ -1146,8 +1149,13 @@ export class Game {
       result.color,
       result.from,
       result.to,
-      result.promotion
+      result.promotion,
+      variation_param
     );
+    if (!!client_message) {
+      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, client_message);
+      return;
+    }
 
     this.load_eco(chessObject, variation);
 
@@ -1237,16 +1245,18 @@ export class Game {
       }
     }
 
-    const move_parameter =
-      game.status === "playing"
-        ? {
-            move: move,
-            lag: Timestamp.averageLag(self._id),
-            ping: Timestamp.pingTime(self._id),
-            gamelag: gamelag,
-            gameping: gameping,
-          }
-        : move;
+    const move_parameter = { move: move };
+    if (game.status === "playing") {
+      move_parameter.lag = Timestamp.averageLag(self._id);
+      move_parameter.ping = Timestamp.pingTime(self._id);
+      move_parameter.gamelag = gamelag;
+      move_parameter.gameping = gameping;
+    } else {
+      if (!!variation_param && !!variation_param.type)
+        move_parameter.variationtype = variation_param.type;
+      if (!!variation_param && variation_param.index !== undefined)
+        move_parameter.variationindex = variation_param.index;
+    }
 
     setobject.variations = variation;
     setobject.tomove = otherbw;
@@ -1357,7 +1367,7 @@ export class Game {
             observers: [{ id: self._id, username: self.username }],
             analysis: [{ id: self._id, username: self.username }],
           },
-          $unset: { pending: "" },
+          $unset: { pending: 1, premove: 1 },
         }
       );
 
@@ -1905,7 +1915,7 @@ export class Game {
           $push: {
             actions: { type: "draw", issuer: self._id },
           },
-          $unset: { pending: "" },
+          $unset: { pending: 1, premove: 1 },
           $set: {
             status: "examining",
             result: "1/2-1/2",
@@ -1989,7 +1999,7 @@ export class Game {
             status2: 37,
             examiners: examiners,
           },
-          $unset: { pending: "" },
+          $unset: { pending: 1, premove: 1 },
           $addToSet: {
             observers: {
               $each: examiners,
@@ -2103,7 +2113,7 @@ export class Game {
           status2: 13,
           examiners: examiners,
         },
-        $unset: { pending: "" },
+        $unset: { pending: 1, premove: 1 },
         $addToSet: {
           observers: {
             $each: examiners,
@@ -2163,7 +2173,7 @@ export class Game {
           status2: 30,
           examiners: examiners,
         },
-        $unset: { pending: "" },
+        $unset: { pending: 1, premove: 1 },
         $addToSet: {
           observers: {
             $each: examiners,
@@ -2219,7 +2229,7 @@ export class Game {
           status2: 24,
           examiners: examiners,
         },
-        $unset: { pending: "" },
+        $unset: { pending: 1, premove: 1 },
         $addToSet: {
           observers: {
             $each: examiners,
@@ -2575,7 +2585,7 @@ export class Game {
         $push: {
           actions: { type: action_string, issuer: userId },
         },
-        $unset: { pending: 1 },
+        $unset: { pending: 1, premove: 1 },
         $set: {
           status: "examining",
           examiners: examiners,
@@ -2664,7 +2674,8 @@ export class Game {
   }
 
   deleteVariationNode(movelist, cmi) {
-    if (!cmi) throw new Meteor.error("INVALID_CMI");
+    if (cmi === undefined) throw new Meteor.Error("INVALID_CMI");
+    if (cmi < 0 || cmi >= movelist.length) throw new Meteor.Error("INVALID_CMI");
     const new_movelist = [];
     this.rebuildVariationNodes(cmi, movelist, new_movelist, 0);
     return new_movelist;
@@ -3008,7 +3019,17 @@ export class Game {
     }
   }
 
-  addMoveToMoveList(variation_object, move, current, piece, color, from, to, promotion) {
+  addMoveToMoveList(
+    variation_object,
+    move,
+    current,
+    piece,
+    color,
+    from,
+    to,
+    promotion,
+    variation_param
+  ) {
     const exists = this.findVariation(move, variation_object.cmi, variation_object.movelist);
 
     if (exists) {
@@ -3018,23 +3039,65 @@ export class Game {
       );
       variation_object.movelist[variation_object.cmi].variations.unshift(exists);
       variation_object.cmi = exists;
-    } else {
-      const newi = variation_object.movelist.length;
-      variation_object.movelist.push({
-        move: move,
-        smith: { piece, color, from, to, promotion },
-        prev: variation_object.cmi,
-        current: current,
-      });
-
-      if (!variation_object.movelist[variation_object.cmi].variations) {
-        variation_object.movelist[variation_object.cmi].variations = [newi];
-      } else {
-        variation_object.movelist[variation_object.cmi].variations.unshift(newi);
-      }
-      variation_object.cmi = newi;
+      return;
     }
-    return !exists;
+
+    const has_variations =
+      !!variation_object.movelist[variation_object.cmi].variations &&
+      variation_object.movelist[variation_object.cmi].variations.length;
+
+    if (has_variations) {
+      if (!variation_param) return "INVALID_VARIATION_ACTION";
+      if (variation_param.type === "replace") {
+        if (
+          variation_param.index === undefined ||
+          variation_param.index < 0 ||
+          variation_param.index >= variation_object.movelist[variation_object.cmi].variations.length
+        )
+          return "INVALID_VARIATION_INDEX";
+        variation_object.movelist = this.deleteVariationNode(
+          variation_object.movelist,
+          variation_object.movelist[variation_object.cmi].variations[variation_param.index]
+        );
+      }
+    }
+
+    const newi = variation_object.movelist.length;
+
+    variation_object.movelist.push({
+      move: move,
+      smith: { piece, color, from, to, promotion },
+      prev: variation_object.cmi,
+      current: current,
+    });
+
+    if (has_variations) {
+      switch (variation_param.type) {
+        case "replace":
+        case "insert":
+          if (
+            variation_param.index === undefined ||
+            variation_param.index < 0 ||
+            variation_param.index > // This has to be > and not >= because an insert can "insert" at the end
+              variation_object.movelist[variation_object.cmi].variations.length
+          )
+            return "INVALID_VARIATION_INDEX";
+          variation_object.movelist[variation_object.cmi].variations.splice(
+            variation_param.index,
+            0,
+            newi
+          );
+          break;
+        case "append":
+          if (variation_param.index !== undefined) return "INVALID_VARIATION_INDEX";
+          variation_object.movelist[variation_object.cmi].variations.push(newi);
+          break;
+        default:
+          return "INVALID_VARIATION_ACTION";
+      }
+    } // No variations, so push/append
+    else variation_object.movelist[variation_object.cmi].variations = [newi];
+    variation_object.cmi = newi;
   }
 
   recursive_eco(chess_obj, movelist, cmi) {

@@ -6,6 +6,7 @@ import { Random } from "meteor/random";
 import AWS from "aws-sdk";
 import { Meteor } from "meteor/meteor";
 import { Singular } from "./singular";
+import { ClientMessages } from "../imports/collections/ClientMessages";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/engine_manager_js");
@@ -50,19 +51,23 @@ function awsDoIt(game) {
       }
 
       if (!data || !data.Payload) {
-        error("game=" + game._id + ":'data or its payload is null', payload=" + data)
+        error(
+          "game=" + game._id + ":'data or its payload is null', payload=" + JSON.stringify(data)
+        );
         reject("data or its Payload is null");
         return;
       }
       const payload = JSON.parse(data.Payload);
       if (!payload || !payload.body) {
-        error("game=" + game._id + ":'payload or its body is null', payload=" + data)
+        error(
+          "game=" + game._id + ":'payload or its body is null', payload=" + JSON.stringify(data)
+        );
         reject("payload or its body is null");
         return;
       }
       const body = JSON.parse(payload.body);
       if (!body) {
-        error("game=" + game._id + ":'body is null', payload=" + data);
+        error("game=" + game._id + ":'body is null', payload=" + JSON.stringify(data));
         reject("body is null");
         return;
       }
@@ -85,6 +90,7 @@ const playGameMove = Meteor.bindEnvironment((game_id) => {
   if (game.white.id === "computer" && game.tomove !== "white") return;
   if (game.black.id === "computer" && game.tomove !== "black") return;
   if (game.status !== "playing") return;
+
   const bookEntry = Book.findBook(game.fen);
   if (!!bookEntry) {
     let wt = bookEntry.entries.length;
@@ -111,16 +117,29 @@ const playGameMove = Meteor.bindEnvironment((game_id) => {
     return;
   }
 
-  awsDoIt(game).then((result) => {
-    const chess = new Chess.Chess(game.fen);
-    const cmove = chess.move(result.bestmove, { sloppy: true });
-    Game.internalSaveLocalMove(
-      { _id: "computer", username: "Computer" },
-      "__computer__",
-      game_id,
-      cmove.san
-    );
-  });
+  awsDoIt(game)
+    .then((result) => {
+      const chess = new Chess.Chess(game.fen);
+      const cmove = chess.move(result.bestmove, { sloppy: true });
+      Game.internalSaveLocalMove(
+        { _id: "computer", username: "Computer" },
+        "__computer__",
+        game_id,
+        cmove.san
+      );
+    })
+    .catch((e) => {
+      log.error(
+        "Error returned from the engine. Resigning this game with a client message: " +
+          JSON.stringify(e)
+      );
+      ClientMessages.sendMessageToClient(
+        game[game.tomove].id,
+        "__computer__",
+        "COMPUTER_RETURNED_ERROR"
+      );
+      Game._resignLocalGame("__computer__", game, "computer", 0);
+    });
 });
 
 function watchForComputerGames() {

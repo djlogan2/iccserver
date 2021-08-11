@@ -148,16 +148,20 @@ const DefinedClientMessagesMap = {
   ILLEGAL_GAME: { parameters: ["game_id"] },
   NOT_YOUR_GAME: { parameters: ["game_id"] },
   GAME_EXAMINING: {},
-  NO_PREMOVE: { parameters: ["game_id"] },
+  NO_PREMOVE: {},
+  NOT_YOUR_PREMOVE: {},
   NOT_PLAYING_OR_EXAMINING: {},
   USER_DECLINED_INVITE: {},
   TOO_MANY_PRIVATE_ROOMS: {},
-  INVALID_FEN: {},
+  INVALID_FEN: { parameters: ["msg"] },
   GAME_NOT_FOUND: {},
   OVERLAPPING_RATING: { parameters: ["rating_type"] },
   UNABLE_TO_CHANGE_USERNAME: {},
   UNABLE_TO_CHANGE_EMAIL: {},
   INVALID_PLAYING_STATUS: {},
+  INVALID_VARIATION_ACTION: {},
+  INVALID_VARIATION_INDEX: {},
+  COMPUTER_RETURNED_ERROR: {},
 };
 
 class ClientMessages {

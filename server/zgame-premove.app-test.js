@@ -168,8 +168,8 @@ describe("premove", function (done) {
     Game.localAddObserver("m2", game_id, p3._id);
     Game.removeLocalPremove("remove_local_premove", game_id);
 
-    const game = Game.findOne({});
-    chai.assert.isDefined(game.permove);
+    const game = Game.GameCollection.findOne({});
+    chai.assert.isDefined(game.premove);
 
     chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_YOUR_GAME");
@@ -196,14 +196,22 @@ describe("premove", function (done) {
       "white"
     );
 
+    self.loggedonuser = p2;
+    Game.saveLocalMove("m2a", game_id, "e5");
+
+    self.loggedonuser = p1;
     Game.requestLocalDraw("m2", game_id);
+    const game1 = Game.GameCollection.findOne();
+    chai.assert.isDefined(game1.premove);
 
     self.loggedonuser = p2;
     Game.acceptLocalDraw("m3", game_id);
+    const game2 = Game.GameCollection.findOne();
+    chai.assert.isUndefined(game2.premove);
     Game.removeLocalPremove("m4", game_id);
 
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_EXAMINING");
+    chai.assert.isTrue(self.clientMessagesSpy.calledThrice);
+    chai.assert.equal(self.clientMessagesSpy.args[2][2], "NO_PREMOVE");
   });
 
   it("should send a client message if there is no premove to cancel", () => {
@@ -260,5 +268,33 @@ describe("premove", function (done) {
 
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_YOUR_PREMOVE");
+  });
+
+  it("should add a premove action to the action array", function(){
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi2", game_id, "e5");
+    const game = Game.GameCollection.findOne();
+    chai.assert.isDefined(game.premove);
+    chai.assert.equal(game.actions[0].type, "premove");
+    chai.assert.equal(game.actions[0].parameter, "e5");
+  });
+
+  it("should add a premove delete action to the action array", function(){
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
+    self.loggedonuser = p2;
+    Game.saveLocalMove("mi2", game_id, "e5");
+    Game.removeLocalPremove("mi3", game_id);
+    const game = Game.GameCollection.findOne();
+    chai.assert.isTrue(!game.premove);
+    chai.assert.equal(game.actions[0].type, "premove");
+    chai.assert.equal(game.actions[0].parameter, "e5");
+    chai.assert.equal(game.actions[1].type, "removepremove");
   });
 });

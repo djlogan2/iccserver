@@ -74,7 +74,7 @@ class Editor extends Component {
     let flags = serverFen.split(" ").slice(1).join(" ");
 
     const sigh = `${miniFen} ${flags}`;
-    log.debug("sigh=" + sigh + ", validate=", chess.validate_fen(sigh));
+    log.debug("sigh=" + sigh + ", validate=", JSON.stringify(chess.validate_fen(sigh)));
     return sigh;
   };
 

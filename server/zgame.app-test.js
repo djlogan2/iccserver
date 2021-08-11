@@ -3163,11 +3163,11 @@ describe("Game.moveBackward", function () {
     Game.moveBackward("mi3", game_id);
     const game = Game.collection.findOne({ _id: game_id });
     checkLastAction(game, 0, "move_backward", examiner._id, 1);
-    checkLastAction(game, 1, "move", examiner._id, "e4");
+    checkLastAction(game, 1, "move", examiner._id, {move: "e4"});
     Game.saveLocalMove("mi2", game_id, "e4");
     Game.moveBackward("mi3", game_id, 1);
     checkLastAction(game, 0, "move_backward", examiner._id, 1);
-    checkLastAction(game, 1, "move", examiner._id, "e4");
+    checkLastAction(game, 1, "move", examiner._id, {move: "e4"});
   });
 
   it("move back multiple moves if a number > 1 i specified", function () {
@@ -3180,11 +3180,11 @@ describe("Game.moveBackward", function () {
     Game.moveBackward("mi3", game_id, 3);
     const game = Game.collection.findOne({ _id: game_id });
     checkLastAction(game, 0, "move_backward", examiner._id, 3);
-    checkLastAction(game, 1, "move", examiner._id, "Be7");
-    Game.saveLocalMove("mi2", game_id, "Na6");
+    checkLastAction(game, 1, "move", examiner._id, {move: "Be7"});
+    Game.saveLocalMove("mi2", game_id, "Na6", {type: "insert", index: 0});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game2 = Game.collection.findOne({ _id: game_id });
-    checkLastAction(game2, 0, "move", examiner._id, "Na6");
+    checkLastAction(game2, 0, "move", examiner._id, {move: "Na6", variationtype: "insert", variationindex: 0});
     checkLastAction(game2, 1, "move_backward", examiner._id, 3);
   });
 
@@ -3204,27 +3204,27 @@ describe("Game.moveBackward", function () {
     Game.saveLocalMove("mi3", game_id, "Nf3");
     Game.saveLocalMove("mi4", game_id, "Nc6");
     Game.moveBackward("mi5", game_id, 2);
-    Game.saveLocalMove("mi6", game_id, "Ne2");
+    Game.saveLocalMove("mi6", game_id, "Ne2", {type: "insert", index: 0});
     Game.saveLocalMove("mi7", game_id, "Nc6");
     Game.saveLocalMove("mi8", game_id, "g3");
     Game.saveLocalMove("mi9", game_id, "g6");
     Game.moveBackward("mi10", game_id, 3);
-    Game.saveLocalMove("mi11", game_id, "Nh6");
+    Game.saveLocalMove("mi11", game_id, "Nh6", {type: "insert", index: 0});
 
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({});
 
-    checkLastAction(game, 0, "move", self.loggedonuser._id, "Nh6");
+    checkLastAction(game, 0, "move", self.loggedonuser._id, {move: "Nh6", variationtype: "insert", variationindex: 0});
     checkLastAction(game, 1, "move_backward", self.loggedonuser._id, 3);
-    checkLastAction(game, 2, "move", self.loggedonuser._id, "g6");
-    checkLastAction(game, 3, "move", self.loggedonuser._id, "g3");
-    checkLastAction(game, 4, "move", self.loggedonuser._id, "Nc6");
-    checkLastAction(game, 5, "move", self.loggedonuser._id, "Ne2");
+    checkLastAction(game, 2, "move", self.loggedonuser._id, {move: "g6"});
+    checkLastAction(game, 3, "move", self.loggedonuser._id, {move: "g3"});
+    checkLastAction(game, 4, "move", self.loggedonuser._id, {move: "Nc6"});
+    checkLastAction(game, 5, "move", self.loggedonuser._id, {move: "Ne2", variationtype: "insert", variationindex: 0});
     checkLastAction(game, 6, "move_backward", self.loggedonuser._id, 2);
-    checkLastAction(game, 7, "move", self.loggedonuser._id, "Nc6");
-    checkLastAction(game, 8, "move", self.loggedonuser._id, "Nf3");
-    checkLastAction(game, 9, "move", self.loggedonuser._id, "e5");
-    checkLastAction(game, 10, "move", self.loggedonuser._id, "e4");
+    checkLastAction(game, 7, "move", self.loggedonuser._id, {move: "Nc6"});
+    checkLastAction(game, 8, "move", self.loggedonuser._id, {move: "Nf3"});
+    checkLastAction(game, 9, "move", self.loggedonuser._id, {move: "e5"});
+    checkLastAction(game, 10, "move", self.loggedonuser._id,{move: "e4"});
   });
 });
 
@@ -3254,58 +3254,58 @@ describe("Takebacks", function () {
     );
 
     const actions = [
-      { type: "move", parameter: "e4" },
-      { type: "move", parameter: "e5" },
-      { type: "move", parameter: "Nf3" },
-      { type: "move", parameter: "Nc6" },
-      { type: "move", parameter: "Bc4" },
-      { type: "move", parameter: "Be7" },
-      { type: "move", parameter: "d4" },
-      { type: "move", parameter: "Nxd4" },
-      { type: "move", parameter: "c3" },
-      { type: "move", parameter: "d5" },
-      { type: "move", parameter: "exd5" },
-      { type: "move", parameter: "b5" },
-      { type: "move", parameter: "cxd4" },
-      { type: "move", parameter: "bxc4" },
+      { type: "move", parameter: {move: "e4" }},
+      { type: "move", parameter: {move: "e5" }},
+      { type: "move", parameter: {move: "Nf3" }},
+      { type: "move", parameter: {move: "Nc6" }},
+      { type: "move", parameter: {move: "Bc4" }},
+      { type: "move", parameter: {move: "Be7" }},
+      { type: "move", parameter: {move: "d4" }},
+      { type: "move", parameter: {move: "Nxd4" }},
+      { type: "move", parameter: {move: "c3" }},
+      { type: "move", parameter: {move: "d5" }},
+      { type: "move", parameter: {move: "exd5" }},
+      { type: "move", parameter: {move: "b5" }},
+      { type: "move", parameter: {move: "cxd4" }},
+      { type: "move", parameter: {move: "bxc4" }},
       { type: "takeback_requested", parameter: 8 },
       { type: "takeback_accepted" },
-      { type: "move", parameter: "c3" },
-      { type: "move", parameter: "d6" },
-      { type: "move", parameter: "d4" },
-      { type: "move", parameter: "exd4" },
-      { type: "move", parameter: "cxd4" },
+      { type: "move", parameter: {move: "c3" }},
+      { type: "move", parameter: {move: "d6" }},
+      { type: "move", parameter: {move: "d4" }},
+      { type: "move", parameter: {move: "exd4" }},
+      { type: "move", parameter: {move: "cxd4" }},
       { type: "takeback_requested", parameter: 7 },
       { type: "takeback_accepted" },
-      { type: "move", parameter: "Be2" },
-      { type: "move", parameter: "Be7" },
-      { type: "move", parameter: "O-O" },
-      { type: "move", parameter: "d5" },
+      { type: "move", parameter: {move: "Be2" }},
+      { type: "move", parameter: {move: "Be7" }},
+      { type: "move", parameter: {move: "O-O" }},
+      { type: "move", parameter: {move: "d5" }},
       { type: "takeback_requested", parameter: 2 },
       { type: "takeback_accepted" },
-      { type: "move", parameter: "c3" },
-      { type: "move", parameter: "d6" },
-      { type: "move", parameter: "d4" },
+      { type: "move", parameter: {move: "c3"} },
+      { type: "move", parameter: {move: "d6"} },
+      { type: "move", parameter: {move: "d4"} },
       { type: "takeback_requested", parameter: 2 },
       { type: "takeback_accepted" },
-      { type: "move", parameter: "d5" },
-      { type: "move", parameter: "d4" },
+      { type: "move", parameter: {move: "d5"} },
+      { type: "move", parameter: {move: "d4"} },
       { type: "takeback_requested", parameter: 7 },
       { type: "takeback_accepted" },
-      { type: "move", parameter: "f4" },
-      { type: "move", parameter: "Nc6" },
-      { type: "move", parameter: "Nf3" },
+      { type: "move", parameter: {move: "f4" }},
+      { type: "move", parameter: {move: "Nc6" }},
+      { type: "move", parameter: {move: "Nf3" }},
       { type: "takeback_requested", parameter: 3 },
       { type: "takeback_accepted" },
-      { type: "move", parameter: "Nf3" },
-      { type: "move", parameter: "Nc6" },
-      { type: "move", parameter: "Bc4" },
-      { type: "move", parameter: "Be7" },
-      { type: "move", parameter: "c3" },
-      { type: "move", parameter: "d6" },
-      { type: "move", parameter: "d4" },
-      { type: "move", parameter: "exd4" },
-      { type: "move", parameter: "cxd4" },
+      { type: "move", parameter: {move: "Nf3" }},
+      { type: "move", parameter: {move: "Nc6" }},
+      { type: "move", parameter: {move: "Bc4" }},
+      { type: "move", parameter: {move: "Be7" }},
+      { type: "move", parameter: {move: "c3" }},
+      { type: "move", parameter: {move: "d6" }},
+      { type: "move", parameter: {move: "d4" }},
+      { type: "move", parameter: {move: "exd4" }},
+      { type: "move", parameter: {move: "cxd4" }},
     ];
 
     actions.forEach((action) => {
@@ -3313,7 +3313,7 @@ describe("Takebacks", function () {
       switch (action.type) {
         case "move":
           self.loggedonuser = player[tomove];
-          Game.saveLocalMove(action.parameter, game_id, action.parameter);
+          Game.saveLocalMove(action.parameter.move, game_id, action.parameter.move);
           break;
         case "takeback_requested":
           self.loggedonuser = player[tomove];
@@ -3419,10 +3419,10 @@ describe("Game.moveForward", function () {
       movecount: 3,
     });
     checkLastAction(game, 1, "move_backward", us._id, 3);
-    checkLastAction(game, 2, "move", us._id, "Nc6");
-    checkLastAction(game, 3, "move", us._id, "Nf3");
-    checkLastAction(game, 4, "move", us._id, "e5");
-    checkLastAction(game, 5, "move", us._id, "e4");
+    checkLastAction(game, 2, "move", us._id, {move: "Nc6"});
+    checkLastAction(game, 3, "move", us._id, {move: "Nf3"});
+    checkLastAction(game, 4, "move", us._id, {move: "e5"});
+    checkLastAction(game, 5, "move", us._id, {move: "e4"});
   });
 
   it("writes a client message if there is no move to go to", function () {
@@ -3452,7 +3452,7 @@ describe("Game.moveForward", function () {
     Game.saveLocalMove("mi4", game_id, "Nf3");
     Game.saveLocalMove("mi5", game_id, "Nc6");
     Game.moveBackward("mi6", game_id, 3);
-    Game.saveLocalMove("mi7", game_id, "c5");
+    Game.saveLocalMove("mi7", game_id, "c5", {type: "insert", index: 0});
     Game.moveBackward("mi8", game_id);
     Game.moveForward("mi9", game_id, 2);
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
@@ -3470,7 +3470,7 @@ describe("Game.moveForward", function () {
     Game.saveLocalMove("mi4", game_id, "Nf3");
     Game.saveLocalMove("mi5", game_id, "Nc6");
     Game.moveBackward("mi6", game_id, 3);
-    Game.saveLocalMove("mi7", game_id, "c5");
+    Game.saveLocalMove("mi7", game_id, "c5", {type: "insert", index: 0});
     Game.moveBackward("mi8", game_id);
     Game.moveForward("mi9", game_id, 1, 1);
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
@@ -3507,14 +3507,14 @@ describe("Game.moveForward", function () {
     Game.saveLocalMove("mi4", game_id, "Nf3");
     Game.saveLocalMove("mi5", game_id, "Nc6");
     Game.moveBackward("mi6", game_id, 3);
-    Game.saveLocalMove("mi7", game_id, "c5");
+    Game.saveLocalMove("mi7", game_id, "c5", {type: "insert", index: 0});
     Game.moveBackward("mi8", game_id);
     Game.moveForward("mi9", game_id, 1, 0);
-    Game.saveLocalMove("mi10", game_id, "d4");
+    Game.saveLocalMove("mi10", game_id, "d4", {type: "insert", index: 0});
     Game.saveLocalMove("mi11", game_id, "c4"); // Will fail if not for the previous c5
     Game.moveBackward("mi12", game_id, 3);
     Game.moveForward("mi13", game_id, 3, 1);
-    Game.saveLocalMove("mi14", game_id, "c4");
+    Game.saveLocalMove("mi14", game_id, "c4", {type: "insert", index: 0});
     Game.saveLocalMove("mi15", game_id, "a5");
     Game.saveLocalMove("mi16", game_id, "c5"); // Will fail if we are still on the c5 branch
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
@@ -4351,7 +4351,7 @@ describe("Starting an examined game", function () {
       // rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2
       Game.saveLocalMove("Nf3", game_id, "Nf3");
       Game.moveBackward("mb", game_id, 2);
-      Game.saveLocalMove("e5", game_id, "e5");
+      Game.saveLocalMove("e5", game_id, "e5", {type: "insert", index: 0});
       // rnbqkbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR b KQkq - 1 2
       Game.saveLocalMove("Bc4", game_id, "Bc4");
 
