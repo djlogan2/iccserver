@@ -162,6 +162,7 @@ const DefinedClientMessagesMap = {
   INVALID_VARIATION_ACTION: {},
   INVALID_VARIATION_INDEX: {},
   COMPUTER_RETURNED_ERROR: {},
+  SEEK_NOT_FOUND: {}
 };
 
 class ClientMessages {

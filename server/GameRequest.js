@@ -403,11 +403,15 @@ GameRequests.removeGameSeek = function (message_identifier, seek_id) {
   check(self, Object);
 
   const request = GameRequestCollection.findOne({ _id: seek_id });
-  if (!request)
-    throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
+  if (!request) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "SEEK_NOT_FOUND");
+    return;
+  }
 
-  if (self._id !== request.owner)
-    throw new ICCMeteorError(message_identifier, "Cannot remove another users game seek");
+  if (self._id !== request.owner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
 
   if (request.type !== "seek")
     throw new ICCMeteorError(
@@ -425,12 +429,19 @@ GameRequests.acceptGameSeek = function (message_identifier, seek_id) {
   check(message_identifier, String);
 
   const request = GameRequestCollection.findOne({ _id: seek_id });
-  if (!request)
-    throw new ICCMeteorError(message_identifier, "Unable to find seek with id " + seek_id);
-  if (self._id === request.owner)
-    throw new ICCMeteorError(message_identifier, "Cannot accept a seek from yourself");
+  if (!request) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "SEEK_NOT_FOUND");
+    return;
+  }
+
+  if (self._id === request.owner) {
+    ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
+    return;
+  }
+
   if (request.type !== "seek")
     throw new ICCMeteorError(message_identifier, "Cannot accept a non-local seek");
+
   if (!Users.isAuthorized(self, request.rated ? "play_rated_games" : "play_unrated_games")) {
     ClientMessages.sendMessageToClient(
       self,

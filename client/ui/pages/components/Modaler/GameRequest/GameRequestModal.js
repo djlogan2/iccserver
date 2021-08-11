@@ -14,7 +14,9 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../../lib/client/Logger";
 
-const log = new Logger("server/i18n_js");
+// PLEASE don't copy and paste and leave "server" in client files.
+// There are errors in the log that look like they are from the server, but now we do not know.
+const log = new Logger("client/i18n_js");
 
 class GameRequestModal extends Component {
   handleCancelSeek = () => {
