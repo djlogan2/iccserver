@@ -97,7 +97,6 @@ class FenPgn extends Component {
           onPgnUpload(fileRef);
           this.handlePgnLoaded();
         },
-        //streams: "dynamic",
         chunkSize: "dynamic",
       });
     }

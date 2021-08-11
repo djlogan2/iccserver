@@ -92,8 +92,8 @@ class EditorRightSidebar extends Component {
               value={color}
               onChange={this.handleColor}
             >
-              <Radio.Button value={colorWhiteLetter}>{translate("whiteToPlay")}</Radio.Button>
-              <Radio.Button value={colorBlackLetter}>{translate("blackToPlay")}</Radio.Button>
+              <Radio.Button disabled={color === colorWhite} value={colorWhiteLetter}>{translate("whiteToPlay")}</Radio.Button>
+              <Radio.Button disabled={color === colorBlack} value={colorBlackLetter}>{translate("blackToPlay")}</Radio.Button>
             </Radio.Group>
           </div>
           <div className={classes.castling}>

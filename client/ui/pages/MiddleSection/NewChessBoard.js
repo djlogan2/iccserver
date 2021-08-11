@@ -26,9 +26,15 @@ class NewChessBoard extends Component {
 
   componentDidMount() {
     const { chess, premove } = this.props;
+    const { premove: statePremove } = this.state;
 
     this.setState({ legalMoves: this.getLegalMoves(), fen: chess.fen() });
     this.getArrowsDependOnPremove(premove);
+
+    const user = Meteor.user();
+    if (!statePremove && !this.isCurrentTurn() && user?.settings?.premove) {
+      this.setState({ premove: true });
+    }
   }
 
   getArrowsDependOnPremove = (premove) => {
@@ -46,7 +52,7 @@ class NewChessBoard extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     const { chess, premove } = this.props;
-    const { fen } = this.state;
+    const { fen, premove: statePremove } = this.state;
 
     if (!isEqual(premove, prevProps.premove)) {
       this.getArrowsDependOnPremove(premove);
@@ -60,6 +66,11 @@ class NewChessBoard extends Component {
         arrows: [],
         circles: [],
       });
+    }
+
+    const user = Meteor.user();
+    if (!statePremove && !this.isCurrentTurn() && user?.settings?.premove) {
+      this.setState({ premove: true });
     }
   }
 
