@@ -27,6 +27,8 @@ class Editor extends Component {
   constructor(props) {
     super(props);
 
+    this.chess = new Chess.Chess();
+
     this.state = {
       whiteCastling: [],
       blackCastling: [],
@@ -41,11 +43,21 @@ class Editor extends Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    const { examineGame } = this.props;
+
+    if (examineGame && this.chess.fen() !== examineGame.fen) {
+      this.chess.load(examineGame.fen);
+    }
+  }
+
   setInitial = () => {
     const { examineGame } = this.props;
 
     const fenParser = new FenParser(examineGame.fen);
     const { whiteCastling, blackCastling } = this.getCastling(fenParser.castles);
+
+    this.chess.load(examineGame.fen);
 
     this.setState({ whiteCastling, blackCastling });
   };
@@ -238,16 +250,12 @@ class Editor extends Component {
   handleMove = (currentMove) => {
     const { examineGame } = this.props;
 
-    const chess = new Chess.Chess();
+    const currentSquare = this.chess.get(currentMove[0]);
 
-    chess.load(examineGame.fen);
-    const currentSquare = chess.get(currentMove[0]);
+    this.chess.remove(currentMove[0]);
+    this.chess.put(currentSquare, currentMove[1]);
 
-    chess.remove(currentMove[0]);
-
-    chess.put(currentSquare, currentMove[1]);
-
-    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), (err) => {
+    Meteor.call("loadFen", "loadFen", examineGame._id, this.chess.fen(), (err) => {
       if (err) {
         log.error(err.reason);
       }
@@ -260,13 +268,11 @@ class Editor extends Component {
 
   handlePieceAdd = (piece, square) => {
     const { examineGame } = this.props;
-    const chess = new Chess.Chess();
 
-    chess.load(examineGame.fen);
-    const isAdded = chess.put({ type: piece[1].toLowerCase(), color: piece[0] }, square);
+    const isAdded = this.chess.put({ type: piece[1].toLowerCase(), color: piece[0] }, square);
 
     if (isAdded) {
-      Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), (err) => {
+      Meteor.call("loadFen", "loadFen", examineGame._id, this.chess.fen(), (err) => {
         if (err) {
           log.error(err.reason);
         }
@@ -278,12 +284,9 @@ class Editor extends Component {
 
   handlePieceDelete = (square) => {
     const { examineGame } = this.props;
-    const chess = new Chess.Chess();
 
-    chess.load(examineGame.fen);
-    chess.remove(square);
-
-    Meteor.call("loadFen", "loadFen", examineGame._id, chess.fen(), (err) => {
+    this.chess.remove(square);
+    Meteor.call("loadFen", "loadFen", examineGame._id, this.chess.fen(), (err) => {
       if (err) {
         log.error(err.reason);
       }
@@ -327,7 +330,7 @@ class Editor extends Component {
                   },
                 }}
                 perspective={orientation}
-                fen={examineGame.fen}
+                fen={this.chess.fen()}
                 boardSquares={{
                   light: { default: "#FFFFFF", active: "#9c9c9c" },
                   dark: { default: "#1565c0", active: "#1255A1" },
