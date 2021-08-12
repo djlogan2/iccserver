@@ -17,7 +17,7 @@ import { Logger } from "../../../../lib/client/Logger";
 import AppWrapper from "../components/AppWrapper/AppWrapper";
 import { getBoardSquares, isReadySubscriptions } from "../../../utils/utils";
 import ChessBoard, { PiecesSidebar } from "chessboard";
-import { colorBlack, colorWhite } from "../../../constants/gameConstants";
+import { colorBlack, colorWhite, gameStatusPlaying } from "../../../constants/gameConstants";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
 
@@ -220,7 +220,7 @@ class Editor extends Component {
     const { gameStatus } = this.props;
     const { circles } = this.state;
 
-    if (gameStatus === "playing") {
+    if (gameStatus === gameStatusPlaying) {
       return;
     }
 
