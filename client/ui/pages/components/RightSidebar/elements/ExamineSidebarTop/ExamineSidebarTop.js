@@ -89,8 +89,8 @@ class ExamineSidebarTop extends Component {
     } = this.props;
 
     return (
-      <div className={classes.renderMoveWrapper}>
-        <div className={classes.renderMove}>
+      <div className={classes.renderMoveWrapper} style={{ height: "100%" }}>
+        <div className={classes.renderMove} style={{ height: "100%" }}>
           <Actions playComputer={this.playComputer} />
           <GameHistory
             cssManager={cssManager}

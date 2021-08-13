@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import ExaminePage from "../components/ExaminePage/ExaminePage";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import { get } from "lodash";
 import { Logger } from "../../../../lib/client/Logger";
 import CssManager from "../components/Css/CssManager";
 import Loading from "../components/Loading/Loading";
@@ -150,7 +151,12 @@ class Examine extends Component {
   _pieceSquareDragStop = (raf) => {
     const { game } = this.props;
 
-    Meteor.call("addGameMove", "gameMove", game._id, raf.move);
+    const currentCmi = get(game, "variations.cmi");
+    const currentVariation = get(game, `variations.movelist[${currentCmi}].variations`, []);
+
+    const variation = currentVariation.length ? { type: "append" } : null;
+
+    Meteor.call("addGameMove", "gameMove", game._id, raf.move, variation);
   };
 
   handleObserveUser = (userId) => {

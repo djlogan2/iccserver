@@ -11,9 +11,6 @@ export default class MoveList extends Component {
   constructor(props) {
     super(props);
 
-    this.cmi = 0;
-    this.moveListRow = [];
-
     this.state = {
       cmi: 0,
     };
@@ -50,6 +47,7 @@ export default class MoveList extends Component {
 
     let moveListString = "";
     if (game?.variations?.movelist?.length) {
+      console.log(game.variations.movelist);
       moveListString = buildPgnFromMovelist(
         game.variations.movelist,
         true,
@@ -58,17 +56,9 @@ export default class MoveList extends Component {
       );
     }
 
-    const btnstyle = cssManager.buttonStyle();
-    Object.assign(btnstyle, {
-      background: "#f1f1f1",
-      borderRadius: "5px",
-      margin: "5px",
-      padding: "6px 25px",
-    });
-
     return (
-      <div style={{ background: "#EFF0F3" }}>
-        <div style={cssManager.gameMoveList()}>{moveListString}</div>
+      <div style={{ background: "#EFF0F3", overflow: "auto", height: "100%" }}>
+        <div style={{ ...cssManager.gameMoveList() }}>{moveListString}</div>
       </div>
     );
   }
