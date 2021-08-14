@@ -22,6 +22,7 @@ const error = Meteor.bindEnvironment((msg) => log.error(msg));
 
 function awsDoIt(game) {
   return new Promise((resolve, reject) => {
+    log.debug("awsDoIt promise 1");
     let wtime = parseInt(game.clocks.white.current / 4);
     let btime = parseInt(game.clocks.black.current / 4);
     if (wtime === 0) wtime = 250;
@@ -44,12 +45,15 @@ function awsDoIt(game) {
       }),
     };
     const start = new Date();
+    debug("awsDoIt promise 2");
     lambda.invoke(params, (err, data) => {
+      debug("lambda invoke returns: err=" + JSON.stringify(err) + ", data=" + JSON.stringify(data));
       if (err || !data) {
         reject(err);
         return;
       }
 
+      debug("awsDoIt promise 3");
       if (!data || !data.Payload) {
         error(
           "game=" + game._id + ":'data or its payload is null', payload=" + JSON.stringify(data)
@@ -57,7 +61,9 @@ function awsDoIt(game) {
         reject("data or its Payload is null");
         return;
       }
+      debug("awsDoIt promise 4");
       const payload = JSON.parse(data.Payload);
+      debug("awsDoIt promise 5");
       if (!payload || !payload.body) {
         error(
           "game=" + game._id + ":'payload or its body is null', payload=" + JSON.stringify(data)
@@ -65,7 +71,9 @@ function awsDoIt(game) {
         reject("payload or its body is null");
         return;
       }
+      debug("awsDoIt promise 6");
       const body = JSON.parse(payload.body);
+      debug("awsDoIt promise 7");
       if (!body) {
         error("game=" + game._id + ":'body is null', payload=" + JSON.stringify(data));
         reject("body is null");
@@ -79,6 +87,7 @@ function awsDoIt(game) {
       //
       // You can use time_diff/2 for lag if you wish
       //const time_diff = server_time - lambda_time;
+      debug("awsDoIt promise 8");
       resolve(body.results);
     });
   });
@@ -119,14 +128,18 @@ const playGameMove = Meteor.bindEnvironment((game_id) => {
 
   awsDoIt(game)
     .then((result) => {
+      log.debug("awsDoIt then 1");
       const chess = new Chess.Chess(game.fen);
+      log.debug("awsDoIt then 2");
       const cmove = chess.move(result.bestmove, { sloppy: true });
+      log.debug("awsDoIt then 3");
       Game.internalSaveLocalMove(
         { _id: "computer", username: "Computer" },
         "__computer__",
         game_id,
         cmove.san
       );
+      log.debug("awsDoIt then 4");
     })
     .catch((e) => {
       log.error(
