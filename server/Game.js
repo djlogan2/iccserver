@@ -1134,8 +1134,8 @@ export class Game {
     log.debug("'internalSaveMove 7");
 
     if (!result) {
-      log.debug("'internalSaveMove 8");
-      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "ILLEGAL_MOVE", [move]);
+      log.debug("'internalSaveMove 8 move=" + move + ", is_premove=" + is_premove);
+      ClientMessages.sendMessageToClient(self._id, message_identifier, "ILLEGAL_MOVE", [move]);
       if (is_premove) {
         log.debug("'internalSaveMove 9");
         this.startMoveTimer(
@@ -1170,7 +1170,7 @@ export class Game {
     );
     if (!!client_message) {
       log.debug("'internalSaveMove 11");
-      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, client_message);
+      ClientMessages.sendMessageToClient(self._id, message_identifier, client_message);
       return;
     }
 
