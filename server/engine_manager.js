@@ -47,7 +47,7 @@ function awsDoIt(game) {
     const start = new Date();
     debug("awsDoIt promise 2");
     lambda.invoke(params, (err, data) => {
-      debug("lambda invoke returns: err=" + JSON.stringify(err) + ", data=" + JSON.stringify(data));
+      //debug("lambda invoke returns: err=" + JSON.stringify(err) + ", data=" + JSON.stringify(data));
       if (err || !data) {
         reject(err);
         return;
