@@ -8,6 +8,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import "./ExamineSidebarBottom.css";
 
 const { TabPane } = Tabs;
 

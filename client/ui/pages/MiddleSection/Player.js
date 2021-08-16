@@ -1,16 +1,15 @@
 import React, { Component } from "react";
-import { Input, Button } from "antd";
+import { Button, Input } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
 
 import FallenSoldier from "./FallenSoldier";
 
 import { translate } from "../../HOCs/translate";
 import CustomImage from "../components/CustomImage/CustomImage";
-import {
-  colorBlackUpper,
-  colorWhiteLetter,
-  colorWhiteUpper,
-} from "../../../constants/gameConstants";
+import { colorBlackUpper, colorWhiteLetter, colorWhiteUpper } from "../../../constants/gameConstants";
+import { Logger } from "../../../../lib/client/Logger";
+
+const log = new Logger("client/Player_js");
 
 class Player extends Component {
   constructor(props) {
@@ -55,8 +54,7 @@ class Player extends Component {
     if (gameId) {
       Meteor.call("setTag", "set_tag", gameId, this.getColorByLetter(color), name, (err) => {
         if (err) {
-          // TODO - DO NOT USE CONSOLE.LOG. USE THE LOGGER.
-          console.log(err);
+          log.error(err);
         } else {
           this.setState({ edit: false });
         }
@@ -65,16 +63,8 @@ class Player extends Component {
   };
 
   render() {
-    const {
-      cssManager,
-      side,
-      playerData,
-      turnColor,
-      message,
-      color,
-      FallenSoldiers,
-      translate,
-    } = this.props;
+    const { cssManager, side, playerData, turnColor, message, color, FallenSoldiers, translate } =
+      this.props;
     const { edit, name } = this.state;
 
     const userPicture = cssManager.userPicture(side * 0.08);

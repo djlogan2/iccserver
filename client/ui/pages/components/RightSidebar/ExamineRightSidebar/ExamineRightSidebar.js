@@ -40,21 +40,25 @@ class ExamineRightSidebar extends Component {
     const { gameRequest } = this.state;
 
     return (
-      <div className={classes.main}>
-        <ExamineSidebarTop
-          game={game}
-          observeUser={observeUser}
-          unObserveUser={unObserveUser}
-          moveList={moveList}
-          cssManager={cssManager}
-          flip={flip}
-          gameRequest={gameRequest}
-        />
-        <ExamineRightSidebarBottom
-          game={game}
-          onPgnUpload={onPgnUpload}
-          onImportedGames={onImportedGames}
-        />
+      <div style={{ height: "100%", background: "#fff", display: "flex", flexDirection: "column" }}>
+        <div style={{ height: "50%"}}>
+          <ExamineSidebarTop
+            game={game}
+            observeUser={observeUser}
+            unObserveUser={unObserveUser}
+            moveList={moveList}
+            cssManager={cssManager}
+            flip={flip}
+            gameRequest={gameRequest}
+          />
+        </div>
+        <div style={{ height: "50%" }}>
+          <ExamineRightSidebarBottom
+            game={game}
+            onPgnUpload={onPgnUpload}
+            onImportedGames={onImportedGames}
+          />
+        </div>
       </div>
     );
   }

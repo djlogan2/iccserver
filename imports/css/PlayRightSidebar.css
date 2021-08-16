@@ -14,7 +14,7 @@
 }
 
 .ant-tabs-tabpane {
-    height: calc(100% - 50px);
+    height: 100%;
 }
 
 .ant-tabs .ant-tabs-top-content {
