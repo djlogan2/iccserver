@@ -55,6 +55,7 @@ class Player extends Component {
     if (gameId) {
       Meteor.call("setTag", "set_tag", gameId, this.getColorByLetter(color), name, (err) => {
         if (err) {
+          // TODO - DO NOT USE CONSOLE.LOG. USE THE LOGGER.
           console.log(err);
         } else {
           this.setState({ edit: false });
