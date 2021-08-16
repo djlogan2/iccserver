@@ -47,8 +47,6 @@ export default class MoveList extends Component {
 
     let moveListString = "";
     if (game?.variations?.movelist?.length) {
-      // TODO - DO NOT USE CONSOLE LOG. USE THE LOGGER.
-      console.log(game.variations.movelist);
       moveListString = buildPgnFromMovelist(
         game.variations.movelist,
         true,

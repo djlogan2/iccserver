@@ -17,6 +17,13 @@ class PlayModaler extends Component {
     history.push(RESOURCE_EXAMINE);
   };
 
+  handleRematch = () => {
+    const { clientMessage, onRematch } = this.props;
+
+    Meteor.call("acknowledge.client.message", clientMessage._id);
+    onRematch();
+  };
+
   getTitleText = (gameResult) => {
     const { translate } = this.props;
 
@@ -41,7 +48,6 @@ class PlayModaler extends Component {
       blackPlayerUsername,
       translate,
       visible,
-      onRematch,
     } = this.props;
 
     return (
@@ -79,10 +85,7 @@ class PlayModaler extends Component {
             <Button
               id="rematch-button"
               type="primary"
-              onClick={() => {
-                onRematch();
-                this.handleCancel();
-              }}
+              onClick={this.handleRematch}
               className={classes.buttonPrimary}
             >
               {translate("rematch")}
