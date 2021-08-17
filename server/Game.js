@@ -1078,9 +1078,7 @@ export class Game {
   }
 
   internalSaveLocalMove(self, message_identifier, game_id, move, is_premove, variation_param) {
-    log.debug("internalSaveMove(" + game_id + ", move=" + move + ", is_premove=" + is_premove + ", variation_param=" + variation_param);
     const game = this.getAndCheck(self, message_identifier, game_id);
-    log.debug("'internalSaveMove 1");
 
     if (!game) return;
     const chessObject = active_games[game_id];
@@ -1088,7 +1086,6 @@ export class Game {
 
     if (game.status === "playing") {
       if (variation_param !== undefined) {
-        log.debug("'internalSaveMove 2");
         throw new ICCMeteorError(
           message_identifier,
           "Variation object is not allowed in internalSaveLocalMove",
@@ -1106,38 +1103,30 @@ export class Game {
             "Computer is trying to make an illegal move"
           );
         if (!self.settings.premove) {
-          log.debug("'internalSaveMove 3");
           ClientMessages.sendMessageToClient(
-            Meteor.user(),
+            self,
             message_identifier,
             "COMMAND_INVALID_NOT_YOUR_MOVE"
           );
         } else {
-          log.debug("'internalSaveMove 4");
           this.internalSaveLocalPremove(message_identifier, self, game, move);
         }
         return;
       }
     } else if (game.examiners.map((e) => e.id).indexOf(self._id) === -1) {
-      log.debug("'internalSaveMove 5");
-      ClientMessages.sendMessageToClient(self._id, message_identifier, "NOT_AN_EXAMINER");
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
 
-    log.debug("'internalSaveMove 6");
     //chess.move('Nf6')
     // // -> { color: 'b', from: 'g8', to: 'f6', flags: 'n', piece: 'n', san: 'Nf6' }
     const result = chessObject.move(move);
     const bw = self._id === game.white.id ? "white" : "black";
     const otherbw = bw === "white" ? "black" : "white";
 
-    log.debug("'internalSaveMove 7");
-
     if (!result) {
-      log.debug("'internalSaveMove 8 move=" + move + ", is_premove=" + is_premove);
-      ClientMessages.sendMessageToClient(self._id, message_identifier, "ILLEGAL_MOVE", [move]);
+      ClientMessages.sendMessageToClient(self, message_identifier, "ILLEGAL_MOVE", [move]);
       if (is_premove) {
-        log.debug("'internalSaveMove 9");
         this.startMoveTimer(
           game_id,
           self._id,
@@ -1149,7 +1138,6 @@ export class Game {
       return;
     }
 
-    log.debug("'internalSaveMove 10");
     if (!is_premove) this.endMoveTimer(game_id);
 
     const setobject = { fen: chessObject.fen(), arrows: [], circles: [] };
@@ -1169,17 +1157,13 @@ export class Game {
       variation_param
     );
     if (!!client_message) {
-      log.debug("'internalSaveMove 11");
       ClientMessages.sendMessageToClient(self._id, message_identifier, client_message);
       return;
     }
 
-    log.debug("'internalSaveMove 12");
     this.load_eco(chessObject, variation);
 
-    log.debug("'internalSaveMove 13");
     if (game.status === "playing") {
-      log.debug("'internalSaveMove 14");
       if (
         active_games[game_id].in_draw() &&
         (active_games[game_id].in_stalemate() || active_games[game_id].insufficient_material())
@@ -1198,7 +1182,6 @@ export class Game {
       }
 
       if (!!setobject.result) {
-        log.debug("'internalSaveMove 15");
         setobject.status = "examining";
         setobject.examiners = [];
         if (game.white.id !== "computer")
@@ -1227,7 +1210,6 @@ export class Game {
       }
 
       if (!setobject.result) {
-        log.debug("'internalSaveMove 16");
         const timenow = new Date().getTime();
         gamelag = this.calculateGameLag(game.lag[bw]) | 0;
         gameping = game.lag[bw].pings.slice(-1) | 0;
@@ -1269,13 +1251,11 @@ export class Game {
 
     const move_parameter = { move: move };
     if (game.status === "playing") {
-      log.debug("'internalSaveMove 17");
       move_parameter.lag = Timestamp.averageLag(self._id);
       move_parameter.ping = Timestamp.pingTime(self._id);
       move_parameter.gamelag = gamelag;
       move_parameter.gameping = gameping;
     } else {
-      log.debug("'internalSaveMove 18");
       if (!!variation_param && !!variation_param.type)
         move_parameter.variationtype = variation_param.type;
       if (!!variation_param && variation_param.index !== undefined)
@@ -1289,10 +1269,7 @@ export class Game {
 
     if (!!premove) unsetobject.premove = 1;
 
-    log.debug("'internalSaveMove 19");
-
     if (setobject.result) {
-      log.debug("'internalSaveMove 20");
       if (game.white.id !== "computer")
         Users.setGameStatus(message_identifier, game.white.id, "examining");
       if (game.black.id !== "computer")
@@ -1305,12 +1282,9 @@ export class Game {
     if (!!unsetobject && Object.entries(unsetobject).length) modifier.$unset = unsetobject;
     if (!!setobject && Object.entries(setobject).length) modifier.$set = setobject;
 
-    log.debug("'internalSaveMove 21");
     this.GameCollection.update({ _id: game_id, status: game.status }, modifier);
-    log.debug("'internalSaveMove 22");
 
     if (setobject.result) {
-      log.debug("'internalSaveMove 23");
       this.updateUserRatings(game, setobject.result, setobject.status2);
       GameHistory.savePlayedGame(message_identifier, game_id);
       this.sendGameStatus(
@@ -1322,9 +1296,7 @@ export class Game {
         setobject.status2
       );
     } else if (game.status === "playing") {
-      log.debug("'internalSaveMove 24");
       if (!!premove) {
-        log.debug("'internalSaveMove 25");
         const otherguy = Meteor.users.findOne({ _id: game[otherbw].id });
         this.internalSaveLocalMove(
           otherguy,
@@ -1334,7 +1306,6 @@ export class Game {
           true
         );
       } else {
-        log.debug("'internalSaveMove 26");
         this.startMoveTimer(
           game_id,
           otherbw,
