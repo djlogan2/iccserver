@@ -68,7 +68,7 @@ class EditorRightSidebar extends Component {
       fen,
       translate,
       history,
-      classes,
+      classes
     } = this.props;
     const { whiteCastling, blackCastling } = this.state;
 
@@ -92,8 +92,10 @@ class EditorRightSidebar extends Component {
               value={color}
               onChange={this.handleColor}
             >
-              <Radio.Button disabled={color === colorWhite} value={colorWhiteLetter}>{translate("whiteToPlay")}</Radio.Button>
-              <Radio.Button disabled={color === colorBlack} value={colorBlackLetter}>{translate("blackToPlay")}</Radio.Button>
+              <Radio.Button disabled={color === colorWhite}
+                            value={colorWhiteLetter}>{translate("whiteToPlay")}</Radio.Button>
+              <Radio.Button disabled={color === colorBlack}
+                            value={colorBlackLetter}>{translate("blackToPlay")}</Radio.Button>
             </Radio.Group>
           </div>
           <div className={classes.castling}>
@@ -153,7 +155,7 @@ class EditorRightSidebar extends Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne(),
+      css: mongoCss.findOne()
     };
   }),
   injectSheet(dynamicStyles),

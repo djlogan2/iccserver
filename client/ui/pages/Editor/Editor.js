@@ -48,6 +48,7 @@ class Editor extends Component {
 
     if (examineGame && this.chess.fen() !== examineGame.fen) {
       this.chess.load(examineGame.fen);
+      this.setState({ key: Date.now() });
     }
   }
 

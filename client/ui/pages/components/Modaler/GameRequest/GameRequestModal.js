@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { notification, Button } from "antd";
+import { Button, notification } from "antd";
 import { get } from "lodash";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
@@ -107,7 +107,7 @@ class GameRequestModal extends Component {
         );
         return null;
       default:
-        console.error("Missmatch at game request");
+        log.error("Missmatch at game request");
         return null;
     }
   }
