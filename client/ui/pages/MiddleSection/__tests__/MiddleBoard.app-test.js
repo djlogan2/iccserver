@@ -39,14 +39,21 @@ describe("MiddleBoard component", () => {
 
   it("should render with game by black player", () => {
     const mockProps = {
-      game: { fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", status: "playing" },
+      game: {
+        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+        status: "playing",
+        clocks: { black: {}, white: {} },
+        variations: {
+          cmi: 0,
+          movelist: [],
+        },
+      },
       playersInfo: { black: { id: "fake_id" }, white: { id: "fake_id_2" } },
       cssManager: new CssManager({}, {}),
       onDrawObject: () => null,
       onDrop: () => null,
       capture: { w: {}, b: {} },
       startTime: "2021-08-12T10:43:55.551Z",
-      clocks: { black: {}, white: {} },
     };
     const component = mount(<MiddleBoard {...mockProps} />);
 
@@ -55,14 +62,21 @@ describe("MiddleBoard component", () => {
 
   it("should render with game by white player", () => {
     const mockProps = {
-      game: { fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", status: "playing" },
+      game: {
+        fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
+        status: "playing",
+        clocks: { black: {}, white: {} },
+        variations: {
+          cmi: 0,
+          movelist: [],
+        },
+      },
       playersInfo: { black: { id: "fake_id_1" }, white: { id: "fake_id" } },
       cssManager: new CssManager({}, {}),
       onDrawObject: () => null,
       onDrop: () => null,
       capture: { w: {}, b: {} },
       startTime: "2021-08-12T10:43:55.551Z",
-      clocks: { black: {}, white: {} },
     };
     const component = mount(<MiddleBoard {...mockProps} />);
 

@@ -25,7 +25,9 @@ module.exports = {
     env: {
       ROOT_URL: "https://v2a.chessclub.com",
       MONGO_URL: "mongodb://mongodb/meteor",
-      MONGO_OPLOG_URL: "mongodb://mongodb/local"
+      MONGO_OPLOG_URL: "mongodb://mongodb/local",
+      SLACK_CHANNEL_LINK: "https://hooks.slack.com/services/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",
+      SLACK_CHANNEL_NAME: "#notifications",
     },
 
     docker: {

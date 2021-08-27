@@ -12,7 +12,7 @@ import {
   DynamicRatingsCollection,
   Game,
   GameRequestCollection,
-  mongoCss,
+  mongoCss
 } from "../../../../imports/api/client/collections";
 import { TimestampClient } from "../../../../lib/Timestamp";
 import { findRatingObject } from "../../../../lib/ratinghelpers";
@@ -21,12 +21,7 @@ import { compose } from "redux";
 import injectSheet from "react-jss";
 import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
 import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
-import {
-  gameSeekAutoAccept,
-  gameSeekIsRated,
-  maxRating,
-  minRating,
-} from "../../../constants/gameConstants";
+import { gameSeekAutoAccept, gameSeekIsRated, maxRating, minRating } from "../../../constants/gameConstants";
 import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
 import withClientMessages from "../../HOCs/withClientMessages";
 
@@ -256,6 +251,13 @@ class Play extends Component {
       skillLevel,
       color,
     } = gameData;
+
+    console.log(
+      whiteIncrementOrDelay,
+      whiteIncrementOrDelayType,
+      blackIncrementOrDelay,
+      blackIncrementOrDelayType
+    );
 
     Meteor.call(
       "startBotGame",

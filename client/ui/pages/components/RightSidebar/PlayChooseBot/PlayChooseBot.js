@@ -17,7 +17,7 @@ class PlayChooseBot extends Component {
       color: "random",
       incrementOrDelayType: "inc",
       initial: 15,
-      incrementOrDelay: 0,
+      incrementOrDelay: 1,
       ratingType: "none",
     };
   }
@@ -39,8 +39,12 @@ class PlayChooseBot extends Component {
   };
 
   handleChangeIncrementOrDelayType = (e) => {
-    this.setState({
-      incrementOrDelayType: e.target.value,
+    this.setState((state) => {
+      console.log(state, e.target.value);
+      return {
+        incrementOrDelayType: e.target.value,
+        initial: e.target.value === "none" && state.initial === 0 ? 1 : state.initial,
+      };
     });
   };
 
@@ -77,6 +81,7 @@ class PlayChooseBot extends Component {
     let { color } = this.state;
     const { ratingType, difficulty, incrementOrDelayType, initial, incrementOrDelay } = this.state;
 
+    console.log(incrementOrDelay);
     onPlay({
       ratingType,
       color: color === "random" ? null : color,
@@ -89,14 +94,8 @@ class PlayChooseBot extends Component {
 
   render() {
     const { onClose, translate, ratings, classes } = this.props;
-    const {
-      initial,
-      incrementOrDelay,
-      difficulty,
-      incrementOrDelayType,
-      color,
-      ratingType,
-    } = this.state;
+    const { initial, incrementOrDelay, difficulty, incrementOrDelayType, color, ratingType } =
+      this.state;
 
     const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(ratings);
 
@@ -178,29 +177,29 @@ class PlayChooseBot extends Component {
               >
                 <InputNumber
                   name="initial"
-                  min={1}
+                  min={incrementOrDelayType === "none" ? 1 : 0}
                   id="initial"
                   max={maxInitialValue}
-                  disabled={incrementOrDelayType === "none"}
                   value={initial}
                   onChange={this.handleChange("initial")}
                 />
               </Form.Item>
-              <Form.Item
-                className={classes.incDelayItem}
-                label={translate("incrementOrDelay")}
-                name="incrementOrDelay"
-                rules={[{ required: !(incrementOrDelayType === "none") }]}
-              >
-                <InputNumber
+              {incrementOrDelayType !== "none" && (
+                <Form.Item
+                  className={classes.incDelayItem}
+                  label={translate("incrementOrDelay")}
                   name="incrementOrDelay"
-                  min={0}
-                  max={maxIncOrDelayValue}
-                  disabled={incrementOrDelayType === "none"}
-                  value={incrementOrDelay}
-                  onChange={this.handleChange("incrementOrDelay")}
-                />
-              </Form.Item>
+                  rules={[{ required: !(incrementOrDelayType === "none") }]}
+                >
+                  <InputNumber
+                    name="incrementOrDelay"
+                    min={1}
+                    max={maxIncOrDelayValue}
+                    value={incrementOrDelay}
+                    onChange={this.handleChange("incrementOrDelay")}
+                  />
+                </Form.Item>
+              )}
             </div>
           </Form.Item>
           <Form.Item label={translate("ratingType")} name="ratingType">
