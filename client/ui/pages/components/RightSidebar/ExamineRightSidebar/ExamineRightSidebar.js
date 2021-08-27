@@ -41,7 +41,7 @@ class ExamineRightSidebar extends Component {
 
     return (
       <div style={{ height: "100%", background: "#fff", display: "flex", flexDirection: "column" }}>
-        <div style={{ height: "50%"}}>
+        <div style={{ height: "50%" }}>
           <ExamineSidebarTop
             game={game}
             observeUser={observeUser}

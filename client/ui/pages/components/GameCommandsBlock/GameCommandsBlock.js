@@ -8,6 +8,9 @@ import { translate } from "../../../HOCs/translate";
 import { mongoCss } from "../../../../../imports/api/client/collections";
 import { dynamicStyles } from "./styles";
 import { Meteor } from "meteor/meteor";
+import { Logger } from "../../../../../lib/client/Logger";
+
+const log = new Logger("client/GameCommandsBlock_js");
 
 class GameCommandsBlock extends React.Component {
   constructor(props) {
@@ -24,7 +27,7 @@ class GameCommandsBlock extends React.Component {
 
     Meteor.call("addGameMove", "addGameMove", game._id, value, (error) => {
       if (error) {
-        console.error(error);
+        log.error(error);
       } else {
         this.setState({ value: "" });
       }

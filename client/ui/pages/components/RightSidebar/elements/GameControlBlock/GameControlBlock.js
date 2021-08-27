@@ -27,6 +27,31 @@ class LocationControls extends Component {
     };
   }
 
+  handleKeysPress = (event) => {
+    switch (event.keyCode) {
+      case 37:
+        this.moveBackward();
+        break;
+      case 38:
+        this.moveBackwardBeginning();
+        break;
+      case 39:
+        this.moveForward();
+        break;
+      case 40:
+        this.moveForwardEnd();
+        break;
+    }
+  };
+
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeysPress, false);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeysPress, false);
+  }
+
   componentWillReceiveProps(nextProps) {
     const { game } = this.props;
 
@@ -38,13 +63,13 @@ class LocationControls extends Component {
     }
   }
 
-  moveBackwordBeginning = () => {
+  moveBackwardBeginning = () => {
     const { game } = this.props;
 
     Meteor.call("moveToCMI", "moveToCMI", game._id, 0, handleError);
   };
 
-  moveBackword = () => {
+  moveBackward = () => {
     const { game } = this.props;
 
     Meteor.call("moveBackward", "MoveBackward", game._id, 1, handleError);
@@ -97,7 +122,7 @@ class LocationControls extends Component {
         <button
           id="move-backward-beginning"
           title={translate("moveBackwardBeginning")}
-          onClick={this.moveBackwordBeginning}
+          onClick={this.moveBackwardBeginning}
           className={classes.locationControlItem}
           disabled={disabled}
         >
@@ -110,7 +135,7 @@ class LocationControls extends Component {
         <button
           id="move-backward"
           title={translate("moveBackward")}
-          onClick={this.moveBackword}
+          onClick={this.moveBackward}
           className={classes.locationControlItem}
           disabled={disabled}
         >
