@@ -7,18 +7,21 @@ import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import { Meteor } from "meteor/meteor";
 
 class PlayChooseBot extends Component {
   constructor(props) {
     super(props);
 
+    const matchDefaults = Meteor.user()?.settings?.match_default;
+
     this.state = {
       difficulty: 5,
       color: "random",
-      incrementOrDelayType: "inc",
-      initial: 15,
-      incrementOrDelay: 1,
-      ratingType: "none",
+      incrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
+      initial: matchDefaults?.challenger_time || 15,
+      incrementOrDelay: matchDefaults?.challenger_inc_or_delay || 1,
+      ratingType: matchDefaults?.rating_type || "none",
     };
   }
 
@@ -40,7 +43,6 @@ class PlayChooseBot extends Component {
 
   handleChangeIncrementOrDelayType = (e) => {
     this.setState((state) => {
-      console.log(state, e.target.value);
       return {
         incrementOrDelayType: e.target.value,
         initial: e.target.value === "none" && state.initial === 0 ? 1 : state.initial,
@@ -81,7 +83,6 @@ class PlayChooseBot extends Component {
     let { color } = this.state;
     const { ratingType, difficulty, incrementOrDelayType, initial, incrementOrDelay } = this.state;
 
-    console.log(incrementOrDelay);
     onPlay({
       ratingType,
       color: color === "random" ? null : color,

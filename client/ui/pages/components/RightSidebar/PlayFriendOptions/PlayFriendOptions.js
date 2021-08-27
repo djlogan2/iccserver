@@ -26,7 +26,7 @@ class PlayFriendOptions extends Component {
       color: "random",
       incrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
       initial: matchDefaults?.challenger_time || 15,
-      incrementOrDelay: matchDefaults?.challenger_inc_or_delay || 0,
+      incrementOrDelay: matchDefaults?.challenger_inc_or_delay || 1,
       ratingType: matchDefaults?.rating_type || "none",
       rated: isRatedGames,
     };
@@ -148,26 +148,26 @@ class PlayFriendOptions extends Component {
                   name="initial"
                   min={0}
                   max={maxInitialValue}
-                  disabled={incrementOrDelayType === "none"}
                   value={initial}
                   onChange={this.handleChange("initial")}
                 />
               </Form.Item>
-              <Form.Item
-                className={classes.incDelayItem}
-                label={translate("incrementOrDelay")}
-                name="incrementOrDelay"
-                rules={[{ required: !(incrementOrDelayType === "none") }]}
-              >
-                <InputNumber
+              {incrementOrDelayType !== "none" && (
+                <Form.Item
+                  className={classes.incDelayItem}
+                  label={translate("incrementOrDelay")}
                   name="incrementOrDelay"
-                  min={0}
-                  max={maxIncOrDelayValue}
-                  disabled={incrementOrDelayType === "none"}
-                  value={incrementOrDelay}
-                  onChange={this.handleChange("incrementOrDelay")}
-                />
-              </Form.Item>
+                  rules={[{ required: !(incrementOrDelayType === "none") }]}
+                >
+                  <InputNumber
+                    name="incrementOrDelay"
+                    min={1}
+                    max={maxIncOrDelayValue}
+                    value={incrementOrDelay}
+                    onChange={this.handleChange("incrementOrDelay")}
+                  />
+                </Form.Item>
+              )}
             </div>
           </Form.Item>
           <Form.Item label={translate("ratingType")} name="ratingType">
