@@ -155,11 +155,13 @@ export const ExaminedGameSchema = new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
         delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
+        current: { type: SimpleSchema.Integer, required: false },
       }),
       black: new SimpleSchema({
         initial: SimpleSchema.Integer,
         inc_or_delay: Number,
         delaytype: { type: String, allowedValues: ["none", "inc", "us", "bronstein"] },
+        current: { type: SimpleSchema.Integer, required: false }
       }),
     }),
     required: false,

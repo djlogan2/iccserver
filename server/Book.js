@@ -53,7 +53,11 @@ function loadBookFile() {
 }
 
 Meteor.startup(() => {
-  if (!Meteor.isTest && !Meteor.isAppTest && BookCollection.find().count() === 0) loadBookFile();
+  if (!Meteor.isTest && !Meteor.isAppTest && BookCollection.find().count() === 0) {
+    console.log("We are going to do an initial load of the book collection. This will take a REALLY REALLY REALLY long time. Do not kill me. Let me run.");
+    loadBookFile();
+    console.log("Book file loaded! Moving on!");
+  }
 });
 
 function convertMove(entry) {

@@ -465,7 +465,9 @@ export class Game {
           initial: white_initial,
           inc_or_delay: white_increment_or_delay,
           delaytype: white_increment_or_delay_type,
-          current: white_initial * 60 * 1000, // milliseconds
+          current:
+            white_initial * 60 * 1000 +
+            (white_increment_or_delay_type === "inc" ? white_increment_or_delay * 1000 : 0), // milliseconds
           starttime: chess.turn() === "w" ? new Date().getTime() : 0,
         },
         black: {
@@ -1209,6 +1211,8 @@ export class Game {
         } else if (game.variations.hmtb) setobject.variations = { hmtb: game.variations.hmtb + 1 };
       }
 
+      var otherbw_current;
+
       if (!setobject.result) {
         const timenow = new Date().getTime();
         gamelag = this.calculateGameLag(game.lag[bw]) | 0;
@@ -1217,10 +1221,8 @@ export class Game {
         let used = timenow - game.clocks[bw].starttime - gamelag;
         let addback = 0;
 
-        if (game.clocks[bw].delaytype !== "none") {
-          if (game.clocks[bw].delaytype === "inc") {
-            addback = game.clocks[bw].inc_or_delay * 1000;
-          } else if (game.clocks[bw].inc_or_delay * 1000 >= used) {
+        if (game.clocks[bw].delaytype !== "none" && game.clocks[bw].delaytype !== "inc") {
+          if (game.clocks[bw].inc_or_delay * 1000 >= used) {
             addback = used;
           } else if (game.clocks[bw].inc_or_delay * 1000 < used) {
             addback = game.clocks[bw].inc_or_delay * 1000;
@@ -1243,7 +1245,10 @@ export class Game {
           used = SystemConfiguration.minimumMoveTime();
         setobject["clocks." + bw + ".current"] = game.clocks[bw].current - used + addback;
         // TODO: check for current <= 0 and end the game, yes?
-        setobject["clocks." + otherbw + ".current"] = game.clocks[otherbw].current + opponentlag;
+        const otherbw_inc =
+          game.clocks[otherbw].delaytype === "inc" ? game.clocks[otherbw].inc_or_delay * 1000 : 0;
+        otherbw_current = game.clocks[otherbw].current + opponentlag + otherbw_inc;
+        setobject["clocks." + otherbw + ".current"] = otherbw_current;
       } else {
         this.endGamePing(game_id);
       }
@@ -1311,7 +1316,7 @@ export class Game {
           otherbw,
           (game.clocks[otherbw].inc_or_delay | 0) * 1000,
           game.clocks[otherbw].delaytype,
-          game.clocks[otherbw].current
+          otherbw_current
         );
       }
     }
@@ -3922,13 +3927,27 @@ export class Game {
   }
 
   startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_milliseconds) {
+    log.debug(
+      "startMoveTimer game_id=" +
+        game_id +
+        ", color=" +
+        color +
+        ", delay_ms=" +
+        delay_milliseconds +
+        ", delaytype=" +
+        delaytype +
+        ", actual_ms=" +
+        actual_milliseconds
+    );
     if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
 
     if (delay_milliseconds && delaytype === "us") {
+      log.debug("startMoveTimer starting delay");
       this.startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds);
       return;
     }
 
+    log.debug("startMoveTimer starting game timer of actual_ms=" + actual_milliseconds);
     move_timers[game_id] = Meteor.setInterval(() => {
       Meteor.clearInterval(move_timers[game_id]);
       delete move_timers[game_id];
@@ -3957,7 +3976,6 @@ export class Game {
         {
           $set: setobject,
           $addToSet: addtosetobject,
-          $unset: { pending: 1, "clocks.white.current": 1, "clocks.black.current": 1 },
         }
       );
       if (game.white.id !== "computer") Users.setGameStatus("server", game.white.id, "examining");
