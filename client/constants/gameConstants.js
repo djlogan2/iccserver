@@ -94,3 +94,11 @@ export const ratedGame = "rated";
 export const nonRatedGame = "non-rated";
 
 export const gameComputerId = "computer";
+
+export const CHALLENGER_INCREMENT_DELAY_TYPE = "challengerIncrementOrDelayType";
+export const CHALLENGER_INITIAL = "challengerInitial";
+
+export const RECEIVER_INCREMENT_DELAY_TYPE = "receiverIncrementOrDelayType";
+export const RECEIVER_INITIAL = "receiverInitial";
+
+export const INCREMENT_OR_DELAY_TYPE_NONE = "none";

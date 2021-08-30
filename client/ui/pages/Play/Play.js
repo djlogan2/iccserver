@@ -252,13 +252,6 @@ class Play extends Component {
       color,
     } = gameData;
 
-    console.log(
-      whiteIncrementOrDelay,
-      whiteIncrementOrDelayType,
-      blackIncrementOrDelay,
-      blackIncrementOrDelayType
-    );
-
     Meteor.call(
       "startBotGame",
       "play_computer",

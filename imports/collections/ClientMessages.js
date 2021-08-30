@@ -1,6 +1,6 @@
 import { Mongo } from "meteor/mongo";
 import { Meteor } from "meteor/meteor";
-import { Match, check } from "meteor/check";
+import { check, Match } from "meteor/check";
 import { i18n } from "./i18n";
 import { Users } from "./users";
 
@@ -162,7 +162,7 @@ const DefinedClientMessagesMap = {
   INVALID_VARIATION_ACTION: {},
   INVALID_VARIATION_INDEX: {},
   COMPUTER_RETURNED_ERROR: {},
-  SEEK_NOT_FOUND: {}
+  SEEK_NOT_FOUND: {},
 };
 
 class ClientMessages {
