@@ -57,7 +57,7 @@ export default class MoveList extends Component {
 
     return (
       <div style={{ background: "#EFF0F3", overflow: "auto", height: "100%" }}>
-        <div style={{ ...cssManager.gameMoveList() }}>{moveListString}</div>
+        <div style={{ ...cssManager.gameMoveList(), whiteSpace: "nowrap" }}>{moveListString}</div>
       </div>
     );
   }
