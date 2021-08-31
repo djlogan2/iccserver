@@ -84,6 +84,8 @@ export const gameStatusObserving = "observing";
 export const colorWhite = "white";
 export const colorBlack = "black";
 
+export const COLOR_RANDOM = "random";
+
 export const colorWhiteLetter = "w";
 export const colorBlackLetter = "b";
 
@@ -94,3 +96,11 @@ export const ratedGame = "rated";
 export const nonRatedGame = "non-rated";
 
 export const gameComputerId = "computer";
+
+export const CHALLENGER_INCREMENT_DELAY_TYPE = "challengerIncrementOrDelayType";
+export const CHALLENGER_INITIAL = "challengerInitial";
+
+export const RECEIVER_INCREMENT_DELAY_TYPE = "receiverIncrementOrDelayType";
+export const RECEIVER_INITIAL = "receiverInitial";
+
+export const INCREMENT_OR_DELAY_TYPE_NONE = "none";

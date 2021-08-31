@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
-import { Button, Form, InputNumber, Radio, Switch } from "antd";
+import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
 import { translate } from "../../../../HOCs/translate";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
@@ -9,6 +9,13 @@ import { Meteor } from "meteor/meteor";
 import { ROLE_PLAY_RATED_GAMES, ROLE_PLAY_UNRATED_GAMES } from "../../../../../constants/rolesConstants";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import {
+  CHALLENGER_INCREMENT_DELAY_TYPE,
+  COLOR_RANDOM,
+  INCREMENT_OR_DELAY_TYPE_NONE
+} from "../../../../../constants/gameConstants";
+
+const { Title } = Typography;
 
 class PlayFriendOptions extends Component {
   constructor(props) {
@@ -21,13 +28,18 @@ class PlayFriendOptions extends Component {
     const matchDefaults = Meteor.user()?.settings?.match_default;
 
     this.state = {
+      timeOdds: false,
       isRatedGames,
       isUnratedGames,
       color: "random",
-      incrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
-      initial: matchDefaults?.challenger_time || 15,
-      incrementOrDelay: matchDefaults?.challenger_inc_or_delay || 1,
-      ratingType: matchDefaults?.rating_type || "none",
+      challengerIncrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
+      challengerInitial: matchDefaults?.challenger_time || 15,
+      challengerIncrementOrDelay: matchDefaults?.challenger_inc_or_delay || 1,
+      challengerRatingType: "none",
+      receiverIncrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
+      receiverInitial: matchDefaults?.challenger_time || 15,
+      receiverIncrementOrDelay: matchDefaults?.challenger_inc_or_delay || 1,
+      receiverRatingType: "none",
       rated: isRatedGames,
     };
   }
@@ -42,38 +54,51 @@ class PlayFriendOptions extends Component {
     });
   };
 
-  handleChangeIncrementOrDelayType = (e) => {
+  handleChangeIncrementOrDelayType = (incrementOrDelayType) => (e) => {
     this.setState({
-      incrementOrDelayType: e.target.value,
+      [incrementOrDelayType]: e.target.value,
     });
   };
 
-  handleChange = (inputName) => {
-    return (number) => {
-      const newState = {};
-
-      newState[inputName] = number;
-
-      this.setState(newState, () => {
-        this.updateRating();
-      });
-    };
+  handleChange = (inputName) => (number) => {
+    this.setState({ [inputName]: number }, () => {
+      this.updateRating();
+    });
   };
 
   updateRating = () => {
-    const { initial, incrementOrDelay, incrementOrDelayType } = this.state;
+    const {
+      challengerIncrementOrDelayType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      receiverInitial,
+      receiverIncrementOrDelay,
+    } = this.state;
 
-    const ratingObject = findRatingObject(
+    const challengerRatingType = findRatingObject(
       0,
       "white", // Right now white and black always match, so just hard code
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      challengerIncrementOrDelayType,
       DynamicRatingsCollection.find().fetch()
     );
 
-    if (ratingObject) {
-      this.setState({ ratingType: ratingObject.rating_type });
+    const receiverRatingType = findRatingObject(
+      0,
+      "white",
+      receiverInitial,
+      receiverIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      DynamicRatingsCollection.find().fetch()
+    );
+
+    if (challengerRatingType && receiverRatingType) {
+      this.setState({
+        challengerRatingType: challengerRatingType.rating_type,
+        receiverRatingType: receiverRatingType.rating_type,
+      });
     }
   };
 
@@ -81,29 +106,64 @@ class PlayFriendOptions extends Component {
     const { onPlay } = this.props;
 
     let { color } = this.state;
-    const { ratingType, incrementOrDelayType, initial, incrementOrDelay, rated } = this.state;
-
-    onPlay({
+    const {
       rated,
-      ratingType,
-      color: color === "random" ? null : color,
-      incrementOrDelayType,
-      initial,
-      incrementOrDelay,
-    });
+      timeOdds,
+      challengerIncrementOrDelayType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      receiverInitial,
+      receiverIncrementOrDelay,
+      challengerRatingType,
+      receiverRatingType,
+    } = this.state;
+
+    if (timeOdds) {
+      onPlay({
+        rated,
+        challengerRatingType,
+        receiverRatingType,
+        color: color === "random" ? null : color,
+        challengerIncrementOrDelayType,
+        receiverIncrementOrDelayType,
+        challengerInitial,
+        receiverInitial,
+        challengerIncrementOrDelay,
+        receiverIncrementOrDelay,
+      });
+    } else {
+      onPlay({
+        rated,
+        challengerRatingType,
+        receiverRatingType: challengerRatingType,
+        color: color === COLOR_RANDOM ? null : color,
+        challengerIncrementOrDelayType,
+        receiverIncrementOrDelayType: challengerIncrementOrDelayType,
+        challengerInitial,
+        receiverInitial: challengerInitial,
+        challengerIncrementOrDelay,
+        receiverIncrementOrDelay: challengerIncrementOrDelay,
+      });
+    }
   };
 
   render() {
     const { onClose, translate, classes } = this.props;
     const {
       rated,
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
-      ratingType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      challengerIncrementOrDelayType,
+      challengerRatingType,
+      receiverInitial,
+      receiverIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      receiverRatingType,
       color,
       isRatedGames,
       isUnratedGames,
+      timeOdds,
     } = this.state;
 
     const { maxInitialValue, maxIncOrDelayValue } = getMaxInitialAndIncOrDelayTime(
@@ -121,16 +181,25 @@ class PlayFriendOptions extends Component {
         <Form
           layout="vertical"
           initialValues={{
-            initial,
-            incrementOrDelay,
+            challengerInitial,
+            receiverInitial,
+            challengerIncrementOrDelay,
+            receiverIncrementOrDelay,
             color,
           }}
         >
+          <Form.Item label={translate("time_odds")} name="time-odds">
+            <Switch
+              defaultChecked={timeOdds}
+              onChange={(timeOdds) => this.setState({ timeOdds })}
+            />
+          </Form.Item>
+          {timeOdds && <Title level={5}>{translate("challenger")}</Title>}
           <Form.Item label={translate("timeControl")} name="time-control">
             <Radio.Group
               name="timeControl"
-              onChange={this.handleChangeIncrementOrDelayType}
-              value={incrementOrDelayType}
+              onChange={this.handleChangeIncrementOrDelayType(CHALLENGER_INCREMENT_DELAY_TYPE)}
+              value={challengerIncrementOrDelayType}
             >
               <Radio.Button value="inc">{translate("control.inc")}</Radio.Button>
               <Radio.Button value="none">{translate("control.none")}</Radio.Button>
@@ -141,38 +210,106 @@ class PlayFriendOptions extends Component {
               <Form.Item
                 className={classes.incDelayItem}
                 label={translate("initial")}
-                name="initial"
-                rules={[{ required: !(incrementOrDelayType === "none") }]}
+                name="challengerInitial"
+                rules={[
+                  { required: !(challengerIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE) },
+                ]}
               >
                 <InputNumber
-                  name="initial"
+                  name="challengerInitial"
                   min={0}
                   max={maxInitialValue}
-                  value={initial}
-                  onChange={this.handleChange("initial")}
+                  value={challengerInitial}
+                  onChange={this.handleChange("challengerInitial")}
                 />
               </Form.Item>
-              {incrementOrDelayType !== "none" && (
+              {challengerIncrementOrDelayType !== INCREMENT_OR_DELAY_TYPE_NONE && (
                 <Form.Item
                   className={classes.incDelayItem}
                   label={translate("incrementOrDelay")}
-                  name="incrementOrDelay"
-                  rules={[{ required: !(incrementOrDelayType === "none") }]}
+                  name="challengerIncrementOrDelay"
+                  rules={[
+                    {
+                      required: !(challengerIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE),
+                    },
+                  ]}
                 >
                   <InputNumber
-                    name="incrementOrDelay"
+                    name="challengerIncrementOrDelay"
                     min={1}
                     max={maxIncOrDelayValue}
-                    value={incrementOrDelay}
-                    onChange={this.handleChange("incrementOrDelay")}
+                    value={challengerIncrementOrDelay}
+                    onChange={this.handleChange("challengerIncrementOrDelay")}
                   />
                 </Form.Item>
               )}
             </div>
           </Form.Item>
-          <Form.Item label={translate("ratingType")} name="ratingType">
-            <p>{translate(`ratings.${ratingType}`)}</p>
+          <Form.Item label={translate("ratingType")} name="challengerRatingType">
+            <p>{translate(`ratings.${challengerRatingType}`)}</p>
           </Form.Item>
+          {timeOdds && (
+            <>
+              <Title level={5}>{translate("receiver")}</Title>
+              <Form.Item label={translate("timeControl")} name="time-control-receiver">
+                <Radio.Group
+                  name="timeControlReceiver"
+                  onChange={this.handleChangeIncrementOrDelayType}
+                  value={receiverIncrementOrDelayType}
+                >
+                  <Radio.Button value="inc">{translate("control.inc")}</Radio.Button>
+                  <Radio.Button value="none">{translate("control.none")}</Radio.Button>
+                  <Radio.Button value="us">{translate("control.us")}</Radio.Button>
+                  <Radio.Button value="bronstein">{translate("control.bronstein")}</Radio.Button>
+                </Radio.Group>
+                <div className={classes.incDelayWrap}>
+                  <Form.Item
+                    className={classes.incDelayItem}
+                    label={translate("initial")}
+                    name="receiverInitial"
+                    rules={[
+                      {
+                        required: !(receiverIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE),
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      name="receiverInitial"
+                      min={0}
+                      max={maxInitialValue}
+                      value={receiverInitial}
+                      onChange={this.handleChange("receiverInitial")}
+                    />
+                  </Form.Item>
+                  {receiverIncrementOrDelayType !== INCREMENT_OR_DELAY_TYPE_NONE && (
+                    <Form.Item
+                      className={classes.incDelayItem}
+                      label={translate("incrementOrDelay")}
+                      name="receiverIncrementOrDelay"
+                      rules={[
+                        {
+                          required: !(
+                            receiverIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE
+                          ),
+                        },
+                      ]}
+                    >
+                      <InputNumber
+                        name="receiverIncrementOrDelay"
+                        min={1}
+                        max={maxIncOrDelayValue}
+                        value={receiverIncrementOrDelay}
+                        onChange={this.handleChange("receiverIncrementOrDelay")}
+                      />
+                    </Form.Item>
+                  )}
+                </div>
+              </Form.Item>
+              <Form.Item label={translate("ratingType")} name="receiverRatingType">
+                <p>{translate(`ratings.${receiverRatingType}`)}</p>
+              </Form.Item>
+            </>
+          )}
           <Form.Item label={translate("color")} name="color">
             <Radio.Group name="color" onChange={this.handleChangeColor} value={color}>
               <Radio.Button value="random">{translate("colors.random")}</Radio.Button>

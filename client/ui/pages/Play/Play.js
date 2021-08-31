@@ -206,14 +206,23 @@ class Play extends Component {
       color: null,
     };
 
-    const { color, initial, incrementOrDelayType, incrementOrDelay, rated } = options;
+    const {
+      rated,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      challengerIncrementOrDelayType,
+      receiverInitial,
+      receiverIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      color,
+    } = options;
 
     const rating_object = findRatingObject(
       0,
       "white",
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      challengerIncrementOrDelayType,
       DynamicRatingsCollection.find({ wild_number: 0 }).fetch()
     );
 
@@ -227,12 +236,12 @@ class Play extends Component {
       rating_object.rating_type,
       rated,
       defaultData.is_adjourned,
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
-      initial,
-      incrementOrDelay,
-      incrementOrDelayType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      challengerIncrementOrDelayType,
+      receiverInitial,
+      receiverIncrementOrDelay,
+      receiverIncrementOrDelayType,
       color,
       handleError
     );
@@ -251,13 +260,6 @@ class Play extends Component {
       skillLevel,
       color,
     } = gameData;
-
-    console.log(
-      whiteIncrementOrDelay,
-      whiteIncrementOrDelayType,
-      blackIncrementOrDelay,
-      blackIncrementOrDelayType
-    );
 
     Meteor.call(
       "startBotGame",
