@@ -84,6 +84,8 @@ export const gameStatusObserving = "observing";
 export const colorWhite = "white";
 export const colorBlack = "black";
 
+export const COLOR_RANDOM = "random";
+
 export const colorWhiteLetter = "w";
 export const colorBlackLetter = "b";
 
