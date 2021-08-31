@@ -255,6 +255,9 @@ export const english = {
       CHOOSE: "Choose",
       createGame: "Create game",
       timeControl: "Time control",
+      time_odds: "Time odds",
+      challenger: "Challenger configuration",
+      receiver: "Receiver configuration",
       control: {
         inc: "Inc",
         none: "None",
