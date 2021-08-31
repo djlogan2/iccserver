@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
 import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
-import { Button, Form, InputNumber, Radio, Switch } from "antd";
+import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
 import { translate } from "../../../../HOCs/translate";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
@@ -14,6 +14,8 @@ import {
   COLOR_RANDOM,
   INCREMENT_OR_DELAY_TYPE_NONE
 } from "../../../../../constants/gameConstants";
+
+const { Title } = Typography;
 
 class PlayFriendOptions extends Component {
   constructor(props) {
@@ -186,12 +188,13 @@ class PlayFriendOptions extends Component {
             color,
           }}
         >
-          <Form.Item label={translate("timeOdds")} name="time-odds">
+          <Form.Item label={translate("time_odds")} name="time-odds">
             <Switch
               defaultChecked={timeOdds}
               onChange={(timeOdds) => this.setState({ timeOdds })}
             />
           </Form.Item>
+          {timeOdds && <Title level={5}>{translate("challenger")}</Title>}
           <Form.Item label={translate("timeControl")} name="time-control">
             <Radio.Group
               name="timeControl"
@@ -247,6 +250,7 @@ class PlayFriendOptions extends Component {
           </Form.Item>
           {timeOdds && (
             <>
+              <Title level={5}>{translate("receiver")}</Title>
               <Form.Item label={translate("timeControl")} name="time-control-receiver">
                 <Radio.Group
                   name="timeControlReceiver"
