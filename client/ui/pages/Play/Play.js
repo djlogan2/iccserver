@@ -324,7 +324,7 @@ class Play extends Component {
     };
 
     const css = new CssManager(systemCss?.systemCss, systemCss?.userCss);
-    if (!!gameRequest) {
+    if (gameRequest) {
       this.message_identifier = "server:game:" + gameRequest._id;
     }
 
@@ -351,7 +351,6 @@ class Play extends Component {
           cssManager={css}
           capture={capture}
           game={inGame}
-          board={this._board}
           onChooseFriend={this.handleChooseFriend}
           onBotPlay={this.handleBotPlay}
           onSeekPlay={this.handleSeekPlay}

@@ -121,7 +121,7 @@ class PlayFriendOptions extends Component {
 
     if (timeOdds) {
       onPlay({
-        rated,
+        rated: false,
         challengerRatingType,
         receiverRatingType,
         color: color === "random" ? null : color,
@@ -317,13 +317,15 @@ class PlayFriendOptions extends Component {
               <Radio.Button value="black">{translate("colors.black")}</Radio.Button>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label={translate("isRated")} name="rated">
-            <Switch
-              defaultChecked={rated}
-              disabled={!isRatedGames || !isUnratedGames}
-              onChange={(rated) => this.setState({ rated })}
-            />
-          </Form.Item>
+          {!timeOdds && (
+            <Form.Item label={translate("isRated")} name="rated">
+              <Switch
+                defaultChecked={rated}
+                disabled={!isRatedGames || !isUnratedGames}
+                onChange={(rated) => this.setState({ rated })}
+              />
+            </Form.Item>
+          )}
           <Button id="select-opponent-button" type="primary" onClick={this.handlePlay}>
             {translate("selectOpponent")}
           </Button>

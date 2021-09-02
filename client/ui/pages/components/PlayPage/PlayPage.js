@@ -48,7 +48,6 @@ export default class PlayPage extends Component {
 
   render() {
     const {
-      board,
       game,
       cssManager,
       capture,
@@ -70,7 +69,6 @@ export default class PlayPage extends Component {
               playersInfo={{ black: game?.black, white: game?.white }}
               switchSides={switchSides}
               capture={capture}
-              board={board}
               onDrop={onDrop}
               onDrawObject={onDrawObject}
               onRemoveCircle={onRemoveCircle}

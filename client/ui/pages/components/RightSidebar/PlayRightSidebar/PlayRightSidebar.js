@@ -64,16 +64,8 @@ class PlayRightSidebar extends Component {
   };
 
   render() {
-    const {
-      game,
-      classes,
-      onBotPlay,
-      onSeekPlay,
-      onChooseFriend,
-      cssManager,
-      moveList,
-      flip,
-    } = this.props;
+    const { game, classes, onBotPlay, onSeekPlay, onChooseFriend, cssManager, moveList, flip } =
+      this.props;
 
     return (
       <div className={classes.main}>
