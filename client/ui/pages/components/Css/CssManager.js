@@ -335,6 +335,12 @@ export default class CssManager {
     return style;
   }
 
+  moveListItems() {
+    var style = {};
+    Object.assign(style, this._systemStyle?.moveList);
+    return style;
+  }
+
   //
   // TODO: There is no point in having canvas as a database item. Just put it directly into the component.
   //

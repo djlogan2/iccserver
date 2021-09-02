@@ -51,13 +51,14 @@ export default class MoveList extends Component {
         game.variations.movelist,
         true,
         game._id,
-        game.variations.cmi
+        game.variations.cmi,
+        cssManager
       );
     }
 
     return (
       <div style={{ background: "#EFF0F3", overflow: "auto", height: "100%" }}>
-        <div style={{ ...cssManager.gameMoveList(), whiteSpace: "nowrap" }}>{moveListString}</div>
+        <div style={{ ...cssManager.gameMoveList() }}>{moveListString}</div>
       </div>
     );
   }
