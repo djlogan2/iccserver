@@ -3,7 +3,11 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
-import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
+import {
+  colorBlackLetter,
+  colorWhiteLetter,
+  gameStatusPlaying,
+} from "../../../constants/gameConstants";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -235,7 +239,7 @@ class NewChessBoard extends Component {
   };
 
   render() {
-    const { orientation, chess } = this.props;
+    const { orientation, chess, width, height } = this.props;
     const {
       legalMoves,
       circles,
@@ -269,6 +273,8 @@ class NewChessBoard extends Component {
           },
           lastMove: "5px solid #3CFF33",
         }}
+        windowWidth={width}
+        windowHeight={height}
         lastMove={updatedLastMove}
         showLastMove
         perspective={orientation}
