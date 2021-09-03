@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
+import { gameStatusPlaying } from "../../../constants/gameConstants";
 
 export default class PlayerClock extends Component {
   constructor(props) {
@@ -70,11 +71,11 @@ export default class PlayerClock extends Component {
 
   static getDerivedStateFromProps(props, state) {
     if (!props.game) return {};
-    const running = props.game.status === "playing" && props.game.tomove === props.color;
+    const running = props.game.status === gameStatusPlaying && props.game.tomove === props.color;
     const now = running ? getMilliseconds() : 0;
     let pcurrent;
 
-    if (props.game.status === "playing") {
+    if (props.game.status === gameStatusPlaying) {
       const start = running ? props.game.clocks[props.color].starttime : 0;
       pcurrent = props.game.clocks[props.color].current - now + start;
     } else {
@@ -154,7 +155,7 @@ export default class PlayerClock extends Component {
   }
 
   render() {
-    const { game, side } = this.props;
+    const { game, side, color, currentTurn } = this.props;
     const { current } = this.state;
 
     if (!game) {
@@ -200,7 +201,7 @@ export default class PlayerClock extends Component {
       top: "5px",
       height: cv / 1.7,
       width: cv * 1.3,
-      background: "#333333",
+      background: currentTurn === color[0] ? "#1890ff" : "#333333",
       fontWeight: "700",
       position: "absolute",
     };

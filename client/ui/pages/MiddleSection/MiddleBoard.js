@@ -157,6 +157,7 @@ class MiddleBoard extends Component {
 
     const isPlayingOrExamining =
       !!game?.status && (game.status === gameStatusPlaying || game.status === gameStatusExamining);
+    const currentTurn = this.chess?.turn();
 
     return (
       <div style={{ width: boardSize }}>
@@ -172,8 +173,7 @@ class MiddleBoard extends Component {
             message={topPlayermsg}
           />
         )}
-
-        <PlayerClock game={game} color={topPlayerTime} side={boardSize} />
+        <PlayerClock game={game} color={topPlayerTime} currentTurn={currentTurn} side={boardSize} />
         {game && (
           <div style={{ width: "100%", height: boardSize }}>
             <NewChessBoard
@@ -218,7 +218,12 @@ class MiddleBoard extends Component {
             Playermsg={botPlayermsg}
           />
         )}
-        <PlayerClock game={game} color={bottomPlayerTime} side={boardSize} />
+        <PlayerClock
+          game={game}
+          color={bottomPlayerTime}
+          currentTurn={currentTurn}
+          side={boardSize}
+        />
       </div>
     );
   }
