@@ -48,19 +48,31 @@ class PlayBlock extends Component {
 
   hanldePlayWithBot = (data) => {
     const { onBotPlay } = this.props;
-    const { ratingType, skillLevel, color, incrementOrDelayType, initial, incrementOrDelay } = data;
+    const {
+      challengerRatingType,
+      receiverRatingType,
+      skillLevel,
+      color,
+      challengerIncrementOrDelayType,
+      receiverIncrementOrDelayType,
+      challengerInitial,
+      receiverInitial,
+      challengerIncrementOrDelay,
+      receiverIncrementOrDelay,
+    } = data;
 
     onBotPlay({
       color,
-      ratingType,
+      challengerRatingType,
+      receiverRatingType,
       skillLevel,
       wildNumber: 0,
-      whiteInitial: initial,
-      whiteIncrementOrDelay: incrementOrDelay,
-      whiteIncrementOrDelayType: incrementOrDelayType,
-      blackInitial: initial,
-      blackIncrementOrDelay: incrementOrDelay,
-      blackIncrementOrDelayType: incrementOrDelayType,
+      challengerIncrementOrDelayType,
+      receiverIncrementOrDelayType,
+      challengerInitial,
+      receiverInitial,
+      challengerIncrementOrDelay,
+      receiverIncrementOrDelay,
     });
   };
 

@@ -12,7 +12,8 @@ import { dynamicStyles } from "./dynamicStyles";
 import {
   CHALLENGER_INCREMENT_DELAY_TYPE,
   COLOR_RANDOM,
-  INCREMENT_OR_DELAY_TYPE_NONE
+  INCREMENT_OR_DELAY_TYPE_NONE,
+  RECEIVER_INCREMENT_DELAY_TYPE
 } from "../../../../../constants/gameConstants";
 
 const { Title } = Typography;
@@ -254,7 +255,7 @@ class PlayFriendOptions extends Component {
               <Form.Item label={translate("timeControl")} name="time-control-receiver">
                 <Radio.Group
                   name="timeControlReceiver"
-                  onChange={this.handleChangeIncrementOrDelayType}
+                  onChange={this.handleChangeIncrementOrDelayType(RECEIVER_INCREMENT_DELAY_TYPE)}
                   value={receiverIncrementOrDelayType}
                 >
                   <Radio.Button value="inc">{translate("control.inc")}</Radio.Button>
@@ -269,7 +270,7 @@ class PlayFriendOptions extends Component {
                     name="receiverInitial"
                     rules={[
                       {
-                        required: !(receiverIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE),
+                        required: true,
                       },
                     ]}
                   >

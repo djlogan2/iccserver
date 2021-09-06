@@ -283,6 +283,9 @@ export const english = {
       selectOpponent: "Select opponent",
     },
     PlayChooseBot: {
+      time_odds: "Time odds",
+      challenger: "Challenger configuration",
+      receiver: "Receiver configuration",
       colors: {
         random: "Random",
         white: "White",
