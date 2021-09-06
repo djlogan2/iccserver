@@ -11,6 +11,7 @@ import challengeNotificationCss from "./defaultStyles/challengeNotificationCss";
 import profileCss from "./defaultStyles/profileCss";
 import userManagementCss from "./defaultStyles/userManagementCss";
 import commandsCss from "./defaultStyles/commandsCss";
+import systemCss from "./defaultStyles/systemCss";
 import { templateCollection } from "./tournament/Tournament";
 
 const log = new Logger("server/migrations");
@@ -354,6 +355,22 @@ Meteor.startup(() => {
       mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
     },
   });
+
+  Migrations.add({
+    version: "0.3.30_3",
+    name: "Update client css for movelist",
+    run: () => {
+      mongoCss.update({ cssKey: "default" }, { systemCss });
+    },
+  });
+  Migrations.add({
+    version: "0.3.30_4",
+    name: "Update client css for movelist",
+    run: () => {
+      mongoCss.update({ cssKey: "default" }, { systemCss });
+    },
+  });
+
   /*
   Migrations.add({
     version: "",

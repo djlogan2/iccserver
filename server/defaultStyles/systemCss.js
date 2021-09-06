@@ -41,6 +41,26 @@ const systemCss = {
     width: "50px",
     display: "inline-block",
   },
+  moveList: {
+    break: {
+      whiteSpace: "pre-wrap",
+    },
+    icon: {
+      height: 14,
+      marginBottom: 6,
+      marginRight: 4,
+    },
+    itemBlack: {
+      cursor: "pointer",
+      color: "black",
+      whiteSpace: "nowrap",
+    },
+    itemRed: {
+      cursor: "pointer",
+      color: "red",
+      whiteSpace: "nowrap",
+    },
+  },
   gameMoveStyle: {
     color: "#808080",
     fontWeight: "450",
@@ -197,6 +217,7 @@ const systemCss = {
       display: "inline-block",
       width: "100%",
       padding: "5px",
+      whiteSpace: "nowrap",
     },
   },
   gameButtonMove: {

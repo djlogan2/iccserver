@@ -51,7 +51,8 @@ export default class MoveList extends Component {
         game.variations.movelist,
         true,
         game._id,
-        game.variations.cmi
+        game.variations.cmi,
+        cssManager
       );
     }
 
