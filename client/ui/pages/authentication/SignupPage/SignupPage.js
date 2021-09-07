@@ -123,3 +123,5 @@ export default compose(
   }),
   injectSheet(dynamicStyles)
 )(SignupPage);
+
+export const SignupPage_Pure = SignupPage;

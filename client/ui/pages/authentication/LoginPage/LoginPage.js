@@ -124,3 +124,5 @@ export default compose(
   }),
   injectSheet(dynamicStyles)
 )(LoginPage);
+
+export const LoginPage_Pure = LoginPage;

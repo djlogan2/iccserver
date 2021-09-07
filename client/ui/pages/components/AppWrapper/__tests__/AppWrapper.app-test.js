@@ -2087,7 +2087,7 @@ describe("AppWrapper component", () => {
     Factory.define("css", mongoCss, cssRecord);
     const test1 = Factory.create("css");
     Factory.define("game_requests", GameRequestCollection, {
-      _id: "matchrequest",
+      _id: "matchrequest1",
       type: "match",
       isolation_group: "public",
       wild: 0,

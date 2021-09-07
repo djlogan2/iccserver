@@ -2,10 +2,10 @@ import React from "react";
 import { Meteor } from "meteor/meteor";
 import chai from "chai";
 import sinon from "sinon";
-import { mount } from "enzyme";
+import { mount, shallow } from "enzyme";
 import { createBrowserHistory } from "history";
 import { Router } from "react-router-dom";
-import LeftSidebar from "../LeftSidebar";
+import LeftSidebar, {LeftSidebar_Pure} from "../LeftSidebar";
 
 describe("LeftSidebar component", () => {
   const currentUser = {
@@ -63,6 +63,7 @@ describe("LeftSidebar component", () => {
     chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
     const button = wrapper.find("button");
     button.simulate("click");
+
   });
 
   it("should redirect to profile", () => {
@@ -76,6 +77,7 @@ describe("LeftSidebar component", () => {
     chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
     const div = wrapper.find("#profile-redirect");
     div.simulate("click");
+    chai.assert.equal(location.pathname, '/profile');
   });
 
   it("should logout", () => {
@@ -102,7 +104,6 @@ describe("LeftSidebar component", () => {
     chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
     const div = wrapper.find("a#mygame");
     div.simulate("click");
-
     chai.assert.equal(wrapper.find("Modal").length, 1);
     wrapper.find("Modal").simulate("cancel");
   });
@@ -118,5 +119,27 @@ describe("LeftSidebar component", () => {
     chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
     const div = wrapper.find("a#examine");
     div.simulate("click");
+    chai.assert.equal(location.pathname, '/examine');
   });
 });
+
+describe("LeftSideBar Pure Component", () => {
+  let page, history;
+  beforeEach(() => {
+    history = createBrowserHistory();
+    page = shallow(<LeftSidebar_Pure classes={{}} translate={()=>{}}/>);
+  })
+
+  afterEach(() => {
+    sinon.restore();
+  })
+
+  it("state visible value is changed", () => {
+    const button = page.find("button");
+    chai.assert.isFalse(page.state().visible, "wrong default value");
+    button.simulate("click");
+    chai.assert.isTrue(page.state().visible, "value don't change");
+    button.simulate("click");
+    chai.assert.isFalse(page.state().visible, "value don't change");
+  });
+})
