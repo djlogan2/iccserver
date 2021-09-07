@@ -165,3 +165,5 @@ export default compose(
   }),
   injectSheet(dynamicLeftSideBarStyles)
 )(LeftSidebar);
+
+export const LeftSidebar_Pure = LeftSidebar;

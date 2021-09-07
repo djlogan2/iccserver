@@ -1,13 +1,17 @@
 import React from "react";
 import chai from "chai";
 import { createBrowserHistory } from "history";
-import SignupPage from "../SignupPage";
-import { mount } from "enzyme";
+import SignupPage, {SignupPage_Pure} from "../SignupPage";
+import { mount, shallow } from "enzyme";
 import { Router } from "react-router-dom";
 import sinon from "sinon";
 import { Accounts } from "meteor/accounts-base";
+import { RESOURCE_LOGIN, RESOURCE_SIGN_UP } from "../../../../../constants/resourceConstants";
 
 describe("SignupPage", () => {
+  let wrapper;
+  let page;
+  const history = createBrowserHistory();
   const newUsername = "username1";
   const newEmail = "email1@email.com";
   const newPassword = "password1";
@@ -16,20 +20,17 @@ describe("SignupPage", () => {
     sinon.replace(Accounts, "createUser", (args, callback) => {
         callback("fake_error");
     });
+    wrapper = mount(
+      <Router history={history}>
+        <SignupPage />
+      </Router>
+    );
+    page = wrapper.find(SignupPage);
   });
 
   afterEach(() => {
     sinon.restore();
   });
-
-  const history = createBrowserHistory();
-  const wrapper = mount(
-    <Router history={history}>
-      <SignupPage />
-    </Router>
-  );
-
-  const page = wrapper.find(SignupPage);
 
   it("render component", () => {
     chai.assert.isDefined(wrapper);
@@ -39,8 +40,19 @@ describe("SignupPage", () => {
     chai.assert.equal(wrapper.find("input").length, 4);
   });
 
-  it("should have one link", () => {
-    chai.assert.equal(wrapper.find("Link").length, 1);
+  it("should have text and password fields", () => {
+    chai.assert.equal(page.find("#signup-name").length, 1);
+    chai.assert.equal(page.find("#signup-email").length, 1);
+    chai.assert.equal(page.find("#signup-password").length, 1);
+    chai.assert.equal(page.find("#signup-name").prop("type"), "text");
+    chai.assert.equal(page.find("#signup-email").prop("type"), "email");
+    chai.assert.equal(page.find("#signup-password").prop("type"), "password");
+  });
+
+  it("should have redirect link", () => {
+    const link = wrapper.find("Link");
+    chai.assert.equal(link.length, 1, "no link");
+    chai.assert.equal(link.prop("to"), RESOURCE_LOGIN, "wrong url");
   });
 
   it("should submit form", () => {
@@ -92,4 +104,60 @@ describe("SignupPage", () => {
     const form = wrapper.find("form").first();
     form.simulate("submit");
   });
+
+  it("createUser function is called", () => {
+    const create = sinon.spy(Accounts, "createUser");
+    const form = page.find("form").first();
+    form.simulate("submit");
+    chai.assert.isTrue(create.calledOnce);
+  })
+});
+
+describe("SignUp Page Pure Component", () => {
+  let page;
+  beforeEach(() => {
+    page = shallow(
+      <SignupPage_Pure classes={{}} translate={()=>{}}/>
+    );
+  });
+
+  afterEach(() => { });
+
+  it("expects error is shown", (done) => {
+    const errMsg = "error message";
+    const mockState = {
+      error: errMsg,
+      email: "",
+      name: "",
+      password: "",
+    };
+    page.setState(mockState, () => {
+      chai.assert.equal(page.find(".alert-danger").length, 1, "no error shown");
+      chai.assert.equal(page.find(".alert-danger").text(), errMsg, "wrong error message");
+      done();
+    })
+  });
+
+  it("expects input fields changes value", () => {
+    const username = "username1";
+    const email = "email1@email.com";
+    const password = "password1";
+
+    const newUserName = page.find("#signup-name");
+    const newUserEmail = page.find("#signup-email");
+    const newUserPassword = page.find("#signup-password");
+    newUserName.simulate("change", {
+      target: { value: username },
+    });
+    newUserEmail.simulate("change", {
+      target: { value: email },
+    });
+    newUserPassword.simulate("change", {
+      target: { value: password },
+    });
+
+    chai.assert.equal(page.state().email, email, "set email wrong");
+    chai.assert.equal(page.state().password, password, "set password wrong");
+    chai.assert.equal(page.state().username, username, "set name wrong");
+  })
 });
