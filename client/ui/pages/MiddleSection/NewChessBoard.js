@@ -3,11 +3,7 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
-import {
-  colorBlackLetter,
-  colorWhiteLetter,
-  gameStatusPlaying,
-} from "../../../constants/gameConstants";
+import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -227,7 +223,7 @@ class NewChessBoard extends Component {
 
   getLastMove = () => {
     const { variations } = this.props;
-    if (variations.cmi && variations.movelist[variations.cmi]) {
+    if (variations && variations.cmi && variations.movelist[variations.cmi]) {
       return variations.movelist[variations.cmi].smith;
     }
   };
