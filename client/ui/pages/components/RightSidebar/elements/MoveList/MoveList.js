@@ -4,6 +4,7 @@ import { get } from "lodash";
 
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { buildPgnFromMovelist } from "../../../../../../../lib/exportpgn";
+import { gameStatusPlaying } from "../../../../../../constants/gameConstants";
 
 const log = new Logger("client/MoveList_js");
 
@@ -28,7 +29,15 @@ export default class MoveList extends Component {
   }
 
   handleClick = (cmi) => {
-    const { game } = this.props;
+    const { game, moveToCMI } = this.props;
+
+    console.log(132);
+    if (game?.status === gameStatusPlaying) {
+      moveToCMI(cmi);
+
+      console.log(43432);
+      return;
+    }
 
     Meteor.call("moveToCMI", "moveToCMI", game._id, cmi, (err) => {
       if (err) {

@@ -64,13 +64,31 @@ class PlayRightSidebar extends Component {
   };
 
   render() {
-    const { game, classes, onBotPlay, onSeekPlay, onChooseFriend, cssManager, moveList, flip } =
-      this.props;
+    const {
+      game,
+      classes,
+      onBotPlay,
+      onSeekPlay,
+      onChooseFriend,
+      cssManager,
+      moveList,
+      flip,
+      moveBackward,
+      moveForward,
+      moveBackwardBeginning,
+      moveForwardEnd,
+      moveToCMI,
+    } = this.props;
 
     return (
       <div className={classes.main}>
         <div className={classes.flexDiv}>
           <PlayBlock
+            moveBackward={moveBackward}
+            moveForward={moveForward}
+            moveBackwardBeginning={moveBackwardBeginning}
+            moveForwardEnd={moveForwardEnd}
+            moveToCMI={moveToCMI}
             game={game}
             onBotPlay={onBotPlay}
             onSeekPlay={onSeekPlay}

@@ -55,7 +55,7 @@ class Play extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!Meteor.userId() && !Meteor.isAppTest) {
+    if (!Meteor.userId()) {
       const { history } = this.props;
 
       history.push(RESOURCE_LOGIN);
