@@ -17,7 +17,7 @@ es5-shim@4.8.0                # ECMAScript 5 compatibility for older browsers
 
 ecmascript@0.15.3              # Enable ECMAScript2015+ syntax in app code
 
-accounts-password@2.0.0
+accounts-password@2.0.1
 reactive-dict@1.3.0
 static-html
 ultimatejs:tracker-react

@@ -20,6 +20,7 @@ import ChessBoard, { PiecesSidebar } from "chessboard";
 import { colorBlack, colorWhite, gameStatusPlaying } from "../../../constants/gameConstants";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import { withSounds } from "../../HOCs/withSounds";
 
 const log = new Logger("client/Editor_js");
 
@@ -249,12 +250,14 @@ class Editor extends Component {
   };
 
   handleMove = (currentMove) => {
-    const { examineGame } = this.props;
+    const { examineGame, playSound } = this.props;
 
     const currentSquare = this.chess.get(currentMove[0]);
 
     this.chess.remove(currentMove[0]);
     this.chess.put(currentSquare, currentMove[1]);
+
+    playSound("move_piece");
 
     Meteor.call("loadFen", "loadFen", examineGame._id, this.chess.fen(), (err) => {
       if (err) {
@@ -438,5 +441,6 @@ export default compose(
       systemCss: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  injectSheet(dynamicStyles),
+  withSounds("Editor")
 )(Editor);
