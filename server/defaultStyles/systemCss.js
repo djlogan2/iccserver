@@ -60,6 +60,23 @@ const systemCss = {
       color: "red",
       whiteSpace: "nowrap",
     },
+    borderBottom: {
+      borderBottom: "1px solid rgba(0,0,0,0.1)",
+    },
+    tableRow: {
+      display: "flex",
+      width: "100%",
+    },
+    tableCellNumber: {
+      minWidth: 20,
+      width: "20%",
+      padding: 3,
+    },
+    tableCellItem: {
+      minWidth: 30,
+      width: "40%",
+      padding: 3,
+    },
   },
   gameMoveStyle: {
     color: "#808080",
