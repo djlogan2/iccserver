@@ -102,6 +102,11 @@ class PlayBlock extends Component {
       gameRequest,
       examineAction,
       currentGame,
+      moveBackward,
+      moveForward,
+      moveBackwardBeginning,
+      moveForwardEnd,
+      moveToCMI,
     } = this.props;
     const { status } = this.state;
 
@@ -166,6 +171,7 @@ class PlayBlock extends Component {
           <GameHistory
             cssManager={cssManager}
             game={moveList}
+            moveToCMI={moveToCMI}
             actionData={actionData}
             startGameExamine={startGameExamine}
             gameRequest={gameRequest}
@@ -173,7 +179,14 @@ class PlayBlock extends Component {
             currentGame={currentGame}
           />
           <GameCommandsBlock game={game} />
-          <GameControlBlock game={game} flip={flip} />
+          <GameControlBlock
+            game={game}
+            flip={flip}
+            moveBackward={moveBackward}
+            moveForward={moveForward}
+            moveBackwardBeginning={moveBackwardBeginning}
+            moveForwardEnd={moveForwardEnd}
+          />
         </div>
       );
     }

@@ -44,6 +44,7 @@ class GameCommandsBlock extends React.Component {
           value={value}
           onChange={(event) => this.setState({ value: event.target.value })}
           placeholder={translate("inputCommand")}
+          onPressEnter={this.handleClick}
         />
         <Button onClick={this.handleClick}>{translate("send")}</Button>
       </div>

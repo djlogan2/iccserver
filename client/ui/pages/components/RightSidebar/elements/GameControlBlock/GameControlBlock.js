@@ -18,7 +18,7 @@ let handleError = (error) => {
   }
 };
 
-class LocationControls extends Component {
+class ExamineLocationControls extends Component {
   constructor(props) {
     super(props);
 
@@ -109,7 +109,8 @@ class LocationControls extends Component {
   detectMoveListFill = () => {
     const { game } = this.props;
 
-    return game?.variations?.movelist.length === 1;
+    const movelist = get(game, "variations.movelist", []);
+    return movelist?.length === 1;
   };
 
   render() {
@@ -162,6 +163,142 @@ class LocationControls extends Component {
           id="move-forward-end"
           title={translate("moveForwardEnd")}
           onClick={this.moveForwardEnd}
+          className={classes.locationControlItem}
+          disabled={disabled}
+        >
+          <img
+            src="images/navigation-end.svg"
+            alt={translate("moveForwardEnd")}
+            className={classes.locationControlsItemImage}
+          />
+        </button>
+        <button
+          id="flip-button"
+          title={translate("flip")}
+          onClick={flip}
+          className={classes.locationControlItem}
+        >
+          <img
+            src="images/navigation-flip.svg"
+            alt={translate("flip")}
+            className={classes.locationControlsItemImage}
+          />
+        </button>
+      </div>
+    );
+  }
+}
+
+class PlayLocationControls extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      cmi: 0,
+    };
+  }
+
+  handleKeysPress = (event) => {
+    const { moveBackward, moveBackwardBeginning, moveForward, moveForwardEnd } = this.props;
+    switch (event.keyCode) {
+      case 37:
+        moveBackward();
+        break;
+      case 38:
+        moveBackwardBeginning();
+        break;
+      case 39:
+        moveForward();
+        break;
+      case 40:
+        moveForwardEnd();
+        break;
+    }
+  };
+
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeysPress, false);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeysPress, false);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { game } = this.props;
+
+    const cmi = get(nextProps, "game.variations.cmi");
+    const prevCmi = get(game, "variations.cmi");
+
+    if (cmi && cmi !== prevCmi) {
+      this.setState({ cmi });
+    }
+  }
+
+  detectMoveListFill = () => {
+    const { game } = this.props;
+
+    return game?.variations?.movelist.length === 1;
+  };
+
+  render() {
+    const {
+      flip,
+      translate,
+      classes,
+      moveBackwardBeginning,
+      moveBackward,
+      moveForward,
+      moveForwardEnd,
+    } = this.props;
+
+    const disabled = this.detectMoveListFill();
+
+    return (
+      <div className={classes.locationControls}>
+        <button
+          id="move-backward-beginning"
+          title={translate("moveBackwardBeginning")}
+          onClick={moveBackwardBeginning}
+          className={classes.locationControlItem}
+          disabled={disabled}
+        >
+          <img
+            src="images/navigation-start.svg"
+            alt={translate("moveBackwardBeginning")}
+            className={classes.locationControlsItemImage}
+          />
+        </button>
+        <button
+          id="move-backward"
+          title={translate("moveBackward")}
+          onClick={moveBackward}
+          className={classes.locationControlItem}
+          disabled={disabled}
+        >
+          <img
+            src="images/navigation-back.svg"
+            alt={translate("moveBackward")}
+            className={classes.locationControlsItemImage}
+          />
+        </button>
+        <button
+          id="move-forward"
+          title={translate("moveForward")}
+          onClick={moveForward}
+          className={classes.locationControlItem}
+          disabled={disabled}
+        >
+          <img
+            src="images/navigation-next.svg"
+            alt={translate("moveForward")}
+            className={classes.locationControlsItemImage}
+          />
+        </button>
+        <button
+          id="move-forward-end"
+          title={translate("moveForwardEnd")}
+          onClick={moveForwardEnd}
           className={classes.locationControlItem}
           disabled={disabled}
         >
@@ -289,7 +426,8 @@ class ActionControls extends Component {
 }
 
 const EnhacnedActionControls = translate("Common.rightBarTop")(ActionControls);
-const EnhancedLocationControls = translate("Common.rightBarTop")(LocationControls);
+const EnhancedExamineLocationControls = translate("Common.rightBarTop")(ExamineLocationControls);
+const EnhancedPlayLocationControls = translate("Common.rightBarTop")(PlayLocationControls);
 
 const GameControlBlock = compose(
   withTracker(() => {
@@ -298,10 +436,18 @@ const GameControlBlock = compose(
     };
   }),
   injectSheet(dynamicStyles)
-)(({ game, flip, classes }) => {
+)(({ game, flip, classes, moveForward, moveBackward, moveForwardEnd, moveBackwardBeginning }) => {
   return (
     <div className={classes.container}>
-      <EnhancedLocationControls game={game} flip={flip} classes={classes} />
+      <EnhancedPlayLocationControls
+        moveForward={moveForward}
+        moveBackward={moveBackward}
+        moveForwardEnd={moveForwardEnd}
+        moveBackwardBeginning={moveBackwardBeginning}
+        game={game}
+        flip={flip}
+        classes={classes}
+      />
       <EnhacnedActionControls game={game} classes={classes} />
     </div>
   );
@@ -317,7 +463,7 @@ const ExamineGameControlBlock = compose(
 )(({ game, flip, classes }) => {
   return (
     <div className={classes.container}>
-      <EnhancedLocationControls game={game} flip={flip} classes={classes} />
+      <EnhancedExamineLocationControls game={game} flip={flip} classes={classes} />
     </div>
   );
 });

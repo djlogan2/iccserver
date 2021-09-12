@@ -3,11 +3,8 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
-import {
-  colorBlackLetter,
-  colorWhiteLetter,
-  gameStatusPlaying,
-} from "../../../constants/gameConstants";
+import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
+import { withSounds } from "../../HOCs/withSounds";
 
 class NewChessBoard extends Component {
   constructor(props) {
@@ -134,7 +131,7 @@ class NewChessBoard extends Component {
   };
 
   handleMove = (move, promotion) => {
-    const { onDrop, chess } = this.props;
+    const { onDrop, chess, playSound } = this.props;
     const { premoveColor } = this.state;
 
     const isCurrentTurn = this.isCurrentTurn();
@@ -148,6 +145,7 @@ class NewChessBoard extends Component {
 
       if (moves) {
         onDrop({ move: moves });
+        playSound("piece_move");
       }
 
       this.setState({
@@ -171,6 +169,8 @@ class NewChessBoard extends Component {
           });
 
           onDrop({ move: moves });
+          playSound("piece_move");
+
           return;
         }
         temp.undo();
@@ -227,7 +227,7 @@ class NewChessBoard extends Component {
 
   getLastMove = () => {
     const { variations } = this.props;
-    if (variations.cmi && variations.movelist[variations.cmi]) {
+    if (variations && variations.cmi && variations.movelist[variations.cmi]) {
       return variations.movelist[variations.cmi].smith;
     }
   };
@@ -331,4 +331,4 @@ class NewChessBoard extends Component {
   }
 }
 
-export default NewChessBoard;
+export default withSounds("ChessBoard")(NewChessBoard);

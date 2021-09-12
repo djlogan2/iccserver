@@ -379,6 +379,15 @@ Meteor.startup(() => {
     },
   });
 
+  Migrations.add({
+    version: "0.3.30_6",
+    name: "Update table move css for movelist",
+    run: () => {
+      mongoCss.update({ cssKey: "default" }, { systemCss });
+    },
+  });
+
+
   /*
   Migrations.add({
     version: "",
