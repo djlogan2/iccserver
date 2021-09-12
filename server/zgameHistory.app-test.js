@@ -156,14 +156,13 @@ describe("Game history", function() {
   });
 
   it("copies to game_history when a game is ended by out of time", function() {
-    this.timeout(60 * 1000 * 2); // 2 minute timeout
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
-    Game.startLocalGame("mi1", p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
+    const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 1, 0, "none", 1, 0, "none");
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 0);
-    self.clock.tick(60 * 1000); // 1 minute
+    Game.moveTimerExpired(game_id, "white");
     chai.assert.equal(Game.collection.find().count(), 1);
     chai.assert.equal(GameHistory.collection.find().count(), 1);
   });

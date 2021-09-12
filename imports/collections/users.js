@@ -499,6 +499,12 @@ Users.updateCurrentUsername = function (message_identifier, username) {
   }
 };
 
+Users.addTitle = function (message_identifier, user_id, newtitle) {};
+
+Users.removeTitle = function (message_identifier, user_id, oldtitle) {};
+
+Users.setTitles = function (message_identifier, user_id, titlearray) {};
+
 Users.updateCurrentEmail = function (message_identifier, email) {
   const self = Meteor.user();
 
@@ -619,6 +625,11 @@ Users.developerUserUpdate = function (client_state) {
     }
     if (!!client_state.base.isolation_group)
       set.isolation_group = client_state.base.isolation_group;
+    if (!!client_state.base.settings) {
+      Object.keys(client_state.base.settings).forEach((key) => {
+        set["settings." + key] = client_state.base.settings[key];
+      });
+    }
   }
 
   const modifier = {};

@@ -16,7 +16,7 @@ import {
   Row,
   Select,
   Table,
-  Typography
+  Typography,
 } from "antd";
 import date from "date-and-time";
 import { withTracker } from "meteor/react-meteor-data";
@@ -32,7 +32,7 @@ const LogonHistory = new Mongo.Collection("logon_history");
 class UserList extends Component {
   render() {
     if (!this.props.isReady) return <div>Loading</div>;
-    const users = this.props.everyone.map(user => (
+    const users = this.props.everyone.map((user) => (
       <Menu.Item key={user?._id}>{user?.username}</Menu.Item>
     ));
     return (
@@ -40,7 +40,7 @@ class UserList extends Component {
         <Menu
           mode="inline"
           style={{ height: "100%", borderRight: 0 }}
-          onClick={item => {
+          onClick={(item) => {
             this.props.onClick(item);
           }}
         >
@@ -58,13 +58,13 @@ class EmailList extends Component {
   }
 
   toggleVerified(email) {
-    Meteor.call("developer_email_update", this.props.user_id, "toggle", this.state.email, err => {
+    Meteor.call("developer_email_update", this.props.user_id, "toggle", this.state.email, (err) => {
       if (!!err) this.props.onError(err);
     });
   }
 
   removeEmail(email) {
-    Meteor.call("developer_email_update", this.props.user_id, "remove", email, err => {
+    Meteor.call("developer_email_update", this.props.user_id, "remove", email, (err) => {
       if (!!err) this.props.onError(err);
     });
   }
@@ -84,7 +84,7 @@ class EmailList extends Component {
       "add",
       this.state.email,
       this.state.verified,
-      err => {
+      (err) => {
         if (!!err) this.props.onError(err);
         else {
           this.setState({ email: undefined, verified: undefined });
@@ -99,7 +99,7 @@ class EmailList extends Component {
     const C2 = 1;
     const C3 = 1;
     if (!this.props.emails) return <div />;
-    const rows = this.props.emails.map(email => (
+    const rows = this.props.emails.map((email) => (
       <Row gutter={GUTTER}>
         <Col span={C1}>{email.address}</Col>
         <Col span={C2}>
@@ -125,7 +125,7 @@ class EmailList extends Component {
         {rows}
         <Row gutter={GUTTER}>
           <Col span={C1}>
-            <Input value={this.state.email} onChange={arg => this.newEmail(arg)} />
+            <Input value={this.state.email} onChange={(arg) => this.newEmail(arg)} />
           </Col>
           <Col span={C2}>
             <Checkbox checked={this.state.verified} onClick={() => this.toggleNewEmailVerified()} />
@@ -147,12 +147,12 @@ class EmailList extends Component {
 const style = {
   No: {},
   Global: { "background-color": "red" },
-  "Group only": { "background-color": "yellow" }
+  "Group only": { "background-color": "yellow" },
 };
 
 class Roles extends Component {
   changeRole(victim, role, changeto) {
-    Meteor.call("developer_update_role", victim, role, changeto, err => {
+    Meteor.call("developer_update_role", victim, role, changeto, (err) => {
       this.props.onError(err);
     });
   }
@@ -163,10 +163,10 @@ class Roles extends Component {
     const all_roles = Meteor.roles.find().fetch();
     all_roles.sort((a, b) => a._id.localeCompare(b._id));
     const roles = all_roles
-      .filter(role => {
+      .filter((role) => {
         return !role._id.startsWith("set_role_");
       })
-      .map(role_object => {
+      .map((role_object) => {
         const role = role_object._id;
         const user_role = Meteor.roleAssignment
           .find({ $and: [{ "user._id": this.props.user_id }, { "role._id": role }] })
@@ -212,7 +212,7 @@ class Roles extends Component {
               <Select
                 style={style[in_role.toLowerCase()]}
                 value={in_role}
-                onChange={arg => this.changeRole(this.props.user_id, role, arg)}
+                onChange={(arg) => this.changeRole(this.props.user_id, role, arg)}
               >
                 <Option value="No">No</Option>
                 <Option value="Global">Global</Option>
@@ -223,7 +223,7 @@ class Roles extends Component {
               <Select
                 className={style[set_role.toLowerCase()]}
                 value={set_role}
-                onChange={arg => this.changeRole(this.props.user_id, "set_role_" + role, arg)}
+                onChange={(arg) => this.changeRole(this.props.user_id, "set_role_" + role, arg)}
               >
                 <Option value="No">No</Option>
                 <Option value="Global">Global</Option>
@@ -256,7 +256,7 @@ class History extends Component {
       { title: "Logon Date", dataIndex: "logon_date", key: "_id" },
       { title: "Logoff Date", dataIndex: "logoff_date", key: "_id" },
       { title: "IP Address", dataIndex: "ip_address", key: "_id" },
-      { title: "User Agemt", dataIndex: "userAgent", key: "_id" }
+      { title: "User Agemt", dataIndex: "userAgent", key: "_id" },
     ];
     const history = LogonHistory.find({ user_id: this.props.user_id }).fetch();
     history.sort((a, b) => {
@@ -267,12 +267,12 @@ class History extends Component {
       if (!!a.logoff_date && !b.logoff_date) return 1;
       return b.logoff_date.getTime() - a.logoff_date.getTime();
     });
-    const userhistory = history.map(hist => {
+    const userhistory = history.map((hist) => {
       return {
         logon_date: date.format(hist.logon_date, "YYYY-MM-DD HH:mm:ss"),
         logoff_date: !hist.logoff_date ? "" : date.format(hist.logoff_date, "YYYY-MM-DD HH:mm:ss"),
         ip_address: hist.ip_address,
-        userAgent: hist.userAgent
+        userAgent: hist.userAgent,
       };
     });
     return <Table dataSource={userhistory} columns={columns} />;
@@ -293,11 +293,34 @@ class DeveloperContainer2 extends Component {
     this.setState({ error: err });
   }
 
+  changeSetting(user, key, value) {
+    if (!this || !this.state) return;
+    const base = { ...this.state.base };
+    const settings = base.settings || {};
+
+    const user_setting =
+      user.settings === undefined || user.settings[key] === undefined
+        ? "---false---"
+        : user.settings[key];
+    const new_setting = value === undefined || value === false ? "---false---" : value;
+
+    if (settings[key] === new_setting) return;
+    if (user_setting === new_setting) delete settings[key];
+    else settings[key] = value;
+
+    if (!!Object.keys(settings).length) base.settings = settings;
+    else delete base.settings;
+    this.setState({ base: base });
+  }
+
   dochange(item) {
     if (!this || !this.state) return;
     const base = { ...this.state.base };
     const user = Meteor.users.findOne({ _id: this.state.user });
     switch (item.target.id) {
+      case "premove":
+        this.changeSetting(user, item.target.id, item.target.checked);
+        break;
       case "username":
       case "isolation_group":
       case "locale":
@@ -325,7 +348,7 @@ class DeveloperContainer2 extends Component {
   }
 
   dosave() {
-    Meteor.call("developer_user_update", this.state, err => {
+    Meteor.call("developer_user_update", this.state, (err) => {
       const state = { base: undefined };
       if (!!err) state.error = err;
       this.setState(state);
@@ -346,7 +369,8 @@ class DeveloperContainer2 extends Component {
       if (
         state.base.username === "" ||
         state.base.isolation_group === "" ||
-        state.base.locale === ""
+        state.base.locale === "" ||
+        state.settings?.premove !== undefined
       )
         return true;
       if (!!Object.keys(state.base).length) return false;
@@ -372,7 +396,7 @@ class DeveloperContainer2 extends Component {
     return (
       <Layout>
         <UserList
-          onClick={item => this.dohim(item)}
+          onClick={(item) => this.dohim(item)}
           isReady={this.props.isReady}
           everyone={this.props.everyone}
         />
@@ -393,7 +417,7 @@ class DeveloperContainer2 extends Component {
                     <Input
                       id="username"
                       value={base?.username === undefined ? user?.username : base?.username}
-                      onChange={arg => this.dochange(arg)}
+                      onChange={(arg) => this.dochange(arg)}
                     />
                   </Col>
                 </Row>
@@ -407,7 +431,7 @@ class DeveloperContainer2 extends Component {
                           ? user?.isolation_group
                           : base?.isolation_group
                       }
-                      onChange={arg => this.dochange(arg)}
+                      onChange={(arg) => this.dochange(arg)}
                     />
                   </Col>
                 </Row>
@@ -417,7 +441,7 @@ class DeveloperContainer2 extends Component {
                     <Password
                       id="password"
                       value={base?.password}
-                      onChange={arg => this.dochange(arg)}
+                      onChange={(arg) => this.dochange(arg)}
                     />
                   </Col>
                 </Row>
@@ -426,7 +450,7 @@ class DeveloperContainer2 extends Component {
                   <Col span={right}>
                     <Select
                       value={base?.cf || user?.cf || "d"}
-                      onChange={arg => this.childchat(arg)}
+                      onChange={(arg) => this.childchat(arg)}
                     >
                       <Option value="d">Default</Option>
                       <Option value="c">Child</Option>
@@ -440,7 +464,7 @@ class DeveloperContainer2 extends Component {
                     <Input
                       id="locale"
                       value={base?.locale || user?.locale}
-                      onChange={arg => this.dochange(arg)}
+                      onChange={(arg) => this.dochange(arg)}
                     />
                   </Col>
                 </Row>
@@ -541,7 +565,7 @@ class DeveloperContainer2 extends Component {
                 <EmailList
                   user_id={user?._id}
                   emails={user?.emails}
-                  onError={err => this.setError(err)}
+                  onError={(err) => this.setError(err)}
                 />
               </Panel>
               <Panel header="Profile" key="4">
@@ -584,9 +608,35 @@ class DeveloperContainer2 extends Component {
                   </Row>
                 </Card>
               </Panel>
-              <Panel header="Settings" key="5" />
+              <Panel header="Settings" key="5">
+                <Row>
+                  <Col span={left}>Premove</Col>
+                  <Col span={right}>
+                    <Checkbox
+                      id="premove"
+                      checked={
+                        base?.settings?.premove === undefined
+                          ? user?.settings?.premove
+                          : base.settings.premove
+                      }
+                      onChange={(arg) => this.dochange(arg)}
+                    />{" "}
+                  </Col>
+                </Row>
+                <Row>
+                  <Col>
+                    <Button type="primary" onClick={() => this.dosave()} disabled={this.state.save}>
+                      Save
+                    </Button>
+                  </Col>
+                </Row>
+              </Panel>
               <Panel header="Roles" key="6">
-                <Roles user_id={user?._id} isolation_group={user?.isolation_group} onError={err => this.setError(err)} />
+                <Roles
+                  user_id={user?._id}
+                  isolation_group={user?.isolation_group}
+                  onError={(err) => this.setError(err)}
+                />
               </Panel>
               <Panel header="Login History" key="7">
                 <History user_id={user?._id} />
@@ -614,13 +664,13 @@ class DeveloperContainer2 extends Component {
 //  ------------------------------------------------------------
 export default withTracker(() => {
   const subscriptions = {
-    deveoper_all_users: Meteor.subscribe("developer_all_users")
+    deveoper_all_users: Meteor.subscribe("developer_all_users"),
   };
 
   return {
     isReady: isReadySubscriptions(subscriptions),
     everyone: Meteor.users.find({}, { sort: { username: 1 } }).fetch(),
     everyones_roles: Meteor.roleAssignment.find().fetch(),
-    everyones_logon_history: LogonHistory.find().fetch()
+    everyones_logon_history: LogonHistory.find().fetch(),
   };
 })(DeveloperContainer2);

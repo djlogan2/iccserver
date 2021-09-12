@@ -84,6 +84,7 @@ if (Meteor.isTest || Meteor.isAppTest) {
     setobject.isolation_group = options.isolation_group || "public";
     setobject.locale = options.locale || "en-us";
     setobject["settings.premove"] = options.premove === undefined ? true : options.premove;
+    setobject.titles = ["GM", "H"];
 
     if (userRecord.profile && userRecord.profile.legacy)
       setobject["profile.legacy.validated"] = true;
@@ -111,6 +112,17 @@ if (Meteor.isTest || Meteor.isAppTest) {
           },
         };
       }
+
+      self.startDelayTimer = self.sandbox.stub(Game.__proto__, "startDelayTimer");
+      self.startMoveTimer = self.sandbox.stub(Game.__proto__, "startMoveTimer");
+      self.gameNow = self.sandbox.stub(Game.__proto__, "now");
+      self.gameNow.callThrough();
+      self.watchForLogouts = self.sandbox.replace(Game.__proto__, "watchForLogouts", self.sandbox.fake.returns(null));
+      self.startGamePing = self.sandbox.replace(Game.__proto__, "startGamePing", self.sandbox.fake.returns(null));
+      self.setInterval = self.sandbox.stub(Meteor, "setInterval");
+      self.setInterval.throws();
+      //self.sandbox.replace(Meteor, "setInterval", self.sandbox.fake.throws());
+
       self.meteorUsersFake = self.sandbox.fake(() =>
         Meteor.users.findOne({
           _id: self.loggedonuser ? self.loggedonuser._id : "",
@@ -118,7 +130,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
       );
 
       if (!options || options.dynamicratings === undefined || options.dynamicratings !== false) {
-        // fuck fuck fuck fuck fuck fuck fuck
         self.sandbox.replace(
           DynamicRatings.__proto__,
           "getUserRatingsObject",

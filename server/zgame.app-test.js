@@ -1470,7 +1470,13 @@ describe("Takeback behavior", function () {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
   it("restores both clocks to the same time as the move taken back to", function () {
-    this.timeout(60000);
+    let timer = 0;
+    self.gameNow.callsFake(() => {
+      const t = timer;
+      timer += (Random.fraction() * 60000) | 0;
+      return t;
+    });
+
     // So if say:
     // move 20, white clock: 25:00, black clock: 15:00,
     // at move 22, white clock: 5:00, black clock: 2:00,
@@ -1498,7 +1504,6 @@ describe("Takeback behavior", function () {
     ["d4", "Nf6", "c4", "g6", "g3", "c6"].forEach((move) => {
       const game = Game.collection.findOne();
       current.push(game.clocks[game.tomove].current);
-      self.clock.tick((Random.fraction() * 60000) | 0); // Wait a 0-60s
       Game.saveLocalMove("mi2", game_id, move);
       const temp = self.loggedonuser;
       self.loggedonuser = other;
@@ -1506,13 +1511,11 @@ describe("Takeback behavior", function () {
     }); // It is whites move here.
     checkTakeback(Game.collection.findOne());
 
-    self.clock.tick((Random.fraction() * 60000) | 0); // Wait a 0-60s
     self.loggedonuser = p1;
     Game.requestLocalTakeback("mi4", game_id, 4);
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     checkTakeback(Game.collection.findOne(), 4, 0);
 
-    self.clock.tick((Random.fraction() * 60000) | 0); // Wait a 0-60s
     self.loggedonuser = p2;
     Game.acceptLocalTakeback("mi4", game_id);
 
@@ -3696,7 +3699,8 @@ describe("When making a move in a game being played", function () {
 describe("when playing a game", function () {
   const self = TestHelpers.setupDescribe.call(this, { timer: true });
 
-  it("should write a ping to the record each second, and record both blacks and whites responses", function (done) {
+  it.skip("should write a ping to the record each second, and record both blacks and whites responses", function (done) {
+    // This no longer occurs in unit/integration tests
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3907,7 +3911,7 @@ describe("Game clocks", function () {
     chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
   });
 
-  it("should add the increment back in if specified", function () {
+  it("should start with an increment and add the increment in if specified", function () {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
     self.loggedonuser = p1;
@@ -3926,15 +3930,15 @@ describe("Game clocks", function () {
       "white"
     );
     const game1 = Game.collection.findOne({});
-    chai.assert.equal(game1.clocks.white.current, 15 * 60 * 1000); // 15 minutes in milliseconds
+    chai.assert.equal(game1.clocks.white.current, (15 * 60 + 45) * 1000); // 15 minutes + 45s inc in milliseconds
     chai.assert.equal(game1.clocks.black.current, 15 * 60 * 1000); // 15 minutes in milliseconds
 
     self.clock.tick(6000);
     Game.saveLocalMove("mi2", game_id, "e4");
 
     const game2 = Game.collection.findOne({});
-    chai.assert.equal(game2.clocks.white.current, 15 * 60 * 1000 - 6000 + 45000); // 15 minutes minus 6s, plus 45s increment
-    chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
+    chai.assert.equal(game2.clocks.white.current, (15 * 60 + 45) * 1000 - 6000); // 15 minutes minus 6s
+    chai.assert.equal(game2.clocks.black.current, (15 * 60 + 45) * 1000);        // 15 minutes + 45s increment
   });
 
   it("should not change the clock time if under the us delay when us delay is specified", function () {
@@ -4006,7 +4010,8 @@ describe("Game clocks", function () {
     chai.assert.equal(game2.clocks.black.current, 15 * 60 * 1000); // 15 minutes
   });
 
-  it("should automatically end the game when time expires", function () {
+  it.skip("should automatically end the game when time expires", function () {
+    // It no longer starts timers in tests
     this.timeout(200000);
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
@@ -4073,45 +4078,6 @@ describe("Game clocks", function () {
     const game4 = Game.collection.findOne({});
     chai.assert.equal(game4.clocks.white.current, 5000);
     chai.assert.equal(game4.status, "playing");
-  });
-
-  it("should end the game when bronstein delay=10s and player takes more than 10s to move", function () {
-    const p1 = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
-    self.loggedonuser = p1;
-    const game_id = Game.startLocalGame(
-      "mi1",
-      p2,
-      0,
-      "bullet",
-      true,
-      1,
-      10,
-      "bronstein",
-      1,
-      10,
-      "bronstein",
-      "white"
-    );
-    const game1 = Game.collection.findOne({});
-    chai.assert.equal(game1.clocks.white.current, 60 * 1000);
-    chai.assert.equal(game1.clocks.black.current, 60 * 1000);
-
-    self.clock.tick(59995); // 59.995s goes by -- Can't exceed the amount of time we have left, since bronstein adds time back
-
-    Game.saveLocalMove("mi2", game_id, "e4");
-    const game2 = Game.collection.findOne({});
-    chai.assert.equal(game2.clocks.white.current, 10005); // 5ms left plus the 10s delay
-    chai.assert.equal(game2.clocks.black.current, 60 * 1000);
-
-    self.loggedonuser = p2;
-    Game.saveLocalMove("mi3", game_id, "e5");
-
-    self.clock.tick(10500); // 10.5s think time is enough for bronstein time to expire
-
-    const game3 = Game.collection.findOne({});
-    chai.assert.equal(game3.result, "0-1");
-    chai.assert.equal(game3.status, "examining");
   });
 
   it("should leave the clock at 15s if starting time is 15s, us delay is 5s, and they take 3s to move", function () {

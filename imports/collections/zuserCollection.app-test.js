@@ -20,6 +20,7 @@ const logged_on_user_fields = {
   _id: 1,
   cf: 1,
   username: 1,
+  titles: 1,
   status: {
     game: 1,
     client: 1,
@@ -36,6 +37,7 @@ const our_allowed_user_fields = {
   _id: 1,
   createdAt: 1,
   username: 1,
+  titles: 1,
   locale: 1,
   emails: 1,
   profile: {
@@ -70,6 +72,7 @@ const all_fields = {
   _id: 1,
   cf: 1,
   username: 1,
+  titles: 1,
   locale: 1,
   createdAt: 1,
   emails: {
@@ -139,7 +142,7 @@ const all_fields = {
     idle: 1,
     legacy: 1,
   },
-  isolation_group: 1,
+  isolation_group: 1
 };
 
 describe("Users", function () {
