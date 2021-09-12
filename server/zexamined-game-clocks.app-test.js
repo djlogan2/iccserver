@@ -2,7 +2,7 @@ import chai from "chai";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { GameHistory } from "./Game";
 
-describe.only("Played game clocks", function(){
+describe("Played game clocks", function(){
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("should add increment to any players clock at beginning his move", function(){
@@ -249,7 +249,7 @@ describe.only("Played game clocks", function(){
   });
 });
 
-describe.only("Clocks in examined games", function () {
+describe("Clocks in examined games", function () {
   const self = TestHelpers.setupDescribe.apply(this);
 
   it("should create the current values in the clock object in the game record upon load", function () {

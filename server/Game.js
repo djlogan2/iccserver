@@ -211,16 +211,45 @@ export class Game {
     message_identifier,
     wild_number,
     rating_type,
-    white_initial,
-    white_increment_or_delay,
-    white_increment_or_delay_type,
-    black_initial,
-    black_increment_or_delay,
-    black_increment_or_delay_type,
+    challenger_initial,
+    challenger_increment_or_delay,
+    challenger_increment_or_delay_type,
+    computer_initial,
+    computer_increment_or_delay,
+    computer_increment_or_delay_type,
     color,
     skill_level,
     examined_game_id
   ) {
+    const self = Meteor.user();
+    check(self, Object);
+
+    const white = this.determineWhite(self, "computer", color);
+    let white_initial;
+    let white_increment_or_delay;
+    let white_increment_or_delay_type;
+    let black_initial;
+    let black_increment_or_delay;
+    let black_increment_or_delay_type;
+
+    if (white === "computer") {
+      color = "black";
+      white_initial = computer_initial;
+      white_increment_or_delay = computer_increment_or_delay;
+      white_increment_or_delay_type = computer_increment_or_delay_type;
+      black_initial = challenger_initial;
+      black_increment_or_delay = challenger_increment_or_delay;
+      black_increment_or_delay_type = challenger_increment_or_delay_type;
+    } else {
+      color = "white";
+      black_initial = computer_initial;
+      black_increment_or_delay = computer_increment_or_delay;
+      black_increment_or_delay_type = computer_increment_or_delay_type;
+      white_initial = challenger_initial;
+      white_increment_or_delay = challenger_increment_or_delay;
+      white_increment_or_delay_type = challenger_increment_or_delay_type;
+    }
+
     return this.startLocalGame(
       message_identifier,
       "computer",
@@ -4382,17 +4411,17 @@ Meteor.methods({
     // eslint-disable-next-line meteor/audit-argument-checks
     rating_type,
     // eslint-disable-next-line meteor/audit-argument-checks
-    white_initial,
+    challenger_initial,
     // eslint-disable-next-line meteor/audit-argument-checks
-    white_increment_or_delay,
+    challenger_increment_or_delay,
     // eslint-disable-next-line meteor/audit-argument-checks
-    white_increment_or_delay_type,
+    challenger_increment_or_delay_type,
     // eslint-disable-next-line meteor/audit-argument-checks
-    black_initial,
+    computer_initial,
     // eslint-disable-next-line meteor/audit-argument-checks
-    black_increment_or_delay,
+    computer_increment_or_delay,
     // eslint-disable-next-line meteor/audit-argument-checks
-    black_increment_or_delay_type,
+    computer_increment_or_delay_type,
     // eslint-disable-next-line meteor/audit-argument-checks
     skill_level,
     // eslint-disable-next-line meteor/audit-argument-checks
@@ -4404,12 +4433,12 @@ Meteor.methods({
       message_identifier,
       wild_number,
       rating_type,
-      white_initial,
-      white_increment_or_delay,
-      white_increment_or_delay_type,
-      black_initial,
-      black_increment_or_delay,
-      black_increment_or_delay_type,
+      challenger_initial,
+      challenger_increment_or_delay,
+      challenger_increment_or_delay_type,
+      computer_initial,
+      computer_increment_or_delay,
+      computer_increment_or_delay_type,
       color,
       skill_level,
       examined_game_id
