@@ -106,6 +106,7 @@ class PlayChooseBot extends Component {
 
     let { color } = this.state;
     const {
+      timeOdds,
       challengerRatingType,
       receiverRatingType,
       difficulty,
@@ -117,18 +118,33 @@ class PlayChooseBot extends Component {
       receiverIncrementOrDelay,
     } = this.state;
 
-    onPlay({
-      challengerRatingType,
-      receiverRatingType,
-      color: color === "random" ? null : color,
-      challengerIncrementOrDelayType,
-      receiverIncrementOrDelayType,
-      challengerInitial,
-      receiverInitial,
-      challengerIncrementOrDelay,
-      receiverIncrementOrDelay,
-      skillLevel: difficulty,
-    });
+    if (timeOdds) {
+      onPlay({
+        challengerRatingType,
+        receiverRatingType,
+        color: color === "random" ? null : color,
+        challengerIncrementOrDelayType,
+        receiverIncrementOrDelayType,
+        challengerInitial,
+        receiverInitial,
+        challengerIncrementOrDelay,
+        receiverIncrementOrDelay,
+        skillLevel: difficulty,
+      });
+    } else {
+      onPlay({
+        challengerRatingType,
+        receiverRatingType: challengerRatingType,
+        color: color === "random" ? null : color,
+        challengerIncrementOrDelayType,
+        receiverIncrementOrDelayType: challengerIncrementOrDelayType,
+        challengerInitial,
+        receiverInitial: challengerInitial,
+        challengerIncrementOrDelay,
+        receiverIncrementOrDelay: challengerIncrementOrDelay,
+        skillLevel: difficulty,
+      });
+    }
   };
 
   render() {
