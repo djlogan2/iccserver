@@ -219,6 +219,8 @@ class PlayFriendOptions extends Component {
                 <InputNumber
                   name="challengerInitial"
                   min={0}
+                  parser={(value) => Math.round(value)}
+                  formatter={(value) => Math.round(value)}
                   max={maxInitialValue}
                   value={challengerInitial}
                   onChange={this.handleChange("challengerInitial")}
@@ -238,6 +240,8 @@ class PlayFriendOptions extends Component {
                   <InputNumber
                     name="challengerIncrementOrDelay"
                     min={1}
+                    parser={(value) => Math.round(value)}
+                    formatter={(value) => Math.round(value)}
                     max={maxIncOrDelayValue}
                     value={challengerIncrementOrDelay}
                     onChange={this.handleChange("challengerIncrementOrDelay")}
@@ -277,6 +281,8 @@ class PlayFriendOptions extends Component {
                     <InputNumber
                       name="receiverInitial"
                       min={0}
+                      parser={(value) => Math.round(value)}
+                      formatter={(value) => Math.round(value)}
                       max={maxInitialValue}
                       value={receiverInitial}
                       onChange={this.handleChange("receiverInitial")}
@@ -298,6 +304,8 @@ class PlayFriendOptions extends Component {
                       <InputNumber
                         name="receiverIncrementOrDelay"
                         min={1}
+                        parser={(value) => Math.round(value)}
+                        formatter={(value) => Math.round(value)}
                         max={maxIncOrDelayValue}
                         value={receiverIncrementOrDelay}
                         onChange={this.handleChange("receiverIncrementOrDelay")}
