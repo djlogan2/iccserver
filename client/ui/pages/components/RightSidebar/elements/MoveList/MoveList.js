@@ -31,14 +31,14 @@ class MoveList extends Component {
     }
   }
 
-  handleClick = (cmi) => {
+  handleClick = (cmi, game_id) => {
     const { game, moveToCMI } = this.props;
     if (game?.status === gameStatusPlaying) {
       moveToCMI(cmi);
       return;
     }
 
-    Meteor.call("moveToCMI", "moveToCMI", game._id, cmi, (err) => {
+    Meteor.call("moveToCMI", "moveToCMI", game_id, cmi, (err) => {
       if (err) {
         log.error(err);
       }
@@ -58,9 +58,9 @@ class MoveList extends Component {
     const { isTable } = this.state;
 
     const switchClick = () => {
-      this.setState({
-        isTable: !this.state.isTable,
-      });
+      this.setState((state) => ({
+        isTable: !state.isTable,
+      }));
     };
 
     if (!!game) {
@@ -76,7 +76,7 @@ class MoveList extends Component {
         game._id,
         game.variations.cmi,
         cssManager,
-        this.handleMoveClick
+        this.handleClick
       );
     }
 
