@@ -107,7 +107,8 @@ describe("Expanded game status codes", function() {
     this.timeout(60 * 1000 + 3000); // 1m timeout plus default of 3000ms
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["a4","a5","b4","b5","c4","c5","d4","d5","e4","e5","f4","f5","g4","g5","h4","h5"]);
-    self.clock.tick(60 * 1000); // Let the 15 minutes expire. The game should end
+    //self.clock.tick(60 * 1000); // Let the 15 minutes expire. The game should end
+    Game.moveTimerExpired(result.game_id, "white");
     const game = Game.collection.findOne({ _id: result.game_id });
     chai.assert.equal(game.status, "examining");
     chai.assert.equal(game.result, "0-1");
@@ -125,7 +126,8 @@ describe("Expanded game status codes", function() {
     this.timeout(60 * 1000 + 3000); // 1m timeout plus default of 3000ms
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["a4","a5","b4","b5","c4","c5","d4","d5","e4","e5","f4","f5","g4","g5","h4","h5","Ra2"]);
-    self.clock.tick(60 * 1000); // Let the 15 minutes expire. The game should end
+    //self.clock.tick(60 * 1000); // Let the 15 minutes expire. The game should end
+    Game.moveTimerExpired(result.game_id, "black");
     const game = Game.collection.findOne({ _id: result.game_id });
     chai.assert.equal(game.status, "examining");
     chai.assert.equal(game.result, "1-0");

@@ -223,7 +223,7 @@ describe("Game status field in user record", function() {
         playMoves(game, ["e4","e5","f4","exf4","g3","fxg3","Nf3","gxh2","Rxh2","f5","exf5","d5","d4","c5","dxc5","b6","cxb6","Nc6","bxa7","Rxa7","Qxd5","Bxf5","Rxh7","Rxa2","Rxh8","Rxa1","Rxg8","Rxb1","Rxf8","Kxf8","Qxc6","Rxb2","Qc8","Rxc2","Qxd8","Kf7","Nd4","Rxc1","Kd2","Rxf1","Nxf5","Rxf5","Qd7","Kf6","Qxg7","Ke6","Qg6","Rf6","Qxf6","Kxf6"]);
         break;
       case "time":
-        self.clock.tick(1 * 60 * 1000); // Let the 15 minutes expire. The game should end
+        Game.moveTimerExpired(game._id, game.tomove);
         break;
       default:
         break;

@@ -67,36 +67,7 @@ export class Game {
       Users.setGameStatus("server", user, _self.getStatusFromGameCollection(fields.userId));
     });
 
-    Users.events.on("userLogout", function (fields) {
-      if (_self.getStatusFromGameCollection(fields.userId) === "none") return;
-
-      const doTheLogout = () => {
-        _self.localResignAllGames("server", fields.userId, 4);
-        _self.localUnobserveAllGames("server", fields.userId, true, true);
-        Users.setGameStatus("server", fields.userId, "none");
-      };
-
-      if (Meteor.isTest || Meteor.isAppTest || !SystemConfiguration.logoutTimeout()) {
-        doTheLogout();
-        return;
-      }
-
-      const cursor = Meteor.users.find({ _id: fields.userId }).observeChanges({
-        changed(id, fields2) {
-          if ("status" in fields2 && "online" in fields2.status && fields2.status.online) {
-            Meteor.clearInterval(interval);
-            cursor.stop();
-          }
-        },
-      });
-
-      const interval = Meteor.setInterval(() => {
-        Meteor.clearInterval(interval);
-        cursor.stop();
-        if (!Meteor.users.find({ _id: fields.userId, "status.online": true }).count())
-          doTheLogout();
-      }, SystemConfiguration.logoutTimeout());
-    });
+    this.watchForLogouts();
 
     if (Meteor.isTest || Meteor.isAppTest) {
       this.collection = _self.GameCollection;
@@ -153,6 +124,41 @@ export class Game {
     });
   }
 
+  doTheLogout(userId) {
+    this.localResignAllGames("server", userId, 4);
+    this.localUnobserveAllGames("server", userId, true, true);
+    Users.setGameStatus("server", userId, "none");
+  }
+
+  processUserLogout(fields) {
+    if (this.getStatusFromGameCollection(fields.userId) === "none") return;
+
+    if (Meteor.isTest || Meteor.isAppTest || !SystemConfiguration.logoutTimeout()) {
+      this.doTheLogout(fields.userId);
+      return;
+    }
+
+    const cursor = Meteor.users.find({ _id: fields.userId }).observeChanges({
+      changed(id, fields2) {
+        if ("status" in fields2 && "online" in fields2.status && fields2.status.online) {
+          Meteor.clearInterval(interval);
+          cursor.stop();
+        }
+      },
+    });
+
+    const interval = Meteor.setInterval(() => {
+      Meteor.clearInterval(interval);
+      cursor.stop();
+      if (!Meteor.users.find({ _id: fields.userId, "status.online": true }).count())
+        this.doTheLogout(fields.userId);
+    }, SystemConfiguration.logoutTimeout());
+  }
+
+  watchForLogouts() {
+    Users.events.on("userLogout", (fields) => this.processUserLogout(fields));
+  }
+
   getAndCheck(self, message_identifier, game_id) {
     check(self, Object);
     check(game_id, String);
@@ -205,16 +211,45 @@ export class Game {
     message_identifier,
     wild_number,
     rating_type,
-    white_initial,
-    white_increment_or_delay,
-    white_increment_or_delay_type,
-    black_initial,
-    black_increment_or_delay,
-    black_increment_or_delay_type,
+    challenger_initial,
+    challenger_increment_or_delay,
+    challenger_increment_or_delay_type,
+    computer_initial,
+    computer_increment_or_delay,
+    computer_increment_or_delay_type,
     color,
     skill_level,
     examined_game_id
   ) {
+    const self = Meteor.user();
+    check(self, Object);
+
+    const white = this.determineWhite(self, "computer", color);
+    let white_initial;
+    let white_increment_or_delay;
+    let white_increment_or_delay_type;
+    let black_initial;
+    let black_increment_or_delay;
+    let black_increment_or_delay_type;
+
+    if (white === "computer") {
+      color = "black";
+      white_initial = computer_initial;
+      white_increment_or_delay = computer_increment_or_delay;
+      white_increment_or_delay_type = computer_increment_or_delay_type;
+      black_initial = challenger_initial;
+      black_increment_or_delay = challenger_increment_or_delay;
+      black_increment_or_delay_type = challenger_increment_or_delay_type;
+    } else {
+      color = "white";
+      black_initial = computer_initial;
+      black_increment_or_delay = computer_increment_or_delay;
+      black_increment_or_delay_type = computer_increment_or_delay_type;
+      white_initial = challenger_initial;
+      white_increment_or_delay = challenger_increment_or_delay;
+      white_increment_or_delay_type = challenger_increment_or_delay_type;
+    }
+
     return this.startLocalGame(
       message_identifier,
       "computer",
@@ -427,6 +462,13 @@ export class Game {
     const white = this.determineWhite(self, other_user, color);
     const black = white._id === self._id ? other_user : self;
 
+    const wcurrent =
+      white_initial * 60 * 1000 +
+      (white_increment_or_delay_type === "inc" ? white_increment_or_delay * 1000 : 0);
+    const bcurrent = black_initial * 60 * 1000;
+
+    const now = this.now();
+
     const game = {
       starttime: new Date(),
       isolation_group: self.isolation_group,
@@ -465,23 +507,21 @@ export class Game {
           initial: white_initial,
           inc_or_delay: white_increment_or_delay,
           delaytype: white_increment_or_delay_type,
-          current:
-            white_initial * 60 * 1000 +
-            (white_increment_or_delay_type === "inc" ? white_increment_or_delay * 1000 : 0), // milliseconds
-          starttime: chess.turn() === "w" ? new Date().getTime() : 0,
+          current: wcurrent, // milliseconds
+          starttime: chess.turn() === "w" ? now : 0,
         },
         black: {
           initial: black_initial,
           inc_or_delay: black_increment_or_delay,
           delaytype: black_increment_or_delay_type,
-          current: black_initial * 60 * 1000, //milliseconds
-          starttime: chess.turn() === "b" ? new Date().getTime() : 0,
+          current: bcurrent,
+          starttime: chess.turn() === "b" ? now : 0,
         },
       },
       status: "playing",
       actions: [],
       observers: [],
-      variations: { hmtb: 0, cmi: 0, movelist: [{}] },
+      variations: { hmtb: 0, cmi: 0, movelist: [{ wcurrent: wcurrent, bcurrent: bcurrent }] },
       computer_variations: [],
       lag: {
         white: {
@@ -625,6 +665,14 @@ export class Game {
     game_object.examiners = [{ id: self._id, username: self.username }];
     game_object.observers = [{ id: self._id, username: self.username }];
 
+    if (!!game_object.variations.movelist.length) {
+      game_object.clocks.white.current = game_object.variations.movelist[0].wcurrent || 0;
+      game_object.clocks.black.current = game_object.variations.movelist[0].bcurrent || 0;
+    } else {
+      game_object.clocks.white.current = 0;
+      game_object.clocks.black.current = 0;
+    }
+
     const chess = new Chess.Chess();
     if (game_object.tags && game_object.tags.FEN) {
       game_object.fen = game_object.tags.FEN;
@@ -700,6 +748,10 @@ export class Game {
       black: {
         name: black_name,
         rating: 1600,
+      },
+      clocks: {
+        white: { initial: 15, inc_or_delay: 0, delaytype: "none", current: 0 },
+        black: { initial: 15, inc_or_delay: 0, delaytype: "none", current: 0 },
       },
       wild: wild_number,
       status: "examining",
@@ -985,7 +1037,7 @@ export class Game {
     let gamelag;
     let totallag = 0;
     const lagvalues = lagobject.pings.slice(-2);
-    const now = new Date().getTime();
+    const now = this.now();
     if (lagvalues.length) {
       totallag = lagvalues.reduce((total, cur) => total + cur, 0);
       totallag = totallag | 0; // convert double to int
@@ -1083,8 +1135,10 @@ export class Game {
     const game = this.getAndCheck(self, message_identifier, game_id);
 
     if (!game) return;
+
     const chessObject = active_games[game_id];
     const variation = game.variations;
+    const now = this.now();
 
     if (game.status === "playing") {
       if (variation_param !== undefined) {
@@ -1147,23 +1201,6 @@ export class Game {
     const unsetobject = {};
     let gamelag = 0;
     let gameping = 0;
-    const client_message = this.addMoveToMoveList(
-      variation,
-      move,
-      game.status === "playing" ? game.clocks[bw].current : null,
-      result.piece,
-      result.color,
-      result.from,
-      result.to,
-      result.promotion,
-      variation_param
-    );
-    if (!!client_message) {
-      ClientMessages.sendMessageToClient(self._id, message_identifier, client_message);
-      return;
-    }
-
-    this.load_eco(chessObject, variation);
 
     if (game.status === "playing") {
       if (
@@ -1214,11 +1251,10 @@ export class Game {
       var otherbw_current;
 
       if (!setobject.result) {
-        const timenow = new Date().getTime();
         gamelag = this.calculateGameLag(game.lag[bw]) | 0;
         gameping = game.lag[bw].pings.slice(-1) | 0;
 
-        let used = timenow - game.clocks[bw].starttime - gamelag;
+        let used = now - game.clocks[bw].starttime - gamelag;
         let addback = 0;
 
         if (game.clocks[bw].delaytype !== "none" && game.clocks[bw].delaytype !== "inc") {
@@ -1254,6 +1290,28 @@ export class Game {
       }
     }
 
+    const wcurrent = setobject["clocks.white.current"] || game.clocks.white.current;
+    const bcurrent = setobject["clocks.black.current"] || game.clocks.black.current;
+
+    const client_message = this.addMoveToMoveList(
+      variation,
+      move,
+      game.status === "playing" ? wcurrent : null,
+      game.status === "playing" ? bcurrent : null,
+      result.piece,
+      result.color,
+      result.from,
+      result.to,
+      result.promotion,
+      variation_param
+    );
+    if (!!client_message) {
+      ClientMessages.sendMessageToClient(self._id, message_identifier, client_message);
+      return;
+    }
+
+    this.load_eco(chessObject, variation);
+
     const move_parameter = { move: move };
     if (game.status === "playing") {
       move_parameter.lag = Timestamp.averageLag(self._id);
@@ -1269,7 +1327,7 @@ export class Game {
 
     setobject.variations = variation;
     setobject.tomove = otherbw;
-    setobject["clocks." + otherbw + ".starttime"] = new Date().getTime();
+    setobject["clocks." + otherbw + ".starttime"] = now;
     const premove = game.premove;
 
     if (!!premove) unsetobject.premove = 1;
@@ -1322,6 +1380,9 @@ export class Game {
     }
   }
 
+  now() {
+    return new Date().getTime();
+  }
   //	There are three outcome codes, given in the following order:
   // 	(1) game_result, e.g. "Mat" (the 3-letter codes used in game lists)
   // 	(2) score_string2, "0-1", "1-0", "1/2-1/2", "*", or "aborted"
@@ -1798,7 +1859,6 @@ export class Game {
 
     const variation = game.variations;
     const action = { type: "takeback_accepted", issuer: self._id };
-    const clock_reset = {};
 
     for (let x = 0; x < variation.hmtb; x++) {
       const undone = active_games[game_id].undo();
@@ -1811,9 +1871,11 @@ export class Game {
         );
 
       tomove = tomove === "white" ? "black" : "white";
-      clock_reset[tomove] = variation.movelist[variation.cmi].current;
       variation.cmi = variation.movelist[variation.cmi].prev;
     }
+
+    const wcurrent = variation.movelist[variation.cmi].wcurrent;
+    const bcurrent = variation.movelist[variation.cmi].bcurrent;
 
     const setobject = {
       fen: active_games[game_id].fen(),
@@ -1821,8 +1883,8 @@ export class Game {
       "pending.white.takeback": { number: 0, mid: "0" },
       "pending.black.takeback": { number: 0, mid: "0" },
       "variations.cmi": variation.cmi,
-      "clocks.white.current": clock_reset.white,
-      "clocks.black.current": clock_reset.black,
+      "clocks.white.current": wcurrent,
+      "clocks.black.current": bcurrent,
     };
 
     this.GameCollection.update(
@@ -2794,12 +2856,18 @@ export class Game {
     });
     variation.cmi = cmi;
     this.load_eco(chessObject, variation);
+
+    const wcurrent = variation.movelist[cmi].wcurrent || 0;
+    const bcurrent = variation.movelist[cmi].bcurrent || 0;
+
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: {
           arrows: [],
           circles: [],
+          "clocks.white.current": wcurrent,
+          "clocks.black.current": bcurrent,
           "variations.cmi": cmi,
           "variations.movelist": variation.movelist,
           fen: chessObject.fen(),
@@ -2882,10 +2950,15 @@ export class Game {
     //       just record the actual, throwing away the requested move count.
     //       OR, figure out how to undo what was done to the chess object
     //       and the variations.cmi
+    const wcurrent = variation.movelist[variation.cmi].wcurrent || 0;
+    const bcurrent = variation.movelist[variation.cmi].bcurrent || 0;
+
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: {
+          "clocks.white.current": wcurrent,
+          "clocks.black.current": bcurrent,
           arrows: [],
           circles: [],
           "variations.cmi": variation.cmi,
@@ -2955,12 +3028,17 @@ export class Game {
 
     this.load_eco(active_games[game_id], variation);
 
+    const wcurrent = variation.movelist[variation.cmi].wcurrent || 0;
+    const bcurrent = variation.movelist[variation.cmi].bcurrent || 0;
+
     this.GameCollection.update(
       { _id: game_id, status: "examining" },
       {
         $set: {
           arrows: [],
           circles: [],
+          "clocks.white.current": wcurrent,
+          "clocks.black.current": bcurrent,
           "variations.cmi": variation.cmi,
           "variations.movelist": variation.movelist,
           fen: active_games[game_id].fen(),
@@ -3032,7 +3110,8 @@ export class Game {
   addMoveToMoveList(
     variation_object,
     move,
-    current,
+    wcurrent,
+    bcurrent,
     piece,
     color,
     from,
@@ -3078,7 +3157,8 @@ export class Game {
       move: move,
       smith: { piece, color, from, to, promotion },
       prev: variation_object.cmi,
-      current: current,
+      wcurrent: wcurrent,
+      bcurrent: bcurrent,
     });
 
     if (has_variations) {
@@ -3495,6 +3575,35 @@ export class Game {
         }
       );
     }
+  }
+
+  setClocks(message_identifier, game_id, white, black) {
+    check(message_identifier, String);
+    check(game_id, String);
+    check(white, Match.maybe(Number));
+    check(black, Match.maybe(Number));
+
+    if (white === undefined && black === undefined) return;
+
+    const self = Meteor.user();
+    check(self, Object);
+    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    if (!game || game.status !== "examining") {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
+      return;
+    }
+
+    const setobject = {};
+    if (white !== undefined) {
+      setobject["variations.movelist." + game.variations.cmi + ".wcurrent"] = white;
+      setobject["clocks.white.current"] = white;
+    }
+    if (black !== undefined) {
+      setobject["variations.movelist." + game.variations.cmi + ".bcurrent"] = black;
+      setobject["clocks.black.current"] = black;
+    }
+
+    this.GameCollection.update({ _id: game._id }, { $set: setobject });
   }
 
   setTag(message_identifier, game_id, tag, value) {
@@ -3916,14 +4025,55 @@ export class Game {
   // In US delay, we delay countdown for the delay
   // In Bronstein delay, we count down, but then add the delay back in when they make their move
   //
+  delayTimerExpired(game_id, color, actual_milliseconds) {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+    this.startMoveTimer(game_id, color, 0, "", actual_milliseconds);
+  }
+
   startDelayTimer(game_id, color, delay_milliseconds, actual_milliseconds) {
     if (!!move_timers[game_id]) Meteor.clearInterval(move_timers[game_id]);
+    move_timers[game_id] = Meteor.setInterval(
+      () => this.delayTimerExpired(game_id, color, actual_milliseconds),
+      delay_milliseconds
+    );
+  }
 
-    move_timers[game_id] = Meteor.setInterval(() => {
-      Meteor.clearInterval(move_timers[game_id]);
-      delete move_timers[game_id];
-      this.startMoveTimer(game_id, color, 0, "", actual_milliseconds);
-    }, delay_milliseconds);
+  moveTimerExpired(game_id, color) {
+    Meteor.clearInterval(move_timers[game_id]);
+    delete move_timers[game_id];
+    const game = this.GameCollection.findOne({ _id: game_id, status: "playing" });
+    if (!game) {
+      log.error("Unable to find a game to expire time on");
+      return;
+    }
+    const setobject = {};
+    const addtosetobject = {};
+    setobject.result = color === "white" ? "0-1" : "1-0";
+    setobject.status2 = 2;
+    setobject.status = "examining";
+    setobject["clocks." + color + ".current"] = 0;
+
+    this.endGamePing(game_id);
+
+    setobject.examiners = [];
+    if (game.white.id !== "computer")
+      setobject.examiners.push({ id: game.white.id, username: game.white.name });
+    if (game.black.id !== "computer")
+      setobject.examiners.push({ id: game.black.id, username: game.black.name });
+    addtosetobject.observers = { $each: setobject.examiners };
+    this.GameCollection.update(
+      { _id: game_id },
+      {
+        $set: setobject,
+        $addToSet: addtosetobject,
+      }
+    );
+    if (game.white.id !== "computer") Users.setGameStatus("server", game.white.id, "examining");
+    if (game.black.id !== "computer") Users.setGameStatus("server", game.black.id, "examining");
+    this.updateUserRatings(game, setobject.result, 2);
+    GameHistory.savePlayedGame("server", game_id);
+    this.sendGameStatus(game_id, game.white.id, game.black.id, color, setobject.result, 2);
   }
 
   startMoveTimer(game_id, color, delay_milliseconds, delaytype, actual_milliseconds) {
@@ -3948,42 +4098,10 @@ export class Game {
     }
 
     log.debug("startMoveTimer starting game timer of actual_ms=" + actual_milliseconds);
-    move_timers[game_id] = Meteor.setInterval(() => {
-      Meteor.clearInterval(move_timers[game_id]);
-      delete move_timers[game_id];
-      const game = this.GameCollection.findOne({ _id: game_id, status: "playing" });
-      if (!game) {
-        log.error("Unable to find a game to expire time on");
-        return;
-      }
-      const setobject = {};
-      const addtosetobject = {};
-      setobject.result = color === "white" ? "0-1" : "1-0";
-      setobject.status2 = 2;
-      setobject.status = "examining";
-      setobject["clocks." + color + ".current"] = 0;
-
-      this.endGamePing(game_id);
-
-      setobject.examiners = [];
-      if (game.white.id !== "computer")
-        setobject.examiners.push({ id: game.white.id, username: game.white.name });
-      if (game.black.id !== "computer")
-        setobject.examiners.push({ id: game.black.id, username: game.black.name });
-      addtosetobject.observers = { $each: setobject.examiners };
-      this.GameCollection.update(
-        { _id: game_id },
-        {
-          $set: setobject,
-          $addToSet: addtosetobject,
-        }
-      );
-      if (game.white.id !== "computer") Users.setGameStatus("server", game.white.id, "examining");
-      if (game.black.id !== "computer") Users.setGameStatus("server", game.black.id, "examining");
-      this.updateUserRatings(game, setobject.result, 2);
-      GameHistory.savePlayedGame("server", game_id);
-      this.sendGameStatus(game_id, game.white.id, game.black.id, color, setobject.result, 2);
-    }, actual_milliseconds);
+    move_timers[game_id] = Meteor.setInterval(
+      () => this.moveTimerExpired(game_id, color),
+      actual_milliseconds
+    );
   }
 
   endMoveTimer(game_id) {
@@ -4293,17 +4411,17 @@ Meteor.methods({
     // eslint-disable-next-line meteor/audit-argument-checks
     rating_type,
     // eslint-disable-next-line meteor/audit-argument-checks
-    white_initial,
+    challenger_initial,
     // eslint-disable-next-line meteor/audit-argument-checks
-    white_increment_or_delay,
+    challenger_increment_or_delay,
     // eslint-disable-next-line meteor/audit-argument-checks
-    white_increment_or_delay_type,
+    challenger_increment_or_delay_type,
     // eslint-disable-next-line meteor/audit-argument-checks
-    black_initial,
+    computer_initial,
     // eslint-disable-next-line meteor/audit-argument-checks
-    black_increment_or_delay,
+    computer_increment_or_delay,
     // eslint-disable-next-line meteor/audit-argument-checks
-    black_increment_or_delay_type,
+    computer_increment_or_delay_type,
     // eslint-disable-next-line meteor/audit-argument-checks
     skill_level,
     // eslint-disable-next-line meteor/audit-argument-checks
@@ -4315,12 +4433,12 @@ Meteor.methods({
       message_identifier,
       wild_number,
       rating_type,
-      white_initial,
-      white_increment_or_delay,
-      white_increment_or_delay_type,
-      black_initial,
-      black_increment_or_delay,
-      black_increment_or_delay_type,
+      challenger_initial,
+      challenger_increment_or_delay,
+      challenger_increment_or_delay_type,
+      computer_initial,
+      computer_increment_or_delay,
+      computer_increment_or_delay_type,
       color,
       skill_level,
       examined_game_id
@@ -4366,6 +4484,9 @@ Meteor.methods({
   // eslint-disable-next-line meteor/audit-argument-checks
   setEnPassant: (message_identifier, game_id, where) =>
     global.Game.setEnPassant(message_identifier, game_id, where),
+  // eslint-disable-next-line meteor/audit-argument-checks
+  setClocks: (message_identifier, game_id, white, black) =>
+    global.Game.setClocks(message_identifier, game_id, white, black),
   // eslint-disable-next-line meteor/audit-argument-checks
   setTag: (message_identifier, game_id, tag, value) =>
     global.Game.setTag(message_identifier, game_id, tag, value),

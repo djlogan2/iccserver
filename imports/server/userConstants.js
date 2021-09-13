@@ -68,6 +68,7 @@ export const fields_viewable_by_account_owner = {
   mugshot: 1,
   settings: 1,
   status: 1,
+  titles: 1,
   "profile.firstname": 1,
   "profile.lastname": 1,
   "profile.legacy.username": 1,
@@ -77,6 +78,7 @@ export const fields_viewable_by_account_owner = {
 
 export const viewable_logged_on_user_fields = {
   username: 1,
+  titles: 1,
   ratings: 1,
   mugshot: 1,
   "status.game": 1,

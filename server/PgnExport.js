@@ -1,7 +1,7 @@
 import { GameHistory } from "./Game";
 import { Picker } from "meteor/meteorhacks:picker";
 
-Picker.route("/export/pgn/:collection/:_id", function(params, req, res) {
+Picker.route("/export/pgn/:collection/:_id", function (params, req, res) {
   let game;
 
   switch (params.collection) {
