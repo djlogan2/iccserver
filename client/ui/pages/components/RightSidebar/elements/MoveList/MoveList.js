@@ -6,10 +6,11 @@ import { Logger } from "../../../../../../../lib/client/Logger";
 import { buildPgnFromMovelist } from "../../../../../../../lib/exportpgn";
 import { gameStatusPlaying } from "../../../../../../constants/gameConstants";
 import { Switch } from "antd";
+import { translate } from "../../../../../HOCs/translate";
 
 const log = new Logger("client/MoveList_js");
 
-export default class MoveList extends Component {
+class MoveList extends Component {
   constructor(props) {
     super(props);
 
@@ -53,7 +54,7 @@ export default class MoveList extends Component {
   }
 
   render() {
-    const { game, cssManager } = this.props;
+    const { translate, game, cssManager } = this.props;
     const { isTable } = this.state;
 
     const switchClick = () => {
@@ -83,8 +84,8 @@ export default class MoveList extends Component {
       <div style={{ background: "#EFF0F3", overflow: "auto", height: "100%" }}>
         <div style={{ width: "100%", textAlign: "right" }}>
           <Switch
-            checkedChildren="table"
-            unCheckedChildren="string"
+            checkedChildren={translate("switchTable")}
+            unCheckedChildren={translate("switchString")}
             checked={isTable}
             onClick={switchClick}
           />
@@ -94,3 +95,5 @@ export default class MoveList extends Component {
     );
   }
 }
+
+export default translate("Common.MoveList")(MoveList);

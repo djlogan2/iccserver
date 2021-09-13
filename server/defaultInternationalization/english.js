@@ -110,6 +110,10 @@ export const english = {
       last_ping: "Last ping",
       average_lag: "Average lag",
     },
+    MoveList: {
+      switchTable: "Table",
+      switchString: "String",
+    },
     MoveListComponent: {
       takeBack: "Take Back",
       draw: "Draw",
