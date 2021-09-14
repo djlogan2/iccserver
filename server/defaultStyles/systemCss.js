@@ -46,9 +46,12 @@ const systemCss = {
       whiteSpace: "pre-wrap",
     },
     icon: {
-      height: 14,
-      marginBottom: 6,
-      marginRight: 4,
+      fontFamily: "SmallPiecesFont",
+      verticalAlign: "bottom",
+      color: "black",
+      fontSize: "16px",
+      position: "relative",
+      top: "1px",
     },
     itemBlack: {
       cursor: "pointer",

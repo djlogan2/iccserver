@@ -16,10 +16,13 @@ import { Meteor } from "meteor/meteor";
 import { defaultAppStyles } from "./defaultAppStyles";
 import { ClientInternationalizationCollection, mongoCss } from "../imports/api/client/collections";
 import { getLang, isReadySubscriptions, updateLocale } from "./utils/utils";
+import addFont from "add-font";
+import { FIGURE_FONT } from "./constants/resourceConstants";
 
 class App extends React.Component {
   render() {
     const { isReady, classes, i18nTranslate, currentRoles } = this.props;
+    addFont("fonts/DIATTFRI.ttf", FIGURE_FONT);
 
     if (i18nTranslate) {
       i18n.addTranslations(updateLocale(i18nTranslate.locale), i18nTranslate.i18n);
