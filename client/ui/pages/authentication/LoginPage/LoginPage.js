@@ -41,8 +41,14 @@ class LoginPage extends Component {
   login = (e) => {
     e.preventDefault();
 
-    const { history } = this.props;
+    const { history, translate } = this.props;
     const { email, password } = this.state;
+
+    if (!email || !password) {
+      this.setState({ error: translate("errors.empty_fields") });
+
+      return;
+    }
 
     Meteor.loginWithPassword(email, password, (err) => {
       if (err) {

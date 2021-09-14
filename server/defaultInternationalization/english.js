@@ -28,6 +28,9 @@ export const english = {
       submit: "Submit",
       haveNoAccount: "Don't have an account? ",
       registerHere: "Register here",
+      errors: {
+        empty_fields: "Fields cannot be empy",
+      },
     },
     signupForm: {
       signup: "Sign Up",
@@ -37,6 +40,9 @@ export const english = {
       submit: "Submit",
       haveAccount: "Already have an account? ",
       loginHere: "Login here",
+      errors: {
+        empty_fields: "Fields cannot be empy",
+      },
     },
     leftSideBar: {
       noLogin: "Please login",
