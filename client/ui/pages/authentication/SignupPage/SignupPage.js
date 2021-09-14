@@ -32,8 +32,14 @@ class SignupPage extends Component {
   signUp = (e) => {
     e.preventDefault();
 
-    const { history } = this.props;
+    const { history, translate } = this.props;
     const { email, username, password } = this.state;
+
+    if (!email || !username || !password) {
+      this.setState({ error: translate("errors.empty_fields") });
+
+      return;
+    }
 
     Accounts.createUser({ email, username, password }, (err) => {
       if (err) {

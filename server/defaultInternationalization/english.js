@@ -40,6 +40,9 @@ export const english = {
       submit: "Submit",
       haveAccount: "Already have an account? ",
       loginHere: "Login here",
+      errors: {
+        empty_fields: "Fields cannot be empy",
+      },
     },
     leftSideBar: {
       noLogin: "Please login",
