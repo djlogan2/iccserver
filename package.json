@@ -50,6 +50,7 @@
     "@types/chai": "^4.2.17",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
+    "add-font": "^1.0.2",
     "antd": "^4.16.11",
     "async": "^3.2.1",
     "aws-sdk": "^2.965.0",
