@@ -45,14 +45,6 @@ class MoveList extends Component {
     });
   };
 
-  handleMoveClick(cmi, game_id) {
-    Meteor.call("moveToCMI", "moveToCMI", game_id, cmi, (err) => {
-      if (err) {
-        console.error(err);
-      }
-    });
-  }
-
   render() {
     const { translate, game, cssManager } = this.props;
     const { isTable } = this.state;
