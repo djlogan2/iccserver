@@ -3,7 +3,7 @@
     {
       "label": "play",
       "link": "play",
-      "src": "images/play-icon-white.png",
+      "src": "/images/play-icon-white.png",
       "roles": [
         "play_rated_games",
         "play_unrated_games"
@@ -12,7 +12,7 @@
     {
       "label": "community",
       "link": "community",
-      "src": "images/learning-icon-white.png",
+      "src": "/images/learning-icon-white.png",
       "roles": [
         "community_chat"
       ]
@@ -20,19 +20,19 @@
     {
       "label": "examine",
       "link": "examine",
-      "src": "images/examine-icon-white.png",
+      "src": "/images/examine-icon-white.png",
       "roles": []
     },
     {
       "label": "topPlayers",
       "link": "top-players",
-      "src": "images/top-player-icon-white.png",
+      "src": "/images/top-player-icon-white.png",
       "roles": []
     },
     {
       "label": "users",
       "link": "users",
-      "src": "images/learning-icon-white.png",
+      "src": "/images/learning-icon-white.png",
       "roles": [
         "list_users"
       ]
@@ -40,7 +40,7 @@
     {
       "label": "mygame",
       "link": "",
-      "src": "images/learning-icon-white.png",
+      "src": "/images/learning-icon-white.png",
       "roles": []
     }
   ],
@@ -48,13 +48,13 @@
     {
       "label": "logout",
       "link": "#",
-      "src": "images/login-icon-white.png",
+      "src": "/images/login-icon-white.png",
       "roles": []
     },
     {
       "label": "help",
       "link": "#help",
-      "src": "images/help-icon-white.png",
+      "src": "/images/help-icon-white.png",
       "roles": []
     }
   ]

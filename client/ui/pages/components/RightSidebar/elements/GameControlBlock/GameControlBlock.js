@@ -44,12 +44,22 @@ class ExamineLocationControls extends Component {
     }
   };
 
+  handleWheel = (event) => {
+    if (event.deltaY > 0) {
+      this.moveForward();
+    } else {
+      this.moveBackward();
+    }
+  };
+
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeysPress, false);
+    document.addEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeysPress, false);
+    document.removeEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -200,6 +210,7 @@ class PlayLocationControls extends Component {
 
   handleKeysPress = (event) => {
     const { moveBackward, moveBackwardBeginning, moveForward, moveForwardEnd } = this.props;
+
     switch (event.keyCode) {
       case 37:
         moveBackward();
@@ -216,12 +227,24 @@ class PlayLocationControls extends Component {
     }
   };
 
+  handleWheel = (event) => {
+    const { moveForward, moveBackward } = this.props;
+
+    if (event.deltaY > 0) {
+      moveForward();
+    } else {
+      moveBackward();
+    }
+  };
+
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeysPress, false);
+    document.addEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeysPress, false);
+    document.removeEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillReceiveProps(nextProps) {

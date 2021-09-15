@@ -22,3 +22,4 @@ export const labelMyGame = "mygame";
 export const labelLogout = "logout";
 
 export const RESOURCE_EXPORT_PGN_GAME = "export/pgn/game/";
+export const FIGURE_FONT = "SmallPiecesFont";

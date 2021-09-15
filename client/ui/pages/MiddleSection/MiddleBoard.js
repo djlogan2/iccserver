@@ -14,7 +14,7 @@ import {
   colorWhite,
   colorWhiteLetter,
   gameStatusExamining,
-  gameStatusPlaying
+  gameStatusPlaying,
 } from "../../../constants/gameConstants";
 import Analytics from "../components/Analytics/Analytics";
 
@@ -197,6 +197,7 @@ class MiddleBoard extends Component {
                 position: "relative",
                 top: -boardSize / 2,
                 left: boardSize / 2 + 20,
+                pointerEvents: "none",
               }}
             >
               {game && game.status === gameStatusExamining && (

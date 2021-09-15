@@ -106,6 +106,7 @@ class PlayChooseBot extends Component {
 
     let { color } = this.state;
     const {
+      timeOdds,
       challengerRatingType,
       receiverRatingType,
       difficulty,
@@ -117,18 +118,33 @@ class PlayChooseBot extends Component {
       receiverIncrementOrDelay,
     } = this.state;
 
-    onPlay({
-      challengerRatingType,
-      receiverRatingType,
-      color: color === "random" ? null : color,
-      challengerIncrementOrDelayType,
-      receiverIncrementOrDelayType,
-      challengerInitial,
-      receiverInitial,
-      challengerIncrementOrDelay,
-      receiverIncrementOrDelay,
-      skillLevel: difficulty,
-    });
+    if (timeOdds) {
+      onPlay({
+        challengerRatingType,
+        receiverRatingType,
+        color: color === "random" ? null : color,
+        challengerIncrementOrDelayType,
+        receiverIncrementOrDelayType,
+        challengerInitial,
+        receiverInitial,
+        challengerIncrementOrDelay,
+        receiverIncrementOrDelay,
+        skillLevel: difficulty,
+      });
+    } else {
+      onPlay({
+        challengerRatingType,
+        receiverRatingType: challengerRatingType,
+        color: color === "random" ? null : color,
+        challengerIncrementOrDelayType,
+        receiverIncrementOrDelayType: challengerIncrementOrDelayType,
+        challengerInitial,
+        receiverInitial: challengerInitial,
+        challengerIncrementOrDelay,
+        receiverIncrementOrDelay: challengerIncrementOrDelay,
+        skillLevel: difficulty,
+      });
+    }
   };
 
   render() {
@@ -206,6 +222,8 @@ class PlayChooseBot extends Component {
                   name="challengerInitial"
                   min={challengerIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE ? 1 : 0}
                   id="challengerInitial"
+                  parser={(value) => Math.round(value)}
+                  formatter={(value) => Math.round(value)}
                   max={maxInitialValue}
                   value={challengerInitial}
                   onChange={this.handleChange("challengerInitial")}
@@ -225,6 +243,8 @@ class PlayChooseBot extends Component {
                   <InputNumber
                     name="challengerIncrementOrDelay"
                     min={1}
+                    parser={(value) => Math.round(value)}
+                    formatter={(value) => Math.round(value)}
                     max={maxIncOrDelayValue}
                     value={challengerIncrementOrDelay}
                     onChange={this.handleChange("challengerIncrementOrDelay")}
@@ -267,6 +287,8 @@ class PlayChooseBot extends Component {
                       min={receiverIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE ? 1 : 0}
                       id="receiverInitial"
                       max={maxInitialValue}
+                      parser={(value) => Math.round(value)}
+                      formatter={(value) => Math.round(value)}
                       value={receiverInitial}
                       onChange={this.handleChange("receiverInitial")}
                     />
@@ -287,6 +309,8 @@ class PlayChooseBot extends Component {
                       <InputNumber
                         name="receiverIncrementOrDelay"
                         min={1}
+                        parser={(value) => Math.round(value)}
+                        formatter={(value) => Math.round(value)}
                         max={maxIncOrDelayValue}
                         value={challengerIncrementOrDelay}
                         onChange={this.handleChange("receiverIncrementOrDelay")}

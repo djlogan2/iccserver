@@ -35,6 +35,12 @@ class ProfileDetailsCard extends Component {
             description: null,
             duration: 5,
           });
+        } else {
+          notification.open({
+            message: err.reason,
+            description: null,
+            duration: 5,
+          });
         }
       });
     }
@@ -44,6 +50,12 @@ class ProfileDetailsCard extends Component {
         if (!err) {
           notification.open({
             message: translate("notifications.emailChanged"),
+            description: null,
+            duration: 5,
+          });
+        } else {
+          notification.open({
+            message: err.reason,
             description: null,
             duration: 5,
           });

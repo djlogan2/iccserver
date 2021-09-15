@@ -5,15 +5,18 @@ import { get } from "lodash";
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { buildPgnFromMovelist } from "../../../../../../../lib/exportpgn";
 import { gameStatusPlaying } from "../../../../../../constants/gameConstants";
+import { Switch } from "antd";
+import { translate } from "../../../../../HOCs/translate";
 
 const log = new Logger("client/MoveList_js");
 
-export default class MoveList extends Component {
+class MoveList extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
       cmi: 0,
+      isTable: true,
     };
   }
 
@@ -28,18 +31,14 @@ export default class MoveList extends Component {
     }
   }
 
-  handleClick = (cmi) => {
+  handleClick = (cmi, game_id) => {
     const { game, moveToCMI } = this.props;
-
-    console.log(132);
     if (game?.status === gameStatusPlaying) {
       moveToCMI(cmi);
-
-      console.log(43432);
       return;
     }
 
-    Meteor.call("moveToCMI", "moveToCMI", game._id, cmi, (err) => {
+    Meteor.call("moveToCMI", "moveToCMI", game_id, cmi, (err) => {
       if (err) {
         log.error(err);
       }
@@ -47,7 +46,14 @@ export default class MoveList extends Component {
   };
 
   render() {
-    const { game, cssManager } = this.props;
+    const { translate, game, cssManager } = this.props;
+    const { isTable } = this.state;
+
+    const switchClick = () => {
+      this.setState((state) => ({
+        isTable: !state.isTable,
+      }));
+    };
 
     if (!!game) {
       this.message_identifier = "server:game:" + this.gameId;
@@ -58,17 +64,28 @@ export default class MoveList extends Component {
     if (game?.variations?.movelist?.length) {
       moveListString = buildPgnFromMovelist(
         game.variations.movelist,
-        true,
+        isTable ? "table" : "string",
         game._id,
         game.variations.cmi,
-        cssManager
+        cssManager,
+        this.handleClick
       );
     }
 
     return (
       <div style={{ background: "#EFF0F3", overflow: "auto", height: "100%" }}>
+        <div style={{ width: "100%", textAlign: "right" }}>
+          <Switch
+            checkedChildren={translate("switchTable")}
+            unCheckedChildren={translate("switchString")}
+            checked={isTable}
+            onClick={switchClick}
+          />
+        </div>
         <div style={{ ...cssManager.gameMoveList() }}>{moveListString}</div>
       </div>
     );
   }
 }
+
+export default translate("Common.MoveList")(MoveList);
