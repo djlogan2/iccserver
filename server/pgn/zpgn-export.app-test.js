@@ -30,7 +30,7 @@ describe("PGN exports", function() {
       '[Black "?"]\n' +
       '[Result "*"]\n' +
       "\n" +
-      "1. e4 (1. d4 d5 2. e4 (2. c4))(1. c4 c5 2. d4 (2. e4)) 1. ... h5 (1. ... d5 2. d4 e5 (2. ... c5))(1. ... c5 2. d4 d5 (2. ... e5)) *";
+      "1. e4 (1. d4 d5 2. e4 (2. c4)) (1. c4 c5 2. d4 (2. e4)) 1. ... h5 (1. ... d5 2. d4 e5 (2. ... c5)) (1. ... c5 2. d4 d5 (2. ... e5)) *";
     const parser = new Parser();
     chai.assert.doesNotThrow(() => parser.feed(imported_pgn));
     chai.assert.equal(1, parser.gamelist.length);
@@ -45,6 +45,7 @@ describe("PGN exports", function() {
   it("should pass this test, which is failing in production", function() {
     const game_id = Game.collection.insert(game_record);
     const exported_pgn = Game.exportToPGN(game_id);
+    console.log(exported_pgn);
     //chai.assert.equal(exported_pgn, "");
   });
 
@@ -83,7 +84,7 @@ describe("PGN exports", function() {
     chai.assert.isDefined(game, "Game does not exist");
 
     const pgn = buildPgnFromMovelist(game.variations.movelist);
-    let expectedPgn = "1. e4 e5 (1. ... d5)(1. ... c5)(1. ... f5)"
+    let expectedPgn = "1. e4 e5 (1. ... d5) (1. ... c5) (1. ... f5)"
     chai.assert.equal(pgn, expectedPgn);
   });
 
