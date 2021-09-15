@@ -50,7 +50,6 @@ export class Game {
       selector: { status: "playing" },
     });
     // TODO: Need to adjourn these, not just delete them
-    // Meteor.startup(() => _self.GameCollection.remove({}));
 
     Users.events.on("userLogin", function (fields) {
       const user = Meteor.users.findOne({ _id: fields.userId });
@@ -71,6 +70,12 @@ export class Game {
 
     if (Meteor.isTest || Meteor.isAppTest) {
       this.collection = _self.GameCollection;
+    } else {
+      // Watch for defunct games every five minutes and clean up if necessary
+      this.watchForDefunctGamesInterval = Meteor.setInterval(
+        () => this.watchForDefunctGames(),
+        300000
+      );
     }
 
     Meteor.publish("games", function () {
@@ -124,6 +129,17 @@ export class Game {
     });
   }
 
+  watchForDefunctGames() {
+    const game_ids = this.GameCollection.find({}, { fields: { _id: 1 } })
+      .fetch()
+      .map((g) => g._id);
+    const defunct = Object.keys(active_games).filter((agid) => game_ids.indexOf(agid) === -1);
+    defunct.forEach((bad_game_id) => {
+      log.error("Deleting defunct active_game with id of " + bad_game_id);
+      delete active_games[bad_game_id];
+    });
+  }
+
   doTheLogout(userId) {
     this.localResignAllGames("server", userId, 4);
     this.localUnobserveAllGames("server", userId, true, true);
@@ -160,19 +176,20 @@ export class Game {
   }
 
   getAndCheck(self, message_identifier, game_id) {
+    if (self === "computer") return;
+
     check(self, Object);
     check(game_id, String);
 
-    const game = this.GameCollection.findOne({ _id: game_id });
+    const game = this.GameCollection.findOne({
+      _id: game_id,
+      iaolation_group: self.iaolation_group,
+    });
 
-    if (!game) {
-      if (self._id !== "computer")
-        ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
-      return;
-    }
+    if (!game) return;
 
-    if (game.legacy_game_number)
-      throw new ICCMeteorError(message_identifier, "Found a legacy game record");
+    if (game.legacy_game_number) return game;
+    //throw new ICCMeteorError(message_identifier, "Found a legacy game record");
 
     if (!active_games[game_id]) {
       //
@@ -1134,7 +1151,10 @@ export class Game {
   internalSaveLocalMove(self, message_identifier, game_id, move, is_premove, variation_param) {
     const game = this.getAndCheck(self, message_identifier, game_id);
 
-    if (!game) return;
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
+      return;
+    }
 
     const chessObject = active_games[game_id];
     const variation = game.variations;
@@ -1383,6 +1403,7 @@ export class Game {
   now() {
     return new Date().getTime();
   }
+
   //	There are three outcome codes, given in the following order:
   // 	(1) game_result, e.g. "Mat" (the 3-letter codes used in game lists)
   // 	(2) score_string2, "0-1", "1-0", "1/2-1/2", "*", or "aborted"
@@ -1780,7 +1801,10 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
+      return;
+    }
 
     if (game.status !== "playing") {
       ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "NOT_PLAYING_A_GAME");
@@ -1843,9 +1867,8 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
-    if (game.status !== "playing") {
-      ClientMessages.sendMessageToClient(Meteor.user(), message_identifier, "NOT_PLAYING_A_GAME");
+    if (!game || game.status !== "playing") {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
 
@@ -1910,8 +1933,7 @@ export class Game {
     const self = Meteor.user();
     check(self, Object);
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -1949,7 +1971,10 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
+      return;
+    }
 
     if (game.legacy_game_number)
       throw new ICCMeteorError(
@@ -2028,7 +2053,10 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
+      return;
+    }
 
     if (game.legacy_game_number)
       throw new ICCMeteorError(
@@ -2119,7 +2147,10 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
+    if (!game) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
+      return;
+    }
 
     if (game.legacy_game_number)
       throw new ICCMeteorError(
@@ -2161,8 +2192,7 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -2221,8 +2251,7 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -2274,8 +2303,7 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -2518,9 +2546,7 @@ export class Game {
     const self = Meteor.user();
     const game = this.getAndCheck(self, message_identifier, game_id);
 
-    if (!game) return;
-
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -2548,9 +2574,7 @@ export class Game {
     const self = Meteor.user();
     const game = this.getAndCheck(self, message_identifier, game_id);
 
-    if (!game) return;
-
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -2578,9 +2602,7 @@ export class Game {
     const self = Meteor.user();
     const game = this.getAndCheck(self, message_identifier, game_id);
 
-    if (!game) return;
-
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -2612,8 +2634,7 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game) return;
-    if (game.status !== "playing") {
+    if (!game || game.status !== "playing") {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_PLAYING_A_GAME");
       return;
     }
@@ -3265,8 +3286,8 @@ export class Game {
     check(game_id, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3292,8 +3313,8 @@ export class Game {
     check(game_id, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3322,8 +3343,8 @@ export class Game {
     check(fen_string, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id); //this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3366,8 +3387,8 @@ export class Game {
     if (!this.isSquareValid(where)) throw new Match.Error("where is invalid: " + where);
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3406,8 +3427,8 @@ export class Game {
     if (!this.isSquareValid(where)) throw new Match.Error("where is invalid: " + where);
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3440,8 +3461,8 @@ export class Game {
     check(game_id, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id); //this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3487,8 +3508,8 @@ export class Game {
       throw new Match.Error("castling must be empty (''), or 'k', 'q', 'kq'");
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3535,8 +3556,8 @@ export class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3587,8 +3608,8 @@ export class Game {
 
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3613,8 +3634,8 @@ export class Game {
     check(value, String);
     const self = Meteor.user();
     check(self, Object);
-    const game = this.GameCollection.findOne({ _id: game_id, "examiners.id": self._id });
-    if (!game || game.status !== "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game || game.status !== "examining" || !game.examiners.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3693,7 +3714,7 @@ export class Game {
       }
     }
 
-    const game = this.GameCollection.findOne({ _id: game_id });
+    const game = this.getAndCheck(self, message_identifier, game_id);
 
     if (!game || game.status !== "examining" || game.owner !== self._id) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_CHANGE_OWNER");
@@ -3733,7 +3754,7 @@ export class Game {
       return;
     }
 
-    const game = this.GameCollection.findOne({ _id: game_id });
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game || game.status !== "examining" || game.owner !== self._id) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_PRIVATIZE");
       return;
@@ -3768,8 +3789,8 @@ export class Game {
       return;
     }
 
-    const game = this.GameCollection.findOne({ _id: game_id });
-    if (game && game.status === "examining") {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!!game && game.status === "examining") {
       if (game.owner !== self._id) {
         ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
         return;
@@ -3814,7 +3835,7 @@ export class Game {
       return;
     }
 
-    const game = this.GameCollection.findOne({ _id: game_id });
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game || game.status !== "examining" || game.owner !== self._id || !game.private) {
       ClientMessages.sendMessageToClient(self, message_identifier, "UNABLE_TO_RESTRICT_CHAT");
       return;
@@ -3845,7 +3866,7 @@ export class Game {
     const otherguy = Meteor.users.findOne({ _id: user_id });
     check(otherguy, Object);
 
-    const game = this.GameCollection.findOne({ _id: game_id });
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game || game.status !== "examining" || self._id !== game.owner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
       return;
@@ -3893,7 +3914,7 @@ export class Game {
         "Cannot deny yourself"
       );
 
-    const game = this.GameCollection.findOne({ _id: game_id });
+    const game = this.getAndCheck(self, message_identifier, game_id);
     if (!game || game.status !== "examining" || self._id !== game.owner) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_THE_OWNER");
       return;

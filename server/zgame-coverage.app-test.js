@@ -93,18 +93,6 @@ describe("getAndCheck", function() {
     }, "Found a legacy game record");
   });
 
-  it("should send a client message NOT_PLAYING_A_GAME when computer is used on getAndCheck", function() {
-    const p1 = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
-    self.loggedonuser = p1;
-    const game_id = "bogus";
-    Game.getAndCheck(self.loggedonuser, "mi2", game_id);
-    chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-    chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_PLAYING_A_GAME");
-    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi2");
-    return;
-  });
-
   it("should return a game query when successful", function() {
     const p1 = TestHelpers.createUser();
     const p2 = TestHelpers.createUser();
