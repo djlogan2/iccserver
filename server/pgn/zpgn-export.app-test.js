@@ -45,6 +45,7 @@ describe("PGN exports", function() {
   it("should pass this test, which is failing in production", function() {
     const game_id = Game.collection.insert(game_record);
     const exported_pgn = Game.exportToPGN(game_id);
+    console.log(exported_pgn);
     //chai.assert.equal(exported_pgn, "");
   });
 
