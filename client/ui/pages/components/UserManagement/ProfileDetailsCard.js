@@ -7,7 +7,9 @@ import { EMAIL_PROPERTY, USERNAME_PROPERTY } from "../../../../constants/systemC
 import injectSheet from "react-jss";
 import { dynamicUserProfileStyles } from "./dynamicUserProfileStyles";
 import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../imports/api/client/collections";
+import { ClientMessagesCollection, mongoCss } from "../../../../../imports/api/client/collections";
+import withClientMessages from "../../../HOCs/withClientMessages";
+import { Meteor } from "meteor/meteor";
 
 class ProfileDetailsCard extends Component {
   constructor(props) {
@@ -21,6 +23,9 @@ class ProfileDetailsCard extends Component {
 
   handleInputChange = (property) => (event) => {
     this.setState({ [property]: event.target.value });
+  };
+  getClientMessage = (id) => {
+    return ClientMessagesCollection.findOne({ client_identifier: id });
   };
 
   handleUpdate = () => {
@@ -46,10 +51,12 @@ class ProfileDetailsCard extends Component {
     }
 
     if (email && /^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_-]+).([a-zA-Z0-9_\-.]+)$/g.test(email)) {
-      Meteor.call("updateCurrentEmail", "update_current_email", email, (err) => {
+      Meteor.call("updateCurrentEmail", "update_current_email", email, (err, res) => {
         if (!err) {
+          const messages = this.getClientMessage("update_current_email");
           notification.open({
-            message: translate("notifications.emailChanged"),
+            // message: translate("notifications.emailChanged"),
+            message: translate(`notifications.${messages.message}`),
             description: null,
             duration: 5,
           });
@@ -104,8 +111,12 @@ export default compose(
   withTracker(() => {
     return {
       css: mongoCss.findOne(),
+      userClientMessages: ClientMessagesCollection.find({
+        to: Meteor.userId(),
+      }).fetch(),
     };
   }),
   translate("Profile.ProfileDetailsCard"),
-  injectSheet(dynamicUserProfileStyles)
+  injectSheet(dynamicUserProfileStyles),
+  withClientMessages
 )(ProfileDetailsCard);

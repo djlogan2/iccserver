@@ -158,6 +158,7 @@ const DefinedClientMessagesMap = {
   OVERLAPPING_RATING: { parameters: ["rating_type"] },
   UNABLE_TO_CHANGE_USERNAME: {},
   UNABLE_TO_CHANGE_EMAIL: {},
+  EMAIL_WAS_CHANGED: {},
   INVALID_PLAYING_STATUS: {},
   INVALID_VARIATION_ACTION: {},
   INVALID_VARIATION_INDEX: {},

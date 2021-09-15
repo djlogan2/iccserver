@@ -450,6 +450,7 @@ export const english = {
       notifications: {
         usernameChanged: "Username was changed successfully",
         emailChanged: "E-mail was changed successfully",
+        NOT_AUTHORIZED: "User has no authorized to change email",
       },
     },
     SecurityTab: {

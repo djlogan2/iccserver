@@ -507,7 +507,6 @@ Users.setTitles = function (message_identifier, user_id, titlearray) {};
 
 Users.updateCurrentEmail = function (message_identifier, email) {
   const self = Meteor.user();
-
   check(self, Object);
   check(message_identifier, String);
   check(email, String);
@@ -521,6 +520,7 @@ Users.updateCurrentEmail = function (message_identifier, email) {
     const currentEmail = get(self, "emails[0].address");
     Accounts.addEmail(self._id, email);
     if (currentEmail) Accounts.removeEmail(self._id, currentEmail);
+    Users.sendClientMessage(self, message_identifier, "EMAIL_WAS_CHANGED");
   } catch (e) {
     log.error("Unable to change email address", e);
     Users.sendClientMessage(self, message_identifier, "UNABLE_TO_CHANGE_EMAIL");
