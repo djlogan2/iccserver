@@ -9,7 +9,7 @@ import {
   PLAY_STATUS_CHOOSE_BOT,
   PLAY_STATUS_FRIEND_OPTIONS,
   PLAY_STATUS_NONE,
-  PLAY_STATUS_WITH_FRIEND
+  PLAY_STATUS_WITH_FRIEND,
 } from "../../../../../constants/playStatusConstants";
 import PlayOptionButtons from "../PlayOptionButtons/PlayOptionButtons";
 import GameCommandsBlock from "../../GameCommandsBlock/GameCommandsBlock";
@@ -166,6 +166,7 @@ class PlayBlock extends Component {
             display: "flex",
             flexDirection: "column",
             height: "100%",
+            maxHeight: "50vh",
           }}
         >
           <GameHistory
