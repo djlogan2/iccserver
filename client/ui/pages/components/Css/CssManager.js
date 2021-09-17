@@ -19,12 +19,12 @@ export default class CssManager {
     return style;
   }
   outerPopupMain() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle.outerPopupMainPage);
     return style;
   }
   fullWidth() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle.fullWidth);
     return style;
   }
@@ -41,32 +41,32 @@ export default class CssManager {
     };
   }
   drawSectionButton() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.drawSectionButton);
     return style;
   }
   moveListParent() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.moveListParent);
     return style;
   }
   gameMoveStyle() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.gameMoveStyle);
     return style;
   }
   toggleMenuHeight() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.toggleMenuHeight);
     return style;
   }
   innerPopupMain() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.innerPopupMainPage);
     return style;
   }
   squareStyle(squareColor, side) {
-    var style = { width: side, height: side };
+    const style = { width: side, height: side };
     if (this._boardStyle?.square?.all) Object.assign(style, this._boardStyle.square.all);
     Object.assign(style, get(this._boardStyle, `square.${squareColor}`));
     return style;
@@ -83,7 +83,7 @@ export default class CssManager {
   }
 
   imagePeice(piece, color) {
-    var style = {};
+    let style = {};
     if (piece && color) {
       style = get(this._boardStyle, `pieces.${color}.${piece}`, {});
     }
@@ -91,58 +91,56 @@ export default class CssManager {
     return style;
   }
   flags(country) {
-    var style;
-    style = get(this._boardStyle, `flags.${country}`, {});
-    return style;
+    return get(this._boardStyle, `flags.${country}`, {});
   }
 
   tagLine() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._boardStyle?.tagLine?.all);
     return style;
   }
 
   userName() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._boardStyle?.userName?.all);
     return style;
   }
 
   clock(time) {
-    var style = {};
+    const style = {};
     Object.assign(style, this._boardStyle?.clock?.all);
     if (time <= 10) Object.assign(style, this._boardStyle?.clock?.alert);
     return style;
   }
   userFlag(side) {
-    var style = { maxWidth: side, height: "auto", marginLeft: "10px" };
+    const style = { maxWidth: side, height: "auto", marginLeft: "10px" };
     Object.assign(style, this._boardStyle?.userFlag?.all);
     return style;
   }
   userPicture(side) {
-    var style = { width: side, height: side };
+    const style = { width: side, height: side };
     Object.assign(style, this._boardStyle?.userPicture?.all);
     return style;
   }
   clockMain(side) {
-    var style = { width: side, height: side };
+    const style = { width: side, height: side };
     Object.assign(style, this._boardStyle?.clockMain?.all);
     return style;
   }
 
   //This css code for Right sidebar
   settingIcon() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.settingIcon?.all);
     return style;
   }
   rightTopContent() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.rightTopContent?.all);
     return style;
   }
   rightBottomContent() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.rightBottomContent?.all);
     return style;
   }
@@ -152,97 +150,97 @@ export default class CssManager {
   }
 
   buttonStyle(buttonName) {
-    var style = {};
+    const style = {};
     if (this._systemStyle?.button?.all) Object.assign(style, this._systemStyle.button.all);
     Object.assign(style, get(this._systemStyle, `button.${buttonName}`));
     return style;
   }
 
   chatContent() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.chatContent?.all);
     return style;
   }
   inputBoxStyle(inputBoxName) {
-    var style = {};
+    const style = {};
     if (this._systemStyle?.InputBox?.all) Object.assign(style, this._systemStyle.InputBox.all);
     Object.assign(style, get(this._systemStyle, `InputBox.${inputBoxName}`, {}));
     return style;
   }
   chatSendButton() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.chatSendButton?.all);
     return style;
   }
   gameMoveList() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.gameMoveList?.all);
     return style;
   }
   gameButtonMove() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.gameButtonMove?.all);
     return style;
   }
   gameTopHeader() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.gameTopHeader?.all);
     return style;
   }
   //LeftSideBarComponent MenuLink li
   showLg() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.showLg?.all);
     return style;
   }
   pullRight() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.pullRight?.all);
     return style;
   }
   drawSection() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.drawSection?.all);
     return style;
   }
   drawSectionList() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.drawSectionList?.all);
     return style;
   }
   tab() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.tab?.all);
     return style;
   }
   tabList(tabName) {
-    var style = {};
+    const style = {};
     if (this._systemStyle?.tab?.all) Object.assign(style, this._systemStyle.tabList.all);
     Object.assign(style, get(this._systemStyle, `tabList.${tabName}`, {}));
     return style;
   }
   tabContent() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.tabContent?.all);
     return style;
   }
   tabSeparator() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.tabSeparator?.all);
     return style;
   }
   subTabHeader() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.subTabHeader?.all);
     return style;
   }
   matchUserScroll() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.matchUserScroll?.all);
     return style;
   }
   matchUserButton() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.matchUserButton?.all);
     return style;
   }
@@ -288,17 +286,17 @@ export default class CssManager {
   }
   /**This style for gameseek and match Request user form */
   formMain() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.formMain?.all);
     return style;
   }
   formMainHalf() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.formMainHalf?.all);
     return style;
   }
   formLabelStyle(labelname) {
-    var style = {};
+    const style = {};
     if (this._systemStyle?.formLabelStyle?.all)
       Object.assign(style, this._systemStyle.formLabelStyle.all);
     Object.assign(style, get(this._systemStyle, `formLabelStyle${labelname}`, {}));
@@ -308,35 +306,35 @@ export default class CssManager {
   /**Endform style */
 
   TabIcon(tabName) {
-    var style = {};
+    const style = {};
     if (this._systemStyle?.TabIcon?.all) Object.assign(style, this._systemStyle.TabIcon.all);
     Object.assign(style, get(this._systemStyle, `TabIcon.${tabName}`, {}));
     return style;
   }
   spanStyle(spanName) {
-    var style = {};
+    const style = {};
     if (this._systemStyle?.span?.all) Object.assign(style, this._systemStyle.span.all);
     Object.assign(style, get(this._systemStyle, `span.${spanName}`, {}));
     return style;
   }
   challengeContent() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.challengeContent?.all);
     return style;
   }
   competitionsListItem() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.competitionsListItem?.all);
     return style;
   }
   tournamentContent() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.tournamentContent?.all);
     return style;
   }
 
   moveListItems() {
-    var style = {};
+    const style = {};
     Object.assign(style, this._systemStyle?.moveList);
     return style;
   }

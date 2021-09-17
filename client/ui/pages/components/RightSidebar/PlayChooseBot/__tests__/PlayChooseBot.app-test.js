@@ -17,7 +17,7 @@ describe("PlayChooseBot component", () => {
   });
 
   it("should handle change initial", () => {
-    const button = component.find("InputNumber#initial");
+    const button = component.find("InputNumber#challengerInitial");
     button.simulate("change", { target: { value: 2 } });
   });
 });

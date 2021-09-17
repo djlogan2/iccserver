@@ -10,15 +10,8 @@ import classNames from "classnames";
 
 class CommunityRightBlock extends Component {
   render() {
-    const {
-      activeRoom,
-      roomList,
-      onChange,
-      onClose,
-      translate,
-      handleOpenModal,
-      classes,
-    } = this.props;
+    const { activeRoom, roomList, onChange, onClose, translate, handleOpenModal, classes } =
+      this.props;
     return (
       <>
         <div className={classes.roomBlock}>
