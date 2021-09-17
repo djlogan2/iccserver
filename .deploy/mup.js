@@ -28,6 +28,7 @@ module.exports = {
       MONGO_OPLOG_URL: "mongodb://mongodb/local",
       SLACK_CHANNEL_LINK: "https://hooks.slack.com/services/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",
       SLACK_CHANNEL_NAME: "#notifications",
+      PUBLICASSETS_S3_BUCKET: "chessclub-com-v2-staging"
     },
 
     docker: {

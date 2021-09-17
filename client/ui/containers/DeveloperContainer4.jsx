@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Images } from "../../../lib/client/userfiles";
+import { PublicAssets } from "../../../lib/client/userfiles";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
 import { isReadySubscriptions } from "../../utils/utils";
@@ -10,9 +10,7 @@ class DeveloperContainer4 extends Component {
   state = {
     // Initially, no file is selected
     selectedFile: null,
-    uploaded: null,
-    which: null,
-    config: null
+    uploaded: null
   };
 
   // On file select (from the pop up)
@@ -24,14 +22,10 @@ class DeveloperContainer4 extends Component {
   // On file upload (click the upload button)
   onFileUpload = () => {
     const self = this;
-    const upload = Images.insert(
+    const upload = PublicAssets.insert(
       {
         file: this.state.selectedFile, //formData,
-        chunkSize: "dynamic",
-        meta: {
-          which: this.state.which || "testme",
-          config: this.state.config || "default"
-        },
+        chunkSize: "dynamic"
       },
       false
     );
@@ -82,7 +76,7 @@ class DeveloperContainer4 extends Component {
     let link;
     if (this.props.isReady) {
       logger.debug("render isready", this.state);
-      const file = Images.findOne({ _id: this.state.uploaded }); //Images.find({ _id: this.state.uploaded });
+      const file = PublicAssets.findOne({ _id: this.state.uploaded });
       logger.debug("   file", file);
       if (!!file) link = file.link();
       logger.debug("   link=" + link);
@@ -105,11 +99,10 @@ class DeveloperContainer4 extends Component {
 
 export default withTracker(() => {
   const subscriptions = {
-    files: Meteor.subscribe("files.images.all"),
+    files: Meteor.subscribe("publicassets"),
   };
 
   return {
-    isReady: isReadySubscriptions(subscriptions),
-    //all_files: Images.find().fetch(),
+    isReady: isReadySubscriptions(subscriptions)
   };
 })(DeveloperContainer4);

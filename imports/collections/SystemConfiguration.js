@@ -69,6 +69,10 @@ SystemConfiguration.seekDefault = function () {
   });
 };
 
+SystemConfiguration.defaultTheme = function () {
+  return lookup("default_theme", "default");
+};
+
 SystemConfiguration.pingsToSave = function (callback) {
   if (!!callback && typeof callback === "function") {
     SystemConfiguration.events.on("changed", (data) => {
