@@ -11,9 +11,10 @@ describe("RoomBlock component", () => {
     onChange: () => null,
     handleCloseModal: () => null,
   };
-  const component = mount(<RoomBlock {...mockProps} />);
 
   it("should render and simulate options", () => {
+    const component = mount(<RoomBlock {...mockProps} />);
+
     chai.assert.isDefined(component);
 
     component.find("li").simulate("click");

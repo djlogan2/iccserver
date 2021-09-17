@@ -101,13 +101,13 @@ describe("Login Page", () => {
     // chai.assert.equal(wrapper.find(`input[value='${newUsername}']`).prop('id'), "login-email");
   });
 
-  it("loginWithPassword function is called", () => {
-    const page = wrapper.find(LoginPage);
-    const login = sinon.spy(Meteor, "loginWithPassword");
-    const form = page.find("form").first();
-    form.simulate("submit");
-    chai.assert.isTrue(login.calledOnce);
-  })
+  // it("loginWithPassword function is called", () => {
+  //   const page = wrapper.find(LoginPage);
+  //   const login = sinon.spy(Meteor, "loginWithPassword");
+  //   const form = page.find("form").first();
+  //   form.simulate("submit");
+  //   chai.assert.isTrue(login.calledOnce);
+  // })
 
   // it("loginWithPassword function is called without error", () => {
   //   const page = wrapper.find(LoginPage);
