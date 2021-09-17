@@ -3310,7 +3310,7 @@ describe("Takebacks", function () {
       { type: "move", parameter: {move: "exd4" }},
       { type: "move", parameter: {move: "cxd4" }},
     ];
-
+    this.timeout(5000);
     actions.forEach((action) => {
       const tomove = Game.collection.findOne({}).tomove;
       switch (action.type) {
@@ -3343,6 +3343,7 @@ describe("Takebacks", function () {
     //  "1.e4e52.Nf3(2.f4Nc63.Nf3)2...Nc63.Bc4(3.Be2Be74.O-O(4.c3d6(4...d55.d4)5.d4)4...d5)3...Be74.d4(4.c3d65.d4exd46.cxd4)4...Nxd45.c3d56.exd5b57.cxd4bxc4";
     // So Let's not remove the whitespace, and it should match exactly.
     //pgn.replace(/\s/g, "");
+
     chai.assert.equal(pgn, expectedpgn);
   });
 });
