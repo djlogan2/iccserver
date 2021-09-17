@@ -6,9 +6,9 @@ import { ImportedGameCollection } from "./Game";
 import { Logger } from "../lib/server/Logger";
 const log = new Logger("server/PgnImport_js");
 
-const insert = Meteor.bindEnvironment(document => ImportedGameCollection.insert(document));
+const insert = Meteor.bindEnvironment((document) => ImportedGameCollection.insert(document));
 
-Meteor.publish("imported_games", function() {
+Meteor.publish("imported_games", function () {
   return ImportedGameCollection.find(
     { creatorId: Meteor.userId() },
     { fields: { creatorId: 1, fileRef: 1, white: 1, black: 1, result: 1 } }
@@ -48,7 +48,7 @@ const process = (fileRef, vRef, version, testCallback) => {
           if (!!parser.gamelist) {
             gamelist = parser.gamelist;
             delete parser.gamelist;
-            gamelist.forEach(game => {
+            gamelist.forEach((game) => {
               game.creatorId = fileRef.userId;
               game.fileRef = fileRef._id;
               insert(game);
@@ -71,7 +71,7 @@ const process = (fileRef, vRef, version, testCallback) => {
           parser.feed(saveBuffer.toString("utf8"));
           if (!!parser.gameobject) parser.gamelist.push(parser.gameobject);
           if (!!parser.gamelist)
-            parser.gamelist.forEach(game => {
+            parser.gamelist.forEach((game) => {
               game.creatorId = fileRef.userId;
               game.fileRef = fileRef._id;
               insert(game);
@@ -101,15 +101,15 @@ export const ImportedPgnFiles = new FilesCollection({
   // Intercept access to the file
   interceptDownload(http, fileRef, version) {
     return false;
-  }
+  },
 });
 
 // Intercept FilesCollection's remove method to remove file
 const _origRemove = ImportedPgnFiles.remove;
-ImportedPgnFiles.remove = function(search) {
+ImportedPgnFiles.remove = function (search) {
   const cursor = this.collection.find(search);
-  cursor.forEach(fileRef => {
-    _.each(fileRef.versions, vRef => {
+  cursor.forEach((fileRef) => {
+    _.each(fileRef.versions, (vRef) => {
       if (vRef && vRef.meta && vRef.meta.pipePath) {
         console.log("Delete the file here");
       }
