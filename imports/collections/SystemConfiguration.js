@@ -41,6 +41,14 @@ Meteor.startup(() => {
   });
 });
 
+SystemConfiguration.globalValidateMugshots = function() {
+  return lookup("validate_mugshots", true);
+}
+
+SystemConfiguration.defaultMugshot = function () {
+  return lookup("default_mugshot", undefined);
+};
+
 SystemConfiguration.quickButtons = function () {
   return lookup("quick_buttons", [
     {
