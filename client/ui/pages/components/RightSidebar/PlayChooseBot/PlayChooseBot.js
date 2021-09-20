@@ -1,8 +1,14 @@
 import React, { Component } from "react";
 import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
 import { translate } from "../../../../HOCs/translate";
-import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
-import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
+import {
+  findRatingObject,
+  getMaxInitialAndIncOrDelayTime,
+} from "../../../../../../lib/ratinghelpers";
+import {
+  DynamicRatingsCollection,
+  mongoCss,
+} from "../../../../../../imports/api/client/collections";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import injectSheet from "react-jss";
@@ -11,7 +17,7 @@ import { Meteor } from "meteor/meteor";
 import {
   CHALLENGER_INCREMENT_DELAY_TYPE,
   INCREMENT_OR_DELAY_TYPE_NONE,
-  RECEIVER_INCREMENT_DELAY_TYPE
+  RECEIVER_INCREMENT_DELAY_TYPE,
 } from "../../../../../constants/gameConstants";
 
 const { Title } = Typography;
@@ -216,7 +222,7 @@ class PlayChooseBot extends Component {
                 className={classes.incDelayItem}
                 label={translate("initial")}
                 name="challengerInitial"
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: "Initial is required" }]}
               >
                 <InputNumber
                   name="challengerInitial"
