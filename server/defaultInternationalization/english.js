@@ -56,6 +56,9 @@ export const english = {
         examiningTooltip: "Examining",
         observing: "Observing",
       },
+      notification: {
+        pleaseFinishGame: "Now you are playing, please finish the game",
+      },
     },
     gameListModal: {
       myGames: "My Games",
@@ -450,6 +453,9 @@ export const english = {
       notifications: {
         usernameChanged: "Username was changed successfully",
         emailChanged: "E-mail was changed successfully",
+        wrongEmail: "Wrong E-mail",
+        fillEmail: "Please fill E-mail",
+        fillUsername: "Please fill гsername",
         NOT_AUTHORIZED: "User has no authorized to change email",
       },
     },
@@ -459,7 +465,7 @@ export const english = {
       newPassword: "New password",
       confirmPassword: "Confirm password",
       updatePassword: "Update password",
-      norifications: {
+      notifications: {
         passwordChanged: "Password was changed successfully",
       },
       validation: {

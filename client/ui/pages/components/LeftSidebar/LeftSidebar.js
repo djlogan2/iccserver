@@ -14,7 +14,8 @@ import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_LOGIN, RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import { dynamicLeftSideBarStyles } from "./dynamicLeftSidebarStyles";
-import { gameStatusNone } from "../../../../constants/gameConstants";
+import { gameStatusNone, gameStatusPlaying } from "../../../../constants/gameConstants";
+import { notification } from "antd";
 
 const log = new Logger("client/LeftSidebar_js");
 
@@ -112,7 +113,17 @@ class LeftSidebar extends Component {
         <div
           id="profile-redirect"
           className={classNames(classes.sidebarUser, !!visible && classes.fliphSidebarUser)}
-          onClick={() => this.handleRedirect(RESOURCE_PROFILE)}
+          onClick={() => {
+            if (gameStatus !== gameStatusPlaying) {
+              this.handleRedirect(RESOURCE_PROFILE);
+            } else {
+              notification.open({
+                message: translate("notification.pleaseFinishGame"),
+                description: null,
+                duration: 5,
+              });
+            }
+          }}
         >
           <img
             src="/images/avatar.png"

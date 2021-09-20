@@ -2,10 +2,14 @@ import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withRouter } from "react-router-dom";
 import { links, sidebarBottom } from "../../hardcode.json";
-import { labelLogout, labelMyGame, labelsToResources } from "../../../../constants/resourceConstants";
+import {
+  labelLogout,
+  labelMyGame,
+  labelsToResources,
+} from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
-import _ from "lodash";
-import { Tag, Tooltip } from "antd";
+import _, { get } from "lodash";
+import { notification, Tag, Tooltip } from "antd";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../imports/api/client/collections";
@@ -17,6 +21,7 @@ import SettingOutlined from "@ant-design/icons/SettingOutlined";
 
 import "./MenuLinks.css";
 import { ROLE_DEVELOPER } from "../../../../constants/systemConstants";
+import { gameStatusPlaying } from "../../../../constants/gameConstants";
 
 class MenuLinks extends Component {
   constructor(props) {
@@ -58,10 +63,20 @@ class MenuLinks extends Component {
   }
 
   handleClick = (label) => {
-    const { handleRedirect, onMyGames, onLogout } = this.props;
+    const { handleRedirect, onMyGames, onLogout, translate } = this.props;
 
     if (labelsToResources.hasOwnProperty(label)) {
-      handleRedirect(labelsToResources[label]);
+      const currentUser = Meteor.user();
+      const gameStatus = get(currentUser, "status.game");
+      if (gameStatus !== gameStatusPlaying) {
+        handleRedirect(labelsToResources[label]);
+      } else {
+        notification.open({
+          message: translate("leftSideBar.notification.pleaseFinishGame"),
+          description: null,
+          duration: 5,
+        });
+      }
     } else if (label === labelMyGame) {
       onMyGames();
     } else if (label === labelLogout) {
@@ -115,7 +130,7 @@ class MenuLinks extends Component {
         <tbody>
           <tr>
             <td>
-              <Tooltip title={this.props.translate("last_ping")}>
+              <Tooltip title={this.props.translate("menuLinkLabel.last_ping")}>
                 <Tag style={{ width: "100%", textAlign: "right" }} color={ping_color}>
                   {!!this.state.lagging
                     ? "Disconnected " + this.state.lagging + "s"
@@ -125,7 +140,7 @@ class MenuLinks extends Component {
             </td>
             {!this.state.lagging && (
               <td>
-                <Tooltip title={this.props.translate("average_lag")}>
+                <Tooltip title={this.props.translate("menuLinkLabel.average_lag")}>
                   <Tag style={{ width: "100%", textAlign: "right" }} color={average_color}>
                     {Math.round(this.state.averageping)}
                   </Tag>
@@ -186,7 +201,7 @@ class MenuLinks extends Component {
                 onClick={() => this.handleClick(link.label)}
               >
                 <img src={link.src} alt={link.label} />
-                {!visible && <span>{translate(link.label)}</span>}
+                {!visible && <span>{translate(`menuLinkLabel.${link.label}`)}</span>}
               </a>
             </li>
           ) : null;
@@ -212,7 +227,7 @@ class MenuLinks extends Component {
 
 export default compose(
   withRouter,
-  translate("Common.menuLinkLabel"),
+  translate("Common"),
   withTracker(() => {
     return {
       menuLinksCss: mongoCss.findOne(),
