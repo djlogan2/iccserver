@@ -3,7 +3,11 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
-import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
+import {
+  colorBlackLetter,
+  colorWhiteLetter,
+  gameStatusPlaying,
+} from "../../../constants/gameConstants";
 import { withSounds } from "../../HOCs/withSounds";
 
 class NewChessBoard extends Component {
@@ -271,7 +275,7 @@ class NewChessBoard extends Component {
           promotion: {
             backgroundColor: "#a8a8a8",
           },
-          lastMove: "5px solid #3CFF33",
+          lastMove: `${Math.min(width, height) / 120}px solid #3CFF33`,
         }}
         windowWidth={width}
         windowHeight={height}
