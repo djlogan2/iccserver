@@ -222,7 +222,7 @@ class PlayChooseBot extends Component {
                 className={classes.incDelayItem}
                 label={translate("initial")}
                 name="challengerInitial"
-                rules={[{ required: true, message: "Initial is required" }]}
+                rules={[{ required: true, message: "Initial is required" }]} // TODO: DJL - Is this message internationalized?
               >
                 <InputNumber
                   name="challengerInitial"

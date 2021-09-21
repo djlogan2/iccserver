@@ -1,3 +1,9 @@
+// TODO: DJL - You do realize that every bit of this needs to go into the database, yes?
+//       I have asked many times if we should use the ClientMessages or the i18n collections for this,
+//       or if you wanted your own collection. I suppose it could also go into the public assets s3
+//       bucket too, although if you do it that way, I don't think you'll be able to do any type of
+//       WYSIWYG language updates right on the page.
+//
 export const english = {
   Common: {
     appWrapper: {
