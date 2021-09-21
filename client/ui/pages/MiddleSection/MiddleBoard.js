@@ -104,9 +104,16 @@ class MiddleBoard extends Component {
   };
 
   render() {
-    const { translate, game, playersInfo, cssManager, onDrawObject, onDrop } = this.props;
+    const {
+      translate,
+      game,
+      playersInfo,
+      cssManager,
+      onDrawObject,
+      onDrop,
+      isHistoryTurn
+    } = this.props;
     const { top } = this.state;
-
     if (!!game && !game.fen) {
       return null;
     }
@@ -191,6 +198,7 @@ class MiddleBoard extends Component {
               blackId={game?.black?.id}
               whiteId={game?.white?.id}
               variations={game.variations}
+              isHistoryTurn={isHistoryTurn}
             />
             <div
               style={{

@@ -243,7 +243,7 @@ class NewChessBoard extends Component {
   };
 
   render() {
-    const { orientation, chess, width, height } = this.props;
+    const { orientation, chess, width, height, isHistoryTurn } = this.props;
     const {
       legalMoves,
       circles,
@@ -304,7 +304,7 @@ class NewChessBoard extends Component {
         }}
         movable={isCurrentTurn ? legalMoves : () => getBoardSquares()}
         circles={circles}
-        arrows={premoveArrow ? [...arrows, premoveArrow] : arrows}
+        arrows={isHistoryTurn ? [] : premoveArrow ? [...arrows, premoveArrow] : arrows}
         onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
         onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
         onMove={(move, promotion) => this.handleMove(move, promotion)}

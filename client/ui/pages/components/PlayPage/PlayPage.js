@@ -179,7 +179,7 @@ export default class PlayPage extends Component {
       onSeekPlay,
     } = this.props;
     const { width, height, switchSides, chess, variation } = this.state;
-
+    const isHistoryTurn = variation.cmi !== game.variations.cmi;
     const gameClone = cloneDeep(game);
 
     if (gameClone) {
@@ -203,6 +203,7 @@ export default class PlayPage extends Component {
               width={width}
               height={height}
               game={gameClone}
+              isHistoryTurn={isHistoryTurn}
             />
           </BoardWrapper>
         </Col>
