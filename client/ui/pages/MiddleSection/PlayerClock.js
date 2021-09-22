@@ -200,7 +200,7 @@ export default class PlayerClock extends Component {
       color: "#fff",
       top: "5px",
       height: cv / 1.7,
-      width: cv * 1.3,
+      padding: "0 5px",
       background: currentTurn === color[0] ? "#1890ff" : "#333333",
       fontWeight: "700",
       position: "absolute",
