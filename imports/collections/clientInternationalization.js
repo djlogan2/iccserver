@@ -17,7 +17,7 @@ import { check, Match } from "meteor/check";
 const mongoClientInternationalization = new Mongo.Collection("client_internationalization");
 
 Meteor.publish("clientInternationalization", function (locale) {
-  check(locale, Match.OneOf(String, null)); // TODO: DJL - Use "Match.Maybe()
+  check(locale, Match.Maybe(String));
 
   const options = {
     locale: null,
