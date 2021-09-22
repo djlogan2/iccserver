@@ -12,7 +12,7 @@ import {
   DynamicRatingsCollection,
   Game,
   GameRequestCollection,
-  mongoCss
+  mongoCss,
 } from "../../../../imports/api/client/collections";
 import { TimestampClient } from "../../../../lib/Timestamp";
 import { findRatingObject } from "../../../../lib/ratinghelpers";
@@ -21,7 +21,12 @@ import { compose } from "redux";
 import injectSheet from "react-jss";
 import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
 import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
-import { gameSeekAutoAccept, gameSeekIsRated, maxRating, minRating } from "../../../constants/gameConstants";
+import {
+  gameSeekAutoAccept,
+  gameSeekIsRated,
+  maxRating,
+  minRating,
+} from "../../../constants/gameConstants";
 import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
 import withClientMessages from "../../HOCs/withClientMessages";
 
@@ -143,12 +148,25 @@ class Play extends Component {
     const friendId = Meteor.userId() === gameData.white.id ? gameData.black.id : gameData.white.id;
 
     const color = Meteor.userId() === gameData.white.id ? "black" : "white";
-    const initial = gameData.clocks.white.initial;
-    const incrementOrDelay = gameData.clocks.white.inc_or_delay;
-    const incrementOrDelayType = gameData.clocks.white.delaytype;
+    const opponentColor = color === "white" ? "black" : "white";
+    const challengerInitial = gameData.clocks[color].initial;
+    const challengerIncrementOrDelay = gameData.clocks[color].inc_or_delay;
+    const challengerIncrementOrDelayType = gameData.clocks[color].delaytype;
+    const receiverInitial = gameData.clocks[opponentColor].initial;
+    const receiverIncrementOrDelay = gameData.clocks[opponentColor].inc_or_delay;
+    const receiverIncrementOrDelayType = gameData.clocks[opponentColor].delaytype;
     const rated = gameData.rated;
 
-    const options = { color, initial, incrementOrDelayType, incrementOrDelay, rated };
+    const options = {
+      color,
+      challengerInitial,
+      challengerIncrementOrDelayType,
+      challengerIncrementOrDelay,
+      receiverInitial,
+      receiverIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      rated,
+    };
     return { friendId, options };
   };
 
