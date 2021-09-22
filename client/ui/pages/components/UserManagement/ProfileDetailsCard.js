@@ -75,6 +75,8 @@ class ProfileDetailsCard extends Component {
     const { translate, classes } = this.props;
     const currentUser = Meteor.user();
 
+    console.log(currentUser);
+
     return (
       <Card title={translate("cardTitle")} className={classes.card} bodyStyle={{ height: " 100%" }}>
         <div className={classes.mainDiv}>

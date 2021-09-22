@@ -156,7 +156,7 @@ export default class PlayerClock extends Component {
 
   render() {
     const { game, side, color, currentTurn } = this.props;
-    const { current } = this.state;
+    const { current, running } = this.state;
 
     if (!game) {
       return null;
@@ -184,8 +184,19 @@ export default class PlayerClock extends Component {
     if (neg === "-" || !!hour || !!minute || second >= 10) {
       ms = "";
     } else {
+      if (running && this.lowTime && Date.now() - this.lowTime.date > 500) {
+        this.lowTime = {
+          color: this.lowTime.color === "#ff0000" ? "#810000" : "#ff0000",
+          date: Date.now(),
+        };
+      } else if (running && !this.lowTime) {
+        this.lowTime = { color: "#ff0000", date: Date.now() };
+      }
       ms = "." + ms.toString().substr(0, 1);
     }
+
+    if (!running) this.lowTime = null;
+
     if (second < 10) second = `0${second}`;
     if (minute < 10) minute = `0${minute}`;
 
@@ -201,9 +212,15 @@ export default class PlayerClock extends Component {
       top: "5px",
       height: cv / 1.7,
       padding: "0 5px",
-      background: currentTurn === color[0] ? "#1890ff" : "#333333",
+      background: this.lowTime
+        ? this.lowTime.color
+        : currentTurn === color[0]
+        ? "#1890ff"
+        : "#333333",
       fontWeight: "700",
+      transition: this.lowTime && "0.3s",
       position: "absolute",
+      boxShadow: this.lowTime && `0px 0px 5px 5px ${this.lowTime.color}`,
     };
 
     return (

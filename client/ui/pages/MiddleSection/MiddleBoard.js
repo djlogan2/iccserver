@@ -14,7 +14,7 @@ import {
   colorWhite,
   colorWhiteLetter,
   gameStatusExamining,
-  gameStatusPlaying,
+  gameStatusPlaying
 } from "../../../constants/gameConstants";
 import Analytics from "../components/Analytics/Analytics";
 
@@ -104,15 +104,8 @@ class MiddleBoard extends Component {
   };
 
   render() {
-    const {
-      translate,
-      game,
-      playersInfo,
-      cssManager,
-      onDrawObject,
-      onDrop,
-      isHistoryTurn
-    } = this.props;
+    const { translate, game, playersInfo, cssManager, onDrawObject, onDrop, isHistoryTurn } =
+      this.props;
     const { top } = this.state;
     if (!!game && !game.fen) {
       return null;
