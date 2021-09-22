@@ -487,7 +487,7 @@ Users.updateCurrentUsername = function (message_identifier, username) {
   check(username, String);
 
   if (!Users.isAuthorized(self, "change_username")) {
-    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
+    Users.sendClientMessage(self, message_identifier, "USERNAME_NOT_AUTHORIZED");
     return;
   }
 
