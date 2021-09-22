@@ -37,6 +37,13 @@ class ProfileDetailsCard extends Component {
     const { translate } = this.props;
     const { username, email } = this.state;
 
+    // TODO: DJL - While I love the fact that you are finally actually trying to get a client message for
+    //       an action, I don't think this is going to work. Meteor.methods currently never return an error.
+    //       This has actually been a long-outstanding question from me, to you. Should we modify how we
+    //       return errors to the client? Should we throw MeteorError()'s, which would end up in the err
+    //       field? When we can't, should we translate them or not? Is there a better way?
+    //       At any rate, this isn't going to work. There is no "throw new MeteorError" in the server
+    //       to trigger the existence of data in the "err" argument.
     if (username) {
       Meteor.call("updateCurrentUsername", "update_current_username", username, (err) => {
         if (!err) {
