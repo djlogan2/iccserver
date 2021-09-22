@@ -21,6 +21,11 @@ class ProfileDetailsCard extends Component {
     };
   }
 
+  componentDidMount() {
+    const currentUser = Meteor.user();
+    this.setState({ username: currentUser.username, email: currentUser.emails[0].address });
+  }
+
   handleInputChange = (property) => (event) => {
     this.setState({ [property]: event.target.value });
   };
@@ -35,27 +40,8 @@ class ProfileDetailsCard extends Component {
     if (username) {
       Meteor.call("updateCurrentUsername", "update_current_username", username, (err) => {
         if (!err) {
+          const messages = this.getClientMessage("update_current_username");
           notification.open({
-            message: translate("notifications.usernameChanged"),
-            description: null,
-            duration: 5,
-          });
-        } else {
-          notification.open({
-            message: err.reason,
-            description: null,
-            duration: 5,
-          });
-        }
-      });
-    }
-
-    if (email && /^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_-]+).([a-zA-Z0-9_\-.]+)$/g.test(email)) {
-      Meteor.call("updateCurrentEmail", "update_current_email", email, (err, res) => {
-        if (!err) {
-          const messages = this.getClientMessage("update_current_email");
-          notification.open({
-            // message: translate("notifications.emailChanged"),
             message: translate(`notifications.${messages.message}`),
             description: null,
             duration: 5,
@@ -68,13 +54,45 @@ class ProfileDetailsCard extends Component {
           });
         }
       });
+    } else {
+      notification.open({
+        message: translate("notifications.fillUsername"),
+        description: null,
+        duration: 5,
+      });
+    }
+
+    if (email && /^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_-]+).([a-zA-Z0-9_\-.]+)$/g.test(email)) {
+      Meteor.call("updateCurrentEmail", "update_current_email", email, (err, res) => {
+        if (!err) {
+          const messages = this.getClientMessage("update_current_email");
+          notification.open({
+            message: translate(`notifications.${messages.message}`),
+            description: null,
+            duration: 5,
+          });
+        } else {
+          notification.open({
+            message: err.reason,
+            description: null,
+            duration: 5,
+          });
+        }
+      });
+    } else {
+      notification.open({
+        message: email
+          ? translate("notifications.wrongEmail")
+          : translate("notifications.fillEmail"),
+        description: null,
+        duration: 5,
+      });
     }
   };
 
   render() {
     const { translate, classes } = this.props;
-    const currentUser = Meteor.user();
-
+    const { username, email } = this.state;
     return (
       <Card title={translate("cardTitle")} className={classes.card} bodyStyle={{ height: " 100%" }}>
         <div className={classes.mainDiv}>
@@ -88,12 +106,12 @@ class ProfileDetailsCard extends Component {
             <div className={classes.formUsernameDiv}>
               <Input
                 placeholder={translate("username")}
-                defaultValue={currentUser.username}
+                value={username}
                 onChange={this.handleInputChange(USERNAME_PROPERTY)}
               />
               <Input
                 placeholder={translate("email")}
-                defaultValue={currentUser.emails[0].address}
+                value={email}
                 onChange={this.handleInputChange(EMAIL_PROPERTY)}
               />
               <Button type="primary" onClick={this.handleUpdate}>
