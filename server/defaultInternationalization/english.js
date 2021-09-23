@@ -279,7 +279,7 @@ export const english = {
       receiver: "Receiver configuration",
       control: {
         inc: "Inc",
-        none: "None",
+        none: "No increment",
         us: "Us",
         bronstein: "Bronstein",
       },
@@ -323,7 +323,7 @@ export const english = {
       timeControl: "Time control",
       control: {
         inc: "Inc",
-        none: "None",
+        none: "No increment",
         us: "Us",
         bronstein: "Bronstein",
       },
