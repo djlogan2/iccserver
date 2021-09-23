@@ -10,10 +10,11 @@ export default function firstRunClientInternationalization() {
   }
   const data = mongoClientInternationalization.find({ locale: "en-us" });
 
-  // TODO: DJL - use upsert()
-  if (!data.count()) {
-    mongoClientInternationalization.insert({ locale: "en-us", i18n: english });
-  } else if (!isEqual(data.fetch()[0]["i18n"], english)) {
-    mongoClientInternationalization.update({ locale: "en-us" }, { $set: { i18n: english } });
+  if (!data.count() || !isEqual(data.fetch()[0]["i18n"], english)) {
+    mongoClientInternationalization.update(
+      { locale: "en-us" },
+      { $set: { i18n: english } },
+      { upsert: true }
+    );
   }
 }
