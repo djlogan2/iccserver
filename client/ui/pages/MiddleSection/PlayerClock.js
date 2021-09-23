@@ -211,7 +211,8 @@ export default class PlayerClock extends Component {
       color: "#fff",
       top: "5px",
       height: cv / 1.7,
-      padding: "0 5px",
+      paddingLeft: "5px",
+      paddingRight: "5px",
       background: this.lowTime
         ? this.lowTime.color
         : currentTurn === color[0]
