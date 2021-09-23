@@ -56,7 +56,7 @@ class NewChessBoard extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { chess, premove } = this.props;
+    const { chess, premove, playSound } = this.props;
     const { fen, premove: statePremove } = this.state;
 
     if (!isEqual(premove, prevProps.premove)) {
@@ -71,6 +71,8 @@ class NewChessBoard extends Component {
         arrows: [],
         circles: [],
       });
+
+      playSound("piece_move");
     }
 
     const user = Meteor.user();

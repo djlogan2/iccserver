@@ -4,7 +4,7 @@ import FallenSoldierSquare from "./FallenSoldierSquare";
 export default class FallenSoldier extends React.Component {
   render() {
     const { side, color, cssManager, soldiers } = this.props;
-    const soldiersKeys = Object.keys(soldiers);
+    const soldiersKeys = Object.keys(soldiers || {});
 
     const items = [];
 
