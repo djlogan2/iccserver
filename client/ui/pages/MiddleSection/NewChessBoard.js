@@ -253,12 +253,12 @@ class NewChessBoard extends Component {
       smartMoves,
       showLegalMoves,
       smallSize,
-      premove,
       lastMove,
       premoveArrow,
     } = this.state;
     const isCurrentTurn = this.isCurrentTurn();
-
+    const premove = false;
+    const onMove = isHistoryTurn ? () => {} : (move, promotion) => this.handleMove(move, promotion);
     const updatedLastMove = lastMove || this.getLastMove();
 
     return (
@@ -309,7 +309,7 @@ class NewChessBoard extends Component {
         arrows={isHistoryTurn ? [] : premoveArrow ? [...arrows, premoveArrow] : arrows}
         onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
         onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
-        onMove={(move, promotion) => this.handleMove(move, promotion)}
+        onMove={onMove}
         handleDelete={this.handleRemovePremove}
         smartMoves={smartMoves}
         edit={premove ? {} : null}
