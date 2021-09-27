@@ -461,7 +461,7 @@ export const english = {
         emailChanged: "E-mail was changed successfully",
         wrongEmail: "Wrong E-mail",
         fillEmail: "Please fill E-mail",
-        fillUsername: "Please fill гsername",
+        fillUsername: "Please fill username",
         NOT_AUTHORIZED: "User has no authorized to change email",
       },
     },
