@@ -1,19 +1,28 @@
 import React, { Component } from "react";
-import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
-import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
+import {
+  findRatingObject,
+  getMaxInitialAndIncOrDelayTime,
+} from "../../../../../../lib/ratinghelpers";
+import {
+  DynamicRatingsCollection,
+  mongoCss,
+} from "../../../../../../imports/api/client/collections";
 import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
 import { translate } from "../../../../HOCs/translate";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { ROLE_PLAY_RATED_GAMES, ROLE_PLAY_UNRATED_GAMES } from "../../../../../constants/rolesConstants";
+import {
+  ROLE_PLAY_RATED_GAMES,
+  ROLE_PLAY_UNRATED_GAMES,
+} from "../../../../../constants/rolesConstants";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
 import {
   CHALLENGER_INCREMENT_DELAY_TYPE,
   COLOR_RANDOM,
   INCREMENT_OR_DELAY_TYPE_NONE,
-  RECEIVER_INCREMENT_DELAY_TYPE
+  RECEIVER_INCREMENT_DELAY_TYPE,
 } from "../../../../../constants/gameConstants";
 
 const { Title } = Typography;
@@ -218,7 +227,7 @@ class PlayFriendOptions extends Component {
               >
                 <InputNumber
                   name="challengerInitial"
-                  min={0}
+                  min={challengerIncrementOrDelayType === INCREMENT_OR_DELAY_TYPE_NONE ? 1 : 0}
                   parser={(value) => Math.round(value)}
                   formatter={(value) => Math.round(value)}
                   max={maxInitialValue}
