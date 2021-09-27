@@ -174,30 +174,7 @@ class Play extends Component {
     const { gameType, gameData } = this.state;
 
     if (gameType === "startBotGame") {
-      const {
-        wildNumber,
-        ratingType,
-        whiteInitial,
-        whiteIncrementOrDelay,
-        whiteIncrementOrDelayType,
-        blackInitial,
-        blackIncrementOrDelay,
-        blackIncrementOrDelayType,
-        skillLevel,
-        color,
-      } = gameData;
-      this.handleBotPlay({
-        wildNumber,
-        ratingType,
-        whiteInitial,
-        whiteIncrementOrDelay,
-        whiteIncrementOrDelayType,
-        blackInitial,
-        blackIncrementOrDelay,
-        blackIncrementOrDelayType,
-        skillLevel,
-        color,
-      });
+      this.handleBotPlay(gameData);
     } else {
       this.initFriendRematch();
     }
