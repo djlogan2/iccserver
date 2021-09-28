@@ -493,6 +493,7 @@ Users.updateCurrentUsername = function (message_identifier, username) {
 
   try {
     Accounts.setUsername(self._id, username);
+    Users.sendClientMessage(self, message_identifier, "NAME_WAS_CHANGED");
   } catch (e) {
     log.error("Unable to change username", e);
     Users.sendClientMessage(self, message_identifier, "UNABLE_TO_CHANGE_USERNAME");

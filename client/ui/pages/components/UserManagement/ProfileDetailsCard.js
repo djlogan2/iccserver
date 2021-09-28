@@ -18,12 +18,27 @@ class ProfileDetailsCard extends Component {
     this.state = {
       username: "",
       email: "",
+      isUserNameChange: false,
+      isEmailChange: false,
+      isLoading: false,
     };
+  }
+
+  checkRole(roleName) {
+    return Meteor.roleAssignment
+      .find()
+      .fetch()
+      .some((roleItem) => roleItem.role._id === roleName);
   }
 
   componentDidMount() {
     const currentUser = Meteor.user();
-    this.setState({ username: currentUser.username, email: currentUser.emails[0].address });
+    this.setState({
+      username: currentUser.username,
+      email: currentUser?.emails[0]?.address || "",
+      isEmailChange: this.checkRole("change_email"),
+      isUserNameChange: this.checkRole("change_username"),
+    });
   }
 
   handleInputChange = (property) => (event) => {
@@ -33,9 +48,17 @@ class ProfileDetailsCard extends Component {
     return ClientMessagesCollection.findOne({ client_identifier: id });
   };
 
-  handleUpdate = () => {
+  notify = (messages) => {
     const { translate } = this.props;
-    const { username, email } = this.state;
+    notification.open({
+      message: messages.map((msg) => translate(msg)).join(", "),
+      description: null,
+      duration: 5,
+    });
+  };
+
+  handleUpdate = () => {
+    const { username, email, isEmailChange, isUserNameChange } = this.state;
 
     // TODO: DJL - While I love the fact that you are finally actually trying to get a client message for
     //       an action, I don't think this is going to work. Meteor.methods currently never return an error.
@@ -44,62 +67,75 @@ class ProfileDetailsCard extends Component {
     //       field? When we can't, should we translate them or not? Is there a better way?
     //       At any rate, this isn't going to work. There is no "throw new MeteorError" in the server
     //       to trigger the existence of data in the "err" argument.
-    if (username) {
-      Meteor.call("updateCurrentUsername", "update_current_username", username, (err) => {
-        if (!err) {
-          const messages = this.getClientMessage("update_current_username");
-          notification.open({
-            message: translate(`notifications.${messages.message}`),
-            description: null,
-            duration: 5,
-          });
-        } else {
-          notification.open({
-            message: err.reason,
-            description: null,
-            duration: 5,
-          });
-        }
-      });
-    } else {
-      notification.open({
-        message: translate("notifications.fillUsername"),
-        description: null,
-        duration: 5,
-      });
+
+    if (isEmailChange || isUserNameChange) {
+      const messages = [];
+      if (isUserNameChange && !username) {
+        messages.push("notifications.fillUsername");
+      }
+      if (
+        isEmailChange &&
+        (!email || !/^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_-]+).([a-zA-Z0-9_\-.]+)$/g.test(email))
+      ) {
+        messages.push(email ? "notifications.wrongEmail" : "notifications.fillEmail");
+      }
+      if (messages.length) {
+        this.notify(messages);
+        return;
+      }
     }
 
-    if (email && /^([a-zA-Z0-9_\-.+]+)@([a-zA-Z0-9_-]+).([a-zA-Z0-9_\-.]+)$/g.test(email)) {
-      Meteor.call("updateCurrentEmail", "update_current_email", email, (err, res) => {
-        if (!err) {
-          const messages = this.getClientMessage("update_current_email");
-          notification.open({
-            message: translate(`notifications.${messages.message}`),
-            description: null,
-            duration: 5,
+    this.setState({
+      isLoading: true,
+    });
+
+    let promises = [];
+    if (isUserNameChange) {
+      promises.push(
+        new Promise((resolve) => {
+          Meteor.call("updateCurrentUsername", "update_current_username", username, (err) => {
+            if (!err) {
+              const messages = this.getClientMessage("update_current_username");
+              Meteor.call("acknowledge.client.message", messages._id);
+              resolve(messages.message);
+            } else {
+              resolve(err.reason);
+            }
           });
-        } else {
-          notification.open({
-            message: err.reason,
-            description: null,
-            duration: 5,
-          });
-        }
-      });
-    } else {
-      notification.open({
-        message: email
-          ? translate("notifications.wrongEmail")
-          : translate("notifications.fillEmail"),
-        description: null,
-        duration: 5,
-      });
+        })
+      );
     }
+
+    if (isEmailChange) {
+      promises.push(
+        new Promise((resolve) => {
+          Meteor.call("updateCurrentEmail", "update_current_email", email, (err) => {
+            if (!err) {
+              const messages = this.getClientMessage("update_current_email");
+              Meteor.call("acknowledge.client.message", messages._id);
+              resolve(messages.message);
+            } else {
+              resolve(err.reason);
+            }
+          });
+        })
+      );
+    }
+
+    Promise.all(promises)
+      .then((value) => {
+        this.notify(value);
+      })
+      .finally(() => {
+        this.setState({
+          isLoading: false,
+        });
+      });
   };
 
   render() {
     const { translate, classes } = this.props;
-    const { username, email } = this.state;
+    const { username, email, isUserNameChange, isEmailChange, isLoading } = this.state;
     return (
       <Card title={translate("cardTitle")} className={classes.card} bodyStyle={{ height: " 100%" }}>
         <div className={classes.mainDiv}>
@@ -114,16 +150,20 @@ class ProfileDetailsCard extends Component {
               <Input
                 placeholder={translate("username")}
                 value={username}
+                disabled={!isUserNameChange}
                 onChange={this.handleInputChange(USERNAME_PROPERTY)}
               />
               <Input
+                disabled={!isEmailChange}
                 placeholder={translate("email")}
                 value={email}
                 onChange={this.handleInputChange(EMAIL_PROPERTY)}
               />
-              <Button type="primary" onClick={this.handleUpdate}>
-                {translate("update")}
-              </Button>
+              {(isUserNameChange || isEmailChange) && (
+                <Button type="primary" onClick={this.handleUpdate} loading={isLoading}>
+                  {translate("update")}
+                </Button>
+              )}
             </div>
           </div>
         </div>
