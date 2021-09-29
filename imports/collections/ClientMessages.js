@@ -159,6 +159,7 @@ const DefinedClientMessagesMap = {
   UNABLE_TO_CHANGE_USERNAME: {},
   UNABLE_TO_CHANGE_EMAIL: {},
   EMAIL_WAS_CHANGED: {},
+  NAME_WAS_CHANGED: {},
   INVALID_PLAYING_STATUS: {},
   INVALID_VARIATION_ACTION: {},
   INVALID_VARIATION_INDEX: {},
@@ -214,7 +215,6 @@ class ClientMessages {
     const locale = touser.locale || "en-us";
 
     const message = i18n.localizeMessage(locale, i18n_message, parms);
-
     return ClientMessagesCollection.insert({
       to: id,
       client_identifier: client_identifier,
