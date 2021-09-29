@@ -239,12 +239,12 @@ class PlayLocationControls extends Component {
 
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeysPress, false);
-    document.addEventListener("wheel", this.handleWheel, false);
+    // document.addEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeysPress, false);
-    document.removeEventListener("wheel", this.handleWheel, false);
+    // document.removeEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillReceiveProps(nextProps) {
