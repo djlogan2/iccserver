@@ -10,6 +10,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { ClientMessagesCollection, mongoCss } from "../../../../../imports/api/client/collections";
 import withClientMessages from "../../../HOCs/withClientMessages";
 import { Meteor } from "meteor/meteor";
+import CustomAvatar from "../CustomAvatar/CustomAvatar";
 
 class ProfileDetailsCard extends Component {
   constructor(props) {
@@ -104,10 +105,7 @@ class ProfileDetailsCard extends Component {
       <Card title={translate("cardTitle")} className={classes.card} bodyStyle={{ height: " 100%" }}>
         <div className={classes.mainDiv}>
           <div className={classes.avatarChangeDiv}>
-            <img src="images/avatar.png" alt="logo" className={classes.avatar} />
-            <Button disabled type="primary">
-              {translate("uploadNewAvatar")}
-            </Button>
+            <CustomAvatar />
           </div>
           <div className={classes.changeUsernameDiv}>
             <div className={classes.formUsernameDiv}>

@@ -8,7 +8,7 @@ import { translate } from "../../HOCs/translate";
 import NewChessBoard from "./NewChessBoard";
 import "./ChessBoard";
 import {
-  boardBaseFen,
+  BOARD_BASE_FEN,
   colorBlack,
   colorBlackLetter,
   colorWhite,
@@ -152,7 +152,7 @@ class MiddleBoard extends Component {
     if (!!game && (game.status === gameStatusExamining || game.status === gameStatusPlaying)) {
       this.chess.load(game.fen);
     } else {
-      this.chess.load(boardBaseFen);
+      this.chess.load(BOARD_BASE_FEN);
     }
 
     const isPlayingOrExamining =

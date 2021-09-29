@@ -85,8 +85,8 @@ class Player extends Component {
       >
         <div style={{ width: side * 0.45, display: "inline-block", position: "relative" }}>
           <img
-            style={{ display: "inline-block", float: "left", borderRadius: "5%", ...userPicture }}
-            src="images/player-img-top.png"
+            style={{ display: "inline-block", float: "left", borderRadius: "50%", ...userPicture }}
+            src={`mugshot/${playerData?.id}`}
             alt={translate("userPicture")}
           />
           <div style={{ marginTop: "5px", float: "left", ...tagLine }}>

@@ -28,7 +28,6 @@ class ExamineRightSidebar extends Component {
   render() {
     const {
       game,
-      classes,
       observeUser,
       unObserveUser,
       moveList,

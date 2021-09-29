@@ -41,12 +41,12 @@ Meteor.startup(() => {
   });
 });
 
-SystemConfiguration.globalValidateMugshots = function() {
+SystemConfiguration.globalValidateMugshots = function () {
   return lookup("validate_mugshots", true);
-}
+};
 
 SystemConfiguration.defaultMugshot = function () {
-  return lookup("default_mugshot", undefined);
+  return lookup("default_mugshot", "/images/avatar.png");
 };
 
 SystemConfiguration.quickButtons = function () {

@@ -11,7 +11,7 @@ import Chess from "chess.js/chess";
 import { Game, ImportedGameCollection, mongoCss } from "../../../../imports/api/client/collections";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
 import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
-import { defaultCapture, gameObserveDefault } from "../../../constants/gameConstants";
+import { DEFAULT_CAPTURE, GAME_OBSERVE_DEFAULT, gameStatusExamining } from "../../../constants/gameConstants";
 import { MY_GAMES_MODAL_OPENED } from "../../../constants/systemConstants";
 
 const log = new Logger("client/Examine_js");
@@ -163,7 +163,7 @@ class Examine extends Component {
     const { game } = this.props;
 
     if (game) {
-      this.setState({ leaving_game: game._id });
+      this.setState({ leaving_game: game._id, observing: true });
     }
 
     Meteor.call("observeUser", "observeUser", userId, (err) => {
@@ -208,7 +208,7 @@ class Examine extends Component {
       });
     }
 
-    if (!game && prevState.leaving_game) {
+    if (!game && prevState.leaving_game && prevProps?.game?.status === gameStatusExamining) {
       this.setState({ leaving_game: null });
     }
   }
@@ -238,7 +238,7 @@ class Examine extends Component {
     }
 
     if (!game.examiners || !game.examiners.some((user) => user.id === Meteor.userId())) {
-      fullGame = game || gameObserveDefault;
+      fullGame = game || GAME_OBSERVE_DEFAULT;
     }
 
     const css = new CssManager(systemCss?.systemCss || {}, systemCss?.userCss || {});
@@ -260,7 +260,7 @@ class Examine extends Component {
           observeUser={this.handleObserveUser}
           unObserveUser={this.handleUnObserveUser}
           onPgnUpload={this.handlePgnUpload}
-          capture={defaultCapture}
+          capture={DEFAULT_CAPTURE}
           game={fullGame}
           onImportedGames={this.handleImportedGames}
           onDrop={this._pieceSquareDragStop}
