@@ -35,7 +35,7 @@ class ProfileDetailsCard extends Component {
     const currentUser = Meteor.user();
     this.setState({
       username: currentUser.username,
-      email: currentUser?.emails[0]?.address || "",
+      email: currentUser?.emails?.[0]?.address || "",
       isEmailChange: this.checkRole("change_email"),
       isUserNameChange: this.checkRole("change_username"),
     });
