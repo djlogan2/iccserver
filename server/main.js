@@ -15,10 +15,10 @@ import "../imports/collections/css";
 import "../imports/collections/clientInternationalization";
 import "../imports/collections/users";
 import "../lib/server/timestamp";
-import "../server/Chat";
 import "../server/migrations";
 import "../server/clientCollection";
 import "../lib/server/userfiles";
+import "../lib/server/mugshots";
 import "./okendpoint";
 //??
 import current_release from "../imports/startup/release";
@@ -26,6 +26,7 @@ import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
 import firstRunClientInternationalization from "../imports/startup/server/firstRunClientInternationalization";
 import firstRunEcocodes from "../imports/startup/server/firstRunEcocodes";
+import firstRunStatics from "../imports/startup/server/firstRunStatics";
 
 const log = new Logger("server/main_js");
 
@@ -53,7 +54,7 @@ if (!Meteor.isTest && !Meteor.isAppTest) {
       //process.exit(7);
     });
   });
-/*
+  /*
   process.on("multipleResolves", (type, promise, reason) => {
     bound(() => {
       fs.writeSync(
@@ -67,24 +68,18 @@ if (!Meteor.isTest && !Meteor.isAppTest) {
     });
   });
 */
-  process.on("warning", warning => {
+  process.on("warning", (warning) => {
     bound(() => {
       fs.writeSync(
         process.stderr.fd,
-        `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${
-          warning.stack
-        }`
+        `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${warning.stack}`
       );
       // eslint-disable-next-line no-console
       console.log(
-        `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${
-          warning.stack
-        }`
+        `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${warning.stack}`
       );
       log.error(
-        `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${
-          warning.stack
-        }`
+        `Node emitted warning, name: ${warning.name}\nMessage: ${warning.message}\nStack: ${warning.stack}`
       );
       //process.exit(7);
     });
@@ -96,9 +91,10 @@ Meteor.startup(() => {
   firstRunUsers();
   firstRunClientInternationalization();
   firstRunEcocodes();
+  firstRunStatics();
 
   Meteor.methods({
     current_release: () => current_release.current_release.release,
-    current_commit: () => current_release.current_release.commit
+    current_commit: () => current_release.current_release.commit,
   });
 });

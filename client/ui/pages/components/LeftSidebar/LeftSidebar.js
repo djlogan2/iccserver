@@ -89,6 +89,7 @@ class LeftSidebar extends Component {
     const { visible, isMyGamesModal, gameList } = this.state;
 
     const currentUser = Meteor.user();
+
     const username = !!currentUser ? currentUser.username : translate("noLogin");
     const gameStatus = get(currentUser, "status.game");
 
@@ -126,7 +127,7 @@ class LeftSidebar extends Component {
           }}
         >
           <img
-            src="/images/avatar.png"
+            src={`mugshot/${Meteor.userId()}`}
             alt={translate("userAvatar")}
             className={classNames(
               !!visible ? classes.sidebarUserImgFliphed : classes.sidebarUserImg
@@ -172,6 +173,7 @@ export default compose(
   withTracker(() => {
     return {
       leftSideBarCss: mongoCss.findOne(),
+      currentUser: Meteor.users.findOne({ _id: Meteor.userId() }),
     };
   }),
   injectSheet(dynamicLeftSideBarStyles)

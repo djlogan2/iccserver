@@ -1,26 +1,26 @@
-export const defaultCapture = {
+export const DEFAULT_CAPTURE = {
   w: { p: 0, n: 0, b: 0, r: 0, q: 0 },
   b: { p: 0, n: 0, b: 0, r: 0, q: 0 },
 };
 
-export const whiteCastlingOptions = [
+export const WHITE_CASTLING_OPTIONS = [
   { label: "0-0", value: "K" },
   { label: "0-0-0", value: "Q" },
 ];
 
-export const blackCastlingOptions = [
+export const BLACK_CASTLING_OPTIONS = [
   { label: "0-0", value: "k" },
   { label: "0-0-0", value: "q" },
 ];
 
-export const gameObserveDefault = {
+export const GAME_OBSERVE_DEFAULT = {
   _id: "bogus",
   fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR",
   white: { id: "bogus", name: "White", rating: 1600 },
   black: { id: "bogus", name: "White", rating: 1600 },
 };
 
-export const boardBaseFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+export const BOARD_BASE_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 export const oneMinuteSeekOptions = {
   color: "random",

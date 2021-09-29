@@ -7,6 +7,7 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import { Meteor } from "meteor/meteor";
 
 const ExamineObserverTabBlock = ({ game, unObserveUser, translate, classes }) => {
   const ownerData = game.observers.find((item) => item.id === game.owner) || {};
@@ -16,7 +17,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate, classes }) =>
       <div className={classes.head}>
         <div className={classes.name}>
           <img
-            src={"images/avatar.png"}
+            src={`mugshot/${Meteor.userId()}`}
             alt={translate("userAvatar")}
             className={classes.nameImg}
           />

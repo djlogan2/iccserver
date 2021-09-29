@@ -38,6 +38,17 @@ class ChatApp extends Component {
 
     onMessage(newMessage.text);
   };
+  componentDidMount() {
+    this.scrollToBottom();
+  }
+
+  componentDidUpdate() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom = () => {
+    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
+  };
 
   render() {
     const { chats, childChat, childChatTexts, disabled, classes } = this.props;
@@ -46,7 +57,12 @@ class ChatApp extends Component {
     return (
       <div className={classes.main}>
         <div className={classes.listWrap}>
-          <div className={classes.messageList}>
+          <div
+            className={classes.messageList}
+            ref={(el) => {
+              this.messagesEnd = el;
+            }}
+          >
             {chats &&
               chats.map((chatItem, i) => (
                 <MessageItem

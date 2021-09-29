@@ -11,12 +11,12 @@ import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import { dynamicStyles } from "./dynamicStyles";
 import {
-  blackCastlingOptions,
+  BLACK_CASTLING_OPTIONS,
   colorBlack,
   colorBlackLetter,
   colorWhite,
   colorWhiteLetter,
-  whiteCastlingOptions
+  WHITE_CASTLING_OPTIONS
 } from "../../../../../constants/gameConstants";
 
 class EditorRightSidebar extends Component {
@@ -105,7 +105,7 @@ class EditorRightSidebar extends Component {
                 <h3 className={classes.checkName}>{translate("white")}</h3>
                 <Checkbox.Group
                   title={translate("whiteCastling")}
-                  options={whiteCastlingOptions}
+                  options={WHITE_CASTLING_OPTIONS}
                   value={whiteCastling}
                   name={colorWhite}
                   onChange={(data) => this.handleCastling(colorWhite, data)}
@@ -115,7 +115,7 @@ class EditorRightSidebar extends Component {
                 <h3 className={classes.checkName}>{translate("black")}</h3>
                 <Checkbox.Group
                   title={translate("blackCastling")}
-                  options={blackCastlingOptions}
+                  options={BLACK_CASTLING_OPTIONS}
                   value={blackCastling}
                   name={colorBlack}
                   onChange={(data) => this.handleCastling(colorBlack, data)}

@@ -6,7 +6,7 @@ import { Router } from "react-router-dom";
 import Chess from "chess.js/chess";
 import ExaminePage from "../ExaminePage";
 import CssManager from "../../Css/CssManager";
-import { defaultCapture, gameObserveDefault } from "../../../../../constants/gameConstants";
+import { DEFAULT_CAPTURE } from "../../../../../constants/gameConstants";
 import sinon from "sinon";
 import { Meteor } from "meteor/meteor";
 
@@ -52,7 +52,7 @@ describe("Examine Page component", () => {
     observeUser: () => null,
     unObserveUser: () => null,
     onPgnUpload: () => null,
-    capture: defaultCapture,
+    capture: DEFAULT_CAPTURE,
     game: {
       _id: "4saWG76oCBB39RYmN",
       actions: [],

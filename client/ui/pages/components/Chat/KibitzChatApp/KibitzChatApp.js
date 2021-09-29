@@ -25,14 +25,16 @@ class KibitzChatApp extends Component {
     const { childChatTexts, chats, disabled } = this.props;
 
     return (
-      <ChatApp
-        disabled={disabled}
-        childChat={Meteor.user()?.cf === "c"}
-        childChatTexts={childChatTexts}
-        user={Meteor.user()}
-        chats={chats}
-        onMessage={(text) => this.handleMessage(text)}
-      />
+      <>
+        <ChatApp
+          disabled={disabled}
+          childChat={Meteor.user()?.cf === "c"}
+          childChatTexts={childChatTexts}
+          user={Meteor.user()}
+          chats={chats}
+          onMessage={(text) => this.handleMessage(text)}
+        />
+      </>
     );
   }
 }
