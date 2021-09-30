@@ -163,7 +163,7 @@ class Examine extends Component {
     const { game } = this.props;
 
     if (game) {
-      this.setState({ leaving_game: game._id, observing: true });
+      this.setState({ leaving_game: game._id });
     }
 
     Meteor.call("observeUser", "observeUser", userId, (err) => {

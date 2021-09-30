@@ -464,6 +464,8 @@ export const english = {
         fillUsername: "Please fill username",
         NOT_AUTHORIZED: "User has no authorized to change email",
       },
+      NAME_WAS_CHANGED: "Name was changed",
+      EMAIL_WAS_CHANGED: "Email was changed",
     },
     SecurityTab: {
       cardTitle: "Security",

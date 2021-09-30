@@ -104,3 +104,5 @@ export const RECEIVER_INCREMENT_DELAY_TYPE = "receiverIncrementOrDelayType";
 export const RECEIVER_INITIAL = "receiverInitial";
 
 export const INCREMENT_OR_DELAY_TYPE_NONE = "none";
+export const MAX_RATING = 10000;
+export const MIN_RATING = 1;

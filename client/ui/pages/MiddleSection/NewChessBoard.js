@@ -245,7 +245,7 @@ class NewChessBoard extends Component {
   };
 
   render() {
-    const { orientation, chess, width, height, isHistoryTurn } = this.props;
+    const { orientation, chess, width, height, isHistoryTurn, moveForwardEnd } = this.props;
     const {
       legalMoves,
       circles,
@@ -258,7 +258,11 @@ class NewChessBoard extends Component {
     } = this.state;
     const isCurrentTurn = this.isCurrentTurn();
     const premove = false;
-    const onMove = isHistoryTurn ? () => {} : (move, promotion) => this.handleMove(move, promotion);
+    const onMove = isHistoryTurn
+      ? () => {
+          moveForwardEnd();
+        }
+      : (move, promotion) => this.handleMove(move, promotion);
     const updatedLastMove = lastMove || this.getLastMove();
 
     return (

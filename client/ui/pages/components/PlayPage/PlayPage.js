@@ -204,6 +204,7 @@ export default class PlayPage extends Component {
               height={height}
               game={gameClone}
               isHistoryTurn={isHistoryTurn}
+              moveForwardEnd={this.moveForwardEnd}
             />
           </BoardWrapper>
         </Col>

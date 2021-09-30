@@ -6,7 +6,13 @@ import FallenSoldier from "./FallenSoldier";
 
 import { translate } from "../../HOCs/translate";
 import CustomImage from "../components/CustomImage/CustomImage";
-import { colorBlackUpper, colorWhiteLetter, colorWhiteUpper } from "../../../constants/gameConstants";
+import {
+  colorBlackUpper,
+  colorWhiteLetter,
+  colorWhiteUpper,
+  MAX_RATING,
+  MIN_RATING,
+} from "../../../constants/gameConstants";
 import { Logger } from "../../../../lib/client/Logger";
 
 const log = new Logger("client/Player_js");
@@ -18,6 +24,7 @@ class Player extends Component {
     this.state = {
       edit: false,
       name: props.playerData.name,
+      rating: props.playerData.rating,
     };
   }
 
@@ -39,8 +46,18 @@ class Player extends Component {
     }
   };
 
-  handleChange = (event) => {
+  handleNameChange = (event) => {
     this.setState({ name: event.target.value });
+  };
+
+  handleRatingChange = (event) => {
+    let value = +event.target.value;
+    if (value > MAX_RATING) {
+      value = MAX_RATING;
+    } else if (value < MIN_RATING) {
+      value = MIN_RATING;
+    }
+    this.setState({ rating: value });
   };
 
   getColorByLetter = (letter) => {
@@ -49,23 +66,30 @@ class Player extends Component {
 
   handleUpdate = () => {
     const { gameId, color } = this.props;
-    const { name } = this.state;
+    const { name, rating } = this.state;
 
     if (gameId) {
-      Meteor.call("setTag", "set_tag", gameId, this.getColorByLetter(color), name, (err) => {
-        if (err) {
-          log.error(err);
-        } else {
-          this.setState({ edit: false });
+      Meteor.call(
+        "setTag",
+        "set_tag",
+        gameId,
+        this.getColorByLetter(color),
+        { name, rating },
+        (err) => {
+          if (err) {
+            log.error(err);
+          } else {
+            this.setState({ edit: false });
+          }
         }
-      });
+      );
     }
   };
 
   render() {
     const { cssManager, side, playerData, turnColor, message, color, FallenSoldiers, translate } =
       this.props;
-    const { edit, name } = this.state;
+    const { edit, name, rating } = this.state;
 
     const userPicture = cssManager.userPicture(side * 0.08);
     const tagLine = cssManager.tagLine();
@@ -83,17 +107,24 @@ class Player extends Component {
           position: "relative",
         }}
       >
-        <div style={{ width: side * 0.45, display: "inline-block", position: "relative" }}>
+        <div style={{ width: side * 0.8, display: "inline-block", position: "relative" }}>
           <img
             style={{ display: "inline-block", float: "left", borderRadius: "50%", ...userPicture }}
             src={`mugshot/${playerData?.id}`}
             alt={translate("userPicture")}
           />
-          <div style={{ marginTop: "5px", float: "left", ...tagLine }}>
+          <div
+            style={{
+              marginTop: "5px",
+              float: "left",
+              width: edit ? "75%" : "auto",
+              ...tagLine,
+            }}
+          >
             <div
               style={{
                 display: "inline-block",
-                maxWidth: side * 0.25,
+                maxWidth: edit ? side * 0.75 : side * 0.25,
                 wordBreak: "break-word",
                 verticalAlign: "middle",
                 marginTop: "5px",
@@ -124,8 +155,21 @@ class Player extends Component {
                       flex: 1,
                     }}
                     value={name}
-                    onChange={this.handleChange}
+                    onChange={this.handleNameChange}
                     placeholder="Username"
+                  />
+                  <Input
+                    style={{
+                      fontSize: side * 0.022,
+                      fontWeight: "600",
+                      marginRight: "15px",
+                      display: "block",
+                      flex: 1,
+                    }}
+                    value={rating}
+                    onChange={this.handleRatingChange}
+                    placeholder="Rating"
+                    type="number"
                   />
                   <Button type="primary" onClick={this.handleUpdate} icon={<CheckOutlined />} />
                 </div>

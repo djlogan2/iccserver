@@ -3636,7 +3636,7 @@ export class Game {
     check(message_identifier, String);
     check(game_id, String);
     check(tag, String);
-    check(value, String);
+    check(value, Match.OneOf(Object, String));
     const self = Meteor.user();
     check(self, Object);
     const game = this.getAndCheck(self, message_identifier, game_id);
@@ -3658,12 +3658,14 @@ export class Game {
         setobject.circles = [];
         break;
       case "White":
-        if (game.white.name === value) return;
-        setobject["white.name"] = value;
+        if (game.white.name === value.name && game.white.rating === value.rating) return;
+        setobject["white.name"] = value.name;
+        setobject["white.rating"] = value.rating;
         break;
       case "Black":
-        if (game.black.name === value) return;
-        setobject["black.name"] = value;
+        if (game.black.name === value.name && game.black.rating === value.rating) return;
+        setobject["black.name"] = value.name;
+        setobject["black.rating"] = value.rating;
         break;
       case "Result":
         if (game.result === value) return;
