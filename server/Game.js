@@ -2371,6 +2371,7 @@ export class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
+    if (!game.circles) game.circles = [];
     const resultFind = game.circles.find((circle) => circle.square === square);
     if (resultFind) {
       resultFind.color = color;
@@ -2454,6 +2455,8 @@ export class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
+
+    if (!game.arrows) game.arrows = [];
     const resultFind = game.arrows.find((arrow) => arrow.from === from && arrow.to === to);
     if (resultFind) {
       resultFind.color = color;
@@ -2501,6 +2504,8 @@ export class Game {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
+
+    if (!game.arrows) game.arrows = [];
     const resultFind = game.arrows.find((arrow) => arrow.from === from && arrow.to === to);
 
     if (!resultFind) {
