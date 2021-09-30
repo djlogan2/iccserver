@@ -130,8 +130,8 @@ class MiddleBoard extends Component {
     const topPlayerTime = top === colorWhiteLetter ? colorWhite : colorBlack;
     const bottomPlayerTime = top === colorBlackLetter ? colorWhite : colorBlack;
 
-    const tc = top === colorWhiteLetter ? colorBlackLetter : colorWhiteLetter;
-    const bc = top === colorBlackLetter ? colorBlackLetter : colorWhiteLetter;
+    const tc = top === colorWhiteLetter ? colorWhiteLetter : colorBlackLetter;
+    const bc = top === colorWhiteLetter ? colorBlackLetter : colorWhiteLetter;
 
     let topPlayermsg;
     let botPlayermsg;
