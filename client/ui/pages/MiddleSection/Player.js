@@ -11,7 +11,7 @@ import {
   colorWhiteLetter,
   colorWhiteUpper,
   MAX_RATING,
-  MIN_RATING,
+  MIN_RATING
 } from "../../../constants/gameConstants";
 import { Logger } from "../../../../lib/client/Logger";
 
@@ -110,7 +110,7 @@ class Player extends Component {
         <div style={{ width: side * 0.8, display: "inline-block", position: "relative" }}>
           <img
             style={{ display: "inline-block", float: "left", borderRadius: "50%", ...userPicture }}
-            src={`mugshot/${playerData?.id}`}
+            src="/images/avatar.png"
             alt={translate("userPicture")}
           />
           <div

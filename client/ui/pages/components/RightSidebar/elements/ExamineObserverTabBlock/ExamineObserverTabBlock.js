@@ -17,7 +17,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate, classes }) =>
       <div className={classes.head}>
         <div className={classes.name}>
           <img
-            src={`mugshot/${Meteor.userId()}`}
+            src="/images/avatar.png"
             alt={translate("userAvatar")}
             className={classes.nameImg}
           />
