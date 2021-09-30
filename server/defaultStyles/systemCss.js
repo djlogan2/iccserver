@@ -1,5 +1,3 @@
-import { FIGURE_FONT } from "../../client/constants/resourceConstants";
-
 const systemCss = {
   type: "system",
   settingIcon: {
@@ -48,7 +46,7 @@ const systemCss = {
       whiteSpace: "pre-wrap",
     },
     icon: {
-      fontFamily: FIGURE_FONT,
+      fontFamily: "SmallPiecesFont",
       verticalAlign: "bottom",
       color: "black",
       fontSize: "16px",
