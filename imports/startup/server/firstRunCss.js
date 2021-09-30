@@ -1,9 +1,9 @@
+import { Meteor } from "meteor/meteor";
 import leftSideBarCss from "../../../server/defaultStyles/leftSideBarCss";
 import menuLinksCss from "../../../server/defaultStyles/menuLinksCss";
 import systemCss from "../../../server/defaultStyles/systemCss";
 import userCss from "../../../server/defaultStyles/userCss";
 import mongoCss from "../../collections/css";
-import { Meteor } from "meteor/meteor";
 import playNotificationsCss from "../../../server/defaultStyles/playNotificationsCss";
 import primaryButtonCss from "../../../server/defaultStyles/primaryButtonCss";
 import challengeNotificationCss from "../../../server/defaultStyles/challengeNotificationCss";
@@ -43,58 +43,61 @@ import playOptionButtonsCss from "../../../server/defaultStyles/playOptionButton
 import gameControlBlockCss from "../../../server/defaultStyles/gameControlBlockCss";
 import fenPgnCss from "../../../server/defaultStyles/fenPgnCss";
 import mugshotCss from "../../../server/defaultStyles/mugshotCss";
+import { isEqual } from "lodash";
 
 export default function firstRunCSS() {
   if (Meteor.isTest || Meteor.isAppTest) {
     return;
   }
 
-  if (!mongoCss.find({ cssKey: "default" }).count()) {
-    mongoCss.insert({
-      cssKey: "default",
-      systemCss,
-      userCss,
-      leftSideBarCss,
-      menuLinksCss,
-      playNotificationsCss,
-      primaryButtonCss,
-      challengeNotificationCss,
-      profileCss,
-      userManagementCss,
-      commandsCss,
-      homeCss,
-      loginPageCss,
-      signupPageCss,
-      appWrapperCss,
-      communityCss,
-      communityBlockCss,
-      communityRightBlockCss,
-      playModalCss,
-      playRightSideBarCss,
-      chatAppCss,
-      editorCss,
-      editorRightSidebarCss,
-      examineRightSidebarCss,
-      examineSidebarTopCss,
-      actionsCss,
-      messengerCss,
-      messageItemCss,
-      chatInputCss,
-      childChatInputCss,
-      playWithFriendCss,
-      playFriendOptionsCss,
-      playChooseBotCss,
-      notFoundCss,
-      examineOwnerTabBlockCss,
-      examineObserverTabBlockCss,
-      boardWrapperCss,
-      examineObserveTabCss,
-      observeBlockCss,
-      examineRightSidebarBottomCss,
-      playOptionButtonsCss,
-      gameControlBlockCss,
-      fenPgnCss,
-      mugshotCss,
-    });
+  const data = mongoCss.find({ cssKey: "default" });
+  const columns = data.count() ? data.fetch()[0] : null;
+  const styles = {
+    systemCss,
+    userCss,
+    leftSideBarCss,
+    menuLinksCss,
+    playNotificationsCss,
+    primaryButtonCss,
+    challengeNotificationCss,
+    profileCss,
+    userManagementCss,
+    commandsCss,
+    homeCss,
+    loginPageCss,
+    signupPageCss,
+    appWrapperCss,
+    communityCss,
+    communityBlockCss,
+    communityRightBlockCss,
+    playModalCss,
+    playRightSideBarCss,
+    chatAppCss,
+    editorCss,
+    editorRightSidebarCss,
+    examineRightSidebarCss,
+    examineSidebarTopCss,
+    actionsCss,
+    messengerCss,
+    messageItemCss,
+    chatInputCss,
+    childChatInputCss,
+    playWithFriendCss,
+    playFriendOptionsCss,
+    playChooseBotCss,
+    notFoundCss,
+    examineOwnerTabBlockCss,
+    examineObserverTabBlockCss,
+    boardWrapperCss,
+    examineObserveTabCss,
+    observeBlockCss,
+    examineRightSidebarBottomCss,
+    playOptionButtonsCss,
+    gameControlBlockCss,
+    fenPgnCss,
+    mugshotCss,
+  };
+  if (!columns || Object.keys(styles).some((key) => !isEqual(columns[key], styles[key]))) {
+    mongoCss.update({ cssKey: "default" }, { $set: { ...styles } }, { upsert: true });
   }
 }
