@@ -3,11 +3,7 @@ import ChessBoard from "chessboard";
 import { isEqual } from "lodash";
 import { getBoardSquares } from "../../../utils/utils";
 import Chess from "chess.js/chess";
-import {
-  colorBlackLetter,
-  colorWhiteLetter,
-  gameStatusPlaying,
-} from "../../../constants/gameConstants";
+import { colorBlackLetter, colorWhiteLetter, gameStatusPlaying } from "../../../constants/gameConstants";
 import { withSounds } from "../../HOCs/withSounds";
 
 class NewChessBoard extends Component {
@@ -56,7 +52,7 @@ class NewChessBoard extends Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    const { chess, premove, playSound } = this.props;
+    const { chess, premove, playSound, currentCmi } = this.props;
     const { fen, premove: statePremove } = this.state;
 
     if (!isEqual(premove, prevProps.premove)) {
@@ -71,7 +67,9 @@ class NewChessBoard extends Component {
         arrows: [],
         circles: [],
       });
+    }
 
+    if (prevProps.currentCmi !== currentCmi) {
       playSound("piece_move");
     }
 
@@ -151,7 +149,7 @@ class NewChessBoard extends Component {
 
       if (moves) {
         onDrop({ move: moves });
-        playSound("piece_move");
+        // playSound("piece_move");
       }
 
       this.setState({

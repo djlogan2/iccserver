@@ -3,7 +3,7 @@ import React from "react";
 export const withSounds = (component) => (WrappedComponent) => {
   return class extends React.Component {
     playSound = (soundName) => {
-      const testAudio = new Audio("asset/" + Meteor.userId() + "/board.piecemove");
+      const testAudio = new Audio("sounds/piece_move.wav");
       testAudio.play();
 
       return;

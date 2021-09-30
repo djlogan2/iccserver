@@ -14,7 +14,7 @@ import {
   colorWhite,
   colorWhiteLetter,
   gameStatusExamining,
-  gameStatusPlaying,
+  gameStatusPlaying
 } from "../../../constants/gameConstants";
 import Analytics from "../components/Analytics/Analytics";
 
@@ -186,6 +186,7 @@ class MiddleBoard extends Component {
           <div style={{ width: "100%", height: boardSize }}>
             <NewChessBoard
               gameId={game._id}
+              currentCmi={game?.variations?.cmi}
               chess={this.chess}
               height={boardSize}
               width={boardSize}
