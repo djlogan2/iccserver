@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { AutoComplete, Button, Card, Input } from "antd";
+import { Button, Card, Input } from "antd";
 import { Meteor } from "meteor/meteor";
 import { compose } from "redux";
 
@@ -104,13 +104,6 @@ class SecurityCard extends Component {
             id="confirm-password-input"
             onChange={this.handleChange(CONFIRM_PASSWORD_PROPERTY)}
             placeholder={translate("confirmPassword")}
-          />
-          <AutoComplete
-            defaultValue={currentUser.isolation_group}
-            options={isolationGroups}
-            style={{ width: "100%" }}
-            placeholder={translate("isolationGroup")}
-            onChange={this.handleAutocompleteChange(ISOLATION_GROUP_PROPERTY)}
           />
           <Button id="update-password" type="primary" onClick={this.handleClick}>
             {translate("update")}
