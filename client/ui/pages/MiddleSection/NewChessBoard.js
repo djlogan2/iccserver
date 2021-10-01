@@ -90,12 +90,8 @@ class NewChessBoard extends Component {
   };
 
   handleUpdateCircles = (circle) => {
-    // const { gameStatus } = this.props;
+    const { gameStatus, onDrawObject } = this.props;
     const { circles } = this.state;
-    //
-    // if (gameStatus === gameStatusPlaying) {
-    //   return;
-    // }
 
     circle.color = this.getColorFromEvent(circle.event);
     delete circle.event;
@@ -118,6 +114,18 @@ class NewChessBoard extends Component {
     }
 
     this.setState({ circles: [...circles] });
+
+    if (gameStatus === gameStatusPlaying) {
+      return;
+    }
+
+    const updatedCircles = circles.map((circle) => ({
+      brush: circle.color,
+      orig: circle.piece,
+      mouseSq: circle.piece,
+    }));
+
+    onDrawObject(updatedCircles);
   };
 
   getLegalMoves = () => {
@@ -243,7 +251,8 @@ class NewChessBoard extends Component {
   };
 
   render() {
-    const { orientation, chess, width, height, isHistoryTurn, moveForwardEnd } = this.props;
+    const { orientation, chess, width, height, isHistoryTurn, moveForwardEnd, gameStatus } =
+      this.props;
     const {
       legalMoves,
       circles,
@@ -262,6 +271,8 @@ class NewChessBoard extends Component {
         }
       : (move, promotion) => this.handleMove(move, promotion);
     const updatedLastMove = lastMove || this.getLastMove();
+
+    console.log(this.props.circles, circles);
 
     return (
       <ChessBoard
@@ -307,7 +318,11 @@ class NewChessBoard extends Component {
           wR: "images/chesspieces/wR.png",
         }}
         movable={isCurrentTurn ? legalMoves : () => getBoardSquares()}
-        circles={circles}
+        circles={
+          gameStatus === gameStatusPlaying
+            ? circles
+            : this.props.circles.map((circle) => ({ color: circle.color, piece: circle.square }))
+        }
         arrows={isHistoryTurn ? [] : premoveArrow ? [...arrows, premoveArrow] : arrows}
         onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
         onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}

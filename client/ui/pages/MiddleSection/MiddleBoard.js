@@ -191,7 +191,7 @@ class MiddleBoard extends Component {
               height={boardSize}
               width={boardSize}
               arrows={game.arrows}
-              circles={game.circles}
+              circles={game.circles || []}
               orientation={top === colorWhiteLetter ? colorBlack : colorWhite}
               onDrop={onDrop}
               onDrawObject={onDrawObject}
