@@ -13,6 +13,7 @@ import userManagementCss from "./defaultStyles/userManagementCss";
 import commandsCss from "./defaultStyles/commandsCss";
 import systemCss from "./defaultStyles/systemCss";
 import { templateCollection } from "./tournament/Tournament";
+import { Roles } from "meteor/alanning:roles";
 
 const log = new Logger("server/migrations");
 
@@ -419,6 +420,17 @@ Meteor.startup(() => {
     },
   });
 
+  Migrations.add({
+    version: "0.3.30_11",
+    name: "Delete 'validate_mutshots' from all users",
+    run: () => {
+      const userids = Meteor.users
+        .find()
+        .fetch()
+        .map((user) => user._id);
+      Roles.removeUsersFromRoles(userids, "validate_mugshots");
+    },
+  });
   /*
   Migrations.add({
     version: "",
