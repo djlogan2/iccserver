@@ -1,10 +1,21 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
+import { compose } from "redux";
 import { translate } from "../../../HOCs/translate";
+import { withRouter } from "react-router-dom";
+import { get } from "lodash";
+import { RESOURCE_PLAY } from "../../../../constants/resourceConstants";
 
 class GameRequestPopup extends Component {
   gameRequestHandler = (isAccept, requestId) => {
+    const { history } = this.props;
+
     if (isAccept === "gameAccept") {
+      const pathName = get(history, "location.pathname");
+
+      if (pathName !== RESOURCE_PLAY) {
+        history.push(RESOURCE_PLAY);
+      }
       Meteor.call("gameRequestAccept", "gameAccept", requestId);
     } else {
       Meteor.call("gameRequestDecline", "gameDecline", requestId);
@@ -61,4 +72,4 @@ class GameRequestPopup extends Component {
   }
 }
 
-export default translate("Common.GameRequestPopup")(GameRequestPopup);
+export default compose(translate("Common.GameRequestPopup"), withRouter)(GameRequestPopup);
