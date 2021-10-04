@@ -110,7 +110,7 @@ class Player extends Component {
         <div style={{ width: side * 0.8, display: "inline-block", position: "relative" }}>
           <img
             style={{ display: "inline-block", float: "left", borderRadius: "50%", ...userPicture }}
-            src="/images/avatar.png"
+            src={`mugshot/${playerData?.mugshot}`}
             alt={translate("userPicture")}
           />
           <div

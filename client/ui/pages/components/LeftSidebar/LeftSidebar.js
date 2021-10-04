@@ -127,7 +127,7 @@ class LeftSidebar extends Component {
           }}
         >
           <img
-            src="/images/avatar.png"
+            src={`mugshot/${Meteor.user()?.mugshot}`}
             alt={translate("userAvatar")}
             className={classNames(
               !!visible ? classes.sidebarUserImgFliphed : classes.sidebarUserImg

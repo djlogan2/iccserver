@@ -58,6 +58,10 @@ class MiddleBoard extends Component {
     if (id) return Meteor.users.findOne({ _id: id })?.locale;
   };
 
+  getMugshot = (id) => {
+    if (id) return Meteor.users.findOne({ _id: id })?.mugshot;
+  };
+
   isEditable = (status) => {
     return status === gameStatusExamining;
   };
@@ -71,11 +75,13 @@ class MiddleBoard extends Component {
           topPlayer: {
             ...game?.white,
             locale: this.getLocale(game?.white?.id),
+            mugshot: this.getMugshot(game?.white?.id),
             editable: this.isEditable(game?.status),
           },
           bottomPlayer: {
             ...game?.black,
             locale: this.getLocale(game?.black?.id),
+            mugshot: this.getMugshot(game?.black?.id),
             editable: this.isEditable(game?.status),
           },
         }
@@ -83,11 +89,13 @@ class MiddleBoard extends Component {
           topPlayer: {
             ...game?.black,
             locale: this.getLocale(game?.black?.id),
+            mugshot: this.getMugshot(game?.black?.id),
             editable: this.isEditable(game?.status),
           },
           bottomPlayer: {
             ...game?.white,
             locale: this.getLocale(game?.white?.id),
+            mugshot: this.getMugshot(game?.white?.id),
             editable: this.isEditable(game?.status),
           },
         };

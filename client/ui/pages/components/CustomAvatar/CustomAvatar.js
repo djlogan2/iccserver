@@ -10,13 +10,13 @@ class CustomAvatar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      preview: `mugshot/${Meteor.userId()}`,
+      preview: `mugshot/${Meteor.user()?.mugshot}`,
       src: null,
     };
   }
 
   onClose = () => {
-    this.setState({ preview: `mugshot/${Meteor.userId()}`, src: null });
+    this.setState({ preview: `mugshot/${Meteor.user()?.mugshot}`, src: null });
   };
 
   onCrop = (preview) => {
@@ -39,7 +39,7 @@ class CustomAvatar extends React.Component {
       if (error) {
         console.log("error: ", error);
       } else {
-        this.setState({ preview: `mugshot/${Meteor.userId()}`, src: null });
+        this.setState({ preview: `mugshot/${Meteor.user()?.mugshot}`, src: null });
       }
     });
 
@@ -54,7 +54,11 @@ class CustomAvatar extends React.Component {
       <div style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
           <Avatar width={390} height={295} onCrop={this.onCrop} onClose={this.onClose} src={src} />
-          <img style={{ width: "295px", height: "295px", borderRadius: "50%" }} src={preview} />
+          <img
+            style={{ width: "295px", height: "295px", borderRadius: "50%" }}
+            src={preview}
+            alt="mugshot"
+          />
         </div>
         {src && (
           <Button type="primary" onClick={this.handleUploadMugshot}>
