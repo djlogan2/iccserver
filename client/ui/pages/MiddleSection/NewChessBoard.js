@@ -246,6 +246,7 @@ class NewChessBoard extends Component {
   handleRemovePremove = () => {
     const { gameId } = this.props;
 
+    console.log(21312432432);
     Meteor.call("removeLocalPremove", "removeLocalPremove", gameId);
   };
 
@@ -260,10 +261,10 @@ class NewChessBoard extends Component {
       showLegalMoves,
       smallSize,
       lastMove,
+      premove,
       premoveArrow,
     } = this.state;
     const isCurrentTurn = this.isCurrentTurn();
-    const premove = false;
     const onMove = isHistoryTurn
       ? () => {
           moveForwardEnd();
