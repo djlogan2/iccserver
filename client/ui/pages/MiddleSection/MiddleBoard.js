@@ -190,8 +190,8 @@ class MiddleBoard extends Component {
               chess={this.chess}
               height={boardSize}
               width={boardSize}
-              arrows={game.arrows}
-              circles={game.circles}
+              arrows={game.arrows || []}
+              circles={game.circles || []}
               orientation={top === colorWhiteLetter ? colorBlack : colorWhite}
               onDrop={onDrop}
               onDrawObject={onDrawObject}

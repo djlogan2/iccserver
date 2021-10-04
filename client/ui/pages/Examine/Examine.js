@@ -68,7 +68,7 @@ class Examine extends Component {
 
     if (!game) return;
 
-    const { circles, arrows, _id } = game;
+    const { circles = [], arrows = [], _id } = game;
 
     const circleList = objectList.filter(({ orig, mouseSq }) => orig === mouseSq);
     const arrowList = objectList.filter(({ orig, mouseSq }) => orig !== mouseSq);
