@@ -96,36 +96,28 @@ class NewChessBoard extends Component {
     circle.color = this.getColorFromEvent(circle.event);
     delete circle.event;
 
-    let equalIndex;
-    const isExists = circles.some((element, index) => {
-      const isEqual = circle.piece === element.piece;
+    if (gameStatus === gameStatusPlaying) {
+      let equalIndex;
+      const isExists = circles.some((element, index) => {
+        const isEqual = circle.piece === element.piece;
 
-      if (isEqual) {
-        equalIndex = index;
+        if (isEqual) {
+          equalIndex = index;
+        }
+
+        return isEqual;
+      });
+
+      if (isExists) {
+        circles.splice(equalIndex, 1);
+      } else {
+        circles.push(circle);
       }
 
-      return isEqual;
-    });
-
-    if (isExists) {
-      circles.splice(equalIndex, 1);
+      this.setState({ circles: [...circles] });
     } else {
-      circles.push(circle);
+      onDrawObject([{ brush: circle.color, orig: circle.piece, mouseSq: circle.piece }]);
     }
-
-    this.setState({ circles: [...circles] });
-
-    if (gameStatus === gameStatusPlaying) {
-      return;
-    }
-
-    const updatedCircles = circles.map((circle) => ({
-      brush: circle.color,
-      orig: circle.piece,
-      mouseSq: circle.piece,
-    }));
-
-    onDrawObject(updatedCircles);
   };
 
   getLegalMoves = () => {
@@ -191,35 +183,42 @@ class NewChessBoard extends Component {
   };
 
   handleUpdateArrows = (arrow) => {
-    // const { gameStatus } = this.props;
+    const { gameStatus, onDrawObject } = this.props;
     const { arrows } = this.state;
-
-    // if (gameStatus === gameStatusPlaying) {
-    //   return;
-    // }
 
     arrow.color = this.getColorFromEvent(arrow.event);
     delete arrow.event;
 
-    let equalIndex;
-    const isExists = arrows.some((element, index) => {
-      const isEqual =
-        element.piece.to === arrow.piece.to && element.piece.from === arrow.piece.from;
+    if (gameStatus === gameStatusPlaying) {
+      let equalIndex;
+      const isExists = arrows.some((element, index) => {
+        const isEqual =
+          element.piece.to === arrow.piece.to && element.piece.from === arrow.piece.from;
 
-      if (isEqual) {
-        equalIndex = index;
+        if (isEqual) {
+          equalIndex = index;
+        }
+
+        return isEqual;
+      });
+
+      if (isExists) {
+        arrows.splice(equalIndex, 1);
+      } else {
+        arrows.push(arrow);
       }
 
-      return isEqual;
-    });
-
-    if (isExists) {
-      arrows.splice(equalIndex, 1);
+      this.setState({ arrows: [...arrows] });
     } else {
-      arrows.push(arrow);
+      onDrawObject([
+        {
+          brush: arrow.color,
+          orig: arrow.piece.from,
+          mouseSq: arrow.piece.to,
+          dest: arrow.piece.to,
+        },
+      ]);
     }
-
-    this.setState({ arrows: [...arrows] });
   };
 
   isCurrentTurn = () => {
@@ -272,8 +271,6 @@ class NewChessBoard extends Component {
       : (move, promotion) => this.handleMove(move, promotion);
     const updatedLastMove = lastMove || this.getLastMove();
 
-    console.log(this.props.circles, circles);
-
     return (
       <ChessBoard
         raf={{ inside: false, vertical: "bottom", horizontal: "right" }}
@@ -323,7 +320,26 @@ class NewChessBoard extends Component {
             ? circles
             : this.props.circles.map((circle) => ({ color: circle.color, piece: circle.square }))
         }
-        arrows={isHistoryTurn ? [] : premoveArrow ? [...arrows, premoveArrow] : arrows}
+        arrows={
+          isHistoryTurn
+            ? []
+            : premoveArrow
+            ? [
+                ...(gameStatus === gameStatusPlaying
+                  ? arrows
+                  : this.props.arrows.map((arrow) => ({
+                      color: arrow.color,
+                      piece: { from: arrow.from, to: arrow.to },
+                    }))),
+                premoveArrow,
+              ]
+            : gameStatus === gameStatusPlaying
+            ? arrows
+            : this.props.arrows.map((arrow) => ({
+                color: arrow.color,
+                piece: { from: arrow.from, to: arrow.to },
+              }))
+        }
         onUpdateCircles={(circle) => this.handleUpdateCircles(circle)}
         onUpdateArrows={(arrow) => this.handleUpdateArrows(arrow)}
         onMove={onMove}
