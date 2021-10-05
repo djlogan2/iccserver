@@ -202,7 +202,7 @@ export default class PlayPage extends Component {
               top={this.getTop()}
               width={width}
               height={height}
-              game={gameClone}
+              game={game}
               isHistoryTurn={isHistoryTurn}
               moveForwardEnd={this.moveForwardEnd}
             />
