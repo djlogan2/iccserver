@@ -35,19 +35,31 @@ class ExamineSidebarTop extends Component {
   playBotFromHere = (data) => {
     const { history, game } = this.props;
 
+    const {
+      challengerRatingType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      challengerIncrementOrDelayType,
+      receiverInitial,
+      receiverIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      skillLevel,
+      color,
+    } = data;
+
     Meteor.call(
       "startBotGame",
       "play_computer",
       0,
-      data.ratingType,
-      data.initial,
-      data.incrementOrDelay,
-      data.incrementOrDelayType,
-      data.initial,
-      data.incrementOrDelay,
-      data.incrementOrDelayType,
-      data.skillLevel,
-      data.color,
+      challengerRatingType,
+      challengerInitial,
+      challengerIncrementOrDelay,
+      challengerIncrementOrDelayType,
+      receiverInitial,
+      receiverIncrementOrDelay,
+      receiverIncrementOrDelayType,
+      skillLevel,
+      color,
       game._id
     );
 

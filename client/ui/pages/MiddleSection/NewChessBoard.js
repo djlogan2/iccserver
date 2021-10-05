@@ -246,7 +246,6 @@ class NewChessBoard extends Component {
   handleRemovePremove = () => {
     const { gameId } = this.props;
 
-    console.log(21312432432);
     Meteor.call("removeLocalPremove", "removeLocalPremove", gameId);
   };
 
