@@ -12,7 +12,11 @@ import {
 } from "../../../../../constants/gameConstants";
 import { withTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { ROLE_PLAY_RATED_GAMES, ROLE_PLAY_UNRATED_GAMES } from "../../../../../constants/rolesConstants";
+import {
+  ROLE_DEVELOPER,
+  ROLE_PLAY_RATED_GAMES,
+  ROLE_PLAY_UNRATED_GAMES
+} from "../../../../../constants/rolesConstants";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
@@ -29,8 +33,9 @@ class PlayOptionButtons extends Component {
     } = this.props;
 
     const roles = currentRoles.map((role) => role.role._id);
-    const isRatedGames = roles.includes(ROLE_PLAY_RATED_GAMES);
-    const isUnratedGames = roles.includes(ROLE_PLAY_UNRATED_GAMES);
+    const isRatedGames = roles.includes(ROLE_PLAY_RATED_GAMES) || roles.includes(ROLE_DEVELOPER);
+    const isUnratedGames =
+      roles.includes(ROLE_PLAY_UNRATED_GAMES) || roles.includes(ROLE_DEVELOPER);
 
     return (
       <div className={classes.container}>
