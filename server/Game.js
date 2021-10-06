@@ -267,7 +267,7 @@ export class Game {
       white_increment_or_delay_type = challenger_increment_or_delay_type;
     }
 
-    return this.startLocalGame(
+    const game_id = this.startLocalGame(
       message_identifier,
       "computer",
       wild_number,
@@ -283,6 +283,27 @@ export class Game {
       skill_level,
       examined_game_id
     );
+
+    if (!!game_id)
+      Meteor.users.update(
+        { _id: Meteor.userId() },
+        {
+          $set: {
+            "settings.match_default": {
+              wild_number: wild_number,
+              rating_type: rating_type,
+              rated: false,
+              challenger_time: challenger_initial,
+              challenger_inc_or_delay: challenger_increment_or_delay,
+              challenger_delaytype: challenger_increment_or_delay_type,
+              receiver_time: computer_initial,
+              receiver_inc_or_delay: computer_increment_or_delay,
+              receiver_delaytype: computer_increment_or_delay_type,
+              challenger_color_request: color,
+            },
+          },
+        }
+      );
   }
 
   startLocalGame(
