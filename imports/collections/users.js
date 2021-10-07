@@ -914,7 +914,7 @@ function createAPIKey(message_identifier, comment, expires) {
   check(expires, Match.Maybe(Date));
 
   const self = Meteor.user();
-  check(self);
+  check(self, Object);
 
   if (!Users.isAuthorized(self, "api_create_key")) {
     Users.sendClientMessage(self, "NOT_AUTHORIZED");
@@ -933,7 +933,7 @@ function deleteAPIKey(message_identifier, id, other_user) {
   check(other_user, Match.Maybe(String));
 
   const self = Meteor.user();
-  check(self);
+  check(self, Object);
 
   let victim = self;
   if (other_user) {
