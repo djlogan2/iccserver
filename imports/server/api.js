@@ -11,8 +11,8 @@ import { GameHistory } from "../../server/Game";
 //
 const authorized = Meteor.bindEnvironment((user, selector, callback) => {
   if (
-    !Users.isAuthorized(user, "EXPORT_OTHER_GAMES_API") ||
-    (user._id === selector.user_id && !Users.isAuthorized(user, "EXPORT_GAMES_API"))
+    !Users.isAuthorized(user, "api_export_other_games") ||
+    (user._id === selector.user_id && !Users.isAuthorized(user, "api_export_my_games"))
   ) {
     callback("Not authorized");
   } else callback();
@@ -33,9 +33,9 @@ Picker.route("/api/v1/exportpgn", (params, req, res) => {
     return;
   }
   const user = Users.findAPIKey(key);
-  if (!user || user.username !== username || !Users.isAuthorized(user, "USE_API_KEY")) {
+  if (!user || user.username !== username || !Users.isAuthorized(user, "api_use")) {
     res.writeHead(401);
-    res.end("Not auhtorized");
+    res.end("Not authorized");
     return;
   }
   let json = "";

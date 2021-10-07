@@ -42,6 +42,10 @@ export const all_roles = [
   "set_other_isolation_group",
   "change_username",
   "change_email",
+  "api_export_other_games",
+  "api_export_my_games",
+  "api_create_key",
+  "api_use",
 ];
 
 export const standard_member_roles = [
@@ -70,6 +74,9 @@ export const fields_viewable_by_account_owner = {
   settings: 1,
   status: 1,
   titles: 1,
+  "apikeys.id": 1,
+  "apikeys.comment": 1,
+  "apikeys.expires": 1,
   "profile.firstname": 1,
   "profile.lastname": 1,
   "profile.legacy.username": 1,

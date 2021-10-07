@@ -145,9 +145,10 @@ Users.sendClientMessage = function (who, message_identifier, what) {
   global._clientMessages.sendMessageToClient(who, message_identifier, what);
 };
 
-Users.createAPIKey = function (user_id, expires, callback) {
+Users.createAPIKey = function (user_id, comment, expires, callback) {
   check(user_id, String);
   check(expires, Match.Maybe(Date));
+  check(comment, String);
 
   const cb = !!callback && typeof callback === "function" ? callback : () => {};
 
@@ -157,23 +158,23 @@ Users.createAPIKey = function (user_id, expires, callback) {
     return;
   }
 
-  const apiobject = { apikey: Random.secret(64) };
+  const apiobject = { id: Random.id(), apikey: Random.secret(64), comment: comment };
   if (!!expires) apiobject.expires = expires;
   Meteor.users.update({ _id: user_id }, { $push: { apikeys: apiobject } });
   cb(null, apiobject.apikey);
 };
 
-Users.deleteAPIKey = function (key, callback) {
-  check(key, String);
+Users.deleteAPIKey = function (user_id, id, callback) {
+  check(id, String);
 
   const cb = !!callback && typeof callback === "function" ? callback : () => {};
 
-  const victim = Meteor.users.findOne({ apikey: key });
+  const victim = Meteor.users.findOne({ _id: user_id, "apikey.id": id });
   if (!victim) {
     cb("INVALID_USER");
     return;
   }
-  Meteor.users.update({ _id: victim._id }, { $pull: { apikeys: { apikey: key } } });
+  Meteor.users.update({ _id: victim._id }, { $pull: { apikeys: { id: id } } });
 };
 
 Users.findAPIKey = function (key) {
@@ -901,7 +902,56 @@ Accounts.validateLoginAttempt(function (params) {
   return true;
 });
 
+//
+// Note to FE guys: This returns the actual API key for users to use.
+// You will never see it again, so make sure it's displayed and they
+// are prominently informed that they will never see it again.
+//
+function createAPIKey(message_identifier, comment, expires) {
+  check(message_identifier, String);
+  check(comment, String);
+  check(expires, Match.Maybe(Date));
+
+  const self = Meteor.user();
+  check(self);
+
+  if (!Users.isAuthorized(self, "api_create_key")) {
+    Users.sendClientMessage(self, "NOT_AUTHORIZED");
+    return;
+  }
+
+  Users.createAPIKey(self._id, comment, expires, (err, key) => {
+    if (err) {
+      Users.sendClientMessage(self, err);
+    } else return key;
+  });
+}
+
+function deleteAPIKey(message_identifier, id, other_user) {
+  check(message_identifier, String);
+  check(other_user, Match.Maybe(String));
+
+  const self = Meteor.user();
+  check(self);
+
+  let victim = self;
+  if (other_user) {
+    if (!Users.isAuthorized(self, "api_delete_other_key")) {
+      Users.sendClientMessage(self, "NOT_AUTHORIZED");
+      return;
+    }
+    victim = Meteor.users.findOne({ _id: other_user });
+    if (!victim) {
+      Users.sendClientMessage(self, "INVALID_USER");
+      return;
+    }
+  }
+  Meteor.users.update({ _id: victim._id }, { $pull: { apikeys: { id: id } } });
+}
+
 Meteor.methods({
+  createAPIKey: createAPIKey,
+  deleteAPIKey: deleteAPIKey,
   setBoardProfile: Users.setBoardProfile,
   setClientStatus: Users.setClientStatus,
   setOtherPassword: Users.setOtherPassword,
