@@ -20,6 +20,7 @@ import "../server/clientCollection";
 import "../lib/server/userfiles";
 import "../lib/server/mugshots";
 import "./okendpoint";
+import "../imports/server/api";
 //??
 import current_release from "../imports/startup/release";
 import firstRunUsers from "../imports/startup/server/firstRunUsers";

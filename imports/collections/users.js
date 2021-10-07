@@ -1,4 +1,5 @@
 import { Meteor } from "meteor/meteor";
+import { Random } from "meteor/random";
 import { Accounts } from "meteor/accounts-base";
 import { check, Match } from "meteor/check";
 import { EventEmitter } from "events";
@@ -144,6 +145,51 @@ Users.sendClientMessage = function (who, message_identifier, what) {
   global._clientMessages.sendMessageToClient(who, message_identifier, what);
 };
 
+Users.createAPIKey = function (user_id, expires, callback) {
+  check(user_id, String);
+  check(expires, Match.Maybe(Date));
+
+  const cb = !!callback && typeof callback === "function" ? callback : () => {};
+
+  const victim = Meteor.users.findOne({ _id: user_id });
+  if (!victim) {
+    cb("INVALID_USER");
+    return;
+  }
+
+  const apiobject = { apikey: Random.secret(64) };
+  if (!!expires) apiobject.expires = expires;
+  Meteor.users.update({ _id: user_id }, { $push: { apikeys: apiobject } });
+  cb(null, apiobject.apikey);
+};
+
+Users.deleteAPIKey = function (key, callback) {
+  check(key, String);
+
+  const cb = !!callback && typeof callback === "function" ? callback : () => {};
+
+  const victim = Meteor.users.findOne({ apikey: key });
+  if (!victim) {
+    cb("INVALID_USER");
+    return;
+  }
+  Meteor.users.update({ _id: victim._id }, { $pull: { apikeys: { apikey: key } } });
+};
+
+Users.findAPIKey = function (key) {
+  const arrayselector = {
+    $and: [
+      { apikey: key },
+      { $or: [{ expires: { $exists: false } }, { expires: { $gt: new Date() } }] },
+    ],
+  };
+  const users = Meteor.users.find({ apikeys: { $elemMatch: arrayselector } }).fetch();
+  if (users.length > 1) {
+    throw new Error("There should never be more than one matching API key!");
+  }
+  if (!!users && !!users.length) return users[0];
+};
+
 Users.setClientStatus = function (message_identifier, user, status) {
   const self = Meteor.user();
   check(self, Object);
@@ -195,6 +241,13 @@ const group_change_hooks = [];
 Users.addGroupChangeHook = function (func) {
   Meteor.startup(() => {
     group_change_hooks.push(func);
+    // const cursor = Meteor.users.find({ apikeys: { $exists: false } });
+    // cursor.forEach((user) =>
+    //   this.createAPIKey(user._id, null, (err, data) => {
+    //     if (err) console.log("Error creating API key for " + user.username + ", error=' + err");
+    //     else console.log("Created API key for " + user.username + ", key=" + data);
+    //   })
+    // );
   });
 };
 
