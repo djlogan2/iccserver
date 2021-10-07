@@ -160,7 +160,8 @@ Users.createAPIKey = function (user_id, comment, expires, callback) {
 
   const apiobject = { id: Random.id(), apikey: Random.secret(64), comment: comment };
   if (!!expires) apiobject.expires = expires;
-  Meteor.users.update({ _id: user_id }, { $push: { apikeys: apiobject } });
+  if (!!victim.apikeys) Meteor.users.update({ _id: user_id }, { $push: { apikeys: apiobject } });
+  else Meteor.users.update({ _id: user_id }, { $set: { apikeys: [apiobject] } });
   cb(null, apiobject.apikey);
 };
 
