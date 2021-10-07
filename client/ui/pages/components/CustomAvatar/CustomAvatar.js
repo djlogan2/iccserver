@@ -55,7 +55,7 @@ class CustomAvatar extends React.Component {
         <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-around" }}>
           <Avatar width={390} height={295} onCrop={this.onCrop} onClose={this.onClose} src={src} />
           <img
-            style={{ width: "295px", height: "295px", borderRadius: "50%" }}
+            style={{ width: "100px", height: "100px", borderRadius: "50%" }}
             src={preview}
             alt="mugshot"
           />
