@@ -11,6 +11,11 @@ import { ClientMessagesCollection, mongoCss } from "../../../../../imports/api/c
 import withClientMessages from "../../../HOCs/withClientMessages";
 import { Meteor } from "meteor/meteor";
 import CustomAvatar from "../CustomAvatar/CustomAvatar";
+import {
+  ROLE_CHANGE_EMAIL,
+  ROLE_CHANGE_USERNAME,
+  ROLE_DEVELOPER,
+} from "../../../../constants/rolesConstants";
 
 class ProfileDetailsCard extends Component {
   constructor(props) {
@@ -37,8 +42,8 @@ class ProfileDetailsCard extends Component {
     this.setState({
       username: currentUser.username,
       email: currentUser?.emails?.[0]?.address || "",
-      isEmailChange: this.checkRole("change_email"),
-      isUserNameChange: this.checkRole("change_username"),
+      isEmailChange: this.checkRole(ROLE_CHANGE_EMAIL) || this.checkRole(ROLE_DEVELOPER),
+      isUserNameChange: this.checkRole(ROLE_CHANGE_USERNAME) || this.checkRole(ROLE_DEVELOPER),
     });
   }
 
@@ -68,6 +73,7 @@ class ProfileDetailsCard extends Component {
     //       field? When we can't, should we translate them or not? Is there a better way?
     //       At any rate, this isn't going to work. There is no "throw new MeteorError" in the server
     //       to trigger the existence of data in the "err" argument.
+    // TODO: AD - You can't throw error message in the Meteor but server can, if something went wrong it should be shown.
 
     if (isEmailChange || isUserNameChange) {
       const messages = [];
