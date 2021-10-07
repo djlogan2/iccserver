@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Button, Input } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
-
+import { withTracker } from "meteor/react-meteor-data";
 import FallenSoldier from "./FallenSoldier";
 
 import { translate } from "../../HOCs/translate";
@@ -11,9 +11,13 @@ import {
   colorWhiteLetter,
   colorWhiteUpper,
   MAX_RATING,
-  MIN_RATING
+  MIN_RATING,
 } from "../../../constants/gameConstants";
 import { Logger } from "../../../../lib/client/Logger";
+import { compose } from "redux";
+import { mongoCss } from "../../../../imports/api/client/collections";
+import injectSheet from "react-jss";
+import { dynamicStyles } from "./dynamicStyles";
 
 const log = new Logger("client/Player_js");
 
@@ -69,26 +73,34 @@ class Player extends Component {
     const { name, rating } = this.state;
 
     if (gameId) {
-      Meteor.call(
-        "setTag",
-        "set_tag",
-        gameId,
-        this.getColorByLetter(color),
-        { name, rating },
-        (err) => {
-          if (err) {
-            log.error(err);
-          } else {
-            this.setState({ edit: false });
-          }
+      const tagColor = this.getColorByLetter(color);
+      const data = {
+        [tagColor]: name,
+        [`${tagColor}Elo`]: rating.toString(),
+      };
+
+      Meteor.call("setTags", "set_tag", gameId, data, (err) => {
+        if (err) {
+          log.error(err);
+        } else {
+          this.setState({ edit: false });
         }
-      );
+      });
     }
   };
 
   render() {
-    const { cssManager, side, playerData, turnColor, message, color, FallenSoldiers, translate } =
-      this.props;
+    const {
+      cssManager,
+      classes,
+      side,
+      playerData,
+      turnColor,
+      message,
+      color,
+      FallenSoldiers,
+      translate,
+    } = this.props;
     const { edit, name, rating } = this.state;
 
     const userPicture = cssManager.userPicture(side * 0.08);
@@ -133,14 +145,10 @@ class Player extends Component {
               {!edit ? (
                 <p
                   style={{
-                    color: "#fff",
                     fontSize: side * 0.022,
-                    fontWeight: "600",
-                    marginRight: "15px",
-                    display: "block",
-                    width: "100%",
                   }}
-                  onDoubleClick={this.handleEdit}
+                  className={classes.userInfo}
+                  onClick={this.handleEdit}
                 >
                   {name} ({playerData.rating})
                 </p>
@@ -213,4 +221,12 @@ class Player extends Component {
   }
 }
 
-export default translate("Common.Player")(Player);
+export default compose(
+  translate("Common.Player"),
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  injectSheet(dynamicStyles)
+)(Player);
