@@ -763,7 +763,7 @@ describe("User management", function() {
       const user1 = Meteor.users.findOne();
       chai.assert.equal(user1.username, self.loggedonuser.username);
       chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
-      chai.assert.equal(self.clientMessagesSpy.args[0][2], "NOT_AUTHORIZED");
+      chai.assert.equal(self.clientMessagesSpy.args[0][2], "USERNAME_NOT_AUTHORIZED");
     });
     it("should return a client message if the username change fails", () => {
       const firstguy = TestHelpers.createUser();
