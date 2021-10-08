@@ -3713,16 +3713,17 @@ export class Game {
 
       setactions.push({ type: "settag", issuer: self._id, parameter: { tag: tag, value: value } });
     }
-
-    this.GameCollection.update(
-      { _id: game_id, status: "examining" },
-      {
-        $set: setobject,
-        $push: {
-          actions: { $each: setactions },
-        },
-      }
-    );
+    if (setactions.length) {
+      this.GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $set: setobject,
+          $push: {
+            actions: { $each: setactions },
+          },
+        }
+      );
+    }
   }
 
   changeOwner(message_identifier, game_id, new_id) {
