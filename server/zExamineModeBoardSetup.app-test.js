@@ -330,7 +330,7 @@ describe("Setting PGN tags", function() {
     self.loggedonuser = p1;
     const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 15, "inc", 15, 15, "inc", "white");
     Game.saveLocalMove("mi2", game_id, "e4");
-    Game.setTag("mi3", game_id, "White", "Guy, Some");
+    Game.setTags("mi3", game_id, {"White": "Guy, Some"});
     Game.collection.findOne({ _id: game_id });
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, p1._id);
@@ -341,9 +341,9 @@ describe("Setting PGN tags", function() {
   it("should succeed on an examined game", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "White", "Guy, Some");
-    Game.setTag("mi2b", game_id, "White", "Guy, Some");
-    Game.setTag("mi2v", game_id, "Black", "black");
+    Game.setTags("mi2", game_id, {"White": "Guy, Some"});
+    Game.setTags("mi2b", game_id, {"White": "Guy, Some"});
+    Game.setTags("mi2v", game_id, {"Black": "black"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("Guy, Some", game.white.name);
@@ -359,7 +359,7 @@ describe("Setting PGN tags", function() {
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     self.loggedonuser = TestHelpers.createUser();
     Game.localAddObserver("mi2", game_id, self.loggedonuser._id);
-    Game.setTag("mi3", game_id, "White", "Guy, Some");
+    Game.setTags("mi3", game_id, {"White": "Guy, Some"});
     chai.assert.isTrue(self.clientMessagesSpy.calledOnce);
     chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
     chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi3");
@@ -369,7 +369,7 @@ describe("Setting PGN tags", function() {
   it("should set blacks name correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "Black", "Guy, Some");
+    Game.setTags("mi2", game_id, {"Black": "Guy, Some"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("Guy, Some", game.black.name);
@@ -379,10 +379,25 @@ describe("Setting PGN tags", function() {
     });
   });
 
+  it("should set blacks name and rating correctly", function() {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    Game.setTags("mi2", game_id, {"Black": "Guy, Some", "BlackElo": "1234"});
+    chai.assert.isTrue(self.clientMessagesSpy.notCalled);
+    const game = Game.collection.findOne({ _id: game_id });
+    chai.assert.equal("Guy, Some", game.black.name);
+    chai.assert.equal("1234", game.black.rating);
+    checkLastAction(game, 0, "settag", self.loggedonuser._id, {
+      tag: "BlackElo",
+      value: "1234"
+    });
+  });
+
+
   it("should set 'Result' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "Result", "1/2-1/2");
+    Game.setTags("mi2", game_id, {"Result": "1/2-1/2"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("1/2-1/2", game.result);
@@ -395,7 +410,7 @@ describe("Setting PGN tags", function() {
   it("should set 'WhiteUSCF' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "WhiteUSCF", "1234");
+    Game.setTags("mi2", game_id, {"WhiteUSCF": "1234"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(1234, game.white.rating);
@@ -407,7 +422,7 @@ describe("Setting PGN tags", function() {
   it("should set 'WhiteElo' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "WhiteElo", "1234");
+    Game.setTags("mi2", game_id, {"WhiteElo": "1234"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(1234, game.white.rating);
@@ -416,7 +431,7 @@ describe("Setting PGN tags", function() {
   it("should set 'BlackUSCF' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "BlackUSCF", "1234");
+    Game.setTags("mi2", game_id, {"BlackUSCF": "1234"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(1234, game.black.rating);
@@ -428,7 +443,7 @@ describe("Setting PGN tags", function() {
   it("should set 'BlackElo' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "BlackElo", "1234");
+    Game.setTags("mi2", game_id, {"BlackElo": "1234"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(1234, game.black.rating);
@@ -438,8 +453,8 @@ describe("Setting PGN tags", function() {
   it("should set all other tags in the tag object", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
-    Game.setTag("mi2", game_id, "Doofus", "goofus today");
-    Game.setTag("mi2b", game_id, "Doofus", "goofus today");
+    Game.setTags("mi2", game_id, {"Doofus": "goofus today"});
+    Game.setTags("mi2b", game_id, {"Doofus": "goofus today"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("goofus today", game.tags.Doofus);
@@ -448,7 +463,7 @@ describe("Setting PGN tags", function() {
       value: "goofus today"
     });
     chai.assert.equal(game.actions.length, 1);
-    Game.setTag("mi3", game_id, "Doofus", "goofus tomorrow");
+    Game.setTags("mi3", game_id, {"Doofus": "goofus tomorrow"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game2 = Game.collection.findOne({ _id: game_id });
     chai.assert.equal("goofus tomorrow", game2.tags.Doofus);
@@ -463,7 +478,7 @@ describe("Setting PGN tags", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.saveLocalMove("e4", game_id, "e4");
-    Game.setTag("mi2", game_id, "FEN", "rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b Qq - 0 1");
+    Game.setTags("mi2", game_id, {"FEN": "rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b Qq - 0 1"});
     chai.assert.isTrue(self.clientMessagesSpy.notCalled);
     const game = Game.collection.findOne({ _id: game_id });
     chai.assert.equal(game.fen, "rnbqkbnr/pppppppp/8/8/8/8/PPPP1PPP/RNBQKBNR b Qq - 0 1");

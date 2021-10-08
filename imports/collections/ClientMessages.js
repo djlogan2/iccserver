@@ -166,6 +166,7 @@ const DefinedClientMessagesMap = {
   INVALID_VARIATION_INDEX: {},
   COMPUTER_RETURNED_ERROR: {},
   SEEK_NOT_FOUND: {},
+  USERNAME_NOT_AUTHORIZED: {},
 };
 
 class ClientMessages {

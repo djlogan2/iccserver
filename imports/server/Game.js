@@ -3820,11 +3820,12 @@ export class Game {
     this.GameCollection.update({ _id: game._id }, { $set: setobject });
   }
 
-  setTag(message_identifier, game_id, tag, value) {
+  setTags(message_identifier, game_id, tagsData) {
     check(message_identifier, String);
     check(game_id, String);
-    check(tag, String);
-    check(value, Match.OneOf(Object, String));
+    check(tagsData, Object);
+    Object.keys(tagsData).forEach((key) => check(tagsData[key], String));
+
     const self = Meteor.user();
     check(self, Object);
     const game = this.getAndCheck(self, message_identifier, game_id);
@@ -3834,57 +3835,60 @@ export class Game {
     }
 
     const setobject = {};
-    switch (tag) {
-      case "FEN":
-        if (!active_games[game_id].validate_fen(value).valid) return;
-        if (!active_games[game_id].load(value)) return;
-        if (game.fen === active_games[game_id].fen()) return;
-        setobject.fen = active_games[game_id].fen();
-        setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
-        setobject.variations = { cmi: 0, movelist: [{}] };
-        setobject.arrows = [];
-        setobject.circles = [];
-        break;
-      case "White":
-        if (game.white.name === value.name && game.white.rating === value.rating) return;
-        setobject["white.name"] = value.name;
-        setobject["white.rating"] = value.rating;
-        break;
-      case "Black":
-        if (game.black.name === value.name && game.black.rating === value.rating) return;
-        setobject["black.name"] = value.name;
-        setobject["black.rating"] = value.rating;
-        break;
-      case "Result":
-        if (game.result === value) return;
-        setobject.result = value;
-        break;
-      case "WhiteUSCF":
-      case "WhiteElo":
-        if (game.white.rating === parseInt(value)) return;
-        setobject["white.rating"] = parseInt(value);
-        break;
-      case "BlackUSCF":
-      case "BlackElo":
-        if (game.black.rating === parseInt(value)) return;
-        setobject["black.rating"] = parseInt(value);
-        break;
-      default:
-        break;
-    }
-    if (Object.entries(setobject).length === 0) {
-      if (!!game.tags && tag in game.tags && game.tags[tag] === value) return;
-      setobject["tags." + tag] = value;
-    }
-    this.GameCollection.update(
-      { _id: game_id, status: "examining" },
-      {
-        $set: setobject,
-        $push: {
-          actions: { type: "settag", issuer: self._id, parameter: { tag: tag, value: value } },
-        },
+    const setactions = [];
+    for (const [tag, value] of Object.entries(tagsData)) {
+      switch (tag) {
+        case "FEN":
+          if (!active_games[game_id].validate_fen(value).valid) break;
+          if (!active_games[game_id].load(value)) break;
+          if (game.fen === active_games[game_id].fen()) break;
+          setobject.fen = active_games[game_id].fen();
+          setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
+          setobject.variations = { cmi: 0, movelist: [{}] };
+          setobject.arrows = [];
+          setobject.circles = [];
+          break;
+        case "White":
+          if (game.white.name === value) break;
+          setobject["white.name"] = value;
+          break;
+        case "Black":
+          if (game.black.name === value) break;
+          setobject["black.name"] = value;
+          break;
+        case "Result":
+          if (game.result === value) break;
+          setobject.result = value;
+          break;
+        case "WhiteUSCF":
+        case "WhiteElo":
+          if (game.white.rating === parseInt(value)) break;
+          setobject["white.rating"] = parseInt(value);
+          break;
+        case "BlackUSCF":
+        case "BlackElo":
+          if (game.black.rating === parseInt(value)) break;
+          setobject["black.rating"] = parseInt(value);
+          break;
+        default:
+          if (!!game.tags && tag in game.tags && game.tags[tag] === value) break;
+          setobject["tags." + tag] = value;
+          break;
       }
-    );
+
+      setactions.push({ type: "settag", issuer: self._id, parameter: { tag: tag, value: value } });
+    }
+    if (setactions.length) {
+      this.GameCollection.update(
+        { _id: game_id, status: "examining" },
+        {
+          $set: setobject,
+          $push: {
+            actions: { $each: setactions },
+          },
+        }
+      );
+    }
   }
 
   changeOwner(message_identifier, game_id, new_id) {
@@ -4704,8 +4708,8 @@ Meteor.methods({
   setClocks: (message_identifier, game_id, white, black) =>
     global.Game.setClocks(message_identifier, game_id, white, black),
   // eslint-disable-next-line meteor/audit-argument-checks
-  setTag: (message_identifier, game_id, tag, value) =>
-    global.Game.setTag(message_identifier, game_id, tag, value),
+  setTags: (message_identifier, game_id, tagsData) =>
+    global.Game.setTags(message_identifier, game_id, tagsData),
   // eslint-disable-next-line meteor/audit-argument-checks
   changeOwner: (message_identifier, game_id, new_id) =>
     global.Game.changeOwner(message_identifier, game_id, new_id),
