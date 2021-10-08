@@ -3674,9 +3674,9 @@ export class Game {
     for (const [tag, value] of Object.entries(tagsData)) {
       switch (tag) {
         case "FEN":
-          if (!active_games[game_id].validate_fen(value).valid) return;
-          if (!active_games[game_id].load(value)) return;
-          if (game.fen === active_games[game_id].fen()) return;
+          if (!active_games[game_id].validate_fen(value).valid) break;
+          if (!active_games[game_id].load(value)) break;
+          if (game.fen === active_games[game_id].fen()) break;
           setobject.fen = active_games[game_id].fen();
           setobject.tomove = active_games[game_id].turn() === "w" ? "white" : "black";
           setobject.variations = { cmi: 0, movelist: [{}] };
@@ -3684,33 +3684,31 @@ export class Game {
           setobject.circles = [];
           break;
         case "White":
-          if (game.white.name === value) return;
+          if (game.white.name === value) break;
           setobject["white.name"] = value;
           break;
         case "Black":
-          if (game.black.name === value) return;
+          if (game.black.name === value) break;
           setobject["black.name"] = value;
           break;
         case "Result":
-          if (game.result === value) return;
+          if (game.result === value) break;
           setobject.result = value;
           break;
         case "WhiteUSCF":
         case "WhiteElo":
-          if (game.white.rating === parseInt(value)) return;
+          if (game.white.rating === parseInt(value)) break;
           setobject["white.rating"] = parseInt(value);
           break;
         case "BlackUSCF":
         case "BlackElo":
-          if (game.black.rating === parseInt(value)) return;
+          if (game.black.rating === parseInt(value)) break;
           setobject["black.rating"] = parseInt(value);
           break;
         default:
+          if (!!game.tags && tag in game.tags && game.tags[tag] === value) break;
+          setobject["tags." + tag] = value;
           break;
-      }
-      if (Object.entries(setobject).length === 0) {
-        if (!!game.tags && tag in game.tags && game.tags[tag] === value) return;
-        setobject["tags." + tag] = value;
       }
 
       setactions.push({ type: "settag", issuer: self._id, parameter: { tag: tag, value: value } });

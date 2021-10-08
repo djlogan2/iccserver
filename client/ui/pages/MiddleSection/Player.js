@@ -35,8 +35,11 @@ class Player extends Component {
   componentDidUpdate(prevProps) {
     const { playerData } = this.props;
 
-    if (playerData?.name !== prevProps?.playerData?.name) {
-      this.setState({ name: playerData?.name });
+    if (
+      playerData?.name !== prevProps?.playerData?.name ||
+      playerData?.rating !== prevProps?.playerData?.rating
+    ) {
+      this.setState({ name: playerData?.name, rating: playerData?.rating });
     }
   }
 
@@ -108,7 +111,6 @@ class Player extends Component {
 
     const { locale } = playerData;
     const flagName = !!locale ? locale.slice(-2) : "us";
-
     return (
       <div
         style={{
