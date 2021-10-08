@@ -236,7 +236,7 @@ describe("PGN Import", function() {
     Game.saveLocalMove("mi2", game_id, "e5");
     Game.moveBackward("mi2", game_id);
     Game.saveLocalMove("mi2", game_id, "d5");
-    Game.setTag("mi2", game_id, "Result", "1/2-1/2");
+    Game.setTags("mi2", game_id, {"Result": "1/2-1/2"});
     const pgn = Game.exportToPGN(game_id);
     const game = Game.collection.findOne();
     const parser = new Parser();

@@ -586,7 +586,7 @@ describe("Deleting arrows on FEN changes", function(){
     chai.assert.isDefined(game1.arrows);
     chai.assert.sameDeepMembers([{from: "e4", to: "e5", color: "red", size: 3}], game1.arrows);
 
-    Game.setTag("mi3", game, "FEN", "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3");
+    Game.setTags("mi3", game, {"FEN": "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3"});
     const game2 = Game.GameCollection.findOne();
     chai.assert.isDefined(game2.arrows);
     chai.assert.equal(game2.arrows.length, 0);
@@ -782,7 +782,7 @@ describe("Deleting circles on FEN changes", function(){
     chai.assert.isDefined(game1.circles);
     chai.assert.sameDeepMembers([{square: "e4", color: "red", size: 3}], game1.circles);
 
-    Game.setTag("mi3", game, "FEN", "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3");
+    Game.setTags("mi3", game, {"FEN": "rnbqkb1r/pppp1ppp/5n2/4p3/4PP2/2N5/PPPP2PP/R1BQKBNR b KQkq f3 0 3"});
     const game2 = Game.GameCollection.findOne();
     chai.assert.isDefined(game2.circles);
     chai.assert.equal(game2.circles.length, 0);
