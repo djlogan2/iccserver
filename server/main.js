@@ -3,19 +3,19 @@ import { Logger } from "../lib/server/Logger";
 import "./PgnExport";
 import "./engine_manager";
 //import "../server/awsanalysis/AnalysisEngines";
-import "./Book";
+import "../imports/server/Book";
 import "./PgnImport";
 
 import fs from "fs";
 
-import "../server/Chat";
-import "../server/Game";
-import "../server/GameRequest";
+import "../imports/server/Chat";
+import "../imports/server/Game";
+import "../imports/server/GameRequest";
 import "../imports/collections/css";
 import "../imports/collections/clientInternationalization";
 import "../imports/collections/users";
 import "../lib/server/timestamp";
-import "../server/migrations";
+import "../imports/server/migrations";
 import "../server/clientCollection";
 import "../lib/server/userfiles";
 import "../lib/server/mugshots";

@@ -1,5 +1,5 @@
 import chai from "chai";
-import { Chat } from "./Chat";
+import { Chat } from "../imports/server/Chat";
 //import { Game } from "./Game";
 import { Users } from "../imports/collections/users";
 import { TestHelpers } from "../imports/server/TestHelpers";

@@ -1,9 +1,9 @@
 import { _ } from "meteor/underscore";
 import { FilesCollection } from "meteor/ostrio:files";
-import { Parser } from "./pgn/pgnparser";
 import fs from "fs";
-import { ImportedGameCollection } from "./Game";
+import { ImportedGameCollection } from "../imports/server/Game";
 import { Logger } from "../lib/server/Logger";
+import importer from "@chessclub.com/chesspgn/app/importer";
 const log = new Logger("server/PgnImport_js");
 
 const insert = Meteor.bindEnvironment((document) => ImportedGameCollection.insert(document));
@@ -15,72 +15,24 @@ Meteor.publish("imported_games", function () {
   );
 });
 
+const pgnToGame = Meteor.bindEnvironment((tags, movelist, callback) => callback(Game.pgnToGame(tags, movelist)));
 const process = (fileRef, vRef, version, testCallback) => {
   Meteor.defer(() => {
     const fss = fs.createReadStream(vRef.path);
-    const parser = new Parser();
-    let saveBuffer;
-    fss
-      .on("readable", () => {
-        //debug("on.readable");
-        let _chunk;
-        let gamelist;
-        while (null !== (_chunk = fss.read())) {
-          //debug("on.readable.read");
-          let chunk;
-
-          if (!!saveBuffer && saveBuffer.length)
-            chunk = Buffer.concat([saveBuffer, Buffer.from(_chunk)]);
-          else chunk = Buffer.from(_chunk);
-          let end = chunk.lastIndexOf("\n");
-          if (end === -1) end = chunk.lastIndexOf(" ");
-
-          if (end === -1) {
-            saveBuffer = chunk;
-          } else {
-            end++;
-            // if (chunk.length > 32)
-            //   debug(chunk.toString("utf8", 0, 16) + " ... " + chunk.toString("utf8", end - 16));
-            // else debug(chunk.toString("utf8"));
-            parser.feed(chunk.toString("utf8", 0, end));
-          }
-          saveBuffer = chunk.slice(end);
-          if (!!parser.gamelist) {
-            gamelist = parser.gamelist;
-            delete parser.gamelist;
-            gamelist.forEach((game) => {
-              game.creatorId = fileRef.userId;
-              game.fileRef = fileRef._id;
-              insert(game);
-            });
-          }
-          //debug("on.readable.read.end");
-        }
-        //debug("on.readable end");
-      })
-      .on("end", () => {
-        //debug("on.end");
-        if (!!saveBuffer && saveBuffer.length) {
-          // if (saveBuffer.length > 32)
-          //   debug(
-          //     saveBuffer.toString("utf8", 0, 16) +
-          //       " ... " +
-          //       saveBuffer.toString("utf8", saveBuffer.length - 16)
-          //   );
-          // else debug(saveBuffer.toString("utf8"));
-          parser.feed(saveBuffer.toString("utf8"));
-          if (!!parser.gameobject) parser.gamelist.push(parser.gameobject);
-          if (!!parser.gamelist)
-            parser.gamelist.forEach((game) => {
-              game.creatorId = fileRef.userId;
-              game.fileRef = fileRef._id;
-              insert(game);
-            });
-        }
-        ImportedPgnFiles._unlink(fileRef._id, version);
-        if (!!testCallback && typeof testCallback === "function") testCallback();
-        //debug("end on.end");
+    const pgnimporter = new importer();
+    pgnimporter.import(fss)
+      .events.on("gamesready", (gamelist) => {
+      gamelist.forEach((importedgame) => {
+        pgnToGame(importedgame.tags, importedgame.movelist, (game) => {
+          game.creatorId = fileRef.userId;
+          game.fileRef = fileRef._id;
+          insert(game);
+        });
       });
+    });
+    ImportedPgnFiles._unlink(fileRef._id, version);
+    if (!!testCallback && typeof testCallback === "function") testCallback();
+    //debug("end on.end");
   });
 };
 

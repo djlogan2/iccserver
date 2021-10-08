@@ -1,26 +1,24 @@
 import _ from "lodash";
-import Chess from "chess.js";
+import Chess from "../../node_modules/chess.js/chess";
 import { check, Match } from "meteor/check";
 import { Mongo } from "meteor/mongo";
-import { Logger } from "../lib/server/Logger";
+import { Logger } from "../../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
-import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { ClientMessages } from "../imports/collections/ClientMessages";
-import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
+import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
+import { ClientMessages } from "../collections/ClientMessages";
+import { SystemConfiguration } from "../collections/SystemConfiguration";
 import { PlayedGameSchema } from "./PlayedGameSchema";
 import { GameHistorySchema } from "./GameHistorySchema";
 import { ExaminedGameSchema } from "./ExaminedGameSchema";
 import { EcoSchema } from "./EcoSchema";
-import { LegacyUser } from "../lib/server/LegacyUsers";
-import { Timestamp } from "../lib/server/timestamp";
-import { TimestampServer } from "../lib/Timestamp";
+import { LegacyUser } from "../../lib/server/LegacyUsers";
+import { Timestamp } from "../../lib/server/timestamp";
+import { TimestampServer } from "../../lib/Timestamp";
 import { DynamicRatings } from "./DynamicRatings";
-import { Users } from "../imports/collections/users";
-import { Parser } from "./pgn/pgnparser";
+import { Users } from "../collections/users";
+import importer from "@chessclub.com/chesspgn/app/importer";
 import exporter from "@chessclub.com/chesspgn/app/exporter";
 import date from "date-and-time";
-//import { Awsmanager } from "./awsmanager";
-import { exportGameObjectToPGN } from "../lib/exportpgn";
 import GamePublisher from "./GamePublisher";
 
 export const GameHistory = {};
@@ -816,22 +814,18 @@ export class Game {
     check(game_id, String);
     check(pgn_text, String);
 
-    const parser = new Parser();
-    try {
-      parser.feed(pgn_text);
-      if (!parser.gamelist || !parser.gamelist.length || parser.gamelist.length > 1) {
-        ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_PGN");
-        return;
-      }
-      this.updateLocalExaminedGameWithObject(
-        message_identifier,
-        game_id,
-        parser.gamelist[0],
-        pgn_text
-      );
-    } catch (e) {
+    const pgnimporter = new importer();
+    pgnimporter(pgn_text);
+    if (!pgnimporter.gamelist || !pgnimporter.gamelist.length || pgnimporter.gamelist.length > 1) {
       ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_PGN");
+      return;
     }
+    this.updateLocalExaminedGameWithObject(
+      message_identifier,
+      game_id,
+      pgnimporter.gamelist[0],
+      pgn_text
+    );
   }
 
   startLegacyGame(
@@ -2824,24 +2818,13 @@ export class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.GameCollection.findOne({
-      _id: game_id,
-      status: "examining",
-      "examiners.id": self._id,
-    });
-    if (!game) {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game.examiners.some(e => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
 
     if (game.cmi === cmi) return;
-
-    if (!active_games[game_id])
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to move forward",
-        "Unable to find active game"
-      );
 
     const chessObject = active_games[game_id];
     const variation = game.variations;
@@ -2943,22 +2926,11 @@ export class Game {
     check(self, Object);
 
     let vi = variation_index;
-    const game = this.GameCollection.findOne({
-      _id: game_id,
-      status: "examining",
-      "examiners.id": self._id,
-    });
-    if (!game) {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game.examiners.some(e => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-
-    if (!active_games[game_id])
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to move forward",
-        "Unable to find active game"
-      );
 
     const chessObject = active_games[game_id];
     const variation = game.variations;
@@ -3038,23 +3010,11 @@ export class Game {
     const self = Meteor.user();
     check(self, Object);
 
-    const game = this.GameCollection.findOne({
-      _id: game_id,
-      status: "examining",
-      "examiners.id": self._id,
-    });
-
-    if (!game) {
+    const game = this.getAndCheck(self, message_identifier, game_id);
+    if (!game.examiners.some(e => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
-
-    if (!active_games[game_id])
-      throw new ICCMeteorError(
-        message_identifier,
-        "Unable to move backwards",
-        "Unable to find active game"
-      );
 
     if (movecount > active_games[game_id].history().length) {
       ClientMessages.sendMessageToClient(self, message_identifier, "BEGINNING_OF_GAME");
@@ -3130,13 +3090,218 @@ export class Game {
     playing.forEach((game) => this._resignLocalGame("server", game, user_id, reason));
   }
 
+  pgnToGame(tags, movelist) {
+    const dt_tm = tags.Date + " " + tags.Time;
+    let startTime = date.parse(dt_tm, "YYYY.MM.DD HH:mm:ss");
+    if (Number.isNaN(startTime)) startTime = new Date();
+    else {
+      delete tags.Date;
+      delete tags.Time;
+    }
+
+    const game = {
+      startTime: startTime,
+      isolation_group: "x",
+      result: tags.Result || "*",
+      wild: 0,
+      status: "examining",
+      white: {
+        name: tags.White || "WhitePlayer",
+        rating: tags.WhiteELO || tags.WhiteUSCF || 1600,
+      },
+      black: {
+        name: tags.Black || "BlackPlayer",
+        rating: tags.BlackELO || tags.BlackUSCF || 1600,
+      },
+      variations: {
+        cmi: 0,
+        movelist: movelist,
+      },
+    };
+
+    delete tags.White;
+    delete tags.Black;
+    if (!!tags.WhiteELO) delete tags.WhiteELO;
+    else delete tags.WhiteUSCF;
+    if (!!tags.BlackELO) delete tags.BlackELO;
+    else delete tags.BlackUSCF;
+
+    if (!!tags.FEN) game.fen = tags.FEN;
+    delete tags.FEN;
+
+    if (!!tags.TimeControl) {
+      const incregex = /([0-9]+)(\+[0-9]+)?/;
+      const match = tags.TimeControl.match(incregex);
+      if (!!match) {
+        const initial = Math.round(parseInt(match[1]) / 60);
+        const delaytype = match[3] === undefined ? "none" : "inc";
+        const inc_or_delay = delaytype === "none" ? 0 : parseInt(match[3]);
+        game.clocks = {
+          white: {
+            initial: initial,
+            inc_or_delay: inc_or_delay,
+            delaytype: delaytype,
+          },
+          black: {
+            initial: initial,
+            inc_or_delay: inc_or_delay,
+            delaytype: delaytype,
+          },
+        };
+      }
+      delete tags.TimeControl;
+    }
+
+    const chess = new Chess.Chess(game.fen);
+    game.tomove = chess.turn();
+
+    const recursive = (cmi) => {
+      if (cmi !== 0) {
+        const result = chess.move(game.variations.movelist[cmi].move);
+        game.variations.movelist[cmi].smith = {
+          piece: result.piece,
+          color: result.color,
+          from: result.from,
+          to: result.to,
+        };
+        if (!!result.promotion) game.variations.movelist[cmi].smith.promotion = result.promotion;
+      }
+      game.variations.cmi = cmi;
+      //Don't really need this, it will be (re)done move by move during examine or play
+      //this.load_eco(chess, game.variations);
+      if (!!game.variations.movelist[cmi].variations)
+        for (let v = 0; v < game.variations.movelist[cmi].variations.length; v++) {
+          recursive(game.variations.movelist[cmi].variations[v]);
+        }
+      if (cmi !== 0) chess.undo();
+    };
+    recursive(0);
+    game.variations.cmi = 0;
+    return game;
+  }
+
+  gameToPgn(game, _config) {
+    const config = _config || {};
+    const magicseven = {
+      Event: "",
+      Site: "Internet Chess Club",
+      Date: date.format(game.startTime, "YYYY.MM.DD"),
+      Time: date.format(game.startTime, "HH:mm:ss"),
+      White: game.white.name,
+      Black: game.black.name,
+      Result: game.result,
+    };
+    const gametags = game.tags || {};
+    const tags = { ...gametags, ...magicseven };
+
+    tags.ICCRated = game.rated ? "1" : "0";
+    tags.ICCGameId = game._id;
+    if (game.rated) {
+      tags.WhiteELO = game.white.rating;
+      tags.BlackELO = game.black.rating;
+    }
+
+    let tc =
+      !!game &&
+      !!game.clocks &&
+      !!game.clocks.white &&
+      !!game.clocks.black &&
+      game.clocks.white.initial !== undefined &&
+      !!game.clocks.white.delaytype &&
+      game.clocks.white.inc_or_delay !== undefined &&
+      game.clocks.black.initial !== undefined &&
+      !!game.clocks.black.delaytype &&
+      game.clocks.black.inc_or_delay !== undefined &&
+      game.clocks.white.initial === game.clocks.black.initial &&
+      game.clocks.white.delaytype === game.clocks.black.delaytype &&
+      game.clocks.white.inc_or_delay === game.clocks.black.inc_or_delay;
+
+    tags.ICCTimeControl =
+      game.clocks.white.initial * 60 +
+      "/" +
+      game.clocks.white.inc_or_delay +
+      " " +
+      game.clocks.white.delaytype +
+      " -- " +
+      game.clocks.black.initial * 60 +
+      "/" +
+      game.clocks.black.inc_or_delay +
+      " " +
+      game.clocks.black.delaytype;
+
+    if (!!game.white.id) tags.ICCWhiteId = game.white.id;
+    if (!!game.black.id) tags.ICCBlackId = game.black.id;
+
+    if (!tags.TimeControl) {
+      if (!tc) tags.TimeControl = "?";
+      else {
+        switch (game.clocks.white.delaytype) {
+          case "none":
+            tags.TimeControl = game.clocks.white.initial * 60;
+            break;
+          case "us":
+          case "bronstein":
+          case "inc":
+            tags.TimeControl =
+              game.clocks.white.initial * 60 + "+" + game.clocks.white.inc_or_delay;
+            break;
+          default:
+            tags.TimeControl = "?";
+        }
+      }
+    }
+
+    const eco = {};
+    game.variations.movelist.forEach((m) => {
+      if (!!m.eco) eco[m.eco.code] = m.eco.name;
+    });
+    if (Object.keys(eco) === 1) {
+      tags.ECO = Object.keys(eco)[0];
+      tags.Opening = eco[tags.ECO];
+    }
+
+    function prettyaction(prefix, obj, _nest) {
+      const nest = _nest || 0;
+
+      if (typeof obj !== "object") {
+        return " ".repeat(nest * 3) + prefix + ": " + JSON.stringify(obj) + "\n";
+      }
+
+      const keys = Object.keys(obj);
+      let retstr = "";
+      keys.forEach((key) => {
+        retstr += prettyaction(key, obj[key], _nest + 1);
+      });
+      return retstr;
+    }
+
+    if (config.audit) {
+      let cmi = 0;
+      game.actions.forEach((action) => {
+        if (action.type === "move") {
+          const v = game.variations.movelist[cmi].variations.findIndex(
+            (vv) => vv.move === action.move
+          );
+          if (v === -1) throw new Error("Unable to locate move from action array");
+          cmi = game.variations.movelist[cmi].variations[v];
+        } else {
+          if (!game.variations.movelist[cmi].comment)
+            game.variations.movelist[cmi].comment = prettyaction("action", action);
+          //JSON.stringify(action);
+          else game.variations.movelist[cmi].comment += "\n" + prettyaction("action", action); //JSON.stringify(action);
+        }
+      });
+    }
+    return exporter(tags, game.variations.movelist);
+  }
+
   exportToPGN(id) {
     check(id, String);
 
     const game = this.GameCollection.findOne({ _id: id });
 
     if (!game) return;
-    return exportGameObjectToPGN(game);
+    return this.gameToPgn(game);
   }
 
   findVariation(move, idx, movelist) {
@@ -4355,7 +4520,7 @@ GameHistory.exportToPGN = function (id) {
   check(id, String);
   const game = GameHistoryCollection.findOne({ _id: id });
   if (!game) return;
-  return exportGameObjectToPGN(game);
+  return global.Game.gameToPgn(game);
 };
 
 GameHistory.search = function (message_identifier, search_parameters, offset, count) {

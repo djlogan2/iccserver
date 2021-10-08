@@ -1,6 +1,6 @@
 //import { Game } from "./Game";
 import { Logger } from "../lib/server/Logger";
-import { Book } from "./Book";
+import { Book } from "../imports/server/Book";
 import Chess from "chess.js";
 import { Random } from "meteor/random";
 import AWS from "aws-sdk";

@@ -9,7 +9,7 @@ import { Col } from "antd";
 import MiddleBoard from "../../MiddleSection/MiddleBoard";
 import BoardWrapper from "../BoardWrapper/BoardWrapper";
 import { colorBlackLetter, colorWhiteLetter } from "../../../../constants/gameConstants";
-import { buildPgnFromMovelist } from "../../../../../lib/exportpgn";
+import { buildPgnFromMovelist } from "../../../../../lib/client/exportpgn";
 import { cloneDeep, get } from "lodash";
 import { Logger } from "../../../../../lib/client/Logger";
 

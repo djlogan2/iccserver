@@ -10,7 +10,7 @@ import { SystemConfiguration } from "../imports/collections/SystemConfiguration"
 import { LegacyUser } from "../lib/server/LegacyUsers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { TimestampClient } from "../lib/Timestamp";
-import { buildPgnFromMovelist } from "../lib/exportpgn";
+import { buildPgnFromMovelist } from "../lib/client/exportpgn";
 import Chess from "chess.js";
 
 function startLegacyGameParameters(self, other, rated) {

@@ -1,6 +1,6 @@
 import chai from "chai";
 //import { Game } from "./Game";
-import { GameRequests } from "./GameRequest";
+import { GameRequests } from "../imports/server/GameRequest";
 import { TestHelpers } from "../imports/server/TestHelpers";
 
 describe("Starting multiple games", function() {

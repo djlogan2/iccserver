@@ -2,10 +2,10 @@ import SimpleSchema from "simpl-schema";
 import { check, Match } from "meteor/check";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
-import { ICCMeteorError } from "../lib/server/ICCMeteorError";
-import { Users } from "../imports/collections/users";
-import { ClientMessages } from "../imports/collections/ClientMessages";
-import { RatingOverlaps, validateAndFillRatingObject } from "../lib/ratinghelpers";
+import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
+import { Users } from "../collections/users";
+import { ClientMessages } from "../collections/ClientMessages";
+import { RatingOverlaps, validateAndFillRatingObject } from "../../lib/ratinghelpers";
 
 const RatingSchema = new SimpleSchema({
   wild_number: { type: Array },

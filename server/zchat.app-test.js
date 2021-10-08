@@ -31,7 +31,7 @@ import { Users } from "../imports/collections/users";
 //    child_chat: true/false,
 //    what: "the text"
 // }
-import { Chat } from "./Chat";
+import { Chat } from "../imports/server/Chat";
 
 describe("Chats", function() {
   const self = TestHelpers.setupDescribe.apply(this);

@@ -8,7 +8,7 @@ import { translate } from "../../../../../HOCs/translate";
 
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { ImportedPgnFiles } from "../../../../../../../lib/client/importpgnfiles";
-import { exportGameObjectToPGN } from "../../../../../../../lib/exportpgn";
+import { exportGameObjectToPGN } from "../../../../../../../lib/client/exportpgn";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";

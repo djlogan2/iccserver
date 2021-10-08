@@ -1,9 +1,7 @@
-import date from "date-and-time";
 import { Picker } from "meteor/meteorhacks:picker";
-import exporter from "@chessclub.com/chesspgn/app/exporter";
 import { Meteor } from "meteor/meteor";
 import { Users } from "../collections/users";
-import { GameHistory } from "../../server/Game";
+import { GameHistory } from "./Game";
 
 //
 // Some of this stuff is kind of hard coded. We are going to have to split out the authorization header
@@ -72,19 +70,7 @@ function exportpgn(selector, res) {
     });
 
     cursor.forEach((game) => {
-      const magicseven = {
-        Event: "",
-        Site: "",
-        Date: date.format(game.startTime, "YYYY-MM-DD"),
-        Time: date.format(game.startTime, "HH:mm:ss"),
-        White: game.white.name,
-        Black: game.black.name,
-        Result: game.result,
-      };
-      const gametags = game.tags || {};
-      const tags = { ...magicseven, ...gametags };
-
-      const pgnstring = exporter(tags, game.variations.movelist);
+      const pgnstring = Game.gameToPgn(game, {audit: true});
       res.write(pgnstring);
       res.write("\n");
     });

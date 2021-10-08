@@ -142,7 +142,13 @@ const all_fields = {
     idle: 1,
     legacy: 1,
   },
-  isolation_group: 1
+  isolation_group: 1,
+  apikeys: {
+    id: 1,
+    // apikey: !never publish this!
+    comment: 1,
+    expires: 1
+  }
 };
 
 describe("Users", function () {

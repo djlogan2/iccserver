@@ -4,8 +4,8 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import chai from "chai";
 import Chess from "chess.js"
-import { GameHistory} from "./Game";
-import { buildPgnFromMovelist } from "../lib/exportpgn";
+import { GameHistory} from "../imports/server/Game";
+import { buildPgnFromMovelist } from "../lib/client/exportpgn";
 import { Parser } from "./pgn/pgnparser";
 
 describe("ecocodes", function(){

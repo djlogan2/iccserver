@@ -46,7 +46,7 @@
   "dependencies": {
     "@babel/runtime": "^7.14.0",
     "@chess-fu/fen-parser": "^1.1.3",
-    "@chessclub.com/chesspgn": "^1.0.0",
+    "@chessclub.com/chesspgn": "^1.0.1",
     "@chessclub.com/legacy": "^1.0.3",
     "@types/chai": "^4.2.17",
     "@typescript-eslint/eslint-plugin": "^4.29.1",

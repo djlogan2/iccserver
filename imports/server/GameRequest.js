@@ -1,16 +1,16 @@
-import { Logger } from "../lib/server/Logger";
+import { Logger } from "../../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
 import { Mongo } from "meteor/mongo";
 import { Match, check } from "meteor/check";
-import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
-import { ClientMessages } from "../imports/collections/ClientMessages";
+import { SystemConfiguration } from "../collections/SystemConfiguration";
+import { ClientMessages } from "../collections/ClientMessages";
 //import { Game } from "./Game";
 import SimpleSchema from "simpl-schema";
-import { ICCMeteorError } from "../lib/server/ICCMeteorError";
+import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 import { DynamicRatings } from "./DynamicRatings";
-import { titles } from "../imports/server/userConstants";
-import { Users } from "../imports/collections/users";
-import { Singular } from "./singular";
+import { titles } from "./userConstants";
+import { Users } from "../collections/users";
+import { Singular } from "../../server/singular";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({

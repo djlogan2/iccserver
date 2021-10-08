@@ -14,7 +14,7 @@ import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
 import { i18n } from "./i18n";
-import { DynamicRatings } from "../../server/DynamicRatings";
+import { DynamicRatings } from "../server/DynamicRatings";
 import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 import { UserStatus } from "meteor/mizzao:user-status";
 import { SystemConfiguration } from "./SystemConfiguration";
@@ -542,7 +542,7 @@ Users.updateCurrentUsername = function (message_identifier, username) {
   check(username, String);
 
   if (!Users.isAuthorized(self, "change_username")) {
-    Users.sendClientMessage(self, message_identifier, "USERNAME_NOT_AUTHORIZED");
+    Users.sendClientMessage(self, message_identifier, "NOT_AUTHORIZED");
     return;
   }
 

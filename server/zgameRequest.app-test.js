@@ -6,7 +6,7 @@ import { PublicationCollector } from "meteor/johanbrook:publication-collector";
 import { Roles } from "meteor/alanning:roles";
 import sinon from "sinon";
 
-import { GameRequests } from "./GameRequest";
+import { GameRequests } from "../imports/server/GameRequest";
 //import { Game } from "./Game";
 import { TestHelpers } from "../imports/server/TestHelpers";
 import { standard_member_roles } from "../imports/server/userConstants";

@@ -1,7 +1,7 @@
 import chai from "chai";
 import { Random } from "meteor/random";
 //import { TestHelpers } from "../imports/server/TestHelpers";
-import GamePublisher from "./GamePublisher";
+import GamePublisher from "../imports/server/GamePublisher";
 
 //
 // player_1 = player, played game, not to move

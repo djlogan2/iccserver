@@ -1,12 +1,12 @@
 import { Mongo } from "meteor/mongo";
 import { check, Match } from "meteor/check";
 import { Meteor } from "meteor/meteor";
-import { Users } from "../imports/collections/users";
-import { ClientMessages } from "../imports/collections/ClientMessages";
+import { Users } from "../collections/users";
+import { ClientMessages } from "../collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
-import { SystemConfiguration } from "../imports/collections/SystemConfiguration";
-import { Singular } from "./singular";
-import { Logger } from "../lib/server/Logger";
+import { SystemConfiguration } from "../collections/SystemConfiguration";
+import { Singular } from "../../server/singular";
+import { Logger } from "../../lib/server/Logger";
 
 const log = new Logger("server/Chat_js");
 

@@ -3,7 +3,7 @@ import { TestHelpers } from "../imports/server/TestHelpers";
 //import { Game } from "./Game";
 import { Meteor } from "meteor/meteor";
 import { PublicationCollector } from "meteor/johanbrook:publication-collector";
-import { Chat } from "./Chat";
+import { Chat } from "../imports/server/Chat";
 import { Users } from "../imports/collections/users";
 
 describe("Game owners", function() {

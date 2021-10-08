@@ -1,6 +1,6 @@
-import { Chess } from "chess.js";
+import { Chess } from "../../node_modules/chess.js/chess";
 import { Mongo } from "meteor/mongo";
-import { Logger } from "../lib/server/Logger";
+import { Logger } from "../../lib/server/Logger";
 
 const BOOKNAME = "defaultbook";
 

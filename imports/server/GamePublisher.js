@@ -12,7 +12,7 @@
 //  owner: t/f
 //}
 
-import { Logger } from "../lib/server/Logger";
+import { Logger } from "../../lib/server/Logger";
 
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/GamePublisher_js");
