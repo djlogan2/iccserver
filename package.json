@@ -46,7 +46,7 @@
   "dependencies": {
     "@babel/runtime": "^7.14.0",
     "@chess-fu/fen-parser": "^1.1.3",
-    "@chessclub.com/chesspgn": "^1.0.1",
+    "@chessclub.com/chesspgn": "^1.0.7",
     "@chessclub.com/legacy": "^1.0.3",
     "@types/chai": "^4.2.17",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
@@ -72,7 +72,6 @@
     "moment": "^2.29.1",
     "moo": "^0.5.1",
     "mup": "^1.5.3",
-    "node-uci": "^1.3.4",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-addons-pure-render-mixin": "^15.6.3",

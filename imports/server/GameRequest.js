@@ -10,7 +10,7 @@ import { ICCMeteorError } from "../../lib/server/ICCMeteorError";
 import { DynamicRatings } from "./DynamicRatings";
 import { titles } from "./userConstants";
 import { Users } from "../collections/users";
-import { Singular } from "../../server/singular";
+import { Singular } from "./singular";
 
 const GameRequestCollection = new Mongo.Collection("game_requests");
 const LocalSeekSchema = new SimpleSchema({

@@ -5,7 +5,7 @@ import { Users } from "../collections/users";
 import { ClientMessages } from "../collections/ClientMessages";
 import SimpleSchema from "simpl-schema";
 import { SystemConfiguration } from "../collections/SystemConfiguration";
-import { Singular } from "../../server/singular";
+import { Singular } from "./singular";
 import { Logger } from "../../lib/server/Logger";
 
 const log = new Logger("server/Chat_js");

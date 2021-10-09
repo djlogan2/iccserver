@@ -143,6 +143,7 @@ const all_fields = {
     legacy: 1,
   },
   isolation_group: 1,
+  mugshot: 1,
   apikeys: {
     id: 1,
     // apikey: !never publish this!

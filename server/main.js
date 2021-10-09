@@ -1,10 +1,10 @@
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
-import "./PgnExport";
-import "./engine_manager";
+import "../imports/server/PgnExport";
+import "../imports/server/engine_manager";
 //import "../server/awsanalysis/AnalysisEngines";
 import "../imports/server/Book";
-import "./PgnImport";
+import "../imports/server/PgnImport";
 
 import fs from "fs";
 
@@ -19,7 +19,7 @@ import "../imports/server/migrations";
 import "../server/clientCollection";
 import "../lib/server/userfiles";
 import "../lib/server/mugshots";
-import "./okendpoint";
+import "../imports/server/okendpoint";
 import "../imports/server/api";
 //??
 import current_release from "../imports/startup/release";

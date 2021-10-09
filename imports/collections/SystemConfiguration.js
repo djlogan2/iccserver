@@ -180,15 +180,3 @@ SystemConfiguration.maximumGameHistorySearchCount = function () {
 SystemConfiguration.maximumRunningEngines = function () {
   return lookup("maximum_running_engines", 5);
 };
-
-SystemConfiguration.enginePath = function () {
-  return lookup("engine_path", process.env.DEVELOPER_UCI_ENGINE);
-};
-
-SystemConfiguration.uciSecondsToPonderPerMoveScore = function () {
-  return lookup("uci_seconds_to_ponder_per_move_score", 10);
-};
-
-SystemConfiguration.uciThreadsPerEngine = function () {
-  return lookup("uci_threads_per_engine", 4);
-};

@@ -2,7 +2,7 @@ import { Mongo } from "meteor/mongo";
 import AWS from "aws-sdk";
 import { Logger } from "../../lib/server/Logger";
 import { Meteor } from "meteor/meteor";
-import { Singular } from "../singular";
+import { Singular } from "../../imports/server/singular";
 
 const log = new Logger("server/awsmanager_js");
 // eslint-disable-next-line no-unused-vars

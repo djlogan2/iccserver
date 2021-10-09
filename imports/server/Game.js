@@ -304,6 +304,7 @@ export class Game {
           },
         }
       );
+    return game_id;
   }
 
   startLocalGame(
@@ -2819,7 +2820,7 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game.examiners.some(e => e.id === self._id)) {
+    if (!game?.examiners?.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -2927,7 +2928,7 @@ export class Game {
 
     let vi = variation_index;
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game.examiners.some(e => e.id === self._id)) {
+    if (!game?.examiners?.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3011,7 +3012,7 @@ export class Game {
     check(self, Object);
 
     const game = this.getAndCheck(self, message_identifier, game_id);
-    if (!game.examiners.some(e => e.id === self._id)) {
+    if (!game?.examiners?.some((e) => e.id === self._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "NOT_AN_EXAMINER");
       return;
     }
@@ -3251,13 +3252,13 @@ export class Game {
       }
     }
 
-    const eco = {};
-    game.variations.movelist.forEach((m) => {
-      if (!!m.eco) eco[m.eco.code] = m.eco.name;
-    });
-    if (Object.keys(eco) === 1) {
-      tags.ECO = Object.keys(eco)[0];
-      tags.Opening = eco[tags.ECO];
+    let ecocmi = 0;
+    while (game?.variations?.movelist?.[ecocmi]?.variations?.length) {
+      ecocmi = game.variations.movelist[ecocmi].variations[0];
+    }
+    if (!!game.variations.movelist[ecocmi].eco && game.variations.movelist[ecocmi].eco.code !== "NO_ECO") {
+      tags.ECO = game.variations.movelist[ecocmi].eco.code;
+      tags.Opening = game.variations.movelist[ecocmi].eco.name;
     }
 
     function prettyaction(prefix, obj, _nest) {

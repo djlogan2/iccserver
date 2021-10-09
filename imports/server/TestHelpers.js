@@ -6,7 +6,6 @@ import "../../imports/collections/users";
 import sinon from "sinon";
 import { i18n } from "../collections/i18n";
 import { resetDatabase } from "meteor/xolvio:cleaner";
-import { UCI } from "../../server/UCI";
 import { Timestamp } from "../../lib/server/timestamp";
 import { DynamicRatings } from "./DynamicRatings";
 //import { Game } from "../../server/Game";
@@ -193,12 +192,6 @@ if (Meteor.isTest || Meteor.isAppTest) {
       ); //.returns(123));
 
       self.sandbox.replace(Timestamp, "pingTime", self.sandbox.fake.returns(456));
-
-      self.sandbox.replace(
-        UCI,
-        "getScoreForFen",
-        self.sandbox.fake(() => Promise.resolve(234))
-      );
 
       self.sandbox.replace(
         i18n,
