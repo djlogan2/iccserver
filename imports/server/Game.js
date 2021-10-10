@@ -3256,7 +3256,10 @@ export class Game {
     while (game?.variations?.movelist?.[ecocmi]?.variations?.length) {
       ecocmi = game.variations.movelist[ecocmi].variations[0];
     }
-    if (!!game.variations.movelist[ecocmi].eco && game.variations.movelist[ecocmi].eco.code !== "NO_ECO") {
+    if (
+      !!game.variations.movelist[ecocmi].eco &&
+      game.variations.movelist[ecocmi].eco.code !== "NO_ECO"
+    ) {
       tags.ECO = game.variations.movelist[ecocmi].eco.code;
       tags.Opening = game.variations.movelist[ecocmi].eco.name;
     }
@@ -3293,9 +3296,80 @@ export class Game {
         }
       });
     }
+
+    if (config.movetimes) {
+      this.fill_in_movetimes(game);
+      game.variations.movelist.forEach((move) => {
+        if (!move.comment)
+          move.comment =
+            "movetime " +
+            this.timestring(move.movetime) +
+            " -- walltime " +
+            this.timestring(move.walltime);
+        else
+          move.comment +=
+            "\nmovetime " +
+            this.timestring(move.movetime) +
+            " -- walltime " +
+            this.timestring(move.walltime);
+      });
+    }
     return exporter(tags, game.variations.movelist);
   }
 
+  fill_in_movetimes(game) {
+    let cmi = 0;
+    let lastPosition = game.startTime.getTime();
+    game.actions.forEach((action) => {
+      if (action.type === "move") {
+        const v = game.variations.movelist[cmi].variations.findIndex(
+          (vv) => vv.move === action.move
+        );
+        if (v === -1) throw new Error("Unable to locate move from action array");
+        cmi = game.variations.movelist[cmi].variations[v];
+        // This is invalid if there are takebacks and moves remade, so we will have to deal with this.
+        // Right now this is really just in here to test the "movetimes" output.
+        game.variations.movelist[cmi].walltime = action.time.getTime() - lastPosition;
+        lastPosition = action.time.getTime();
+      }
+    });
+
+    for (let x = 0; x < game.variations.movelist.length; x++) {
+      const prev = game.variations.movelist[x].prev;
+      const smith = game.variations.movelist[x].smith;
+      if (prev !== undefined && smith !== undefined) {
+        let pt;
+        let ct;
+        if (smith.color === "w") {
+          pt = game.variations.movelist[prev].wcurrent;
+          ct = game.variations.movelist[x].wcurrent;
+          //if (game.clocks.white.delaytype === "inc") pt -= game.clocks.white.inc_or_delay * 1000;
+        } else {
+          pt = game.variations.movelist[prev].bcurrent;
+          ct = game.variations.movelist[x].bcurrent;
+          //if (game.clocks.black.delaytype === "inc") pt -= game.clocks.black.inc_or_delay * 1000;
+        }
+        if (ct !== undefined && pt !== undefined) {
+          game.variations.movelist[x].movetime = pt - ct;
+        }
+      }
+    }
+  }
+
+  timestring(time) {
+    let timestring = time < 0 ? "-" : "";
+    let postime = time < 0 ? -time : time;
+    const ms = postime % 1000;
+    postime = (postime - ms) / 1000;
+    const second = postime % 60;
+    postime = (postime - second) / 60;
+    const minute = postime % 60;
+    const hour = (postime - minute) / 60;
+    if (!!hour) timestring += hour + ":";
+    if (!!hour || !!minute) timestring += minute + ":";
+    timestring += second + "." + ms;
+    return timestring;
+  }
   exportToPGN(id) {
     check(id, String);
 

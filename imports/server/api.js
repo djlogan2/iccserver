@@ -63,16 +63,28 @@ const game_history_find = Meteor.bindEnvironment((selector, callback) =>
 );
 
 function exportpgn(selector, res) {
+  const config = {};
+  if (selector.audit !== undefined) config.audit = selector.audit;
+  if (selector.movetimes !== undefined) config.movetimes = selector.movetimes;
   game_history_find(selector, (cursor) => {
     res.writeHead(200, {
       "Content-Type": "text/plain",
       "Content-Disposition": "attachment; filename=" + selector.user_id + ".pgn",
     });
 
+    let crashed = false;
     cursor.forEach((game) => {
-      const pgnstring = Game.gameToPgn(game, {audit: true});
-      res.write(pgnstring);
-      res.write("\n");
+      try {
+        if(!crashed) {
+          const pgnstring = Game.gameToPgn(game, config);
+          res.write(pgnstring);
+          res.write("\n");
+        }
+      } catch(e) {
+        crashed = true;
+        res.writeHead(401);
+        res.end("Error in export: " + e.message);
+      }
     });
     res.end();
   });
