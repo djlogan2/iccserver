@@ -3297,21 +3297,21 @@ export class Game {
       });
     }
 
-    if (config.movetimes) {
+    if (config.movetimes || config.walltimes) {
       this.fill_in_movetimes(game);
       game.variations.movelist.forEach((move) => {
-        if (!move.comment)
-          move.comment =
-            "movetime " +
-            this.timestring(move.movetime) +
-            " -- walltime " +
-            this.timestring(move.walltime);
-        else
-          move.comment +=
-            "\nmovetime " +
-            this.timestring(move.movetime) +
-            " -- walltime " +
-            this.timestring(move.walltime);
+        let comment = "";
+        if (config.movetimes && move.movetime !== undefined && !Number.isNaN(move.movetime))
+          comment += "movetime " + this.timestring(move.movetime);
+        if (config.walltimes && move.walltime !== undefined && !Number.isNaN(move.walltime)) {
+          if (config.movetimes && !!comment) comment += " -- ";
+          comment += "walltime " + this.timestring(move.walltime);
+        }
+
+        if (!!comment) {
+          if (!move.comment) move.comment = comment;
+          else move.comment += `\n${comment}`;
+        }
       });
     }
     return exporter(tags, game.variations.movelist);

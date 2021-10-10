@@ -46,6 +46,7 @@ export const all_roles = [
   "api_export_my_games",
   "api_create_key",
   "api_use",
+  "audit_game",
 ];
 
 export const standard_member_roles = [

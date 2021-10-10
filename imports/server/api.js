@@ -23,7 +23,7 @@ Picker.route("/api/v1/exportpgn", (params, req, res) => {
     res.end("Invalid authorization header");
     return;
   }
-  const username_and_key = new Buffer(auth.substring(6), "base64").toString("ascii");
+  const username_and_key = Buffer.from(auth.substring(6), "base64").toString("ascii");
   const [username, key] = username_and_key.split("/");
   if (!username || !key) {
     res.writeHead(401);
@@ -45,7 +45,7 @@ Picker.route("/api/v1/exportpgn", (params, req, res) => {
         if (err) {
           res.writeHead(401);
           res.end(err);
-        } else exportpgn(selector, res);
+        } else exportpgn(user, selector, res);
       });
     } catch (e) {
       res.writeHead(400);
@@ -62,10 +62,16 @@ const game_history_find = Meteor.bindEnvironment((selector, callback) =>
   )
 );
 
-function exportpgn(selector, res) {
+function exportpgn(user, selector, res) {
   const config = {};
-  if (selector.audit !== undefined) config.audit = selector.audit;
+  if (
+    selector.audit !== undefined &&
+    (Users.isAuthorized(user, "audit_game") ||
+      Users.isAuthorized(user, "audit_game", user.isolation_group))
+  )
+    config.audit = selector.audit;
   if (selector.movetimes !== undefined) config.movetimes = selector.movetimes;
+  if (selector.walltimes !== undefined) config.walltimes = selector.walltimes;
   game_history_find(selector, (cursor) => {
     res.writeHead(200, {
       "Content-Type": "text/plain",
@@ -75,12 +81,12 @@ function exportpgn(selector, res) {
     let crashed = false;
     cursor.forEach((game) => {
       try {
-        if(!crashed) {
+        if (!crashed) {
           const pgnstring = Game.gameToPgn(game, config);
           res.write(pgnstring);
           res.write("\n");
         }
-      } catch(e) {
+      } catch (e) {
         crashed = true;
         res.writeHead(401);
         res.end("Error in export: " + e.message);
