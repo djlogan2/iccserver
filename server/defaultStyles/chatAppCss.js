@@ -8,6 +8,7 @@ const chatAppCss = {
   },
   listWrap: {
     display: "flex",
+    flexDirection: "column-reverse",
     height: "calc(100% - 4.8rem)",
     overflow: "auto",
   },

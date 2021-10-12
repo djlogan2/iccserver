@@ -17,12 +17,7 @@ const withClientMessages = (WrappedComponent) => {
       const { userClientMessages } = this.props;
 
       const filtered = userClientMessages.filter(
-        (message) =>
-          message.client_identifier === "matchRequest" ||
-          message.client_identifier === "requestTakeback" ||
-          message.client_identifier === "requestToDraw" ||
-          message.client_identifier === "requestToAdjourn" ||
-          message.client_identifier === "requestToAbort"
+        (message) => message.client_identifier === "matchRequest"
       );
 
       filtered.forEach((clientMessage) => {
