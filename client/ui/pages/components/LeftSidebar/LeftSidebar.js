@@ -87,10 +87,6 @@ class LeftSidebar extends Component {
   render() {
     const { translate, classes } = this.props;
     const { visible, isMyGamesModal, gameList } = this.state;
-    const imageUrl = `/asset/${Meteor.userId()}/${
-      visible ? "images.JHU_logo_sm_small.png" : "images.JHU_logo_sm.png"
-    }`;
-
     const currentUser = Meteor.user();
 
     const username = !!currentUser ? currentUser.username : translate("noLogin");
@@ -105,7 +101,7 @@ class LeftSidebar extends Component {
           onClose={this.handleMyGamesClose}
         />
         <img
-          src={imageUrl}
+          src={visible ? "/images/JHU_logo_sm_small.png" : "/images/JHU_logo_sm.png"}
           alt={translate("logo")}
           className={classNames(classes.imageLogo, !!visible && classes.fliphImageLogo)}
         />
