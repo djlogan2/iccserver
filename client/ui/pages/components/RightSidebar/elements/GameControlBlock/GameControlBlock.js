@@ -352,7 +352,14 @@ class ActionControls extends Component {
   handleTakeback = () => {
     const { game } = this.props;
 
-    Meteor.call("requestTakeback", "requestTakeback", game._id, 1, handleError);
+    const { tomove } = game;
+
+    let number = 1;
+    if (Meteor.userId() === game[tomove]?.id) {
+      number = 2;
+    }
+
+    Meteor.call("requestTakeback", "requestTakeback", game._id, number, handleError);
   };
 
   handleResign = () => {
