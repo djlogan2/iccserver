@@ -20,6 +20,7 @@ import importer from "@chessclub.com/chesspgn/app/importer";
 import exporter from "@chessclub.com/chesspgn/app/exporter";
 import date from "date-and-time";
 import GamePublisher from "./GamePublisher";
+import { viewable_logged_on_user_fields } from "./userConstants";
 
 export const GameHistory = {};
 
@@ -78,6 +79,52 @@ export class Game {
       );
     }
 
+    // argh argh argh argh
+    Meteor.publishComposite("gameusers", {
+      find() {
+        const argh = _self.GameCollection.find(
+          {
+            $or: [
+              {
+                $and: [
+                  { status: "playing" },
+                  { $or: [{ "white.id": this.userId }, { "black.id": this.userId }] },
+                ],
+              },
+              { "observers.id": this.userId },
+              { owner: this.userId },
+            ],
+          },
+          {
+            fields: {
+              "white.id": 1,
+              "black.id": 1,
+              "observers.id": 1,
+              "examiners.id": 1,
+              owner: 1,
+            },
+          }
+        );
+        const testme = argh.fetch();
+        return argh;
+      },
+      children: [
+        {
+          find(game) {
+            const everyone = [];
+            if (game.white?.id) everyone.push(game.white.id);
+            if (game.black?.id) everyone.push(game.black.id);
+            if (game.observers?.length)
+              everyone.push(...game.observers.map((o) => o.id).filter((id) => id !== _self.userId));
+            if (game.owner) everyone.push(game.owner);
+            return Meteor.users.find(
+              { _id: { $in: everyone } },
+              { fields: viewable_logged_on_user_fields }
+            );
+          },
+        },
+      ],
+    });
     Meteor.publish("games", function () {
       const self = this;
       const gamePublishers = {};

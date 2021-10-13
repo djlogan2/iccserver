@@ -362,6 +362,8 @@ export default compose(
   withTracker(() => {
     const subscriptions = {
       game: Meteor.subscribe("games"),
+      //This is what you subscribe to in order to get users playing, observing, examining and owning games you are playing or observing.
+      //gameusers: Meteor.subscribe("gameusers"),
       chats: Meteor.subscribe("chat"),
       child_chat_texts: Meteor.subscribe("child_chat_texts"),
       users: Meteor.subscribe("loggedOnUsers"),
