@@ -38,17 +38,6 @@ class ChatApp extends Component {
 
     onMessage(newMessage.text);
   };
-  componentDidMount() {
-    this.scrollToBottom();
-  }
-
-  componentDidUpdate() {
-    this.scrollToBottom();
-  }
-
-  scrollToBottom = () => {
-    this.messagesEnd.scrollIntoView({ behavior: "smooth" });
-  };
 
   render() {
     const { chats, childChat, childChatTexts, disabled, classes } = this.props;
