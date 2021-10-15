@@ -114,14 +114,13 @@ class Player extends Component {
     return (
       <div
         style={{
-          width: side * 0.8,
           display: "inline-block",
           marginTop: "5px",
           marginBottom: "5px",
           position: "relative",
         }}
       >
-        <div style={{ width: side * 0.8, display: "inline-block", position: "relative" }}>
+        <div style={{ display: "inline-block", position: "relative" }}>
           <img
             style={{ display: "inline-block", float: "left", borderRadius: "50%", ...userPicture }}
             src={`mugshot/${playerData?.mugshot}`}

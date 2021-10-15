@@ -3945,6 +3945,22 @@ export class Game {
           if (game.black.rating === parseInt(value)) break;
           setobject["black.rating"] = parseInt(value);
           break;
+        case "BlackTime":
+          if (game.clocks.black.current === parseInt(value)) break;
+          setobject["clocks.black.current"] = parseInt(value);
+          break;
+        case "WhiteTime":
+          if (game.clocks.white.current === parseInt(value)) break;
+          setobject["clocks.white.current"] = parseInt(value);
+          break;
+        case "WhiteInitial":
+          if (game.clocks.white.initial === parseInt(value)) break;
+          setobject["clocks.white.initial"] = parseInt(value);
+          break;
+        case "BlackInitial":
+          if (game.clocks.black.initial === parseInt(value)) break;
+          setobject["clocks.black.initial"] = parseInt(value);
+          break;
         default:
           if (!!game.tags && tag in game.tags && game.tags[tag] === value) break;
           setobject["tags." + tag] = value;
