@@ -203,7 +203,7 @@ export default class PlayerClock extends Component {
     }
   };
 
-  calculateTimeLeftAndStyles = ({ current, running, side, currentTurn, color, isPlaying }) => {
+  calculateTimeLeftAndStyles = ({ current, running, side, currentTurn, color, isGameOn }) => {
     let hour;
     let minute;
     let second;
@@ -264,7 +264,7 @@ export default class PlayerClock extends Component {
       transition: this.lowTime && "0.3s",
       position: "absolute",
       boxShadow: this.lowTime && `0px 0px 5px 5px ${this.lowTime.color}`,
-      cursor: isPlaying ? "" : "pointer",
+      cursor: isGameOn ? "" : "pointer",
     };
 
     return {
@@ -279,10 +279,8 @@ export default class PlayerClock extends Component {
   };
 
   render() {
-    const { game, side, color, currentTurn } = this.props;
+    const { game, side, color, currentTurn, isGameOn } = this.props;
     const { current, running, isEditing } = this.state;
-    const isPlaying = game.status === gameStatusPlaying;
-
     if (!game) {
       return null;
     }
@@ -293,7 +291,7 @@ export default class PlayerClock extends Component {
       current,
       running,
       side,
-      isPlaying,
+      isGameOn,
     });
 
     return (
@@ -305,7 +303,7 @@ export default class PlayerClock extends Component {
         }}
       >
         {!isEditing ? (
-          <div style={clockstyle} onClick={!isPlaying ? this.editToggler : noop}>
+          <div style={clockstyle} onClick={!isGameOn ? this.editToggler : noop}>
             {neg}
             {hour}:{minute}:{second}
             {ms}

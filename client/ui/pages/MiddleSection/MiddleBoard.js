@@ -200,6 +200,7 @@ class MiddleBoard extends Component {
               color={topPlayerTime}
               currentTurn={currentTurn}
               side={boardSize}
+              isGameOn={game.status === gameStatusPlaying}
             />
           </div>
         )}
@@ -256,6 +257,7 @@ class MiddleBoard extends Component {
               color={bottomPlayerTime}
               currentTurn={currentTurn}
               side={boardSize}
+              isGameOn={game.status === gameStatusPlaying}
             />
           </div>
         )}
