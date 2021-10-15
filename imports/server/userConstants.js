@@ -90,6 +90,7 @@ export const viewable_logged_on_user_fields = {
   titles: 1,
   ratings: 1,
   mugshot: 1,
+  locale: 1,
   "status.game": 1,
   "status.client": 1,
   "status.legacy": 1,
