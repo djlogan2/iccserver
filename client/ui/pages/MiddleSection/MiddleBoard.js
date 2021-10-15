@@ -182,7 +182,7 @@ class MiddleBoard extends Component {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              height: "60px",
+              height: `${boardSize * 0.09}px`,
             }}
           >
             <Player
@@ -241,7 +241,7 @@ class MiddleBoard extends Component {
         )}
 
         {isPlayingOrExamining && (
-          <div style={{ display: "flex", justifyContent: "space-between", height: "60px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
             <Player
               gameId={game?._id}
               playerData={bottomPlayer}
