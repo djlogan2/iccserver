@@ -208,7 +208,12 @@ class Examine extends Component {
       });
     }
 
-    if (!game && prevState.leaving_game && prevProps?.game?.status === gameStatusExamining) {
+    if (
+      !game &&
+      prevState.leaving_game &&
+      (prevProps?.game?.black?.id || prevProps?.game?.white?.id) &&
+      prevProps?.game?.status === gameStatusExamining
+    ) {
       this.setState({ leaving_game: null });
     }
   }

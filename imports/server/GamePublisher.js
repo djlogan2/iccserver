@@ -17,6 +17,16 @@ import { Logger } from "../../lib/server/Logger";
 // eslint-disable-next-line no-unused-vars
 const log = new Logger("server/GamePublisher_js");
 
+//
+// 0: played not to move
+// 1: played to move
+// 2: observer of played game
+// 3: observer of an examined game
+// 4: owner of a private game
+// 5: private game peon with analysis
+// 6: private game peon without analysis
+// 7: A nobody
+//
 const fields = {
   _id: [0, 1, 2, 3, 4, 5, 6, 7],
   analysis: [4],
