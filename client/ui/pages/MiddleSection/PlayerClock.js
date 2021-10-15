@@ -4,6 +4,8 @@ import { gameStatusPlaying } from "../../../constants/gameConstants";
 import { CheckOutlined } from "@ant-design/icons";
 import { InputNumber, Button } from "antd";
 import { Logger } from "../../../../lib/client/Logger";
+import { TimePicker } from "antd";
+import moment from "moment";
 
 import {
   colorBlackUpper,
@@ -167,14 +169,25 @@ export default class PlayerClock extends Component {
   }
 
   handleChange = (time) => {
+    const timePicked = moment(time).valueOf();
+    const today = moment().startOf("day").valueOf();
+
+    const current = timePicked - today;
+    this.handleUpdate(current);
     this.setState({
-      current: time * 60 * 1000,
+      current,
     });
   };
 
-  editToggler = () => {
+  onEditOpen = () => {
     this.setState((state) => ({
-      isEditing: !state.isEditing,
+      isEditing: true,
+    }));
+  };
+
+  onEditClose = () => {
+    this.setState((state) => ({
+      isEditing: false,
     }));
   };
 
@@ -182,9 +195,8 @@ export default class PlayerClock extends Component {
     return letter === colorWhiteLetter ? colorWhiteUpper : colorBlackUpper;
   };
 
-  handleUpdate = () => {
+  handleUpdate = (current) => {
     const { game, color } = this.props;
-    const { current } = this.state;
 
     if (game?._id) {
       const tagColor = this.getColorByLetter(color[0]);
@@ -197,7 +209,7 @@ export default class PlayerClock extends Component {
         if (err) {
           log.error(err);
         } else {
-          this.editToggler();
+          this.onEditClose();
         }
       });
     }
@@ -274,7 +286,6 @@ export default class PlayerClock extends Component {
       minute,
       second,
       ms,
-      time,
     };
   };
 
@@ -285,7 +296,7 @@ export default class PlayerClock extends Component {
       return null;
     }
 
-    const { clockstyle, neg, hour, minute, second, ms, time } = this.calculateTimeLeftAndStyles({
+    const { clockstyle, neg, hour, minute, second, ms } = this.calculateTimeLeftAndStyles({
       color,
       currentTurn,
       current,
@@ -293,6 +304,8 @@ export default class PlayerClock extends Component {
       side,
       isGameOn,
     });
+
+    const defaultValue = moment(current).add(moment().startOf("day").valueOf()).format("HH:mm:ss");
 
     return (
       <div
@@ -303,33 +316,22 @@ export default class PlayerClock extends Component {
         }}
       >
         {!isEditing ? (
-          <div style={clockstyle} onClick={!isGameOn ? this.editToggler : noop}>
+          <div style={clockstyle} onClick={!isGameOn ? this.onEditOpen : noop}>
             {neg}
             {hour}:{minute}:{second}
             {ms}
           </div>
         ) : (
-          <div style={{ display: "flex", width: "max-content" }}>
-            <InputNumber
-              name="challengerInitial"
-              min={1}
-              id="challengerInitial"
-              parser={(value) => Math.round(value)}
-              formatter={(value) => Math.round(value)}
-              max={600}
-              value={time}
-              onChange={this.handleChange}
-            />
-
-            <Button
-              style={{
-                marginLeft: "15px",
-              }}
-              type="primary"
-              onClick={this.handleUpdate}
-              icon={<CheckOutlined />}
-            />
-          </div>
+          <TimePicker
+            onChange={this.handleChange}
+            defaultValue={moment(defaultValue, "HH:mm:ss")}
+            showNow={false}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) {
+                this.onEditClose();
+              }
+            }}
+          />
         )}
       </div>
     );

@@ -182,7 +182,7 @@ class MiddleBoard extends Component {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              height: `${boardSize * 0.09}px`,
+              height: `${boardSize * 0.1}px`,
             }}
           >
             <Player
