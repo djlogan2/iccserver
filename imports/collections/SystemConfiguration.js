@@ -49,6 +49,10 @@ SystemConfiguration.defaultMugshot = function () {
   return lookup("default_mugshot", "/images/avatar.png");
 };
 
+SystemConfiguration.defaultTimerBlinking = function () {
+  return lookup("default_timer_blinking", 10);
+};
+
 SystemConfiguration.quickButtons = function () {
   return lookup("quick_buttons", [
     {

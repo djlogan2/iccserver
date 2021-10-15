@@ -1,17 +1,14 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
-import { gameStatusPlaying } from "../../../constants/gameConstants";
-import { CheckOutlined } from "@ant-design/icons";
-import { InputNumber, Button } from "antd";
-import { Logger } from "../../../../lib/client/Logger";
-import { TimePicker } from "antd";
-import moment from "moment";
-
 import {
   colorBlackUpper,
   colorWhiteLetter,
   colorWhiteUpper,
+  gameStatusPlaying
 } from "../../../constants/gameConstants";
+import { Logger } from "../../../../lib/client/Logger";
+import { TimePicker } from "antd";
+import moment from "moment";
 import { noop } from "lodash";
 
 const log = new Logger("client/Player_js");
@@ -222,6 +219,8 @@ export default class PlayerClock extends Component {
     let ms;
     let neg = "";
 
+    const timerBlinkingSecs = Meteor.user()?.settings?.default_timer_blinking || 10;
+
     let time = current || 0;
     if (time < 0) {
       neg = "-";
@@ -235,7 +234,7 @@ export default class PlayerClock extends Component {
     minute = time % 60;
     hour = (time - minute) / 60;
 
-    if (neg === "-" || !!hour || !!minute || second >= 10) {
+    if (neg === "-" || !!hour || !!minute || second >= timerBlinkingSecs) {
       ms = "";
     } else {
       if (running && this.lowTime && Date.now() - this.lowTime.date > 500) {

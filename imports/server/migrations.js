@@ -431,6 +431,14 @@ Meteor.startup(() => {
       Roles.removeUsersFromRoles(userids, "validate_mugshots");
     },
   });
+
+  Migrations.add({
+    version: "0.5.1_1",
+    name: "Add default timer blinking for each user",
+    run: () => {
+      Meteor.users.update({}, { $set: { "settings.default_timer_blinking": 10 } }, { multi: true });
+    },
+  });
   /*
   Migrations.add({
     version: "",
