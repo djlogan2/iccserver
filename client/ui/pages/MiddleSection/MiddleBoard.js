@@ -14,7 +14,7 @@ import {
   colorWhite,
   colorWhiteLetter,
   gameStatusExamining,
-  gameStatusPlaying
+  gameStatusPlaying,
 } from "../../../constants/gameConstants";
 import Analytics from "../components/Analytics/Analytics";
 
@@ -178,18 +178,32 @@ class MiddleBoard extends Component {
     return (
       <div style={{ width: boardSize }}>
         {isPlayingOrExamining && (
-          <Player
-            gameId={game?._id}
-            playerData={topPlayer}
-            cssManager={cssManager}
-            side={boardSize}
-            color={tc}
-            turnColor={color}
-            FallenSoldiers={topFallenSoliders}
-            message={topPlayermsg}
-          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              height: `${boardSize * 0.1}px`,
+            }}
+          >
+            <Player
+              gameId={game?._id}
+              playerData={topPlayer}
+              cssManager={cssManager}
+              side={boardSize}
+              color={tc}
+              turnColor={color}
+              FallenSoldiers={topFallenSoliders}
+              message={topPlayermsg}
+            />
+            <PlayerClock
+              game={game}
+              color={topPlayerTime}
+              currentTurn={currentTurn}
+              side={boardSize}
+              isGameOn={game.status === gameStatusPlaying}
+            />
+          </div>
         )}
-        <PlayerClock game={game} color={topPlayerTime} currentTurn={currentTurn} side={boardSize} />
         {game && (
           <div style={{ width: "100%", height: boardSize }}>
             <NewChessBoard
@@ -227,23 +241,26 @@ class MiddleBoard extends Component {
         )}
 
         {isPlayingOrExamining && (
-          <Player
-            gameId={game?._id}
-            playerData={bottomPlayer}
-            cssManager={cssManager}
-            side={boardSize}
-            color={bc}
-            turnColor={color}
-            FallenSoldiers={bottomFallenSoliders}
-            Playermsg={botPlayermsg}
-          />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Player
+              gameId={game?._id}
+              playerData={bottomPlayer}
+              cssManager={cssManager}
+              side={boardSize}
+              color={bc}
+              turnColor={color}
+              FallenSoldiers={bottomFallenSoliders}
+              Playermsg={botPlayermsg}
+            />
+            <PlayerClock
+              game={game}
+              color={bottomPlayerTime}
+              currentTurn={currentTurn}
+              side={boardSize}
+              isGameOn={game.status === gameStatusPlaying}
+            />
+          </div>
         )}
-        <PlayerClock
-          game={game}
-          color={bottomPlayerTime}
-          currentTurn={currentTurn}
-          side={boardSize}
-        />
       </div>
     );
   }

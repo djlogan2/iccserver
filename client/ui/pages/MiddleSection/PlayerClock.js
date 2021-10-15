@@ -1,12 +1,26 @@
 import React, { Component } from "react";
 import { getMilliseconds } from "../../../../lib/client/timestamp";
 import { gameStatusPlaying } from "../../../constants/gameConstants";
+import { CheckOutlined } from "@ant-design/icons";
+import { InputNumber, Button } from "antd";
+import { Logger } from "../../../../lib/client/Logger";
+import { TimePicker } from "antd";
+import moment from "moment";
+
+import {
+  colorBlackUpper,
+  colorWhiteLetter,
+  colorWhiteUpper,
+} from "../../../constants/gameConstants";
+import { noop } from "lodash";
+
+const log = new Logger("client/Player_js");
 
 export default class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
-    this.interval = "none";
+    this.interval = null;
     const now = getMilliseconds();
 
     const { game, color } = props;
@@ -19,6 +33,7 @@ export default class PlayerClock extends Component {
       mark: now,
       running: false,
       game_current: current,
+      isEditing: false,
     };
 
     this.componentDidUpdate();
@@ -70,23 +85,21 @@ export default class PlayerClock extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    if (!props.game) return {};
-    const running = props.game.status === gameStatusPlaying && props.game.tomove === props.color;
+    const { game, color } = props;
+
+    if (!game) return {};
+    const running = game.status === gameStatusPlaying && game.tomove === color;
     const now = running ? getMilliseconds() : 0;
     let pcurrent;
 
-    if (props.game.status === gameStatusPlaying) {
-      const start = running ? props.game.clocks[props.color].starttime : 0;
-      pcurrent = props.game.clocks[props.color].current - now + start;
+    if (game.status === gameStatusPlaying) {
+      const start = running ? game.clocks[color].starttime : 0;
+      pcurrent = game.clocks[color].current - now + start;
     } else {
-      pcurrent = PlayerClock.timeAfterMove(
-        props.game.variations,
-        props.game.tomove === props.color
-      );
+      pcurrent = PlayerClock.timeAfterMove(game.variations, game.tomove === color);
     }
 
-    if (!pcurrent && !!props.game.clocks)
-      pcurrent = props.game.clocks[props.color].initial * 60 * 1000;
+    if (!pcurrent && !!game.clocks) pcurrent = game.clocks[color].initial * 60 * 1000;
 
     if (!pcurrent) pcurrent = 0;
 
@@ -108,16 +121,16 @@ export default class PlayerClock extends Component {
   }
 
   componentWillUnmount() {
-    if (this.interval !== "none") {
+    if (this.interval) {
       Meteor.clearInterval(this.interval);
-      this.interval = "none";
+      this.interval = null;
     }
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (this.interval !== "none" && !nextState.running) {
+    if (this.interval && !nextState.running) {
       Meteor.clearInterval(this.interval);
-      this.interval = "none";
+      this.interval = null;
     }
     return true;
   }
@@ -125,7 +138,8 @@ export default class PlayerClock extends Component {
   componentDidUpdate() {
     const { game, color } = this.props;
     const { running } = this.state;
-    if (!running || this.interval !== "none") {
+
+    if (!running || this.interval) {
       return;
     }
 
@@ -154,14 +168,54 @@ export default class PlayerClock extends Component {
     }
   }
 
-  render() {
-    const { game, side, color, currentTurn } = this.props;
-    const { current, running } = this.state;
+  handleChange = (time) => {
+    const timePicked = moment(time).valueOf();
+    const today = moment().startOf("day").valueOf();
 
-    if (!game) {
-      return null;
+    const current = timePicked - today;
+    this.handleUpdate(current);
+    this.setState({
+      current,
+    });
+  };
+
+  onEditOpen = () => {
+    this.setState((state) => ({
+      isEditing: true,
+    }));
+  };
+
+  onEditClose = () => {
+    this.setState((state) => ({
+      isEditing: false,
+    }));
+  };
+
+  getColorByLetter = (letter) => {
+    return letter === colorWhiteLetter ? colorWhiteUpper : colorBlackUpper;
+  };
+
+  handleUpdate = (current) => {
+    const { game, color } = this.props;
+
+    if (game?._id) {
+      const tagColor = this.getColorByLetter(color[0]);
+      const data = {
+        [`${tagColor}Time`]: `${current}`,
+        [`${tagColor}Initial`]: `${current / 60 / 1000}`,
+      };
+
+      Meteor.call("setTags", "set_tag", game._id, data, (err) => {
+        if (err) {
+          log.error(err);
+        } else {
+          this.onEditClose();
+        }
+      });
     }
+  };
 
+  calculateTimeLeftAndStyles = ({ current, running, side, currentTurn, color, isGameOn }) => {
     let hour;
     let minute;
     let second;
@@ -222,23 +276,63 @@ export default class PlayerClock extends Component {
       transition: this.lowTime && "0.3s",
       position: "absolute",
       boxShadow: this.lowTime && `0px 0px 5px 5px ${this.lowTime.color}`,
+      cursor: isGameOn ? "" : "pointer",
     };
+
+    return {
+      clockstyle,
+      neg,
+      hour,
+      minute,
+      second,
+      ms,
+    };
+  };
+
+  render() {
+    const { game, side, color, currentTurn, isGameOn } = this.props;
+    const { current, running, isEditing } = this.state;
+    if (!game) {
+      return null;
+    }
+
+    const { clockstyle, neg, hour, minute, second, ms } = this.calculateTimeLeftAndStyles({
+      color,
+      currentTurn,
+      current,
+      running,
+      side,
+      isGameOn,
+    });
+
+    const defaultValue = moment(current).add(moment().startOf("day").valueOf()).format("HH:mm:ss");
 
     return (
       <div
         style={{
-          width: side * 0.2,
           display: "inline-block",
           position: "relative",
-          verticalAlign: "top",
           marginTop: "8px",
         }}
       >
-        <div style={clockstyle}>
-          {neg}
-          {hour}:{minute}:{second}
-          {ms}
-        </div>
+        {!isEditing ? (
+          <div style={clockstyle} onClick={!isGameOn ? this.onEditOpen : noop}>
+            {neg}
+            {hour}:{minute}:{second}
+            {ms}
+          </div>
+        ) : (
+          <TimePicker
+            onChange={this.handleChange}
+            defaultValue={moment(defaultValue, "HH:mm:ss")}
+            showNow={false}
+            onOpenChange={(isOpen) => {
+              if (!isOpen) {
+                this.onEditClose();
+              }
+            }}
+          />
+        )}
       </div>
     );
   }
