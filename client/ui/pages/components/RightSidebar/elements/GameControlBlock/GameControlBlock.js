@@ -45,6 +45,17 @@ class ExamineLocationControls extends Component {
   };
 
   handleWheel = (event) => {
+    let target = event.target;
+    let hasScroll = false;
+    while (target !== document.documentElement) {
+      hasScroll =
+        !target.matches(".device-menu + .ant-row") &&
+        window.getComputedStyle(target).overflow === "auto" &&
+        target.scrollHeight > target.clientHeight;
+      target = target.parentNode;
+      if (hasScroll) return;
+    }
+
     if (event.deltaY > 0) {
       this.moveForward();
     } else {
