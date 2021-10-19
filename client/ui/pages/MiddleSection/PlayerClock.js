@@ -4,7 +4,7 @@ import {
   colorBlackUpper,
   colorWhiteLetter,
   colorWhiteUpper,
-  gameStatusPlaying
+  gameStatusPlaying,
 } from "../../../constants/gameConstants";
 import { Logger } from "../../../../lib/client/Logger";
 import { TimePicker } from "antd";
@@ -90,8 +90,13 @@ export default class PlayerClock extends Component {
     let pcurrent;
 
     if (game.status === gameStatusPlaying) {
+      const iod = game.clocks[color].inc_or_delay;
       const start = running ? game.clocks[color].starttime : 0;
-      pcurrent = game.clocks[color].current - now + start;
+      pcurrent = Math.ceil((game.clocks[color].current - now + start) / 1000) * 1000;
+
+      if (game.tomove === color && pcurrent !== game.clocks[color].initial * 60 * 1000) {
+        pcurrent += iod * 1000;
+      }
     } else {
       pcurrent = PlayerClock.timeAfterMove(game.variations, game.tomove === color);
     }
@@ -144,8 +149,7 @@ export default class PlayerClock extends Component {
     const type = game.clocks[color].delaytype;
 
     if (type === "us" || type === "bronstein") {
-      this.interval = Meteor.setInterval(() => {
-        Meteor.clearInterval(this.interval);
+      this.interval = Meteor.setTimeout(() => {
 
         this.setState({ mark: getMilliseconds() });
         this.interval = Meteor.setInterval(() => {
