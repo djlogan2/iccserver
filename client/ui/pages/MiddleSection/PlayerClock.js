@@ -23,8 +23,7 @@ export default class PlayerClock extends Component {
     const { game, color } = props;
 
     const start = game && game.clocks ? game.clocks[color].starttime || now : 0;
-    const current =
-      game && game.clocks ? Math.ceil((game.clocks[color].current - now + start) / 1000) * 1000 : 0;
+    const current = game && game.clocks ? game.clocks[color].current - now + start : 0;
 
     this.state = {
       current,
@@ -136,20 +135,22 @@ export default class PlayerClock extends Component {
     const iod = game.clocks[color].inc_or_delay;
     const type = game.clocks[color].delaytype;
 
-    const secondsPassed = Math.floor((Date.now() - game.clocks[color].starttime) / 1000);
+    const secondsPassed = (Date.now() - game.clocks[color].starttime) / 1000;
+
     const delay = iod - secondsPassed;
 
     if ((type === "us" || type === "bronstein") && delay > 0) {
       Meteor.setTimeout(() => {
-        this.setTimer({ game, color, iod, MilliSecondsPassed: secondsPassed * 1000 });
+        this.setTimer({ game, color, iod });
       }, delay * 1000);
     } else {
       this.setTimer({ game, color });
     }
   }
 
-  setTimer = ({ game, color, iod, MilliSecondsPassed }) => {
+  setTimer = ({ game, color, iod }) => {
     this.interval = Meteor.setInterval(() => {
+      const MilliSecondsPassed = Date.now() - game.clocks[color].starttime;
       let current = game.clocks[color].current - MilliSecondsPassed;
 
       if (iod) {
@@ -293,7 +294,11 @@ export default class PlayerClock extends Component {
       isGameOn,
     });
 
-    const defaultValue = moment(current).add(moment().startOf("day").valueOf()).format("HH:mm:ss");
+    const roundedCurrent = Math.floor(current / 1000) * 1000;
+
+    const defaultValue = moment(roundedCurrent > 0 ? roundedCurrent : 0)
+      .add(moment().startOf("day").valueOf())
+      .format("HH:mm:ss");
 
     return (
       <div
