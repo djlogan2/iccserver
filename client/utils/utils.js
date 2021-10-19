@@ -99,3 +99,47 @@ export const getLang = () =>
 export const areArraysOfObectsEqual = (firstArray, secondArray) => {
   return _(firstArray).differenceWith(secondArray, _.isEqual).isEmpty();
 };
+
+export const timeAfterMove = (variations, tomove, cmi) => {
+  //
+  // This is going to assume variation sub[0] is the correct
+  // time (i.e. "main line", assuming main line is sub[0] and
+  // not sub[last]. sub[last] might be more accurate.
+  //
+  // OK, so we are sitting (cmi is sitting) on the user NOT to move.
+  //
+  if (!cmi) cmi = variations.cmi;
+  if (!cmi) return;
+
+  let last_move_made = variations.movelist[cmi];
+  if (!last_move_made.variations) {
+    //
+    // If there is no "next" move, use the clocks from the last set of moves
+    //
+    let prev = variations.movelist[cmi].prev;
+    if (!prev) return;
+    last_move_made = variations.movelist[prev];
+    tomove = !tomove;
+  }
+
+  //
+  // If we are doing the user waiting to move, use the current value of the
+  // next node in the tree.
+  //
+  const upcoming_move = variations.movelist[last_move_made.variations[0]];
+  if (tomove) return upcoming_move.current;
+
+  //
+  // Obviously by here we are doing the user NOT waiting to move. If there is
+  // no move after the current users move, return the clocks at the beginning
+  // of the last move made by this user.
+  //
+  if (!upcoming_move.variations || !upcoming_move.variations.length) return last_move_made.current;
+
+  //
+  // The "not to move" user has another move in the tree, so return the clock
+  // value for this move.
+  //
+  const upcoming_next_move = variations.movelist[upcoming_move.variations[0]];
+  return upcoming_next_move.current;
+};

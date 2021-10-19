@@ -10,6 +10,7 @@ import { Logger } from "../../../../lib/client/Logger";
 import { TimePicker } from "antd";
 import moment from "moment";
 import { noop } from "lodash";
+import { timeAfterMove } from "../../../utils/utils";
 
 const log = new Logger("client/Player_js");
 
@@ -23,62 +24,15 @@ export default class PlayerClock extends Component {
     const { game, color } = props;
 
     const start = game && game.clocks ? game.clocks[color].starttime || now : 0;
-    const current = game && game.clocks ? game.clocks[color].current - now + start : 0;
+    const current =
+      game && game.clocks ? Math.ceil((game.clocks[color].current - now + start) / 1000) * 1000 : 0;
 
     this.state = {
       current,
-      mark: now,
       running: false,
       game_current: current,
       isEditing: false,
     };
-
-    this.componentDidUpdate();
-  }
-
-  static timeAfterMove(variations, tomove, cmi) {
-    //
-    // This is going to assume variation sub[0] is the correct
-    // time (i.e. "main line", assuming main line is sub[0] and
-    // not sub[last]. sub[last] might be more accurate.
-    //
-    // OK, so we are sitting (cmi is sitting) on the user NOT to move.
-    //
-    if (!cmi) cmi = variations.cmi;
-    if (!cmi) return;
-
-    let last_move_made = variations.movelist[cmi];
-    if (!last_move_made.variations) {
-      //
-      // If there is no "next" move, use the clocks from the last set of moves
-      //
-      let prev = variations.movelist[cmi].prev;
-      if (!prev) return;
-      last_move_made = variations.movelist[prev];
-      tomove = !tomove;
-    }
-
-    //
-    // If we are doing the user waiting to move, use the current value of the
-    // next node in the tree.
-    //
-    const upcoming_move = variations.movelist[last_move_made.variations[0]];
-    if (tomove) return upcoming_move.current;
-
-    //
-    // Obviously by here we are doing the user NOT waiting to move. If there is
-    // no move after the current users move, return the clocks at the beginning
-    // of the last move made by this user.
-    //
-    if (!upcoming_move.variations || !upcoming_move.variations.length)
-      return last_move_made.current;
-
-    //
-    // The "not to move" user has another move in the tree, so return the clock
-    // value for this move.
-    //
-    const upcoming_next_move = variations.movelist[upcoming_move.variations[0]];
-    return upcoming_next_move.current;
   }
 
   static getDerivedStateFromProps(props, state) {
@@ -86,19 +40,12 @@ export default class PlayerClock extends Component {
 
     if (!game) return {};
     const running = game.status === gameStatusPlaying && game.tomove === color;
-    const now = running ? getMilliseconds() : 0;
     let pcurrent;
 
     if (game.status === gameStatusPlaying) {
-      const iod = game.clocks[color].inc_or_delay;
-      const start = running ? game.clocks[color].starttime : 0;
-      pcurrent = Math.ceil((game.clocks[color].current - now + start) / 1000) * 1000;
-
-      if (game.tomove === color && pcurrent !== game.clocks[color].initial * 60 * 1000) {
-        pcurrent += iod * 1000;
-      }
+      pcurrent = state.current;
     } else {
-      pcurrent = PlayerClock.timeAfterMove(game.variations, game.tomove === color);
+      pcurrent = timeAfterMove(game.variations, game.tomove === color);
     }
 
     if (!pcurrent && !!game.clocks) pcurrent = game.clocks[color].initial * 60 * 1000;
@@ -106,17 +53,14 @@ export default class PlayerClock extends Component {
     if (!pcurrent) pcurrent = 0;
 
     const returnstate = {};
-    const mark = now;
 
     if (pcurrent !== state.game_current) {
       returnstate.current = pcurrent;
       returnstate.game_current = pcurrent;
-      returnstate.mark = mark;
     }
 
     if (running !== state.running) {
       returnstate.running = running;
-      returnstate.mark = mark;
     }
 
     return returnstate;
@@ -148,26 +92,29 @@ export default class PlayerClock extends Component {
     const iod = game.clocks[color].inc_or_delay;
     const type = game.clocks[color].delaytype;
 
-    if (type === "us" || type === "bronstein") {
-      this.interval = Meteor.setTimeout(() => {
+    const secondsPassed = Math.floor((Date.now() - game.clocks[color].starttime) / 1000);
+    const delay = iod - secondsPassed;
 
-        this.setState({ mark: getMilliseconds() });
-        this.interval = Meteor.setInterval(() => {
-          const mark = getMilliseconds();
-          const sub = mark - this.state.mark;
-          const current = this.state.current - sub;
-          this.setState({ current, mark });
-        }, 50);
-      }, iod * 1000);
+    if ((type === "us" || type === "bronstein") && delay > 0) {
+      Meteor.setTimeout(() => {
+        this.setTimer({ game, color, iod, MilliSecondsPassed: secondsPassed * 1000 });
+      }, delay * 1000);
     } else {
-      this.interval = Meteor.setInterval(() => {
-        const mark = getMilliseconds();
-        const sub = mark - this.state.mark;
-        const current = this.state.current - sub;
-        this.setState({ current, mark });
-      }, 50);
+      this.setTimer({ game, color });
     }
   }
+
+  setTimer = ({ game, color, iod, MilliSecondsPassed }) => {
+    this.interval = Meteor.setInterval(() => {
+      let current = game.clocks[color].current - MilliSecondsPassed;
+
+      if (iod) {
+        current += iod * 1000;
+      }
+
+      this.setState({ current });
+    }, 50);
+  };
 
   handleChange = (time) => {
     const timePicked = moment(time).valueOf();
@@ -254,9 +201,6 @@ export default class PlayerClock extends Component {
 
     if (!running) this.lowTime = null;
 
-    if (second < 10) second = `0${second}`;
-    if (minute < 10) minute = `0${minute}`;
-
     let cv = side / 10;
     let clockstyle = {
       right: "0",
@@ -285,9 +229,6 @@ export default class PlayerClock extends Component {
     return {
       clockstyle,
       neg,
-      hour,
-      minute,
-      second,
       ms,
     };
   };
@@ -299,7 +240,7 @@ export default class PlayerClock extends Component {
       return null;
     }
 
-    const { clockstyle, neg, hour, minute, second, ms } = this.calculateTimeLeftAndStyles({
+    const { clockstyle, neg, ms } = this.calculateTimeLeftAndStyles({
       color,
       currentTurn,
       current,
@@ -313,7 +254,6 @@ export default class PlayerClock extends Component {
     return (
       <div
         style={{
-          display: "inline-block",
           position: "relative",
           marginTop: "8px",
         }}
@@ -321,7 +261,7 @@ export default class PlayerClock extends Component {
         {!isEditing ? (
           <div style={clockstyle} onClick={!isGameOn ? this.onEditOpen : noop}>
             {neg}
-            {hour}:{minute}:{second}
+            {defaultValue}
             {ms}
           </div>
         ) : (
