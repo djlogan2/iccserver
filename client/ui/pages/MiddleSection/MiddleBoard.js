@@ -221,6 +221,7 @@ class MiddleBoard extends Component {
               currentTurn={currentTurn}
               side={boardSize}
               isGameOn={game.status === gameStatusPlaying}
+              isMyTurn={game.status === gameStatusPlaying && game.tomove === topPlayerTime}
               handleUpdate={this.handleUpdate}
             />
           </div>
@@ -280,6 +281,7 @@ class MiddleBoard extends Component {
               currentTurn={currentTurn}
               side={boardSize}
               isGameOn={game.status === gameStatusPlaying}
+              isMyTurn={game.status === gameStatusPlaying && game.tomove === bottomPlayerTime}
               handleUpdate={this.handleUpdate}
             />
           </div>

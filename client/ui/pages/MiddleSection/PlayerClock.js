@@ -9,7 +9,6 @@ const DEFAULT_TIME_FORMAT = "HH:mm:ss";
 export default class PlayerClock extends Component {
   state = {
     current: 0,
-    running: false,
     game_current: 0,
     isEditing: false,
   };
@@ -63,7 +62,6 @@ export default class PlayerClock extends Component {
     const { game, color } = props;
 
     if (!game) return {};
-    const running = game.status === gameStatusPlaying && game.tomove === color;
     let pcurrent;
 
     if (game.status === gameStatusPlaying) {
@@ -83,10 +81,6 @@ export default class PlayerClock extends Component {
       returnstate.game_current = pcurrent;
     }
 
-    if (running !== state.running) {
-      returnstate.running = running;
-    }
-
     return returnstate;
   }
 
@@ -95,7 +89,7 @@ export default class PlayerClock extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (this.interval && !nextState.running) {
+    if (this.interval && !nextProps.isMyTurn) {
       Meteor.clearInterval(this.interval);
       this.interval = null;
     }
@@ -103,9 +97,9 @@ export default class PlayerClock extends Component {
   }
 
   componentDidUpdate() {
-    const { game, color } = this.props;
+    const { game, color, isMyTurn } = this.props;
 
-    if (!this.state.running || this.interval) {
+    if (!isMyTurn || this.interval) {
       return;
     }
 
@@ -173,7 +167,7 @@ export default class PlayerClock extends Component {
     }));
   };
 
-  calculateTimeLeftAndStyles = ({ current, running, side, currentTurn, color, isGameOn }) => {
+  calculateTimeLeftAndStyles = ({ current, isMyTurn, side, currentTurn, color, isGameOn }) => {
     let hour;
     let minute;
     let second;
@@ -198,18 +192,18 @@ export default class PlayerClock extends Component {
     if (neg === "-" || !!hour || !!minute || second >= timerBlinkingSecs) {
       ms = "";
     } else {
-      if (running && this.lowTime && Date.now() - this.lowTime.date > 500) {
+      if (isMyTurn && this.lowTime && Date.now() - this.lowTime.date > 500) {
         this.lowTime = {
           color: this.lowTime.color === "#ff0000" ? "#810000" : "#ff0000",
           date: Date.now(),
         };
-      } else if (running && !this.lowTime) {
+      } else if (isMyTurn && !this.lowTime) {
         this.lowTime = { color: "#ff0000", date: Date.now() };
       }
       ms = "." + ms.toString().substr(0, 1);
     }
 
-    if (!running) this.lowTime = null;
+    if (!isMyTurn) this.lowTime = null;
 
     let cv = side / 10;
     let clockstyle = {
@@ -241,8 +235,8 @@ export default class PlayerClock extends Component {
   };
 
   render() {
-    const { game, side, color, currentTurn, isGameOn } = this.props;
-    const { current, running, isEditing } = this.state;
+    const { game, side, color, currentTurn, isGameOn, isMyTurn } = this.props;
+    const { current, isEditing } = this.state;
     if (!game) {
       return null;
     }
@@ -251,7 +245,7 @@ export default class PlayerClock extends Component {
       color,
       currentTurn,
       current,
-      running,
+      isMyTurn,
       side,
       isGameOn,
     });
