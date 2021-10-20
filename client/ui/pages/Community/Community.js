@@ -24,7 +24,6 @@ class Community extends Component {
     super(props);
     this.state = {
       activeRoom: null,
-      inputValue: "",
       messageList: [],
       isRightMenu: false,
       isModal: false,
@@ -83,12 +82,8 @@ class Community extends Component {
     this.setState({ activeRoom: roomId });
   };
 
-  handleChange = (inputValue) => {
-    this.setState({ inputValue });
-  };
-
-  handleMessage = (roomId) => {
-    const { inputValue, messageList } = this.state;
+  handleMessage = (roomId, inputValue) => {
+    const { messageList } = this.state;
     const newMessage = { text: inputValue, name: "you" };
 
     this.setState({
@@ -107,7 +102,7 @@ class Community extends Component {
 
   renderMessenger = () => {
     const { allRooms: roomList } = this.props;
-    const { activeRoom, inputValue } = this.state;
+    const { activeRoom } = this.state;
 
     if (!roomList.length || !activeRoom) {
       return;
@@ -118,7 +113,6 @@ class Community extends Component {
     return (
       <MessengerWithData
         roomData={roomData}
-        inputValue={inputValue}
         onChange={this.handleChange}
         onMessage={this.handleMessage}
       />
