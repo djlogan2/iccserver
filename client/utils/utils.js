@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { colorBlackUpper, colorWhiteLetter, colorWhiteUpper } from "../constants/gameConstants";
 
 export const updateLocale = (locale) => {
   const localeArray = locale.split("-");
@@ -98,4 +99,8 @@ export const getLang = () =>
 
 export const areArraysOfObectsEqual = (firstArray, secondArray) => {
   return _(firstArray).differenceWith(secondArray, _.isEqual).isEmpty();
+};
+
+export const getColorByLetter = (letter) => {
+  return letter === colorWhiteLetter ? colorWhiteUpper : colorBlackUpper;
 };

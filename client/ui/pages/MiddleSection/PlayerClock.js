@@ -1,37 +1,18 @@
-import React, { Component } from "react";
-import { getMilliseconds } from "../../../../lib/client/timestamp";
-import {
-  colorBlackUpper,
-  colorWhiteLetter,
-  colorWhiteUpper,
-  gameStatusPlaying,
-} from "../../../constants/gameConstants";
-import { Logger } from "../../../../lib/client/Logger";
 import { TimePicker } from "antd";
-import moment from "moment";
 import { noop } from "lodash";
+import moment from "moment";
+import React, { Component } from "react";
+import { gameStatusPlaying } from "../../../constants/gameConstants";
 
-const log = new Logger("client/Player_js");
+const DEFAULT_TIME_FORMAT = "HH:mm:ss";
 
 export default class PlayerClock extends Component {
-  constructor(props) {
-    super(props);
-
-    this.interval = null;
-    const now = getMilliseconds();
-
-    const { game, color } = props;
-
-    const start = game && game.clocks ? game.clocks[color].starttime || now : 0;
-    const current = game && game.clocks ? game.clocks[color].current - now + start : 0;
-
-    this.state = {
-      current,
-      running: false,
-      game_current: current,
-      isEditing: false,
-    };
-  }
+  state = {
+    current: 0,
+    running: false,
+    game_current: 0,
+    isEditing: false,
+  };
 
   static timeAfterMove(variations, tomove, cmi) {
     //
@@ -110,10 +91,7 @@ export default class PlayerClock extends Component {
   }
 
   componentWillUnmount() {
-    if (this.interval) {
-      Meteor.clearInterval(this.interval);
-      this.interval = null;
-    }
+    Meteor.clearInterval(this.interval);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -126,9 +104,8 @@ export default class PlayerClock extends Component {
 
   componentDidUpdate() {
     const { game, color } = this.props;
-    const { running } = this.state;
 
-    if (!running || this.interval) {
+    if (!this.state.running || this.interval) {
       return;
     }
 
@@ -139,12 +116,22 @@ export default class PlayerClock extends Component {
 
     const delay = iod - secondsPassed;
 
+    const params = {
+      game,
+      color,
+    };
+
+    if (["us", "bronstein"].includes(type)) {
+      params.iod = iod;
+    }
+
     if ((type === "us" || type === "bronstein") && delay > 0) {
-      Meteor.setTimeout(() => {
-        this.setTimer({ game, color, iod });
+      this.interval = Meteor.setInterval(() => {
+        Meteor.clearInterval(this.interval);
+        this.setTimer(params);
       }, delay * 1000);
     } else {
-      this.setTimer({ game, color });
+      this.setTimer(params);
     }
   }
 
@@ -166,46 +153,24 @@ export default class PlayerClock extends Component {
     const today = moment().startOf("day").valueOf();
 
     const current = timePicked - today;
-    this.handleUpdate(current);
-    this.setState({
-      current,
+    const { tagColor, handleUpdate } = this.props;
+
+    const data = {
+      [`${tagColor}Time`]: `${current}`,
+      [`${tagColor}Initial`]: `${current / 60 / 1000}`,
+    };
+
+    handleUpdate(data, () => {
+      this.setState({
+        current,
+      });
     });
   };
 
-  onEditOpen = () => {
+  onEditToggle = () => {
     this.setState((state) => ({
-      isEditing: true,
+      isEditing: !state.isEditing,
     }));
-  };
-
-  onEditClose = () => {
-    this.setState((state) => ({
-      isEditing: false,
-    }));
-  };
-
-  getColorByLetter = (letter) => {
-    return letter === colorWhiteLetter ? colorWhiteUpper : colorBlackUpper;
-  };
-
-  handleUpdate = (current) => {
-    const { game, color } = this.props;
-
-    if (game?._id) {
-      const tagColor = this.getColorByLetter(color[0]);
-      const data = {
-        [`${tagColor}Time`]: `${current}`,
-        [`${tagColor}Initial`]: `${current / 60 / 1000}`,
-      };
-
-      Meteor.call("setTags", "set_tag", game._id, data, (err) => {
-        if (err) {
-          log.error(err);
-        } else {
-          this.onEditClose();
-        }
-      });
-    }
   };
 
   calculateTimeLeftAndStyles = ({ current, running, side, currentTurn, color, isGameOn }) => {
@@ -248,14 +213,12 @@ export default class PlayerClock extends Component {
 
     let cv = side / 10;
     let clockstyle = {
-      right: "0",
       paddingTop: cv / 15,
       paddingBottom: cv / 5,
       textAlign: "center",
       borderRadius: "3px",
       fontSize: cv / 3,
       color: "#fff",
-      top: "5px",
       height: cv / 1.7,
       paddingLeft: "5px",
       paddingRight: "5px",
@@ -266,7 +229,6 @@ export default class PlayerClock extends Component {
         : "#333333",
       fontWeight: "700",
       transition: this.lowTime && "0.3s",
-      position: "absolute",
       boxShadow: this.lowTime && `0px 0px 5px 5px ${this.lowTime.color}`,
       cursor: isGameOn ? "" : "pointer",
     };
@@ -298,17 +260,12 @@ export default class PlayerClock extends Component {
 
     const defaultValue = moment(roundedCurrent > 0 ? roundedCurrent : 0)
       .add(moment().startOf("day").valueOf())
-      .format("HH:mm:ss");
+      .format(DEFAULT_TIME_FORMAT);
 
     return (
-      <div
-        style={{
-          position: "relative",
-          marginTop: "8px",
-        }}
-      >
+      <>
         {!isEditing ? (
-          <div style={clockstyle} onClick={!isGameOn ? this.onEditOpen : noop}>
+          <div style={clockstyle} onClick={!isGameOn ? this.onEditToggle : noop}>
             {neg}
             {defaultValue}
             {ms}
@@ -316,16 +273,16 @@ export default class PlayerClock extends Component {
         ) : (
           <TimePicker
             onChange={this.handleChange}
-            defaultValue={moment(defaultValue, "HH:mm:ss")}
+            defaultValue={moment(defaultValue, DEFAULT_TIME_FORMAT)}
             showNow={false}
             onOpenChange={(isOpen) => {
               if (!isOpen) {
-                this.onEditClose();
+                this.onEditToggle();
               }
             }}
           />
         )}
-      </div>
+      </>
     );
   }
 }
