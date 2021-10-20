@@ -7,11 +7,19 @@ import { gameStatusPlaying } from "../../../constants/gameConstants";
 const DEFAULT_TIME_FORMAT = "HH:mm:ss";
 
 export default class PlayerClock extends Component {
-  state = {
-    current: 0,
-    game_current: 0,
-    isEditing: false,
-  };
+  constructor(props) {
+    super(props);
+
+    const { game, color } = this.props;
+
+    let current = game.clocks[color].current;
+
+    this.state = {
+      current,
+      game_current: 0,
+      isEditing: false,
+    };
+  }
 
   static timeAfterMove(variations, tomove, cmi) {
     //
@@ -119,7 +127,7 @@ export default class PlayerClock extends Component {
       params.iod = iod;
     }
 
-    if ((type === "us" || type === "bronstein") && delay > 0) {
+    if (type === "us" && delay > 0) {
       this.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
         this.setTimer(params);
@@ -140,6 +148,15 @@ export default class PlayerClock extends Component {
 
       this.setState({ current });
     }, 50);
+  };
+
+  calculateCurrent = () => {
+    const { game, color } = this.props;
+
+    const MilliSecondsPassed = Date.now() - game.clocks[color].starttime;
+    let current = game.clocks[color].current - MilliSecondsPassed;
+
+    return current || 0;
   };
 
   handleChange = (time) => {
