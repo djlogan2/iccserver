@@ -12,6 +12,15 @@ export const english = {
         challangerWantsToPlay: "{$challenger} would like to play with you",
       },
     },
+    move_list: {
+      white_time_control: "White time control: {$initial}/{$inc_or_delay} {$delay_type}; ",
+      black_time_control: "Black time control: {$initial}/{$inc_or_delay} {$delay_type}; ",
+      time_control: "Time control: {$initial}/{$inc_or_delay} {$delay_type}; ",
+      game_type: "Game type: {$game_type}; ",
+      rated: "Rated; ",
+      unrated: "Unrated; ",
+      ecocodes_names: "Eco codes & names: ",
+    },
     NotFound: {
       notFound: "404 Page not found",
       mainPage: "Main page",
