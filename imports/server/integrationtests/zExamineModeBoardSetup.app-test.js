@@ -449,7 +449,7 @@ describe("Setting PGN tags", function() {
     chai.assert.equal(1234, game.black.rating);
     checkLastAction(game, 0, "settag", self.loggedonuser._id, { tag: "BlackElo", value: "1234" });
   });
-  it.only("should set 'BlackTime' correctly", function() {
+  it("should set 'BlackTime' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.setTags("mi2", game_id, {"BlackTime": "1234"});
@@ -458,7 +458,7 @@ describe("Setting PGN tags", function() {
     chai.assert.equal(1234, game.clocks.black.current);
     checkLastAction(game, 0, "settag", self.loggedonuser._id, { tag: "BlackTime", value: "1234" });
   });
-  it.only("should set 'WhiteTime' correctly", function() {
+  it("should set 'WhiteTime' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "white", 0);
     Game.setTags("mi2", game_id, {"WhiteTime": "1234"});
@@ -467,7 +467,7 @@ describe("Setting PGN tags", function() {
     chai.assert.equal(1234, game.clocks.white.current);
     checkLastAction(game, 0, "settag", self.loggedonuser._id, { tag: "WhiteTime", value: "1234" });
   });
-  it.only("should set 'BlackInitial' correctly", function() {
+  it("should set 'BlackInitial' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.setTags("mi2", game_id, {"BlackInitial": "1234"});
@@ -476,7 +476,7 @@ describe("Setting PGN tags", function() {
     chai.assert.equal(1234, game.clocks.black.initial);
     checkLastAction(game, 0, "settag", self.loggedonuser._id, { tag: "BlackInitial", value: "1234" });
   });
-  it.only("should set 'WhiteInitial' correctly", function() {
+  it("should set 'WhiteInitial' correctly", function() {
     self.loggedonuser = TestHelpers.createUser();
     const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
     Game.setTags("mi2", game_id, {"WhiteInitial": "1234"});
