@@ -271,12 +271,14 @@ class Editor extends Component {
   };
 
   handlePieceAdd = (piece, square) => {
-    const { examineGame } = this.props;
+    const { examineGame, playSound } = this.props;
 
     const isAdded = this.chess.put({ type: piece[1].toLowerCase(), color: piece[0] }, square);
 
     if (isAdded) {
       Meteor.call("loadFen", "loadFen", examineGame._id, this.chess.fen(), (err) => {
+        playSound("piece_added");
+
         if (err) {
           log.error(err.reason);
         }
@@ -287,10 +289,11 @@ class Editor extends Component {
   };
 
   handlePieceDelete = (square) => {
-    const { examineGame } = this.props;
+    const { examineGame, playSound } = this.props;
 
     this.chess.remove(square);
     Meteor.call("loadFen", "loadFen", examineGame._id, this.chess.fen(), (err) => {
+      playSound("remove_piece");
       if (err) {
         log.error(err.reason);
       }
