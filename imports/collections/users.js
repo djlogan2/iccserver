@@ -116,6 +116,7 @@ Accounts.onCreateUser(function (options, user) {
   user.settings = default_settings;
   user.settings.match_default = SystemConfiguration.matchDefault();
   user.settings.seek_default = SystemConfiguration.seekDefault();
+  user.settings.computer_default = SystemConfiguration.computerDefault();
   user.settings.default_timer_blinking = SystemConfiguration.defaultTimerBlinking();
   user.locale = "unknown";
   user.newguy = true;
