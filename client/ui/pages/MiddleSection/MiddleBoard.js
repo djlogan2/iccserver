@@ -17,6 +17,11 @@ import {
   gameStatusPlaying,
 } from "../../../constants/gameConstants";
 import Analytics from "../components/Analytics/Analytics";
+import { Logger } from "../../../../lib/client/Logger";
+import { getColorByLetter } from "../../../utils/utils";
+import { noop } from "lodash";
+
+const log = new Logger("client/Player_js");
 
 class MiddleBoard extends Component {
   constructor(props) {
@@ -111,6 +116,20 @@ class MiddleBoard extends Component {
     };
   };
 
+  handleUpdate = (data, callback = noop) => {
+    const { game } = this.props;
+
+    if (game?._id) {
+      Meteor.call("setTags", "set_tag", game._id, data, (err) => {
+        if (err) {
+          log.error(err);
+        } else {
+          callback();
+        }
+      });
+    }
+  };
+
   render() {
     const {
       translate,
@@ -198,9 +217,12 @@ class MiddleBoard extends Component {
             <PlayerClock
               game={game}
               color={topPlayerTime}
+              tagColor={getColorByLetter(topPlayerTime[0])}
               currentTurn={currentTurn}
               side={boardSize}
               isGameOn={game.status === gameStatusPlaying}
+              isMyTurn={game.status === gameStatusPlaying && game.tomove === topPlayerTime}
+              handleUpdate={this.handleUpdate}
             />
           </div>
         )}
@@ -255,9 +277,12 @@ class MiddleBoard extends Component {
             <PlayerClock
               game={game}
               color={bottomPlayerTime}
+              tagColor={getColorByLetter(bottomPlayerTime[0])}
               currentTurn={currentTurn}
               side={boardSize}
               isGameOn={game.status === gameStatusPlaying}
+              isMyTurn={game.status === gameStatusPlaying && game.tomove === bottomPlayerTime}
+              handleUpdate={this.handleUpdate}
             />
           </div>
         )}

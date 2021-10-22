@@ -1,39 +1,24 @@
-import React, { Component } from "react";
-import { getMilliseconds } from "../../../../lib/client/timestamp";
-import {
-  colorBlackUpper,
-  colorWhiteLetter,
-  colorWhiteUpper,
-  gameStatusPlaying
-} from "../../../constants/gameConstants";
-import { Logger } from "../../../../lib/client/Logger";
 import { TimePicker } from "antd";
-import moment from "moment";
 import { noop } from "lodash";
+import moment from "moment";
+import React, { Component } from "react";
+import { gameStatusPlaying } from "../../../constants/gameConstants";
 
-const log = new Logger("client/Player_js");
+const DEFAULT_TIME_FORMAT = "HH:mm:ss";
 
 export default class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
-    this.interval = null;
-    const now = getMilliseconds();
+    const { game, color } = this.props;
 
-    const { game, color } = props;
-
-    const start = game && game.clocks ? game.clocks[color].starttime || now : 0;
-    const current = game && game.clocks ? game.clocks[color].current - now + start : 0;
+    let current = game.clocks[color].current;
 
     this.state = {
       current,
-      mark: now,
-      running: false,
-      game_current: current,
+      game_current: 0,
       isEditing: false,
     };
-
-    this.componentDidUpdate();
   }
 
   static timeAfterMove(variations, tomove, cmi) {
@@ -85,13 +70,10 @@ export default class PlayerClock extends Component {
     const { game, color } = props;
 
     if (!game) return {};
-    const running = game.status === gameStatusPlaying && game.tomove === color;
-    const now = running ? getMilliseconds() : 0;
     let pcurrent;
 
     if (game.status === gameStatusPlaying) {
-      const start = running ? game.clocks[color].starttime : 0;
-      pcurrent = game.clocks[color].current - now + start;
+      pcurrent = state.current;
     } else {
       pcurrent = PlayerClock.timeAfterMove(game.variations, game.tomove === color);
     }
@@ -101,31 +83,21 @@ export default class PlayerClock extends Component {
     if (!pcurrent) pcurrent = 0;
 
     const returnstate = {};
-    const mark = now;
 
     if (pcurrent !== state.game_current) {
       returnstate.current = pcurrent;
       returnstate.game_current = pcurrent;
-      returnstate.mark = mark;
-    }
-
-    if (running !== state.running) {
-      returnstate.running = running;
-      returnstate.mark = mark;
     }
 
     return returnstate;
   }
 
   componentWillUnmount() {
-    if (this.interval) {
-      Meteor.clearInterval(this.interval);
-      this.interval = null;
-    }
+    Meteor.clearInterval(this.interval);
   }
 
   shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (this.interval && !nextState.running) {
+    if (this.interval && !nextProps.isMyTurn) {
       Meteor.clearInterval(this.interval);
       this.interval = null;
     }
@@ -133,86 +105,86 @@ export default class PlayerClock extends Component {
   }
 
   componentDidUpdate() {
-    const { game, color } = this.props;
-    const { running } = this.state;
+    const { game, color, isMyTurn } = this.props;
 
-    if (!running || this.interval) {
+    if (!isMyTurn || this.interval) {
       return;
     }
 
     const iod = game.clocks[color].inc_or_delay;
     const type = game.clocks[color].delaytype;
 
-    if (type === "us" || type === "bronstein") {
+    const secondsPassed = (Date.now() - game.clocks[color].starttime) / 1000;
+
+    const delay = iod - secondsPassed;
+
+    const params = {
+      game,
+      color,
+    };
+
+    if (["us", "bronstein"].includes(type)) {
+      params.iod = iod;
+    }
+
+    if (type === "us" && delay > 0) {
       this.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
-
-        this.setState({ mark: getMilliseconds() });
-        this.interval = Meteor.setInterval(() => {
-          const mark = getMilliseconds();
-          const sub = mark - this.state.mark;
-          const current = this.state.current - sub;
-          this.setState({ current, mark });
-        }, 50);
-      }, iod * 1000);
+        this.setTimer(params);
+      }, delay * 1000);
     } else {
-      this.interval = Meteor.setInterval(() => {
-        const mark = getMilliseconds();
-        const sub = mark - this.state.mark;
-        const current = this.state.current - sub;
-        this.setState({ current, mark });
-      }, 50);
+      this.setTimer(params);
     }
   }
+
+  setTimer = ({ game, color, iod }) => {
+    this.interval = Meteor.setInterval(() => {
+      const MilliSecondsPassed = Date.now() - game.clocks[color].starttime;
+      let current = game.clocks[color].current - MilliSecondsPassed;
+
+      if (iod) {
+        current += iod * 1000;
+      }
+
+      this.setState({ current });
+    }, 50);
+  };
+
+  calculateCurrent = () => {
+    const { game, color } = this.props;
+
+    const MilliSecondsPassed = Date.now() - game.clocks[color].starttime;
+    let current = game.clocks[color].current - MilliSecondsPassed;
+
+    return current || 0;
+  };
 
   handleChange = (time) => {
     const timePicked = moment(time).valueOf();
     const today = moment().startOf("day").valueOf();
 
     const current = timePicked - today;
-    this.handleUpdate(current);
-    this.setState({
-      current,
+    const { tagColor, handleUpdate } = this.props;
+
+    const data = {
+      [`${tagColor}Time`]: `${current}`,
+      [`${tagColor}Initial`]: `${current / 60 / 1000}`,
+    };
+
+    handleUpdate(data, () => {
+      this.setState({
+        current,
+      });
     });
   };
 
-  onEditOpen = () => {
+  onEditToggle = () => {
     this.setState((state) => ({
-      isEditing: true,
+      isEditing: !state.isEditing,
     }));
   };
 
-  onEditClose = () => {
-    this.setState((state) => ({
-      isEditing: false,
-    }));
-  };
-
-  getColorByLetter = (letter) => {
-    return letter === colorWhiteLetter ? colorWhiteUpper : colorBlackUpper;
-  };
-
-  handleUpdate = (current) => {
-    const { game, color } = this.props;
-
-    if (game?._id) {
-      const tagColor = this.getColorByLetter(color[0]);
-      const data = {
-        [`${tagColor}Time`]: `${current}`,
-        [`${tagColor}Initial`]: `${current / 60 / 1000}`,
-      };
-
-      Meteor.call("setTags", "set_tag", game._id, data, (err) => {
-        if (err) {
-          log.error(err);
-        } else {
-          this.onEditClose();
-        }
-      });
-    }
-  };
-
-  calculateTimeLeftAndStyles = ({ current, running, side, currentTurn, color, isGameOn }) => {
+  calculateTimeLeftAndStyles = ({ current, isMyTurn, side, currentTurn, color, isGameOn }) => {
     let hour;
     let minute;
     let second;
@@ -237,32 +209,27 @@ export default class PlayerClock extends Component {
     if (neg === "-" || !!hour || !!minute || second >= timerBlinkingSecs) {
       ms = "";
     } else {
-      if (running && this.lowTime && Date.now() - this.lowTime.date > 500) {
+      if (isMyTurn && this.lowTime && Date.now() - this.lowTime.date > 500) {
         this.lowTime = {
           color: this.lowTime.color === "#ff0000" ? "#810000" : "#ff0000",
           date: Date.now(),
         };
-      } else if (running && !this.lowTime) {
+      } else if (isMyTurn && !this.lowTime) {
         this.lowTime = { color: "#ff0000", date: Date.now() };
       }
       ms = "." + ms.toString().substr(0, 1);
     }
 
-    if (!running) this.lowTime = null;
-
-    if (second < 10) second = `0${second}`;
-    if (minute < 10) minute = `0${minute}`;
+    if (!isMyTurn) this.lowTime = null;
 
     let cv = side / 10;
     let clockstyle = {
-      right: "0",
       paddingTop: cv / 15,
       paddingBottom: cv / 5,
       textAlign: "center",
       borderRadius: "3px",
       fontSize: cv / 3,
       color: "#fff",
-      top: "5px",
       height: cv / 1.7,
       paddingLeft: "5px",
       paddingRight: "5px",
@@ -273,7 +240,6 @@ export default class PlayerClock extends Component {
         : "#333333",
       fontWeight: "700",
       transition: this.lowTime && "0.3s",
-      position: "absolute",
       boxShadow: this.lowTime && `0px 0px 5px 5px ${this.lowTime.color}`,
       cursor: isGameOn ? "" : "pointer",
     };
@@ -281,58 +247,53 @@ export default class PlayerClock extends Component {
     return {
       clockstyle,
       neg,
-      hour,
-      minute,
-      second,
       ms,
     };
   };
 
   render() {
-    const { game, side, color, currentTurn, isGameOn } = this.props;
-    const { current, running, isEditing } = this.state;
+    const { game, side, color, currentTurn, isGameOn, isMyTurn } = this.props;
+    const { current, isEditing } = this.state;
     if (!game) {
       return null;
     }
 
-    const { clockstyle, neg, hour, minute, second, ms } = this.calculateTimeLeftAndStyles({
+    const { clockstyle, neg, ms } = this.calculateTimeLeftAndStyles({
       color,
       currentTurn,
       current,
-      running,
+      isMyTurn,
       side,
       isGameOn,
     });
 
-    const defaultValue = moment(current).add(moment().startOf("day").valueOf()).format("HH:mm:ss");
+    const roundedCurrent = Math.floor(current / 1000) * 1000;
+
+    const defaultValue = moment(roundedCurrent > 0 ? roundedCurrent : 0)
+      .add(moment().startOf("day").valueOf())
+      .format(DEFAULT_TIME_FORMAT);
 
     return (
-      <div
-        style={{
-          display: "inline-block",
-          position: "relative",
-          marginTop: "8px",
-        }}
-      >
+      <>
         {!isEditing ? (
-          <div style={clockstyle} onClick={!isGameOn ? this.onEditOpen : noop}>
+          <div style={clockstyle} onClick={!isGameOn ? this.onEditToggle : noop}>
             {neg}
-            {hour}:{minute}:{second}
+            {defaultValue}
             {ms}
           </div>
         ) : (
           <TimePicker
             onChange={this.handleChange}
-            defaultValue={moment(defaultValue, "HH:mm:ss")}
+            defaultValue={moment(defaultValue, DEFAULT_TIME_FORMAT)}
             showNow={false}
             onOpenChange={(isOpen) => {
               if (!isOpen) {
-                this.onEditClose();
+                this.onEditToggle();
               }
             }}
           />
         )}
-      </div>
+      </>
     );
   }
 }
