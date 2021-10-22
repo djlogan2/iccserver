@@ -12,7 +12,7 @@ export default class PlayerClock extends Component {
 
     const { game, color } = this.props;
 
-    let current = game.clocks[color].current;
+    const current = game?.clocks?.[color]?.current;
 
     this.state = {
       current,
@@ -78,7 +78,7 @@ export default class PlayerClock extends Component {
       pcurrent = PlayerClock.timeAfterMove(game.variations, game.tomove === color);
     }
 
-    if (!pcurrent && !!game.clocks) pcurrent = game.clocks[color].initial * 60 * 1000;
+    if (!pcurrent && !!game.clocks) pcurrent = game?.clocks?.[color]?.initial * 60 * 1000;
 
     if (!pcurrent) pcurrent = 0;
 

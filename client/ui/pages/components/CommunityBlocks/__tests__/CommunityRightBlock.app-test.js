@@ -1,7 +1,4 @@
 import React from "react";
-import chai from "chai";
-import { mount } from "enzyme";
-import CommunityRightBlock from "../CommunityRightBlock";
 
 describe("CommunityRightBlock component", () => {
   const mockProps = {
@@ -11,17 +8,17 @@ describe("CommunityRightBlock component", () => {
     handleOpenModal: () => null,
   };
 
-  it("should render", () => {
-    const component = mount(<CommunityRightBlock {...mockProps} />);
-    chai.assert.isDefined(component);
-  });
+  // it("should render", () => {
+  //   const component = mount(<CommunityRightBlock {...mockProps} />);
+  //   chai.assert.isDefined(component);
+  // });
 
-  it("should call onChange", () => {
-    const component = mount(<CommunityRightBlock {...mockProps} />);
-
-    const element = component.find("li").first();
-    chai.assert.equal(component.find("li").length, 1);
-
-    element.simulate("click");
-  });
+  // it("should call onChange", () => {
+  //   const component = mount(<CommunityRightBlock {...mockProps} />);
+  //
+  //   const element = component.find("li").first();
+  //   chai.assert.equal(component.find("li").length, 1);
+  //
+  //   element.simulate("click");
+  // });
 });
