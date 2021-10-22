@@ -192,7 +192,7 @@ class MiddleBoard extends Component {
 
     const isPlayingOrExamining =
       !!game?.status && (game.status === gameStatusPlaying || game.status === gameStatusExamining);
-    const currentTurn = this.chess?.turn();
+    const timerBlinkingSecs = Meteor.user()?.settings?.default_timer_blinking || 10;
 
     return (
       <div style={{ width: boardSize }}>
@@ -201,7 +201,7 @@ class MiddleBoard extends Component {
             style={{
               display: "flex",
               justifyContent: "space-between",
-              height: `${boardSize * 0.1}px`,
+              alignItems: "center",
             }}
           >
             <Player
@@ -218,10 +218,10 @@ class MiddleBoard extends Component {
               game={game}
               color={topPlayerTime}
               tagColor={getColorByLetter(topPlayerTime[0])}
-              currentTurn={currentTurn}
+              timerBlinkingSecs={timerBlinkingSecs}
               side={boardSize}
               isGameOn={game.status === gameStatusPlaying}
-              isMyTurn={game.status === gameStatusPlaying && game.tomove === topPlayerTime}
+              isMyTurn={game.tomove === topPlayerTime}
               handleUpdate={this.handleUpdate}
             />
           </div>
@@ -263,7 +263,7 @@ class MiddleBoard extends Component {
         )}
 
         {isPlayingOrExamining && (
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Player
               gameId={game?._id}
               playerData={bottomPlayer}
@@ -278,10 +278,10 @@ class MiddleBoard extends Component {
               game={game}
               color={bottomPlayerTime}
               tagColor={getColorByLetter(bottomPlayerTime[0])}
-              currentTurn={currentTurn}
+              timerBlinkingSecs={timerBlinkingSecs}
               side={boardSize}
               isGameOn={game.status === gameStatusPlaying}
-              isMyTurn={game.status === gameStatusPlaying && game.tomove === bottomPlayerTime}
+              isMyTurn={game.tomove === bottomPlayerTime}
               handleUpdate={this.handleUpdate}
             />
           </div>
