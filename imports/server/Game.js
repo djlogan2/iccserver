@@ -336,7 +336,7 @@ export class Game {
         { _id: Meteor.userId() },
         {
           $set: {
-            "settings.match_default": {
+            "settings.computer_default": {
               wild_number: wild_number,
               rating_type: rating_type,
               rated: false,
