@@ -41,6 +41,7 @@
     "test-app-watch": "TEST_BROWSER_DRIVER=chrome meteor test --full-app --driver-package meteortesting:mocha",
     "test-watch-browser": "meteor test --driver-package meteortesting:mocha",
     "test-app-watch-browser": "meteor test --full-app --driver-package meteortesting:mocha",
+    "test-client": "TEST_SERVER=0 TEST_BROWSER_DRIVER=puppeteer meteor test --driver-package meteortesting:mocha --full-app",
     "lint": "eslint --fix ./imports"
   },
   "dependencies": {

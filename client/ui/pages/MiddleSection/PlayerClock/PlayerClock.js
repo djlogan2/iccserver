@@ -2,7 +2,7 @@ import { TimePicker } from "antd";
 import { noop } from "lodash";
 import moment from "moment";
 import React, { Component } from "react";
-import { gameStatusPlaying } from "../../../constants/gameConstants";
+import { gameStatusPlaying } from "../../../../constants/gameConstants";
 
 const DEFAULT_TIME_FORMAT = "HH:mm:ss";
 
@@ -11,6 +11,8 @@ export default class PlayerClock extends Component {
     super(props);
 
     const { game, color } = this.props;
+
+    console.log(game);
 
     let current = game.clocks[color].current;
 

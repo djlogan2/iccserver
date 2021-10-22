@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import Player from "./Player";
-import PlayerClock from "./PlayerClock";
+import PlayerClock from "./PlayerClock/PlayerClock";
 import { Meteor } from "meteor/meteor";
 import Chess from "chess.js/chess";
 
