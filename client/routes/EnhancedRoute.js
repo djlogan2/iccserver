@@ -14,8 +14,6 @@ const EnhancedRoute = ({ availableRoles, roles, path, component, ...rest }) => {
     roles.forEach((role) => {
       if (availableRoles.includes(role)) suitableRoles.push(role);
     });
-  } else {
-    suitableRoles.push(roles);
   }
 
   if (suitableRoles.length) {
