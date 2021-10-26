@@ -11,9 +11,12 @@ export default class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
-    const { game, color } = this.props;
+    const { game, color, isGameOn } = this.props;
 
-    let current = game.clocks[color].current;
+    let current = game.clocks[color].initial * 60 * 1000;
+    if (isGameOn) {
+      current = game.clocks[color].current;
+    }
 
     this.state = {
       current,
@@ -69,21 +72,14 @@ export default class PlayerClock extends Component {
   static getDerivedStateFromProps(props, state) {
     const { game, color, isGameOn } = props;
 
-    if (!game) return {};
     let pcurrent;
 
-    if (isGameOn) {
-      pcurrent = state.current;
-    } else {
+    if (!isGameOn) {
       pcurrent = PlayerClock.timeAfterMove(game.variations, game.tomove === color);
     }
 
-    if (!pcurrent && !!game.clocks) pcurrent = game.clocks[color].initial * 60 * TIME_SECOND;
-
-    if (!pcurrent) pcurrent = 0;
-
     const returnstate = {
-      current: pcurrent,
+      current: pcurrent || state.current,
     };
 
     return returnstate;
@@ -93,16 +89,13 @@ export default class PlayerClock extends Component {
     Meteor.clearInterval(this.interval);
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (this.interval && !nextProps.isMyTurn) {
+  componentDidUpdate() {
+    const { game, color, isMyTurn, isGameOn } = this.props;
+
+    if ((this.interval && !isMyTurn) || !isGameOn) {
       Meteor.clearInterval(this.interval);
       this.interval = null;
     }
-    return true;
-  }
-
-  componentDidUpdate() {
-    const { game, color, isMyTurn, isGameOn } = this.props;
 
     if (!isMyTurn || this.interval || !isGameOn) {
       return;
@@ -162,6 +155,7 @@ export default class PlayerClock extends Component {
     handleUpdate(data, () => {
       this.setState({
         current,
+        isEditing: false,
       });
     });
   };
@@ -175,9 +169,9 @@ export default class PlayerClock extends Component {
   calculateTimeLeftAndStyles = ({ isMyTurn, side, isGameOn, isRunningOutOfTime }) => {
     const showWarningColor = isMyTurn && isRunningOutOfTime;
 
-    if (showWarningColor && Date.now() - this.lowTime.date > 500) {
+    if (showWarningColor && Date.now() - this.lowTime?.date > 500) {
       this.lowTime = {
-        color: this.lowTime.color === "#ff0000" ? "#810000" : "#ff0000",
+        color: this.lowTime?.color === "#ff0000" ? "#810000" : "#ff0000",
         date: Date.now(),
       };
     } else if (!showWarningColor) {
@@ -193,10 +187,10 @@ export default class PlayerClock extends Component {
       color: "#fff",
       paddingLeft: "5px",
       paddingRight: "5px",
-      background: showWarningColor ? this.lowTime.color : isMyTurn ? "#1890ff" : "#333333",
+      background: showWarningColor ? this.lowTime?.color : isMyTurn ? "#1890ff" : "#333333",
       fontWeight: "700",
       transition: showWarningColor && "0.3s",
-      boxShadow: showWarningColor && `0px 0px 5px 5px ${this.lowTime.color}`,
+      boxShadow: showWarningColor && `0px 0px 5px 5px ${this.lowTime?.color}`,
       cursor: isGameOn ? "" : "pointer",
     };
 
@@ -231,14 +225,16 @@ export default class PlayerClock extends Component {
     return (
       <>
         {!isEditing ? (
-          <div style={clockstyle} onClick={!isGameOn ? this.onEditToggle : noop}>
+          <div style={clockstyle} onClick={!isGameOn ? this.onEditToggle : noop} aria-label="clock">
             {negative}
             {defaultValue}
           </div>
         ) : (
           <TimePicker
+            aria-label="clock-edit"
+            aria-placeholder="Select time"
             onChange={this.handleChange}
-            defaultValue={moment(defaultValue, DEFAULT_TIME_FORMAT)}
+            value={moment(defaultValue, DEFAULT_TIME_FORMAT)}
             showNow={false}
             onOpenChange={(isOpen) => {
               if (!isOpen) {

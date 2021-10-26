@@ -195,98 +195,103 @@ class MiddleBoard extends Component {
     const timerBlinkingSecs = Meteor.user()?.settings?.default_timer_blinking || 10;
 
     return (
-      <div style={{ width: boardSize }}>
-        {isPlayingOrExamining && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Player
-              gameId={game?._id}
-              playerData={topPlayer}
-              cssManager={cssManager}
-              side={boardSize}
-              color={tc}
-              turnColor={color}
-              FallenSoldiers={topFallenSoliders}
-              message={topPlayermsg}
-            />
-            <PlayerClock
-              game={game}
-              color={topPlayerTime}
-              tagColor={getColorByLetter(topPlayerTime[0])}
-              timerBlinkingSecs={timerBlinkingSecs}
-              side={boardSize}
-              isGameOn={game.status === gameStatusPlaying}
-              isMyTurn={game.tomove === topPlayerTime}
-              handleUpdate={this.handleUpdate}
-            />
-          </div>
-        )}
+      <>
         {game && (
-          <div style={{ width: "100%", height: boardSize }}>
-            <NewChessBoard
-              gameId={game._id}
-              currentCmi={game?.variations?.cmi}
-              chess={this.chess}
-              height={boardSize}
-              width={boardSize}
-              arrows={game.arrows || []}
-              circles={game.circles || []}
-              orientation={top === colorWhiteLetter ? colorBlack : colorWhite}
-              onDrop={onDrop}
-              onDrawObject={onDrawObject}
-              gameStatus={game.status}
-              premove={game.premove}
-              blackId={game?.black?.id}
-              whiteId={game?.white?.id}
-              variations={game.variations}
-              isHistoryTurn={isHistoryTurn}
-              moveForwardEnd={moveForwardEnd}
-            />
-            <div
-              style={{
-                position: "relative",
-                top: -boardSize / 2,
-                left: boardSize / 2 + 20,
-                pointerEvents: "none",
-              }}
-            >
-              {game && game.status === gameStatusExamining && (
-                <Analytics orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
-              )}
-            </div>
-          </div>
-        )}
+          <div style={{ width: boardSize }}>
+            {isPlayingOrExamining && (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Player
+                  gameId={game?._id}
+                  playerData={topPlayer}
+                  cssManager={cssManager}
+                  side={boardSize}
+                  color={tc}
+                  turnColor={color}
+                  FallenSoldiers={topFallenSoliders}
+                  message={topPlayermsg}
+                />
+                <PlayerClock
+                  game={game}
+                  color={topPlayerTime}
+                  tagColor={getColorByLetter(topPlayerTime[0])}
+                  timerBlinkingSecs={timerBlinkingSecs}
+                  side={boardSize}
+                  isGameOn={game.status === gameStatusPlaying}
+                  isMyTurn={game.tomove === topPlayerTime}
+                  handleUpdate={this.handleUpdate}
+                />
+              </div>
+            )}
 
-        {isPlayingOrExamining && (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Player
-              gameId={game?._id}
-              playerData={bottomPlayer}
-              cssManager={cssManager}
-              side={boardSize}
-              color={bc}
-              turnColor={color}
-              FallenSoldiers={bottomFallenSoliders}
-              Playermsg={botPlayermsg}
-            />
-            <PlayerClock
-              game={game}
-              color={bottomPlayerTime}
-              tagColor={getColorByLetter(bottomPlayerTime[0])}
-              timerBlinkingSecs={timerBlinkingSecs}
-              side={boardSize}
-              isGameOn={game.status === gameStatusPlaying}
-              isMyTurn={game.tomove === bottomPlayerTime}
-              handleUpdate={this.handleUpdate}
-            />
+            <div style={{ width: "100%", height: boardSize }}>
+              <NewChessBoard
+                gameId={game._id}
+                currentCmi={game?.variations?.cmi}
+                chess={this.chess}
+                height={boardSize}
+                width={boardSize}
+                arrows={game.arrows || []}
+                circles={game.circles || []}
+                orientation={top === colorWhiteLetter ? colorBlack : colorWhite}
+                onDrop={onDrop}
+                onDrawObject={onDrawObject}
+                gameStatus={game.status}
+                premove={game.premove}
+                blackId={game?.black?.id}
+                whiteId={game?.white?.id}
+                variations={game.variations}
+                isHistoryTurn={isHistoryTurn}
+                moveForwardEnd={moveForwardEnd}
+              />
+              <div
+                style={{
+                  position: "relative",
+                  top: -boardSize / 2,
+                  left: boardSize / 2 + 20,
+                  pointerEvents: "none",
+                }}
+              >
+                {game && game.status === gameStatusExamining && (
+                  <Analytics orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
+                )}
+              </div>
+            </div>
+
+            {isPlayingOrExamining && (
+              <div
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+              >
+                <Player
+                  gameId={game?._id}
+                  playerData={bottomPlayer}
+                  cssManager={cssManager}
+                  side={boardSize}
+                  color={bc}
+                  turnColor={color}
+                  FallenSoldiers={bottomFallenSoliders}
+                  Playermsg={botPlayermsg}
+                />
+                <PlayerClock
+                  game={game}
+                  color={bottomPlayerTime}
+                  tagColor={getColorByLetter(bottomPlayerTime[0])}
+                  timerBlinkingSecs={timerBlinkingSecs}
+                  side={boardSize}
+                  isGameOn={game.status === gameStatusPlaying}
+                  isMyTurn={game.tomove === bottomPlayerTime}
+                  handleUpdate={this.handleUpdate}
+                />
+              </div>
+            )}
           </div>
         )}
-      </div>
+      </>
     );
   }
 }
