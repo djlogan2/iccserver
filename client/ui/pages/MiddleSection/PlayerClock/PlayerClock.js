@@ -12,7 +12,6 @@ export default class PlayerClock extends Component {
     super(props);
 
     const { game, color, isGameOn } = this.props;
-
     let current = game.clocks[color].initial * 60 * 1000;
     if (isGameOn) {
       current = game.clocks[color].current;
@@ -89,12 +88,21 @@ export default class PlayerClock extends Component {
     Meteor.clearInterval(this.interval);
   }
 
+  componentDidMount() {
+    this.onClockStart();
+  }
+
   componentDidUpdate() {
+    this.onClockStart();
+  }
+
+  onClockStart = () => {
     const { game, color, isMyTurn, isGameOn } = this.props;
 
     if ((this.interval && !isMyTurn) || !isGameOn) {
       Meteor.clearInterval(this.interval);
       this.interval = null;
+      return;
     }
 
     if (!isMyTurn || this.interval || !isGameOn) {
@@ -125,7 +133,7 @@ export default class PlayerClock extends Component {
     } else {
       this.setTimer(params);
     }
-  }
+  };
 
   setTimer = ({ game, color, iod }) => {
     this.interval = Meteor.setInterval(() => {
