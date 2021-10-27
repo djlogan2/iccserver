@@ -9,10 +9,11 @@ import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
+import { withSounds } from "../../../../../HOCs/withSounds";
 
 const log = new Logger("client/GameControlBlock");
 
-let handleError = (error) => {
+const handleError = (error) => {
   if (error) {
     log.error(error);
   }
@@ -238,24 +239,12 @@ class PlayLocationControls extends Component {
     }
   };
 
-  handleWheel = (event) => {
-    const { moveForward, moveBackward } = this.props;
-
-    if (event.deltaY > 0) {
-      moveForward();
-    } else {
-      moveBackward();
-    }
-  };
-
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeysPress, false);
-    // document.addEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleKeysPress, false);
-    // document.removeEventListener("wheel", this.handleWheel, false);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -361,7 +350,7 @@ class PlayLocationControls extends Component {
 
 class ActionControls extends Component {
   handleTakeback = () => {
-    const { game } = this.props;
+    const { game, playSound } = this.props;
 
     const { tomove } = game;
 
@@ -371,29 +360,34 @@ class ActionControls extends Component {
     }
 
     Meteor.call("requestTakeback", "requestTakeback", game._id, number, handleError);
+    playSound("requsetTakeback");
   };
 
   handleResign = () => {
-    const { game } = this.props;
+    const { game, playSound } = this.props;
     Meteor.call("resignGame", "resignGame", game._id, handleError);
+    playSound("resignGame");
   };
 
   handleDraw = () => {
-    const { game } = this.props;
+    const { game, playSound } = this.props;
 
     Meteor.call("requestToDraw", "requestToDraw", game._id, handleError);
+    playSound("requestToDraw");
   };
 
   handleAdjorn = () => {
-    const { game } = this.props;
+    const { game, playSound } = this.props;
 
     Meteor.call("requestToAdjourn", "requestToAdjourn", game._id, handleError);
+    playSound("requestToAdjourn");
   };
 
   handleAbort = () => {
-    const { game } = this.props;
+    const { game, playSound } = this.props;
 
     Meteor.call("requestToAbort", "requestToAbort", game._id, handleError);
+    playSound("requestToAbort");
   };
 
   render() {
@@ -466,7 +460,10 @@ class ActionControls extends Component {
   }
 }
 
-const EnhacnedActionControls = translate("Common.rightBarTop")(ActionControls);
+const EnhacnedActionControls = compose(
+  translate("Common.rightBarTop"),
+  withSounds("ActionControls")
+)(ActionControls);
 const EnhancedExamineLocationControls = translate("Common.rightBarTop")(ExamineLocationControls);
 const EnhancedPlayLocationControls = translate("Common.rightBarTop")(PlayLocationControls);
 

@@ -20,7 +20,7 @@ class PlayChooseBot extends Component {
   constructor(props) {
     super(props);
 
-    const matchDefaults = Meteor.user()?.settings?.match_default;
+    const matchDefaults = Meteor.user()?.settings?.computer_default;
 
     this.state = {
       timeOdds: false,

@@ -15,6 +15,7 @@ import { gameStatusPlaying } from "../../../../constants/gameConstants";
 import injectSheet from "react-jss";
 import { dynamicStyles } from "./dynamicStyles";
 import classNames from "classnames";
+import { withSounds } from "../../../HOCs/withSounds";
 
 class AppWrapper extends Component {
   componentDidMount() {
@@ -26,13 +27,17 @@ class AppWrapper extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { gameRequest, history } = this.props;
+    const { gameRequest, history, playSound } = this.props;
 
     const prevSeekId = get(prevProps, "gameRequest._id");
     const currentSeek = get(gameRequest, "_id");
 
     if (prevSeekId && prevSeekId !== currentSeek) {
       notification.close(prevSeekId);
+    }
+
+    if (!prevProps.gameRequest && gameRequest) {
+      playSound("sound");
     }
 
     const currentUser = Meteor.user();
@@ -84,5 +89,6 @@ export default compose(
     };
   }),
   withRouter,
+  withSounds("AppWrapper"),
   injectSheet(dynamicStyles)
 )(AppWrapper);

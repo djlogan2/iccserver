@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import ChatApp from "../ChatApp/ChatApp";
 import { withTracker } from "meteor/react-meteor-data";
+import { isEqual } from "lodash";
+import { compose } from "redux";
+import { withSounds } from "../../../../HOCs/withSounds";
 import { Chat, ChildChatTexts } from "../../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../../lib/client/Logger";
 
@@ -24,6 +27,13 @@ class PersonalChatApp extends Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    const { chats, playSound } = this.props;
+    if (prevProps.chats && chats && !isEqual(prevProps.chats, chats)) {
+      playSound("sound");
+    }
+  }
+
   render() {
     const { childChatTexts, disabled, opponent, chats } = this.props;
 
@@ -44,13 +54,16 @@ class PersonalChatApp extends Component {
   }
 }
 
-export default withTracker((props) => {
-  return {
-    opponent: Meteor.users.findOne({ _id: props.opponentId }),
-    childChatTexts: ChildChatTexts.find().fetch(),
-    chats: Chat.find({
-      type: "private",
-      $or: [{ id: props.opponentId }, { "issuer.id": props.opponentId }],
-    }).fetch(),
-  };
-})(PersonalChatApp);
+export default compose(
+  withTracker((props) => {
+    return {
+      opponent: Meteor.users.findOne({ _id: props.opponentId }),
+      childChatTexts: ChildChatTexts.find().fetch(),
+      chats: Chat.find({
+        type: "private",
+        $or: [{ id: props.opponentId }, { "issuer.id": props.opponentId }],
+      }).fetch(),
+    };
+  }),
+  withSounds("PersonalChatApp")
+)(PersonalChatApp);
