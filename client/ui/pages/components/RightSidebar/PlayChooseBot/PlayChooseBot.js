@@ -24,7 +24,7 @@ class PlayChooseBot extends Component {
 
     this.state = {
       timeOdds: false,
-      difficulty: 5,
+      difficulty: matchDefaults?.skill_level || 5,
       color: "random",
       challengerIncrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
       challengerInitial: matchDefaults?.challenger_time || 15,
@@ -153,11 +153,9 @@ class PlayChooseBot extends Component {
       challengerInitial,
       challengerIncrementOrDelay,
       challengerIncrementOrDelayType,
-      challengerRatingType,
       receiverInitial,
       receiverIncrementOrDelay,
       receiverIncrementOrDelayType,
-      receiverRatingType,
       difficulty,
       color,
       timeOdds,
