@@ -92,7 +92,16 @@ export default class PlayerClock extends Component {
     this.onClockStart();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    const { game, color, isMyTurn, isGameOn } = this.props;
+    const clock = game.clocks[color];
+
+    if (isGameOn && !isMyTurn && !clock.starttime && clock.current !== this.state.current) {
+      this.setState({
+        current: game.clocks[color].initial * 60 * 1000,
+      });
+    }
+
     this.onClockStart();
   }
 
