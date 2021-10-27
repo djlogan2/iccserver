@@ -16,7 +16,7 @@ const EnhancedRoute = ({ availableRoles, roles, path, component, ...rest }) => {
     });
   }
 
-  if (suitableRoles.length) {
+  if (!roles?.length || suitableRoles.length) {
     return <Route path={path} component={component} {...rest} />;
   }
 
