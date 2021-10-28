@@ -6,7 +6,7 @@ import { TimePicker } from "antd";
 import moment from "moment";
 import Sinon from "sinon";
 
-describe.only("PlayerClock component", () => {
+describe("PlayerClock component", () => {
   const mockProps = {
     color: "white",
     handleUpdate: (data, cb) => {
