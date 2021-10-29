@@ -193,6 +193,7 @@ class MiddleBoard extends Component {
     const isPlayingOrExamining =
       !!game?.status && (game.status === gameStatusPlaying || game.status === gameStatusExamining);
     const timerBlinkingSecs = Meteor.user()?.settings?.default_timer_blinking || 10;
+    const currentTurn = this.chess?.turn();
 
     return (
       <>
@@ -216,16 +217,16 @@ class MiddleBoard extends Component {
                   FallenSoldiers={topFallenSoliders}
                   message={topPlayermsg}
                 />
-                <PlayerClock
-                  game={game}
-                  color={topPlayerTime}
-                  tagColor={getColorByLetter(topPlayerTime[0])}
-                  timerBlinkingSecs={timerBlinkingSecs}
-                  side={boardSize}
-                  isGameOn={game.status === gameStatusPlaying}
-                  isMyTurn={game.tomove === topPlayerTime}
-                  handleUpdate={this.handleUpdate}
-                />
+                {topPlayerTime && game.clocks && game.clocks[topPlayerTime] && (
+                  <PlayerClock
+                    game={game}
+                    color={topPlayerTime}
+                    tagColor={getColorByLetter(topPlayerTime[0])}
+                    timerBlinkingSecs={timerBlinkingSecs}
+                    handleUpdate={this.handleUpdate}
+                    isMyTurn={currentTurn === topPlayerTime[0]}
+                  />
+                )}
               </div>
             )}
 
@@ -257,7 +258,7 @@ class MiddleBoard extends Component {
                   pointerEvents: "none",
                 }}
               >
-                {game && game.status === gameStatusExamining && (
+                {game.status === gameStatusExamining && (
                   <Analytics orientation={top === colorWhiteLetter ? colorBlack : colorWhite} />
                 )}
               </div>
@@ -277,16 +278,16 @@ class MiddleBoard extends Component {
                   FallenSoldiers={bottomFallenSoliders}
                   Playermsg={botPlayermsg}
                 />
-                <PlayerClock
-                  game={game}
-                  color={bottomPlayerTime}
-                  tagColor={getColorByLetter(bottomPlayerTime[0])}
-                  timerBlinkingSecs={timerBlinkingSecs}
-                  side={boardSize}
-                  isGameOn={game.status === gameStatusPlaying}
-                  isMyTurn={game.tomove === bottomPlayerTime}
-                  handleUpdate={this.handleUpdate}
-                />
+                {bottomPlayerTime && game.clocks && game.clocks[bottomPlayerTime] && (
+                  <PlayerClock
+                    game={game}
+                    color={bottomPlayerTime}
+                    tagColor={getColorByLetter(bottomPlayerTime[0])}
+                    timerBlinkingSecs={timerBlinkingSecs}
+                    handleUpdate={this.handleUpdate}
+                    isMyTurn={currentTurn === bottomPlayerTime[0]}
+                  />
+                )}
               </div>
             )}
           </div>

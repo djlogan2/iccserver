@@ -2,16 +2,24 @@ import { TimePicker } from "antd";
 import { noop } from "lodash";
 import moment from "moment";
 import React, { Component } from "react";
+import { withTracker } from "meteor/react-meteor-data";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../imports/api/client/collections";
+import classNames from "classnames";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import { gameStatusPlaying } from "../../../../constants/gameConstants";
+import PropTypes from "prop-types";
 
 const DEFAULT_TIME_FORMAT = "HH:mm:ss";
 const TIME_SECOND = 1000;
-const INTERVAL_TIME = 50;
+const INTERVAL_TIME = 5;
 
-export default class PlayerClock extends Component {
+class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
-    const { game, color, isGameOn } = this.props;
+    const { game, color } = this.props;
+    const isGameOn = game.status === gameStatusPlaying;
     let current = game.clocks[color].initial * 60 * 1000;
     if (isGameOn) {
       current = game.clocks[color].current;
@@ -69,7 +77,8 @@ export default class PlayerClock extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const { game, color, isGameOn } = props;
+    const { game, color } = props;
+    const isGameOn = game.status === gameStatusPlaying;
 
     let pcurrent;
 
@@ -93,7 +102,9 @@ export default class PlayerClock extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { game, color, isMyTurn, isGameOn } = this.props;
+    const { game, color, isMyTurn } = this.props;
+    const isGameOn = game.status === gameStatusPlaying;
+
     const clock = game.clocks[color];
 
     if (isGameOn && !isMyTurn && !clock.starttime && clock.current !== this.state.current) {
@@ -106,7 +117,8 @@ export default class PlayerClock extends Component {
   }
 
   onClockStart = () => {
-    const { game, color, isMyTurn, isGameOn } = this.props;
+    const { game, color, isMyTurn } = this.props;
+    const isGameOn = game.status === gameStatusPlaying;
 
     if ((this.interval && !isMyTurn) || !isGameOn) {
       Meteor.clearInterval(this.interval);
@@ -183,42 +195,9 @@ export default class PlayerClock extends Component {
     }));
   };
 
-  calculateTimeLeftAndStyles = ({ isMyTurn, side, isGameOn, isRunningOutOfTime }) => {
-    const showWarningColor = isMyTurn && isRunningOutOfTime;
-
-    if (showWarningColor && Date.now() - this.lowTime?.date > 500) {
-      this.lowTime = {
-        color: this.lowTime?.color === "#ff0000" ? "#810000" : "#ff0000",
-        date: Date.now(),
-      };
-    } else if (!showWarningColor) {
-      this.lowTime = { color: "#ff0000", date: Date.now() };
-    }
-
-    if (!isMyTurn) this.lowTime = null;
-
-    const cv = side / 10;
-    const clockstyle = {
-      borderRadius: "3px",
-      fontSize: cv / 3,
-      color: "#fff",
-      paddingLeft: "5px",
-      paddingRight: "5px",
-      background: showWarningColor ? this.lowTime?.color : isMyTurn ? "#1890ff" : "#333333",
-      fontWeight: "700",
-      transition: showWarningColor && "0.3s",
-      boxShadow: showWarningColor && `0px 0px 5px 5px ${this.lowTime?.color}`,
-      cursor: isGameOn ? "" : "pointer",
-    };
-
-    return clockstyle;
-  };
-
   render() {
-    const { game, side, isGameOn, isMyTurn, timerBlinkingSecs } = this.props;
-    if (!game) {
-      return null;
-    }
+    const { game, timerBlinkingSecs, classes, isMyTurn } = this.props;
+    const isGameOn = game.status === gameStatusPlaying;
 
     const { current, isEditing } = this.state;
 
@@ -227,13 +206,12 @@ export default class PlayerClock extends Component {
     const roundedCurrent = isRunningOutOfTime
       ? current
       : Math.floor(current / TIME_SECOND) * TIME_SECOND;
-
-    const clockstyle = this.calculateTimeLeftAndStyles({
-      isMyTurn,
-      side,
-      isGameOn,
-      isRunningOutOfTime,
-    });
+    const showWarningColor = isMyTurn && isRunningOutOfTime;
+    const classesToInject = showWarningColor
+      ? classes.lowTime
+      : isMyTurn
+      ? classes.myTurn
+      : classes.notMyTurn;
 
     const defaultValue = moment(roundedCurrent > 0 ? roundedCurrent : 0)
       .add(moment().startOf("day").valueOf())
@@ -242,7 +220,11 @@ export default class PlayerClock extends Component {
     return (
       <>
         {!isEditing ? (
-          <div style={clockstyle} onClick={!isGameOn ? this.onEditToggle : noop} aria-label="clock">
+          <div
+            className={classNames(classes.regular, !isGameOn && classes.pointer, classesToInject)}
+            onClick={!isGameOn ? this.onEditToggle : noop}
+            aria-label="clock"
+          >
             {negative}
             {defaultValue}
           </div>
@@ -253,6 +235,7 @@ export default class PlayerClock extends Component {
             onChange={this.handleChange}
             value={moment(defaultValue, DEFAULT_TIME_FORMAT)}
             showNow={false}
+            allowClear={false}
             onOpenChange={(isOpen) => {
               if (!isOpen) {
                 this.onEditToggle();
@@ -264,3 +247,19 @@ export default class PlayerClock extends Component {
     );
   }
 }
+
+export default compose(
+  withTracker(() => ({
+    css: mongoCss.findOne(),
+  })),
+  withDynamicStyles("css.playerClockCss")
+)(PlayerClock);
+
+PlayerClock.propTypes = {
+  color: PropTypes.oneOf("white", "black"),
+  tagColor: PropTypes.oneOf("White", "Black"),
+  timerBlinkingSecs: PropTypes.number,
+  handleUpdate: PropTypes.func,
+  isMyTurn: PropTypes.bool,
+  game: PropTypes.object,
+};
