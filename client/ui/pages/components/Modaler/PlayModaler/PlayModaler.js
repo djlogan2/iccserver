@@ -1,13 +1,12 @@
-import React, { Component } from "react";
 import { Button, Modal } from "antd";
-import { compose } from "redux";
-import { translate } from "../../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
 import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 class PlayModaler extends Component {
   handleCancel = () => {
@@ -104,6 +103,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.playModalCss"),
   withRouter
 )(PlayModaler);

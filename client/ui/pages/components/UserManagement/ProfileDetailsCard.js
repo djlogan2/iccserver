@@ -1,21 +1,19 @@
-import React, { Component } from "react";
 import { Button, Card, Input, notification } from "antd";
-import { compose } from "redux";
-
-import { translate } from "../../../HOCs/translate";
-import { EMAIL_PROPERTY, USERNAME_PROPERTY } from "../../../../constants/systemConstants";
-import injectSheet from "react-jss";
-import { dynamicUserProfileStyles } from "./dynamicUserProfileStyles";
-import { withTracker } from "meteor/react-meteor-data";
-import { ClientMessagesCollection, mongoCss } from "../../../../../imports/api/client/collections";
-import withClientMessages from "../../../HOCs/withClientMessages";
 import { Meteor } from "meteor/meteor";
-import CustomAvatar from "../CustomAvatar/CustomAvatar";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
+import { ClientMessagesCollection, mongoCss } from "../../../../../imports/api/client/collections";
 import {
   ROLE_CHANGE_EMAIL,
   ROLE_CHANGE_USERNAME,
   ROLE_DEVELOPER,
 } from "../../../../constants/rolesConstants";
+import { EMAIL_PROPERTY, USERNAME_PROPERTY } from "../../../../constants/systemConstants";
+import { translate } from "../../../HOCs/translate";
+import withClientMessages from "../../../HOCs/withClientMessages";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import CustomAvatar from "../CustomAvatar/CustomAvatar";
 
 class ProfileDetailsCard extends Component {
   constructor(props) {
@@ -186,6 +184,6 @@ export default compose(
     };
   }),
   translate("Profile.ProfileDetailsCard"),
-  injectSheet(dynamicUserProfileStyles),
+  withDynamicStyles("css.profileCss"),
   withClientMessages
 )(ProfileDetailsCard);

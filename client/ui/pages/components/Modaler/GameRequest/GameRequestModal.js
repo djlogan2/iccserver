@@ -1,18 +1,16 @@
-import React, { Component } from "react";
 import { Button, notification } from "antd";
 import { get } from "lodash";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-import { Meteor } from "meteor/meteor";
-
-import { translate } from "../../../../HOCs/translate";
-import gameRequestNotification from "./GameRequestNotification";
-import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
-import injectSheet from "react-jss";
-import { dynamicRequestNotificationsStyles } from "./dynamicRequestNotificationStyles";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../../lib/client/Logger";
+import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
+import gameRequestNotification from "./GameRequestNotification";
 
 // PLEASE don't copy and paste and leave "server" in client files.
 // There are errors in the log that look like they are from the server, but now we do not know.
@@ -119,5 +117,5 @@ export default compose(
       challengeNotificationCss: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicRequestNotificationsStyles)
+  withDynamicStyles("challengeNotificationCss.challengeNotificationCss")
 )(GameRequestModal);

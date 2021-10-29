@@ -14,15 +14,19 @@ describe("ChatApp component", () => {
 
   const component = mount(<ChatApp {...mockProps} />);
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should have Chat input and no Child Chat Input", () => {
-    chai.assert.equal(component.find(ChatInput).length, 1);
-    chai.assert.equal(component.find(ChildChatInput).length, 0);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find(ChatInput).length, 1);
+      chai.assert.equal(component.find(ChildChatInput).length, 0);
 
-    component.find("Input").simulate("change", { target: { value: "new_value" } });
-    component.find("form").simulate("submit");
+      component.find("Input").simulate("change", { target: { value: "new_value" } });
+      component.find("form").simulate("submit");
+    });
   });
 
   it("should have Child Chat Input and no Chat input", () => {
@@ -33,7 +37,9 @@ describe("ChatApp component", () => {
     };
 
     const component1 = mount(<ChatApp {...mockProps1} />);
-    chai.assert.equal(component1.find(ChatInput).length, 0);
-    chai.assert.equal(component1.find(ChildChatInput).length, 1);
+    Promise.resolve(component1).then(() => {
+      chai.assert.equal(component1.find(ChatInput).length, 0);
+      chai.assert.equal(component1.find(ChildChatInput).length, 1);
+    });
   });
 });

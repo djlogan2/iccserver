@@ -16,6 +16,8 @@ describe("Home component", () => {
   );
 
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 });

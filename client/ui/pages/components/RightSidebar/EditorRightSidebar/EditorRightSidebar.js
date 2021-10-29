@@ -1,23 +1,21 @@
-import React, { Component } from "react";
 import { Button, Checkbox, Input, Radio } from "antd";
-import { withRouter } from "react-router-dom";
-import { withTracker } from "meteor/react-meteor-data";
-import { compose } from "redux";
-import injectSheet from "react-jss";
 import classNames from "classnames";
-
-import { translate } from "../../../../HOCs/translate";
-import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
-import { dynamicStyles } from "./dynamicStyles";
 import {
   BLACK_CASTLING_OPTIONS,
   colorBlack,
   colorBlackLetter,
   colorWhite,
   colorWhiteLetter,
-  WHITE_CASTLING_OPTIONS
+  WHITE_CASTLING_OPTIONS,
 } from "../../../../../constants/gameConstants";
+import { RESOURCE_EXAMINE } from "../../../../../constants/resourceConstants";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 class EditorRightSidebar extends Component {
   constructor(props) {
@@ -59,17 +57,8 @@ class EditorRightSidebar extends Component {
   };
 
   render() {
-    const {
-      color,
-      onStartPosition,
-      onClear,
-      onFlip,
-      onFen,
-      fen,
-      translate,
-      history,
-      classes
-    } = this.props;
+    const { color, onStartPosition, onClear, onFlip, onFen, fen, translate, history, classes } =
+      this.props;
     const { whiteCastling, blackCastling } = this.state;
 
     return (
@@ -92,10 +81,12 @@ class EditorRightSidebar extends Component {
               value={color}
               onChange={this.handleColor}
             >
-              <Radio.Button disabled={color === colorWhite}
-                            value={colorWhiteLetter}>{translate("whiteToPlay")}</Radio.Button>
-              <Radio.Button disabled={color === colorBlack}
-                            value={colorBlackLetter}>{translate("blackToPlay")}</Radio.Button>
+              <Radio.Button disabled={color === colorWhite} value={colorWhiteLetter}>
+                {translate("whiteToPlay")}
+              </Radio.Button>
+              <Radio.Button disabled={color === colorBlack} value={colorBlackLetter}>
+                {translate("blackToPlay")}
+              </Radio.Button>
             </Radio.Group>
           </div>
           <div className={classes.castling}>
@@ -155,10 +146,10 @@ class EditorRightSidebar extends Component {
 export default compose(
   withTracker(() => {
     return {
-      css: mongoCss.findOne()
+      css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.editorRightSidebarCss"),
   translate("Editor.EditorRightSidebar"),
   withRouter
 )(EditorRightSidebar);

@@ -15,11 +15,15 @@ describe("Actions component", () => {
   );
 
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should click the buttons", () => {
-    component.find("Button#editor-button").simulate("click");
-    component.find("Button#play-computer-button").simulate("click");
+    Promise.resolve(component).then(() => {
+      component.find("Button#editor-button").simulate("click");
+      component.find("Button#play-computer-button").simulate("click");
+    });
   });
 });

@@ -1,12 +1,11 @@
-import React from "react";
 import { Button } from "antd";
-import { compose } from "redux";
-import { translate } from "../../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
-import { GameRequestCollection, mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React from "react";
+import { compose } from "redux";
+import { GameRequestCollection, mongoCss } from "../../../../../../imports/api/client/collections";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 const PlayWithFriend = ({
   classes,
@@ -66,6 +65,6 @@ export default compose(
       sentRequests: GameRequestCollection.find({ challenger_id: Meteor.userId() }).fetch(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.playWithFriendCss"),
   translate("Play.PlayWithFriend")
 )(PlayWithFriend);

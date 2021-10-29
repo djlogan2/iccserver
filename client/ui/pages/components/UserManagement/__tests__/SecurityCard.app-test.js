@@ -7,6 +7,8 @@ describe("SecurityCard component", () => {
   it("should render", () => {
     const component = mount(<SecurityCard />);
 
-    chai.assert.isDefined(component);
-  })
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
+  });
 });

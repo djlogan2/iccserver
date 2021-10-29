@@ -2,8 +2,7 @@ import React from "react";
 import { compose } from "redux";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 const BoardWrapper = ({ children, classes }) => <div className={classes.container}>{children}</div>;
 
@@ -13,5 +12,5 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.boardWrapperCss")
 )(BoardWrapper);

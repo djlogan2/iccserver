@@ -1,12 +1,10 @@
+import { withTracker } from "meteor/react-meteor-data";
 import React, { Component } from "react";
 import { compose } from "redux";
-
-import ExamineSidebarTop from "../elements/ExamineSidebarTop/ExamineSidebarTop";
-import ExamineRightSidebarBottom from "../elements/ExamineRightSidebarBottom/ExamineRightSidebarBottom";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
+import ExamineRightSidebarBottom from "../elements/ExamineRightSidebarBottom/ExamineRightSidebarBottom";
+import ExamineSidebarTop from "../elements/ExamineSidebarTop/ExamineSidebarTop";
 
 class ExamineRightSidebar extends Component {
   constructor(props) {
@@ -69,5 +67,5 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.examineRightSidebarCss")
 )(ExamineRightSidebar);

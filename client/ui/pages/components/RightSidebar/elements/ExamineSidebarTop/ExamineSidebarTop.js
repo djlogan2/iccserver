@@ -1,20 +1,19 @@
-import React, { Component } from "react";
 import { Tabs } from "antd";
-import GameHistory from "../GameHistory/GameHistory";
-import ExamineObserveTab from "../ExamineObserveTab/ExamineObserveTab";
-import { ExamineGameControlBlock } from "../GameControlBlock/GameControlBlock";
-import { translate } from "../../../../../HOCs/translate";
-import PlayChooseBot from "../../PlayChooseBot/PlayChooseBot";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-import { RESOURCE_PLAY } from "../../../../../../constants/resourceConstants";
-import Actions from "../Actions/Actions";
-import GameCommandsBlock from "../../../GameCommandsBlock/GameCommandsBlock";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { RESOURCE_PLAY } from "../../../../../../constants/resourceConstants";
+import { translate } from "../../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
+import GameCommandsBlock from "../../../GameCommandsBlock/GameCommandsBlock";
+import PlayChooseBot from "../../PlayChooseBot/PlayChooseBot";
+import Actions from "../Actions/Actions";
+import ExamineObserveTab from "../ExamineObserveTab/ExamineObserveTab";
+import { ExamineGameControlBlock } from "../GameControlBlock/GameControlBlock";
+import GameHistory from "../GameHistory/GameHistory";
 import "./ExamineSidebarTop.css";
 
 const { TabPane } = Tabs;
@@ -144,7 +143,7 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.examineSidebarTopCss"),
   translate("Common.rightBarTop"),
   withRouter
 )(ExamineSidebarTop);

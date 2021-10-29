@@ -4,8 +4,7 @@ import { compose } from "redux";
 import { translate } from "../../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 export default compose(
   translate("Community.ChatInput"),
@@ -14,7 +13,7 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.chatInputCss")
 )(({ value, onChange, onMessage, translate, disabled, classes }) => {
   const handleSubmit = (e) => {
     e.preventDefault();

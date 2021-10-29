@@ -2105,8 +2105,11 @@ describe("AppWrapper component", () => {
         <AppWrapper />
       </Router>
     );
-    const grm = component.find(GameRequestModal);
-    const ls = component.find(LeftSidebar);
-    chai.assert.equal(ls.length, 1);
+
+    Promise.resolve(component).then(() => {
+      const grm = component.find(GameRequestModal);
+      const ls = component.find(LeftSidebar);
+      chai.assert.equal(ls.length, 1);
+    });
   });
 });

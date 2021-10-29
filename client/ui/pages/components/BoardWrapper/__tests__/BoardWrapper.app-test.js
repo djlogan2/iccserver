@@ -7,10 +7,14 @@ describe("BoardWrapper component", () => {
   const component = mount(<BoardWrapper />);
 
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should have one div", () => {
-    chai.assert.equal(component.find("div").length, 1);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find("div").length, 1);
+    });
   });
 });

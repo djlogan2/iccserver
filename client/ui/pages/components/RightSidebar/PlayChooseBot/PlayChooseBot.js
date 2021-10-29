@@ -1,18 +1,23 @@
-import React, { Component } from "react";
 import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
-import { translate } from "../../../../HOCs/translate";
-import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
-import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
-import { compose } from "redux";
-import { withTracker } from "meteor/react-meteor-data";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
+import {
+  DynamicRatingsCollection,
+  mongoCss,
+} from "../../../../../../imports/api/client/collections";
+import {
+  findRatingObject,
+  getMaxInitialAndIncOrDelayTime,
+} from "../../../../../../lib/ratinghelpers";
 import {
   CHALLENGER_INCREMENT_DELAY_TYPE,
   INCREMENT_OR_DELAY_TYPE_NONE,
-  RECEIVER_INCREMENT_DELAY_TYPE
+  RECEIVER_INCREMENT_DELAY_TYPE,
 } from "../../../../../constants/gameConstants";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 const { Title } = Typography;
 
@@ -363,6 +368,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.playChooseBotCss"),
   translate("Play.PlayChooseBot")
 )(PlayChooseBot);

@@ -35,7 +35,9 @@ describe("ExamineObserveTab component", () => {
     };
     const component = mount(<ExamineObserveTab {...mockProps} />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
 
     // const input = component.find("#find-users-input");
     // chai.assert.equal(input.length, 1);

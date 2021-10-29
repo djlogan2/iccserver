@@ -1,25 +1,24 @@
-import React, { Component } from "react";
 import { Button } from "antd";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { compose } from "redux";
-import { translate } from "../../../../HOCs/translate";
+import { mongoCss } from "../../../../../../imports/api/client/collections";
 import {
   fifteenMinutesSeekOptions,
   fiveMinutesSeekOptions,
   oneMinuteSeekOptions,
   tenMinutesSeekOptions,
   threeMinutesSeekOptions,
-  twentyFiveMinutesSeekOptions
+  twentyFiveMinutesSeekOptions,
 } from "../../../../../constants/gameConstants";
-import { withTracker } from "meteor/react-meteor-data";
-import { Meteor } from "meteor/meteor";
 import {
   ROLE_DEVELOPER,
   ROLE_PLAY_RATED_GAMES,
-  ROLE_PLAY_UNRATED_GAMES
+  ROLE_PLAY_UNRATED_GAMES,
 } from "../../../../../constants/rolesConstants";
-import { mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 class PlayOptionButtons extends Component {
   render() {
@@ -113,6 +112,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.playOptionButtonsCss"),
   translate("Play.PlayBlock")
 )(PlayOptionButtons);

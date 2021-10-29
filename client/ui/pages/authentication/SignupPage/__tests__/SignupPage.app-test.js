@@ -1,7 +1,7 @@
 import React from "react";
 import chai from "chai";
 import { createBrowserHistory } from "history";
-import SignupPage, {SignupPage_Pure} from "../SignupPage";
+import SignupPage, { SignupPage_Pure } from "../SignupPage";
 import { mount, shallow } from "enzyme";
 import { Router } from "react-router-dom";
 import sinon from "sinon";
@@ -18,7 +18,7 @@ describe("SignupPage", () => {
 
   beforeEach(() => {
     sinon.replace(Accounts, "createUser", (args, callback) => {
-        callback("fake_error");
+      callback("fake_error");
     });
     wrapper = mount(
       <Router history={history}>
@@ -33,76 +33,86 @@ describe("SignupPage", () => {
   });
 
   it("render component", () => {
-    chai.assert.isDefined(wrapper);
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.isDefined(wrapper);
+    });
   });
 
   it("should have four inputs", () => {
-    chai.assert.equal(wrapper.find("input").length, 4);
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(wrapper.find("input").length, 4);
+    });
   });
 
   it("should have text and password fields", () => {
-    chai.assert.equal(page.find("#signup-name").length, 1);
-    chai.assert.equal(page.find("#signup-email").length, 1);
-    chai.assert.equal(page.find("#signup-password").length, 1);
-    chai.assert.equal(page.find("#signup-name").prop("type"), "text");
-    chai.assert.equal(page.find("#signup-email").prop("type"), "email");
-    chai.assert.equal(page.find("#signup-password").prop("type"), "password");
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(page.find("#signup-name").length, 1);
+      chai.assert.equal(page.find("#signup-email").length, 1);
+      chai.assert.equal(page.find("#signup-password").length, 1);
+      chai.assert.equal(page.find("#signup-name").prop("type"), "text");
+      chai.assert.equal(page.find("#signup-email").prop("type"), "email");
+      chai.assert.equal(page.find("#signup-password").prop("type"), "password");
+    });
   });
 
   it("should have redirect link", () => {
-    const link = wrapper.find("Link");
-    chai.assert.equal(link.length, 1, "no link");
-    chai.assert.equal(link.prop("to"), RESOURCE_LOGIN, "wrong url");
+    Promise.resolve(wrapper).then(() => {
+      const link = wrapper.find("Link");
+      chai.assert.equal(link.length, 1, "no link");
+      chai.assert.equal(link.prop("to"), RESOURCE_LOGIN, "wrong url");
+    });
   });
 
   it("should submit form", () => {
-    const usernameInput = page.find("#signup-name");
+    Promise.resolve(wrapper).then(() => {
+      const usernameInput = page.find("#signup-name");
 
-    usernameInput.simulate("focus");
-    usernameInput.simulate("change", {
-      target: { value: newUsername, id: "username", name: "username" },
-    });
-    usernameInput.simulate("keyDown", {
-      which: 27,
-      target: {
-        blur() {
-          usernameInput.simulate("blur");
+      usernameInput.simulate("focus");
+      usernameInput.simulate("change", {
+        target: { value: newUsername, id: "username", name: "username" },
+      });
+      usernameInput.simulate("keyDown", {
+        which: 27,
+        target: {
+          blur() {
+            usernameInput.simulate("blur");
+          },
         },
-      },
-    });
+      });
 
-    const emailInput = page.find("#signup-email");
+      const emailInput = page.find("#signup-email");
 
-    emailInput.simulate("focus");
-    emailInput.simulate("change", {
-      target: { value: newEmail, name: "email" },
-    });
-    emailInput.simulate("keyDown", {
-      which: 27,
-      target: {
-        blur() {
-          passwordInput.simulate("blur");
+      emailInput.simulate("focus");
+      emailInput.simulate("change", {
+        target: { value: newEmail, name: "email" },
+      });
+      emailInput.simulate("keyDown", {
+        which: 27,
+        target: {
+          blur() {
+            passwordInput.simulate("blur");
+          },
         },
-      },
-    });
+      });
 
-    const passwordInput = page.find("#signup-password");
+      const passwordInput = page.find("#signup-password");
 
-    passwordInput.simulate("focus");
-    passwordInput.simulate("change", {
-      target: { value: newPassword, name: "password" },
-    });
-    passwordInput.simulate("keyDown", {
-      which: 27,
-      target: {
-        blur() {
-          passwordInput.simulate("blur");
+      passwordInput.simulate("focus");
+      passwordInput.simulate("change", {
+        target: { value: newPassword, name: "password" },
+      });
+      passwordInput.simulate("keyDown", {
+        which: 27,
+        target: {
+          blur() {
+            passwordInput.simulate("blur");
+          },
         },
-      },
-    });
+      });
 
-    const form = wrapper.find("form").first();
-    form.simulate("submit");
+      const form = wrapper.find("form").first();
+      form.simulate("submit");
+    });
   });
 
   // it("createUser function is called", () => {
@@ -116,48 +126,50 @@ describe("SignupPage", () => {
 describe("SignUp Page Pure Component", () => {
   let page;
   beforeEach(() => {
-    page = shallow(
-      <SignupPage_Pure classes={{}} translate={()=>{}}/>
-    );
+    page = shallow(<SignupPage_Pure classes={{}} translate={() => {}} />);
   });
 
-  afterEach(() => { });
+  afterEach(() => {});
 
   it("expects error is shown", (done) => {
-    const errMsg = "error message";
-    const mockState = {
-      error: errMsg,
-      email: "",
-      name: "",
-      password: "",
-    };
-    page.setState(mockState, () => {
-      chai.assert.equal(page.find(".alert-danger").length, 1, "no error shown");
-      chai.assert.equal(page.find(".alert-danger").text(), errMsg, "wrong error message");
-      done();
-    })
+    Promise.resolve(page).then(() => {
+      const errMsg = "error message";
+      const mockState = {
+        error: errMsg,
+        email: "",
+        name: "",
+        password: "",
+      };
+      page.setState(mockState, () => {
+        chai.assert.equal(page.find(".alert-danger").length, 1, "no error shown");
+        chai.assert.equal(page.find(".alert-danger").text(), errMsg, "wrong error message");
+        done();
+      });
+    });
   });
 
   it("expects input fields changes value", () => {
-    const username = "username1";
-    const email = "email1@email.com";
-    const password = "password1";
+    Promise.resolve(page).then(() => {
+      const username = "username1";
+      const email = "email1@email.com";
+      const password = "password1";
 
-    const newUserName = page.find("#signup-name");
-    const newUserEmail = page.find("#signup-email");
-    const newUserPassword = page.find("#signup-password");
-    newUserName.simulate("change", {
-      target: { value: username },
-    });
-    newUserEmail.simulate("change", {
-      target: { value: email },
-    });
-    newUserPassword.simulate("change", {
-      target: { value: password },
-    });
+      const newUserName = page.find("#signup-name");
+      const newUserEmail = page.find("#signup-email");
+      const newUserPassword = page.find("#signup-password");
+      newUserName.simulate("change", {
+        target: { value: username },
+      });
+      newUserEmail.simulate("change", {
+        target: { value: email },
+      });
+      newUserPassword.simulate("change", {
+        target: { value: password },
+      });
 
-    chai.assert.equal(page.state().email, email, "set email wrong");
-    chai.assert.equal(page.state().password, password, "set password wrong");
-    chai.assert.equal(page.state().username, username, "set name wrong");
-  })
+      chai.assert.equal(page.state().email, email, "set email wrong");
+      chai.assert.equal(page.state().password, password, "set password wrong");
+      chai.assert.equal(page.state().username, username, "set name wrong");
+    });
+  });
 });

@@ -97,12 +97,14 @@ describe("FenPgn component", () => {
   it("should render", () => {
     const component = mount(<FenPgn {...mockProps} />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    const inputFile = component.find("input#files");
-    inputFile.simulate("change", { target: { files: ["path_to_file"] } });
+      const inputFile = component.find("input#files");
+      inputFile.simulate("change", { target: { files: ["path_to_file"] } });
 
-    const inputFen = component.find("Input#fen-input");
-    inputFen.simulate("change", { target: { value: "" } });
+      const inputFen = component.find("Input#fen-input");
+      inputFen.simulate("change", { target: { value: "" } });
+    });
   });
 });

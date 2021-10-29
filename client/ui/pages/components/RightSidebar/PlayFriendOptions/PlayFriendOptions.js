@@ -1,29 +1,28 @@
+import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
 import React, { Component } from "react";
-import {
-  findRatingObject,
-  getMaxInitialAndIncOrDelayTime,
-} from "../../../../../../lib/ratinghelpers";
+import { compose } from "redux";
 import {
   DynamicRatingsCollection,
   mongoCss,
 } from "../../../../../../imports/api/client/collections";
-import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
-import { translate } from "../../../../HOCs/translate";
-import { compose } from "redux";
-import { withTracker } from "meteor/react-meteor-data";
-import { Meteor } from "meteor/meteor";
 import {
-  ROLE_PLAY_RATED_GAMES,
-  ROLE_PLAY_UNRATED_GAMES,
-} from "../../../../../constants/rolesConstants";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+  findRatingObject,
+  getMaxInitialAndIncOrDelayTime,
+} from "../../../../../../lib/ratinghelpers";
 import {
   CHALLENGER_INCREMENT_DELAY_TYPE,
   COLOR_RANDOM,
   INCREMENT_OR_DELAY_TYPE_NONE,
   RECEIVER_INCREMENT_DELAY_TYPE,
 } from "../../../../../constants/gameConstants";
+import {
+  ROLE_PLAY_RATED_GAMES,
+  ROLE_PLAY_UNRATED_GAMES,
+} from "../../../../../constants/rolesConstants";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 const { Title } = Typography;
 
@@ -360,6 +359,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.playFriendOptionsCss"),
   translate("Play.PlayFriendOptions")
 )(PlayFriendOptions);

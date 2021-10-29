@@ -1,6 +1,6 @@
 import React from "react";
 import injectSheet from "react-jss";
-import { get } from "lodash";
+import { get, isEqual } from "lodash";
 
 const withDynamicStyles = (name) => (WrappedComponent) => {
   return class extends React.Component {
@@ -8,19 +8,28 @@ const withDynamicStyles = (name) => (WrappedComponent) => {
       styles: null,
     };
 
+    componentDidMount() {
+      this.getStyles();
+    }
+
     componentDidUpdate(prevProps) {
-      if (this.props.css !== prevProps.css) {
+      if (!isEqual(this.props.css, prevProps.css)) {
         this.getStyles();
       }
     }
 
     getStyles = () => {
-      const { type, ...styles } = get(this.props, name);
-      this.setState({ styles });
+      try {
+        const { type, ...styles } = get(this.props, name);
+        this.setState({ styles });
+      } catch (e) {
+        this.setState({ styles: {} });
+      }
     };
 
     render() {
       const { styles } = this.state;
+      const { css, ...props } = this.props;
 
       if (!styles) {
         return null;
@@ -28,7 +37,7 @@ const withDynamicStyles = (name) => (WrappedComponent) => {
 
       const Component = injectSheet(styles)(WrappedComponent);
 
-      return <Component {...this.props} />;
+      return <Component {...props} />;
     }
   };
 };

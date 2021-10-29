@@ -1,17 +1,15 @@
-import React, { Component } from "react";
 import { Button, Card, Input, notification } from "antd";
-
-import { translate } from "../../../HOCs/translate";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../imports/api/client/collections";
 import {
-  CURRENT_PASSWORD_PROPERTY,
   CONFIRM_PASSWORD_PROPERTY,
+  CURRENT_PASSWORD_PROPERTY,
   NEW_PASSWORD_PROPERTY,
 } from "../../../../constants/systemConstants";
-import { compose } from "redux";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicUserProfileStyles } from "./dynamicUserProfileStyles";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 class SecurityCard extends Component {
   constructor(props) {
@@ -102,5 +100,5 @@ export default compose(
     };
   }),
   translate("Profile.SecurityTab"),
-  injectSheet(dynamicUserProfileStyles)
+  withDynamicStyles("css.profileCss")
 )(SecurityCard);

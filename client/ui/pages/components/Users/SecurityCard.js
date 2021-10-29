@@ -1,18 +1,16 @@
-import React, { Component } from "react";
 import { Button, Card, Input } from "antd";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { compose } from "redux";
-
+import { mongoCss } from "../../../../../imports/api/client/collections";
 import {
   CONFIRM_PASSWORD_PROPERTY,
   ISOLATION_GROUP_PROPERTY,
-  NEW_PASSWORD_PROPERTY
+  NEW_PASSWORD_PROPERTY,
 } from "../../../../constants/systemConstants";
 import { translate } from "../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 class SecurityCard extends Component {
   constructor(props) {
@@ -121,5 +119,5 @@ export default compose(
     };
   }),
   translate("Users.edit.security"),
-  injectSheet(dynamicUserManagementStyles)
+  withDynamicStyles("css.userManagementCss")
 )(SecurityCard);

@@ -12,10 +12,9 @@ import { RESOURCE_LOGIN, RESOURCE_PLAY } from "../../../../constants/resourceCon
 import GameRequestModal from "../Modaler/GameRequest/GameRequestModal";
 import { get } from "lodash";
 import { gameStatusPlaying } from "../../../../constants/gameConstants";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import classNames from "classnames";
 import { withSounds } from "../../../HOCs/withSounds";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 class AppWrapper extends Component {
   componentDidMount() {
@@ -90,5 +89,5 @@ export default compose(
   }),
   withRouter,
   withSounds("AppWrapper"),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.appWrapperCss")
 )(AppWrapper);

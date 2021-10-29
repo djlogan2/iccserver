@@ -1,13 +1,11 @@
-import React from "react";
 import { Button } from "antd";
-import { compose } from "redux";
-
-import { translate } from "../../../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React from "react";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import { translate } from "../../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
 
 const ExamineObserverTabBlock = ({ game, unObserveUser, translate, classes }) => {
   const ownerData = game.observers.find((item) => item.id === game.owner) || {};
@@ -16,11 +14,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate, classes }) =>
     <div className={classes.container}>
       <div className={classes.head}>
         <div className={classes.name}>
-          <img
-            src="/images/avatar.png"
-            alt={translate("userAvatar")}
-            className={classes.nameImg}
-          />
+          <img src="/images/avatar.png" alt={translate("userAvatar")} className={classes.nameImg} />
           <h2 className={classes.nameTitle}>{ownerData.username}</h2>
         </div>
         <span>
@@ -65,6 +59,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.examineObserverTabBlockCss"),
   translate("Examine.ExamineObserverTabBlock")
 )(ExamineObserverTabBlock);
