@@ -20,8 +20,12 @@ const withDynamicStyles = (name) => (WrappedComponent) => {
     }
 
     getStyles = () => {
-      const { type, ...styles } = get(this.props, name);
-      this.setState({ styles });
+      try {
+        const { type, ...styles } = get(this.props, name);
+        this.setState({ styles });
+      } catch (e) {
+        this.setState({ styles: {} });
+      }
     };
 
     render() {
