@@ -2,21 +2,31 @@ import { TimePicker } from "antd";
 import { noop } from "lodash";
 import moment from "moment";
 import React, { Component } from "react";
-import { gameStatusPlaying } from "../../../constants/gameConstants";
+import { withTracker } from "meteor/react-meteor-data";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../imports/api/client/collections";
+import classNames from "classnames";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import { gameStatusPlaying } from "../../../../constants/gameConstants";
+import PropTypes from "prop-types";
 
 const DEFAULT_TIME_FORMAT = "HH:mm:ss";
+const TIME_SECOND = 1000;
+const INTERVAL_TIME = 5;
 
-export default class PlayerClock extends Component {
+class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
     const { game, color } = this.props;
-
-    const current = game?.clocks?.[color]?.current;
+    const isGameOn = game.status === gameStatusPlaying;
+    let current = game.clocks[color].initial * 60 * 1000;
+    if (isGameOn) {
+      current = game.clocks[color].current;
+    }
 
     this.state = {
       current,
-      game_current: 0,
       isEditing: false,
     };
   }
@@ -68,26 +78,17 @@ export default class PlayerClock extends Component {
 
   static getDerivedStateFromProps(props, state) {
     const { game, color } = props;
+    const isGameOn = game.status === gameStatusPlaying;
 
-    if (!game) return {};
     let pcurrent;
 
-    if (game.status === gameStatusPlaying) {
-      pcurrent = state.current;
-    } else {
+    if (!isGameOn) {
       pcurrent = PlayerClock.timeAfterMove(game.variations, game.tomove === color);
     }
 
-    if (!pcurrent && !!game.clocks) pcurrent = game?.clocks?.[color]?.initial * 60 * 1000;
-
-    if (!pcurrent) pcurrent = 0;
-
-    const returnstate = {};
-
-    if (pcurrent !== state.game_current) {
-      returnstate.current = pcurrent;
-      returnstate.game_current = pcurrent;
-    }
+    const returnstate = {
+      current: pcurrent || state.current,
+    };
 
     return returnstate;
   }
@@ -96,25 +97,43 @@ export default class PlayerClock extends Component {
     Meteor.clearInterval(this.interval);
   }
 
-  shouldComponentUpdate(nextProps, nextState, nextContext) {
-    if (this.interval && !nextProps.isMyTurn) {
-      Meteor.clearInterval(this.interval);
-      this.interval = null;
-    }
-    return true;
+  componentDidMount() {
+    this.onClockStart();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
     const { game, color, isMyTurn } = this.props;
+    const isGameOn = game.status === gameStatusPlaying;
 
-    if (!isMyTurn || this.interval) {
+    const clock = game.clocks[color];
+
+    if (isGameOn && !isMyTurn && !clock.starttime && clock.current !== this.state.current) {
+      this.setState({
+        current: game.clocks[color].initial * 60 * 1000,
+      });
+    }
+
+    this.onClockStart();
+  }
+
+  onClockStart = () => {
+    const { game, color, isMyTurn } = this.props;
+    const isGameOn = game.status === gameStatusPlaying;
+
+    if ((this.interval && !isMyTurn) || !isGameOn) {
+      Meteor.clearInterval(this.interval);
+      this.interval = null;
+      return;
+    }
+
+    if (!isMyTurn || this.interval || !isGameOn) {
       return;
     }
 
     const iod = game.clocks[color].inc_or_delay;
     const type = game.clocks[color].delaytype;
 
-    const secondsPassed = (Date.now() - game.clocks[color].starttime) / 1000;
+    const secondsPassed = (Date.now() - game.clocks[color].starttime) / TIME_SECOND;
 
     const delay = iod - secondsPassed;
 
@@ -131,11 +150,11 @@ export default class PlayerClock extends Component {
       this.interval = Meteor.setInterval(() => {
         Meteor.clearInterval(this.interval);
         this.setTimer(params);
-      }, delay * 1000);
+      }, delay * TIME_SECOND);
     } else {
       this.setTimer(params);
     }
-  }
+  };
 
   setTimer = ({ game, color, iod }) => {
     this.interval = Meteor.setInterval(() => {
@@ -143,20 +162,11 @@ export default class PlayerClock extends Component {
       let current = game.clocks[color].current - MilliSecondsPassed;
 
       if (iod) {
-        current += iod * 1000;
+        current += iod * TIME_SECOND;
       }
 
       this.setState({ current });
-    }, 50);
-  };
-
-  calculateCurrent = () => {
-    const { game, color } = this.props;
-
-    const MilliSecondsPassed = Date.now() - game.clocks[color].starttime;
-    let current = game.clocks[color].current - MilliSecondsPassed;
-
-    return current || 0;
+    }, INTERVAL_TIME);
   };
 
   handleChange = (time) => {
@@ -168,12 +178,13 @@ export default class PlayerClock extends Component {
 
     const data = {
       [`${tagColor}Time`]: `${current}`,
-      [`${tagColor}Initial`]: `${current / 60 / 1000}`,
+      [`${tagColor}Initial`]: `${current / 60 / TIME_SECOND}`,
     };
 
     handleUpdate(data, () => {
       this.setState({
         current,
+        isEditing: false,
       });
     });
   };
@@ -184,108 +195,47 @@ export default class PlayerClock extends Component {
     }));
   };
 
-  calculateTimeLeftAndStyles = ({ current, isMyTurn, side, currentTurn, color, isGameOn }) => {
-    let hour;
-    let minute;
-    let second;
-    let ms;
-    let neg = "";
-
-    const timerBlinkingSecs = Meteor.user()?.settings?.default_timer_blinking || 10;
-
-    let time = current || 0;
-    if (time < 0) {
-      neg = "-";
-      time = -time;
-    }
-
-    ms = time % 1000;
-    time = (time - ms) / 1000;
-    second = time % 60;
-    time = (time - second) / 60;
-    minute = time % 60;
-    hour = (time - minute) / 60;
-
-    if (neg === "-" || !!hour || !!minute || second >= timerBlinkingSecs) {
-      ms = "";
-    } else {
-      if (isMyTurn && this.lowTime && Date.now() - this.lowTime.date > 500) {
-        this.lowTime = {
-          color: this.lowTime.color === "#ff0000" ? "#810000" : "#ff0000",
-          date: Date.now(),
-        };
-      } else if (isMyTurn && !this.lowTime) {
-        this.lowTime = { color: "#ff0000", date: Date.now() };
-      }
-      ms = "." + ms.toString().substr(0, 1);
-    }
-
-    if (!isMyTurn) this.lowTime = null;
-
-    let cv = side / 10;
-    let clockstyle = {
-      paddingTop: cv / 15,
-      paddingBottom: cv / 5,
-      textAlign: "center",
-      borderRadius: "3px",
-      fontSize: cv / 3,
-      color: "#fff",
-      height: cv / 1.7,
-      paddingLeft: "5px",
-      paddingRight: "5px",
-      background: this.lowTime
-        ? this.lowTime.color
-        : currentTurn === color[0]
-        ? "#1890ff"
-        : "#333333",
-      fontWeight: "700",
-      transition: this.lowTime && "0.3s",
-      boxShadow: this.lowTime && `0px 0px 5px 5px ${this.lowTime.color}`,
-      cursor: isGameOn ? "" : "pointer",
-    };
-
-    return {
-      clockstyle,
-      neg,
-      ms,
-    };
-  };
-
   render() {
-    const { game, side, color, currentTurn, isGameOn, isMyTurn } = this.props;
+    const { game, timerBlinkingSecs, classes, isMyTurn } = this.props;
+    const isGameOn = game.status === gameStatusPlaying;
+
     const { current, isEditing } = this.state;
-    if (!game) {
-      return null;
-    }
 
-    const { clockstyle, neg, ms } = this.calculateTimeLeftAndStyles({
-      color,
-      currentTurn,
-      current,
-      isMyTurn,
-      side,
-      isGameOn,
-    });
-
-    const roundedCurrent = Math.floor(current / 1000) * 1000;
+    const isRunningOutOfTime = current < timerBlinkingSecs * TIME_SECOND;
+    const negative = current < 0 ? "-" : "";
+    const roundedCurrent = isRunningOutOfTime
+      ? current
+      : Math.floor(current / TIME_SECOND) * TIME_SECOND;
+    const showWarningColor = isMyTurn && isRunningOutOfTime;
+    const classesToInject = showWarningColor
+      ? classes.lowTime
+      : isMyTurn
+      ? classes.myTurn
+      : classes.notMyTurn;
 
     const defaultValue = moment(roundedCurrent > 0 ? roundedCurrent : 0)
       .add(moment().startOf("day").valueOf())
-      .format(DEFAULT_TIME_FORMAT);
+      .format(`${DEFAULT_TIME_FORMAT}${isRunningOutOfTime ? ":S" : ""}`);
 
     return (
       <>
         {!isEditing ? (
-          <div style={clockstyle} onClick={!isGameOn ? this.onEditToggle : noop}>
-            {neg}
+          <div
+            className={classNames(classes.regular, !isGameOn && classes.pointer, classesToInject)}
+            onClick={!isGameOn ? this.onEditToggle : noop}
+            aria-label="clock"
+          >
+            {negative}
             {defaultValue}
-            {ms}
           </div>
         ) : (
           <TimePicker
+            aria-label="clock-edit"
+            aria-placeholder="Select time"
             onChange={this.handleChange}
-            defaultValue={moment(defaultValue, DEFAULT_TIME_FORMAT)}
+            value={moment(defaultValue, DEFAULT_TIME_FORMAT)}
             showNow={false}
+            allowClear={false}
             onOpenChange={(isOpen) => {
               if (!isOpen) {
                 this.onEditToggle();
@@ -297,3 +247,19 @@ export default class PlayerClock extends Component {
     );
   }
 }
+
+export default compose(
+  withTracker(() => ({
+    css: mongoCss.findOne(),
+  })),
+  withDynamicStyles("css.playerClockCss")
+)(PlayerClock);
+
+PlayerClock.propTypes = {
+  color: PropTypes.oneOf("white", "black"),
+  tagColor: PropTypes.oneOf("White", "Black"),
+  timerBlinkingSecs: PropTypes.number,
+  handleUpdate: PropTypes.func,
+  isMyTurn: PropTypes.bool,
+  game: PropTypes.object,
+};
