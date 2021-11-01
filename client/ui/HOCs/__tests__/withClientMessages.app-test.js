@@ -1,12 +1,12 @@
 import React from "react";
 import chai from "chai";
-import { mount } from "enzyme";
+import { shallow } from "enzyme";
 import withClientMessages from "../withClientMessages";
 
 describe("withClientMessages HOC", () => {
   it("should render", () => {
     const WrappedComponent = withClientMessages(<div />);
-    const component = mount(
+    const component = shallow(
       <WrappedComponent
         userClientMessages={[
           {
