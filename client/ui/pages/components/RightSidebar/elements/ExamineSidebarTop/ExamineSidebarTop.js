@@ -80,10 +80,12 @@ class ExamineSidebarTop extends Component {
 
   renderPlay = () => {
     return (
-      <PlayChooseBot
-        onClose={() => this.setState({ moveOrPlay: "move" })}
-        onPlay={(data) => this.playBotFromHere(data)}
-      />
+      <div style={{ height: "100%", overflow: "auto" }}>
+        <PlayChooseBot
+          onClose={() => this.setState({ moveOrPlay: "move" })}
+          onPlay={(data) => this.playBotFromHere(data)}
+        />
+      </div>
     );
   };
 

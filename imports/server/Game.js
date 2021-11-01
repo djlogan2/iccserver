@@ -339,7 +339,7 @@ export class Game {
             "settings.computer_default": {
               wild_number: wild_number,
               rating_type: rating_type,
-              rated: false,
+              skill_level: skill_level,
               challenger_time: challenger_initial,
               challenger_inc_or_delay: challenger_increment_or_delay,
               challenger_delaytype: challenger_increment_or_delay_type,
