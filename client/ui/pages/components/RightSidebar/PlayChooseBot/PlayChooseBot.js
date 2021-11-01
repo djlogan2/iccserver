@@ -307,7 +307,7 @@ class PlayChooseBot extends Component {
                         parser={(value) => Math.round(value)}
                         formatter={(value) => Math.round(value)}
                         max={maxIncOrDelayValue}
-                        value={challengerIncrementOrDelay}
+                        value={receiverIncrementOrDelay}
                         onChange={this.handleChange("receiverIncrementOrDelay")}
                       />
                     </Form.Item>
