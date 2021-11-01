@@ -1,6 +1,7 @@
 import React from "react";
 import injectSheet from "react-jss";
 import { get, isEqual } from "lodash";
+import PropTypes from "prop-types";
 
 const withDynamicStyles = (name) => (WrappedComponent) => {
   return class extends React.Component {
@@ -29,17 +30,22 @@ const withDynamicStyles = (name) => (WrappedComponent) => {
 
     render() {
       const { styles } = this.state;
-      const { css, ...props } = this.props;
 
       if (!styles) {
         return null;
       }
+
+      const { css, ...props } = this.props;
 
       const Component = injectSheet(styles)(WrappedComponent);
 
       return <Component {...props} />;
     }
   };
+};
+
+withDynamicStyles.propTypes = {
+  css: PropTypes.object.isRequired,
 };
 
 export { withDynamicStyles };
