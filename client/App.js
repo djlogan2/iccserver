@@ -12,8 +12,17 @@ import "../imports/css/Loading.css";
 import "../imports/css/PlayRightSidebar.css";
 import { FIGURE_FONT } from "./constants/resourceConstants";
 import { Routes } from "./routes/routes.js";
-import { withDynamicStyles } from "./ui/HOCs/withDynamicStyles";
 import { getLang, isReadySubscriptions, updateLocale } from "./utils/utils";
+import injectSheet from "react-jss";
+
+const defaultAppStyles = {
+  loadingSidebar: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+  },
+};
 
 class App extends React.Component {
   render() {
@@ -54,9 +63,9 @@ export default compose(
     return {
       isReady: isReadySubscriptions(subscriptions),
       i18nTranslate: ClientInternationalizationCollection.findOne(),
-      css: mongoCss.findOne(),
+      cssStyles: mongoCss.find().fetch(),
       currentRoles: Meteor.roleAssignment.find().fetch(),
     };
   }),
-  withDynamicStyles("css.appCss")
+  injectSheet(defaultAppStyles)
 )(App);
