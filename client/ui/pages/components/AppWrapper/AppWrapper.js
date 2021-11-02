@@ -8,7 +8,7 @@ import { GameRequestCollection, mongoCss } from "../../../../../imports/api/clie
 
 import LeftSidebar from "../LeftSidebar/LeftSidebar";
 
-import { RESOURCE_LOGIN, RESOURCE_PLAY } from "../../../../constants/resourceConstants";
+import { RESOURCE_PLAY } from "../../../../constants/resourceConstants";
 import GameRequestModal from "../Modaler/GameRequest/GameRequestModal";
 import { get } from "lodash";
 import { gameStatusPlaying } from "../../../../constants/gameConstants";
@@ -19,12 +19,6 @@ import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 class AppWrapper extends Component {
   componentDidMount() {
     if (Meteor.isTest || Meteor.isAppTest) return; //TODO: fix this!!!
-
-    if (!Meteor.userId()) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
-    }
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -49,12 +43,6 @@ class AppWrapper extends Component {
 
     if (isPlaying && pathName !== RESOURCE_PLAY) {
       history.push(RESOURCE_PLAY);
-    }
-
-    if (!Meteor.userId()) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
     }
   }
 

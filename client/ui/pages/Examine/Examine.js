@@ -10,7 +10,6 @@ import GameListModal from "../components/Modaler/GameListModal";
 import Chess from "chess.js/chess";
 import { Game, ImportedGameCollection, mongoCss } from "../../../../imports/api/client/collections";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
-import { RESOURCE_LOGIN } from "../../../constants/resourceConstants";
 import { DEFAULT_CAPTURE, GAME_OBSERVE_DEFAULT, gameStatusExamining } from "../../../constants/gameConstants";
 import { MY_GAMES_MODAL_OPENED } from "../../../constants/systemConstants";
 
@@ -33,14 +32,6 @@ class Examine extends Component {
       importedGames: [],
       isImportedGamesModal: false,
     };
-  }
-
-  componentDidMount() {
-    if (!Meteor.userId()) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
-    }
   }
 
   initExamine = () => {
