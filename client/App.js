@@ -11,7 +11,12 @@ import "../imports/css/FenPgn.css";
 import "../imports/css/Loading.css";
 import "../imports/css/PlayRightSidebar.css";
 import { FIGURE_FONT } from "./constants/resourceConstants";
-import { Routes } from "./routes/routes.js";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import NotFound from "./ui/pages/NotFound/NotFound";
+import AuthGuard from "./routes/guards/authGuard";
+import NonAuthGuard from "./routes/guards/nonAuthGuard";
+import { nonAuthRoutes, authRoutes } from "./routes/routes";
+
 import { getLang, isReadySubscriptions, updateLocale } from "./utils/utils";
 import injectSheet from "react-jss";
 
@@ -36,10 +41,27 @@ class App extends React.Component {
         defaultLocale: updateLocale(i18nTranslate.locale),
       });
     }
-    const availableRoutes = currentRoles.map((role) => role?.role?._id);
+    const userRoles = currentRoles.map((role) => role?.role?._id);
+    const userId = Meteor.userId();
 
     return isReady ? (
-      <Routes currentRoles={availableRoutes} />
+      <Router>
+        <Switch>
+          {nonAuthRoutes.map((route) => (
+            <NonAuthGuard key={route.path} component={route.component} auth={!!userId} {...route} />
+          ))}
+          {authRoutes.map((route) => (
+            <AuthGuard
+              key={route.path}
+              component={route.component}
+              auth={!!userId}
+              currentRoles={userRoles}
+              {...route}
+            />
+          ))}
+          <Route component={NotFound} />
+        </Switch>
+      </Router>
     ) : (
       <Col span={24} className={classes.loadingSidebar}>
         <Space size="middle">
