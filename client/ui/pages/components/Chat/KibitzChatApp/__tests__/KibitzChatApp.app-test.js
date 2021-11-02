@@ -29,7 +29,10 @@ describe("KibitzChatApp component", () => {
     };
     const component = mount(<KibitzChatApp {...mockProps} />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    })
+
   });
 
   it("should have ChatApp and simulate actions", () => {
@@ -43,9 +46,12 @@ describe("KibitzChatApp component", () => {
 
     const component = mount(<KibitzChatApp {...mockProps} />);
 
-    chai.assert.equal(component.find(ChatApp).length, 1);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find(ChatApp).length, 1);
+  
+      component.find("Input").simulate("change", { target: { value: "new_value" } });
+      component.find("form").simulate("submit");
+    })
 
-    component.find("Input").simulate("change", { target: { value: "new_value" } });
-    component.find("form").simulate("submit");
   });
 });

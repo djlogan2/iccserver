@@ -1,14 +1,12 @@
-import React from "react";
 import { Button, Input } from "antd";
-import { withTracker } from "meteor/react-meteor-data";
-import injectSheet from "react-jss";
-import { compose } from "redux";
-import { translate } from "../../../HOCs/translate";
-
-import { mongoCss } from "../../../../../imports/api/client/collections";
-import { dynamicStyles } from "./styles";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React from "react";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 const log = new Logger("client/GameCommandsBlock_js");
 
@@ -58,6 +56,6 @@ export default compose(
       commandsCss: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("commandsCss.commandsCss"),
   translate("Common.rightBarTop")
 )(GameCommandsBlock);

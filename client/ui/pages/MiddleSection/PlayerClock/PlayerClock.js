@@ -256,8 +256,8 @@ export default compose(
 )(PlayerClock);
 
 PlayerClock.propTypes = {
-  color: PropTypes.oneOf("white", "black"),
-  tagColor: PropTypes.oneOf("White", "Black"),
+  color: PropTypes.oneOf(["white", "black"]),
+  tagColor: PropTypes.oneOf(["White", "Black"]),
   timerBlinkingSecs: PropTypes.number,
   handleUpdate: PropTypes.func,
   isMyTurn: PropTypes.bool,

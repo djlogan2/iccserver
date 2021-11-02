@@ -1,18 +1,15 @@
-import React, { Component } from "react";
 import { Button, Input, notification } from "antd";
-import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
-import { compose } from "redux";
-
-import { translate } from "../../../../../HOCs/translate";
-
-import { Logger } from "../../../../../../../lib/client/Logger";
-import { ImportedPgnFiles } from "../../../../../../../lib/client/importpgnfiles";
-import { exportGameObjectToPGN } from "../../../../../../../lib/client/exportpgn";
+import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { exportGameObjectToPGN } from "../../../../../../../lib/client/exportpgn";
+import { ImportedPgnFiles } from "../../../../../../../lib/client/importpgnfiles";
+import { Logger } from "../../../../../../../lib/client/Logger";
+import { translate } from "../../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
 
 const log = new Logger("client/FenPgn_js");
 
@@ -165,6 +162,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.fenPgnCss"),
   translate("Examine.FenPgn")
 )(FenPgn);

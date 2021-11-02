@@ -45,6 +45,9 @@ import fenPgnCss from "../../../server/defaultStyles/fenPgnCss";
 import mugshotCss from "../../../server/defaultStyles/mugshotCss";
 import middleSectionPlayerCss from "../../../server/defaultStyles/middleSectionPlayerCss";
 import playerClockCss from "../../../server/defaultStyles/playerClockCss";
+import exportPngButtonCss from "../../../server/defaultStyles/exportPngButtonCss";
+import gameListModalCss from "../../../server/defaultStyles/gameListModalCss";
+import appCss from "../../../server/defaultStyles/appCss";
 import { isEqual } from "lodash";
 
 export default function firstRunCSS() {
@@ -100,6 +103,9 @@ export default function firstRunCSS() {
     mugshotCss,
     middleSectionPlayerCss,
     playerClockCss,
+    exportPngButtonCss,
+    gameListModalCss,
+    appCss,
   };
   if (!columns || Object.keys(styles).some((key) => !isEqual(columns[key], styles[key]))) {
     mongoCss.update({ cssKey: "default" }, { $set: { ...styles } }, { upsert: true });

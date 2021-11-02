@@ -40,18 +40,21 @@ describe("GameCommandsBlock component", () => {
 
   it("should render", () => {
     const component = mount(<GameCommandsBlock />);
-
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should simulate input change and button click", () => {
     const mockProps = { game: { _id: "fake_game_id" } };
     const component = mount(<GameCommandsBlock {...mockProps} />);
 
-    const input = component.find("Input");
-    input.simulate("change", { target: { value: "new_test_value" } });
+    Promise.resolve(component).then(() => {
+      const input = component.find("Input");
+      input.simulate("change", { target: { value: "new_test_value" } });
 
-    const button = component.find("Button");
-    button.simulate("click");
+      const button = component.find("Button");
+      button.simulate("click");
+    });
   });
 });

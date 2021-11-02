@@ -21,7 +21,9 @@ describe("EditorRightSidebar component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should have 4 buttons", () => {
@@ -39,7 +41,9 @@ describe("EditorRightSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(component.find("Button").length, 4);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find("Button").length, 4);
+    });
   });
 
   it("should have 1 input", () => {
@@ -57,7 +61,9 @@ describe("EditorRightSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(component.find("Input").length, 1);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find("Input").length, 1);
+    });
   });
 
   it("should have 2 radios", () => {
@@ -75,7 +81,9 @@ describe("EditorRightSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(component.find("Radio").length, 2);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find("Radio").length, 2);
+    });
   });
 
   it("should simulate actions", () => {
@@ -93,12 +101,14 @@ describe("EditorRightSidebar component", () => {
       </Router>
     );
 
-    const backButton = component.find("Button#back-to-play");
-    chai.assert.equal(backButton.length, 1);
-    backButton.simulate("click");
+    Promise.resolve(component).then(() => {
+      const backButton = component.find("Button#back-to-play");
+      chai.assert.equal(backButton.length, 1);
+      backButton.simulate("click");
 
-    const input = component.find("Input");
-    chai.assert.equal(input.length, 1);
-    input.simulate("change", { target: { value: "fake_value" } });
+      const input = component.find("Input");
+      chai.assert.equal(input.length, 1);
+      input.simulate("change", { target: { value: "fake_value" } });
+    });
   });
 });

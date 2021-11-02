@@ -1,27 +1,25 @@
-import React, { Component } from "react";
+import SettingOutlined from "@ant-design/icons/SettingOutlined";
+import { notification, Tag, Tooltip } from "antd";
+import classNames from "classnames";
+import _, { get } from "lodash";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
-import { links, sidebarBottom } from "../../hardcode.json";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../imports/api/client/collections";
+import { serverTS } from "../../../../../lib/client/timestamp";
+import { gameStatusPlaying } from "../../../../constants/gameConstants";
 import {
   labelLogout,
   labelMyGame,
   labelsToResources,
 } from "../../../../constants/resourceConstants";
-import { translate } from "../../../HOCs/translate";
-import _, { get } from "lodash";
-import { notification, Tag, Tooltip } from "antd";
-import { compose } from "redux";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import classNames from "classnames";
-import { dynamicMenuLinksStyles } from "./dynamicMenuLinksStyles";
-import { serverTS } from "../../../../../lib/client/timestamp";
-import SettingOutlined from "@ant-design/icons/SettingOutlined";
-
-import "./MenuLinks.css";
 import { ROLE_DEVELOPER } from "../../../../constants/systemConstants";
-import { gameStatusPlaying } from "../../../../constants/gameConstants";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import { links, sidebarBottom } from "../../hardcode.json";
+import "./MenuLinks.css";
 
 class MenuLinks extends Component {
   constructor(props) {
@@ -234,5 +232,5 @@ export default compose(
       currentRoles: Meteor.roleAssignment.find().fetch(),
     };
   }),
-  injectSheet(dynamicMenuLinksStyles)
+  withDynamicStyles("menuLinksCss.menuLinksCss")
 )(MenuLinks);

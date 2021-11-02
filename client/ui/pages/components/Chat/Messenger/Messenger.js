@@ -1,12 +1,11 @@
+import { withTracker } from "meteor/react-meteor-data";
 import React, { useEffect, useRef, useState } from "react";
 import { compose } from "redux";
+import { Chat, mongoCss } from "../../../../../../imports/api/client/collections";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
+import { withSounds } from "../../../../HOCs/withSounds";
 import ChatInput from "../ChatInput/ChatInput";
 import MessageItem from "../MessageItem/MessageItem";
-import { withTracker } from "meteor/react-meteor-data";
-import { Chat, mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
-import { withSounds } from "../../../../HOCs/withSounds";
 
 const Messenger = ({ roomData, messageList, onChange, onMessage, classes, playSound }) => {
   const [inputValue, changeInputValue] = useState("");
@@ -59,8 +58,8 @@ const MessengerWithData = compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
-  withSounds("Messenger")
+  withSounds("Messenger"),
+  withDynamicStyles("css.messengerCss")
 )(Messenger);
 
 export default MessengerWithData;

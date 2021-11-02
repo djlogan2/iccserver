@@ -13,9 +13,8 @@ import CommunityRightBlock from "../components/CommunityBlocks/CommunityRightBlo
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
 import Loading from "../components/Loading/Loading";
 import { RESOURCE_HOME } from "../../../constants/resourceConstants";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import classNames from "classnames";
+import { withDynamicStyles } from "../../HOCs/withDynamicStyles";
 
 const log = new Logger("client/Community_js");
 
@@ -182,5 +181,5 @@ export default compose(
       notMyRooms: Rooms.find({ "members.id": { $not: Meteor.userId() } }).fetch(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.communityCss")
 )(Community);

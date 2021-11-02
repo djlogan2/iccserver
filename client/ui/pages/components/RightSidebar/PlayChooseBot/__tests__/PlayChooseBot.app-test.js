@@ -8,16 +8,22 @@ describe("PlayChooseBot component", () => {
   const component = mount(<PlayChooseBot {...mockProps} />);
 
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should call start the game button", () => {
-    const button = component.find("Button#start-the-game-button");
-    button.simulate("click");
+    Promise.resolve(component).then(() => {
+      const button = component.find("Button#start-the-game-button");
+      button.simulate("click");
+    });
   });
 
   it("should handle change initial", () => {
-    const button = component.find("InputNumber#challengerInitial");
-    button.simulate("change", { target: { value: 2 } });
+    Promise.resolve(component).then(() => {
+      const button = component.find("InputNumber#challengerInitial");
+      button.simulate("change", { target: { value: 2 } });
+    });
   });
 });

@@ -73,51 +73,53 @@ describe("Community component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    const liRoom = component.find("li#fake_room");
-    chai.assert.equal(liRoom.length, 1);
+      const liRoom = component.find("li#fake_room");
+      chai.assert.equal(liRoom.length, 1);
 
-    liRoom.simulate("keyDown", { key: "Enter" });
+      liRoom.simulate("keyDown", { key: "Enter" });
 
-    const inputMessage = component.find("input#chat-input");
-    chai.assert.equal(inputMessage.length, 1);
+      const inputMessage = component.find("input#chat-input");
+      chai.assert.equal(inputMessage.length, 1);
 
-    inputMessage.simulate("change", { target: { value: "fake_value" } });
+      inputMessage.simulate("change", { target: { value: "fake_value" } });
 
-    const button = component.find("Button#send-message");
-    chai.assert.equal(button.length, 1);
+      const button = component.find("Button#send-message");
+      chai.assert.equal(button.length, 1);
 
-    button.simulate("click");
+      button.simulate("click");
 
-    const sendForm = component.find("form#chat-form");
-    chai.assert.equal(sendForm.length, 1);
+      const sendForm = component.find("form#chat-form");
+      chai.assert.equal(sendForm.length, 1);
 
-    sendForm.simulate("submit");
+      sendForm.simulate("submit");
 
-    const buttonRightBlock = component.find("Button#open-right-block");
-    chai.assert.equal(buttonRightBlock.length, 1);
+      const buttonRightBlock = component.find("Button#open-right-block");
+      chai.assert.equal(buttonRightBlock.length, 1);
 
-    buttonRightBlock.simulate("click");
+      buttonRightBlock.simulate("click");
 
-    const buttonCreateRoom = component.find("Button#create-room");
-    chai.assert.equal(buttonCreateRoom.length, 1);
+      const buttonCreateRoom = component.find("Button#create-room");
+      chai.assert.equal(buttonCreateRoom.length, 1);
 
-    buttonCreateRoom.simulate("click");
+      buttonCreateRoom.simulate("click");
 
-    const inputRoomName = component.find("Input#room-name");
-    chai.assert.equal(inputRoomName.length, 1);
+      const inputRoomName = component.find("Input#room-name");
+      chai.assert.equal(inputRoomName.length, 1);
 
-    inputRoomName.simulate("change", { target: { value: "new_fake_room" } });
+      inputRoomName.simulate("change", { target: { value: "new_fake_room" } });
 
-    const modalWindow = component.find("Modal#room-create-modal");
-    chai.assert.equal(modalWindow.length, 1);
+      const modalWindow = component.find("Modal#room-create-modal");
+      chai.assert.equal(modalWindow.length, 1);
 
-    modalWindow.simulate("submit");
+      modalWindow.simulate("submit");
 
-    const buttonCloseRightBlock = component.find("Button#close-right-block");
-    chai.assert.equal(buttonCloseRightBlock.length, 1);
+      const buttonCloseRightBlock = component.find("Button#close-right-block");
+      chai.assert.equal(buttonCloseRightBlock.length, 1);
 
-    buttonCloseRightBlock.simulate("click");
+      buttonCloseRightBlock.simulate("click");
+    });
   });
 });

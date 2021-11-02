@@ -55,6 +55,8 @@ describe("MenuLinks component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(wrapper);
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.isDefined(wrapper);
+    });
   });
 });

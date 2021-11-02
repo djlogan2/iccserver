@@ -23,12 +23,15 @@ describe("PlayModaler component", () => {
         <PlayModaler {...mockProps} />
       </Router>
     );
-    chai.assert.isDefined(component);
 
-    const rematchButton = component.find("Button#rematch-button");
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    chai.assert.equal(rematchButton.length, 1);
-    rematchButton.simulate("click");
+      const rematchButton = component.find("Button#rematch-button");
+
+      chai.assert.equal(rematchButton.length, 1);
+      rematchButton.simulate("click");
+    });
   });
 
   it("should render with white black result", () => {
@@ -46,12 +49,14 @@ describe("PlayModaler component", () => {
         <PlayModaler {...mockProps} />
       </Router>
     );
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    const rematchButton = component.find("Button#rematch-button");
+      const rematchButton = component.find("Button#rematch-button");
 
-    chai.assert.equal(rematchButton.length, 1);
-    rematchButton.simulate("click");
+      chai.assert.equal(rematchButton.length, 1);
+      rematchButton.simulate("click");
+    });
   });
 
   it("should render with drawn result", () => {
@@ -69,11 +74,13 @@ describe("PlayModaler component", () => {
         <PlayModaler {...mockProps} />
       </Router>
     );
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    const rematchButton = component.find("Button#rematch-button");
+      const rematchButton = component.find("Button#rematch-button");
 
-    chai.assert.equal(rematchButton.length, 1);
-    rematchButton.simulate("click");
+      chai.assert.equal(rematchButton.length, 1);
+      rematchButton.simulate("click");
+    });
   });
 });

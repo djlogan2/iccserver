@@ -1,9 +1,8 @@
+import { withTracker } from "meteor/react-meteor-data";
 import React from "react";
 import { compose } from "redux";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 const MessageItem = compose(
   withTracker(() => {
@@ -11,7 +10,7 @@ const MessageItem = compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.messageItemCss")
 )(({ name, text, classes }) => {
   return (
     <div className={classes.main}>

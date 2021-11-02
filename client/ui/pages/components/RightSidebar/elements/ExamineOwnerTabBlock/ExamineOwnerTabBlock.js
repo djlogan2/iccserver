@@ -1,12 +1,10 @@
+import classNames from "classnames";
+import { withTracker } from "meteor/react-meteor-data";
 import React from "react";
 import { compose } from "redux";
-
-import { translate } from "../../../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
-import classNames from "classnames";
+import { translate } from "../../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
 
 const ExamineOwnerTabBlock = ({ game, translate, classes }) => {
   const handleAddExaminer = (game_id, id_to_add) => {
@@ -101,6 +99,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.examineOwnerTabBlockCss"),
   translate("Examine.ExamineOwnerTabBlock")
 )(ExamineOwnerTabBlock);

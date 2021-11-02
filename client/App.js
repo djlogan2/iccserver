@@ -1,23 +1,28 @@
+import addFont from "add-font";
+import { Col, Space, Spin } from "antd";
+import "antd/dist/antd.css";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import i18n from "meteor/universe:i18n";
 import React from "react";
 import { compose } from "redux";
-import { Spin, Space, Col } from "antd";
-import injectSheet from "react-jss";
-import i18n from "meteor/universe:i18n";
-import "antd/dist/antd.css";
-
+import { ClientInternationalizationCollection, mongoCss } from "../imports/api/client/collections";
 import "../imports/css/FenPgn.css";
 import "../imports/css/Loading.css";
-
 import "../imports/css/PlayRightSidebar.css";
-
-import { Routes } from "./routes/routes.js";
-import { withTracker } from "meteor/react-meteor-data";
-import { Meteor } from "meteor/meteor";
-import { defaultAppStyles } from "./defaultAppStyles";
-import { ClientInternationalizationCollection, mongoCss } from "../imports/api/client/collections";
-import { getLang, isReadySubscriptions, updateLocale } from "./utils/utils";
-import addFont from "add-font";
 import { FIGURE_FONT } from "./constants/resourceConstants";
+import { Routes } from "./routes/routes.js";
+import { getLang, isReadySubscriptions, updateLocale } from "./utils/utils";
+import injectSheet from "react-jss";
+
+const defaultAppStyles = {
+  loadingSidebar: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+  },
+};
 
 class App extends React.Component {
   render() {
@@ -31,7 +36,6 @@ class App extends React.Component {
         defaultLocale: updateLocale(i18nTranslate.locale),
       });
     }
-
     const availableRoutes = currentRoles.map((role) => role?.role?._id);
 
     return isReady ? (

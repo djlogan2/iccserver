@@ -32,7 +32,9 @@ describe("DetailsCard component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should simulate input change", () => {
@@ -44,8 +46,10 @@ describe("DetailsCard component", () => {
       </Router>
     );
 
-    const input = component.find("Input");
-    input.simulate("change", { tatget: { value: "new_fake_username" } });
+    Promise.resolve(component).then(() => {
+      const input = component.find("Input");
+      input.simulate("change", { tatget: { value: "new_fake_username" } });
+    });
   });
 
   it("should simulate button click", () => {
@@ -57,10 +61,12 @@ describe("DetailsCard component", () => {
       </Router>
     );
 
-    const input = component.find("Input");
-    input.simulate("change", { tatget: { value: "new_fake_username" } });
+    Promise.resolve(component).then(() => {
+      const input = component.find("Input");
+      input.simulate("change", { tatget: { value: "new_fake_username" } });
 
-    const button = component.find("Button");
-    button.simulate("click");
+      const button = component.find("Button");
+      button.simulate("click");
+    });
   });
 });

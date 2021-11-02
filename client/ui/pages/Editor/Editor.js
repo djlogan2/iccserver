@@ -1,26 +1,23 @@
-import React, { Component } from "react";
-import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
-import { Game, mongoCss } from "../../../../imports/api/client/collections.js";
-import Chess from "chess.js/chess";
-import { compose } from "redux";
 //import Chessground from "react-chessground";
 import FenParser from "@chess-fu/fen-parser";
 import { Col } from "antd";
-
-import CssManager from "../components/Css/CssManager";
-import EditorRightSidebar from "../components/RightSidebar/EditorRightSidebar/EditorRightSidebar";
-import Loading from "../components/Loading/Loading";
-import BoardWrapper from "../components/BoardWrapper/BoardWrapper";
-import { Logger } from "../../../../lib/client/Logger";
-
-import AppWrapper from "../components/AppWrapper/AppWrapper";
-import { getBoardSquares, isReadySubscriptions } from "../../../utils/utils";
+import Chess from "chess.js/chess";
 import ChessBoard, { PiecesSidebar } from "chessboard";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
+import { Game, mongoCss } from "../../../../imports/api/client/collections.js";
+import { Logger } from "../../../../lib/client/Logger";
 import { colorBlack, colorWhite, gameStatusPlaying } from "../../../constants/gameConstants";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { getBoardSquares, isReadySubscriptions } from "../../../utils/utils";
+import { withDynamicStyles } from "../../HOCs/withDynamicStyles/index.js";
 import { withSounds } from "../../HOCs/withSounds";
+import AppWrapper from "../components/AppWrapper/AppWrapper";
+import BoardWrapper from "../components/BoardWrapper/BoardWrapper";
+import CssManager from "../components/Css/CssManager";
+import Loading from "../components/Loading/Loading";
+import EditorRightSidebar from "../components/RightSidebar/EditorRightSidebar/EditorRightSidebar";
 
 const log = new Logger("client/Editor_js");
 
@@ -444,6 +441,6 @@ export default compose(
       systemCss: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("systemCss.editorCss"),
   withSounds("Editor")
 )(Editor);

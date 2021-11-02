@@ -38,17 +38,22 @@ describe("PlayWithFriend component", () => {
     });
     const test1 = Factory.create("game_requests");
 
-    Factory.define("users", Meteor.users, [{
-      _id: "fake_id",
-      username: "fake_username"
-    },{
-      _id: "fake_id_1",
-      username: "username",
-    }]);
+    Factory.define("users", Meteor.users, [
+      {
+        _id: "fake_id",
+        username: "fake_username",
+      },
+      {
+        _id: "fake_id_1",
+        username: "username",
+      },
+    ]);
     const test2 = Factory.create("users");
     Tracker.flush();
     const component = mount(<PlayWithFriend />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 });

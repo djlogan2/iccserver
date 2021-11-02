@@ -1,14 +1,12 @@
-import React, { Component } from "react";
-import { Meteor } from "meteor/meteor";
 import { get } from "lodash";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { compose } from "redux";
-
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { translate } from "../../../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
 import { withSounds } from "../../../../../HOCs/withSounds";
 
 const log = new Logger("client/GameControlBlock");
@@ -473,7 +471,7 @@ const GameControlBlock = compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("commandsCss.commandsCss")
 )(({ game, flip, classes, moveForward, moveBackward, moveForwardEnd, moveBackwardBeginning }) => {
   return (
     <div className={classes.container}>
@@ -497,7 +495,7 @@ const ExamineGameControlBlock = compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.gameControlBlockCss")
 )(({ game, flip, classes }) => {
   return (
     <div className={classes.container}>

@@ -9,9 +9,8 @@ import { formSourceEmail, formSourcePassword } from "../authConstants";
 import { translate } from "../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import classNames from "classnames";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 const log = new Logger("client/LoginPage_js");
 
@@ -128,7 +127,7 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.loginPageCss")
 )(LoginPage);
 
 export const LoginPage_Pure = LoginPage;

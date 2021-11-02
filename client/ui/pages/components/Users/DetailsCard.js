@@ -1,16 +1,14 @@
-import React, { Component } from "react";
 import { Button, Card, Input } from "antd";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-
-import { translate } from "../../../HOCs/translate";
-import { USERNAME_PROPERTY } from "../../../../constants/systemConstants";
-import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
+import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
+import { USERNAME_PROPERTY } from "../../../../constants/systemConstants";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 class DetailsCard extends Component {
   constructor(props) {
@@ -68,5 +66,5 @@ export default compose(
   }),
   withRouter,
   translate("Users.edit.details"),
-  injectSheet(dynamicUserManagementStyles)
+  withDynamicStyles("css.userManagementCss")
 )(DetailsCard);

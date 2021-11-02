@@ -1,13 +1,11 @@
-import React from "react";
 import { Button } from "antd";
-import { compose } from "redux";
-
-import { translate } from "../../HOCs/translate";
-import { RESOURCE_HOME } from "../../../constants/resourceConstants";
 import { withTracker } from "meteor/react-meteor-data";
+import React from "react";
+import { compose } from "redux";
 import { mongoCss } from "../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { RESOURCE_HOME } from "../../../constants/resourceConstants";
+import { translate } from "../../HOCs/translate";
+import { withDynamicStyles } from "../../HOCs/withDynamicStyles";
 
 const NotFound = ({ translate, classes }) => (
   <div className={classes.container}>
@@ -24,6 +22,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.notFoundCss"),
   translate("Common.NotFound")
 )(NotFound);

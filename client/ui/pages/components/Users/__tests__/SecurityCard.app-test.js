@@ -7,11 +7,15 @@ import { Meteor } from "meteor/meteor";
 
 describe("SecurityCard component", () => {
   beforeEach(() => {
-    sinon.replace(Meteor, "call", (methodName, methodDesc, currUserId, isolationGroup, callback) => {
-      if (methodName === "setOtherIsolationGroup") {
-        callback("fake_error");
+    sinon.replace(
+      Meteor,
+      "call",
+      (methodName, methodDesc, currUserId, isolationGroup, callback) => {
+        if (methodName === "setOtherIsolationGroup") {
+          callback("fake_error");
+        }
       }
-    });
+    );
   });
 
   afterEach(() => {
@@ -25,28 +29,32 @@ describe("SecurityCard component", () => {
   const component = mount(<SecurityCard {...mockProps} />);
 
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should simulate input change", () => {
-    const input1 = component.find("Input#new-password-input");
-    const input2 = component.find("Input#confirm-password-input");
-    chai.assert.equal(input1.length, 1);
+    Promise.resolve(component).then(() => {
+      const input1 = component.find("Input#new-password-input");
+      const input2 = component.find("Input#confirm-password-input");
+      chai.assert.equal(input1.length, 1);
 
-    input1.simulate("change", { target: { value: "password_value" } });
-    input2.simulate("change", { target: { value: "password_value1" } });
+      input1.simulate("change", { target: { value: "password_value" } });
+      input2.simulate("change", { target: { value: "password_value1" } });
 
-    const button = component.find("Button#update-password");
-    button.simulate("click");
+      const button = component.find("Button#update-password");
+      button.simulate("click");
 
-    input1.simulate("change", { target: { value: "password_value" } });
-    input2.simulate("change", { target: { value: null } });
+      input1.simulate("change", { target: { value: "password_value" } });
+      input2.simulate("change", { target: { value: null } });
 
-    button.simulate("click");
+      button.simulate("click");
 
-    input1.simulate("change", { target: { value: "password_value" } });
-    input2.simulate("change", { target: { value: "password_value" } });
+      input1.simulate("change", { target: { value: "password_value" } });
+      input2.simulate("change", { target: { value: "password_value" } });
 
-    button.simulate("click");
+      button.simulate("click");
+    });
   });
 });
