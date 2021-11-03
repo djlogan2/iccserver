@@ -1,11 +1,12 @@
 {
-  "plugins": [
-    "meteor"
-  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["meteor", "react", "react-hooks", "@typescript-eslint"],
   "extends": [
     "plugin:meteor/recommended",
     "react-app",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "env": {
     "node": true,
@@ -22,11 +23,9 @@
   "globals": {
     "BigInt": true
   },
-  "ignorePatterns": [
-    "**/*.app-test.js",
-    "imports/server/TestHelpers.js"
-  ],
+  "ignorePatterns": ["**/*.app-test.js", "imports/server/TestHelpers.js"],
   "rules": {
+    "@typescript-eslint/ban-ts-comment": "warn",
     "no-console": "warn",
     "prettier/prettier": [
       "error",

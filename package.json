@@ -51,7 +51,6 @@
     "@chessclub.com/legacy": "^1.0.3",
     "@types/chai": "^4.2.17",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
-    "@typescript-eslint/parser": "^4.29.1",
     "add-font": "^1.0.2",
     "antd": "^4.16.11",
     "async": "^3.2.1",
@@ -89,7 +88,7 @@
   },
   "meteor": {
     "mainModule": {
-      "client": "client/main.js",
+      "client": "client/main.tsx",
       "server": "server/main.js"
     }
   },
@@ -97,6 +96,11 @@
     "printWidth": 100
   },
   "devDependencies": {
+    "typescript": "^4.4.4",
+    "@typescript-eslint/parser": "^5.3.0",
+    "@types/meteor": "^1.4.84",
+    "@types/react": "^17.0.34",
+    "@types/react-dom": "^17.0.11",
     "@babel/plugin-proposal-class-properties": "^7.13.0",
     "@babel/plugin-proposal-decorators": "^7.13.15",
     "@babel/preset-env": "^7.15.0",
