@@ -93,6 +93,7 @@ class LeftSidebar extends Component {
     return (
       <div className={classNames("sidebar", "left", "device-menu", !!visible && "fliph")}>
         <GameListModal
+          allowDownload
           isImported={false}
           visible={isMyGamesModal}
           gameList={gameList}

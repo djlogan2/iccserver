@@ -12,7 +12,16 @@ import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 import ExportPgnButton from "../Button/ExportPgnButton";
 import "./GameListModal.css";
 
-const GameListModal = ({ gameList, isImported, history, onClose, classes, translate, visible }) => {
+const GameListModal = ({
+  gameList,
+  isImported,
+  history,
+  onClose,
+  classes,
+  translate,
+  visible,
+  allowDownload,
+}) => {
   const handleSetExaminMode = (id) => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported);
 
@@ -93,14 +102,16 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
               />
               <Table.Column title={translate("result")} dataIndex="result" key="result" />
               <Table.Column title={translate("date")} dataIndex="date" key="time" />
-              <Table.Column
-                title={translate("pgn")}
-                dataIndex="pgn"
-                key="pgn"
-                render={(text, record) => (
-                  <ExportPgnButton id={record.id} src={"images/pgnicon.png"} />
-                )}
-              />
+              {allowDownload && (
+                <Table.Column
+                  title={translate("pgn")}
+                  dataIndex="pgn"
+                  key="pgn"
+                  render={(text, record) => (
+                    <ExportPgnButton id={record.id} src={"images/pgnicon.png"} />
+                  )}
+                />
+              )}
             </Table>
           </div>
         ) : (
