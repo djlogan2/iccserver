@@ -45,8 +45,7 @@ class ExamineObserveTab extends Component {
       .filter(
         (item) =>
           item._id !== Meteor.userId() &&
-          !!item.status &&
-          (item.status.game === "examining" || item.status.game === "playing") &&
+          (item?.status?.game === "examining" || item?.status?.game === "playing") &&
           item.username.toLowerCase().includes(searchValue)
       )
       .map((item) => item.username);
