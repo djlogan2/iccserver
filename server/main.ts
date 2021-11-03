@@ -22,7 +22,7 @@ import "../lib/server/mugshots";
 import "../imports/server/okendpoint";
 import "../imports/server/api";
 //??
-import current_release from "../imports/startup/release";
+import { current_release } from "../imports/startup/release";
 import firstRunUsers from "../imports/startup/server/firstRunUsers";
 import firstRunCSS from "../imports/startup/server/firstRunCss";
 import firstRunClientInternationalization from "../imports/startup/server/firstRunClientInternationalization";
@@ -32,11 +32,11 @@ import firstRunStatics from "../imports/startup/server/firstRunStatics";
 const log = new Logger("server/main_js");
 
 if (!Meteor.isTest && !Meteor.isAppTest) {
-  const bound = Meteor.bindEnvironment((callback) => {
+  const bound = Meteor.bindEnvironment((callback: () => void) => {
     callback();
   });
 
-  process.on("uncaughtExceptionMonitor", (err, origin) => {
+  process.on("uncaughtExceptionMonitor", (err: Error, origin) => {
     bound(() => {
       fs.writeSync(process.stderr.fd, `Uncaught exception: ${err}\nException origin: ${origin}`);
       // eslint-disable-next-line no-console
@@ -69,7 +69,7 @@ if (!Meteor.isTest && !Meteor.isAppTest) {
     });
   });
 */
-  process.on("warning", (warning) => {
+  process.on("warning", (warning: Error) => {
     bound(() => {
       fs.writeSync(
         process.stderr.fd,
@@ -95,7 +95,7 @@ Meteor.startup(() => {
   firstRunStatics();
 
   Meteor.methods({
-    current_release: () => current_release.current_release.release,
-    current_commit: () => current_release.current_release.commit,
+    current_release: () => current_release.release,
+    current_commit: () => current_release.commit,
   });
 });
