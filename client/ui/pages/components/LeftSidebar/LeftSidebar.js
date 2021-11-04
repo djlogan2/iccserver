@@ -9,7 +9,7 @@ import { compose } from "redux";
 import { GameHistoryCollection, mongoCss } from "../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
 import { gameStatusNone, gameStatusPlaying } from "../../../../constants/gameConstants";
-import { RESOURCE_LOGIN, RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
+import { RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 import GameListModal from "../Modaler/GameListModal";
@@ -67,13 +67,9 @@ class LeftSidebar extends Component {
   };
 
   handleLogout = () => {
-    const { history } = this.props;
-
     Meteor.logout((err) => {
       if (err) {
         log.error(`Error while logging out: ${err}`);
-      } else {
-        history.push(RESOURCE_LOGIN);
       }
     });
   };

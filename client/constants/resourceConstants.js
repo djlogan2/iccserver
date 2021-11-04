@@ -10,6 +10,11 @@ export const RESOURCE_PROFILE = "/profile";
 export const RESOURCE_USERS = "/users";
 export const RESOURCE_CUSTOMIZABLE_BOARD = "/custom_board";
 
+export const RESOURCE_DEVELOPER = "/developer";
+export const RESOURCE_DEVELOPER2 = "/developer2";
+export const RESOURCE_DEVELOPER3 = "/developer3";
+export const RESOURCE_DEVELOPER4 = "/developer4";
+
 export const labelsToResources = {
   community: RESOURCE_COMMUNITY,
   uploadpgn: RESOURCE_UPLOAD_PGN,

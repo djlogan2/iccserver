@@ -19,7 +19,7 @@ import {
   maxRating,
   minRating,
 } from "../../../constants/gameConstants";
-import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
+import { RESOURCE_EXAMINE } from "../../../constants/resourceConstants";
 import { isReadySubscriptions } from "../../../utils/utils";
 import withClientMessages from "../../HOCs/withClientMessages";
 import { withDynamicStyles } from "../../HOCs/withDynamicStyles";
@@ -48,22 +48,6 @@ class Play extends Component {
       gameType: null,
       gameData: null,
     };
-  }
-
-  componentDidMount() {
-    if (!Meteor.userId() && !Meteor.isAppTest) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (!Meteor.userId()) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
-    }
   }
 
   drawCircle = (square, color, size) => {
