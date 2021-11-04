@@ -23,6 +23,18 @@ class GameHistory extends Component {
     const { cssManager, game, gameRequest, moveToCMI, translate } = this.props;
 
     const isDifferent = this.isTimeControllDifferent();
+    let ecospan;
+    if (game?.variations?.movelist?.[game.variations.cmi]?.eco) {
+      const eco = game.variations.movelist[game.variations.cmi].eco;
+      ecospan =
+        eco?.name === "NO_ECO" ? (
+          ""
+        ) : (
+          <span>
+            {eco.name};{eco.code};
+          </span>
+        );
+    }
 
     return (
       <div style={{ flex: 1, overflow: "auto" }}>
@@ -48,6 +60,7 @@ class GameHistory extends Component {
               })}
             {translate("game_type", { game_type: game?.rating_type })}
             {translate(game?.rated ? "rated" : "unrated")}
+            {ecospan}
           </span>
         )}
         <MoveList
