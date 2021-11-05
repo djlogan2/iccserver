@@ -48,7 +48,9 @@ describe("ExamineOwnerTabBlock component", () => {
     };
     const component = mount(<ExamineOwnerTabBlock {...mockProps} />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should render without examiner", () => {
@@ -65,12 +67,14 @@ describe("ExamineOwnerTabBlock component", () => {
     };
     const component = mount(<ExamineOwnerTabBlock {...mockProps} />);
 
-    chai.assert.isDefined(component);
-    const button = component.find("button#handle-remove-examiner");
-    const button1 = component.find("button#handle-add-examiner");
-    chai.assert.equal(button.length, 1);
-    chai.assert.equal(button1.length, 1);
-    button.simulate("click");
-    button1.simulate("click");
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+      const button = component.find("button#handle-remove-examiner");
+      const button1 = component.find("button#handle-add-examiner");
+      chai.assert.equal(button.length, 1);
+      chai.assert.equal(button1.length, 1);
+      button.simulate("click");
+      button1.simulate("click");
+    });
   });
 });

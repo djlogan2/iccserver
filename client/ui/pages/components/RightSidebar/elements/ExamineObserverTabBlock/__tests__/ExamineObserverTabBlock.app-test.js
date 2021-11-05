@@ -40,18 +40,18 @@ describe("ExamineObserverTabBlock component", () => {
 
     const component = mount(<ExamineObserverTabBlock {...mockProps} />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    const button = component.find("Button");
-    button.simulate("click");
+      const button = component.find("Button");
+      button.simulate("click");
+    });
   });
 
   it("should render for observer", () => {
     const mockProps = {
       game: {
-        observers: [
-          { id: "fake_observer_id", username: "fake_observer" },
-        ],
+        observers: [{ id: "fake_observer_id", username: "fake_observer" }],
         owner: "fake_owner2_id",
       },
       unObserveUser: () => null,
@@ -59,9 +59,11 @@ describe("ExamineObserverTabBlock component", () => {
 
     const component = mount(<ExamineObserverTabBlock {...mockProps} />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    const button = component.find("Button");
-    button.simulate("click");
+      const button = component.find("Button");
+      button.simulate("click");
+    });
   });
 });

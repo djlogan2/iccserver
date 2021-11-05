@@ -1,12 +1,11 @@
-import React, { Component } from "react";
 import { Button } from "antd";
-import { compose } from "redux";
-import { translate } from "../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "../Modaler/PlayModaler/dynamicStyles";
 import classNames from "classnames";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../imports/api/client/collections";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 class CommunityRightBlock extends Component {
   render() {
@@ -59,6 +58,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.playModalCss"),
   translate("Community")
 )(CommunityRightBlock);

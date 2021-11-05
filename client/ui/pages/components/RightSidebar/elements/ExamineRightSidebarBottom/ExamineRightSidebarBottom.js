@@ -1,13 +1,12 @@
+import { Tabs } from "antd";
+import { withTracker } from "meteor/react-meteor-data";
 import React, { Component } from "react";
 import { compose } from "redux";
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
+import { translate } from "../../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
 import KibitzChatApp from "../../../Chat/KibitzChatApp/KibitzChatApp";
 import FenPgn from "../FenPgn/FenPgn";
-import { Tabs } from "antd";
-import { translate } from "../../../../../HOCs/translate";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import "./ExamineSidebarBottom.css";
 
 const { TabPane } = Tabs;
@@ -38,6 +37,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.examineRightSidebarBottomCss"),
   translate("Examine.ExamineRightSidebarBottom")
 )(ExamineRightSidebarBottom);

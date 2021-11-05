@@ -112,9 +112,12 @@ describe("Examine Page component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+  
+      component.unmount();
+    })
 
-    component.unmount();
   });
 
   it("should call flip function", () => {
@@ -124,7 +127,9 @@ describe("Examine Page component", () => {
       </Router>
     );
 
-    chai.assert.equal(component.find("button#flip-button").length, 1);
-    component.find("button#flip-button").simulate("click");
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find("button#flip-button").length, 1);
+      component.find("button#flip-button").simulate("click");
+    })
   });
 });

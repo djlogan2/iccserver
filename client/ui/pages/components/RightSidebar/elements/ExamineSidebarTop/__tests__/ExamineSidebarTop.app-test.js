@@ -17,6 +17,8 @@ describe("ExamineSidebarTop component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 });

@@ -1,21 +1,19 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
-import { compose } from "redux";
-import injectSheet from "react-jss";
+import { notification } from "antd";
 import classNames from "classnames";
 import { get } from "lodash";
+import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-
-import MenuLinks from "./MenuLinks";
-import GameListModal from "../Modaler/GameListModal";
+import React, { Component } from "react";
+import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 import { GameHistoryCollection, mongoCss } from "../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
-import { RESOURCE_LOGIN, RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
-import { translate } from "../../../HOCs/translate";
-import { dynamicLeftSideBarStyles } from "./dynamicLeftSidebarStyles";
 import { gameStatusNone, gameStatusPlaying } from "../../../../constants/gameConstants";
-import { notification } from "antd";
+import { RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import GameListModal from "../Modaler/GameListModal";
+import MenuLinks from "./MenuLinks";
 
 const log = new Logger("client/LeftSidebar_js");
 
@@ -69,13 +67,9 @@ class LeftSidebar extends Component {
   };
 
   handleLogout = () => {
-    const { history } = this.props;
-
     Meteor.logout((err) => {
       if (err) {
         log.error(`Error while logging out: ${err}`);
-      } else {
-        history.push(RESOURCE_LOGIN);
       }
     });
   };
@@ -95,6 +89,7 @@ class LeftSidebar extends Component {
     return (
       <div className={classNames("sidebar", "left", "device-menu", !!visible && "fliph")}>
         <GameListModal
+          allowDownload
           isImported={false}
           visible={isMyGamesModal}
           gameList={gameList}
@@ -175,7 +170,7 @@ export default compose(
       currentUser: Meteor.users.findOne({ _id: Meteor.userId() }),
     };
   }),
-  injectSheet(dynamicLeftSideBarStyles)
+  withDynamicStyles("leftSideBarCss.leftSideBarCss")
 )(LeftSidebar);
 
 export const LeftSidebar_Pure = LeftSidebar;

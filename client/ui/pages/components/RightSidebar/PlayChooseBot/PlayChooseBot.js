@@ -1,18 +1,23 @@
-import React, { Component } from "react";
 import { Button, Form, InputNumber, Radio, Switch, Typography } from "antd";
-import { translate } from "../../../../HOCs/translate";
-import { findRatingObject, getMaxInitialAndIncOrDelayTime } from "../../../../../../lib/ratinghelpers";
-import { DynamicRatingsCollection, mongoCss } from "../../../../../../imports/api/client/collections";
-import { compose } from "redux";
-import { withTracker } from "meteor/react-meteor-data";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
+import {
+  DynamicRatingsCollection,
+  mongoCss,
+} from "../../../../../../imports/api/client/collections";
+import {
+  findRatingObject,
+  getMaxInitialAndIncOrDelayTime,
+} from "../../../../../../lib/ratinghelpers";
 import {
   CHALLENGER_INCREMENT_DELAY_TYPE,
   INCREMENT_OR_DELAY_TYPE_NONE,
-  RECEIVER_INCREMENT_DELAY_TYPE
+  RECEIVER_INCREMENT_DELAY_TYPE,
 } from "../../../../../constants/gameConstants";
+import { translate } from "../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 
 const { Title } = Typography;
 
@@ -24,7 +29,7 @@ class PlayChooseBot extends Component {
 
     this.state = {
       timeOdds: false,
-      difficulty: 5,
+      difficulty: matchDefaults?.skill_level || 5,
       color: "random",
       challengerIncrementOrDelayType: matchDefaults?.challenger_delaytype || "inc",
       challengerInitial: matchDefaults?.challenger_time || 15,
@@ -153,11 +158,9 @@ class PlayChooseBot extends Component {
       challengerInitial,
       challengerIncrementOrDelay,
       challengerIncrementOrDelayType,
-      challengerRatingType,
       receiverInitial,
       receiverIncrementOrDelay,
       receiverIncrementOrDelayType,
-      receiverRatingType,
       difficulty,
       color,
       timeOdds,
@@ -309,7 +312,7 @@ class PlayChooseBot extends Component {
                         parser={(value) => Math.round(value)}
                         formatter={(value) => Math.round(value)}
                         max={maxIncOrDelayValue}
-                        value={challengerIncrementOrDelay}
+                        value={receiverIncrementOrDelay}
                         onChange={this.handleChange("receiverIncrementOrDelay")}
                       />
                     </Form.Item>
@@ -363,6 +366,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.playChooseBotCss"),
   translate("Play.PlayChooseBot")
 )(PlayChooseBot);

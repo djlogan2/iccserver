@@ -21,9 +21,11 @@ describe("PersonalChatApp component", () => {
   it("should render", () => {
     const component = mount(<PersonalChatApp />);
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
 
-    component.find("Input").simulate("change", { target: { value: "new_value" } });
-    component.find("form").simulate("submit");
+      component.find("Input").simulate("change", { target: { value: "new_value" } });
+      component.find("form").simulate("submit");
+    });
   });
 });

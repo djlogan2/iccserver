@@ -1,13 +1,12 @@
-import React, { Component } from "react";
 import { Button, Input, Modal } from "antd";
-import { compose } from "redux";
-import { translate } from "../../../HOCs/translate";
-import { KEY_ENTER } from "../../../../constants/systemConstants";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./roomBlockDynamicStyles";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../imports/api/client/collections";
 import classNames from "classnames";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
+import { compose } from "redux";
+import { mongoCss } from "../../../../../imports/api/client/collections";
+import { KEY_ENTER } from "../../../../constants/systemConstants";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 class RoomBlock extends Component {
   constructor(props) {
@@ -112,5 +111,5 @@ export default compose(
     };
   }),
   translate("Community"),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.communityBlockCss")
 )(RoomBlock);

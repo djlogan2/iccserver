@@ -1,15 +1,13 @@
+import classNames from "classnames";
+import { withTracker } from "meteor/react-meteor-data";
 import React from "react";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-
-import { translate } from "../../../../../HOCs/translate";
-import { RESOURCE_EDITOR } from "../../../../../../constants/resourceConstants";
-import PrimaryButton from "../../../Button/PrimaryButton";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
-import classNames from "classnames";
+import { RESOURCE_EDITOR } from "../../../../../../constants/resourceConstants";
+import { translate } from "../../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
+import PrimaryButton from "../../../Button/PrimaryButton";
 
 const Actions = compose(
   withTracker(() => {
@@ -17,7 +15,7 @@ const Actions = compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.actionsCss"),
   translate("Common.rightBarTop"),
   withRouter
 )(({ translate, playComputer, history, classes }) => (

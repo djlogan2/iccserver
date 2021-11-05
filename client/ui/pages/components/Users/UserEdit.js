@@ -1,19 +1,17 @@
-import React, { Component } from "react";
+import { Col, Space, Spin } from "antd";
 import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-
-import AppWrapper from "../AppWrapper/AppWrapper";
+import { mongoCss } from "../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
-import { Col, Space, Spin } from "antd";
+import { ROLE_LIST_USERS } from "../../../../constants/systemConstants";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import AppWrapper from "../AppWrapper/AppWrapper";
 import DetailsCard from "./DetailsCard";
 import SecurityCard from "./SecurityCard";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../imports/api/client/collections";
-import { ROLE_LIST_USERS } from "../../../../constants/systemConstants";
-import injectSheet from "react-jss";
-import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
 
 const log = new Logger("client/UserManagement_js");
 
@@ -97,5 +95,5 @@ export default compose(
     };
   }),
   withRouter,
-  injectSheet(dynamicUserManagementStyles)
+  withDynamicStyles("css.userManagementCss")
 )(UserEdit);

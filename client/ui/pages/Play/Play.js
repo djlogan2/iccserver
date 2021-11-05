@@ -1,12 +1,8 @@
-import React, { Component } from "react";
-import PlayPage from "../components/PlayPage/PlayPage";
+import Chess from "chess.js";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import { Logger } from "../../../../lib/client/Logger";
-import CssManager from "../components/Css/CssManager";
-import Loading from "../components/Loading/Loading";
-import PlayModaler from "../components/Modaler/PlayModaler/PlayModaler";
-import Chess from "chess.js";
+import React, { Component } from "react";
+import { compose } from "redux";
 import {
   ClientMessagesCollection,
   DynamicRatingsCollection,
@@ -14,21 +10,24 @@ import {
   GameRequestCollection,
   mongoCss,
 } from "../../../../imports/api/client/collections";
-import { TimestampClient } from "../../../../lib/Timestamp";
+import { Logger } from "../../../../lib/client/Logger";
 import { findRatingObject } from "../../../../lib/ratinghelpers";
-import { isReadySubscriptions } from "../../../utils/utils";
-import { compose } from "redux";
-import injectSheet from "react-jss";
-import { dynamicPlayNotifierStyles } from "./dynamicPlayNotifierStyles";
-import { RESOURCE_EXAMINE, RESOURCE_LOGIN } from "../../../constants/resourceConstants";
+import { TimestampClient } from "../../../../lib/Timestamp";
 import {
   gameSeekAutoAccept,
   gameSeekIsRated,
   maxRating,
   minRating,
 } from "../../../constants/gameConstants";
-import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
+import { RESOURCE_EXAMINE } from "../../../constants/resourceConstants";
+import { isReadySubscriptions } from "../../../utils/utils";
 import withClientMessages from "../../HOCs/withClientMessages";
+import { withDynamicStyles } from "../../HOCs/withDynamicStyles";
+import { withPlayNotifier } from "../../HOCs/withPlayNotifier";
+import CssManager from "../components/Css/CssManager";
+import Loading from "../components/Loading/Loading";
+import PlayModaler from "../components/Modaler/PlayModaler/PlayModaler";
+import PlayPage from "../components/PlayPage/PlayPage";
 
 const log = new Logger("client/Play_js");
 
@@ -49,22 +48,6 @@ class Play extends Component {
       gameType: null,
       gameData: null,
     };
-  }
-
-  componentDidMount() {
-    if (!Meteor.userId() && !Meteor.isAppTest) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (!Meteor.userId()) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_LOGIN);
-    }
   }
 
   drawCircle = (square, color, size) => {
@@ -412,7 +395,7 @@ export default compose(
       }).fetch(),
     };
   }),
-  injectSheet(dynamicPlayNotifierStyles),
+  withDynamicStyles("systemCss.playNotificationsCss"),
   withPlayNotifier,
   withClientMessages
 )(Play);

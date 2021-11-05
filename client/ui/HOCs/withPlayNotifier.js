@@ -17,8 +17,8 @@ export const withPlayNotifier = (WrappedComponent) => {
         action,
         classes,
         translate,
-        cssManager: new CssManager(systemCss.systemCss, systemCss.userCss),
-        gameId: game._id,
+        cssManager: new CssManager(systemCss?.systemCss, systemCss?.userCss),
+        gameId: game?._id,
       });
     };
 
@@ -28,7 +28,7 @@ export const withPlayNotifier = (WrappedComponent) => {
       const translate = i18n.createTranslator("Common.MainPage");
 
       if (game && game.pending && game.status === gameStatusPlaying) {
-        const othercolor = Meteor.userId() === game.white.id ? colorBlack : colorWhite;
+        const othercolor = Meteor.userId() === game?.white?.id ? colorBlack : colorWhite;
 
         if (game.pending[othercolor].takeback.number !== 0) {
           const moveCount =

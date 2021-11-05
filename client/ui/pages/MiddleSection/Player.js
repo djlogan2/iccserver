@@ -1,11 +1,10 @@
-import React, { Component } from "react";
-import { Button, Input } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
+import { Button, Input } from "antd";
 import { withTracker } from "meteor/react-meteor-data";
-import FallenSoldier from "./FallenSoldier";
-
-import { translate } from "../../HOCs/translate";
-import CustomImage from "../components/CustomImage/CustomImage";
+import React, { Component } from "react";
+import { compose } from "redux";
+import { mongoCss } from "../../../../imports/api/client/collections";
+import { Logger } from "../../../../lib/client/Logger";
 import {
   colorBlackUpper,
   colorWhiteLetter,
@@ -13,11 +12,10 @@ import {
   MAX_RATING,
   MIN_RATING,
 } from "../../../constants/gameConstants";
-import { Logger } from "../../../../lib/client/Logger";
-import { compose } from "redux";
-import { mongoCss } from "../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { translate } from "../../HOCs/translate";
+import { withDynamicStyles } from "../../HOCs/withDynamicStyles";
+import CustomImage from "../components/CustomImage/CustomImage";
+import FallenSoldier from "./FallenSoldier";
 
 const log = new Logger("client/Player_js");
 
@@ -229,5 +227,5 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.middleSectionPlayerCss")
 )(Player);

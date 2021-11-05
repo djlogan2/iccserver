@@ -39,7 +39,9 @@ describe("GameRequestModal component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should render with match", () => {
@@ -52,7 +54,9 @@ describe("GameRequestModal component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should render with exception", () => {
@@ -65,6 +69,8 @@ describe("GameRequestModal component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 });

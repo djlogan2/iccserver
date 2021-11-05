@@ -4,14 +4,13 @@ import { compose } from "redux";
 import { Link } from "react-router-dom";
 
 import { Logger } from "../../../../../lib/client/Logger";
-import { RESOURCE_HOME, RESOURCE_SIGN_UP } from "../../../../constants/resourceConstants";
+import { RESOURCE_SIGN_UP } from "../../../../constants/resourceConstants";
 import { formSourceEmail, formSourcePassword } from "../authConstants";
 import { translate } from "../../../HOCs/translate";
 import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
 import classNames from "classnames";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 
 const log = new Logger("client/LoginPage_js");
 
@@ -26,14 +25,6 @@ class LoginPage extends Component {
     };
   }
 
-  componentDidMount() {
-    if (Meteor.userId()) {
-      const { history } = this.props;
-
-      history.push(RESOURCE_HOME);
-    }
-  }
-
   onChangeFormValue = (value) => (event) => {
     this.setState({ [value]: event.target.value });
   };
@@ -41,7 +32,7 @@ class LoginPage extends Component {
   login = (e) => {
     e.preventDefault();
 
-    const { history, translate } = this.props;
+    const { translate } = this.props;
     const { email, password } = this.state;
 
     if (!email || !password) {
@@ -57,8 +48,6 @@ class LoginPage extends Component {
         this.setState({
           error: err.reason,
         });
-      } else {
-        history.push(RESOURCE_HOME);
       }
     });
   };
@@ -128,7 +117,7 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.loginPageCss")
 )(LoginPage);
 
 export const LoginPage_Pure = LoginPage;

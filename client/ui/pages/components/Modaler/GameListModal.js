@@ -1,40 +1,27 @@
-import React from "react";
 import { Modal, Table } from "antd";
-import { withRouter } from "react-router-dom";
-import { Meteor } from "meteor/meteor";
-import injectSheet from "react-jss";
-import { compose } from "redux";
-import { translate } from "../../../HOCs/translate";
-import ExportPgnButton from "../Button/ExportPgnButton";
-import { get } from "lodash";
 import date from "date-and-time";
-
-import "./GameListModal.css";
+import { get } from "lodash";
+import { Meteor } from "meteor/meteor";
+import React from "react";
+import { withRouter } from "react-router-dom";
+import { compose } from "redux";
 import { RESOURCE_EXAMINE } from "../../../../constants/resourceConstants";
 import { MY_GAMES_MODAL_OPENED } from "../../../../constants/systemConstants";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import ExportPgnButton from "../Button/ExportPgnButton";
+import "./GameListModal.css";
 
-const styles = {
-  table: {
-    width: "100%",
-    textAlign: "center",
-    border: "1px solid #f1f1f1",
-  },
-  backgroundDiv: {
-    background: "#ffffff",
-  },
-  tableDiv: {
-    overflowY: "auto",
-    width: "100%",
-    display: "block",
-  },
-  noDataDiv: {
-    maxHeight: "350px",
-    overflowY: "auto",
-    width: "350px",
-  },
-};
-
-const GameListModal = ({ gameList, isImported, history, onClose, classes, translate, visible }) => {
+const GameListModal = ({
+  gameList,
+  isImported,
+  history,
+  onClose,
+  classes,
+  translate,
+  visible,
+  allowDownload,
+}) => {
   const handleSetExaminMode = (id) => {
     Meteor.call("examineGame", "ExaminedGame", id, isImported);
 
@@ -115,14 +102,16 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
               />
               <Table.Column title={translate("result")} dataIndex="result" key="result" />
               <Table.Column title={translate("date")} dataIndex="date" key="time" />
-              <Table.Column
-                title={translate("pgn")}
-                dataIndex="pgn"
-                key="pgn"
-                render={(text, record) => (
-                  <ExportPgnButton id={record.id} src={"images/pgnicon.png"} />
-                )}
-              />
+              {allowDownload && (
+                <Table.Column
+                  title={translate("pgn")}
+                  dataIndex="pgn"
+                  key="pgn"
+                  render={(text, record) => (
+                    <ExportPgnButton id={record.id} src={"images/pgnicon.png"} />
+                  )}
+                />
+              )}
             </Table>
           </div>
         ) : (
@@ -135,6 +124,6 @@ const GameListModal = ({ gameList, isImported, history, onClose, classes, transl
 
 export default compose(
   withRouter,
-  injectSheet(styles),
+  withDynamicStyles("css.gameListModalCss"),
   translate("Common.gameListModal")
 )(GameListModal);

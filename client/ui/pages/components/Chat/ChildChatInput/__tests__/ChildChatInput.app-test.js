@@ -11,19 +11,27 @@ describe("ChildChatInput component", () => {
   };
   const component = mount(<ChildChatInput {...mockProps} />);
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should have form", () => {
-    chai.assert.equal(component.find("form").length, 1);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find("form").length, 1);
+    });
   });
 
   it("should have one select", () => {
-    chai.assert.equal(component.find("Select").length, 1);
+    Promise.resolve(component).then(() => {
+      chai.assert.equal(component.find("Select").length, 1);
+    });
   });
 
   it("should submit form", () => {
-    const form = component.find("form").first();
-    form.simulate("submit");
+    Promise.resolve(component).then(() => {
+      const form = component.find("form").first();
+      form.simulate("submit");
+    });
   });
 });

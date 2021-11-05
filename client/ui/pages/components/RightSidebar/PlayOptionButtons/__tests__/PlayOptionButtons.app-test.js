@@ -12,48 +12,62 @@ describe("PlayOptionButtons component", () => {
   const component = mount(<PlayOptionButtons {...mockProps} />);
 
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 
   it("should click one minute seek", () => {
-    const button = component.find("Button#one-minute-seek");
+    Promise.resolve(component).then(() => {
+      const button = component.find("Button#one-minute-seek");
 
-    chai.assert.equal(button.length, 1);
-    button.simulate("click");
+      chai.assert.equal(button.length, 1);
+      button.simulate("click");
+    });
   });
 
   it("should click one three minutes seek", () => {
-    const button = component.find("Button#three-minutes-seek");
+    Promise.resolve(component).then(() => {
+      const button = component.find("Button#three-minutes-seek");
 
-    chai.assert.equal(button.length, 1);
-    button.simulate("click");
+      chai.assert.equal(button.length, 1);
+      button.simulate("click");
+    });
   });
 
   it("should click five minutes seek", () => {
-    const button = component.find("Button#five-minutes-seek");
+    Promise.resolve(component).then(() => {
+      const button = component.find("Button#five-minutes-seek");
 
-    chai.assert.equal(button.length, 1);
-    button.simulate("click");
+      chai.assert.equal(button.length, 1);
+      button.simulate("click");
+    });
   });
 
   it("should click ten minutes seek", () => {
-    const button = component.find("Button#ten-minutes-seek");
+    Promise.resolve(component).then(() => {
+      const button = component.find("Button#ten-minutes-seek");
 
-    chai.assert.equal(button.length, 1);
-    button.simulate("click");
+      chai.assert.equal(button.length, 1);
+      button.simulate("click");
+    });
   });
 
   it("should click fifteen minutes seek", () => {
-    const button = component.find("Button#fifteen-minutes-seek");
+    Promise.resolve(component).then(() => {
+      const button = component.find("Button#fifteen-minutes-seek");
 
-    chai.assert.equal(button.length, 1);
-    button.simulate("click");
+      chai.assert.equal(button.length, 1);
+      button.simulate("click");
+    });
   });
 
   it("should click twenty five minutes seek", () => {
-    const button = component.find("Button#twenty-five-minutes-seek");
+    Promise.resolve(component).then(() => {
+      const button = component.find("Button#twenty-five-minutes-seek");
 
-    chai.assert.equal(button.length, 1);
-    button.simulate("click");
+      chai.assert.equal(button.length, 1);
+      button.simulate("click");
+    });
   });
 });

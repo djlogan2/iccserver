@@ -1,16 +1,20 @@
-import React, { Component } from "react";
 import { Table } from "antd";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import { compose } from "redux";
-
-import AppWrapper from "../AppWrapper/AppWrapper";
-import { renderButtonEdit, renderEmail, renderOnline, renderRating, renderStatus } from "./renderListUtils";
-import { translate } from "../../../HOCs/translate";
-import injectSheet from "react-jss";
-import { withTracker } from "meteor/react-meteor-data";
 import { mongoCss } from "../../../../../imports/api/client/collections";
-import { dynamicUserManagementStyles } from "./dynamicUserManagementStyles";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
+import { translate } from "../../../HOCs/translate";
+import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
+import AppWrapper from "../AppWrapper/AppWrapper";
+import {
+  renderButtonEdit,
+  renderEmail,
+  renderOnline,
+  renderRating,
+  renderStatus,
+} from "./renderListUtils";
 
 const { Column, ColumnGroup } = Table;
 
@@ -93,5 +97,5 @@ export default compose(
   }),
   withRouter,
   translate("Users.list"),
-  injectSheet(dynamicUserManagementStyles)
+  withDynamicStyles("css.userManagementCss")
 )(UsersList);

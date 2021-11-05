@@ -1,7 +1,7 @@
 import React from "react";
 import chai from "chai";
 import { createBrowserHistory } from "history";
-import LoginPage, {LoginPage_Pure} from "../LoginPage";
+import LoginPage, { LoginPage_Pure } from "../LoginPage";
 import { mount, shallow } from "enzyme";
 import { Router } from "react-router-dom";
 import sinon from "sinon";
@@ -27,73 +27,83 @@ describe("Login Page", () => {
   });
 
   it("render component", () => {
-    chai.assert.isDefined(wrapper);
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.isDefined(wrapper);
+    });
   });
 
   it("should have three inputs", () => {
-    chai.assert.equal(wrapper.find("input").length, 3);
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(wrapper.find("input").length, 3);
+    });
   });
 
   it("should have text and password fields", () => {
-    const page = wrapper.find(LoginPage);
-    chai.assert.equal(page.find("#login-email").length, 1);
-    chai.assert.equal(page.find("#login-password").length, 1);
-    chai.assert.equal(page.find("#login-email").prop("type"), "email");
-    chai.assert.equal(page.find("#login-password").prop("type"), "password");
+    Promise.resolve(wrapper).then(() => {
+      const page = wrapper.find(LoginPage);
+      chai.assert.equal(page.find("#login-email").length, 1);
+      chai.assert.equal(page.find("#login-password").length, 1);
+      chai.assert.equal(page.find("#login-email").prop("type"), "email");
+      chai.assert.equal(page.find("#login-password").prop("type"), "password");
+    });
   });
 
   it("should have redirect link", () => {
-    const link = wrapper.find("Link");
-    chai.assert.equal(link.length, 1, "no link");
-    chai.assert.equal(link.prop("to"), RESOURCE_SIGN_UP, "wrong url");
+    Promise.resolve(wrapper).then(() => {
+      const link = wrapper.find("Link");
+      chai.assert.equal(link.length, 1, "no link");
+      chai.assert.equal(link.prop("to"), RESOURCE_SIGN_UP, "wrong url");
+    });
   });
 
   it("expects input username changes value the text after click", () => {
-    const page = wrapper.find(LoginPage);
-    chai.assert.equal(page.find("#login-email").length, 1);
-    chai.assert.equal(page.find("#login-password").length, 1);
+    Promise.resolve(wrapper).then(() => {
+      const page = wrapper.find(LoginPage);
+      chai.assert.equal(page.find("#login-email").length, 1);
+      chai.assert.equal(page.find("#login-password").length, 1);
 
-    const mockState = {
-      error: "",
-      email: "",
-      password: "",
-    };
+      const mockState = {
+        error: "",
+        email: "",
+        password: "",
+      };
 
-    page.setState(mockState);
+      page.setState(mockState);
 
-    const usernameInput = page.find("#login-email");
+      const usernameInput = page.find("#login-email");
 
-    usernameInput.simulate("focus");
-    usernameInput.simulate("change", {
-      target: { value: newUsername, id: "username", name: "username" },
-    });
-    usernameInput.simulate('keyDown', {
-      which: 27,
-      target: {
-        blur() {
-          usernameInput.simulate('blur');
+      usernameInput.simulate("focus");
+      usernameInput.simulate("change", {
+        target: { value: newUsername, id: "username", name: "username" },
+      });
+      usernameInput.simulate("keyDown", {
+        which: 27,
+        target: {
+          blur() {
+            usernameInput.simulate("blur");
+          },
         },
-      },
-    });
+      });
 
-    const passwordInput = page.find("#login-password");
+      const passwordInput = page.find("#login-password");
 
-    passwordInput.simulate("focus");
-    passwordInput.simulate("change", {
-      target: { value: newPassword, name: "password" },
-    });
-    passwordInput.simulate('keyDown', {
-      which: 27,
-      target: {
-        blur() {
-          // Needed since <EditableText /> calls target.blur()
-          passwordInput.simulate('blur');
+      passwordInput.simulate("focus");
+      passwordInput.simulate("change", {
+        target: { value: newPassword, name: "password" },
+      });
+      passwordInput.simulate("keyDown", {
+        which: 27,
+        target: {
+          blur() {
+            // Needed since <EditableText /> calls target.blur()
+            passwordInput.simulate("blur");
+          },
         },
-      },
-    });
+      });
 
-    const form = page.find("form").first();
-    form.simulate("submit");
+      const form = page.find("form").first();
+      form.simulate("submit");
+    });
     // console.log(page.instance().state, "input : ", usernameInput.props().value);
     // chai.assert.equal(page.state("email"), newUsername);
     // chai.assert.equal(page.state('password'), newPassword)
@@ -121,46 +131,47 @@ describe("Login Page", () => {
   //  chai.expect(redirect).to.have.been.calledWith(RESOURCE_HOME);
   //
   // })
-
 });
 
 describe("Login Page Pure Component", () => {
   let page;
   beforeEach(() => {
-    page = shallow(
-      <LoginPage_Pure classes={{}} translate={()=>{}}/>
-    );
+    page = shallow(<LoginPage_Pure classes={{}} translate={() => {}} />);
   });
 
-  afterEach(() => { });
+  afterEach(() => {});
 
   it("expects error is shown", (done) => {
-    const errMsg = "error message";
-    const mockState = {
-      error: errMsg,
-      email: "",
-      password: "",
-    };
-    page.setState(mockState, () => {
-      chai.assert.equal(page.find(".alert-danger").length, 1, "no error shown");
-      chai.assert.equal(page.find(".alert-danger").text(), errMsg, "wrong error message");
-      done();
-    })
+    Promise.resolve(page).then(() => {
+      const errMsg = "error message";
+      const mockState = {
+        error: errMsg,
+        email: "",
+        password: "",
+      };
+      page.setState(mockState, () => {
+        chai.assert.equal(page.find(".alert-danger").length, 1, "no error shown");
+        chai.assert.equal(page.find(".alert-danger").text(), errMsg, "wrong error message");
+        done();
+      });
+    });
   });
 
   it("expects input fields changes value", () => {
-    const usernameInput = page.find("#login-email");
-    const usernamePassword = page.find("#login-password");
-    const email = "test@test.com";
-    const password = "1qazXSW@#ddfea";
-    usernameInput.simulate("change", {
-      target: { value: email },
-    });
-    usernamePassword.simulate("change", {
-      target: { value: password },
-    });
+    Promise.resolve(page).then(() => {
+      const usernameInput = page.find("#login-email");
+      const usernamePassword = page.find("#login-password");
+      const email = "test@test.com";
+      const password = "1qazXSW@#ddfea";
+      usernameInput.simulate("change", {
+        target: { value: email },
+      });
+      usernamePassword.simulate("change", {
+        target: { value: password },
+      });
 
-    chai.assert.equal(page.state().email, email, "set email wrong");
-    chai.assert.equal(page.state().password, password, "set password wrong");
-  })
+      chai.assert.equal(page.state().email, email, "set email wrong");
+      chai.assert.equal(page.state().password, password, "set password wrong");
+    });
+  });
 });

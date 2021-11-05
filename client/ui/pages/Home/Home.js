@@ -1,11 +1,10 @@
+import { withTracker } from "meteor/react-meteor-data";
 import React from "react";
 import { compose } from "redux";
-import AppWrapper from "../components/AppWrapper/AppWrapper";
 import { mongoCss } from "../../../../imports/api/client/collections";
-import { withTracker } from "meteor/react-meteor-data";
 import { translate } from "../../HOCs/translate";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
+import { withDynamicStyles } from "../../HOCs/withDynamicStyles";
+import AppWrapper from "../components/AppWrapper/AppWrapper";
 
 class Home extends React.Component {
   render() {
@@ -31,6 +30,6 @@ export default compose(
       css: mongoCss.findOne(),
     };
   }),
-  injectSheet(dynamicStyles),
+  withDynamicStyles("css.homeCss"),
   translate("Common.Home")
 )(Home);

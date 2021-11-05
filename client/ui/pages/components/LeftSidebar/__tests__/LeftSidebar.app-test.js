@@ -5,7 +5,7 @@ import sinon from "sinon";
 import { mount, shallow } from "enzyme";
 import { createBrowserHistory } from "history";
 import { Router } from "react-router-dom";
-import LeftSidebar, {LeftSidebar_Pure} from "../LeftSidebar";
+import LeftSidebar, { LeftSidebar_Pure } from "../LeftSidebar";
 
 describe("LeftSidebar component", () => {
   const currentUser = {
@@ -49,7 +49,9 @@ describe("LeftSidebar component", () => {
       </Router>
     );
 
-    chai.assert.isDefined(wrapper);
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.isDefined(wrapper);
+    });
   });
 
   it("should fliph", () => {
@@ -60,10 +62,11 @@ describe("LeftSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
-    const button = wrapper.find("button");
-    button.simulate("click");
-
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+      const button = wrapper.find("button");
+      button.simulate("click");
+    });
   });
 
   it("should redirect to profile", () => {
@@ -74,10 +77,12 @@ describe("LeftSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
-    const div = wrapper.find("#profile-redirect");
-    div.simulate("click");
-    chai.assert.equal(location.pathname, '/profile');
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+      const div = wrapper.find("#profile-redirect");
+      div.simulate("click");
+      chai.assert.equal(location.pathname, "/profile");
+    });
   });
 
   it("should logout", () => {
@@ -88,9 +93,11 @@ describe("LeftSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
-    const div = wrapper.find("a#logout");
-    div.simulate("click");
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+      const div = wrapper.find("a#logout");
+      div.simulate("click");
+    });
   });
 
   it("should open my games dialog", () => {
@@ -101,11 +108,13 @@ describe("LeftSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
-    const div = wrapper.find("a#mygame");
-    div.simulate("click");
-    chai.assert.equal(wrapper.find("Modal").length, 1);
-    wrapper.find("Modal").simulate("cancel");
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+      const div = wrapper.find("a#mygame");
+      div.simulate("click");
+      chai.assert.equal(wrapper.find("Modal").length, 1);
+      wrapper.find("Modal").simulate("cancel");
+    });
   });
 
   it("should go to link examine", () => {
@@ -116,10 +125,12 @@ describe("LeftSidebar component", () => {
       </Router>
     );
 
-    chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
-    const div = wrapper.find("a#examine");
-    div.simulate("click");
-    chai.assert.equal(location.pathname, '/examine');
+    Promise.resolve(wrapper).then(() => {
+      chai.assert.equal(wrapper.find(LeftSidebar).length, 1);
+      const div = wrapper.find("a#examine");
+      div.simulate("click");
+      chai.assert.equal(location.pathname, "/examine");
+    });
   });
 });
 
@@ -127,19 +138,21 @@ describe("LeftSideBar Pure Component", () => {
   let page, history;
   beforeEach(() => {
     history = createBrowserHistory();
-    page = shallow(<LeftSidebar_Pure classes={{}} translate={()=>{}}/>);
-  })
+    page = shallow(<LeftSidebar_Pure classes={{}} translate={() => {}} />);
+  });
 
   afterEach(() => {
     sinon.restore();
-  })
+  });
 
   it("state visible value is changed", () => {
-    const button = page.find("button");
-    chai.assert.isFalse(page.state().visible, "wrong default value");
-    button.simulate("click");
-    chai.assert.isTrue(page.state().visible, "value don't change");
-    button.simulate("click");
-    chai.assert.isFalse(page.state().visible, "value don't change");
+    Promise.resolve(page).then(() => {
+      const button = page.find("button");
+      chai.assert.isFalse(page.state().visible, "wrong default value");
+      button.simulate("click");
+      chai.assert.isTrue(page.state().visible, "value don't change");
+      button.simulate("click");
+      chai.assert.isFalse(page.state().visible, "value don't change");
+    });
   });
-})
+});

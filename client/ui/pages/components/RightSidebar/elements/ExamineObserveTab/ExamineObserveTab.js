@@ -1,16 +1,14 @@
-import React, { Component } from "react";
 import { AutoComplete, Button } from "antd";
 import { get } from "lodash";
+import { Meteor } from "meteor/meteor";
+import { withTracker } from "meteor/react-meteor-data";
+import React, { Component } from "react";
 import { compose } from "redux";
-
+import { mongoCss } from "../../../../../../../imports/api/client/collections";
 import { translate } from "../../../../../HOCs/translate";
+import { withDynamicStyles } from "../../../../../HOCs/withDynamicStyles";
 import ExamineObserverTabBlock from "../ExamineObserverTabBlock/ExamineObserverTabBlock";
 import ExamineOwnerTabBlock from "../ExamineOwnerTabBlock/ExamineOwnerTabBlock";
-import { withTracker } from "meteor/react-meteor-data";
-import { mongoCss } from "../../../../../../../imports/api/client/collections";
-import injectSheet from "react-jss";
-import { dynamicStyles } from "./dynamicStyles";
-import { Meteor } from "meteor/meteor";
 
 class ExamineObserveTab extends Component {
   constructor(props) {
@@ -47,8 +45,7 @@ class ExamineObserveTab extends Component {
       .filter(
         (item) =>
           item._id !== Meteor.userId() &&
-          !!item.status &&
-          (item.status.game === "examining" || item.status.game === "playing") &&
+          (item?.status?.game === "examining" || item?.status?.game === "playing") &&
           item.username.toLowerCase().includes(searchValue)
       )
       .map((item) => item.username);
@@ -102,5 +99,5 @@ export default compose(
       allUsers: Meteor.users.find().fetch(),
     };
   }),
-  injectSheet(dynamicStyles)
+  withDynamicStyles("css.examineObserveTabCss")
 )(ExamineObserveTab);

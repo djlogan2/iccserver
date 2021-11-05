@@ -111,11 +111,11 @@ SystemConfiguration.matchDefault = function () {
 };
 
 SystemConfiguration.computerDefault = function () {
-  return lookup("match_default", {
+  return lookup("computer_default", {
     wild_number: 0,
     rating_type: "standard",
-    rated: false,
     challenger_time: 15,
+    skill_level: 5,
     challenger_inc_or_delay: 0,
     challenger_delaytype: "none",
     receiver_time: 15,

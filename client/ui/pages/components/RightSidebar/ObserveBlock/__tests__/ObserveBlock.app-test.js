@@ -7,6 +7,8 @@ describe("ObserveBlock component", () => {
   const component = mount(<ObserveBlock />);
 
   it("should render", () => {
-    chai.assert.isDefined(component);
+    Promise.resolve(component).then(() => {
+      chai.assert.isDefined(component);
+    });
   });
 });
