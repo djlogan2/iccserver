@@ -92,17 +92,6 @@ const authRoutes = [
     path: RESOURCE_CUSTOMIZABLE_BOARD,
     exact: true,
   },
-];
-
-const nonAuthRoutes = [
-  {
-    component: SignupPage,
-    path: RESOURCE_SIGN_UP,
-  },
-  {
-    component: LoginPage,
-    path: RESOURCE_LOGIN,
-  },
   {
     component: DeveloperContainer,
     path: RESOURCE_DEVELOPER,
@@ -122,6 +111,17 @@ const nonAuthRoutes = [
     component: DeveloperContainer4,
     path: RESOURCE_DEVELOPER4,
     exact: true,
+  },
+];
+
+const nonAuthRoutes = [
+  {
+    component: SignupPage,
+    path: RESOURCE_SIGN_UP,
+  },
+  {
+    component: LoginPage,
+    path: RESOURCE_LOGIN,
   },
 ];
 
