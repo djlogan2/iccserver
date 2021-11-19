@@ -172,11 +172,17 @@ export default class CssManager {
     Object.assign(style, this._systemStyle?.chatSendButton?.all);
     return style;
   }
+  gameMoveListScrollWrapper() {
+    const style = {};
+    Object.assign(style, this._systemStyle?.gameMoveListScrollWrapper?.all);
+    return style;
+  }
   gameMoveList() {
     const style = {};
     Object.assign(style, this._systemStyle?.gameMoveList?.all);
     return style;
   }
+
   gameButtonMove() {
     const style = {};
     Object.assign(style, this._systemStyle?.gameButtonMove?.all);

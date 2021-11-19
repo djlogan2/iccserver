@@ -1,12 +1,13 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import { Meteor } from "meteor/meteor";
-import { get } from "lodash";
 
+import { Switch } from "antd";
+import { getMoveFormatted, parse } from "./MoveListHelpers";
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { gameStatusPlaying } from "../../../../../../constants/gameConstants";
-import { Switch } from "antd";
 import { translate } from "../../../../../HOCs/translate";
-import { getMoveFormatted, parse } from "./MoveListHelpers";
+
 const log = new Logger("client/MoveList_js");
 
 class MoveList extends Component {
@@ -14,20 +15,8 @@ class MoveList extends Component {
     super(props);
 
     this.state = {
-      cmi: 0,
-      isTable: true,
+      isTable: localStorage["isTable"] || "1",
     };
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const { game } = this.props;
-
-    const prevCmi = get(game, "variations.cmi");
-    const cmi = get(nextProps, "game.variations.cmi");
-
-    if (cmi && prevCmi !== cmi) {
-      this.setState({ cmi });
-    }
   }
 
   handleClick = (cmi, game_id) => {
@@ -92,38 +81,51 @@ class MoveList extends Component {
     const { isTable } = this.state;
 
     const switchClick = () => {
-      this.setState((state) => ({
-        isTable: !state.isTable,
-      }));
+      const value = isTable === "1" ? "0" : "1";
+      this.setState({ isTable: value });
+      localStorage["isTable"] = value;
     };
-
-    if (!!game) {
-      this.message_identifier = "server:game:" + this.gameId;
-      this.gameId = game._id;
-    }
 
     let moveListString = "";
     if (game?.variations?.movelist?.length) {
       const classes = cssManager?.moveListItems();
       const parsedMoves = parse(game.variations.movelist);
-      moveListString = isTable
-        ? this.getMoveBlock(parsedMoves, classes, game.variations.cmi, game._id, this.handleClick)
-        : getMoveFormatted(parsedMoves, classes, game.variations.cmi, game._id, this.handleClick);
+      moveListString =
+        isTable === "1"
+          ? this.getMoveBlock(parsedMoves, classes, game.variations.cmi, game._id, this.handleClick)
+          : getMoveFormatted(parsedMoves, classes, game.variations.cmi, game._id, this.handleClick);
     }
     return (
-      <div style={{ background: "#EFF0F3", overflow: "auto", height: "100%" }}>
+      <div
+        style={{
+          background: "#EFF0F3",
+          overflow: "auto",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
         <div style={{ width: "100%", textAlign: "right" }}>
           <Switch
             checkedChildren={translate("switchTable")}
             unCheckedChildren={translate("switchString")}
-            checked={isTable}
+            checked={isTable === "1"}
             onClick={switchClick}
           />
         </div>
-        <div style={{ ...cssManager.gameMoveList() }}>{moveListString}</div>
+        <div style={{ ...cssManager.gameMoveListScrollWrapper() }}>
+          <div style={{ ...cssManager.gameMoveList() }}>{moveListString}</div>
+        </div>
       </div>
     );
   }
 }
+
+MoveList.propTypes = {
+  translate: PropTypes.func.isRequired,
+  game: PropTypes.object,
+  cssManager: PropTypes.object.isRequired,
+  moveToCMI: PropTypes.func,
+};
 
 export default translate("Common.MoveList")(MoveList);
