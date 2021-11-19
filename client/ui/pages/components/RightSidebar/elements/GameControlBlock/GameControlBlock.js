@@ -459,11 +459,33 @@ class ActionControls extends Component {
 }
 
 const EnhacnedActionControls = compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  withDynamicStyles("css.gameControlBlockCss"),
   translate("Common.rightBarTop"),
   withSounds("ActionControls")
 )(ActionControls);
-const EnhancedExamineLocationControls = translate("Common.rightBarTop")(ExamineLocationControls);
-const EnhancedPlayLocationControls = translate("Common.rightBarTop")(PlayLocationControls);
+const EnhancedExamineLocationControls = compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  withDynamicStyles("css.gameControlBlockCss"),
+  translate("Common.rightBarTop")
+)(ExamineLocationControls);
+const EnhancedPlayLocationControls = compose(
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
+  withDynamicStyles("css.gameControlBlockCss"),
+  translate("Common.rightBarTop")
+)(PlayLocationControls);
 
 const GameControlBlock = compose(
   withTracker(() => {
@@ -471,7 +493,7 @@ const GameControlBlock = compose(
       css: mongoCss.findOne(),
     };
   }),
-  withDynamicStyles("commandsCss.commandsCss")
+  withDynamicStyles("css.gameControlBlockCss")
 )(({ game, flip, classes, moveForward, moveBackward, moveForwardEnd, moveBackwardBeginning }) => {
   return (
     <div className={classes.container}>

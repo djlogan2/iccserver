@@ -11,6 +11,8 @@ import { translate } from "../../../HOCs/translate";
 import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 import ExportPgnButton from "../Button/ExportPgnButton";
 import "./GameListModal.css";
+import { withTracker } from "meteor/react-meteor-data";
+import { mongoCss } from "../../../../../imports/api/client/collections";
 
 const GameListModal = ({
   gameList,
@@ -124,6 +126,11 @@ const GameListModal = ({
 
 export default compose(
   withRouter,
+  withTracker(() => {
+    return {
+      css: mongoCss.findOne(),
+    };
+  }),
   withDynamicStyles("css.gameListModalCss"),
   translate("Common.gameListModal")
 )(GameListModal);
