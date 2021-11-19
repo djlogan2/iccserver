@@ -103,7 +103,9 @@ const GameListModal = ({
                 }
               />
               <Table.Column title={translate("result")} dataIndex="result" key="result" />
-              <Table.Column title={translate("date")} dataIndex="date" key="time" />
+              {!isImported && (
+                <Table.Column title={translate("date")} dataIndex="date" key="time" />
+              )}
               {allowDownload && (
                 <Table.Column
                   title={translate("pgn")}
