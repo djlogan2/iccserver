@@ -83,6 +83,7 @@ const renderNotification = ({ title, action, cssManager, gameId, classes, transl
     style: { height: "55px", backgroundColor: "#800000", color: "#fff" },
     message: renderTitle(),
     description: null,
+    onClose: responseHandler,
   });
 };
 
