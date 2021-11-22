@@ -288,12 +288,16 @@ class Play extends Component {
   };
 
   render() {
-    const { isReady, gameRequest, inGame } = this.props;
+    const { isReady, gameRequest, inGame, setGameTurn } = this.props;
 
     if (!isReady) {
       return <Loading />;
     }
 
+    if (inGame) {
+      const color = inGame.black === Meteor.user()._id ? "black" : "white";
+      setGameTurn(inGame.variations.movelist.length, inGame.tomove === color);
+    }
     const { systemCss } = this.props;
 
     let capture = {
