@@ -7,7 +7,6 @@ import { mongoCss } from "../../../../../imports/api/client/collections";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
-import AppWrapper from "../AppWrapper/AppWrapper";
 import {
   renderButtonEdit,
   renderEmail,
@@ -49,7 +48,7 @@ class UsersList extends Component {
     const { usersList } = this.state;
 
     return (
-      <AppWrapper>
+      <>
         <div className={classes.listMainDiv}>
           <Table
             dataSource={usersList}
@@ -83,7 +82,7 @@ class UsersList extends Component {
             </ColumnGroup>
           </Table>
         </div>
-      </AppWrapper>
+      </>
     );
   }
 }

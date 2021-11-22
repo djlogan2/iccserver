@@ -315,7 +315,7 @@ class Play extends Component {
     const visible = !!gameMessage && !!inGame && inGame.status === "examining";
 
     return (
-      <div>
+      <>
         <PlayModaler
           visible={visible}
           gameResult={inGame?.result}
@@ -336,7 +336,7 @@ class Play extends Component {
           onDrawObject={this.handleDraw}
           onRemoveCircle={this.removeCircle}
         />
-      </div>
+      </>
     );
   }
 }

@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
-import AppWrapper from "../components/AppWrapper/AppWrapper";
 import { compose } from "redux";
 import { withRouter } from "react-router-dom";
 import { Logger } from "../../../../lib/client/Logger";
@@ -133,7 +132,7 @@ class Community extends Component {
     }
 
     return (
-      <AppWrapper>
+      <>
         <div className={classes.sidebar}>
           <RoomBlock
             isModal={isModal}
@@ -162,7 +161,7 @@ class Community extends Component {
             />
           </div>
         )}
-      </AppWrapper>
+      </>
     );
   }
 }
