@@ -9,7 +9,6 @@ import { Logger } from "../../../../../lib/client/Logger";
 import { RESOURCE_USERS } from "../../../../constants/resourceConstants";
 import { ROLE_LIST_USERS } from "../../../../constants/systemConstants";
 import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
-import AppWrapper from "../AppWrapper/AppWrapper";
 import DetailsCard from "./DetailsCard";
 import SecurityCard from "./SecurityCard";
 
@@ -69,7 +68,7 @@ class UserEdit extends Component {
     });
 
     return (
-      <AppWrapper>
+      <>
         {user ? (
           <div className={classes.editMainDiv}>
             <DetailsCard scope={scope} currentUser={user} />
@@ -82,7 +81,7 @@ class UserEdit extends Component {
             </Space>
           </Col>
         )}
-      </AppWrapper>
+      </>
     );
   }
 }

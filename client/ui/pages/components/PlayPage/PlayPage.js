@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import AppWrapper from "../AppWrapper/AppWrapper";
 import PlayRightSidebar from "../RightSidebar/PlayRightSidebar/PlayRightSidebar";
 import "../../../../../imports/css/leftsidebar.css";
 import Chess from "chess.js";
@@ -188,7 +187,7 @@ export default class PlayPage extends Component {
     }
 
     return (
-      <AppWrapper cssManager={cssManager}>
+      <>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
@@ -224,7 +223,7 @@ export default class PlayPage extends Component {
             moveList={gameClone || {}}
           />
         </Col>
-      </AppWrapper>
+      </>
     );
   }
 }

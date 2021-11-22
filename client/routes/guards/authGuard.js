@@ -2,8 +2,16 @@ import React from "react";
 import { Redirect, Route } from "react-router-dom";
 import { RESOURCE_LOGIN } from "../../constants/resourceConstants";
 import { ROLE_DEVELOPER } from "../../constants/systemConstants";
+import AppWrapper from "../../../client/ui/pages/components/AppWrapper/AppWrapper";
 
-const AuthGuard = ({ component: Component, auth, currentRoles, roles, ...rest }) => {
+const AuthGuard = ({
+  component: Component,
+  auth,
+  currentRoles,
+  roles,
+  withAppWrapper,
+  ...rest
+}) => {
   const suitableRoles = [];
 
   if (currentRoles.includes(ROLE_DEVELOPER)) {
@@ -21,9 +29,19 @@ const AuthGuard = ({ component: Component, auth, currentRoles, roles, ...rest })
   return (
     <Route
       {...rest}
-      render={(props) =>
-        canViewPage ? <Component {...props} /> : <Redirect to={RESOURCE_LOGIN} />
-      }
+      render={(props) => {
+        if (canViewPage) {
+          return withAppWrapper ? (
+            <AppWrapper>
+              <Component {...props} />
+            </AppWrapper>
+          ) : (
+            <Component {...props} />
+          );
+        } else {
+          return <Redirect to={RESOURCE_LOGIN} />;
+        }
+      }}
     />
   );
 };

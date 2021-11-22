@@ -63,7 +63,7 @@ export default class ExaminePage extends Component {
     const { width, height, switchSides } = this.state;
 
     return (
-      <AppWrapper cssManager={cssManager}>
+      <>
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
@@ -94,7 +94,7 @@ export default class ExaminePage extends Component {
             flip={this._flipboard}
           />
         </Col>
-      </AppWrapper>
+      </>
     );
   }
 }

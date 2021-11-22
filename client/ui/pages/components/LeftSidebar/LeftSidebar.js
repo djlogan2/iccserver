@@ -51,6 +51,10 @@ class LeftSidebar extends Component {
 
   handleRedirect = (resource) => {
     const { history } = this.props;
+    const currentPage = history.location.pathname;
+    if (currentPage === resource) {
+      return;
+    }
     history.push(resource);
 
     Meteor.call(

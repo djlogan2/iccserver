@@ -13,7 +13,6 @@ import { colorBlack, colorWhite, gameStatusPlaying } from "../../../constants/ga
 import { getBoardSquares, isReadySubscriptions } from "../../../utils/utils";
 import { withDynamicStyles } from "../../HOCs/withDynamicStyles/index.js";
 import { withSounds } from "../../HOCs/withSounds";
-import AppWrapper from "../components/AppWrapper/AppWrapper";
 import BoardWrapper from "../components/BoardWrapper/BoardWrapper";
 import CssManager from "../components/Css/CssManager";
 import Loading from "../components/Loading/Loading";
@@ -309,7 +308,7 @@ class Editor extends Component {
     const boardSize = this.calcBoardSize();
 
     return (
-      <AppWrapper cssManager={css}>
+      <>
         <Col span={14} className={classes.main}>
           <BoardWrapper>
             <div style={{ width: "100%", height: boardSize }}>
@@ -421,7 +420,7 @@ class Editor extends Component {
             onColorChange={this.handleColorChange}
           />
         </Col>
-      </AppWrapper>
+      </>
     );
   }
 }

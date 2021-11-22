@@ -241,7 +241,7 @@ class Examine extends Component {
     this._board.load(game.fen);
 
     return (
-      <div>
+      <>
         <GameListModal
           isImported={true}
           visible={isImportedGamesModal}
@@ -262,7 +262,7 @@ class Examine extends Component {
           onDrop={this._pieceSquareDragStop}
           onDrawObject={this.handleDraw}
         />
-      </div>
+      </>
     );
   }
 }

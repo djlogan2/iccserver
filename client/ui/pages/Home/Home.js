@@ -4,14 +4,13 @@ import { compose } from "redux";
 import { mongoCss } from "../../../../imports/api/client/collections";
 import { translate } from "../../HOCs/translate";
 import { withDynamicStyles } from "../../HOCs/withDynamicStyles";
-import AppWrapper from "../components/AppWrapper/AppWrapper";
 
 class Home extends React.Component {
   render() {
     const { classes, translate } = this.props;
 
     return (
-      <AppWrapper>
+      <>
         <div>
           <img
             className={classes.image}
@@ -19,7 +18,7 @@ class Home extends React.Component {
             alt={translate("homeImage")}
           />
         </div>
-      </AppWrapper>
+      </>
     );
   }
 }

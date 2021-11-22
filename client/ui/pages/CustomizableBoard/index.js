@@ -4,7 +4,6 @@ import ChessBoard from "chessboard";
 import "chessboard/dist/index.css";
 
 import Chess from "chess.js/chess";
-import AppWrapper from "../components/AppWrapper/AppWrapper";
 import PropertiesModal from "./PropertiesModal";
 
 class CustomizableBoard extends Component {
@@ -133,7 +132,7 @@ class CustomizableBoard extends Component {
     } = this.state;
 
     return (
-      <AppWrapper>
+      <>
         <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%" }}>
           <ChessBoard
             raf={raf}
@@ -211,7 +210,7 @@ class CustomizableBoard extends Component {
             handleUpdate={this.handleModalUpdate}
           />
         </div>
-      </AppWrapper>
+      </>
     );
   }
 }
