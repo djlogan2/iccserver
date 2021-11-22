@@ -11,6 +11,7 @@ import { RESOURCE_PLAY } from "../../../../../constants/resourceConstants";
 import { translate } from "../../../../HOCs/translate";
 import { withDynamicStyles } from "../../../../HOCs/withDynamicStyles";
 import gameRequestNotification from "./GameRequestNotification";
+import { withSounds } from "../../../../HOCs/withSounds";
 
 // PLEASE don't copy and paste and leave "server" in client files.
 // There are errors in the log that look like they are from the server, but now we do not know.
@@ -71,10 +72,11 @@ class GameRequestModal extends Component {
   };
 
   handleAcceptGame = () => {
-    const { history, gameRequest } = this.props;
+    const { history, gameRequest, playSound } = this.props;
 
     Meteor.call("gameRequestAccept", "gameAccept", gameRequest._id, () => {
       history.push(RESOURCE_PLAY);
+      playSound("game_start");
     });
   };
 
@@ -117,5 +119,6 @@ export default compose(
       challengeNotificationCss: mongoCss.findOne(),
     };
   }),
-  withDynamicStyles("challengeNotificationCss.challengeNotificationCss")
+  withDynamicStyles("challengeNotificationCss.challengeNotificationCss"),
+  withSounds("GameStart")
 )(GameRequestModal);

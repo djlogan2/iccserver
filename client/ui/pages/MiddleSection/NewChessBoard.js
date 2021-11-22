@@ -69,10 +69,6 @@ class NewChessBoard extends Component {
       });
     }
 
-    if (prevProps.currentCmi !== currentCmi) {
-      playSound("piece_move");
-    }
-
     const user = Meteor.user();
     if (!statePremove && !this.isCurrentTurn() && user?.settings?.premove) {
       this.setState({ premove: true });
@@ -149,7 +145,6 @@ class NewChessBoard extends Component {
 
       if (moves) {
         onDrop({ move: moves });
-        // playSound("piece_move");
       }
 
       this.setState({

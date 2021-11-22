@@ -16,7 +16,6 @@ import {
 } from "../constants/resourceConstants";
 
 import Home from "../ui/pages/Home/Home";
-import Play from "../ui/pages/Play/Play";
 import Editor from "../ui/pages/Editor/Editor";
 import Examine from "../ui/pages/Examine/Examine";
 import Community from "../ui/pages/Community/Community";
@@ -30,6 +29,7 @@ import DeveloperContainer from "../ui/containers/DeveloperContainer";
 import DeveloperContainer2 from "../ui/containers/DeveloperContainer2";
 import DeveloperContainer3 from "../ui/containers/DeveloperContainer3";
 import DeveloperContainer4 from "../ui/containers/DeveloperContainer4";
+import PlayWrapper from "../ui/pages/Play/PlayWrapper";
 
 const authRoutes = [
   {
@@ -48,7 +48,7 @@ const authRoutes = [
   },
   {
     roles: ["play_rated_games", "play_unrated_games"],
-    component: Play,
+    component: PlayWrapper,
     path: RESOURCE_PLAY,
     exact: true,
     withAppWrapper: true,
