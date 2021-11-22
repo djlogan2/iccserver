@@ -232,9 +232,17 @@ const systemCss = {
       background: "#fff",
     },
   },
+  gameMoveListScrollWrapper: {
+    all: {
+      overflow: "auto",
+      flexDirection: "column-reverse",
+      display: "flex",
+      height: "calc(100% - 6rem)",
+    },
+  },
+
   gameMoveList: {
     all: {
-      display: "inline-block",
       width: "100%",
       padding: "5px",
       whiteSpace: "nowrap",

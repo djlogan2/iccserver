@@ -40,7 +40,7 @@ export function parse(movelist) {
   const func = function (res, number, deep, color) {
     return function (item, index, arr) {
       if (index === 0) {
-        if (Array.isArray(res[res.length - 1])) {
+        if (Array.isArray(res[res.length - 1]) && color !== "w") {
           res.push({
             number: Math.ceil(number / 2),
             subItem: item,
