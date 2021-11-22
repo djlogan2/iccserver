@@ -7,6 +7,7 @@ import { getMoveFormatted, parse } from "./MoveListHelpers";
 import { Logger } from "../../../../../../../lib/client/Logger";
 import { gameStatusPlaying } from "../../../../../../constants/gameConstants";
 import { translate } from "../../../../../HOCs/translate";
+import { IS_STRING_VIEW, IS_TABLE_VIEW } from "./constants";
 
 const log = new Logger("client/MoveList_js");
 
@@ -81,7 +82,7 @@ class MoveList extends Component {
     const { isTable } = this.state;
 
     const switchClick = () => {
-      const value = isTable === "1" ? "0" : "1";
+      const value = isTable === IS_TABLE_VIEW ? IS_STRING_VIEW : IS_TABLE_VIEW;
       this.setState({ isTable: value });
       localStorage["isTable"] = value;
     };
@@ -91,7 +92,7 @@ class MoveList extends Component {
       const classes = cssManager?.moveListItems();
       const parsedMoves = parse(game.variations.movelist);
       moveListString =
-        isTable === "1"
+        isTable === IS_TABLE_VIEW
           ? this.getMoveBlock(parsedMoves, classes, game.variations.cmi, game._id, this.handleClick)
           : getMoveFormatted(parsedMoves, classes, game.variations.cmi, game._id, this.handleClick);
     }
@@ -109,7 +110,7 @@ class MoveList extends Component {
           <Switch
             checkedChildren={translate("switchTable")}
             unCheckedChildren={translate("switchString")}
-            checked={isTable === "1"}
+            checked={isTable === IS_TABLE_VIEW}
             onClick={switchClick}
           />
         </div>
