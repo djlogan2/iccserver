@@ -4,6 +4,7 @@ import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import CssManager from "../pages/components/Css/CssManager";
 import { colorBlack, colorWhite, gameStatusPlaying } from "../../constants/gameConstants";
+import { notification } from "antd";
 
 export const withPlayNotifier = (WrappedComponent) => {
   return class extends React.Component {
@@ -22,6 +23,8 @@ export const withPlayNotifier = (WrappedComponent) => {
       });
     };
 
+    closeActionPopup = (id, action) => notification.close(`notification-${action}-${id}`);
+
     render() {
       const { inGame: game } = this.props;
 
@@ -34,6 +37,8 @@ export const withPlayNotifier = (WrappedComponent) => {
           const moveCount =
             game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
           this.renderActionPopup(translate(moveCount), "takeBack");
+        } else {
+          this.closeActionPopup(game._id, "takeBack");
         }
 
         if (game.pending[othercolor].draw !== "0") {
@@ -47,6 +52,8 @@ export const withPlayNotifier = (WrappedComponent) => {
         if (game.pending[othercolor].abort !== "0") {
           this.renderActionPopup(translate("abort"), "abort");
         }
+      } else if (game?._id) {
+        ["takeBack", "draw", "adjourn", "abort"].forEach((action) => this.closeActionPopup(game._id, action));
       }
 
       return <WrappedComponent {...this.props} />;
