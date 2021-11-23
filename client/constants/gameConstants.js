@@ -106,3 +106,8 @@ export const RECEIVER_INITIAL = "receiverInitial";
 export const INCREMENT_OR_DELAY_TYPE_NONE = "none";
 export const MAX_RATING = 10000;
 export const MIN_RATING = 1;
+
+export const TAKE_BACK = "takeBack";
+export const DRAW = "draw";
+export const ADJOURN = "adjourn";
+export const ABORT = "abort";

@@ -3,7 +3,15 @@ import renderNotification from "../pages/components/Notification";
 import { Meteor } from "meteor/meteor";
 import i18n from "meteor/universe:i18n";
 import CssManager from "../pages/components/Css/CssManager";
-import { colorBlack, colorWhite, gameStatusPlaying } from "../../constants/gameConstants";
+import {
+  ABORT,
+  ADJOURN,
+  colorBlack,
+  colorWhite,
+  DRAW,
+  gameStatusPlaying,
+  TAKE_BACK
+} from "../../constants/gameConstants";
 import { notification } from "antd";
 
 export const withPlayNotifier = (WrappedComponent) => {
@@ -36,24 +44,24 @@ export const withPlayNotifier = (WrappedComponent) => {
         if (game.pending[othercolor].takeback.number !== 0) {
           const moveCount =
             game.pending[othercolor].takeback.number === 1 ? "halfmove" : "fullmove";
-          this.renderActionPopup(translate(moveCount), "takeBack");
+          this.renderActionPopup(translate(moveCount), TAKE_BACK);
         } else {
-          this.closeActionPopup(game._id, "takeBack");
+          this.closeActionPopup(game._id, TAKE_BACK);
         }
 
         if (game.pending[othercolor].draw !== "0") {
-          this.renderActionPopup(translate("draw"), "draw");
+          this.renderActionPopup(translate(DRAW), DRAW);
         }
 
         if (game.pending[othercolor].adjourn !== "0") {
-          this.renderActionPopup(translate("adjourn"), "adjourn");
+          this.renderActionPopup(translate(ADJOURN), ADJOURN);
         }
 
         if (game.pending[othercolor].abort !== "0") {
-          this.renderActionPopup(translate("abort"), "abort");
+          this.renderActionPopup(translate(ABORT), ABORT);
         }
       } else if (game?._id) {
-        ["takeBack", "draw", "adjourn", "abort"].forEach((action) => this.closeActionPopup(game._id, action));
+        [TAKE_BACK, DRAW, ADJOURN, ABORT].forEach((action) => this.closeActionPopup(game._id, action));
       }
 
       return <WrappedComponent {...this.props} />;
