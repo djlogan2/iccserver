@@ -10,7 +10,13 @@ import GameListModal from "../components/Modaler/GameListModal";
 import Chess from "chess.js/chess";
 import { Game, ImportedGameCollection, mongoCss } from "../../../../imports/api/client/collections";
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
-import { DEFAULT_CAPTURE, GAME_OBSERVE_DEFAULT, gameStatusExamining } from "../../../constants/gameConstants";
+import {
+  DEFAULT_CAPTURE,
+  GAME_OBSERVE_DEFAULT,
+  gameStatusExamining,
+  gameStatusPlaying,
+  gameStatusObserving,
+} from "../../../constants/gameConstants";
 import { MY_GAMES_MODAL_OPENED } from "../../../constants/systemConstants";
 
 const log = new Logger("client/Examine_js");
@@ -33,6 +39,30 @@ class Examine extends Component {
       isImportedGamesModal: false,
     };
   }
+
+  canInitDefaultExamine = () => {
+    const { game } = this.props;
+    if (!game) {
+      return true;
+    }
+
+    const firstId = game.white.id;
+    const secondId = game.black.id;
+
+    const userId = Meteor.userId();
+
+    const isMyGame = userId === firstId || userId === secondId;
+
+    if (isMyGame) {
+      return false;
+    }
+
+    if (game.result !== "*") {
+      return true;
+    }
+
+    return false;
+  };
 
   initExamine = () => {
     const myGamesModalOpened = localStorage.getItem(MY_GAMES_MODAL_OPENED);
@@ -151,12 +181,6 @@ class Examine extends Component {
   };
 
   handleObserveUser = (userId) => {
-    const { game } = this.props;
-
-    if (game) {
-      this.setState({ leaving_game: game._id });
-    }
-
     Meteor.call("observeUser", "observeUser", userId, (err) => {
       if (err) {
         log.error(err);
@@ -166,7 +190,6 @@ class Examine extends Component {
 
   handleUnObserveUser = (userId) => {
     const { game } = this.props;
-    this.setState({ leaving_game: null });
 
     if (game) {
       Meteor.call("unObserveUser", "unObserveUser", userId, game._id, (err) => {
@@ -180,6 +203,14 @@ class Examine extends Component {
   handlePgnUpload = (fileData) => {
     this.setState({ fileData });
   };
+
+  componentDidMount() {
+    const { game } = this.props;
+
+    if (!game) {
+      this.initExamine();
+    }
+  }
 
   componentDidUpdate(prevProps, prevState) {
     const { importedGames = [], game } = this.props;
@@ -199,13 +230,15 @@ class Examine extends Component {
       });
     }
 
+    const user = Meteor.user();
+    const userStatus = get(user, "status.game");
+
     if (
-      !game &&
-      prevState.leaving_game &&
-      (prevProps?.game?.black?.id || prevProps?.game?.white?.id) &&
-      prevProps?.game?.status === gameStatusExamining
+      this.canInitDefaultExamine(game) &&
+      prevProps.game?.status !== gameStatusPlaying &&
+      userStatus !== gameStatusObserving
     ) {
-      this.setState({ leaving_game: null });
+      this.initExamine();
     }
   }
 
@@ -221,15 +254,11 @@ class Examine extends Component {
 
   render() {
     const { isReady, game, systemCss } = this.props;
-    const { isImportedGamesModal, importedGames, leaving_game } = this.state;
+    const { isImportedGamesModal, importedGames } = this.state;
 
     let fullGame = { ...game };
 
-    if (!isReady || !game || !game.fen || game._id === leaving_game) {
-      if (!leaving_game && !game && isReady) {
-        this.initExamine();
-      }
-
+    if (!isReady || !game || !game.fen) {
       return <Loading />;
     }
 
