@@ -44,10 +44,14 @@ class GameRequestModal extends Component {
   };
 
   componentDidUpdate(prevProps) {
-    const { gameRequest } = this.props;
+    const { gameRequest, playSound } = this.props;
 
     if (prevProps.gameRequest && prevProps.gameRequest._id !== get(gameRequest, "_id")) {
       notification.close(prevProps.gameRequest._id);
+    }
+
+    if (!prevProps.gameRequest && gameRequest) {
+      playSound("gameRequest");
     }
   }
 
