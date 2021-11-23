@@ -9,7 +9,7 @@ import { compose } from "redux";
 import { GameHistoryCollection, mongoCss } from "../../../../../imports/api/client/collections";
 import { Logger } from "../../../../../lib/client/Logger";
 import { gameStatusNone, gameStatusPlaying } from "../../../../constants/gameConstants";
-import { RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
+import { RESOURCE_PLAY, RESOURCE_PROFILE } from "../../../../constants/resourceConstants";
 import { translate } from "../../../HOCs/translate";
 import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
 import GameListModal from "../Modaler/GameListModal";
@@ -27,6 +27,26 @@ class LeftSidebar extends Component {
       isMyGamesModal: false,
     };
   }
+
+  componentDidMount() {
+    this.redirectToPlayPageWhilePlaying();
+  }
+
+  componentDidUpdate() {
+    this.redirectToPlayPageWhilePlaying();
+  }
+
+  redirectToPlayPageWhilePlaying = () => {
+    const { history } = this.props;
+    const pathName = get(history, "location.pathname");
+
+    const currentUser = Meteor.user();
+    const gameStatus = get(currentUser, "status.game");
+
+    if (pathName !== RESOURCE_PLAY && gameStatus === gameStatusPlaying) {
+      history.push(RESOURCE_PLAY);
+    }
+  };
 
   toggleMenu = () => {
     this.setState((prevState) => {

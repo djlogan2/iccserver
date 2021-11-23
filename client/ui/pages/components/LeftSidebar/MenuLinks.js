@@ -10,11 +10,7 @@ import { compose } from "redux";
 import { mongoCss } from "../../../../../imports/api/client/collections";
 import { serverTS } from "../../../../../lib/client/timestamp";
 import { gameStatusPlaying } from "../../../../constants/gameConstants";
-import {
-  labelLogout,
-  labelMyGame,
-  labelsToResources,
-} from "../../../../constants/resourceConstants";
+import { labelLogout, labelMyGame, labelsToResources } from "../../../../constants/resourceConstants";
 import { ROLE_DEVELOPER } from "../../../../constants/systemConstants";
 import { translate } from "../../../HOCs/translate";
 import { withDynamicStyles } from "../../../HOCs/withDynamicStyles";
@@ -63,18 +59,21 @@ class MenuLinks extends Component {
   handleClick = (label) => {
     const { handleRedirect, onMyGames, onLogout, translate } = this.props;
 
+    const currentUser = Meteor.user();
+    const gameStatus = get(currentUser, "status.game");
+
+    if (gameStatus === gameStatusPlaying) {
+      notification.open({
+        message: translate("leftSideBar.notification.pleaseFinishGame"),
+        description: null,
+        duration: 5,
+      });
+
+      return;
+    }
+
     if (labelsToResources.hasOwnProperty(label)) {
-      const currentUser = Meteor.user();
-      const gameStatus = get(currentUser, "status.game");
-      if (gameStatus !== gameStatusPlaying) {
-        handleRedirect(labelsToResources[label]);
-      } else {
-        notification.open({
-          message: translate("leftSideBar.notification.pleaseFinishGame"),
-          description: null,
-          duration: 5,
-        });
-      }
+      handleRedirect(labelsToResources[label]);
     } else if (label === labelMyGame) {
       onMyGames();
     } else if (label === labelLogout) {
