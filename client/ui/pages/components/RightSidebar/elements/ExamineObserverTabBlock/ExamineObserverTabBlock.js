@@ -14,12 +14,7 @@ const ExamineObserverTabBlock = ({ game, unObserveUser, translate, classes }) =>
 
   // TODO  fix it. It is definetely shouldn't be done like this. There is an owner property in game object which is undefined
   const observedUserId = localStorage.getItem(OBSERVING_USER_ID);
-  let mugshot = "/images/avatar.png";
-
-  if (observedUserId) {
-    const pictureId = getMugshot(observedUserId);
-    mugshot = pictureId ? `mugshot/${pictureId}` : mugshot;
-  }
+  const mugshot = `mugshot/${getMugshot(observedUserId)}`;
 
   return (
     <div className={classes.container}>
