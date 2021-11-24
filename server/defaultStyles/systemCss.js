@@ -235,9 +235,9 @@ const systemCss = {
   gameMoveListScrollWrapper: {
     all: {
       overflow: "auto",
-      flexDirection: "column-reverse",
-      display: "flex",
-      height: "calc(100% - 6rem)",
+      // flexDirection: "column-reverse",
+      // display: "flex",
+      // height: "calc(100% - 6rem)",
     },
   },
 
@@ -450,7 +450,7 @@ const systemCss = {
       flex: "1",
       textAlign: "left",
     },
-    name: { flex: "3" },
+    name: {flex: "3"},
     status: {
       flex: "2",
     },
