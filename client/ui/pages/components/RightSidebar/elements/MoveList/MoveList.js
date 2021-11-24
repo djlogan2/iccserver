@@ -16,7 +16,7 @@ class MoveList extends Component {
     super(props);
 
     this.state = {
-      isTable: localStorage["isTable"] || "1",
+      isTable: localStorage["isTable"] || IS_TABLE_VIEW
     };
   }
 
@@ -38,7 +38,7 @@ class MoveList extends Component {
     const newMoves = [];
     let subBlock = {
       id: "sub",
-      content: [],
+      content: []
     };
     for (let i = 0; i < moves.length; i++) {
       const moveItem = moves[i];
@@ -47,7 +47,7 @@ class MoveList extends Component {
         number: moveItem.number,
         moveW: moveItem,
         moveB: null,
-        deep: moveItem.deep,
+        deep: moveItem.deep
       };
       if (Array.isArray(moveItem)) {
         subBlock.content.push(moveItem);
@@ -55,7 +55,7 @@ class MoveList extends Component {
         oneMove.moveB = {
           number: moveItem.number,
           move: "...",
-          deep: moveItem.deep,
+          deep: moveItem.deep
         };
         moveItem.item && newMoves.push(oneMove);
       } else {
@@ -63,7 +63,7 @@ class MoveList extends Component {
           newMoves.push(subBlock);
           subBlock = {
             id: "sub",
-            content: [],
+            content: []
           };
         }
         oneMove.moveB = nextMoveItem;
@@ -103,7 +103,7 @@ class MoveList extends Component {
           overflow: "auto",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
+          flexDirection: "column"
         }}
       >
         <div style={{ width: "100%", textAlign: "right" }}>
@@ -126,7 +126,7 @@ MoveList.propTypes = {
   translate: PropTypes.func.isRequired,
   game: PropTypes.object,
   cssManager: PropTypes.object.isRequired,
-  moveToCMI: PropTypes.func,
+  moveToCMI: PropTypes.func
 };
 
 export default translate("Common.MoveList")(MoveList);
