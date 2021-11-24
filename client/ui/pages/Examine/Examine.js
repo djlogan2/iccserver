@@ -12,10 +12,9 @@ import { Game, ImportedGameCollection, mongoCss } from "../../../../imports/api/
 import { areArraysOfObectsEqual, isReadySubscriptions } from "../../../utils/utils";
 import {
   DEFAULT_CAPTURE,
-  GAME_OBSERVE_DEFAULT,
   gameStatusExamining,
-  gameStatusPlaying,
-  gameStatusObserving,
+  gameStatusNone,
+  GAME_OBSERVE_DEFAULT,
 } from "../../../constants/gameConstants";
 import { MY_GAMES_MODAL_OPENED } from "../../../constants/systemConstants";
 
@@ -39,30 +38,6 @@ class Examine extends Component {
       isImportedGamesModal: false,
     };
   }
-
-  canInitDefaultExamine = () => {
-    const { game } = this.props;
-    if (!game) {
-      return true;
-    }
-
-    const firstId = game.white.id;
-    const secondId = game.black.id;
-
-    const userId = Meteor.userId();
-
-    const isMyGame = userId === firstId || userId === secondId;
-
-    if (isMyGame) {
-      return false;
-    }
-
-    if (game.result !== "*") {
-      return true;
-    }
-
-    return false;
-  };
 
   initExamine = () => {
     const myGamesModalOpened = localStorage.getItem(MY_GAMES_MODAL_OPENED);
@@ -212,7 +187,7 @@ class Examine extends Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const { importedGames = [], game } = this.props;
     const { fileData } = this.state;
 
@@ -234,9 +209,8 @@ class Examine extends Component {
     const userStatus = get(user, "status.game");
 
     if (
-      this.canInitDefaultExamine(game) &&
-      prevProps.game?.status !== gameStatusPlaying &&
-      userStatus !== gameStatusObserving
+      (userStatus === gameStatusExamining && game?.status !== gameStatusExamining) ||
+      userStatus === gameStatusNone
     ) {
       this.initExamine();
     }
