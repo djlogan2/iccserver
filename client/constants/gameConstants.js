@@ -111,3 +111,5 @@ export const TAKE_BACK = "takeBack";
 export const DRAW = "draw";
 export const ADJOURN = "adjourn";
 export const ABORT = "abort";
+
+export const OBSERVING_USER_ID = "OBSERVING_USER_ID";

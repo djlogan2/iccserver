@@ -15,6 +15,7 @@ import {
   gameStatusExamining,
   gameStatusNone,
   GAME_OBSERVE_DEFAULT,
+  OBSERVING_USER_ID,
 } from "../../../constants/gameConstants";
 import { MY_GAMES_MODAL_OPENED } from "../../../constants/systemConstants";
 
@@ -212,6 +213,7 @@ class Examine extends Component {
       (userStatus === gameStatusExamining && game?.status !== gameStatusExamining) ||
       userStatus === gameStatusNone
     ) {
+      localStorage.removeItem(OBSERVING_USER_ID);
       this.initExamine();
     }
   }
