@@ -1,4 +1,5 @@
 import { AutoComplete, Button } from "antd";
+import { OBSERVING_USER_ID } from "../../../../../../constants/gameConstants";
 import { get } from "lodash";
 import { Meteor } from "meteor/meteor";
 import { withTracker } from "meteor/react-meteor-data";
@@ -33,6 +34,8 @@ class ExamineObserveTab extends Component {
     this.setState({
       observerId: observer._id,
     });
+
+    localStorage.setItem(OBSERVING_USER_ID, observer._id);
 
     observeUser(observer._id);
   };
