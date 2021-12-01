@@ -140,6 +140,7 @@ class MiddleBoard extends Component {
       onDrop,
       isHistoryTurn,
       moveForwardEnd,
+      isGameFinished,
     } = this.props;
     const { top } = this.state;
     if (!!game && !game.fen) {
@@ -219,6 +220,7 @@ class MiddleBoard extends Component {
                 />
                 {topPlayerTime && game.clocks && game.clocks[topPlayerTime] && (
                   <PlayerClock
+                    isGameFinished={isGameFinished}
                     game={game}
                     color={topPlayerTime}
                     tagColor={getColorByLetter(topPlayerTime[0])}
@@ -280,6 +282,7 @@ class MiddleBoard extends Component {
                 />
                 {bottomPlayerTime && game.clocks && game.clocks[bottomPlayerTime] && (
                   <PlayerClock
+                    isGameFinished={isGameFinished}
                     game={game}
                     color={bottomPlayerTime}
                     tagColor={getColorByLetter(bottomPlayerTime[0])}

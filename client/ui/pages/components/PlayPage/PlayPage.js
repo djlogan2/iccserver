@@ -176,6 +176,7 @@ export default class PlayPage extends Component {
       onChooseFriend,
       onBotPlay,
       onSeekPlay,
+      isGameFinished,
     } = this.props;
     const { width, height, switchSides, chess, variation } = this.state;
     const isHistoryTurn = variation?.cmi !== game?.variations?.cmi;
@@ -191,6 +192,7 @@ export default class PlayPage extends Component {
         <Col span={14}>
           <BoardWrapper>
             <MiddleBoard
+              isGameFinished={isGameFinished}
               cssManager={cssManager}
               playersInfo={{ black: gameClone?.black, white: gameClone?.white }}
               switchSides={switchSides}

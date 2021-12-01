@@ -326,6 +326,7 @@ class Play extends Component {
           onExamine={this.handleExamine}
         />
         <PlayPage
+          isGameFinished={visible}
           cssManager={css}
           capture={capture}
           game={inGame}
