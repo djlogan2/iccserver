@@ -18,13 +18,13 @@ class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
-    const { game, color, isGameFinished } = this.props;
+    const { game, color, isGameFinished, isMyTurn } = this.props;
     const isGameOn = game.status === gameStatusPlaying;
     let current = game.clocks[color].initial * 60 * 1000;
-    if (isGameOn) {
+    if (isGameOn || isGameFinished) {
       current = game.clocks[color].current;
     }
-    if (isGameFinished) {
+    if (isGameFinished && isMyTurn) {
       current = Math.max(game.clocks[color].starttime + game.clocks[color].current - new Date().getTime(), 0);
     }
 
