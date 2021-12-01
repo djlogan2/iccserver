@@ -43,11 +43,6 @@ class Play extends Component {
 
     this._board = new Chess.Chess();
     this._boardfallensolder = new Chess.Chess();
-
-    this.state = {
-      gameType: null,
-      gameData: null,
-    };
   }
 
   drawCircle = (square, color, size) => {
@@ -154,10 +149,9 @@ class Play extends Component {
   };
 
   handleRematch = () => {
-    const { gameType, gameData } = this.state;
-
-    if (gameType === "startBotGame") {
-      this.handleBotPlay(gameData);
+    const {game} = this.props;
+    if (game.type === "startBotGame") {
+      this.handleBotPlay(game.data);
     } else {
       this.initFriendRematch();
     }
@@ -238,6 +232,7 @@ class Play extends Component {
       skillLevel,
       color,
     } = gameData;
+    const {setGame} = this.props;
 
     Meteor.call(
       "startBotGame",
@@ -254,11 +249,12 @@ class Play extends Component {
       color
     );
 
-    this.setState({ gameData, gameType: "startBotGame" });
+    setGame({ data: gameData, type: "startBotGame" });
   };
 
   handleSeekPlay = (gameData) => {
     const { wildNumber, initial, incrementOrDelay, incrementOrDelayType, color } = gameData;
+    const {setGame} = this.props;
 
     const ratingType = findRatingObject(
       0,
@@ -284,7 +280,7 @@ class Play extends Component {
       gameSeekAutoAccept
     );
 
-    this.setState({ gameData, gameType: "startSeekGame" });
+    setGame({ data: gameData, type: "startSeekGame" });
   };
 
   render() {
@@ -330,6 +326,7 @@ class Play extends Component {
           onExamine={this.handleExamine}
         />
         <PlayPage
+          isGameFinished={visible}
           cssManager={css}
           capture={capture}
           game={inGame}

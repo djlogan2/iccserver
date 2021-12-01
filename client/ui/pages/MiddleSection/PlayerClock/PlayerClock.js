@@ -18,11 +18,14 @@ class PlayerClock extends Component {
   constructor(props) {
     super(props);
 
-    const { game, color } = this.props;
+    const { game, color, isGameFinished } = this.props;
     const isGameOn = game.status === gameStatusPlaying;
     let current = game.clocks[color].initial * 60 * 1000;
     if (isGameOn) {
       current = game.clocks[color].current;
+    }
+    if (isGameFinished) {
+      current = Math.max(game.clocks[color].starttime + game.clocks[color].current - new Date().getTime(), 0);
     }
 
     this.state = {
@@ -196,7 +199,7 @@ class PlayerClock extends Component {
   };
 
   render() {
-    const { game, timerBlinkingSecs, classes, isMyTurn } = this.props;
+    const { game, timerBlinkingSecs, classes, isMyTurn, isGameFinished } = this.props;
     const isGameOn = game.status === gameStatusPlaying;
 
     const { current, isEditing } = this.state;
