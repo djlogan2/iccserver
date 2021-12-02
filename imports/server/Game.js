@@ -4655,7 +4655,7 @@ GameHistory.examineGame = function (message_identifier, game_id, is_imported_gam
   }
 
   global.Game.localUnobserveAllGames(message_identifier, self._id);
-  return global.Game.startLocalExaminedGameWithObject(message_identifier, hist);
+  console.log(global.Game.startLocalExaminedGameWithObject(message_identifier, hist));
 };
 
 GameHistory.exportToPGN = function (id) {
