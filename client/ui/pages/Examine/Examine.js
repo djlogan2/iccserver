@@ -210,7 +210,7 @@ class Examine extends Component {
     const userStatus = get(user, "status.game");
 
     if (
-      (userStatus === gameStatusExamining && game?.status !== gameStatusExamining) ||
+      (userStatus === gameStatusExamining && game?.status && game.status !== gameStatusExamining) ||
       userStatus === gameStatusNone
     ) {
       localStorage.removeItem(OBSERVING_USER_ID);
