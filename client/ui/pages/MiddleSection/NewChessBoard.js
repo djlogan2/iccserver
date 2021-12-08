@@ -238,10 +238,11 @@ class NewChessBoard extends Component {
     }
   };
 
-  handleRemovePremove = () => {
-    const { gameId } = this.props;
-
-    Meteor.call("removeLocalPremove", "removeLocalPremove", gameId);
+  handleRemovePremove = (square) => {
+    const { gameId, premove } = this.props;
+    if (!square || premove?.from === square) {
+      Meteor.call("removeLocalPremove", "removeLocalPremove", gameId);
+    }
   };
 
   render() {
