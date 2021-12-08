@@ -25,14 +25,13 @@ const GameListModal = ({
   allowDownload,
 }) => {
   const handleSetExaminMode = (id) => {
-    Meteor.call("examineGame", "ExaminedGame", id, isImported);
-
-    const pathName = get(history, "location.pathname");
-
-    localStorage.setItem(MY_GAMES_MODAL_OPENED, true);
-    if (pathName !== RESOURCE_EXAMINE) {
-      history.push(RESOURCE_EXAMINE);
-    }
+    Meteor.call("examineGame", "ExaminedGame", id, isImported, (err) => {
+      const pathName = get(history, "location.pathname");
+      if (!err && pathName !== RESOURCE_EXAMINE) {
+        localStorage.setItem(MY_GAMES_MODAL_OPENED, true);
+        history.push(RESOURCE_EXAMINE);
+      }
+    });
   };
 
   const getResultOfGameItem = (gameItem) => {
