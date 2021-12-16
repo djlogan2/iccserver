@@ -14,6 +14,7 @@ import commandsCss from "../../server/defaultStyles/commandsCss";
 import systemCss from "../../server/defaultStyles/systemCss";
 import { templateCollection } from "../../server/tournament/Tournament";
 import { Roles } from "meteor/alanning:roles";
+import { SystemConfiguration } from "../collections/SystemConfiguration";
 
 const log = new Logger("server/migrations");
 
@@ -436,9 +437,26 @@ Meteor.startup(() => {
     version: "0.5.1_1",
     name: "Add default timer blinking for each user",
     run: () => {
-      Meteor.users.update({}, { $set: { "settings.default_timer_blinking": 10 } }, { multi: true });
+      Meteor.users.update(
+        {},
+        {$set: {"settings.default_timer_blinking": 10}},
+        {multi: true}
+      );
     },
   });
+  Migrations.add({
+    version: "0.5.1_2",
+    name: "Add default theme for each user",
+    run: () => {
+      const defaultTheme = SystemConfiguration.defaultTheme();
+      Meteor.users.update(
+        {"settings.themes": undefined},
+        {$set: {"settings.themes": defaultTheme}},
+        {multi: true}
+      );
+    },
+  });
+
   /*
   Migrations.add({
     version: "",
