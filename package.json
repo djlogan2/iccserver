@@ -50,7 +50,7 @@
     "@chessclub.com/chesspgn": "^1.0.7",
     "@chessclub.com/legacy": "^1.0.3",
     "@types/chai": "^4.2.17",
-    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
     "add-font": "^1.0.2",
     "antd": "^4.16.11",
     "async": "^3.2.1",
@@ -97,7 +97,7 @@
   },
   "devDependencies": {
     "typescript": "^4.4.4",
-    "@typescript-eslint/parser": "^5.3.0",
+    "@typescript-eslint/parser": "^5.7.0",
     "@types/meteor": "^1.4.84",
     "@types/react": "^17.0.34",
     "@types/react-dom": "^17.0.11",
