@@ -3,5 +3,6 @@
   <component name="JavaScriptLibraryMappings">
     <file url="PROJECT" libraries="{@types/chai, @types/meteor-publish-composite, @types/mocha}" />
     <includedPredefinedLibrary name="Meteor project library" />
+    <includedPredefinedLibrary name="Node.js Core" />
   </component>
 </project>

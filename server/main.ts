@@ -1,7 +1,7 @@
 import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 import "../imports/server/PgnExport";
-import "../imports/server/engine_manager";
+import "../imports/server/local_engine_manager";
 //import "../server/awsanalysis/AnalysisEngines";
 import "../imports/server/Book";
 import "../imports/server/PgnImport";
