@@ -21,7 +21,7 @@ class Singular {
         this.collection.insert({
           type: "master",
           ip: "0.0.0.0",
-          timestamp: new Date().getTime()
+          timestamp: new Date().getTime(),
         });
       }
 
@@ -29,19 +29,19 @@ class Singular {
         const newMaster = {
           type: "master",
           ip: this.my_ip,
-          timestamp: new Date().getTime()
+          timestamp: new Date().getTime(),
         };
         const currentMaster = this.collection.findOne({ type: "master" });
         this.collection
           .rawCollection()
-          .findAndModify(currentMaster, null, { $set: newMaster }, { new: true, update: true })
-          .then(doc => {
-            if (!!doc && !!doc.value && doc.value.ip === this.my_ip) {
+          .updateOne(currentMaster, { $set: newMaster })
+          .then((doc) => {
+            if (!!doc.modifiedCount) {
               Meteor.clearInterval(this.interval);
               this.startMaster();
             }
           })
-          .catch(e => {
+          .catch((e) => {
             log.error("Error updating master record", e);
           });
       }, 5000);
@@ -56,7 +56,7 @@ class Singular {
       );
     }, 1000);
     this.master = true;
-    this.tasklist.forEach(func => func());
+    this.tasklist.forEach((func) => func());
   }
 
   addTask(func) {
