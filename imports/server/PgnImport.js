@@ -43,7 +43,7 @@ export const ImportedPgnFiles = new FilesCollection({
   collectionName: "importedPgnFiles",
   // Disallow Client to execute remove, use the Meteor.method
   allowClientCode: false,
-
+  allowedOrigins: /^https:\/\/.*\.chessclub.com:[0-9]*$/,
   // Start parsing pgn files
   // after fully received by the Meteor server
   onAfterUpload(fileRef, testCallback) {
