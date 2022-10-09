@@ -12,6 +12,10 @@
             <path value="file://$PROJECT_DIR$/both" />
             <path value="file://$PROJECT_DIR$/private" />
             <path value="file://$PROJECT_DIR$/server" />
+            <path value="file://$PROJECT_DIR$/packages" />
+            <path value="file://$PROJECT_DIR$/packages/icc-custom-protocol" />
+            <path value="file://$PROJECT_DIR$/packages/icc-direct-stream-access" />
+            <path value="file://$PROJECT_DIR$/packages/icc-json-protocol" />
           </resourceRoots>
         </entryData>
       </entry>

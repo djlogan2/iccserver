@@ -41,3 +41,6 @@ lmieulet:meteor-coverage
 ostrio:files
 typescript@4.5.4
 mdg:validated-method
+direct-stream-access
+custom-protocol
+json-protocol

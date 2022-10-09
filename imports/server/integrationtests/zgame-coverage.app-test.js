@@ -60,7 +60,7 @@ describe("addAction", function() {
 describe("getAndCheck", function() {
   const self = TestHelpers.setupDescribe.apply(this);
 
-  it("should throw an ICCError when a legacy game is found", function() {
+  it.skip("should throw an ICCError when a legacy game is found", function() {
     const p1 = TestHelpers.createUser();
     self.loggedonuser = p1;
     const game_id = Game.startLegacyGame(

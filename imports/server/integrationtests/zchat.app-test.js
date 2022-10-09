@@ -826,4 +826,175 @@ describe("Chats", function() {
       chat
     );
   });
+
+  it("should allow a chat restricted individual to chat with another person that is marked 'personal_chat_exempt'", function() {
+    const user1 = TestHelpers.createUser();
+    const user2 = TestHelpers.createUser({ roles: ["personal_chat_exempt"] });
+    Users.removeUserFromRoles(user1, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    const chat = Chat.collection.findOne({});
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        child_chat: false,
+        type: "private",
+        isolation_group: "public",
+        id: user2._id,
+        logons: 2,
+        issuer: { id: user1._id, username: user1.username },
+        what: "The text"
+      },
+      chat
+    );
+  });
+
+  it("should allow an individual with 'personal_chat_exempt' to chat with a restricted individual", function() {
+    const user1 = TestHelpers.createUser({ roles: ["personal_chat_exempt"] });
+    const user2 = TestHelpers.createUser();
+    Users.removeUserFromRoles(user2, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    const chat = Chat.collection.findOne({});
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        child_chat: false,
+        type: "private",
+        isolation_group: "public",
+        id: user2._id,
+        logons: 2,
+        issuer: { id: user1._id, username: user1.username },
+        what: "The text"
+      },
+      chat
+    );
+  });
+
+  it("should allow a chat restricted individual to chat with another person that is marked 'personal_chat_exempt' when in the same isolation group", function() {
+    const user1 = TestHelpers.createUser({isolation_group: "iso1"});
+    const user2 = TestHelpers.createUser({ isolation_group: "iso1"});
+    Users.addUserToRoles(user2, "personal_chat_exempt", "iso1");
+    Users.removeUserFromRoles(user1, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    const chat = Chat.collection.findOne({});
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        child_chat: false,
+        type: "private",
+        isolation_group: "iso1",
+        id: user2._id,
+        logons: 2,
+        issuer: { id: user1._id, username: user1.username },
+        what: "The text"
+      },
+      chat
+    );
+  });
+
+  it("should allow an individual with 'personal_chat_exempt' to chat with a restricted individual when in the same isolation group", function() {
+    const user1 = TestHelpers.createUser({ isolation_group: "iso1"});
+    const user2 = TestHelpers.createUser({isolation_group: "iso1"});
+    Users.addUserToRoles(user1, "personal_chat_exempt", "iso1");
+    Users.removeUserFromRoles(user2, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    const chat = Chat.collection.findOne({});
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        child_chat: false,
+        type: "private",
+        isolation_group: "iso1",
+        id: user2._id,
+        logons: 2,
+        issuer: { id: user1._id, username: user1.username },
+        what: "The text"
+      },
+      chat
+    );
+  });
+
+  it("should not allow a chat restricted individual to chat with another person that is marked 'personal_chat_exempt' when in a different isolation group", function() {
+    const user1 = TestHelpers.createUser({isolation_group: "iso1"});
+    const user2 = TestHelpers.createUser({ isolation_group: "iso2"});
+    Users.addUserToRoles(user2, "personal_chat_exempt", "iso2");
+    Users.removeUserFromRoles(user1, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    chai.assert.equal(Chat.collection.find().count(), 0);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_USER");
+  });
+
+  it("should not allow an individual with 'personal_chat_exempt' to chat with a restricted individual when in a different isolation group", function() {
+    const user1 = TestHelpers.createUser({isolation_group: "iso1"});
+    const user2 = TestHelpers.createUser({ isolation_group: "iso2"});
+    Users.addUserToRoles(user1, "personal_chat_exempt", "iso2");
+    Users.removeUserFromRoles(user2, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    chai.assert.equal(Chat.collection.find().count(), 0);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0]._id, self.loggedonuser._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "mi1");
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "INVALID_USER");
+  });
+
+  it.skip("should allow a chat restricted individual to chat with another person that is marked with a global 'personal_chat_exempt' when in a different isolation group", function() {
+    // These last two are skipped because it's a wider issue. See the comment around line 663
+    // in Chat.js (yes, this comment will probably age and it won't be 663 anymore, but you
+    // should be able to find it.)
+    const user1 = TestHelpers.createUser({isolation_group: "iso1"});
+    const user2 = TestHelpers.createUser({ isolation_group: "iso2"});
+    Users.addUserToRoles(user2, "personal_chat_exempt");
+    Users.removeUserFromRoles(user1, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    const chat = Chat.collection.findOne({});
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        child_chat: false,
+        type: "private",
+        isolation_group: "iso2",
+        id: user2._id,
+        logons: 2,
+        issuer: { id: user1._id, username: user1.username },
+        what: "The text"
+      },
+      chat
+    );
+  });
+
+  it.skip("should allow an individual with a global 'personal_chat_exempt' to chat with a restricted individual when in a different isolation group", function() {
+    const user1 = TestHelpers.createUser({isolation_group: "iso1"});
+    const user2 = TestHelpers.createUser({ isolation_group: "iso2"});
+    Users.addUserToRoles(user1, "personal_chat_exempt");
+    Users.removeUserFromRoles(user2, "personal_chat");
+    self.loggedonuser = user1;
+    Chat.writeToUser("mi1", user2._id, "The text");
+    const chat = Chat.collection.findOne({});
+    chai.assert.deepEqual(
+      {
+        _id: chat._id,
+        create_date: chat.create_date,
+        child_chat: false,
+        type: "private",
+        isolation_group: "iso2",
+        id: user2._id,
+        logons: 2,
+        issuer: { id: user1._id, username: user1.username },
+        what: "The text"
+      },
+      chat
+    );
+  });
 });

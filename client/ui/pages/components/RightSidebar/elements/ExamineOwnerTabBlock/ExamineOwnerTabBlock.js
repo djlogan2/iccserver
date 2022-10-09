@@ -15,6 +15,7 @@ const ExamineOwnerTabBlock = ({ game, translate, classes }) => {
         call = "localAddExaminer";
       }
 
+      log.debug(`Call ${call} called`);
       Meteor.call(call, call, game_id, id_to_add, (error) => {
         if (error) {
           console.error(error);

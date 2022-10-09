@@ -1,0 +1,22 @@
+{
+  "name": "meteor-custom-protocol",
+  "version": "4.0.2",
+  "devDependencies": {
+    "gulp": "3.9.1",
+    "gulp-jsdoc-to-markdown": "1.2.2",
+    "gulp-util": "3.0.8",
+    "gulp-concat": "2.6.1",
+    "gulp-load-plugins": "1.5.0",
+    "merge-stream": "1.0.1",
+    "eslint-config-airbnb": "17.1.0",
+    "eslint-plugin-jsx-a11y": "6.2.1",
+    "eslint-plugin-react": "7.12.4",
+    "eslint-plugin-import": "2.16.0",
+    "eslint": "5.16.0"
+  },
+  "scripts": {
+    "docs": "gulp --gulpfile .gulp/gulpfile.js docs",
+    "test": "meteor test-packages ./ --driver-package cultofcoders:mocha -p 3050",
+    "release": "meteor publish --release=METEOR@1.5.4.1"
+  }
+}

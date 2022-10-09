@@ -46,6 +46,7 @@ class Examine extends Component {
 
     if (myGamesModalOpened) return;
 
+    log.debug("Calling startLocalExaminedGame");
     Meteor.call(
       "startLocalExaminedGame",
       "startlocalExaminedGame",
@@ -181,15 +182,16 @@ class Examine extends Component {
   };
 
   componentDidMount() {
-    const { game } = this.props;
+    const { isReady, game } = this.props;
 
-    if (!game) {
+    if (isReady && !game) {
+      log.debug("componentDidMount calls initExamine");
       this.initExamine();
     }
   }
 
   componentDidUpdate(prevProps) {
-    const { importedGames = [], game } = this.props;
+    const { isReady, importedGames = [], game } = this.props;
     const { fileData } = this.state;
 
     if (
@@ -210,10 +212,14 @@ class Examine extends Component {
     const userStatus = get(user, "status.game");
 
     if (
-      (userStatus === gameStatusExamining && game?.status && game.status !== gameStatusExamining) ||
-      userStatus === gameStatusNone
+      isReady &&
+      ((userStatus === gameStatusExamining &&
+        game?.status &&
+        game.status !== gameStatusExamining) ||
+        userStatus === gameStatusNone)
     ) {
       localStorage.removeItem(OBSERVING_USER_ID);
+      log.debug("componentDidUpdate calling inintExamine");
       this.initExamine();
     }
   }

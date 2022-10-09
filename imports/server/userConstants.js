@@ -33,6 +33,7 @@ export const all_roles = [
   "room_chat",
   "join_room",
   "personal_chat",
+  "personal_chat_exempt",
   "create_tournament_template",
   "list_isolation_groups",
   "list_users",

@@ -487,8 +487,85 @@ describe("Clocks in examined games", function () {
     }
   });
 
+  it("should not allow an observer to set a nodes clock", () => {
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+
+    self.loggedonuser = TestHelpers.createUser();
+    Game.localAddObserver("mi1", game_id, self.loggedonuser._id);
+
+    const game1 = Game.collection.findOne({});
+    chai.assert.isUndefined(game1.variations.movelist[0].wcurrent);
+    chai.assert.isUndefined(game1.variations.movelist[0].bcurrent);
+
+    Game.setClocks("mi2", game_id, 1234, 5678);
+    chai.assert.isUndefined(game1.variations.movelist[0].wcurrent);
+    chai.assert.isUndefined(game1.variations.movelist[0].bcurrent);
+
+    const message = self.clientMessagesSpy.args[0][2];
+    chai.assert.equal(message, "NOT_AN_EXAMINER");
+  });
+
+  it("should not allow a nodes clock to be set in a played game", () => {
+    const p1 = TestHelpers.createUser();
+    const p2 = TestHelpers.createUser();
+
+    self.loggedonuser = p1;
+    const game_id = Game.startLocalGame("mi1", p2, 0, "bullet", true, 1, 52, "inc", 2, 25, "inc", "white");
+
+    const game1 = Game.collection.findOne({});
+    chai.assert.equal(112000, game1.variations.movelist[0].wcurrent);
+    chai.assert.equal(120000, game1.variations.movelist[0].bcurrent);
+    Game.setClocks("mi2", game_id, 1234, 5678);
+    self.loggedonuser = p2;
+    Game.setClocks("mi2", game_id, 1234, 5678);
+
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(112000, game1.variations.movelist[0].wcurrent);
+    chai.assert.equal(120000, game1.variations.movelist[0].bcurrent);
+
+    const message1 = self.clientMessagesSpy.args[0][2];
+    chai.assert.equal(message1, "NOT_AN_EXAMINER");
+
+    const message2 = self.clientMessagesSpy.args[1][2];
+    chai.assert.equal(message2, "NOT_AN_EXAMINER");
+  });
+
   it("should allow an examiner to set the current nodes clock", function () {
-    chai.assert.fail("do me");
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+
+    const game1 = Game.collection.findOne({});
+    chai.assert.isUndefined(game1.variations.movelist[0].wcurrent);
+    chai.assert.isUndefined(game1.variations.movelist[0].bcurrent);
+
+    Game.setClocks("mi2", game_id, 1234, 5678);
+    const game2 = Game.collection.findOne({});
+    chai.assert.equal(1234, game2.variations.movelist[0].wcurrent);
+    chai.assert.equal(5678, game2.variations.movelist[0].bcurrent);
+
+    Game.saveLocalMove("mi3", game_id, "e4");
+    const game3 = Game.collection.findOne({});
+    chai.assert.equal(1234, game3.variations.movelist[0].wcurrent);
+    chai.assert.equal(5678, game3.variations.movelist[0].bcurrent);
+    // what is it
+    chai.assert.isNull(game3.variations.movelist[1].wcurrent);
+    chai.assert.isNull(game3.variations.movelist[1].bcurrent);
+
+    Game.setClocks("mi4", game_id, 2345, 6789);
+    const game4 = Game.collection.findOne({});
+    chai.assert.equal(1234, game4.variations.movelist[0].wcurrent);
+    chai.assert.equal(5678, game4.variations.movelist[0].bcurrent);
+    chai.assert.equal(2345, game4.variations.movelist[1].wcurrent);
+    chai.assert.equal(6789, game4.variations.movelist[1].bcurrent);
+
+    Game.moveToCMI("mi5", game_id, 0);
+    Game.setClocks("mi6", game_id, 3456, 7890);
+    const game5 = Game.collection.findOne({});
+    chai.assert.equal(3456, game5.variations.movelist[0].wcurrent);
+    chai.assert.equal(7890, game5.variations.movelist[0].bcurrent);
+    chai.assert.equal(2345, game5.variations.movelist[1].wcurrent);
+    chai.assert.equal(6789, game5.variations.movelist[1].bcurrent);
   });
 
   const gameobject = {

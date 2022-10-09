@@ -790,7 +790,7 @@ describe("Game.saveLocalMove", function () {
     chai.assert.equal(game2.result, "1/2-1/2");
   });
 
-  it("should fail if the game is a legacy game", function () {
+  it.skip("should fail if the game is a legacy game", function () {
     const us = TestHelpers.createUser();
     self.loggedonuser = us;
     const game_id = Game.startLegacyGame(
@@ -2381,6 +2381,52 @@ describe("Local game draw behavior", function () {
     chai.assert.equal(game.status, "examining");
   });
 
+  it("should explicitly accept the draw with a client message, and end the game, if the recipient of a draw request sends a draw request", function () {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+    checkDraw(Game.collection.findOne(), "0", "0");
+    Game.requestLocalDraw("mi2", game_id);
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    Game.saveLocalMove("mi3", game_id, "e4");
+    checkDraw(Game.collection.findOne(), "mi2", "0");
+    self.loggedonuser = opp;
+    Game.requestLocalDraw("mi4", game_id);
+
+    const game = Game.collection.findOne();
+    checkDraw(game, "0", "0");
+    checkLastAction(game, 0, "draw_accepted", opp._id);
+    checkLastAction(game, 1, "move", us._id, {
+      move: "e4",
+      ping: 456,
+      lag: 0,
+      gamelag: 0,
+      gameping: 0,
+    });
+    checkLastAction(game, 2, "draw_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b13");
+
+    chai.assert.equal(game.status, "examining");
+  });
+
   it("should write a client message to the asker if a draw request is already pending", function () {
     const us = TestHelpers.createUser();
     const opp = TestHelpers.createUser();
@@ -2593,6 +2639,62 @@ describe("Local game abort behavior", function () {
     checkAbort(Game.collection.findOne(), "mi7", "0");
     self.loggedonuser = opp;
     Game.acceptLocalAbort("mi9", game_id);
+
+    const game = Game.collection.findOne();
+    checkAbort(game, "0", "0");
+    checkLastAction(game, 0, "abort_accepted", opp._id);
+    checkLastAction(game, 1, "move", us._id, {
+      move: "Nc3",
+      ping: 456,
+      lag: 0,
+      gamelag: 0,
+      gameping: 0,
+    });
+    checkLastAction(game, 2, "abort_requested", us._id);
+
+    chai.assert.isTrue(self.clientMessagesSpy.calledTwice);
+    chai.assert.equal(self.clientMessagesSpy.args[0][0], us._id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][1], "server:game:" + game_id);
+    chai.assert.equal(self.clientMessagesSpy.args[0][2], "GAME_STATUS_b30");
+
+    chai.assert.equal(game.status, "examining");
+  });
+
+  it("should explicitly accept the abort with a client message, and end the game, if the recipient of an abort request also sends an abort request", function () {
+    const us = TestHelpers.createUser();
+    const opp = TestHelpers.createUser();
+    self.loggedonuser = us;
+    const game_id = Game.startLocalGame(
+      "mi1",
+      opp,
+      0,
+      "standard",
+      true,
+      15,
+      0,
+      "none",
+      15,
+      0,
+      "none",
+      "white"
+    );
+
+    Game.saveLocalMove("mi3", game_id, "e4");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi4", game_id, "e5");
+    self.loggedonuser = us;
+    Game.saveLocalMove("mi5", game_id, "Nf3");
+    self.loggedonuser = opp;
+    Game.saveLocalMove("mi6", game_id, "Nc6");
+
+    self.loggedonuser = us;
+    checkAbort(Game.collection.findOne(), "0", "0");
+    Game.requestLocalAbort("mi7", game_id);
+    checkAbort(Game.collection.findOne(), "mi7", "0");
+    Game.saveLocalMove("mi8", game_id, "Nc3");
+    checkAbort(Game.collection.findOne(), "mi7", "0");
+    self.loggedonuser = opp;
+    Game.requestLocalAbort("mi7", game_id);
 
     const game = Game.collection.findOne();
     checkAbort(game, "0", "0");

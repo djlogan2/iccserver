@@ -5,6 +5,7 @@ import {
   RESOURCE_DEVELOPER2,
   RESOURCE_DEVELOPER3,
   RESOURCE_DEVELOPER4,
+  RESOURCE_DEVELOPER5,
   RESOURCE_EDITOR,
   RESOURCE_EXAMINE,
   RESOURCE_HOME,
@@ -29,6 +30,7 @@ import DeveloperContainer from "../ui/containers/DeveloperContainer";
 import DeveloperContainer2 from "../ui/containers/DeveloperContainer2";
 import DeveloperContainer3 from "../ui/containers/DeveloperContainer3";
 import DeveloperContainer4 from "../ui/containers/DeveloperContainer4";
+import DeveloperContainer5 from "../ui/containers/DeveloperContainer5";
 import PlayWrapper from "../ui/pages/Play/PlayWrapper";
 
 const authRoutes = [
@@ -120,6 +122,11 @@ const authRoutes = [
   {
     component: DeveloperContainer4,
     path: RESOURCE_DEVELOPER4,
+    exact: true,
+  },
+  {
+    component: DeveloperContainer5,
+    path: RESOURCE_DEVELOPER5,
     exact: true,
   },
 ];

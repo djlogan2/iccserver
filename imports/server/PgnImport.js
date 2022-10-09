@@ -43,7 +43,8 @@ export const ImportedPgnFiles = new FilesCollection({
   collectionName: "importedPgnFiles",
   // Disallow Client to execute remove, use the Meteor.method
   allowClientCode: false,
-  allowedOrigins: /^https:\/\/.*\.chessclub.com:[0-9]*$/,
+  allowedOrigins: /(.*chessclub.com.*)|(.*localhost.*)/,
+  allowQueryStringCookies: true,
   // Start parsing pgn files
   // after fully received by the Meteor server
   onAfterUpload(fileRef, testCallback) {
@@ -55,6 +56,7 @@ export const ImportedPgnFiles = new FilesCollection({
     return false;
   },
 });
+ImportedPgnFiles.allowedOrigins = /(.*chessclub.com.*)|(.*localhost.*)/;
 
 // Intercept FilesCollection's remove method to remove file
 const _origRemove = ImportedPgnFiles.remove;

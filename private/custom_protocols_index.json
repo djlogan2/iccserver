@@ -1,6 +1,6 @@
 {
     "JsonProtocol": {
         "id": 1,
-        "package": "omega:json-protocol"
+        "package": "json-protocol"
     }
 }

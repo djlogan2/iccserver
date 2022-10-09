@@ -105,7 +105,6 @@ export class Game {
             },
           }
         );
-        const testme = argh.fetch();
         return argh;
       },
       children: [
@@ -2054,13 +2053,19 @@ export class Game {
       return;
     }
 
+    const color = self._id === game.white.id ? "white" : "black";
+    const oppcolor = self._id === game.white.id ? "black" : "white";
+
+    const drawaccepted = game.pending[oppcolor].draw !== "0"; // If our opponent requested a draw, and we requested a draw...
     if (
+      drawaccepted ||
+      game.pending[oppcolor].draw !== "0" || // If our opponent requested a draw, and we requested a draw...
       active_games[game_id].in_threefold_repetition() ||
       (active_games[game_id].in_draw() && !active_games[game_id].insufficient_material())
     ) {
       Users.setGameStatus(message_identifier, game.white.id, "examining");
       Users.setGameStatus(message_identifier, game.black.id, "examining");
-      const status2 = active_games[game_id].in_threefold_repetition() ? 15 : 16;
+      const status2 = drawaccepted ? 13 : active_games[game_id].in_threefold_repetition() ? 15 : 16;
       const examiners = [];
       if (game.white.id !== "computer")
         examiners.push({ id: game.white.id, username: game.white.name });
@@ -2075,7 +2080,7 @@ export class Game {
             },
           },
           $push: {
-            actions: { type: "draw", issuer: self._id },
+            actions: { type: drawaccepted ? "draw_accepted" : "draw", issuer: self._id },
           },
           $unset: { pending: 1, premove: 1 },
           $set: {
@@ -2091,8 +2096,6 @@ export class Game {
       this.sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "1/2-1/2", status2);
       return;
     }
-
-    const color = self._id === game.white.id ? "white" : "black";
 
     if (game.pending[color].draw !== "0") {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "DRAW_ALREADY_PENDING");
@@ -2137,6 +2140,7 @@ export class Game {
     }
 
     const color = self._id === game.white.id ? "white" : "black";
+    const oppcolor = self._id === game.white.id ? "black" : "white";
 
     if (game.pending[color].abort !== "0") {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "ABORT_ALREADY_PENDING");
@@ -2190,6 +2194,11 @@ export class Game {
         "*",
         37
       );
+      return;
+    }
+
+    if (game.pending[oppcolor].abort !== "0") {
+      this.acceptLocalAbort(message_identifier, game_id);
       return;
     }
 
@@ -3129,6 +3138,12 @@ export class Game {
       .forEach((game) =>
         this.localRemoveObserver("server", game._id, user_id, server_command, due_to_logout)
       );
+
+    // Unset any games where this user is an owner
+    this.GameCollection.update(
+      { status: "examining", owner: user_id, private: { $ne: true } },
+      { $unset: { owner: 1 } }
+    );
   }
 
   localResignAllGames(message_identifier, user_id, reason) {
@@ -3916,8 +3931,8 @@ export class Game {
   setClocks(message_identifier, game_id, white, black) {
     check(message_identifier, String);
     check(game_id, String);
-    check(white, Match.maybe(Number));
-    check(black, Match.maybe(Number));
+    check(white, Match.Maybe(Number));
+    check(black, Match.Maybe(Number));
 
     if (white === undefined && black === undefined) return;
 
@@ -3939,7 +3954,7 @@ export class Game {
       setobject["clocks.black.current"] = black;
     }
 
-    this.GameCollection.update({ _id: game._id }, { $set: setobject });
+    this.GameCollection.update({ status: "examining", _id: game._id }, { $set: setobject });
   }
 
   setTags(message_identifier, game_id, tagsData) {

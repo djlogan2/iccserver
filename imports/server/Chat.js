@@ -13,9 +13,9 @@ const log = new Logger("server/Chat_js");
 const ChatCollectionSchema = new SimpleSchema({
   create_date: {
     type: Date,
-    autoValue: function() {
+    autoValue: function () {
       return new Date();
-    }
+    },
   },
   isolation_group: String,
   id: String, // game_id (kibitz/whisper), room_id, or receiver_id
@@ -37,11 +37,11 @@ const ChatCollectionSchema = new SimpleSchema({
         return [
           {
             name: "child_chat",
-            type: SimpleSchema.ErrorTypes.REQUIRED
-          }
+            type: SimpleSchema.ErrorTypes.REQUIRED,
+          },
         ];
-    }
-  }
+    },
+  },
 });
 
 const RoomCollectionSchema = {
@@ -57,7 +57,7 @@ const RoomCollectionSchema = {
   "invited.$": Object,
   "invited.$.id": String,
   "invited.$.username": String,
-  "invited.$.message_identifier": String
+  "invited.$.message_identifier": String,
 };
 
 class Chat {
@@ -84,8 +84,8 @@ class Chat {
         "Another game after this?",
         "Yes",
         "No",
-        "Good game"
-      ].forEach(text => this.childChatCollection.insert({ text: text }));
+        "Good game",
+      ].forEach((text) => this.childChatCollection.insert({ text: text }));
     }
 
     //
@@ -96,8 +96,8 @@ class Chat {
         $and: [
           { isolation_group: user.isolation_group },
           { type: "private" },
-          { $or: [{ id: user._id }, { "issuer.id": user._id }] }
-        ]
+          { $or: [{ id: user._id }, { "issuer.id": user._id }] },
+        ],
       };
       if (user.cf === "c") query_object.$and.push({ child_chat: true });
       return self.collection.find(query_object, { sort: { createdAt: 1 } });
@@ -108,13 +108,13 @@ class Chat {
       // Children cannot be in rooms
       if (user.cf === "c") return self.collection.find({ _id: "0" });
       // No chats if they aren't members. If they are just invited, no chats!
-      if (!room.members.some(member => member.id === user._id))
+      if (!room.members.some((member) => member.id === user._id))
         return self.collection.find({ _id: "none" });
       return self.collection.find(
         {
           isolation_group: user.isolation_group,
           type: "room",
-          id: room._id
+          id: room._id,
         },
         { sort: { createdAt: 1 }, limit: SystemConfiguration.roomChatLimit() }
       );
@@ -129,10 +129,10 @@ class Chat {
               $or: [
                 { "white.id": user._id },
                 { "black.id": user._id },
-                { "observers.id": user._id }
-              ]
-            }
-          ]
+                { "observers.id": user._id },
+              ],
+            },
+          ],
         },
         { fields: { _id: 1, observers: 1 } }
       );
@@ -141,9 +141,9 @@ class Chat {
     function gameKibitzes(game, user) {
       const query_object = {
         id: game._id,
-        isolation_group: user.isolation_group
+        isolation_group: user.isolation_group,
       };
-      if (game.observers.some(ob => ob.id === user._id))
+      if (game.observers.some((ob) => ob.id === user._id))
         query_object.type = { $in: ["kibitz", "whisper"] };
       else query_object.type = "kibitz";
       if (user.cf === "c") query_object.child_chat = true;
@@ -156,7 +156,7 @@ class Chat {
       return self.roomCollection.find({
         owner: user._id,
         public: false,
-        isolation_group: user.isolation_group
+        isolation_group: user.isolation_group,
       });
     }
 
@@ -167,8 +167,8 @@ class Chat {
         {
           $and: [
             { isolation_group: user.isolation_group },
-            { $or: [{ "invited.id": user._id }, { "members.id": user._id }, { public: true }] }
-          ]
+            { $or: [{ "invited.id": user._id }, { "members.id": user._id }, { public: true }] },
+          ],
         },
         { fields: { _id: 1, name: 1, members: 1 } }
       );
@@ -185,25 +185,25 @@ class Chat {
         { find: games, children: [{ find: gameKibitzes }] },
         { find: ownedRooms, children: [{ find: roomChat }] },
         { find: nonOwnedRooms, children: [{ find: roomChat }] },
-        { find: personalChat }
-      ]
+        { find: personalChat },
+      ],
     });
 
-    Users.events.on("userLogin", function(fields) {
+    Users.events.on("userLogin", function (fields) {
       self.collection.update(
         {
           $and: [
             { type: "private" },
             { logons: 1 },
-            { $or: [{ id: fields.userId }, { "issuer.id": fields.userId }] }
-          ]
+            { $or: [{ id: fields.userId }, { "issuer.id": fields.userId }] },
+          ],
         },
         { $set: { logons: 2 } },
         { multi: true }
       );
     });
 
-    Users.events.on("userLogout", function(fields) {
+    Users.events.on("userLogout", function (fields) {
       //
       // Remove the user as an invitee from all rooms he's been invited to,
       // and inform their owners
@@ -211,8 +211,8 @@ class Chat {
       self.roomCollection
         .find({ "invited.id": fields.userId })
         .fetch()
-        .forEach(room => {
-          const invitee = room.invited.find(invitee => invitee.id === fields.userId);
+        .forEach((room) => {
+          const invitee = room.invited.find((invitee) => invitee.id === fields.userId);
           if (!invitee)
             throw new Meteor.Error(
               "Unable to remove invitee from room",
@@ -237,8 +237,8 @@ class Chat {
       const private_rooms_to_delete = self.roomCollection
         .find({ public: false, "members.id": fields.userId })
         .fetch()
-        .filter(room => room.members.length === 1)
-        .map(room => room._id);
+        .filter((room) => room.members.length === 1)
+        .map((room) => room._id);
 
       if (!!private_rooms_to_delete.length) {
         self.collection.remove({ type: "room", id: { $in: private_rooms_to_delete } });
@@ -261,8 +261,8 @@ class Chat {
         $and: [
           { type: "private" },
           { logons: 1 },
-          { $or: [{ "issuer.id": fields.userId }, { id: fields.userId }] }
-        ]
+          { $or: [{ "issuer.id": fields.userId }, { id: fields.userId }] },
+        ],
       });
 
       //
@@ -274,8 +274,8 @@ class Chat {
           $and: [
             { type: "private" },
             { logons: 2 },
-            { $or: [{ id: fields.userId }, { "issuer.id": fields.userId }] }
-          ]
+            { $or: [{ id: fields.userId }, { "issuer.id": fields.userId }] },
+          ],
         },
         { $set: { logons: 1 } },
         { multi: true }
@@ -286,7 +286,7 @@ class Chat {
       Game.GameCollection.find({}).observeChanges({
         removed(id) {
           self.collection.remove({ type: { $in: ["kibitz", "whisper"] }, id: id });
-        }
+        },
       });
     });
   }
@@ -340,13 +340,13 @@ class Chat {
       id: game_id,
       issuer: { id: self._id, username: self.username },
       what: txt,
-      child_chat: child_chat
+      child_chat: child_chat,
     });
 
     Game.addAction(game_id, {
       type: kibitz ? "kibitz" : "whisper",
       issuer: self._id,
-      parameter: { what: txt }
+      parameter: { what: txt },
     });
   }
 
@@ -369,8 +369,8 @@ class Chat {
         $and: [
           { name: roomName },
           { isolation_group: self.isolation_group },
-          { $or: [{ public: true }, { $and: [{ public: false }, { owner: self._id }] }] }
-        ]
+          { $or: [{ public: true }, { $and: [{ public: false }, { owner: self._id }] }] },
+        ],
       })
       .count();
 
@@ -393,7 +393,7 @@ class Chat {
       owner: self._id,
       public: !priv,
       members: [{ id: self._id, username: self.username }],
-      isolation_group: self.isolation_group
+      isolation_group: self.isolation_group,
     });
   }
 
@@ -417,7 +417,7 @@ class Chat {
 
     const room = this.roomCollection.findOne({
       _id: room_id,
-      isolation_group: self.isolation_group
+      isolation_group: self.isolation_group,
     });
 
     // does room even exist?
@@ -426,8 +426,8 @@ class Chat {
       return;
     }
 
-    if (!room.members.some(member => member.id === self._id)) {
-      if (room.public || room.invited.some(invitee => invitee.id === self._id))
+    if (!room.members.some((member) => member.id === self._id)) {
+      if (room.public || room.invited.some((invitee) => invitee.id === self._id))
         this.joinRoom(message_identifier, room_id);
       else {
         ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_CHAT_IN_ROOM");
@@ -441,7 +441,7 @@ class Chat {
       type: "room",
       id: room_id,
       what: txt,
-      issuer: { id: self._id, username: self.username }
+      issuer: { id: self._id, username: self.username },
     });
   }
 
@@ -456,7 +456,7 @@ class Chat {
     const room = this.roomCollection.findOne({
       _id: room_id,
       isolation_group: self.isolation_group,
-      owner: self._id
+      owner: self._id,
     });
 
     if (!room) {
@@ -490,12 +490,12 @@ class Chat {
       return;
     }
 
-    if (room.members && room.members.some(member => member.id === self._id)) {
+    if (room.members && room.members.some((member) => member.id === self._id)) {
       return;
     }
 
     if (!Users.isAuthorized(self, "join_room") || self.cf === "c") {
-      const invitee = room.invited.find(invitee => invitee.id === self._id);
+      const invitee = room.invited.find((invitee) => invitee.id === self._id);
       if (!!invitee) {
         ClientMessages.sendMessageToClient(
           room.owner,
@@ -511,7 +511,7 @@ class Chat {
     }
 
     if (!room.public) {
-      if (!room.invited.some(invitee => invitee.id === self._id) && room.owner !== self._id) {
+      if (!room.invited.some((invitee) => invitee.id === self._id) && room.owner !== self._id) {
         ClientMessages.sendMessageToClient(self, message_identifier, "NOT_ALLOWED_TO_JOIN_ROOM");
         return;
       }
@@ -519,7 +519,7 @@ class Chat {
         { _id: room_id },
         {
           $addToSet: { members: { id: self._id, username: self.username } },
-          $pull: { invited: { id: self._id } }
+          $pull: { invited: { id: self._id } },
         }
       );
     } else
@@ -538,7 +538,7 @@ class Chat {
 
     const room = this.roomCollection.findOne({
       _id: room_id,
-      isolation_group: self.isolation_group
+      isolation_group: self.isolation_group,
     });
 
     if (!user_id) user_id = self._id;
@@ -552,7 +552,7 @@ class Chat {
         );
         return;
       }
-      if (!room.members.some(member => member.id === self._id)) {
+      if (!room.members.some((member) => member.id === self._id)) {
         ClientMessages.sendMessageToClient(self, message_identifier, "NOT_IN_ROOM");
         return;
       }
@@ -563,8 +563,10 @@ class Chat {
         return;
       }
 
-      const member = !!room.members ? room.members.find(member => member.id === user_id) : null;
-      const invitee = !!room.invited ? room.invited.find(invitee => invitee.id === user_id) : null;
+      const member = !!room.members ? room.members.find((member) => member.id === user_id) : null;
+      const invitee = !!room.invited
+        ? room.invited.find((invitee) => invitee.id === user_id)
+        : null;
 
       if (!!member) {
         this.roomCollection.update({ _id: room._id }, { $pull: { members: { id: user_id } } });
@@ -605,7 +607,7 @@ class Chat {
       _id: room_id,
       isolation_group: self.isolation_group,
       public: false,
-      owner: self._id
+      owner: self._id,
     });
 
     if (!room) {
@@ -625,11 +627,11 @@ class Chat {
       return;
     }
 
-    if (room.members.some(member => member.id === otherguy._id)) {
+    if (room.members.some((member) => member.id === otherguy._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_A_MEMBER");
       return;
     }
-    if (room.invited && room.invited.some(invitee => invitee.id === otherguy._id)) {
+    if (room.invited && room.invited.some((invitee) => invitee.id === otherguy._id)) {
       ClientMessages.sendMessageToClient(self, message_identifier, "ALREADY_INVITED");
       return;
     }
@@ -646,9 +648,9 @@ class Chat {
             invited: {
               id: otherguy._id,
               username: otherguy.username,
-              message_identifier: message_identifier
-            }
-          }
+              message_identifier: message_identifier,
+            },
+          },
         }
       );
   }
@@ -657,8 +659,21 @@ class Chat {
     const self = Meteor.user();
     const user = Meteor.users.findOne({ _id: user_id });
 
+    //
+    // For now, hard rule to not allow a user to chat with another user in a different isolation group
+    // We can fix this, but it'll be a little wider than a small fix, because the publication will have
+    // to figure out how to account for exempt users and non-exempt users to have chat records sent to
+    // clients.
+    if (self.isolation_group !== user.isolation_group) {
+      ClientMessages.sendMessageToClient(self, message_identifier, "INVALID_USER");
+      return;
+    }
+    const exempt =
+      Users.isAuthorized(self, "personal_chat_exempt", self.isolation_group) ||
+      Users.isAuthorized(user, "personal_chat_exempt", user.isolation_group);
+
     // only allowed if sender has personal chat
-    if (!Users.isAuthorized(self, "personal_chat")) {
+    if (!exempt && !Users.isAuthorized(self, "personal_chat")) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -667,7 +682,7 @@ class Chat {
       return;
     }
 
-    if (!Users.isAuthorized(user, "personal_chat")) {
+    if (!exempt && !Users.isAuthorized(user, "personal_chat")) {
       ClientMessages.sendMessageToClient(
         self,
         message_identifier,
@@ -722,7 +737,7 @@ class Chat {
       what: text,
       child_chat: is_child_chat,
       logons: loggedon,
-      issuer: { id: self._id, username: self.username }
+      issuer: { id: self._id, username: self.username },
     });
   }
 }
@@ -757,5 +772,5 @@ Meteor.methods({
     global._chatObject.createRoom(message_identifier, roomName, priv),
   // eslint-disable-next-line meteor/audit-argument-checks
   inviteToRoom: (message_identifier, room_id, user_id) =>
-    global._chatObject.inviteToRoom(message_identifier, room_id, user_id)
+    global._chatObject.inviteToRoom(message_identifier, room_id, user_id),
 });

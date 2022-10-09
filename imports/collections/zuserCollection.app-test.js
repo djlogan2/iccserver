@@ -20,6 +20,7 @@ const logged_on_user_fields = {
   _id: 1,
   cf: 1,
   username: 1,
+  locale: 1,
   titles: 1,
   status: {
     game: 1,

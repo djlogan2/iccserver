@@ -14,6 +14,7 @@ export const RESOURCE_DEVELOPER = "/developer";
 export const RESOURCE_DEVELOPER2 = "/developer2";
 export const RESOURCE_DEVELOPER3 = "/developer3";
 export const RESOURCE_DEVELOPER4 = "/developer4";
+export const RESOURCE_DEVELOPER5 = "/developer5";
 
 export const labelsToResources = {
   community: RESOURCE_COMMUNITY,
