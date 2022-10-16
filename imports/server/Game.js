@@ -1387,7 +1387,8 @@ export class Game {
       result.from,
       result.to,
       result.promotion,
-      variation_param
+      variation_param,
+      game.status === "playing"
     );
     if (!!client_message) {
       ClientMessages.sendMessageToClient(self._id, message_identifier, client_message);
@@ -2063,15 +2064,15 @@ export class Game {
       active_games[game_id].in_threefold_repetition() ||
       (active_games[game_id].in_draw() && !active_games[game_id].insufficient_material())
     ) {
-      Users.setGameStatus(message_identifier, game.white.id, "examining");
-      Users.setGameStatus(message_identifier, game.black.id, "examining");
-      const status2 = drawaccepted ? 13 : active_games[game_id].in_threefold_repetition() ? 15 : 16;
-      const examiners = [];
-      if (game.white.id !== "computer")
+            Users.setGameStatus(message_identifier, game.white.id, "examining");
+            Users.setGameStatus(message_identifier, game.black.id, "examining");
+            const status2 = drawaccepted ? 13 : active_games[game_id].in_threefold_repetition() ? 15 : 16;
+            const examiners = [];
+            if (game.white.id !== "computer")
         examiners.push({ id: game.white.id, username: game.white.name });
       if (game.black.id !== "computer")
         examiners.push({ id: game.black.id, username: game.black.name });
-      this.GameCollection.update(
+            this.GameCollection.update(
         { _id: game_id, status: "playing" },
         {
           $addToSet: {
@@ -2091,13 +2092,13 @@ export class Game {
           },
         }
       );
-      this.updateUserRatings(game, "1/2-1/2", status2);
-      GameHistory.savePlayedGame(message_identifier, game_id);
-      this.sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "1/2-1/2", status2);
-      return;
+            this.updateUserRatings(game, "1/2-1/2", status2);
+            GameHistory.savePlayedGame(message_identifier, game_id);
+            this.sendGameStatus(game_id, game.white.id, game.black.id, game.tomove, "1/2-1/2", status2);
+            return;
     }
 
-    if (game.pending[color].draw !== "0") {
+        if (game.pending[color].draw !== "0") {
       ClientMessages.sendMessageToClient(self._id, message_identifier, "DRAW_ALREADY_PENDING");
       return;
     }
@@ -3468,16 +3469,19 @@ export class Game {
     from,
     to,
     promotion,
-    variation_param
+    variation_param,
+    force_existing_to_mainline // When playing (or I guess for any reason), force an existing line to be main line
   ) {
     const exists = this.findVariation(move, variation_object.cmi, variation_object.movelist);
 
     if (exists) {
-      variation_object.movelist[variation_object.cmi].variations.splice(
-        variation_object.movelist[variation_object.cmi].variations.indexOf(exists),
-        1
-      );
-      variation_object.movelist[variation_object.cmi].variations.unshift(exists);
+      if(force_existing_to_mainline) {
+        variation_object.movelist[variation_object.cmi].variations.splice(
+          variation_object.movelist[variation_object.cmi].variations.indexOf(exists),
+          1
+        );
+        variation_object.movelist[variation_object.cmi].variations.unshift(exists);
+      }
       variation_object.cmi = exists;
       return;
     }

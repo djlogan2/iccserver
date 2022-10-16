@@ -258,8 +258,101 @@ describe("When making a move on a board that will be, or cause, a variation", fu
     });
   });
 
+  function identicalTrees(node1, node2, identfunc, childfunc)
+  {
+    /*1. both empty */
+    if (node1 == null && node2 == null)
+      return true;
+
+    /* 2. both non-empty -> compare them */
+    if (node1 != null && node2 != null) {
+      let identical = identfunc(node1, node2);
+      if(!identical) return false;
+      let x = 0;
+      for(let x = 0 ; ; x++) {
+        const childnode1 = childfunc(node1, x);
+        const childnode2 = childfunc(node2, x);
+        identical = identicalTrees(childnode1, childnode2, identfunc, childfunc);
+        if(!identical) return false;
+        if(!childnode1 || !childnode2) break;
+      }
+      return true;
+    }
+    return false;
+  }
+
   it("should update the entire tree on delete by removing all of the moves in that branch", function() {
-    chai.assert.fail("do me");
+    const moves = [
+      "e4", "e5", "Nf3", "c6",
+      "b","b",
+      "Nc3",
+      "b","b",
+      "c5", "b3",
+      "b",
+      "g3","a6",
+      "b","b",
+      "b3","h6",
+      "b",
+      "g6",
+      "b","b",
+      "g3","b6",
+      "b","b","b",
+      "e5","Nf3","Nf6",
+      "b","b",
+      "Nc3","Nc6",
+      "b",
+      "g6"
+    ];
+    const tree = [null, []];
+    const stack = [tree];
+
+    self.loggedonuser = TestHelpers.createUser();
+    const game_id = Game.startLocalExaminedGame("mi1", "white", "black", 0);
+    moves.forEach((move, i) => {
+      if(move === "b") {
+        Game.moveBackward("mi3", game_id, 1);
+        stack.shift(); // Remove top element and go to previous move
+      } else {
+        Game.saveLocalMove(move, game_id, move, { type: "append" });
+        const found = stack[0][1].find(v => v[0] === move);
+        const element = found || [move, []];
+        if(!found)
+          stack[0][1].push(element);
+        stack.unshift(element);
+      }
+    });
+
+    const identfunc = (node1, node2) => {
+      const un1 = (node1 === null || node1 === undefined);
+      const un2 = (node2 === null || node2 === undefined);
+      if(un1 && un2) return true;
+      if(un1 !== un2) return false;
+      if(node1.constructor !== Object)
+        chai.assert.false(`Node 1 is not an object: ${JSON.stringify(node1)}`);
+      if(node2.constructor !== Array)
+        chai.assert.false(`Node 2 is not an array: ${JSON.stringify(node2)}`);
+      return (!node1.move && !node2[0]) || node1.move === node2[0];
+    };
+
+    const childfunc = (movelist, node, index) => {
+      if(node.constructor === Array) {
+        return index < node[1].length ? node[1][index] : null;
+      } else { // An object
+        if(!node.variations || index >= node.variations.length) return null;
+        return movelist[node.variations[index]];
+      }
+    };
+
+    const game = Game.GameCollection.findOne();
+
+    const equal = identicalTrees(game.variations.movelist[0], tree, identfunc, (node, index) => childfunc(game.variations.movelist, node, index));
+    chai.assert.isTrue(equal);
+
+    const new_movelist = Game.deleteVariationNode(game.variations.movelist, 5);
+    tree[1][0][1][0][1].pop(); // This should remove the "Nc3" node...I hope...
+
+    const equal2 = identicalTrees(new_movelist[0], tree, identfunc, (node, index) => childfunc(new_movelist, node, index));
+    chai.assert.isTrue(equal2);
   });
 
   it("should properly add the move to the action array with 'insert' and the index'", function() {

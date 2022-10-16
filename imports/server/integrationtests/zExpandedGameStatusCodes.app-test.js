@@ -275,6 +275,7 @@ describe("Expanded game status codes", function() {
 
   //   [16, "50", "Game drawn by the 50 move rule"],
   it("should record status2 of 16 when white draws by the 50 move rule", function() {
+    this.timeout(60000);
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["e3","e6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nc3","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Be2","Bf8","Bf1","Nc6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nge2","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Ng3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Bc5","Bd3","Bb4","Bc4","Ba3","Bb5","Bb4","Ba6","Bc5","Bb5","Bd6","Bc4","Be7","Bd3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Nge7","Bd3","Bc5","Bc4","Bb4","Bb5","Ba3","Ba6","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","O-O","Be2","Bc5","O-O","Bb4","Bd3","Ba3","Bc4","Bb4","Bb5","Bc5","Ba6","Bd6","Bb5","Bc5","Bc4","Bd6","Re1","Re8"]);
     Game.requestLocalDraw("mi2", result.game_id);
@@ -292,6 +293,7 @@ describe("Expanded game status codes", function() {
   });
 
   it("should record status2 of 16 when black draws by the 50 move rule", function() {
+    this.timeout(60000);
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["e3","e6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nc3","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Be2","Bf8","Bf1","Nc6","Be2","Be7","Bd3","Bd6","Bc4","Bc5","Bb5","Bb4","Ba6","Ba3","Nge2","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","Be7","Ng3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Bc5","Bd3","Bb4","Bc4","Ba3","Bb5","Bb4","Ba6","Bc5","Bb5","Bd6","Bc4","Be7","Bd3","Bf8","Be2","Be7","Bf1","Bd6","Be2","Nge7","Bd3","Bc5","Bc4","Bb4","Bb5","Ba3","Ba6","Bb4","Bb5","Bc5","Bc4","Bd6","Bd3","O-O","Be2","Bc5","O-O","Bb4","Bd3","Ba3","Bc4","Bb4","Bb5","Bc5","Ba6","Bd6","Bb5","Bc5","Bc4","Bd6","Bd3","Re8","Re1"]);
     Game.requestLocalDraw("mi2", result.game_id);
@@ -349,6 +351,7 @@ describe("Expanded game status codes", function() {
 
   //   [18, "NM", "Game drawn because neither player has mating material"],
   it("should record status2 of 18 when neither player has mating material", function() {
+    this.timeout(60000);
     // eslint-disable-next-line prettier/prettier
     const result = playGame(["e4","d5","exd5","c6","dxc6","Qxd2+","Qxd2","e5","f4","exf4","g3","fxg3","cxb7","Bxb7","Qd8+","Kxd8","b4","gxh2","Rxh2","a5","bxa5","Rxa5","Rxh7","Rxa2","Rxh8","Rxa1","Rxg8","Rxb1","Rxf8+","Ke7","Rxb8","Rxc1+","Kd2","Rxf1","Rxb7+","Kd8","Rxf7","Rxg1","Rxg7","Rg2+","Kd3","Rxc2","Rc7","Kxc7","Kxc2"]);
     const game = Game.collection.findOne({ _id: result.game_id });

@@ -578,14 +578,14 @@ describe("GamePublisher", function () {
     const newrec1 = gamePublisher.addNewFields(id, orig);
     chai.assert.deepEqual(newrec1, expected_copy_2);
   });
-  it("should not look up a record in the database if there NOT any left over added fields", function () {
+  it.only("should not look up a record in the database if there NOT any left over added fields", function () {
     chai.assert.fail("do me");
   });
   // getUpdatedRecord(id, rec)
-  it("should not null deleted fields if the type does not change", function () {
+  it.only("should not null deleted fields if the type does not change", function () {
     chai.assert.fail("do me");
   });
-  it("should not add fields if the type does not change", function () {
+  it.only("should not add fields if the type does not change", function () {
     chai.assert.fail("do me");
   });
 });

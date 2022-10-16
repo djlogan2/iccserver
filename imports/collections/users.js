@@ -5,7 +5,11 @@ import { check, Match } from "meteor/check";
 import { EventEmitter } from "events";
 import { get } from "lodash";
 
-import { all_roles, fields_viewable_by_account_owner, standard_member_roles } from "../server/userConstants";
+import {
+  all_roles,
+  fields_viewable_by_account_owner,
+  standard_member_roles,
+} from "../server/userConstants";
 import { encrypt } from "../../lib/server/encrypt";
 import { Roles } from "meteor/alanning:roles";
 import { Logger } from "../../lib/server/Logger";
