@@ -2,7 +2,6 @@ import { Meteor } from "meteor/meteor";
 import { Logger } from "../lib/server/Logger";
 import "../imports/server/PgnExport";
 import "../imports/server/local_engine_manager";
-//import "../server/awsanalysis/AnalysisEngines";
 import "../imports/server/Book";
 import "../imports/server/PgnImport";
 
@@ -10,6 +9,7 @@ import fs from "fs";
 
 import "../imports/server/Chat";
 import "../imports/server/Game";
+import "../imports/server/GameAnalysis";
 import "../imports/server/GameRequest";
 import "../imports/collections/css";
 import "../imports/collections/clientInternationalization";

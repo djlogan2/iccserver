@@ -13,8 +13,5 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="@types/jest" level="application" />
-    <orderEntry type="library" name="@types/chai" level="application" />
-    <orderEntry type="library" name="@types/meteor-publish-composite" level="application" />
-    <orderEntry type="library" name="@types/mocha" level="application" />
   </component>
 </module>
