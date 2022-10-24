@@ -18,8 +18,8 @@ import { Logger } from "../../lib/server/Logger";
 const log = new Logger("server/GamePublisher_js");
 
 //
-// 0: played not to move
-// 1: played to move
+// 0: player not to move
+// 1: player to move
 // 2: observer of played game
 // 3: observer of an examined game
 // 4: owner of a private game
@@ -27,40 +27,243 @@ const log = new Logger("server/GamePublisher_js");
 // 6: private game peon without analysis
 // 7: A nobody
 //
+const PLAYER_NOT_TO_MOVE = 0;
+const PLAYER_TO_MOVE = 1;
+const OBSERVER_PLAYED_GAME = 2;
+const OBSERVER_EXAMINED_GAME = 3;
+const OWNER_PRIVATE_GAME = 4;
+const ANALYSIS_PRIVATE_GAME = 5;
+const NO_ANALYSIS_PRIVATE_GAME = 6;
+const NOBODY = 7;
+
 const fields = {
-  _id: [0, 1, 2, 3, 4, 5, 6, 7],
-  analysis: [4],
-  arrows: [2, 3, 4, 5, 6],
-  black: [0, 1, 2, 3, 4, 5, 6, 7],
-  circles: [2, 3, 4, 5, 6],
-  clocks: [0, 1, 2, 3, 4, 5, 6, 7],
-  computer_variations: [2, 3, 4, 5],
-  deny_chat: [4, 5, 6],
-  deny_requests: [4],
-  examiners: [3, 4, 5, 6],
-  fen: [0, 1, 2, 3, 4, 5, 6],
-  // isolation_group: [0, 1, 2, 3, 4, 5, 6, 7],
-  legacy_game_id: [0, 1, 2, 3, 4, 5, 6],
-  legacy_game_number: [0, 1, 2, 3, 4, 5, 6],
-  observers: [0, 1, 2, 3, 4, 5, 6],
-  owner: [4],
-  pending: [0, 1, 2, 3, 4, 5, 6],
-  premove: [0, 2],
-  private: [4],
-  rated: [0, 1, 2, 3, 4, 5, 6, 7],
-  rating_type: [0, 1, 2, 3, 4, 5, 6, 7],
-  requestors: [4],
-  result: [3, 4, 5, 6, 7],
-  skill_level: [0, 1, 2, 3, 4, 5, 6, 7],
-  startingfen: [0, 1, 2, 3, 4, 5, 6],
-  startTime: [0, 1, 2, 3, 4, 5, 6, 7],
-  status: [0, 1, 2, 3, 4, 5, 6, 7],
-  status2: [3, 4, 5, 6, 7],
-  tags: [3, 4, 5, 6],
-  tomove: [0, 1, 2, 3, 4, 5, 6, 7],
-  variations: [0, 1, 2, 3, 4, 5, 6],
-  white: [0, 1, 2, 3, 4, 5, 6, 7],
-  wild: [0, 1, 2, 3, 4, 5, 6, 7],
+  _id: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  analysis: [OWNER_PRIVATE_GAME],
+  arrows: [
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  black: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  circles: [
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  clocks: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  computer_variations: [
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+  ],
+  deny_chat: [OWNER_PRIVATE_GAME, ANALYSIS_PRIVATE_GAME, NO_ANALYSIS_PRIVATE_GAME],
+  deny_requests: [OWNER_PRIVATE_GAME],
+  examiners: [
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  fen: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  // isolation_group: [PLAYER_NOT_TO_MOVE, PLAYER_TO_MOVE, OBSERVER_PLAYED_GAME, OBSERVER_EXAMINED_GAME, OWNER_PRIVATE_GAME, ANALYSIS_PRIVATE_GAME, NO_ANALYSIS_PRIVATE_GAME, NOBODY],
+  legacy_game_id: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  legacy_game_number: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  observers: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  owner: [OWNER_PRIVATE_GAME],
+  pending: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  premove: [PLAYER_NOT_TO_MOVE, OBSERVER_PLAYED_GAME],
+  private: [OWNER_PRIVATE_GAME],
+  rated: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  rating_type: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  requestors: [OWNER_PRIVATE_GAME],
+  result: [
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  skill_level: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  startingfen: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  startTime: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  status: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  status2: [
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  tags: [
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  tomove: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  variations: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+  ],
+  white: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
+  wild: [
+    PLAYER_NOT_TO_MOVE,
+    PLAYER_TO_MOVE,
+    OBSERVER_PLAYED_GAME,
+    OBSERVER_EXAMINED_GAME,
+    OWNER_PRIVATE_GAME,
+    ANALYSIS_PRIVATE_GAME,
+    NO_ANALYSIS_PRIVATE_GAME,
+    NOBODY,
+  ],
 };
 
 class GamePublisher {
@@ -117,37 +320,37 @@ class GamePublisher {
     if (this.newType.played) {
       if (this.newType.player) {
         if (this.newType.tomove) {
-          this.newType.type = 1;
+          this.newType.type = PLAYER_TO_MOVE;
         } else {
-          this.newType.type = 0;
+          this.newType.type = PLAYER_NOT_TO_MOVE;
         }
       } else {
         if (this.newType.observer) {
-          this.newType.type = 2;
+          this.newType.type = OBSERVER_PLAYED_GAME;
         } else {
-          this.newType.type = 7;
+          this.newType.type = NOBODY;
         }
       }
     } else {
       if (this.newType.private) {
         if (this.newType.owner) {
-          this.newType.type = 4;
+          this.newType.type = OWNER_PRIVATE_GAME;
         } else {
           if (this.newType.observer) {
             if (this.newType.analysis) {
-              this.newType.type = 5;
+              this.newType.type = ANALYSIS_PRIVATE_GAME;
             } else {
-              this.newType.type = 6;
+              this.newType.type = NO_ANALYSIS_PRIVATE_GAME;
             }
           } else {
-            this.newType.type = 7;
+            this.newType.type = NOBODY;
           }
         }
       } else {
         if (this.newType.observer) {
-          this.newType.type = 3;
+          this.newType.type = OBSERVER_EXAMINED_GAME;
         } else {
-          this.newType.type = 7;
+          this.newType.type = NOBODY;
         }
       }
     }

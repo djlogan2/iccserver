@@ -111,8 +111,8 @@ describe("premove", function (done) {
   });
 
   it("should work with this specific case that Ruy was having trouble with (bug report 6-2-21)", function(){
-    const p1 = TestHelpers.createUser();
-    const p2 = TestHelpers.createUser();
+    const p1 = TestHelpers.createUser({premove: true});
+    const p2 = TestHelpers.createUser({premove: true});
     self.loggedonuser = p1;
     const game_id = Game.startLocalGame("mi1", p2, 0, "standard", true, 15, 0, "none", 15, 0, "none", "white");
     Game.saveLocalMove("mi2", game_id, "e4");
