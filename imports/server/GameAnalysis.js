@@ -1,6 +1,7 @@
 import { Logger } from "../../lib/server/Logger";
 import AWS from "aws-sdk";
 import { Meteor } from "meteor/meteor";
+import { Game } from "./Game";
 
 const log = new Logger("server/GameAnalysis_js");
 
@@ -17,15 +18,6 @@ export class GameAnalysis {
     this.error = Meteor.bindEnvironment((msg) => log.error(msg));
   }
 
-  startAnalysisOnGame(id, fen) {
-    if (!!this.analyzedGames[id]) {
-      log.error(`Starting analysis on an already analyzed game: ${id}`);
-      return;
-    }
-    this.analyzedGames[id] = {};
-    this.startEngine(id, fen);
-  }
-
   endAnalysisOnGame(id) {
     if (!this.analyzedGames[id]) {
       log.error(`Stopping analysis on an already stopped game: ${id}`);
@@ -39,21 +31,19 @@ export class GameAnalysis {
 
   getTablebaseMove(fen) {}
 
-  startEngine(id, fen) {
-    const book = this.getBookmove(fen);
-    if (book) {
-      this.updateIncomingAnalysis(id, book);
+  boardChanged(id, fen) {
+    this.analyzedGames[id].fen = fen;
+    let update = this.getBookmove(fen);
+    if (!update) update = this.getTablebaseMove(fen);
+    if (update) {
+      this.stopEngine(id);
+      this.updateIncomingAnalysis(id, update);
     } else {
-      const tb = this.getTablebaseMove(fen);
-      if (tb) {
-        this.updateIncomingAnalysis(id, tb);
-      } else {
-        // start an actual engine
-      }
+      this.startEngine(id, fen);
     }
   }
 
-  startActualEngine(id, fen) {
+  startEngine(id, fen) {
     this.analyzedGames[id].promise = new Promise((resolve, reject) => {
       const params = {
         FunctionName: "icc-stockfish",
@@ -68,7 +58,7 @@ export class GameAnalysis {
           },
         }),
       };
-      const start = new Date();
+
       this.lambda.invoke(params, (err, data) => {
         //debug("lambda invoke returns: err=" + JSON.stringify(err) + ", data=" + JSON.stringify(data));
         if (err || !data) {
@@ -106,9 +96,33 @@ export class GameAnalysis {
 
   updateIncomingAnalysis(id, results) {}
 
-  boardChanged(id) {}
-
-  watchForAnalyzedGames() {}
+  watchForAnalyzedGames() {
+    const self = this;
+    this.cursor = Game.GameCollection.find({
+      $or: [
+        { status: "playing" },
+        { $and: [{ status: "examining" }, { analysis_multipv: { $gt: 0 } }] },
+      ],
+    });
+    this.cursor.observeChanges({
+      added(id, fields) {
+        const game = Game.GameCollection.findOne({ _id: id });
+        if (!game) return;
+        self.boardChanged(id, game.fen);
+      },
+      changed(id, fields) {
+        const game = Game.GameCollection.findOne({ _id: id });
+        if (!game) {
+          self.endAnalysisOnGame(id);
+          return;
+        }
+        if (self.analyzedGames[id]?.fen !== game.fen) self.boardChanged(id, game.fen);
+      },
+      removed(id) {
+        self.endAnalysisOnGame(id);
+      },
+    });
+  }
 }
 
 if (!global.GameAnalysis) {

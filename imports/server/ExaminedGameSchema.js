@@ -107,6 +107,7 @@ export const ExaminedGameSchema = new SimpleSchema({
   owner: { type: String, required: false },
   private: { type: Boolean, required: false },
   requestors: { type: Array, required: false },
+  analysis_multipv: { type: Number, required: false },
   "requestors.$": Object,
   "requestors.$.id": String,
   "requestors.$.username": String,
