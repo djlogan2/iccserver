@@ -2,7 +2,7 @@
   "name": "meteor-direct-stream-access",
   "version": "4.0.3",
   "devDependencies": {
-    "gulp": "3.9.1",
+    "gulp": "4.0.2",
     "gulp-jsdoc-to-markdown": "1.2.2",
     "gulp-util": "3.0.8",
     "gulp-concat": "2.6.1",
